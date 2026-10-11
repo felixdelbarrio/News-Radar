@@ -13,6 +13,7 @@ function createFilters({ onInvalidate, onChange }) {
     el.value = current || "";
   }
   function layout(){
+      $(view+'-filter-chips').appendChild($('active-filters'));
       $('geography-filter').hidden=view==='radar';
       $('advanced-filters').hidden=view==='radar';
       for(const id of ['from-filter','to-filter'])$(id).hidden=view==='briefing';
@@ -22,7 +23,8 @@ function createFilters({ onInvalidate, onChange }) {
   const chipLabels={search:'Búsqueda',country:'Geografía',entity:'Entidad',source:'Medio',topic:'Tema',type:'Tipo de entidad',segment:'Segmento',signal:'Novedad',from:'Fecha desde',to:'Fecha hasta'};
   function renderChips(){
     const target=$('active-filters');
-    const values=Object.entries(chipLabels).filter(([name])=>form.elements[name].value);
+    const allowed=name=>view==='radar'?['entity','segment'].includes(name):view==='briefing'?!['from','to'].includes(name):true;
+    const values=Object.entries(chipLabels).filter(([name])=>allowed(name)&&form.elements[name].value);
     target.hidden=!values.length;
     target.innerHTML=values.map(([name,label])=>{
       const raw=form.elements[name].value,value=['from','to'].includes(name)?raw.split('-').reverse().join('/'):raw;
@@ -36,6 +38,7 @@ function createFilters({ onInvalidate, onChange }) {
   });
   let timer;
   function filterChanged(event) {
+    if(event.type==="input"&&event.target?.name!=="search")return;
     clearTimeout(timer);
     page = 0;
     initialized.add(view);
@@ -69,6 +72,7 @@ function createFilters({ onInvalidate, onChange }) {
       selections.set(view,Object.fromEntries(new FormData(form)));view=next;page=0;layout();
       for(const input of form.elements)if(input.name)input.value=(selections.get(view)||defaults)[input.name]||'';
       form.elements.to.setCustomValidity('');
+      renderChips();
       return true;
     },
     isValid: () => form.reportValidity(),

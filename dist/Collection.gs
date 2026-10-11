@@ -1,7 +1,14 @@
-function collectionStatus_() {
-  const cache=CacheService.getScriptCache(),cached=cache.get('collection-status');if(cached)return JSON.parse(cached);
-  const tasks=rows_('Recopilacion');
-  const status={total:tasks.length,processed:tasks.filter(task=>task.estado==='Completada').length,pending:tasks.filter(task=>['Pendiente','Reintento programado'].includes(task.estado)).length,skipped:tasks.filter(task=>task.estado==='Omitida').length,failed:tasks.filter(task=>task.estado==='Error').length,added:tasks.reduce((sum,task)=>sum+Number(task.nuevas||0),0)};
+function collectionStatus_(tasks) {
+  const cache=CacheService.getScriptCache();
+  if(!tasks){const cached=cache.get('collection-status');if(cached)return JSON.parse(cached);const sheet=book_().getSheetByName('Recopilacion'),count=sheet.getLastRow()-1;tasks=count>0?sheet.getRange(2,4,count,5).getDisplayValues().map(row=>({estado:row[0],nuevas:row[4]})):[];}
+  const status={total:tasks.length,processed:0,pending:0,skipped:0,failed:0,added:0};
+  for(const task of tasks){
+    if(task.estado==='Completada')status.processed++;
+    else if(['Pendiente','Reintento programado'].includes(task.estado))status.pending++;
+    else if(task.estado==='Omitida')status.skipped++;
+    else if(task.estado==='Error')status.failed++;
+    status.added+=Number(task.nuevas||0);
+  }
   cache.put('collection-status',JSON.stringify(status),15);return status;
 }
 function ensureCollectionTrigger_() {
@@ -30,29 +37,36 @@ function collectionTick_() {
     const tasks=rows_('Recopilacion'),pending=tasks.map((task,index)=>({...task,row:index+2})).filter(task=>task.estado==='Pendiente'||(task.estado==='Reintento programado'&&started-new Date(task.actualizada).getTime()>=settings_().retryMinutes*60000)).slice(0,settings_().collectionBatch);
     if(!pending.length){
       if(!tasks.some(task=>task.estado==='Reintento programado'))ScriptApp.getProjectTriggers().filter(trigger=>trigger.getHandlerFunction()==='collectionTick_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
-      return {...collectionStatus_(),added:0,evaluated:0,errors:[]};
+      return {...collectionStatus_(tasks),added:0,evaluated:0,errors:[]};
     }
-    const feeds=new Map(collectionFeeds_(collectionRangeFromStore_()).map(feed=>[feed.url,feed])),known=knownUrls_(),now=new Date(),updates=tasks.map(task=>[task.estado,task.intentos,task.actualizada,task.evaluadas,task.nuevas,task.error]);
-    for(const task of pending){
+    const feeds=collectionFeedIndex_(),known=knownUrls_(),now=new Date(),updates=tasks.map(task=>[task.estado,task.intentos,task.actualizada,task.evaluadas,task.nuevas,task.error]);
+    const work=pending.map(task=>({task,feed:collectionTaskFeed_(task,feeds)})),fetchStart=Date.now();
+    const responses=fetchFeedBatch_(work.filter(item=>item.feed).map(item=>item.feed));
+    const fetchMs=Date.now()-fetchStart;let responseIndex=0;
+    for(const {task,feed} of work){
       const attempts=Number(task.intentos)+1;let status='Completada',count=0,added=0,error='';
       try{
-        const feed=collectionTaskFeed_(task,feeds);if(!feed){status='Omitida';audit.push([task.ciclo,now.toISOString(),task.fuente,task.url,status,'Fuente desactivada o eliminada']);}
-        else{const result=ingestFeed_(feed,known,task.ciclo,now);news.push(...result.news);audit.push(...result.audit);count=result.evaluated;added=result.news.length;evaluated+=count;
+        if(!feed){status='Omitida';audit.push([task.ciclo,now.toISOString(),task.fuente,task.url,status,'Fuente desactivada o eliminada']);}
+        else{const response=responses[responseIndex++];if(response.error)throw response.error;
+          const result=ingestFeed_(feed,known,task.ciclo,now,response.response);news.push(...result.news);audit.push(...result.audit);count=result.evaluated;added=result.news.length;evaluated+=count;
           if(result.saturated){
             const split=splitCollectionFeed_(feed);
             for(const child of split)newTasks.push([task.ciclo,child.name,child.url,'Pendiente',0,'',0,0,'']);
             audit.push([task.ciclo,now.toISOString(),feed.name,feed.url,'Cobertura parcial',split.length?'Consulta saturada; dividida en dos períodos menores':'Consulta diaria saturada; el proveedor puede omitir publicaciones']);
           }}
-      }catch(e){error=String(e.message).slice(0,180);status=/HTTP (429|503)/.test(error)&&attempts<3?'Reintento programado':'Error';errors.push(task.fuente+': '+error);audit.push([task.ciclo,now.toISOString(),task.fuente,task.url,status,error]);}
+      }catch(e){error=String(e.message).slice(0,180);status=(e.retryable||/HTTP (429|5\d\d)/.test(error))&&attempts<3?'Reintento programado':'Error';errors.push(task.fuente+': '+error);audit.push([task.ciclo,now.toISOString(),task.fuente,task.url,status,error]);}
       updates[task.row-2]=[status,attempts,now.toISOString(),count,added,error];
+      Object.assign(tasks[task.row-2],{estado:status,nuevas:added});
     }
-    append_('Noticias',news);append_('Auditoria',audit);append_('Recopilacion',newTasks);
+    append_('Noticias',news);if(news.length)invalidateNews_();
+    append_('Auditoria',audit);append_('Recopilacion',newTasks);
     writeCollectionTasks_(pending,updates);
-    if(!newTasks.length&&updates.every(row=>!['Pendiente','Reintento programado'].includes(row[0]))){const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1;if(count>1)sheet.getRange(2,1,count,RADAR.sheets.Noticias.length).sort({column:2,ascending:true});}
+    if(!newTasks.length&&updates.every(row=>!['Pendiente','Reintento programado'].includes(row[0]))){const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1;if(count>1){sheet.getRange(2,1,count,RADAR.sheets.Noticias.length).sort({column:2,ascending:true});invalidateNews_();}}
     append_('Ejecuciones',[[pending[0].ciclo,now.toISOString(),new Date().toISOString(),errors.length?'Parcial':'Completada',pending.length,evaluated,news.length,errors.join(' | ')]]);
     if(errors.length>=2)properties_().setProperty('COLLECTION_AFTER',String(Date.now()+settings_().pauseMinutes*60000));
-    CacheService.getScriptCache().remove('collection-status');telemetry_('recopilacion',Date.now()-started,errors.length?'Parcial':'OK',pending.length+' fuentes; '+news.length+' nuevas');
-    return {...collectionStatus_(),added:news.length,evaluated,errors};
+    const collection=collectionStatus_(tasks.concat(newTasks.map(row=>({estado:row[3],nuevas:row[7]}))));
+    telemetry_('recopilacion',Date.now()-started,errors.length?'Parcial':'OK',pending.length+' fuentes; '+news.length+' nuevas; red '+fetchMs+' ms; proceso/escritura '+(Date.now()-fetchStart-fetchMs)+' ms');
+    return {...collection,added:news.length,evaluated,errors};
   }catch(error){telemetry_('recopilacion',Date.now()-started,'Error',error.message);throw error;}
   finally{lock.releaseLock();}
 }

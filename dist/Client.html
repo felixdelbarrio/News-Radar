@@ -572,14 +572,14 @@
       el.dataset.options !== signature && (el.dataset.options = signature, el.innerHTML = '<option value="">Todos</option>' + values.map((x) => "<option>" + escape(x) + "</option>").join(""), el.value = current || "");
     }
     function layout() {
-      $("geography-filter").hidden = view === "radar", $("advanced-filters").hidden = view === "radar";
+      $(view + "-filter-chips").appendChild($("active-filters")), $("geography-filter").hidden = view === "radar", $("advanced-filters").hidden = view === "radar";
       for (let id of ["from-filter", "to-filter"]) $(id).hidden = view === "briefing";
       $("filter-description").textContent = view === "radar" ? "Entidad y segmento del Radar." : view === "briefing" ? "Novedades del mes en curso." : "Selecci\xF3n de noticias y per\xEDodo de consulta.";
     }
     layout();
     let chipLabels = { search: "B\xFAsqueda", country: "Geograf\xEDa", entity: "Entidad", source: "Medio", topic: "Tema", type: "Tipo de entidad", segment: "Segmento", signal: "Novedad", from: "Fecha desde", to: "Fecha hasta" };
     function renderChips() {
-      let target = $("active-filters"), values = Object.entries(chipLabels).filter(([name]) => form.elements[name].value);
+      let target = $("active-filters"), allowed = (name) => view === "radar" ? ["entity", "segment"].includes(name) : view === "briefing" ? !["from", "to"].includes(name) : !0, values = Object.entries(chipLabels).filter(([name]) => allowed(name) && form.elements[name].value);
       target.hidden = !values.length, target.innerHTML = values.map(([name, label]) => {
         let raw = form.elements[name].value, value = ["from", "to"].includes(name) ? raw.split("-").reverse().join("/") : raw, text = label + ": " + value;
         return '<button type="button" class="filter-chip" data-remove-filter="' + name + '" aria-label="Quitar ' + escape(text) + '"><span>' + escape(text) + '</span><span aria-hidden="true">\xD7</span></button>';
@@ -591,6 +591,7 @@
     });
     let timer;
     function filterChanged(event) {
+      if (event.type === "input" && event.target?.name !== "search") return;
       clearTimeout(timer), page = 0, initialized.add(view), onInvalidate();
       let from = form.elements.from.value, to = form.elements.to.value;
       form.elements.to.setCustomValidity(from && to && from > to ? "La fecha hasta debe ser posterior o igual a la fecha desde." : ""), $("message").hidden = !0, renderChips(), event.type === "input" ? timer = setTimeout(onChange, 250) : onChange();
@@ -608,7 +609,7 @@
         if (next === view) return !1;
         clearTimeout(timer), onInvalidate(), selections.set(view, Object.fromEntries(new FormData(form))), view = next, page = 0, layout();
         for (let input of form.elements) input.name && (input.value = (selections.get(view) || defaults)[input.name] || "");
-        return form.elements.to.setCustomValidity(""), !0;
+        return form.elements.to.setCustomValidity(""), renderChips(), !0;
       },
       isValid: () => form.reportValidity(),
       set: (name, value) => {
@@ -704,8 +705,8 @@
   // src/client/features/usage.js
   function createUsage({ getView, isReady }) {
     let session = crypto.randomUUID(), events = [];
-    function track2(event, duration = 0) {
-      events.push({ event, view: getView(), session, duration }), events.length > 20 && events.shift();
+    function track2(event, duration = 0, performance2) {
+      events.push({ event, view: getView(), session, duration, ...performance2 ? { performance: performance2 } : {} }), events.length > 20 && events.shift();
     }
     async function flush2() {
       if (!events.length || !isReady()) return;
@@ -770,7 +771,9 @@
       let data = await call("getDashboard", filters.query());
       if (request === state.request) {
         let first = !state.data;
-        state.data = data, setTimezone(data.preferences?.timezone), window.RADAR_PREVIEW && data.admin && ($("preview-banner").textContent = "Administraci\xF3n local \xB7 cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales."), filters.render(data), renderNews(data), navigation.current === "radar" && radar.render(data), navigation.current === "briefing" && briefing.render(data), data.preferences && ($("retention-days").textContent = data.preferences.retentionDays, $("event-limit").textContent = data.preferences.eventLimit), renderShell(data), data.admin && sources.render(data), track("rendimiento", performance.now() - started), first && (track("acceso"), track("vista"), flush());
+        state.data = data, setTimezone(data.preferences?.timezone), window.RADAR_PREVIEW && data.admin && ($("preview-banner").textContent = "Administraci\xF3n local \xB7 cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.");
+        let renderStarted = performance.now();
+        filters.render(data), renderNews(data), navigation.current === "radar" && radar.render(data), navigation.current === "briefing" && briefing.render(data), data.preferences && ($("retention-days").textContent = data.preferences.retentionDays, $("event-limit").textContent = data.preferences.eventLimit), renderShell(data), data.admin && sources.render(data), track("rendimiento", performance.now() - started, { ...data.performance, rpcMs: Math.round(renderStarted - started), renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
       }
     } catch (error) {
       request === state.request && (track("error"), message(error.message || String(error), !0));
