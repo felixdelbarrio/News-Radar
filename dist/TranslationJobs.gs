@@ -17,7 +17,7 @@ function translationCandidates_(job){
     .filter(row=>row.id&&row.captured<=job.started&&(!job.cursor||row.fecha<job.cursor.fecha||(row.fecha===job.cursor.fecha&&row.id<job.cursor.id)))
     .sort((a,b)=>a.fecha===b.fecha?(a.id===b.id?0:a.id>b.id?-1:1):a.fecha>b.fecha?-1:1);
 }
-function translationBatch_(){
+function translationBatch_(maxMs=TRANSLATION_WORK.maxMs){
   const started=Date.now(),now=new Date(started),today=recordDay(now,settings_().timezone);let job;
   try{
     job=translationJob_();const request=properties_().getProperty('TRANSLATION_REQUEST');
@@ -31,13 +31,13 @@ function translationBatch_(){
     job.state='En curso';job.error='';writeTranslationJob_(job);
     const feeds=new Set(configuration_().feeds.map(feed=>feed.name)),known=articleTranslationIndex_();let calls=0;
     outer:for(let offset=0;offset<Math.min(candidates.length,TRANSLATION_WORK.batchRows);offset+=TRANSLATION_WORK.readRows){
-      if(Date.now()-started>=TRANSLATION_WORK.maxMs)break;
+      if(Date.now()-started>=maxMs)break;
       const selected=candidates.slice(offset,offset+TRANSLATION_WORK.readRows),articles=new Map(rowsById_('Noticias',new Set(selected.map(row=>row.id)),settings_().newsReadLimit).map(row=>[row.id,row]));
       for(const candidate of selected){
-        if(Date.now()-started>=TRANSLATION_WORK.maxMs||collectionRequests_().some(request=>request.kind==='daily'))break outer;
+        if(Date.now()-started>=maxMs||collectionRequests_().some(request=>request.kind==='daily'))break outer;
         const row=articles.get(candidate.id);
         if(row)for(const language of Object.keys(languageNames)){
-          if(Date.now()-started>=TRANSLATION_WORK.maxMs||collectionRequests_().some(request=>request.kind==='daily'))break outer;
+          if(Date.now()-started>=maxMs||collectionRequests_().some(request=>request.kind==='daily'))break outer;
           if(nativeArticle_(row,language,feeds)||known.has(articleTranslationKey_(row,language)))continue;
           if(calls>=TRANSLATION_WORK.batchCalls||job.calls>=TRANSLATION_WORK.dailyCalls)break outer;
           calls++;job.calls++;writeTranslationJob_(job);storeArticleTranslation_(row,language);job.translated++;

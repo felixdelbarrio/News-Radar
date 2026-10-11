@@ -96,3 +96,11 @@ test('la inicialización elimina trabajadores antiguos, conserva tareas y recrea
 test('los reintentos despiertan al vencer la espera y una diaria adelanta ese despertar',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',2);c.UrlFetchApp.fetchAll=requests=>requests.map(()=>({getResponseCode:()=>503}));c.backgroundTick_();assert.ok(c.scheduledTriggers_('backgroundTick_')[0].delay>60000);c.requestDailyCollection_();assert.equal(c.scheduledTriggers_('backgroundTick_')[0].delay,60000);
 });
+test('el trabajador aprovecha un despertar para tres lotes y persiste resultados en cada uno',()=>{
+ const s=server(),c=s.c;addJob(s,'annual','annual',50);const batches=[],collect=c.collectionBatch_;c.collectionBatch_=work=>{const result=collect(work);batches.push(c.rows_('Recopilacion').filter(task=>task.estado==='Completada').length);return result;};
+ c.processBackground_();assert.deepEqual(batches,[12,24,36]);assert.equal(c.rows_('Ejecuciones').length,3);assert.equal(c.collectionJobs_()[0].pendientes,'14');assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
+});
+test('una diaria llegada durante un lote anual es el siguiente lote y las llamadas lentas limitan el turno',()=>{
+ const s=server(),c=s.c;addJob(s,'annual','annual',50);const order=[],collect=c.collectionBatch_;c.collectionBatch_=work=>{order.push(work.pending[0]?.ciclo);const result=collect(work);if(order.length===1)c.requestDailyCollection_();return result;};c.processBackground_();assert.equal(order[0],'annual');assert.match(order[1],/^daily\//);assert.equal(order[2],'annual');
+ const nativeDate=vm.runInContext('Date',c);let clock=Date.now(),batches=0;c.Date=class extends nativeDate{constructor(value){super(value===undefined?clock:value);}static now(){return clock;}};c.collectionBatch_=work=>{batches++;const result=collect(work);clock+=50000;return result;};c.processBackground_();assert.equal(batches,1);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
+});

@@ -717,20 +717,25 @@ export const translations = Object.freeze({
 
 export function supportedLanguage(value){return typeof value==='string'&&Object.prototype.hasOwnProperty.call(languageNames,value);}
 export function detectLanguage(preferences){for(const value of preferences){const code=String(value).toLowerCase().split(/[-_]/)[0];if(supportedLanguage(code))return code;}return 'es';}
-let translationPattern,translationIndex;
-export function translateText(value,language='es'){
-  const text=String(value??'');if(language==='es'||!supportedLanguage(language))return text;
-  if(Object.prototype.hasOwnProperty.call(translations,text))return translations[text][language==='en'?0:1];
-  if(!translationPattern){
-    translationIndex=Object.fromEntries(Object.keys(translations).map(key=>[key.toLowerCase(),key]));
-    translationPattern=new RegExp('https?://[^\\s]+|[a-z0-9.!#$%&*+/=?^_~-]+@[a-z0-9.-]+\\.[a-z]{2,}|(?<![\\p{L}\\p{N}])('+Object.keys(translations).filter(key=>!key.includes('{')).sort((a,b)=>b.length-a.length).map(key=>key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')(?![\\p{L}\\p{N}])','giu');
-  }
-  return text.replace(translationPattern,key=>{
+const translationMatchers=new Map();
+function translationMatcher(language){
+  if(translationMatchers.has(language))return translationMatchers.get(language);
+  const index=Object.fromEntries(Object.keys(translations).map(key=>[language==='es'?key:translations[key][language==='en'?0:1],key]));
+  const lowercase=Object.fromEntries(Object.entries(index).map(([key,value])=>[key.toLowerCase(),value]));
+    const pattern=new RegExp('https?://[^\\s]+|[a-z0-9.!#$%&*+/=?^_~-]+@[a-z0-9.-]+\\.[a-z]{2,}|(?<![\\p{L}\\p{N}])('+Object.keys(index).filter(key=>!key.includes('{')).sort((a,b)=>b.length-a.length).map(key=>key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')(?![\\p{L}\\p{N}])','giu');
+  const matcher={index,lowercase,pattern};translationMatchers.set(language,matcher);return matcher;
+}
+export function translateText(value,language='es',source='es'){
+  const text=String(value??'');if(language===source||!supportedLanguage(language)||!supportedLanguage(source))return text;
+  const {index,lowercase,pattern}=translationMatcher(source),translated=key=>language==='es'?key:translations[key][language==='en'?0:1];
+  if(Object.prototype.hasOwnProperty.call(index,text))return translated(index[text]);
+  return text.replace(pattern,key=>{
     if(key.includes('@')||/^https?:\/\//i.test(key))return key;
-    const translated=translations[key]||translations[translationIndex[key.toLowerCase()]],result=translated[language==='en'?0:1];
+    const result=translated(index[key]||lowercase[key.toLowerCase()]);
     return key===key.toUpperCase()?result.toLocaleUpperCase(language):result;
   });
 }
+
 const calendarFormatters=new Map();
 export function formatCalendarDay(value,language='es'){
   if(!value)return '';

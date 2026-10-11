@@ -62,7 +62,7 @@ test('la preferencia de prueba es propia de la pestaña y puede restaurarse al i
 test('newsletters HTML y texto se generan por destinatario en tres idiomas sin traducir noticias ni URLs',()=>{
  const config=JSON.parse(read('assets/configuration-defaults.json')),c=vm.createContext({});vm.runInContext(readServerScript('dist',true),c);c.configuration_=()=>config;c.settings_=()=>config.settings;config.settings.newsletterAppUrl='https://script.google.com/macros/s/test/exec';
  const row={titular:'Noticias de España',extracto:'Oferta original en español.',pais:'España',fecha:'2026-10-11',entidad:'BBVA',medio:'Noticias España',tipo:'Banco tradicional',senales:['Lanzamiento de producto'],segmentos:['Empresas e instituciones'],tema:'Financiación',url:'https://example.com/noticias'};
- for(const language of ['es','en','tr']){const result=c.newsletterContent_([row],{entity:'BBVA'},'Noticias de España',new Date('2026-10-11T12:00:00Z'),'sub-id',language);assert.match(result.html,new RegExp('lang="'+language+'"'));assert.ok(result.html.includes(translateText('Gestiona tu suscripción',language)));assert.ok(result.text.includes(translateText('Novedades detectadas',language)));assert.ok(result.html.includes(row.extracto));assert.ok(result.html.includes(row.titular));assert.ok(result.text.includes(row.url));assert.equal(result.count,1);assert.equal(result.items[0],row);}
+ for(const language of ['es','en','tr']){const result=c.newsletterContent_([row],{entity:'BBVA'},'Noticias de España',new Date('2026-10-11T12:00:00Z'),'sub-id',language);assert.match(result.html,new RegExp('lang="'+language+'"'));assert.ok(result.html.includes(translateText('Gestiona tu suscripción',language)));assert.ok(result.text.includes(translateText('Novedades detectadas',language)));assert.ok(result.html.includes(row.extracto));assert.ok(result.html.includes(row.titular));assert.ok(result.text.includes(row.url));assert.equal(result.count,1);assert.equal(result.items[0],row);const document=new JSDOM(result.html).window.document;assert.equal(document.head.querySelector('meta[name="color-scheme"]').content,'light only');assert.match(document.querySelector('header').style.backgroundImage,/linear-gradient/);assert.match(document.querySelector('style').textContent,/color-scheme:only light/);}
  assert.throws(()=>c.newsletterContent_([],{},'Title',new Date(),'', 'fr'),/Idioma/);
  const empty=c.newsletterContent_([],{},'Test',new Date(),'', 'tr');assert.equal(empty.count,0);
  for(const language of ['es','en','tr'])assert.equal(c.subscriptionRecord_({name:'Mi canal',language,filters:{}},'user@bbva.com','id',new Date(),0).idioma,language);
@@ -84,4 +84,13 @@ test('la recopilación conserva inglés y turco y el idioma explícito o declara
  const trFeed=c.profileFeed_(config.geographies.find(row=>row.language==='tr'),config.entities[0]);assert.equal(trFeed.language,'tr');assert.match(trFeed.url,/hl=tr/);
  const tr=c.evaluate_({title:'Garanti BBVA yeni hesap sunar',excerpt:'KOBİ için ticari hesap',url:'https://news.google.com/article',date:values.pubDate},trFeed,now).item;assert.ok(tr);assert.equal(c.newsRecord_(tr,trFeed,now)[11],'tr');
  const original=JSON.stringify(config);config.feeds[0].language='invalid_language';assert.throws(()=>c.validateConfiguration_(config),/Idioma de fuente/);assert.notEqual(JSON.stringify(config),original);
+});
+test('cambiar de idioma conserva documento, sección, borradores y filtros sin navegar ni recargar',async t=>{
+ const a=await app(t,{language:'es-ES'});await a.click('[data-view="administration"]');await a.click('[data-admin-view="sources"]');
+ const field=a.find('#source-fields input'),document=a.w.document;field.value='Borrador sin guardar';await a.click('[data-admin-view="language"]');
+ for(const language of ['en','tr','es','tr','en','']){
+  await a.change('#preview-language',language);const expected=language||'es';assert.equal(a.w.document,document);assert.equal(document.documentElement.lang,expected);assert.equal(a.find('#language-section').hidden,false);assert.equal(field.value,'Borrador sin guardar');
+  assert.equal(a.find('[data-view="news"]').textContent.trim(),translateText('Noticias',expected));assert.equal(a.find('[data-admin-view="language"]').textContent.trim(),translateText('Idioma',expected));assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.language,expected);
+  assert.ok(a.find('#translation-schedule').textContent.includes(translateText('Activada',expected)));
+ }
 });

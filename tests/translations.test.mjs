@@ -15,7 +15,7 @@ test('solo las traducciones guardadas se sirven a las tarjetas y conservan los o
 test('el job nocturno traduce tres idiomas de más reciente a más antiguo, reutiliza guardadas y se completa',()=>{
  const s=server(),c=s.c;add(s,[{...article,id:'old',fecha:'2026-09-01',titular:'Older headline'},{...article,id:'new'}]);const log=provider(c);c.storeArticleTranslation_(article,'tr');log.length=0;
  c.nightlyTranslations_();assert.equal(log.length,5);assert.match(log[0].input,/BBVA lanza cuenta/);assert.match(log.at(-1).input,/Older headline/);assert.equal(c.translationJob_().state,'Completada');assert.equal(c.translationJob_().processed,2);assert.equal(c.translationJob_().translated,5);assert.equal(c.rows_('Traducciones').length,6);
- c.cachedArticleTranslation_=()=>{throw Error('El barrido consulta solo las claves de variantes guardadas');};c.nightlyTranslations_();assert.equal(log.length,5);assert.equal(c.translationJob_().calls,5);assert.ok(!c.ScriptApp.getProjectTriggers().some(t=>t.getHandlerFunction()==='backgroundTick_'));
+ c.cachedArticleTranslations_=()=>{throw Error('El barrido consulta solo las claves de variantes guardadas');};c.nightlyTranslations_();assert.equal(log.length,5);assert.equal(c.translationJob_().calls,5);assert.ok(!c.ScriptApp.getProjectTriggers().some(t=>t.getHandlerFunction()==='backgroundTick_'));
 });
 test('el lote guarda su cursor y continúa sin repetir llamadas ni superar veinte traducciones nuevas',()=>{
  const s=server(),c=s.c;add(s,Array.from({length:10},(_,i)=>({...article,id:String(i),titular:'Headline '+i})));const log=provider(c);c.nightlyTranslations_();assert.equal(log.length,20);assert.equal(c.translationJob_().processed,6);assert.equal(c.translationJob_().state,'Pendiente');assert.ok(c.ScriptApp.getProjectTriggers().some(t=>t.getHandlerFunction()==='backgroundTick_'));
@@ -62,4 +62,20 @@ test('una solicitud diaria llegada durante una traducción cede el siguiente tur
  const s=server(),c=s.c;add(s,[article]);let calls=0;c.LanguageApp={translate:html=>{calls++;c.requestDailyCollection_();return html;}};
  c.nightlyTranslations_();assert.equal(calls,1);assert.equal(c.translationJob_().processed,0);assert.equal(c.translationJob_().state,'Pendiente');assert.equal(c.rows_('Traducciones').length,1);assert.equal(c.collectionRequests_()[0].kind,'daily');
  c.collectionFeeds_=()=>[];const log=provider(c);c.backgroundTick_();assert.equal(log.length,2);assert.equal(c.translationJob_().state,'Completada');assert.equal(c.collectionJobs_()[0].tipo,'daily');
+});
+test('las traducciones de una página se consultan por lote y las pendientes se reutilizan sin RPC individuales',()=>{
+ const s=server(),c=s.c,cache=c.CacheService.getScriptCache(),reads=[];let gets=0,puts=0;
+ c.CacheService.getScriptCache=()=>({...cache,getAll(keys){gets++;return cache.getAll(keys);},putAll(values,seconds){puts++;cache.putAll(values,seconds);},get(key){if(key.startsWith('article:'))throw Error('No debe consultar una traducción por RPC individual');return cache.get(key);}});
+ const rows=Array.from({length:30},(_,i)=>({...article,id:String(i),titular:'Headline '+i}));
+ assert.ok(c.savedArticleTranslations_(rows,'en').every(row=>row.translation.state==='pending'));assert.equal(gets,1);c.savedArticleTranslations_(rows,'en');assert.equal(gets,1);
+ const keys=rows.slice(0,3).map(row=>c.articleTranslationKey_(row,'en'));s.sheets.get('Traducciones').grid.push(...keys.map((key,i)=>[key,'en','Translated '+i,'Summary','2026-10-11']));
+ vm.runInContext('articleTranslationMemory_=undefined;articleTranslationRows_=undefined;',c);const sheet=s.sheets.get('Traducciones'),range=sheet.getRange.bind(sheet);sheet.getRange=(...args)=>{reads.push(args);return range(...args);};
+ const translated=c.savedArticleTranslations_(rows,'en');assert.equal(translated.filter(row=>row.translation.state==='translated').length,3);assert.deepEqual(reads,[[2,1,3,1],[2,3,3,2]]);assert.equal(puts,1);
+ vm.runInContext('articleTranslationMemory_=undefined;articleTranslationRows_=undefined;',c);reads.length=0;c.savedArticleTranslations_(rows.slice(0,3),'en');assert.equal(reads.length,0);assert.equal(gets,3);
+});
+test('la limpieza de variantes invalida posiciones de filas antes de otro lote del mismo turno',()=>{
+ const s=server(),c=s.c,rows=Array.from({length:3},(_,i)=>({...article,titular:'Headline '+i}));
+ s.sheets.get('Traducciones').grid.push(...rows.map((row,i)=>[c.articleTranslationKey_(row,'en'),'en','Translated '+i,'Summary','2026-10-11']));
+ c.articleTranslationIndex_();c.trim_('Traducciones',2);s.cache.clear();vm.runInContext('articleTranslationMemory_=undefined;',c);
+ const result=c.savedArticleTranslations_(rows,'en');assert.equal(result[0].translation.state,'pending');assert.equal(result[1].titular,'Translated 1');assert.equal(result[2].titular,'Translated 2');
 });

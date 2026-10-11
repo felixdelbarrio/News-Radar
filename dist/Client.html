@@ -726,14 +726,21 @@
     }
     return "es";
   }
-  var translationPattern, translationIndex;
-  function translateText(value, language2 = "es") {
+  var translationMatchers = /* @__PURE__ */ new Map();
+  function translationMatcher(language2) {
+    if (translationMatchers.has(language2)) return translationMatchers.get(language2);
+    let index = Object.fromEntries(Object.keys(translations).map((key) => [language2 === "es" ? key : translations[key][language2 === "en" ? 0 : 1], key])), lowercase = Object.fromEntries(Object.entries(index).map(([key, value]) => [key.toLowerCase(), value])), pattern = new RegExp("https?://[^\\s]+|[a-z0-9.!#$%&*+/=?^_~-]+@[a-z0-9.-]+\\.[a-z]{2,}|(?<![\\p{L}\\p{N}])(" + Object.keys(index).filter((key) => !key.includes("{")).sort((a, b) => b.length - a.length).map((key) => key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")(?![\\p{L}\\p{N}])", "giu"), matcher = { index, lowercase, pattern };
+    return translationMatchers.set(language2, matcher), matcher;
+  }
+  function translateText(value, language2 = "es", source = "es") {
     let text = String(value ?? "");
-    return language2 === "es" || !supportedLanguage(language2) ? text : Object.prototype.hasOwnProperty.call(translations, text) ? translations[text][language2 === "en" ? 0 : 1] : (translationPattern || (translationIndex = Object.fromEntries(Object.keys(translations).map((key) => [key.toLowerCase(), key])), translationPattern = new RegExp("https?://[^\\s]+|[a-z0-9.!#$%&*+/=?^_~-]+@[a-z0-9.-]+\\.[a-z]{2,}|(?<![\\p{L}\\p{N}])(" + Object.keys(translations).filter((key) => !key.includes("{")).sort((a, b) => b.length - a.length).map((key) => key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")(?![\\p{L}\\p{N}])", "giu")), text.replace(translationPattern, (key) => {
+    if (language2 === source || !supportedLanguage(language2) || !supportedLanguage(source)) return text;
+    let { index, lowercase, pattern } = translationMatcher(source), translated = (key) => language2 === "es" ? key : translations[key][language2 === "en" ? 0 : 1];
+    return Object.prototype.hasOwnProperty.call(index, text) ? translated(index[text]) : text.replace(pattern, (key) => {
       if (key.includes("@") || /^https?:\/\//i.test(key)) return key;
-      let translated = translations[key] || translations[translationIndex[key.toLowerCase()]], result = translated[language2 === "en" ? 0 : 1];
+      let result = translated(index[key] || lowercase[key.toLowerCase()]);
       return key === key.toUpperCase() ? result.toLocaleUpperCase(language2) : result;
-    }));
+    });
   }
   var calendarFormatters = /* @__PURE__ */ new Map();
   function formatCalendarDay(value, language2 = "es") {
@@ -759,7 +766,11 @@
     override = globalThis.sessionStorage?.getItem(storageKey);
   } catch {
   }
-  var language = Object.hasOwn(languageNames, override) ? override : browserLanguage(), t = (value, values) => values ? formatText(value, values, language) : translateText(value, language);
+  var language = Object.hasOwn(languageNames, override) ? override : browserLanguage();
+  function getLanguageOverride() {
+    return Object.hasOwn(languageNames, override) ? override : "";
+  }
+  var t = (value, values) => values ? formatText(value, values, language) : translateText(value, language);
   function setLanguage(value) {
     if (value && !Object.hasOwn(languageNames, value)) throw Error(t("Idioma no admitido."));
     try {
@@ -767,13 +778,15 @@
     } catch {
       throw Error(t("El navegador no permite guardar el idioma de esta pesta\xF1a."));
     }
-    window.location.reload();
+    override = value;
+    let next = value || browserLanguage();
+    next !== language && (language = next, window.dispatchEvent(new Event("news-radar-language-change")));
   }
 
   // src/client/core/dom.js
-  var $ = (id) => document.getElementById(id), escape = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]), validUrl = (value) => /^https:\/\//i.test(value || "") ? value : "", dateFormat = new Intl.DateTimeFormat(language, { dateStyle: "short", timeStyle: "short" }), timezone;
+  var $ = (id) => document.getElementById(id), escape = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]), validUrl = (value) => /^https:\/\//i.test(value || "") ? value : "", dateFormat = new Intl.DateTimeFormat(language, { dateStyle: "short", timeStyle: "short" }), timezone, dateLanguage = language;
   function setTimezone(value) {
-    value && value !== timezone && (timezone = value, dateFormat = new Intl.DateTimeFormat(language, { dateStyle: "short", timeStyle: "short", timeZone: value }));
+    value && (value !== timezone || language !== dateLanguage) && (timezone = value, dateLanguage = language, dateFormat = new Intl.DateTimeFormat(language, { dateStyle: "short", timeStyle: "short", timeZone: value }));
   }
   var date = (value) => value ? dateFormat.format(new Date(value)) : "Sin ejecuciones";
   function message(text, error = !1) {
@@ -1734,38 +1747,55 @@
   function flushLocalization() {
     observer && translateChanges(observer.takeRecords());
   }
+  var originals = /* @__PURE__ */ new WeakMap();
+  function localized(node, key, value) {
+    let values = originals.get(node);
+    values || (values = /* @__PURE__ */ new Map(), originals.set(node, values));
+    let previous = values.get(key), source = previous?.output === value ? previous.source : translateText(value, "es", language), output = t(source);
+    return values.set(key, { source, output }), output;
+  }
   var attributes = ["placeholder", "title", "aria-label", "alt"], excluded = "[data-original],script,style,textarea";
   function localize(root) {
     if (root.nodeType === 3) {
-      root.parentElement?.closest(excluded) || (root.textContent = t(root.textContent));
+      if (!root.parentElement?.closest(excluded)) {
+        let output = localized(root, "text", root.textContent);
+        output !== root.textContent && (root.textContent = output);
+      }
       return;
     }
     if (!(root.nodeType !== 1 || root.matches(excluded))) {
       root.tagName === "OPTION" && !root.hasAttribute("value") && root.setAttribute("value", root.value);
       for (let key of attributes) if (root.hasAttribute(key)) {
-        let value = root.getAttribute(key), translated = t(value);
+        let value = root.getAttribute(key), translated = localized(root, key, value);
         value !== translated && root.setAttribute(key, translated);
       }
       for (let node of root.childNodes) localize(node);
     }
   }
   function initializeLocalization() {
+    let title = document.title;
     document.documentElement.lang = language, document.title = t(document.title);
     let select = document.getElementById("preview-language");
-    select.innerHTML = '<option value="">' + t("Idioma del navegador") + "</option>" + Object.entries(languageNames).map(([code, name]) => '<option value="' + code + '">' + name + "</option>").join("");
-    try {
-      select.value = sessionStorage.getItem("news-radar-language") || "";
-    } catch {
-    }
-    select.addEventListener("change", () => setLanguage(select.value));
+    select.innerHTML = '<option value="">' + t("Idioma del navegador") + "</option>" + Object.entries(languageNames).map(([code, name]) => '<option value="' + code + '">' + name + "</option>").join(""), select.value = getLanguageOverride(), select.addEventListener("change", () => {
+      flushLocalization();
+      try {
+        setLanguage(select.value);
+      } catch (error) {
+        select.value = getLanguageOverride();
+        let target = document.getElementById("message");
+        target.textContent = error.message, target.classList.add("error"), target.hidden = !1;
+      }
+    });
     let invalid = /* @__PURE__ */ new WeakSet();
-    if (document.addEventListener("invalid", (event) => {
+    document.addEventListener("invalid", (event) => {
       let input = event.target;
       input.validity.customError || (input.setCustomValidity(t(input.validity.valueMissing ? "Campo obligatorio." : "Introduce un valor v\xE1lido.")), invalid.add(input));
     }, !0), document.addEventListener("input", (event) => {
       let input = event.target;
       invalid.has(input) && (input.setCustomValidity(""), invalid.delete(input));
-    }, !0), localize(document.body), language === "es") return;
+    }, !0), window.addEventListener("news-radar-language-change", () => {
+      flushLocalization(), observer.disconnect(), document.documentElement.lang = language, document.title = t(title), localize(document.body), observer.observe(document.body, options);
+    }), localize(document.body);
     let options = { subtree: !0, childList: !0, characterData: !0, attributes: !0, attributeFilter: attributes };
     translateChanges = (records) => {
       observer.disconnect();
@@ -1873,5 +1903,8 @@
     }, !1)), target.appendChild(button);
   });
   load();
+  window.addEventListener("news-radar-language-change", async () => {
+    await load(), navigation.current === "administration" && administration.current === "language" && await languageSettings.open();
+  });
 })();
 </script>
