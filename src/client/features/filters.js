@@ -10,7 +10,7 @@ function createFilters({ onInvalidate, onChange }) {
     const signature = JSON.stringify(values);
     if (el.dataset.options === signature) return;
     el.dataset.options = signature;
-    el.innerHTML = '<option value="">Todos</option>' + values.map((x) => "<option>" + escape(x) + "</option>").join("");
+    el.innerHTML = '<option value="">Todos</option>' + values.map((x) => '<option value="'+escape(x)+'">' + escape(x) + "</option>").join("");
     el.value = current || "";
   }
   function layout(){

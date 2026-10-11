@@ -1668,10 +1668,6 @@ export const translations = Object.freeze({
     "Includes",
     "İçerir"
   ],
-  "al": [
-    "to",
-    "ile"
-  ],
   "noticias repetidas omitidas": [
     "duplicate articles omitted",
     "atlanan mükerrer haber"
@@ -2132,10 +2128,6 @@ export const translations = Object.freeze({
     "Manage or cancel your subscription from Newsletter in News Radar.",
     "Aboneliğinizi News Radar'daki Newsletter bölümünden yönetin veya iptal edin."
   ],
-  "o": [
-    "or",
-    "veya"
-  ],
   "da de baja": [
     "unsubscribe",
     "aboneliği iptal et"
@@ -2520,10 +2512,6 @@ export const translations = Object.freeze({
     "requires an integer between",
     "gereken tam sayı aralığı:"
   ],
-  "y": [
-    "and",
-    "ve"
-  ],
   "BANCA DE EMPRESAS E INSTITUCIONES": [
     "BUSINESS AND INSTITUTIONAL BANKING",
     "TİCARİ VE KURUMSAL BANKACILIK"
@@ -2571,6 +2559,26 @@ export const translations = Object.freeze({
   "nombre@bbva.com": [
     "name@bbva.com",
     "ad@bbva.com"
+  ],
+  "Fecha no válida.": [
+    "Invalid date.",
+    "Geçersiz tarih."
+  ],
+  "Ventana: últimos": [
+    "Window: last",
+    "Aralık: son"
+  ],
+  "Recopilación diaria a partir de las": [
+    "Daily collection from",
+    "Günlük toplama başlangıcı:"
+  ],
+  "servidor": [
+    "server",
+    "sunucu"
+  ],
+  "noticias nuevas.": [
+    "new articles.",
+    "yeni haber."
   ]
 });
 
@@ -2582,9 +2590,10 @@ export function translateText(value,language='es'){
   if(Object.prototype.hasOwnProperty.call(translations,text))return translations[text][language==='en'?0:1];
   if(!translationPattern){
     translationIndex=Object.fromEntries(Object.keys(translations).map(key=>[key.toLowerCase(),key]));
-    translationPattern=new RegExp('(?<![\\p{L}\\p{N}])('+Object.keys(translations).filter(key=>!key.includes('{')).sort((a,b)=>b.length-a.length).map(key=>key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')(?![\\p{L}\\p{N}])','giu');
+    translationPattern=new RegExp('https?://[^\\s]+|[a-z0-9.!#$%&*+/=?^_~-]+@[a-z0-9.-]+\\.[a-z]{2,}|(?<![\\p{L}\\p{N}])('+Object.keys(translations).filter(key=>!key.includes('{')).sort((a,b)=>b.length-a.length).map(key=>key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')(?![\\p{L}\\p{N}])','giu');
   }
   return text.replace(translationPattern,key=>{
+    if(key.includes('@')||/^https?:\/\//i.test(key))return key;
     const translated=translations[key]||translations[translationIndex[key.toLowerCase()]],result=translated[language==='en'?0:1];
     return key===key.toUpperCase()?result.toLocaleUpperCase(language):result;
   });

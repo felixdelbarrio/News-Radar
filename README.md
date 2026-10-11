@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.3.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.4.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -188,3 +188,16 @@ Los filtros administrativos comparten componente, normalización, validación de
 El servidor se valida con un analizador de sintaxis limitado a ES2020, tanto al compilar como en `make check`. Esto impide introducir operadores como `||=`, `&&=` y `??=` en los archivos `.gs`, aunque Node.js los acepte. El cliente se ejecuta en el navegador y conserva su propia validación.
 
 Noticias y Novedades identifican el editor con «Medio» en los metadatos de cada tarjeta. Una consulta RSS de perfil no sustituye el nombre del editor; si no se informa, se muestra «No indicado». La release 1.3.0 calcula únicamente la visualización de la vista solicitada y utiliza claves de caché de tamaño fijo, con invalidación por cambios en noticias o configuración. El análisis del último export está en [docs/telemetry-1.3.0.md](docs/telemetry-1.3.0.md).
+
+
+### Idiomas (1.4.0)
+
+La interfaz soporta español, inglés y turco. Lee `navigator.languages` (o `navigator.language`), escoge la primera preferencia compatible y usa español si no hay ninguna. No solicita permisos ni consulta el sistema operativo ni servicios externos. El catálogo único de traducciones y formatos está en `src/shared/locales.js`; los valores de filtros, catálogos y registros mantienen sus identificadores. Titulares, extractos, nombres de newsletters, correos y URLs se conservan en su forma original.
+
+Administración permite probar otro idioma mediante **Idioma de prueba de esta pestaña**. La elección se guarda únicamente en `sessionStorage`, se aplica al recargar y termina al cerrar la pestaña. No cambia la configuración de Sheets ni otras sesiones. La opción **Idioma del navegador** restaura la detección.
+
+Cada suscripción almacena `idioma` (`es`, `en`, `tr`). Las altas personales parten del idioma activo y las administrativas de español; el formulario permite elegirlo. Las ediciones conservan el idioma guardado. La newsletter real y la prueba de una suscripción usan ese idioma en HTML y texto; la prueba general del administrador usa español. Los artículos mantienen su idioma original. Las fuentes conservan su edición lingüística, con términos de búsqueda y clasificación en los tres idiomas, sin triplicar consultas por cambiar la interfaz.
+
+Al actualizar una instalación existente, ejecutar **initializeConfiguration** una vez desde el editor con la cuenta administradora: prepara las columnas de idioma y asigna español a suscripciones sin idioma. Después publicar la nueva distribución `dist/`. Las noticias y el inventario de entregas permanecen intactos.
+
+`make kill` usa un socket Unix privado (`output/preview-server.sock`, permisos `0600`). No lee credenciales o destinos de un archivo, no realiza peticiones HTTP y no envía señales a PID externos. `make run` sigue sirviendo la aplicación por HTTP local.

@@ -12,7 +12,7 @@ test('la detección usa preferencias ordenadas, variantes regionales y español 
  for(const code of ['constructor','__proto__','fr',null,{},'en-US'])assert.equal(supportedLanguage(code),false);
  assert.equal(translateText('Administración','es'),'Administración');assert.equal(translateText('Administración','fr'),'Administración');
  assert.equal(translateText('Medio: No indicado','en'),'Publisher: Not specified');assert.equal(translateText('ADMINISTRACIÓN','tr'),'YÖNETİM');
- assert.equal(translateText('RSS / URL / News Radar','en'),'RSS / URL / News Radar');
+ assert.equal(translateText('RSS / URL / News Radar','en'),'RSS / URL / News Radar');assert.equal(translateText('noticias@bbva.com https://example.com/Noticias/España','en'),'noticias@bbva.com https://example.com/Noticias/España');
  assert.equal(formatText('Página {page} de {pages}',{page:1,pages:2},'tr'),'Sayfa 1 / 2');assert.equal(formatText('{empty}',{},'en'),'');
  for(const language of ['es','en','tr'])assert.equal(formatCalendarDay('2026-10-11',language),new Intl.DateTimeFormat(language,{dateStyle:'short',timeZone:'UTC'}).format(new Date('2026-10-11T00:00:00Z')));
  assert.equal(formatCalendarDay('', 'es'),'');assert.equal(formatCalendarDay('invalid','tr'),'invalid');
@@ -41,7 +41,7 @@ for(const language of ['es','en','tr'])test('interfaz '+language+': formularios,
  await a.change('#filters [name="country"]','España');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.country,'España');assert.equal(a.find('#filters [name="country"]').value,'España');assert.equal(a.find('#filters [name="country"] option[value="España"]').textContent,translateText('España',language));
  a.data.items=[{titular:'Noticias de España',extracto:'Nueva cuenta en España',medio:'Noticias España',pais:'España',fecha:'2026-10-11',url:'https://example.com/original',entidad:'BBVA',tema:'Financiación'}];a.data.total=1;
  await a.click('[data-view="radar"]');await a.click('[data-view="news"]');
- assert.equal(a.find('#news-list h3').textContent,'Noticias de España');assert.equal(a.find('#news-list [data-original] span')?.textContent??'Noticias España','Noticias España');assert.equal(a.find('#news-list p[data-original]').textContent,'Nueva cuenta en España');
+ assert.equal(a.find('#news-list h3').textContent,'Noticias de España');assert.equal(a.find('#news-list .news-meta [data-original]')?.textContent??'Noticias España','Noticias España');assert.equal(a.find('#news-list p[data-original]').textContent,'Nueva cuenta en España');
  await a.click('[data-view="subscriptions"]');await a.click('#new-subscription');assert.equal(a.find('#personal-editor [name="language"]').value,language);
  const name=a.find('#personal-editor [name="name"]');name.value='Noticias de España';await a.submit('#personal-editor form');const saved=a.calls.find(row=>row.method==='saveSubscription').query;assert.equal(saved.language,language);assert.equal(saved.name,'Noticias de España');
  await a.click('[data-view="administration"]');assert.equal(a.find('#preview-language').value,'');await a.click('[data-admin-view="subscribers"]');await a.click('#new-admin-subscription');assert.equal(a.find('#admin-subscription-editor [name="language"]').value,'es');

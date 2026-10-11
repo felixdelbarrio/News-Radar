@@ -1670,10 +1670,6 @@
       "Includes",
       "\u0130\xE7erir"
     ],
-    al: [
-      "to",
-      "ile"
-    ],
     "noticias repetidas omitidas": [
       "duplicate articles omitted",
       "atlanan m\xFCkerrer haber"
@@ -2134,10 +2130,6 @@
       "Manage or cancel your subscription from Newsletter in News Radar.",
       "Aboneli\u011Finizi News Radar'daki Newsletter b\xF6l\xFCm\xFCnden y\xF6netin veya iptal edin."
     ],
-    o: [
-      "or",
-      "veya"
-    ],
     "da de baja": [
       "unsubscribe",
       "aboneli\u011Fi iptal et"
@@ -2522,10 +2514,6 @@
       "requires an integer between",
       "gereken tam say\u0131 aral\u0131\u011F\u0131:"
     ],
-    y: [
-      "and",
-      "ve"
-    ],
     "BANCA DE EMPRESAS E INSTITUCIONES": [
       "BUSINESS AND INSTITUTIONAL BANKING",
       "T\u0130CAR\u0130 VE KURUMSAL BANKACILIK"
@@ -2573,6 +2561,26 @@
     "nombre@bbva.com": [
       "name@bbva.com",
       "ad@bbva.com"
+    ],
+    "Fecha no v\xE1lida.": [
+      "Invalid date.",
+      "Ge\xE7ersiz tarih."
+    ],
+    "Ventana: \xFAltimos": [
+      "Window: last",
+      "Aral\u0131k: son"
+    ],
+    "Recopilaci\xF3n diaria a partir de las": [
+      "Daily collection from",
+      "G\xFCnl\xFCk toplama ba\u015Flang\u0131c\u0131:"
+    ],
+    servidor: [
+      "server",
+      "sunucu"
+    ],
+    "noticias nuevas.": [
+      "new articles.",
+      "yeni haber."
     ]
   });
   function supportedLanguage(value) {
@@ -2588,7 +2596,8 @@
   var translationPattern, translationIndex;
   function translateText(value, language2 = "es") {
     let text = String(value ?? "");
-    return language2 === "es" || !supportedLanguage(language2) ? text : Object.prototype.hasOwnProperty.call(translations, text) ? translations[text][language2 === "en" ? 0 : 1] : (translationPattern || (translationIndex = Object.fromEntries(Object.keys(translations).map((key) => [key.toLowerCase(), key])), translationPattern = new RegExp("(?<![\\p{L}\\p{N}])(" + Object.keys(translations).filter((key) => !key.includes("{")).sort((a, b) => b.length - a.length).map((key) => key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")(?![\\p{L}\\p{N}])", "giu")), text.replace(translationPattern, (key) => {
+    return language2 === "es" || !supportedLanguage(language2) ? text : Object.prototype.hasOwnProperty.call(translations, text) ? translations[text][language2 === "en" ? 0 : 1] : (translationPattern || (translationIndex = Object.fromEntries(Object.keys(translations).map((key) => [key.toLowerCase(), key])), translationPattern = new RegExp("https?://[^\\s]+|[a-z0-9.!#$%&*+/=?^_~-]+@[a-z0-9.-]+\\.[a-z]{2,}|(?<![\\p{L}\\p{N}])(" + Object.keys(translations).filter((key) => !key.includes("{")).sort((a, b) => b.length - a.length).map((key) => key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")(?![\\p{L}\\p{N}])", "giu")), text.replace(translationPattern, (key) => {
+      if (key.includes("@") || /^https?:\/\//i.test(key)) return key;
       let translated = translations[key] || translations[translationIndex[key.toLowerCase()]], result = translated[language2 === "en" ? 0 : 1];
       return key === key.toUpperCase() ? result.toLocaleUpperCase(language2) : result;
     }));
@@ -3298,7 +3307,7 @@
       let el = form.elements[name], current = el.value;
       current && !values.includes(current) && (values = [...values, current]);
       let signature = JSON.stringify(values);
-      el.dataset.options !== signature && (el.dataset.options = signature, el.innerHTML = '<option value="">Todos</option>' + values.map((x) => "<option>" + escape(x) + "</option>").join(""), el.value = current || "");
+      el.dataset.options !== signature && (el.dataset.options = signature, el.innerHTML = '<option value="">Todos</option>' + values.map((x) => '<option value="' + escape(x) + '">' + escape(x) + "</option>").join(""), el.value = current || "");
     }
     function layout() {
       $(view + "-filter-chips").appendChild($("active-filters")), $("geography-filter").hidden = view === "radar", $("advanced-filters").hidden = view === "radar";
