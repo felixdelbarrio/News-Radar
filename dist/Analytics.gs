@@ -5,7 +5,7 @@ function metrics_(events,now) {
   selected.forEach(e=>{
     const entry=users.get(e.correo)||{correo:e.correo,first:e.fecha,last:e.fecha,sessions:new Set(),actions:0};
     entry.first=entry.first<e.fecha?entry.first:e.fecha;entry.last=entry.last>e.fecha?entry.last:e.fecha;entry.sessions.add(e.sesion);entry.actions++;users.set(e.correo,entry);sessions.add(e.correo+'|'+e.sesion);
-    const key=e.fecha.slice(0,10);if(!byDay[key])byDay[key]={sessions:new Set(),users:new Set()};byDay[key].sessions.add(e.correo+'|'+e.sesion);byDay[key].users.add(e.correo);
+    const key=recordDay(e.fecha,settings_().timezone);if(!byDay[key])byDay[key]={sessions:new Set(),users:new Set()};byDay[key].sessions.add(e.correo+'|'+e.sesion);byDay[key].users.add(e.correo);
     if(e.evento==='rendimiento')latencies.push(Number(e.duracion_ms));
     if(e.evento==='error')failures++;
   });

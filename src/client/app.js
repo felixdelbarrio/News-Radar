@@ -1,3 +1,6 @@
+import {createNewsTranslations} from './features/news-translations.js';
+import {renderCollectionJobs} from './features/runs.js';
+import {createCollectionProgress} from './features/collection-progress.js';
 import {createFilterPanel} from './features/filter-panel.js';
 import {createSubscriptions} from './features/subscriptions.js';
 import {createNewsletterDelivery} from './features/newsletter-delivery.js';
@@ -13,22 +16,33 @@ import { renderShell } from "./features/shell.js";
 import { createSources } from "./features/sources.js";
 import { createUsage } from "./features/usage.js";
 import { createNavigation } from "./features/navigation.js";
+import {initializeLocalization,flushLocalization} from './core/localization.js';
+initializeLocalization();
 const state = { data: null, request: 0, busy: false };
 const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => Boolean(state.data) }), { track, flush } = usage;
 const configuration = createConfiguration({run:action});
 const subscriptions = createSubscriptions({run:action,onApply:query=>{filters.show('news');filters.apply(query);navigation.show('news');}});
 const newsletterDelivery=createNewsletterDelivery({run:action});
 const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]) });
-const navigation = createNavigation({ onSelection:view=>{if(filters.show(view))load();}, onSubscriptions:()=>subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
+const navigation = createNavigation({ onSelection:view=>{if(filters.show(view))load();else if(state.data)renderSelection(state.data,view);}, onSubscriptions:()=>subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
 const filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
   track("filtro");
   load();
 } });
-const briefing=createBriefing({query:()=>filters.query(),run:action});
+const briefing=createBriefing();
 $('briefing-signals').addEventListener('click',event=>{const button=event.target.closest('[data-signal]');if(button)filters.set('signal',button.dataset.signal);});
 const radar = createRadar({ onCountry: (country) => {filters.show("news");filters.set("country", country);navigation.show("news");}, onEntity: (entity) => filters.set("entity", entity), onNews: () => navigation.show("news") });
 const sources = createSources({ getData: () => state.data, run: action });
+const collectionProgress=createCollectionProgress({reload:load,isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;sources.renderProgress(status);if(state.data?.admin)renderCollectionJobs(status);}});
+const newsTranslations=createNewsTranslations({getView:()=>navigation.current,getData:()=>state.data,onUpdate:()=>{renderSelection(state.data,navigation.current,false);flushLocalization();}});
+function renderSelection(data,view=navigation.current,translate=true){
+  renderNews(data);
+  if(view==='radar')radar.render(data);
+  if(view==='briefing')briefing.render(data);
+  if(translate)newsTranslations.start();
+}
 async function load() {
+  newsTranslations.cancel();
   const request = ++state.request, started = performance.now();
   $("loading").hidden = false;
   if (!filters.isValid()) {
@@ -42,14 +56,15 @@ async function load() {
       state.data = data;
       setTimezone(data.preferences?.timezone);
       if(window.RADAR_PREVIEW&&data.admin)$("preview-banner").textContent="Administración local · cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.";
+      const renderStarted=performance.now();
       filters.render(data);
-      renderNews(data);
-      if(navigation.current==="radar")radar.render(data);
-      if(navigation.current==="briefing")briefing.render(data);
+      renderSelection(data);
       if(data.preferences){$("retention-days").textContent=data.preferences.retentionDays;$("event-limit").textContent=data.preferences.eventLimit;}
       renderShell(data);
       if (data.admin) sources.render(data);
-      track("rendimiento", performance.now() - started);
+      collectionProgress.update(data);
+      flushLocalization();
+      track("rendimiento", performance.now() - started,{...data.performance,rpcMs:Math.round(renderStarted-started),renderMs:Math.round(performance.now()-renderStarted)});
       if (first) {
         track("acceso");
         track("vista");
@@ -65,11 +80,12 @@ async function load() {
     if (request === state.request) $("loading").hidden = true;
   }
 }
+const actionControls=".actions button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
 async function action(fn, refresh = true) {
   if (state.busy) return;
   state.busy = true;
   sources.setBusy(true);
-  document.querySelectorAll(".actions button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button").forEach((el) => el.disabled = true);
+  document.querySelectorAll(actionControls).forEach((el) => el.disabled = true);
   try {
     await fn();
     if (refresh) await load();
@@ -77,8 +93,7 @@ async function action(fn, refresh = true) {
     message(e.message || String(e), true);
   } finally {
     state.busy = false;
-    document.querySelectorAll(".actions button,#retry-collection,.recovery-range input,#save-source-settings").forEach((el) => el.disabled = false);
-    document.querySelectorAll("#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button").forEach(el=>el.disabled=false);
+    document.querySelectorAll(actionControls).forEach(el=>el.disabled=false);
     sources.setBusy(false);
     if (state.data) {
       $("previous").disabled = state.data.page === 0;
@@ -107,7 +122,19 @@ $("export").addEventListener("click", () => action(async () => {
 $("news-list").addEventListener("click", (event) => {
   if (event.target.closest("a")) track("lectura");
 });
+$('download-telemetry').addEventListener('click',()=>action(async()=>{
+  const data=await call('exportTelemetry'),url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'})),link=document.createElement('a');
+  link.href=url;link.download='news-radar-telemetria.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message('Telemetría descargada.');
+},false));
 createFilterPanel();
 if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
 navigation.show("radar");
+if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocation(async location=>{
+  if(location.parameter.view!=='subscriptions')return;
+  await navigation.show('subscriptions');
+  const id=location.parameter.unsubscribe;if(!id)return;
+  const target=$('message');message('Confirma la baja de esta suscripción.');
+  const button=document.createElement('button');button.type='button';button.className='button';button.textContent='Confirmar baja';
+  button.addEventListener('click',()=>action(async()=>{message(await call('deleteSubscription',id));await subscriptions.open();},false));target.appendChild(button);
+});
 load();

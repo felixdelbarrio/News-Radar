@@ -1,9 +1,7 @@
-let calendarFormatterMemory_;
-function calendarDate_(now){
-  const timezone=settings_().timezone;
-  if(calendarFormatterMemory_?.timezone!==timezone)calendarFormatterMemory_={timezone,formatter:new Intl.DateTimeFormat('en',{timeZone:timezone,year:'numeric',month:'2-digit',day:'2-digit'})};
-  const parts=Object.fromEntries(calendarFormatterMemory_.formatter.formatToParts(now).map(p=>[p.type,p.value]));
-  return new Date(parts.year+'-'+parts.month+'-'+parts.day+'T00:00:00Z');
+function calendarDate_(now){return new Date(recordDay(now,settings_().timezone)+'T00:00:00Z');}
+function recentNewsRange_(now=new Date()){
+  const end=calendarDate_(now),start=new Date(end);start.setUTCDate(start.getUTCDate()-6);
+  return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10)};
 }
 function currentMonth_(now=new Date()){
   const start=calendarDate_(now);start.setUTCDate(1);
@@ -14,5 +12,5 @@ function dashboardQuery_(query={},now=new Date()){
   const {view,initial,...filters}=query;
   if(view==='radar')return {entity:initial?'':filters.entity||'',segment:initial?'Empresas e instituciones':filters.segment||''};
   const selection=initial?{entity:settings_().defaultEntity,segment:settings_().defaultSegment,topic:settings_().defaultTopic,country:settings_().defaultCountry,...currentMonth_(now)}:filters;
-  return view==='briefing'?{...selection,...currentMonth_(now)}:selection;
+  return view==='briefing'?{...selection,...recentNewsRange_(now)}:selection;
 }

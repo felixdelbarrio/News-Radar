@@ -1,23 +1,26 @@
-import { $, escape, date, message } from "../core/dom.js";
+import { $, escape, message } from "../core/dom.js";
 import { call } from "../core/api.js";
 import {createSourceCatalog} from "./source-catalog.js";
+import {t} from '../core/language.js';
 function createSources({ getData, run }) {
   const catalog=createSourceCatalog();
   let busy = false, signature = "";
   function sourceFields(feeds) {
-    $("source-fields").innerHTML = feeds.map((f, i) => `<fieldset class="source"><legend>Fuente ${i + 1}</legend>${[["name", "Nombre"], ["url", "URL del feed RSS"], ["domain", "Dominio del editor"], ["entity", "Entidad"], ["country", "País / alcance"]].map(([key, label]) => `<label class="${key === "url" ? "wide" : ""}">${label}<input data-key="${key}" value="${escape(f[key] || "")}" ${key === "url" ? 'type="url"' : ""} required></label>`).join("")}<label>Activa<input type="checkbox" data-key="enabled" ${f.enabled!==false?"checked":""}></label><button class="button remove-source" type="button">Eliminar fuente</button></fieldset>`).join("");
+    $("source-fields").innerHTML = feeds.map((f, i) => `<fieldset class="source"><legend>Fuente ${i + 1}</legend>${[["name", "Nombre"], ["url", "URL del feed RSS"], ["domain", "Dominio del editor"], ["entity", "Entidad"], ["country", "País / alcance"], ["language", "Idioma del feed (opcional)"]].map(([key, label]) => `<label class="${key === "url" ? "wide" : ""}">${label}<input data-key="${key}" value="${escape(f[key] || "")}" ${key === "url" ? 'type="url"' : ""} ${key==='language'?'':'required'}></label>`).join("")}<label>Activa<input type="checkbox" data-key="enabled" ${f.enabled!==false?"checked":""}></label><button class="button remove-source" type="button">Eliminar fuente</button></fieldset>`).join("");
     $("sources-form").querySelectorAll("input,button").forEach((el) => el.disabled = !getData()?.admin || busy);
   }
   function currentFeeds() {
     return [...$("source-fields").children].map((el) => Object.fromEntries([...el.querySelectorAll("[data-key]")].map((x) => [x.dataset.key, x.type==="checkbox"?x.checked:x.value])));
   }
   function collectionText(status) {
-    return status.total ? status.processed + " de " + status.total + " consultas completadas; " + status.pending + " pendientes y " + status.failed + " con error. Las noticias se integran automáticamente." : "Las fuentes están activas. La próxima recopilación las consultará por lotes.";
+    return status.total ? t('{processed} de {total} consultas completadas; {pending} pendientes y {failed} con error. Las noticias se integran automáticamente.',status) : "Las fuentes están activas. La próxima recopilación las consultará por lotes.";
   }
-  $("collect").addEventListener("click", () => run(async () => {
-    const result = await call("collectNow", document.querySelector('input[name="recovery-range"]:checked').value);
-    message(result.notice || result.added + " noticias nuevas. " + (result.pending ? result.pending + " consultas pendientes; la recuperación continúa automáticamente." : "Recuperación completada.") + (result.errors.length ? " " + result.errors.join(" | ") : ""), result.errors.length > 0);
-  }));
+  function recover(method,range){return run(async()=>{
+    const result=await call(method,...(range?[range]:[]));
+    message(result.notice||result.added+" noticias nuevas. "+(result.pending?result.pending+" consultas pendientes; la recuperación continúa automáticamente.":"Recuperación completada.")+(result.errors.length?" "+result.errors.join(" | "):""),result.errors.length>0);
+  });}
+  $("collect").addEventListener("click",()=>recover('collectNow',document.querySelector('input[name="recovery-range"]:checked').value));
+  $('continue-collection').addEventListener('click',()=>recover('resumeCollection'));
   $("sources-form").addEventListener("submit", (e) => {
     e.preventDefault();
     run(async () => {
@@ -50,8 +53,7 @@ function createSources({ getData, run }) {
     }
     $("source-schedule").textContent=data.schedule||"";
     $("collection-status").textContent = collectionText(data.collection);
-    $("runs-body").innerHTML = data.runs.map((r) => `<tr><td>${escape(date(r.inicio))}</td><td>${escape(r.estado)}</td><td>${escape(r.evaluadas)}</td><td>${escape(r.nuevas)}</td><td>${escape(r.errores || "—")}</td></tr>`).join("") || '<tr><td colspan="5">Sin ejecuciones registradas.</td></tr>';
-  }, setBusy(value) {
+  }, renderProgress(status){$('collection-status').textContent=collectionText(status);$('continue-collection').hidden=!(status.pending||status.queued);}, setBusy(value) {
     busy = value;
     $("sources-form").querySelectorAll("input,button").forEach((el) => el.disabled = busy || !getData()?.admin);
   } };

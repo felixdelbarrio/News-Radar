@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
-import {root,read,files,readClientScript} from './source.mjs';
+import {root,read,files,readClientScript,serverModule,serverModuleName} from './source.mjs';
 import {worldMap} from './world-map.mjs';
 import {designOutputs} from './design.mjs';
+import {checkAppsScriptSyntax} from './apps-script-syntax.mjs';
 
 const dist=path.join(root,'dist');
 const version=vm.runInNewContext(read('src/server/config/Config.gs')+';RADAR.version');
@@ -19,16 +20,18 @@ const newsletterInline={};for(const [,selectors,rule] of newsletterStyle.matchAl
 const output={
   'Defaults.gs':'const CONFIGURATION_DEFAULTS = Object.freeze('+read('assets/configuration-defaults.json').trim()+');\n',
   'Design.gs':design.sheet,
-  'Newsletter.gs':'const NEWSLETTER_STYLE = '+JSON.stringify(newsletterStyle)+';\nconst NEWSLETTER_INLINE = '+JSON.stringify(newsletterInline)+';\n',
+  'Newsletter.gs':'const NEWSLETTER_BIA_PNG = '+JSON.stringify(fs.readFileSync(path.join(root,'assets/bia.png')).toString('base64'))+';\nconst NEWSLETTER_STYLE = '+JSON.stringify(newsletterStyle)+';\nconst NEWSLETTER_INLINE = '+JSON.stringify(newsletterInline)+';\n',
   'Index.html':template(parts.Index),
   'Tokens.html':design.tokens,
   'Styles.html':'<style>\n'+['base','layout','components','dashboard','briefing','responsive'].map(name=>read('src/styles/'+name+'.css')).join('\n')+'\n</style>',
   'Client.html':'<script id="radar-client">\n'+readClientScript()+'</script>',
   'appsscript.json':read('src/appsscript.json')
 };
+for(const file of files('src/shared'))output[serverModuleName(file)]=serverModule(read(file));
 for(const file of files('src/server')){
   const name=path.basename(file);if(name in output)throw Error('Nombre de módulo duplicado: '+name);output[name]=read(file);
 }
+for(const [name,source] of Object.entries(output))if(name.endsWith('.gs'))checkAppsScriptSyntax(source,name);
 new vm.Script(Object.entries(output).filter(([name])=>name.endsWith('.gs')).map(([,code])=>code).join('\n'));
 if(process.argv.includes('--check')){
   const stored=fs.existsSync(dist)?files('dist').map(file=>path.relative('dist',file)):[],expected=Object.keys(output);

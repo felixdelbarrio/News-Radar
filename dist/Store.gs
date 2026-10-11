@@ -24,20 +24,40 @@ function setupRadar() {
   if(p.getProperty('DAILY_ENABLED')==='true')enableDaily();
   return 'News Radar preparado: fuentes predeterminadas, recopilación automática y métricas.';
 }
-function rows_(sheet, limit) {
+function rows_(sheet, limit, width=RADAR.sheets[sheet].length) {
   const s=book_().getSheetByName(sheet), count=s.getLastRow()-1;
   if (count<1) return [];
   const size=limit?Math.min(count,limit):count;
-  return s.getRange(count-size+2,1,size,RADAR.sheets[sheet].length).getDisplayValues().map(r=>Object.fromEntries(RADAR.sheets[sheet].map((k,i)=>[k,r[i]])));
+  const keys=RADAR.sheets[sheet].slice(0,width);
+  return s.getRange(count-size+2,1,size,keys.length).getDisplayValues().map(r=>Object.fromEntries(keys.map((k,i)=>[k,r[i]])));
 }
 function append_(name, rows) {
   if (!rows.length) return;
   const s=book_().getSheetByName(name), start=s.getLastRow()+1, needed=start+rows.length-1;
   if (needed>s.getMaxRows()) s.insertRowsAfter(s.getMaxRows(),needed-s.getMaxRows());
   const range=s.getRange(start,1,rows.length,rows[0].length);range.setNumberFormat('@').setValues(rows.map(r=>r.map(safeCell_)));
+  if(name==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);
 }
 
 function trim_(name,limit) {
   const sheet=book_().getSheetByName(name),excess=sheet.getLastRow()-1-limit;
   if(excess>0)sheet.deleteRows(2,excess);
+}
+
+function rowsById_(name,ids,limit){
+  const sheet=book_().getSheetByName(name),count=Math.min(Math.max(0,sheet.getLastRow()-1),limit),keys=RADAR.sheets[name],result=[];
+  if(!count)return result;
+  const first=sheet.getLastRow()-count+1,positions=sheet.getRange(first,1,count,1).getDisplayValues().flatMap(([id],index)=>ids.has(id)?[first+index]:[]);
+  let start=0;
+  for(let end=1;end<=positions.length;end++){
+    if(end<positions.length&&positions[end]===positions[end-1]+1)continue;
+    for(const row of sheet.getRange(positions[start],1,end-start,keys.length).getDisplayValues())result.push(Object.fromEntries(keys.map((key,index)=>[key,row[index]])));
+    start=end;
+  }
+  return result;
+}
+
+function cacheJson_(key,value,seconds){
+  const encoded=JSON.stringify(value);
+  if(encoded.length<=90000&&encodeURIComponent(encoded).replace(/%[A-F\d]{2}/gi,'x').length<=90000)CacheService.getScriptCache().put(key,encoded,seconds);
 }

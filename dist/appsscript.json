@@ -1,7 +1,16 @@
 {
   "timeZone": "Europe/Madrid",
-  "runtimeVersion": "V8",
+  "dependencies": {
+    "enabledAdvancedServices": [
+      {
+        "userSymbol": "Gmail",
+        "serviceId": "gmail",
+        "version": "v1"
+      }
+    ]
+  },
   "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
   "oauthScopes": [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/script.external_request",
@@ -11,7 +20,7 @@
     "https://www.googleapis.com/auth/gmail.settings.basic"
   ],
   "webapp": {
-    "access": "DOMAIN",
-    "executeAs": "USER_DEPLOYING"
+    "executeAs": "USER_DEPLOYING",
+    "access": "DOMAIN"
   }
 }
