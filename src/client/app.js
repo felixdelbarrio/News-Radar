@@ -1,5 +1,5 @@
-import {createNewsTranslations} from './features/news-translations.js';
-import {renderCollectionJobs} from './features/runs.js';
+import {createLanguageSettings} from './features/language-settings.js';
+import {createRecoveryControls,renderCollectionJobs} from './features/runs.js';
 import {createCollectionProgress} from './features/collection-progress.js';
 import {createFilterPanel} from './features/filter-panel.js';
 import {createSubscriptions} from './features/subscriptions.js';
@@ -23,7 +23,8 @@ const usage = createUsage({ getView: () => navigation.current === "administratio
 const configuration = createConfiguration({run:action});
 const subscriptions = createSubscriptions({run:action,onApply:query=>{filters.show('news');filters.apply(query);navigation.show('news');}});
 const newsletterDelivery=createNewsletterDelivery({run:action});
-const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]) });
+const languageSettings=createLanguageSettings({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='language'});
+const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onLanguage:()=>languageSettings.open(),onLeaveLanguage:()=>languageSettings.close() });
 const navigation = createNavigation({ onSelection:view=>{if(filters.show(view))load();else if(state.data)renderSelection(state.data,view);}, onSubscriptions:()=>subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
 const filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
   track("filtro");
@@ -31,18 +32,16 @@ const filters = createFilters({ onInvalidate: () => ++state.request, onChange: (
 } });
 const briefing=createBriefing();
 $('briefing-signals').addEventListener('click',event=>{const button=event.target.closest('[data-signal]');if(button)filters.set('signal',button.dataset.signal);});
-const radar = createRadar({ onCountry: (country) => {filters.show("news");filters.set("country", country);navigation.show("news");}, onEntity: (entity) => filters.set("entity", entity), onNews: () => navigation.show("news") });
+const radar = createRadar({ onCountry: (country) => {filters.show("news");filters.apply({...state.data.selection,country});navigation.show("news");}, onEntity: (entity) => filters.set("entity", entity), onNews: () => {const selection=state.data.selection;filters.show("news");filters.apply(selection);navigation.show("news");} });
 const sources = createSources({ getData: () => state.data, run: action });
-const collectionProgress=createCollectionProgress({reload:load,isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;sources.renderProgress(status);if(state.data?.admin)renderCollectionJobs(status);}});
-const newsTranslations=createNewsTranslations({getView:()=>navigation.current,getData:()=>state.data,onUpdate:()=>{renderSelection(state.data,navigation.current,false);flushLocalization();}});
-function renderSelection(data,view=navigation.current,translate=true){
+const recoveryControls=createRecoveryControls({getData:()=>state.data,run:action});
+const collectionProgress=createCollectionProgress({reload:load,isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
+function renderSelection(data,view=navigation.current){
   renderNews(data);
   if(view==='radar')radar.render(data);
   if(view==='briefing')briefing.render(data);
-  if(translate)newsTranslations.start();
 }
 async function load() {
-  newsTranslations.cancel();
   const request = ++state.request, started = performance.now();
   $("loading").hidden = false;
   if (!filters.isValid()) {
@@ -80,11 +79,11 @@ async function load() {
     if (request === state.request) $("loading").hidden = true;
   }
 }
-const actionControls=".actions button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
+const actionControls="#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
 async function action(fn, refresh = true) {
   if (state.busy) return;
   state.busy = true;
-  sources.setBusy(true);
+  sources.setBusy(true);recoveryControls.setBusy(true);
   document.querySelectorAll(actionControls).forEach((el) => el.disabled = true);
   try {
     await fn();
@@ -94,7 +93,7 @@ async function action(fn, refresh = true) {
   } finally {
     state.busy = false;
     document.querySelectorAll(actionControls).forEach(el=>el.disabled=false);
-    sources.setBusy(false);
+    sources.setBusy(false);recoveryControls.setBusy(false);
     if (state.data) {
       $("previous").disabled = state.data.page === 0;
       $("next").disabled = (state.data.page + 1) * state.data.pageSize >= state.data.total;
@@ -138,3 +137,5 @@ if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocat
   button.addEventListener('click',()=>action(async()=>{message(await call('deleteSubscription',id));await subscriptions.open();},false));target.appendChild(button);
 });
 load();
+
+window.addEventListener('news-radar-language-change',async()=>{await load();if(navigation.current==='administration'&&administration.current==='language')await languageSettings.open();});

@@ -18,8 +18,9 @@ function client(responses={}){
   }
   const context=vm.createContext({document:{addEventListener(){},documentElement:{},body:{nodeType:0},title:"",getElementById:element,querySelector:element,querySelectorAll:()=>[],createElement:()=>({click(){}})},
     Blob,URL:{createObjectURL:()=> 'blob:local',revokeObjectURL(){}},
-    window:{scrollTo(){},matchMedia:()=>({matches:false,addEventListener(){}}),RADAR_PREVIEW:{call(method,query){rpc.push({method,query});if(method!=='getDashboard')return Promise.resolve(responses[method]||(method==='getNewsletterHistory'?{items:[],total:0,page:0,pageSize:30,options:{},limit:20000}:method==='getSubscriptions'?[]:method==='getNewsletterOptions'?{email:'reader@bbva.com',defaults:{name:'Mi canal',periodicity:'monthly',filters:{}},catalogs:{}}:method==='getConfiguration'?{config:JSON.parse(read('assets/configuration-defaults.json')),revision:'test'}:{saved:true}));return new Promise(resolve=>requests.push({query,resolve}));}}},
+    window:{addEventListener(){},scrollTo(){},matchMedia:()=>({matches:false,addEventListener(){}}),RADAR_PREVIEW:{call(method,query){rpc.push({method,query});if(method!=='getDashboard')return Promise.resolve(responses[method]||(method==='getNewsletterHistory'?{items:[],total:0,page:0,pageSize:30,options:{},limit:20000}:method==='getSubscriptions'?[]:method==='getNewsletterOptions'?{email:'reader@bbva.com',defaults:{name:'Mi canal',periodicity:'monthly',filters:{}},catalogs:{}}:method==='getConfiguration'?{config:JSON.parse(read('assets/configuration-defaults.json')),revision:'test'}:{saved:true}));return new Promise(resolve=>requests.push({query,resolve}));}}},
     FormData:class {constructor(){return Object.entries(form.elements).map(([name,input])=>[name,input.value]);}},
+    MutationObserver:class {observe(){}disconnect(){}takeRecords(){return [];}},
     ResizeObserver:class {observe(){}},crypto:{randomUUID:()=> 'test-session'},performance:{now:()=>0},setInterval(){},queueMicrotask,
     setTimeout(fn){const id=timers.size+1;timers.set(id,fn);return id;},clearTimeout:id=>timers.delete(id)});
   vm.runInContext(readClientScript(true),context);
@@ -103,8 +104,8 @@ test('el mapa refleja el volumen filtrado y comunica entidad y ausencia de notic
 });
 
 test('el administrador transmite el período seleccionado al recuperar noticias',async()=>{
- const c=client({collectNow:{added:0,pending:1,errors:[]}});c.requests[0].resolve({...dashboard('Inicial'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{total:0}});await settle();
- c.element('input[name="recovery-range"]:checked').value='year';const action=c.element('collect').listeners.click();await settle();c.requests.at(-1).resolve({...dashboard('Recuperada'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{total:0}});await action;assert.equal(c.rpc.find(r=>r.method==='collectNow').query,'year');assert.match(c.element('message').textContent,/consultas pendientes/);
+ const c=client({collectNow:{added:0,pending:1,errors:[],notice:'Recuperación anual en cola.'}});c.requests[0].resolve({...dashboard('Inicial'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{total:0}});await settle();
+ c.element('input[name="recovery-range"]:checked').value='year';const action=c.element('collect').listeners.click();await settle();c.requests.at(-1).resolve({...dashboard('Recuperada'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{total:0}});await action;assert.equal(c.rpc.find(r=>r.method==='collectNow').query,'year');assert.match(c.element('message').textContent,/anual en cola/);
 });
 
 test('la activación de fuentes persiste al buscar y paginar antes de guardar',async()=>{
@@ -131,10 +132,10 @@ test('Radar oculta filtros adicionales y cambiar de vista conserva cada selecci�
   assert.equal(c.element('from-filter').hidden,true);assert.equal(c.element('to-filter').hidden,true);
 });
 
-test('abrir Noticias desde el mapa por primera vez conserva las fechas iniciales del mes',async()=>{
+test('abrir Noticias desde el mapa conserva el ámbito del Radar sin imponer otro período',async()=>{
  const c=client();c.requests[0].resolve({...dashboard('Inicial'),initial:true,selection:{segment:'Empresas e instituciones'},defaults:{entity:'BBVA',segment:'Empresas e instituciones',from:'2026-10-01',to:'2026-10-31'}});await settle();
  const count=c.requests.length;c.element('map-panel').listeners.click({target:{closest:()=>({dataset:{country:'México'}})}});
- assert.equal(c.requests.length,count+1);assert.equal(c.requests.at(-1).query.country,'México');assert.equal(c.requests.at(-1).query.from,'2026-10-01');assert.equal(c.requests.at(-1).query.to,'2026-10-31');
+ assert.equal(c.requests.length,count+1);assert.equal(c.requests.at(-1).query.country,'México');assert.equal(c.requests.at(-1).query.from,'');assert.equal(c.requests.at(-1).query.to,'');
 });
 
 test('cerrar un chip sincroniza panel, paginación y consulta e invalida respuestas anteriores',async()=>{

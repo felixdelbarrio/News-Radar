@@ -29,7 +29,7 @@ function saveFeeds(feeds){
 }
 function enableDaily() {
   authorize_(true);disableDaily();
-  ScriptApp.newTrigger('dailyRadar_').timeBased().atHour(settings_().dailyHour).everyDays(1).inTimezone(settings_().timezone).create();
+  replaceDailySchedule_('dailyRadar_',settings_().dailyHour);
   properties_().setProperty('DAILY_ENABLED','true');
   return 'Recopilación diaria activada a partir de las '+settings_().dailyHour+':00 ('+settings_().timezone+').';
 }

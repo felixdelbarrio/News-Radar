@@ -1,4 +1,5 @@
 import { $, escape, metricCards } from "../core/dom.js";
+import {language,t} from '../core/language.js';
 import { trendChart } from "./trend-chart.js";
 function createRadar({ onCountry, onEntity, onNews }) {
   let signature = "", geographySignature="", trend, chartWidth=0;
@@ -38,12 +39,12 @@ function createRadar({ onCountry, onEntity, onNews }) {
         node.removeAttribute('hidden');
       });
     }
-    const radar = data.radar, next = JSON.stringify([radar,data.countries,geography]);
+    const radar = data.radar, next = JSON.stringify([radar,data.countries,geography,language]);
     if (next === signature) return;
     signature = next;
     $("metrics").innerHTML = metricCards([["Publicaciones", data.stats.news, "En la selección"], ["Entidades", data.stats.entities, "Con presencia en medios"], ["Medios", data.stats.sources, "Editores distintos"], ["Geografías", data.stats.countries, "Con publicaciones en la selección"]]);
     $("radar-focus").textContent = radar.ranking.length === 1 ? radar.ranking[0].entity : "Panorama de entidades";
-    $("radar-headline").textContent = radar.summary.news ? radar.summary.news + " publicaciones en seguimiento" : "Sin publicaciones en la selección";
+    $("radar-headline").textContent = radar.summary.news ? t('{count} publicaciones en seguimiento',{count:radar.summary.news}) : "Sin publicaciones en la selección";
     $("radar-context").textContent = radar.summary.news ? "Distribución geográfica, entidades mencionadas y evolución de las publicaciones recopiladas." : "Amplía los filtros para descubrir nuevas publicaciones y su distribución.";
     $("radar-latest").textContent = radar.latest || "Sin publicaciones";
     $("map-selection").textContent = radar.ranking.length === 1 ? radar.ranking[0].entity : "Todas las entidades de la selección";
@@ -60,10 +61,10 @@ function createRadar({ onCountry, onEntity, onNews }) {
       const count = areas.get(country)?.total || 0;
       return `<button type="button" class="geo-row" data-country="${escape(country)}"><span>${escape(country)}</span><span class="geo-count">${count}</span><span class="geo-track"><span style="width:${count / max * 100}%"></span></span></button>`;
     }).join("");
-    $("map-note").textContent = radar.unlocated ? radar.unlocated + " publicaciones sin geografía conocida, excluidas del mapa." : "Todas las publicaciones de la selección tienen una geografía conocida.";
+    $("map-note").textContent = radar.unlocated ? t('{count} publicaciones sin geografía conocida, excluidas del mapa.',{count:radar.unlocated}) : "Todas las publicaciones de la selección tienen una geografía conocida.";
     trend=radar.trend;renderTrend($("trend-chart").clientWidth||900);
     $("trend-period").textContent = radar.trend.buckets.length ? radar.trend.from + " — " + radar.trend.to : "Sin publicaciones";
-    $("trend-note").textContent = radar.trend.intervalDays > 1 ? "Volumen agrupado en intervalos de " + radar.trend.intervalDays + " días." : "Número de publicaciones por día, incluidos los días sin noticias.";
+    $("trend-note").textContent = radar.trend.intervalDays > 1 ? t('Volumen agrupado en intervalos de {days} días.',{days:radar.trend.intervalDays}) : "Número de publicaciones por día, incluidos los días sin noticias.";
     $("entity-ranking").innerHTML = radar.ranking.length ? radar.ranking.slice(0, 6).map((row, i) => `<button type="button" class="ranking-row" data-entity="${escape(row.entity)}"><span class="ranking-index">${String(i + 1).padStart(2, "0")}</span><span class="ranking-name">${escape(row.entity)}<span class="ranking-track"><span style="width:${row.total / Math.max(1, radar.summary.news) * 100}%"></span></span></span><strong>${row.total}</strong></button>`).join("") : '<p class="muted">Las entidades aparecerán al ampliar tu selección.</p>';
     $("ranking-note").textContent = radar.ranking.length > 6 ? "Se muestran las seis entidades con más publicaciones." : "Selecciona una entidad para explorar su actualidad.";
     const publishers=radar.publishers||[],publisherMax=Math.max(1,...publishers.map(row=>row.total));

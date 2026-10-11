@@ -8,11 +8,12 @@
   },
   "adminViews": {
     "configuration": "Configuración de negocio",
-    "sources": "Fuentes y programación",
+    "sources": "Fuentes",
     "audit": "Auditoría",
     "telemetry": "Telemetría",
     "adoption": "Adopción",
     "subscribers": "Suscripciones",
-    "runs": "Últimas ejecuciones"
+    "runs": "Ejecuciones",
+    "language": "Idioma"
   }
 }

@@ -2,8 +2,8 @@ import {language} from './language.js';
 const $ = (id) => document.getElementById(id);
 const escape = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const validUrl = (value) => /^https:\/\//i.test(value || "") ? value : "";
-let dateFormat = new Intl.DateTimeFormat(language, {dateStyle:"short",timeStyle:"short"}),timezone;
-function setTimezone(value){if(value&&value!==timezone){timezone=value;dateFormat=new Intl.DateTimeFormat(language,{dateStyle:"short",timeStyle:"short",timeZone:value});}}
+let dateFormat = new Intl.DateTimeFormat(language, {dateStyle:"short",timeStyle:"short"}),timezone,dateLanguage=language;
+function setTimezone(value){if(value&&(value!==timezone||language!==dateLanguage)){timezone=value;dateLanguage=language;dateFormat=new Intl.DateTimeFormat(language,{dateStyle:"short",timeStyle:"short",timeZone:value});}}
 const date = (value) => value ? dateFormat.format(new Date(value)) : "Sin ejecuciones";
 function message(text, error = false) {
   $("message").textContent = text;

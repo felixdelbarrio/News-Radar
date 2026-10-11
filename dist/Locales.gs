@@ -1,9 +1,67 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "Respuesta de traducción incompleta.": ["Incomplete translation response.", "Çeviri yanıtı eksik."],
+  "Versión": ["Version", "Sürüm"],
+  "Suscripción guardada. La entrega está pendiente de activación por el administrador.": ["Subscription saved. Delivery is awaiting activation by the administrator.", "Abonelik kaydedildi. Teslimat yöneticinin etkinleştirmesini bekliyor."],
+  "Suscripción guardada. Recibirás las novedades de los últimos 7 días.": ["Subscription saved. You will receive updates from the last 7 days.", "Abonelik kaydedildi. Son 7 günün yeniliklerini alacaksınız."],
+  "Define el contexto de {name} (puede estar vacío).": ["Define the context for {name} (may be empty).", "{name} için bağlam tanımlayın (boş olabilir)."],
+  "{field}: requiere un entero entre {min} y {max}.": ["{field}: requires an integer between {min} and {max}.", "{field}: {min} ile {max} arasında bir tam sayı gerektirir."],
+  "Registro de contenido no válido. Revisa el envío {id} antes de continuar.": ["Invalid content record. Review delivery {id} before continuing.", "Geçersiz içerik kaydı. Devam etmeden önce {id} gönderimini inceleyin."],
+  "El remitente {email} debe estar verificado en Gmail → Cuentas → Enviar como.": ["Sender {email} must be verified in Gmail → Accounts → Send mail as.", "{email} göndereni Gmail → Hesaplar → Postaları şu adresten gönder bölümünde doğrulanmalıdır."],
+  "Máximo {count} suscripciones por usuario.": ["Maximum {count} subscriptions per user.", "Kullanıcı başına en fazla {count} abonelik."],
+  "Reduce el período para exportar hasta {count} publicaciones.": ["Shorten the period to export up to {count} articles.", "En fazla {count} haber dışa aktarmak için dönemi kısaltın."],
+  "Feed demasiado grande (máximo {count} entradas).": ["Feed too large (maximum {count} entries).", "Akış çok büyük (en fazla {count} kayıt)."],
+  "Fuera de la ventana de {days} días": ["Outside the {days}-day window", "{days} günlük zaman aralığının dışında"],
+  "{count} fuentes seleccionadas. Entidades y países desactivados permanecen desactivados.": ["{count} sources selected. Disabled entities and countries remain disabled.", "{count} kaynak seçildi. Devre dışı kurumlar ve ülkeler devre dışı kalır."],
+  "{count} fuentes preparadas para reintentar.": ["{count} sources ready to retry.", "{count} kaynak yeniden denemeye hazır."],
+  "Recopilación diaria activada a partir de las {hour}:00 ({timezone}).": ["Daily collection enabled from {hour}:00 ({timezone}).", "Günlük toplama {hour}:00 itibarıyla etkin ({timezone})."],
+  "Ventana: últimos {days} días. Recopilación diaria a partir de las {hour}:00 ({timezone}).": ["Window: last {days} days. Daily collection from {hour}:00 ({timezone}).", "Zaman aralığı: son {days} gün. Günlük toplama {hour}:00 itibarıyla ({timezone})."],
+  "Máximo {count} fuentes RSS.": ["Maximum {count} RSS sources.", "En fazla {count} RSS kaynağı."],
+  "{count} fuentes configuradas · {active} activas": ["{count} configured sources · {active} active", "{count} yapılandırılmış kaynak · {active} etkin"],
+  "Gmail ha aceptado la prueba para {recipient} · {count} novedades.": ["Gmail accepted the test for {recipient} · {count} updates.", "Gmail {recipient} için test gönderimini kabul etti · {count} yenilik."],
+  "{subscriptions} suscripciones · {active} activas": ["{subscriptions} subscriptions · {active} active", "{subscriptions} abonelik · {active} etkin"],
+  "{subscribers} suscriptores · {subscriptions} suscripciones": ["{subscribers} subscribers · {subscriptions} subscriptions", "{subscribers} abone · {subscriptions} abonelik"],
+  "{accepted} correos aceptados por Gmail · {empty} selecciones sin novedades · {duplicates} noticias repetidas omitidas · {pending} pendientes.": ["{accepted} emails accepted by Gmail · {empty} selections without updates · {duplicates} repeated articles omitted · {pending} pending.", "Gmail {accepted} e-postayı kabul etti · {empty} seçimde yenilik yok · {duplicates} yinelenen haber atlandı · {pending} gönderim bekliyor."],
+  "{count} envíos anteriores no registraron las noticias incluidas. El control de contenido se aplica a los envíos con inventario; los anteriores requieren contrastar los correos originales.": ["{count} previous deliveries did not record their included articles. Content checks apply to deliveries with an inventory; older deliveries require checking the original emails.", "Önceki {count} gönderimde içerikteki haberler kaydedilmedi. İçerik kontrolü envanteri olan gönderimlere uygulanır; eski gönderimler için özgün e-postaların kontrolü gerekir."],
+  "{count} envíos disponibles dentro del límite configurado de 24 horas.": ["{count} deliveries available within the configured 24-hour limit.", "Yapılandırılmış 24 saatlik sınır dahilinde {count} gönderim hakkı kaldı."],
+  "Histórico visible limitado a {limit} registros; el control de duplicados conserva el historial completo.": ["Visible history is limited to {limit} records; duplicate checks retain the full history.", "Görünür geçmiş {limit} kayıtla sınırlıdır; yinelenen içerik kontrolü tüm geçmişi korur."],
+  "{count} coincidencias.": ["{count} matches.", "{count} eşleşme."],
+  "{total} coincidencias en las últimas {limit} operaciones disponibles.": ["{total} matches in the latest {limit} available operations.", "Mevcut son {limit} işlemde {total} eşleşme."],
+  "{total} coincidencias en las últimas {limit} entradas disponibles.": ["{total} matches in the latest {limit} available entries.", "Mevcut son {limit} kayıtta {total} eşleşme."],
+  "Volumen agrupado en intervalos de {days} días.": ["Volume grouped into {days}-day intervals.", "Haber hacmi {days} günlük aralıklarla gruplandırılmıştır."],
+  "{count} publicaciones sin geografía conocida, excluidas del mapa.": ["{count} articles with unknown geography, excluded from the map.", "Coğrafyası bilinmeyen {count} haber haritaya dahil edilmedi."],
+  "{count} publicaciones en seguimiento": ["{count} articles being tracked", "{count} haber takip ediliyor"],
+  "Recopilación diaria desactivada.": ["Daily collection disabled.", "Günlük toplama devre dışı."],
+  "Amplía los filtros para descubrir nuevas publicaciones y su distribución.": ["Broaden the filters to discover more articles and their distribution.", "Daha fazla haber ve dağılımlarını görmek için filtreleri genişletin."],
+  "Distribución geográfica, entidades mencionadas y evolución de las publicaciones recopiladas.": ["Geographic distribution, mentioned entities and trends in collected articles.", "Toplanan haberlerin coğrafi dağılımı, bahsedilen kurumlar ve zaman içindeki eğilimleri."],
+  "Sin publicaciones en la selección": ["No articles in this selection", "Bu seçimde haber yok"],
+  "Panorama de entidades": ["Entity overview", "Kurumlara genel bakış"],
+  "Anual": ["Annual", "Yıllık"],
+  "Tipo de recuperación": ["Recovery type", "Kurtarma türü"],
+  "Ya hay una recuperación anual en curso.": ["An annual recovery is already in progress.", "Yıllık kurtarma zaten devam ediyor."],
+  "Ya hay una recuperación diaria en curso.": ["A daily recovery is already in progress.", "Günlük kurtarma zaten devam ediyor."],
+  "Recuperación anual en cola.": ["Annual recovery queued.", "Yıllık kurtarma sıraya alındı."],
+  "Recuperación diaria en cola.": ["Daily recovery queued.", "Günlük kurtarma sıraya alındı."],
+  "Continuación en cola.": ["Continuation queued.", "Devam işlemi sıraya alındı."],
+  "La traducción nocturna se ejecuta en Google Apps Script.": ["Overnight translation runs in Google Apps Script.", "Gece çevirisi Google Apps Script üzerinde çalışır."],
+  "Idioma": ["Language", "Dil"],
+  "Noticias de la selección agrupadas por editor, no por entidad mencionada.": ["Selected news grouped by publisher, rather than mentioned entity.", "Seçilen haberler, bahsedilen kuruma göre değil yayıncıya göre gruplandırılır."],
+  "Pendiente de traducción nocturna. Se muestra el original.": ["Awaiting overnight translation. Showing the original.", "Gece çevirisi bekleniyor. Özgün metin gösteriliyor."],
+  "Traducción de noticias": ["News translation", "Haber çevirisi"],
+  "Los titulares y extractos se traducen al español, inglés y turco en segundo plano, de más reciente a más antiguo. Las pantallas utilizan las traducciones guardadas.": ["Headlines and summaries are translated into Spanish, English and Turkish in the background, newest first. Pages use saved translations.", "Başlıklar ve özetler arka planda en yeniden en eskiye İspanyolca, İngilizce ve Türkçeye çevrilir. Ekranlar kaydedilen çevirileri kullanır."],
+  "Apps Script ejecuta el horario aproximadamente, con un margen de 15 minutos.": ["Apps Script runs approximately at the scheduled time, within 15 minutes.", "Apps Script planlanan saatte yaklaşık 15 dakikalık bir aralıkta çalışır."],
+  "Activar traducción nocturna": ["Enable overnight translation", "Gece çevirisini etkinleştir"],
+  "Desactivar traducción nocturna": ["Disable overnight translation", "Gece çevirisini devre dışı bırak"],
+  "Traducir pendientes": ["Translate pending news", "Bekleyen haberleri çevir"],
+  "Progreso de traducción": ["Translation progress", "Çeviri ilerlemesi"],
+  "Sin traducciones programadas ejecutadas.": ["No scheduled translations have run.", "Henüz planlanmış çeviri çalıştırılmadı."],
+  "Traducción temporalmente no disponible. Se reintentará automáticamente.": ["Translation temporarily unavailable. It will retry automatically.", "Çeviri geçici olarak kullanılamıyor. Otomatik olarak yeniden denenecek."],
+  "Límite diario de traducción alcanzado. Continuará en la siguiente ejecución diaria.": ["Daily translation limit reached. It will continue on the next daily run.", "Günlük çeviri sınırına ulaşıldı. Bir sonraki günlük çalıştırmada devam edecek."],
+  "Traducción nocturna: {hour} · {timezone} · {state}": ["Overnight translation: {hour} · {timezone} · {state}", "Gece çevirisi: {hour} · {timezone} · {state}"],
+  "{done}/{total} noticias revisadas; {translated} traducciones guardadas.": ["{done}/{total} news items checked; {translated} translations saved.", "{done}/{total} haber incelendi; {translated} çeviri kaydedildi."],
   "Recarga": ["Collection", "Toplama"],
   "Recopilación diaria": ["Daily collection", "Günlük toplama"],
   "Recuperación anual": ["Annual recovery", "Yıllık kurtarma"],
-  "Recuperación manual": ["Manual recovery", "Elle kurtarma"],
   "Progreso de las recargas": ["Collection progress", "Toplama ilerlemesi"],
   "Sin recuperaciones registradas.": ["No collections recorded.", "Kayıtlı toplama yok."],
   "{done}/{total} consultas; {added} noticias incorporadas.": ["{done}/{total} queries; {added} articles saved.", "{done}/{total} sorgu; {added} kaydedilen haber."],
@@ -12,9 +70,7 @@ const translations = Object.freeze({
   "Preparando": ["Preparing", "Hazırlanıyor"],
   "En curso": ["Running", "Çalışıyor"],
   "En pausa": ["Paused", "Duraklatıldı"],
-  "Traduciendo…": ["Translating…", "Çevriliyor…"],
   "Traducción automática": ["Automatic translation", "Otomatik çeviri"],
-  "Traducción no disponible. Se muestra el original.": ["Translation unavailable. Showing the original.", "Çeviri kullanılamıyor. Özgün metin gösteriliyor."],
   "Ver original": ["View original", "Özgün metni gör"],
   "Continuar recuperación": ["Continue recovery", "Kurtarmaya devam et"],
   "DISTRIBUCIÓN POR MEDIO": ["PUBLICATIONS BY PUBLISHER", "YAYINCIYA GÖRE DAĞILIM"],
@@ -24,11 +80,10 @@ const translations = Object.freeze({
   "Español": ["Spanish", "İspanyolca"],
   "Inglés": ["English", "İngilizce"],
   "Turco": ["Turkish", "Türkçe"],
-  "Idioma": ["Language", "Dil"],
   "Idioma de la newsletter": ["Newsletter language", "Bülten dili"],
-  "Idioma de prueba de esta pestaña": ["Language for this tab", "Bu sekmenin dili"],
+  "Idioma de prueba": ["Test language", "Deneme dili"],
   "Idioma del navegador": ["Browser language", "Tarayıcı dili"],
-  "Solo afecta a esta pestaña hasta que la cierres.": ["Applies only to this tab until you close it.", "Yalnızca bu sekmeyi kapatana kadar geçerlidir."],
+  "Aplica a toda la aplicación hasta que cierres esta pestaña del navegador.": ["Applies to the whole application until you close this browser tab.", "Bu tarayıcı sekmesini kapatana kadar uygulamanın tamamında geçerlidir."],
   "Administración": ["Administration", "Yönetim"],
   "Novedades": ["Product updates", "Yenilikler"],
   "Noticias": ["News", "Haberler"],
@@ -36,7 +91,6 @@ const translations = Object.freeze({
   "Suscripción": ["Subscription", "Abonelik"],
   "Configuración de negocio": ["Business configuration", "İş yapılandırması"],
   "Configuración": ["Configuration", "Yapılandırma"],
-  "Fuentes y programación": ["Sources and scheduling", "Kaynaklar ve zamanlama"],
   "Fuentes": ["Sources", "Kaynaklar"],
   "Fuente": ["Source", "Kaynak"],
   "Auditoría": ["Audit", "Denetim"],
@@ -313,7 +367,7 @@ const translations = Object.freeze({
   "Recopilación diaria desactivada": ["Daily collection disabled", "Günlük toplama devre dışı"],
   "Recopilación actual": ["Current collection", "Geçerli toplama"],
   "Recopilación": ["Collection", "Toplama"],
-  "Últimas ejecuciones": ["Recent runs", "Son çalıştırmalar"],
+  "Ejecuciones": ["Runs", "Çalıştırmalar"],
   "Inicio": ["Start", "Başlangıç"],
   "Fin": ["End", "Bitiş"],
   "Evaluadas": ["Evaluated", "Değerlendirilen"],
@@ -564,7 +618,6 @@ const translations = Object.freeze({
   "noticias incluidas": ["articles included", "dahil edilen haber"],
   "Página {page} de {pages}": ["Page {page} of {pages}", "Sayfa {page} / {pages}"],
   "{total} resultados · página {page} de {pages}": ["{total} results · page {page} of {pages}", "{total} sonuç · sayfa {page} / {pages}"],
-  "{processed} de {total} consultas completadas; {pending} pendientes y {failed} con error. Las noticias se integran automáticamente.": ["{processed} of {total} queries completed; {pending} pending and {failed} failed. News is integrated automatically.", "{total} sorgudan {processed} tamamlandı; {pending} bekleyen ve {failed} hatalı. Haberler otomatik eklenir."],
   "{sessions} sesiones y {events} eventos que cumplen los filtros en los últimos 30 días. Incluye al administrador; sesiones identificadas por apertura del navegador.": ["{sessions} sessions and {events} events matching filters in the last 30 days. Includes administrators; sessions are identified when the browser opens.", "Son 30 günde filtrelere uygun {sessions} oturum ve {events} olay. Yönetici dahildir; oturumlar tarayıcı açıldığında belirlenir."],
   "Gmail ha aceptado la prueba para {recipient}. Remitente: {sender}. Gmail ID: {id}. Incluye {count} novedades del {from} al {to}.": ["Gmail accepted the test for {recipient}. Sender: {sender}. Gmail ID: {id}. Includes {count} updates from {from} to {to}.", "Gmail {recipient} için test gönderimini kabul etti. Gönderen: {sender}. Gmail kimliği: {id}. {from} ile {to} arasında {count} yenilik içerir."],
   "Alta manual": ["Manual registration", "Manuel kayıt"],
@@ -699,21 +752,44 @@ const translations = Object.freeze({
 
 function supportedLanguage(value){return typeof value==='string'&&Object.prototype.hasOwnProperty.call(languageNames,value);}
 function detectLanguage(preferences){for(const value of preferences){const code=String(value).toLowerCase().split(/[-_]/)[0];if(supportedLanguage(code))return code;}return 'es';}
-let translationPattern,translationIndex;
-function translateText(value,language='es'){
-  const text=String(value??'');if(language==='es'||!supportedLanguage(language))return text;
-  if(Object.prototype.hasOwnProperty.call(translations,text))return translations[text][language==='en'?0:1];
-  if(!translationPattern){
-    translationIndex=Object.fromEntries(Object.keys(translations).map(key=>[key.toLowerCase(),key]));
-    translationPattern=new RegExp('https?://[^\\s]+|[a-z0-9.!#$%&*+/=?^_~-]+@[a-z0-9.-]+\\.[a-z]{2,}|(?<![\\p{L}\\p{N}])('+Object.keys(translations).filter(key=>!key.includes('{')).sort((a,b)=>b.length-a.length).map(key=>key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')(?![\\p{L}\\p{N}])','giu');
+const translationMatchers=new Map();
+function translationMatcher(language){
+  if(translationMatchers.has(language))return translationMatchers.get(language);
+  const index=Object.fromEntries(Object.keys(translations).map(key=>[language==='es'?key:translations[key][language==='en'?0:1],key]));
+  const lowercase=Object.fromEntries(Object.entries(index).map(([key,value])=>[key.toLowerCase(),value]));
+    const pattern=new RegExp('News Radar|https?://[^\\s]+|[a-z0-9.!#$%&*+/=?^_~-]+@[a-z0-9.-]+\\.[a-z]{2,}|(?<![\\p{L}\\p{N}])('+Object.keys(index).filter(key=>!key.includes('{')).sort((a,b)=>b.length-a.length).map(key=>key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')(?![\\p{L}\\p{N}])','giu');
+  const templates=[];let group=1;
+  const templatePattern=new RegExp('^(?:'+Object.entries(index).filter(([text])=>text.includes('{')).sort(([a],[b])=>b.replace(/\{\w+\}/g,'').length-a.replace(/\{\w+\}/g,'').length).map(([text,key])=>{
+    const names=[];
+    const parts=text.split(/(\{\w+\})/g).map(part=>{
+      if(/^\{\w+\}$/.test(part)){names.push(part.slice(1,-1));return '(.*?)';}
+      return part.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    });
+    templates.push({key,names,group});group+=names.length+1;return '('+parts.join('')+')';
+  }).join('|')+')$','u');
+  const matcher={index,lowercase,pattern,templates,templatePattern};translationMatchers.set(language,matcher);return matcher;
+}
+function translateText(value,language='es',source='es'){
+  const text=String(value??'');if(language===source||!supportedLanguage(language)||!supportedLanguage(source))return text;
+  const {index,lowercase,pattern,templates,templatePattern}=translationMatcher(source),translated=key=>language==='es'?key:translations[key][language==='en'?0:1];
+  if(Object.prototype.hasOwnProperty.call(index,text))return translated(index[text]);
+  const match=text.trim().match(templatePattern);
+  if(match){
+    const template=templates.find(item=>match[item.group]!==undefined),values=Object.fromEntries(template.names.map((name,i)=>[name,match[template.group+i+1]]));
+    return text.replace(text.trim(),translated(template.key).replace(/\{(\w+)\}/g,(_,name)=>values[name]));
   }
-  return text.replace(translationPattern,key=>{
-    if(key.includes('@')||/^https?:\/\//i.test(key))return key;
-    const translated=translations[key]||translations[translationIndex[key.toLowerCase()]],result=translated[language==='en'?0:1];
+  return text.replace(pattern,key=>{
+    if(/^news radar$/i.test(key)||key.includes('@')||/^https?:\/\//i.test(key))return key;
+    const result=translated(index[key]||lowercase[key.toLowerCase()]);
     return key===key.toUpperCase()?result.toLocaleUpperCase(language):result;
   });
 }
-const calendarFormatters=new Map();
+
+const calendarFormatters=new Map(),trendFormatters=new Map();
+function formatTrendDay(value,language='es'){
+  if(!trendFormatters.has(language))trendFormatters.set(language,new Intl.DateTimeFormat(language,{day:'numeric',month:'short',timeZone:'UTC'}));
+  return trendFormatters.get(language).format(new Date(value));
+}
 function formatCalendarDay(value,language='es'){
   if(!value)return '';
   const day=new Date(value+'T00:00:00Z');if(!Number.isFinite(day.getTime()))return String(value);
@@ -723,5 +799,5 @@ function formatCalendarDay(value,language='es'){
 function formatText(text,values,language='es'){return translateText(text,language).replace(/\{(\w+)\}/g,(_,key)=>String(values[key]??''));}
 
 function feedLanguage(value){const tag=String(value||'').trim();return /^[a-z]{2}(?:-[A-Za-z0-9]{2,8})?$/.test(tag)?tag:'';}
-const recordLabels={radar:'Radar',news:'Noticias',briefing:'Novedades',subscriptions:'Newsletter',administration:'Administración',configuration:'Configuración de negocio',daily:'Recopilación diaria',annual:'Recuperación anual',manual:'Recuperación manual',sources:'Fuentes y programación',runs:'Últimas ejecuciones',audit:'Auditoría',telemetry:'Telemetría',adoption:'Adopción',subscribers:'Suscripciones',acceso:'Acceso',vista:'Vista',filtro:'Filtro',lectura:'Lectura',exportacion:'Exportación',rendimiento:'Rendimiento',error:'Error',dashboard:'Carga de selección',recopilacion:'Recopilación'};
+const recordLabels={radar:'Radar',news:'Noticias',briefing:'Novedades',subscriptions:'Newsletter',administration:'Administración',configuration:'Configuración de negocio',daily:'Recopilación diaria',annual:'Recuperación anual',sources:'Fuentes',runs:'Ejecuciones',language:'Idioma',audit:'Auditoría',telemetry:'Telemetría',adoption:'Adopción',subscribers:'Suscripciones',acceso:'Acceso',vista:'Vista',filtro:'Filtro',lectura:'Lectura',exportacion:'Exportación',rendimiento:'Rendimiento',error:'Error',dashboard:'Carga de selección',recopilacion:'Recopilación',traduccion:'Traducción de noticias'};
 function displayRecord(value,language='es'){return translateText(Object.prototype.hasOwnProperty.call(recordLabels,value)?recordLabels[value]:value,language);}

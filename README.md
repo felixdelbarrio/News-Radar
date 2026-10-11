@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.6.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.9.3`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -113,9 +113,9 @@ En escritorio, navegación superior fija y filtros verticales. En móvil, navega
 
 ## Recuperación manual de noticias
 
-Solo Administración ofrece **Recuperar noticias**, con **Hoy** seleccionado por defecto y **Último año** como alternativa. Los límites se calculan con la zona horaria guardada en Sheets; el año comprende los doce meses anteriores hasta hoy. Las búsquedas de perfil se dividen por semanas, con límites de fecha explícitos; las respuestas de 100 entradas o más se consideran posiblemente saturadas y se dividen en dos períodos menores hasta llegar a un día. Las tareas derivadas se conservan en Sheets, incluidos sus reintentos; los RSS propios se consultan una vez y se filtran por el período solicitado. No se garantiza un archivo exhaustivo: cada proveedor decide qué histórico publica y cuántos resultados devuelve.
+Solo Administración → Ejecuciones ofrece **Recuperar noticias**, con **Diaria** seleccionada por defecto y **Anual** como alternativa. La diaria utiliza la misma ventana reciente que el proceso programado. Los límites se calculan con la zona horaria guardada en Sheets; el año comprende los doce meses anteriores hasta hoy. Las búsquedas de perfil se dividen por semanas, con límites de fecha explícitos; las respuestas de 100 entradas o más se consideran posiblemente saturadas y se dividen en dos períodos menores hasta llegar a un día. Las tareas derivadas se conservan en Sheets, incluidos sus reintentos; los RSS propios se consultan una vez y se filtran por el período solicitado. No se garantiza un archivo exhaustivo: cada proveedor decide qué histórico publica y cuántos resultados devuelve.
 
-El período se guarda en Script Properties para que todos los lotes y reintentos usen el mismo rango. Si hay una recuperación pendiente no se inicia otra ni se sustituye su período. Desactivar una fuente sigue impidiendo nuevas consultas. Se comprueban URLs contra toda la columna de enlaces del histórico para no duplicar noticias antiguas. Solo se escriben las filas de estado que han cambiado; al finalizar se ordena el histórico por fecha una única vez, manteniendo las noticias recientes en la ventana de consulta. La programación diaria utiliza la misma división de consultas dentro de su ventana operativa configurable.
+Cada ciclo conserva su período y progreso en Recargas. Las solicitudes se registran en Script Properties antes de solicitar el bloqueo. Una recuperación activa impide lanzar otra del mismo tipo; la diaria y la anual pueden estar en cola simultáneamente. Desactivar una fuente sigue impidiendo nuevas consultas. Se comprueban URLs contra toda la columna de enlaces del histórico para no duplicar noticias antiguas. Solo se escriben las filas de estado que han cambiado; al finalizar se ordena el histórico por fecha una única vez, manteniendo las noticias recientes en la ventana de consulta. La programación diaria utiliza la misma división de consultas dentro de su ventana operativa configurable.
 
 En local, la acción muestra cuántas noticias de la instantánea corresponden al período. No consulta fuentes remotas ni simula noticias nuevas. No requiere permisos nuevos.
 
@@ -194,7 +194,7 @@ Noticias y Novedades identifican el editor con «Medio» en los metadatos de cad
 
 La interfaz soporta español, inglés y turco. Lee `navigator.languages` (o `navigator.language`), escoge la primera preferencia compatible y usa español si no hay ninguna. No solicita permisos ni consulta el sistema operativo ni servicios externos. El catálogo único de traducciones y formatos está en `src/shared/locales.js`; los valores de filtros, catálogos y registros mantienen sus identificadores. Titulares, extractos, nombres de newsletters, correos y URLs se conservan en su forma original.
 
-Administración permite probar otro idioma mediante **Idioma de prueba de esta pestaña**. La elección se guarda únicamente en `sessionStorage`, se aplica al recargar y termina al cerrar la pestaña. No cambia la configuración de Sheets ni otras sesiones. La opción **Idioma del navegador** restaura la detección.
+Administración permite probar otro idioma mediante **Administración → Idioma → Idioma de prueba**. La elección se guarda únicamente en `sessionStorage`, se aplica inmediatamente sin recargar y termina al cerrar la pestaña. No cambia la configuración de Sheets ni otras sesiones. La opción **Idioma del navegador** restaura la detección.
 
 Cada suscripción almacena `idioma` (`es`, `en`, `tr`). Las altas personales parten del idioma activo y las administrativas de español; el formulario permite elegirlo. Las ediciones conservan el idioma guardado. La newsletter real y la prueba de una suscripción usan ese idioma en HTML y texto; la prueba general del administrador usa español. Los artículos mantienen su idioma original. Las fuentes conservan su edición lingüística, con términos de búsqueda y clasificación en los tres idiomas, sin triplicar consultas por cambiar la interfaz.
 
@@ -210,8 +210,56 @@ Al instalar, ejecutar `initializeConfiguration` antes de publicar: añade y rell
 
 ## Recargas y traducciones · 1.6.0
 
-La diaria y la anual conservan sus propias solicitudes, progreso y pausas. El trabajador reserva capacidad para las cargas recientes y avanza también la anual. Administración → Ejecuciones muestra una barra por ciclo y permite filtrar su historial. «Recuperar noticias» inicia el período seleccionado; «Continuar recuperación» reanuda el trabajo pendiente.
+La diaria y la anual conservan sus propias solicitudes, progreso y pausas. El trabajador ejecuta un lote de un solo ciclo, con prioridad para la diaria. Administración → Ejecuciones muestra una barra por ciclo y permite filtrar su historial. «Recuperar noticias» inicia el período seleccionado; «Continuar recuperación» reanuda el trabajo pendiente.
 
 Noticias y Novedades traducen titulares y extractos al idioma activo (español, inglés o turco), conservan el original y reutilizan traducciones persistidas. La vista local muestra el original porque no dispone de LanguageApp.
 
 Para actualizar una instalación, copiar `dist/`, ejecutar `initializeConfiguration` y publicar la nueva versión de la WebApp. La inicialización conserva la cola anual existente y crea las hojas Recargas y Traducciones. Véase [funcionamiento y validación](docs/collections-and-translations-1.6.0.md).
+
+## Traducción nocturna y coherencia del Radar · 1.7.0
+
+Administración separa Fuentes, Ejecuciones e Idioma. Esta última sección permite probar un idioma para toda la aplicación durante la sesión de la pestaña, consultar el progreso de traducción, activar o desactivar su programación y solicitar las pendientes. La inicialización instala el horario de las 02:00 en la zona configurada; Apps Script puede ejecutarlo con un margen de quince minutos.
+
+Las tarjetas de Noticias y Novedades solo consultan traducciones persistidas. El trabajador nocturno barre desde las noticias más recientes, guarda su cursor y continúa por lotes, con pausas ante errores y un presupuesto diario. La recuperación anual y la diaria conservan sus colas. Si falta una traducción, se presenta el original con su indicación.
+
+Todos los gráficos del Radar parten de la misma selección por entidad y segmento. El ranking de entidades cuenta noticias sobre cada entidad; el de medios cuenta publicaciones de cada editor. «Explorar noticias» y el mapa llevan al listado conservando esa selección, sin imponer el período inicial de otra vista.
+
+Para actualizar: copiar `dist/`, ejecutar `initializeConfiguration` y publicar la WebApp. No se elimina la recuperación anual que siga pendiente. Véase [detalle técnico y validación](docs/language-and-radar-1.7.0.md).
+
+## Ejecuciones y prioridad diaria · 1.8.0
+
+«Abrir hoja» pertenece a Fuentes. Ejecuciones reúne recuperar noticias, continuar, reintentar fallos y activar la recopilación diaria. La selección Diaria/Anual y el lanzamiento se deshabilitan por tipo mientras haya solicitudes o recuperaciones activas; el servidor comprueba la misma disponibilidad sin depender de la pantalla.
+
+Los lanzamientos manuales y programados utilizan las mismas solicitudes y un único trabajador `backgroundTick_`, protegido por ScriptLock. Cada turno procesa un solo ciclo: diaria primero; si no tiene tareas listas, histórico y traducciones alternan. La diaria usa siempre la ventana reciente configurada. Las traducciones ceden entre llamadas cuando llega una solicitud diaria; una petición externa ya iniciada termina antes del siguiente turno. Los reintentos despiertan al vencer su espera, sin consultas periódicas durante la pausa ni activadores permanentes ociosos.
+
+La programación registra `dailyRadar_` a la hora configurada y `nightlyTranslations_` a las 02:00, ambos en la zona horaria de negocio. Cambiar la configuración actualiza los horarios y respeta las programaciones desactivadas. Estos activadores registran solicitudes para el trabajador compartido.
+
+Para actualizar la instalación: copiar `dist/`, ejecutar `initializeConfiguration` y publicar la nueva versión de la WebApp. La inicialización retira los activadores de continuación antiguos, conserva la cola y sus resultados y recompone los horarios habilitados. Véase [validación y funcionamiento](docs/background-priority-1.8.0.md).
+
+## Rendimiento de consultas y recuperación · 1.9.0
+
+Las tarjetas consultan la caché de traducciones con una sola lectura por página y agrupan las filas persistidas contiguas. Las traducciones ausentes se recuerdan durante la ejecución para evitar consultar de nuevo las mismas noticias en Noticias y Novedades. Cada entrada respeta el límite de tamaño de caché; la pantalla conserva el original si la traducción sigue pendiente.
+
+El trabajador compartido procesa hasta tres lotes por despertar, con un presupuesto de 45 segundos para iniciar trabajo nuevo. Cada lote persiste resultados; entre lotes se revisan las nuevas solicitudes y se mantiene la prioridad diaria. Las traducciones reciben el tiempo restante del turno. Una llamada externa iniciada puede terminar después de ese presupuesto. La espera de reintentos y la programación sin trabajadores ociosos se mantienen.
+
+Copiar `dist/` y publicar la nueva versión aplica estas mejoras conservando tareas y progreso. Véase [análisis de la telemetría y validación](docs/telemetry-1.9.0.md).
+
+## Colores de la newsletter · 1.9.1
+
+La plantilla declara `color-scheme: light only` en la cabecera HTML para impedir la inversión automática de Gmail en cuentas Google Workspace. El hero conserva su azul corporativo mediante el token de diseño existente y un fondo de gradiente uniforme; `newsletter.css` mantiene todos los estilos. No se añaden imágenes, solicitudes, JavaScript ni envoltorios de mezcla de colores.
+
+La solución utiliza el [soporte de Gmail incorporado en 2026](https://emailmarkup.org/en/blog/2026/gmail-app-dark-mode-update). La validación local comprueba el HTML generado y la apariencia en modos claro y oscuro, pero no sustituye una apertura real en Gmail para iPhone. Copiar `dist/` y publicar la WebApp aplica la corrección a los próximos envíos; los correos enviados conservan su HTML original.
+
+## Cambio de idioma sin recarga · 1.9.2
+
+El selector de Administración → Idioma actualiza la interfaz dentro del documento abierto. Se elimina `window.location.reload()`, que podía vaciar el documento embebido de Apps Script. Se conservan la sección activa, los filtros y los borradores sin guardar; la preferencia sigue limitada a `sessionStorage` de la pestaña.
+
+La localización conserva los literales originales con referencias débiles a sus nodos, permite cambios consecutivos entre español, inglés y turco y solo modifica valores que han cambiado. Los diccionarios y sus patrones se reutilizan por idioma. Al cambiar de idioma se actualizan las consultas del contenido y el formato de fechas, sin reconstruir los formularios administrativos.
+
+Validación: pruebas del cambio repetido con documentos y borradores conservados, y navegador en iframe con recarga reproducida como página en blanco y cambios de idioma posteriores sin navegación. Para actualizar, copiar `dist/` y publicar la WebApp; no requiere inicializar Sheets ni alterar trabajos pendientes.
+
+## Literales completos en inglés y turco · 1.9.3
+
+Se completan las frases del Radar y se traducen mensajes con cifras mediante plantillas del diccionario compartido. Las plantillas permiten cambiar el orden gramatical sin modificar nombres, correos, URLs ni valores de configuración. Los patrones se compilan una vez por idioma y se reutilizan. El nombre «News Radar» se conserva durante los cambios de idioma, y las fechas del gráfico utilizan el idioma actual.
+
+Las pruebas exigen entradas completas para los textos estáticos, las frases del cliente y servidor y las etiquetas administrativas; una traducción parcial ya no cumple ese control. También comprueban mensajes interpolados y cambios desde español a inglés y turco con contenido en las pantallas. Copiar `dist/` y publicar la WebApp aplica la corrección.

@@ -9,7 +9,7 @@ function currentMonth_(now=new Date()){
   return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10)};
 }
 function dashboardQuery_(query={},now=new Date()){
-  const {view,initial,...filters}=query;
+  const {view,initial,language,...filters}=query;
   if(view==='radar')return {entity:initial?'':filters.entity||'',segment:initial?'Empresas e instituciones':filters.segment||''};
   const selection=initial?{entity:settings_().defaultEntity,segment:settings_().defaultSegment,topic:settings_().defaultTopic,country:settings_().defaultCountry,...currentMonth_(now)}:filters;
   return view==='briefing'?{...selection,...recentNewsRange_(now)}:selection;

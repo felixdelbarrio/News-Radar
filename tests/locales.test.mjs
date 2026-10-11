@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {parse} from 'acorn';
 import {JSDOM} from 'jsdom';
 import {detectLanguage,supportedLanguage,translations,translateText,formatText,formatCalendarDay,feedLanguage} from '../src/shared/locales.js';
 import {files,read,readServerScript} from '../scripts/source.mjs';
@@ -30,7 +31,8 @@ test('todos los literales estáticos, atributos accesibles y etiquetas de config
  }
  const schema=JSON.parse(read('assets/admin-schema.json'));
  for(const item of Object.values(schema)){values.add(item.label);values.add(item.help);for(const [,label] of item.fields||[])values.add(label);for(const label of Object.values(item.labels||{}))values.add(label);for(const group of item.groups||[])values.add(group.label);}
- const missing=[...values].filter(value=>!ignored.has(value)&&translateText(value,'en')===value&&translateText(value,'tr')===value);
+ const labels=new Set(Object.keys(translations).map(value=>value.toLowerCase()));
+ const missing=[...values].filter(value=>!ignored.has(value)&&!labels.has(value.toLowerCase().replace(/\s*·$|\.$/g,''))&&!labels.has(value.toLowerCase()));
  assert.deepEqual(missing,[]);
  for(const [key,values] of Object.entries(translations)){assert.equal(values.length,2,key);assert.ok(values.every(value=>typeof value==='string'&&value.trim()),key);}
 });
@@ -62,7 +64,7 @@ test('la preferencia de prueba es propia de la pestaña y puede restaurarse al i
 test('newsletters HTML y texto se generan por destinatario en tres idiomas sin traducir noticias ni URLs',()=>{
  const config=JSON.parse(read('assets/configuration-defaults.json')),c=vm.createContext({});vm.runInContext(readServerScript('dist',true),c);c.configuration_=()=>config;c.settings_=()=>config.settings;config.settings.newsletterAppUrl='https://script.google.com/macros/s/test/exec';
  const row={titular:'Noticias de España',extracto:'Oferta original en español.',pais:'España',fecha:'2026-10-11',entidad:'BBVA',medio:'Noticias España',tipo:'Banco tradicional',senales:['Lanzamiento de producto'],segmentos:['Empresas e instituciones'],tema:'Financiación',url:'https://example.com/noticias'};
- for(const language of ['es','en','tr']){const result=c.newsletterContent_([row],{entity:'BBVA'},'Noticias de España',new Date('2026-10-11T12:00:00Z'),'sub-id',language);assert.match(result.html,new RegExp('lang="'+language+'"'));assert.ok(result.html.includes(translateText('Gestiona tu suscripción',language)));assert.ok(result.text.includes(translateText('Novedades detectadas',language)));assert.ok(result.html.includes(row.extracto));assert.ok(result.html.includes(row.titular));assert.ok(result.text.includes(row.url));assert.equal(result.count,1);assert.equal(result.items[0],row);}
+ for(const language of ['es','en','tr']){const result=c.newsletterContent_([row],{entity:'BBVA'},'Noticias de España',new Date('2026-10-11T12:00:00Z'),'sub-id',language);assert.match(result.html,new RegExp('lang="'+language+'"'));assert.ok(result.html.includes(translateText('Gestiona tu suscripción',language)));assert.ok(result.text.includes(translateText('Novedades detectadas',language)));assert.ok(result.html.includes(row.extracto));assert.ok(result.html.includes(row.titular));assert.ok(result.text.includes(row.url));assert.equal(result.count,1);assert.equal(result.items[0],row);const document=new JSDOM(result.html).window.document;assert.equal(document.head.querySelector('meta[name="color-scheme"]').content,'light only');assert.match(document.querySelector('header').style.backgroundImage,/linear-gradient/);assert.match(document.querySelector('style').textContent,/color-scheme:only light/);}
  assert.throws(()=>c.newsletterContent_([],{},'Title',new Date(),'', 'fr'),/Idioma/);
  const empty=c.newsletterContent_([],{},'Test',new Date(),'', 'tr');assert.equal(empty.count,0);
  for(const language of ['es','en','tr'])assert.equal(c.subscriptionRecord_({name:'Mi canal',language,filters:{}},'user@bbva.com','id',new Date(),0).idioma,language);
@@ -84,4 +86,52 @@ test('la recopilación conserva inglés y turco y el idioma explícito o declara
  const trFeed=c.profileFeed_(config.geographies.find(row=>row.language==='tr'),config.entities[0]);assert.equal(trFeed.language,'tr');assert.match(trFeed.url,/hl=tr/);
  const tr=c.evaluate_({title:'Garanti BBVA yeni hesap sunar',excerpt:'KOBİ için ticari hesap',url:'https://news.google.com/article',date:values.pubDate},trFeed,now).item;assert.ok(tr);assert.equal(c.newsRecord_(tr,trFeed,now)[11],'tr');
  const original=JSON.stringify(config);config.feeds[0].language='invalid_language';assert.throws(()=>c.validateConfiguration_(config),/Idioma de fuente/);assert.notEqual(JSON.stringify(config),original);
+});
+test('cambiar de idioma conserva documento, sección, borradores y filtros sin navegar ni recargar',async t=>{
+ const a=await app(t,{language:'es-ES'});await a.click('[data-view="administration"]');await a.click('[data-admin-view="sources"]');
+ const field=a.find('#source-fields input'),document=a.w.document;field.value='Borrador sin guardar';await a.click('[data-admin-view="language"]');
+ for(const language of ['en','tr','es','tr','en','']){
+  await a.change('#preview-language',language);const expected=language||'es';assert.equal(a.w.document,document);assert.equal(document.documentElement.lang,expected);assert.equal(a.find('#language-section').hidden,false);assert.equal(field.value,'Borrador sin guardar');
+  assert.equal(a.find('[data-view="news"]').textContent.trim(),translateText('Noticias',expected));assert.equal(a.find('[data-admin-view="language"]').textContent.trim(),translateText('Idioma',expected));assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.language,expected);
+  assert.ok(a.find('#translation-schedule').textContent.includes(translateText('Activada',expected)));
+ }
+});
+
+test('las frases completas del cliente y servidor tienen entrada propia y no dependen de traducciones parciales',()=>{
+ const values=new Set();
+ function visit(node){
+  if(node.type==='Literal'&&typeof node.value==='string'&&/^[A-ZÁÉÍÓÚÑ][^<>]*[.!?]$/.test(node.value)&&node.value.includes(' '))values.add(node.value);
+  for(const child of Object.values(node)){if(Array.isArray(child))child.forEach(value=>value?.type&&visit(value));else if(child?.type)visit(child);}
+ }
+ for(const file of [...files('src/client'),...files('src/server').filter(file=>file.endsWith('.gs'))])visit(parse(read(file),{ecmaVersion:'latest',sourceType:'module'}));
+ assert.deepEqual([...values].filter(value=>!Object.hasOwn(translations,value)),[]);
+});
+
+test('las plantillas interpoladas conservan datos y orden gramatical al traducir y al restaurar el idioma',()=>{
+ const cases=[
+  ['Volumen agrupado en intervalos de 6 días.','Volume grouped into 6-day intervals.','Haber hacmi 6 günlük aralıklarla gruplandırılmıştır.'],
+  ['14 coincidencias en las últimas 20000 entradas disponibles.','14 matches in the latest 20000 available entries.','Mevcut son 20000 kayıtta 14 eşleşme.'],
+  ['Ventana: últimos 7 días. Recopilación diaria a partir de las 7:00 (Europe/Madrid).','Window: last 7 days. Daily collection from 7:00 (Europe/Madrid).','Zaman aralığı: son 7 gün. Günlük toplama 7:00 itibarıyla (Europe/Madrid).'],
+  ['Gmail ha aceptado la prueba para noticias@bbva.com · 2 novedades.','Gmail accepted the test for noticias@bbva.com · 2 updates.','Gmail noticias@bbva.com için test gönderimini kabul etti · 2 yenilik.'],
+  ['Define el contexto de Noticias España (puede estar vacío).','Define the context for Noticias España (may be empty).','Noticias España için bağlam tanımlayın (boş olabilir).']
+ ];
+ for(const [es,en,tr] of cases){assert.equal(translateText(es,'en'),en);assert.equal(translateText(es,'tr'),tr);assert.equal(translateText(en,'es','en'),es);assert.equal(translateText(tr,'es','tr'),es);assert.equal(translateText(en,'tr','en'),tr);}
+ assert.equal(translateText('Gestión de News Radar','es','en'),'Gestión de News Radar');
+ assert.equal(translateText('Uso de News Radar','en'),'News Radar usage');assert.equal(translateText('NEWS RADAR','tr'),'NEWS RADAR');
+});
+
+for(const language of ['en','tr'])test('frases del Radar y de administración completas en '+language+' tras cambiar el idioma',async t=>{
+ const a=await app(t,{language:'es-ES'});
+ a.data.radar.summary.news=14;a.data.radar.unlocated=3;
+ a.data.radar.trend={buckets:['2026-10-01','2026-10-07'],from:'2026-10-01',to:'2026-10-07',intervalDays:6,series:[{entity:'BBVA',total:14,values:[4,10]}]};
+ a.data.schedule='Ventana: últimos 7 días. Recopilación diaria a partir de las 7:00 (Europe/Madrid).';
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="language"]');await a.change('#preview-language',language);
+ assert.equal(a.find('#sidebar-context-title').textContent,translateText('Gestión de News Radar',language));
+ await a.click('[data-view="radar"]');
+ for(const [id,source] of [['radar-focus','Panorama de entidades'],['radar-context','Distribución geográfica, entidades mencionadas y evolución de las publicaciones recopiladas.'],['radar-headline','14 publicaciones en seguimiento'],['trend-note','Volumen agrupado en intervalos de 6 días.']])assert.equal(a.find('#'+id).textContent,translateText(source,language));
+ assert.ok(a.find('#trend-chart').textContent.includes(new Intl.DateTimeFormat(language,{day:'numeric',month:'short',timeZone:'UTC'}).format(new Date('2026-10-01'))));
+ await a.click('[data-view="subscriptions"]');assert.equal(a.find('#subscriptions-count').textContent,language==='en'?'2 subscriptions · 1 active':'2 abonelik · 1 etkin');
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="audit"]');assert.equal(a.find('#audit-note').textContent,translateText('0 coincidencias en las últimas 20000 entradas disponibles.',language));
+ await a.click('[data-admin-view="telemetry"]');assert.equal(a.find('#telemetry-note').textContent,translateText('0 coincidencias en las últimas 20000 operaciones disponibles.',language));
+ await a.click('[data-admin-view="adoption"]');assert.equal(a.find('#adoption-section .eyebrow').textContent,translateText('Uso de News Radar',language));
 });
