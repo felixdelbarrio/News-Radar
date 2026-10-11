@@ -1,5 +1,29 @@
 <script id="radar-client">
 (() => {
+  // assets/app-config.json
+  var app_config_default = {
+    views: {
+      briefing: "Novedades",
+      news: "Noticias",
+      radar: "Radar",
+      subscriptions: "Newsletter",
+      administration: "Administraci\xF3n"
+    },
+    adminViews: {
+      configuration: "Configuraci\xF3n de negocio",
+      sources: "Fuentes",
+      audit: "Auditor\xEDa",
+      telemetry: "Telemetr\xEDa",
+      adoption: "Adopci\xF3n",
+      subscribers: "Suscripciones",
+      runs: "Ejecuciones",
+      language: "Idioma"
+    }
+  };
+
+  // src/client/config.js
+  var defaultView = Object.keys(app_config_default.views)[0], config_default = app_config_default;
+
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
     "Respuesta de traducci\xF3n incompleta.": ["Incomplete translation response.", "\xC7eviri yan\u0131t\u0131 eksik."],
@@ -285,7 +309,7 @@
     "Recibe lanzamientos, mejoras de productos y alianzas de las entidades que sigues. Elige el contenido y la periodicidad.": ["Receive launches, product improvements and partnerships from the entities you follow. Choose the content and frequency.", "Takip etti\u011Finiz kurumlar\u0131n lansmanlar\u0131n\u0131, \xFCr\xFCn iyile\u015Ftirmelerini ve i\u015F birliklerini al\u0131n. \u0130\xE7erik ve s\u0131kl\u0131\u011F\u0131 se\xE7in."],
     "Sin correos si no hay novedades": ["No emails without updates", "Yenilik yoksa e-posta g\xF6nderilmez"],
     "Las suscripciones tienen sus propios filtros. Cambiar la selecci\xF3n de noticias no modifica lo que recibes por correo.": ["Subscriptions have their own filters. Changing the news selection does not change what you receive by email.", "Aboneliklerin kendi filtreleri vard\u0131r. Haber se\xE7imini de\u011Fi\u015Ftirmek e-postayla ald\u0131\u011F\u0131n\u0131z i\xE7eri\u011Fi de\u011Fi\u015Ftirmez."],
-    "Cargando el radar\u2026": ["Loading radar\u2026", "Radar y\xFCkleniyor\u2026"],
+    "Cargando contenido\u2026": ["Loading content\u2026", "\u0130\xE7erik y\xFCkleniyor\u2026"],
     "Cargando selecci\xF3n": ["Loading selection", "Se\xE7im y\xFCkleniyor"],
     "Gesti\xF3n de News Radar": ["News Radar management", "News Radar y\xF6netimi"],
     "Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicaci\xF3n.": ["Manage collected content, subscriptions and application operation.", "Toplanan i\xE7eri\u011Fi, abonelikleri ve uygulaman\u0131n i\u015Fleyi\u015Fini y\xF6netin."],
@@ -1529,30 +1553,6 @@
     } };
   }
 
-  // assets/app-config.json
-  var app_config_default = {
-    views: {
-      radar: "Radar",
-      briefing: "Novedades",
-      news: "Noticias",
-      subscriptions: "Newsletter",
-      administration: "Administraci\xF3n"
-    },
-    adminViews: {
-      configuration: "Configuraci\xF3n de negocio",
-      sources: "Fuentes",
-      audit: "Auditor\xEDa",
-      telemetry: "Telemetr\xEDa",
-      adoption: "Adopci\xF3n",
-      subscribers: "Suscripciones",
-      runs: "Ejecuciones",
-      language: "Idioma"
-    }
-  };
-
-  // src/client/config.js
-  var stdin_default = app_config_default;
-
   // src/client/features/activity-chart.js
   function activityChart(days) {
     if (!days.length) return '<div class="note">No hay actividad diaria registrada en este per\xEDodo.</div>';
@@ -1592,9 +1592,9 @@
   function createAdministration({ isAdmin, track: track2, onConfiguration, onSubscribers, onLanguage, onLeaveLanguage }) {
     let current = "configuration";
     async function open(view = current) {
-      if (!(!isAdmin() || !(view in stdin_default.adminViews))) {
+      if (!(!isAdmin() || !(view in config_default.adminViews))) {
         current === "language" && view !== current && onLeaveLanguage(), current = view, track2("vista");
-        for (let name of Object.keys(stdin_default.adminViews)) $(name + "-section").hidden = name !== view;
+        for (let name of Object.keys(config_default.adminViews)) $(name + "-section").hidden = name !== view;
         if ($("admin-tabs").querySelectorAll("[data-admin-view]").forEach((button) => {
           button.setAttribute("aria-selected", String(button.dataset.adminView === view)), button.tabIndex = button.dataset.adminView === view ? 0 : -1;
         }), view === "subscribers" && await onSubscribers(), view === "configuration") try {
@@ -1609,7 +1609,7 @@
       let button = event.target.closest("[data-admin-view]");
       button && open(button.dataset.adminView).catch((error) => message(error.message, !0));
     }), $("admin-tabs").addEventListener("keydown", (event) => {
-      let views = Object.keys(stdin_default.adminViews), index = views.indexOf(current);
+      let views = Object.keys(config_default.adminViews), index = views.indexOf(current);
       if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
       event.preventDefault();
       let next = event.key === "Home" ? 0 : event.key === "End" ? views.length - 1 : (index + (["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : -1) + views.length) % views.length;
@@ -1621,7 +1621,7 @@
 
   // src/client/features/filters.js
   function createFilters({ onInvalidate, onChange }) {
-    let form = $("filters"), page = 0, view = "radar", defaults = {}, selections = /* @__PURE__ */ new Map(), initialized = /* @__PURE__ */ new Set();
+    let form = $("filters"), page = 0, view = defaultView, defaults = {}, selections = /* @__PURE__ */ new Map(), initialized = /* @__PURE__ */ new Set();
     function options(name, values) {
       let el = form.elements[name], current = el.value;
       current && !values.includes(current) && (values = [...values, current]);
@@ -1765,12 +1765,12 @@
 
   // src/client/features/navigation.js
   function createNavigation({ isAdmin, track: track2, onAdministration, onSubscriptions, onSelection }) {
-    let current = "radar";
+    let current = defaultView;
     async function show(view) {
-      if (!(!(view in stdin_default.views) || view === "administration" && !isAdmin())) {
+      if (!(!(view in config_default.views) || view === "administration" && !isAdmin())) {
         current = view, window.scrollTo({ top: 0, behavior: "auto" }), track2("vista");
-        for (let name of Object.keys(stdin_default.views)) $(name + "-section").hidden = name !== view;
-        $("filters-section").hidden = ["administration", "subscriptions"].includes(view), $("sidebar-context-title").textContent = view === "administration" ? "Gesti\xF3n de News Radar" : "Seguimiento personalizado", $("sidebar-context-copy").textContent = view === "administration" ? "Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicaci\xF3n." : "Las suscripciones tienen sus propios filtros. Cambiar la selecci\xF3n de noticias no modifica lo que recibes por correo.", $("sidebar-context").hidden = !["administration", "subscriptions"].includes(view), $("open-filters").hidden = ["administration", "subscriptions"].includes(view), $("export").hidden = view !== "news", $("page-title").textContent = stdin_default.views[view], document.querySelectorAll("[data-view]").forEach((button) => {
+        for (let name of Object.keys(config_default.views)) $(name + "-section").hidden = name !== view;
+        $("filters-section").hidden = ["administration", "subscriptions"].includes(view), $("sidebar-context-title").textContent = view === "administration" ? "Gesti\xF3n de News Radar" : "Seguimiento personalizado", $("sidebar-context-copy").textContent = view === "administration" ? "Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicaci\xF3n." : "Las suscripciones tienen sus propios filtros. Cambiar la selecci\xF3n de noticias no modifica lo que recibes por correo.", $("sidebar-context").hidden = !["administration", "subscriptions"].includes(view), $("open-filters").hidden = ["administration", "subscriptions"].includes(view), $("export").hidden = view !== "news", $("page-title").textContent = config_default.views[view], document.querySelectorAll("[data-view]").forEach((button) => {
           button.dataset.view === view ? button.setAttribute("aria-current", "page") : button.removeAttribute("aria-current");
         });
         try {
@@ -1935,7 +1935,7 @@
   }, !1));
   createFilterPanel();
   window.RADAR_PREVIEW && ($("preview-banner").hidden = !1);
-  navigation.show("radar");
+  navigation.show(defaultView);
   !window.RADAR_PREVIEW && typeof google < "u" && google.script.url.getLocation(async (location) => {
     if (location.parameter.view !== "subscriptions") return;
     await navigation.show("subscriptions");

@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.9.3`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.9.4`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -263,3 +263,7 @@ Validación: pruebas del cambio repetido con documentos y borradores conservados
 Se completan las frases del Radar y se traducen mensajes con cifras mediante plantillas del diccionario compartido. Las plantillas permiten cambiar el orden gramatical sin modificar nombres, correos, URLs ni valores de configuración. Los patrones se compilan una vez por idioma y se reutilizan. El nombre «News Radar» se conserva durante los cambios de idioma, y las fechas del gráfico utilizan el idioma actual.
 
 Las pruebas exigen entradas completas para los textos estáticos, las frases del cliente y servidor y las etiquetas administrativas; una traducción parcial ya no cumple ese control. También comprueban mensajes interpolados y cambios desde español a inglés y turco con contenido en las pantallas. Copiar `dist/` y publicar la WebApp aplica la corrección.
+
+## Navegación inicial · 1.9.4
+
+El orden es Novedades, Noticias, Radar, Newsletter y Administración. Novedades se abre por defecto y la consulta inicial solicita únicamente esa vista. Administración permanece visible solo para administradores. El orden y la vista inicial del cliente se obtienen del catálogo de navegación compartido.

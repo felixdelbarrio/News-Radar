@@ -40,6 +40,7 @@ test('todos los literales estáticos, atributos accesibles y etiquetas de config
 for(const language of ['es','en','tr'])test('interfaz '+language+': formularios, filtros, originales y idioma de las newsletters',async t=>{
  const a=await app(t,{language:language+'-'+(language==='tr'?'TR':language==='en'?'GB':'ES')});
  assert.equal(a.w.document.documentElement.lang,language);
+ assert.deepEqual([...a.w.document.querySelectorAll('.nav [data-view]')].map(node=>node.dataset.view),['briefing','news','radar','subscriptions','administration']);assert.equal(a.find('.nav [aria-current="page"]').dataset.view,'briefing');assert.equal(a.find('#briefing-section').hidden,false);assert.equal(a.calls.find(row=>row.method==='getDashboard').query.view,'briefing');
  await a.click('[data-view="news"]');assert.equal(a.find('#page-title').textContent,translateText('Noticias',language));
  await a.change('#filters [name="country"]','España');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.country,'España');assert.equal(a.find('#filters [name="country"]').value,'España');assert.equal(a.find('#filters [name="country"] option[value="España"]').textContent,translateText('España',language));
  a.data.items=[{titular:'Noticias de España',extracto:'Nueva cuenta en España',medio:'Noticias España',pais:'España',fecha:'2026-10-11',url:'https://example.com/original',entidad:'BBVA',tema:'Financiación'}];a.data.total=1;

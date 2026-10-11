@@ -1,9 +1,10 @@
+import {defaultView} from '../config.js';
 import {t,language} from '../core/language.js';
 import {formatCalendarDay} from '../../shared/locales.js';
 import { $, escape } from "../core/dom.js";
 function createFilters({ onInvalidate, onChange }) {
   const form = $("filters");
-  let page = 0, view="radar", defaults={};
+  let page = 0, view=defaultView, defaults={};
   const selections=new Map(),initialized=new Set();
   function options(name, values) {
     const el = form.elements[name], current = el.value;

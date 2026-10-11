@@ -64,7 +64,7 @@ test('el seguimiento refresca contenido nuevo, evita llamadas en pestañas ocult
 });
 
 test('volver al Radar muestra los datos actualizados durante administración sin repetir el RPC',async t=>{
- const a=await app(t);await a.click('[data-view="administration"]');a.data.radar.summary.news=5;a.data.radar.publishers=[{publisher:'Diario vivo',total:5}];
+ const a=await app(t);await a.click('[data-view="radar"]');await a.click('[data-view="administration"]');a.data.radar.summary.news=5;a.data.radar.publishers=[{publisher:'Diario vivo',total:5}];
  await a.click('#collect');const calls=a.calls.filter(r=>r.method==='getDashboard').length;
  await a.click('[data-view="radar"]');assert.match(a.find('#radar-headline').textContent,/5 publicaciones/);assert.match(a.find('#publisher-chart').textContent,/Diario vivo/);assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,calls);
  await a.click('[data-view="administration"]');a.data.collection.pending=5;await a.click('[data-view="news"]');await a.click('[data-view="administration"]');await a.click('#continue-collection');assert.ok(a.calls.some(r=>r.method==='resumeCollection'));
