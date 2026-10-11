@@ -19,28 +19,18 @@ function translateArticleText_(row,language){
   if(blocks.length!==2||!blocks[0]||(row.extracto&&!blocks[1]))throw Error('Respuesta de traducción incompleta.');
   return {titular:blocks[0].slice(0,5000),extracto:blocks[1].slice(0,5000)};
 }
-function articleTranslations_(rows,language){
-  if(!supportedLanguage(language))throw Error('Idioma no admitido.');
-  const nativeFeeds=new Set(configuration_().feeds.map(feed=>feed.name));
-  const cache=CacheService.getScriptCache();let translated=0,unavailable=Boolean(cache.get('article-translation-pause'));
+function nativeArticle_(row,language,feeds){return feeds.has(row.fuente)&&String(row.idioma||'').toLowerCase().split(/[-_]/)[0]===language;}
+function savedArticleTranslations_(rows,language){
+  const feeds=new Set(configuration_().feeds.map(feed=>feed.name));
   return rows.map(row=>{
-    if(nativeFeeds.has(row.fuente)&&String(row.idioma||'').toLowerCase().split(/[-_]/)[0]===language)return {...row,translation:{language,state:'native'}};
-    const key=articleTranslationKey_(row,language);let value=cachedArticleTranslation_(key),state='pending';
-    if(!value&&!unavailable&&translated<5){
-      translated++;
-      try{
-        value=translateArticleText_(row,language);const index=articleTranslationIndex_(),position=book_().getSheetByName('Traducciones').getLastRow()+1;
-        append_('Traducciones',[[key,language,value.titular,value.extracto,new Date().toISOString()]]);index.set(key,position);cacheJson_('article:'+key,value,21600);articleTranslationMemory_.set(key,value);
-      }catch{unavailable=true;cache.put('article-translation-pause','1',300);}
-    }
-    if(value)state='translated';else if(unavailable)state='unavailable';
-    return {...row,...(value?{...value,original:{titular:row.titular,extracto:row.extracto}}:{}),translation:{language,state}};
+    if(nativeArticle_(row,language,feeds))return {...row,translation:{language,state:'native'}};
+    const value=cachedArticleTranslation_(articleTranslationKey_(row,language));
+    return {...row,...(value?{...value,original:{titular:row.titular,extracto:row.extracto}}:{}),translation:{language,state:value?'translated':'pending'}};
   });
 }
-function translateNews(request){
-  authorize_();if(!request||!supportedLanguage(request.language)||!Array.isArray(request.ids)||request.ids.length>100||request.ids.some(id=>typeof id!=='string'||!id||id.length>100))throw Error('Solicitud de traducción no válida.');
-  const ids=new Set(request.ids),lock=LockService.getScriptLock();
-  if(!lock.tryLock(1000))return {items:[],pending:[...ids],busy:true};
-  try{const items=articleTranslations_(rowsById_('Noticias',ids,settings_().newsReadLimit),request.language);SpreadsheetApp.flush();return {items:items.map(({id,titular,extracto,original,translation})=>({id,titular,extracto,original,translation})),pending:items.filter(row=>row.translation.state==='pending').map(row=>row.id)};}
-  finally{lock.releaseLock();}
+function storeArticleTranslation_(row,language){
+  const key=articleTranslationKey_(row,language),value=translateArticleText_(row,language),index=articleTranslationIndex_(),position=book_().getSheetByName('Traducciones').getLastRow()+1;
+  append_('Traducciones',[[key,language,value.titular,value.extracto,new Date().toISOString()]]);index.set(key,position);
+  articleTranslationMemory_=articleTranslationMemory_||new Map();articleTranslationMemory_.set(key,value);cacheJson_('article:'+key,value,21600);
+  properties_().setProperty('TRANSLATIONS_REVISION',new Date().toISOString());return value;
 }

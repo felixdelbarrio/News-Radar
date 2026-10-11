@@ -21,7 +21,6 @@ function setupRadar() {
     }
     sheet=book.insertSheet(name);sheet.getRange(1,1,1,headers.length).setValues([headers]).setFontWeight('bold').setBackground(SHEET_THEME.background).setFontColor(SHEET_THEME.foreground);sheet.setFrozenRows(1);
   });
-  if(p.getProperty('DAILY_ENABLED')==='true')enableDaily();
   return 'News Radar preparado: fuentes predeterminadas, recopilación automática y métricas.';
 }
 function rows_(sheet, limit, width=RADAR.sheets[sheet].length) {

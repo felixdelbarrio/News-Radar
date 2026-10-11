@@ -2,9 +2,9 @@ function collectionRequests_(){
   return Object.entries(properties_().getProperties()).filter(([key])=>key.startsWith('COLLECTION_REQUEST:')).map(([key,value])=>({key,value,...JSON.parse(value)}));
 }
 function requestCollection_(kind,range){
-  const id=kind==='daily'?'daily/'+range.to:Utilities.getUuid(),request={id,kind,range,created:new Date().toISOString()};
+  const id=kind==='daily'?'daily/'+range.to+'/'+Utilities.getUuid():Utilities.getUuid(),request={id,kind,range,created:new Date().toISOString()};
   properties_().setProperty('COLLECTION_REQUEST:'+sha256_(kind+'|'+range.from+'|'+range.to),JSON.stringify(request));
-  CacheService.getScriptCache().remove('collection-status');ensureCollectionTrigger_();ensureCollectionWake_();
+  CacheService.getScriptCache().remove('collection-status');ensureBackgroundWorker_();
 }
 function collectionJobs_(){return rows_('Recargas').map((job,index)=>({...job,row:index+2}));}
 function writeCollectionJob_(job){
@@ -12,7 +12,7 @@ function writeCollectionJob_(job){
 }
 function jobRange_(job){return {from:job.desde,to:job.hasta};}
 function drainCollectionRequests_(){
-  const requests=collectionRequests_();if(!requests.length)return;
+  const requests=collectionRequests_().sort((a,b)=>(b.kind==='daily')-(a.kind==='daily'));if(!requests.length)return;
   const jobs=collectionJobs_(),tasks=rows_('Recopilacion');
   const finished=new Set(jobs.filter(job=>job.estado==='Completada').map(job=>job.id)),sheet=book_().getSheetByName('Recopilacion');
   let end=tasks.length;
@@ -49,14 +49,4 @@ function collectionSnapshots_(tasks,jobs,now=new Date()){
     Object.assign(job,count,{estado:count.pendientes?(Number(job.pausa)>now.getTime()?'En pausa':'Pendiente'):count.fallidas?'Parcial':'Completada',fin:count.pendientes?'':job.fin||now.toISOString()});
   }
   return jobs;
-}
-
-function ensureCollectionWake_(){
-  if(!ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='collectionWake_'))ScriptApp.newTrigger('collectionWake_').timeBased().after(60000).create();
-}
-function collectionWake_(){
-  ScriptApp.getProjectTriggers().filter(trigger=>trigger.getHandlerFunction()==='collectionWake_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
-  let result;
-  try{result=collectionTick_();}
-  finally{const waiting=collectionRequests_().length;if(waiting)ensureCollectionWake_();if(result?.pending||waiting)ensureCollectionTrigger_();}
 }

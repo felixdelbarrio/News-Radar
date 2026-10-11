@@ -67,7 +67,7 @@ function createFilters({ onInvalidate, onChange }) {
     filterChanged({ type: "submit" });
   });
   return {
-    query: () => ({ ...Object.fromEntries(new FormData(form)), page,view,initial:!initialized.has(view) }),
+    query: () => ({ ...Object.fromEntries(new FormData(form)), page,view,language,initial:!initialized.has(view) }),
     show: next => {
       if(next===view)return false;
       clearTimeout(timer);onInvalidate();

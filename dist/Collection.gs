@@ -3,7 +3,7 @@ function collectionStatus_(tasks,jobs){
   jobs=jobs||collectionJobs_();if(tasks)collectionSnapshots_(tasks,jobs);
   const requests=collectionRequests_().filter(request=>!jobs.some(job=>job.id===request.id));
   const ordered=jobs.slice().sort((a,b)=>b.inicio.localeCompare(a.inicio)),active=ordered.filter(job=>Number(job.pendientes)>0||job.estado==='Preparando'),selected=active.length?active:ordered.slice(0,1);
-  const status={total:0,processed:0,pending:0,skipped:0,failed:0,added:0,lastActivity:'',queued:requests.length,jobs:[]};
+  const status={blocked:recoveryAvailability(jobs,requests),total:0,processed:0,pending:0,skipped:0,failed:0,added:0,lastActivity:'',queued:requests.length,jobs:[]};
   for(const job of selected){
     for(const [key,column] of [['total','total'],['processed','procesadas'],['pending','pendientes'],['skipped','omitidas'],['failed','fallidas'],['added','nuevas']])status[key]+=Number(job[column]||0);
     if(job.actualizada>status.lastActivity)status.lastActivity=job.actualizada;
@@ -12,23 +12,21 @@ function collectionStatus_(tasks,jobs){
     .concat(requests.map(request=>({id:request.id,tipo:request.kind,desde:request.range.from,hasta:request.range.to,inicio:request.created,estado:'En cola',total:0,procesadas:0,pendientes:0,omitidas:0,fallidas:0,nuevas:0})));
   cacheJson_('collection-status',status,15);return status;
 }
-function ensureCollectionTrigger_() {
-  if(!ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='collectionTick_'))ScriptApp.newTrigger('collectionTick_').timeBased().everyMinutes(1).create();
+function resumeCollection(){authorize_(true);ensureBackgroundWorker_();return {...collectionStatus_(),added:0,errors:[],notice:'Continuación en cola.'};}
+function collectNow(mode='today'){
+  authorize_(true);const now=new Date(),range=collectionRange_(mode,now),blocked=recoveryAvailability(collectionJobs_(),collectionRequests_());
+  if(blocked[mode])throw Error(mode==='year'?'Ya hay una recuperación anual en curso.':'Ya hay una recuperación diaria en curso.');
+  if(mode==='today')requestDailyCollection_(now);else requestCollection_('annual',range);
+  return {...collectionStatus_(),added:0,errors:[],notice:mode==='year'?'Recuperación anual en cola.':'Recuperación diaria en cola.'};
 }
-function startCollection_(range){requestCollection_(range&&Date.parse(range.to)-Date.parse(range.from)>7*86400000?'annual':'manual',range||collectionRecentRange_(new Date()));}
-function resumeCollection(){authorize_(true);ensureCollectionTrigger_();return collectionTick_();}
-function collectNow(mode='today'){authorize_(true);startCollection_(collectionRange_(mode,new Date()));return collectionTick_();}
-function dailyRadar_(){requestCollection_('daily',collectionRecentRange_(new Date()));collectionTick_();maintenance_();}
-function collectionTick_() {
-  const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return {added:0,evaluated:0,errors:[],busy:true};
+function requestDailyCollection_(now=new Date()){requestCollection_('daily',collectionRecentRange_(now));}
+function dailyRadar_(){requestDailyCollection_();backgroundTick_();}
+function collectionBatch_({tasks,pending,jobs}){
   const started=Date.now(),news=[],audit=[],errors=[],newTasks=[];let evaluated=0;
   try{
-    drainCollectionRequests_();
-    const {tasks,pending,jobs}=collectionWork_(started);
     if(!pending.length){
       const previous=new Map(jobs.map(job=>[job.id,JSON.stringify(job)]));collectionSnapshots_(tasks,jobs);
       const changed=jobs.filter(job=>previous.get(job.id)!==JSON.stringify(job));for(const job of changed)writeCollectionJob_(job);if(changed.length)SpreadsheetApp.flush();
-      if(!tasks.some(task=>['Pendiente','Reintento programado'].includes(task.estado))&&!collectionRequests_().length)ScriptApp.getProjectTriggers().filter(trigger=>trigger.getHandlerFunction()==='collectionTick_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
       return {...collectionStatus_(tasks,jobs),added:0,evaluated:0,errors:[]};
     }
     const feeds=collectionFeedIndex_(),known=knownUrls_(),now=new Date(),updates=tasks.map(task=>[task.estado,task.intentos,task.actualizada,task.evaluadas,task.nuevas,task.error]);
@@ -61,20 +59,19 @@ function collectionTick_() {
     SpreadsheetApp.flush();if(news.length||sorted)invalidateNews_();
     append_('Ejecuciones',[...affected].map(id=>{const batch=pending.filter(task=>task.ciclo===id),rows=batch.map(task=>updates[task.row-2]),failures=rows.map(row=>row[5]).filter(Boolean);return [id,now.toISOString(),new Date().toISOString(),failures.length?'Parcial':'Completada',batch.length,rows.reduce((sum,row)=>sum+Number(row[3]),0),rows.reduce((sum,row)=>sum+Number(row[4]),0),failures.join(' | ')];}));
     for(const job of jobs)if(pending.filter(task=>task.ciclo===job.id&&updates[task.row-2][5]).length>=2)job.pausa=String(Date.now()+settings_().pauseMinutes*60000);
-    const allTasks=tasks.concat(newTasks.map(row=>({ciclo:row[0],estado:row[3],nuevas:row[7]})));
-    collectionSnapshots_(allTasks,jobs);for(const job of jobs)if(affected.has(job.id))writeCollectionJob_(job);
+    tasks.push(...newTasks.map(row=>({ciclo:row[0],estado:row[3],nuevas:row[7]})));
+    collectionSnapshots_(tasks,jobs);for(const job of jobs)if(affected.has(job.id))writeCollectionJob_(job);
     SpreadsheetApp.flush();const collection=collectionStatus_(null,jobs);
     telemetry_('recopilacion',Date.now()-started,errors.length?'Parcial':'OK',pending.length+' fuentes; '+news.length+' nuevas; preparación '+(fetchStart-started)+' ms; red '+fetchMs+' ms; proceso '+processingMs+' ms; escritura '+(Date.now()-writeStarted)+' ms');
     return {...collection,added:news.length,evaluated,errors};
   }catch(error){telemetry_('recopilacion',Date.now()-started,'Error',error.message);throw error;}
-  finally{lock.releaseLock();}
 }
 function retryCollectionErrors() {
   authorize_(true);const lock=LockService.getScriptLock();lock.waitLock(10000);
   try{
     const tasks=rows_('Recopilacion');let count=0;
     const values=tasks.map(task=>{if(task.estado==='Error'){task.estado='Pendiente';task.intentos=0;task.error='';count++;}return [task.estado,task.intentos,task.actualizada,task.evaluadas,task.nuevas,task.error];});
-    if(count){book_().getSheetByName('Recopilacion').getRange(2,4,values.length,6).setNumberFormat('@').setValues(values.map(row=>row.map(safeCell_)));ensureCollectionTrigger_();}
+    if(count){book_().getSheetByName('Recopilacion').getRange(2,4,values.length,6).setNumberFormat('@').setValues(values.map(row=>row.map(safeCell_)));ensureBackgroundWorker_();}
     const jobs=collectionJobs_();for(const job of jobs)job.pausa='';collectionSnapshots_(tasks,jobs);for(const job of jobs)writeCollectionJob_(job);
     CacheService.getScriptCache().remove('collection-status');
     return count+' fuentes preparadas para reintentar.';
@@ -96,8 +93,8 @@ function collectionWork_(started){
   const retryMs=settings_().retryMinutes*60000,batch=settings_().collectionBatch;
   const eligible=tasks.map((task,index)=>({...task,row:index+2})).filter(task=>jobIndex.has(task.ciclo)&&Number(jobIndex.get(task.ciclo).pausa||0)<=started&&(task.estado==='Pendiente'||(task.estado==='Reintento programado'&&started-Date.parse(task.actualizada)>=retryMs)))
     .sort((a,b)=>a.prioridad===b.prioridad?a.row-b.row:a.prioridad>b.prioridad?-1:1);
-  const recent=eligible.filter(task=>jobIndex.get(task.ciclo).tipo!=='annual'),annual=eligible.filter(task=>jobIndex.get(task.ciclo).tipo==='annual');
-  const pending=recent.slice(0,batch).concat(annual.slice(0,Math.min(20-Math.min(batch,recent.length),batch*4))).sort((a,b)=>a.row-b.row);
+  const selected=eligible.find(task=>jobIndex.get(task.ciclo).tipo==='daily')||eligible[0],size=selected&&jobIndex.get(selected.ciclo).tipo==='annual'?Math.min(20,batch*4):batch;
+  const pending=selected?eligible.filter(task=>task.ciclo===selected.ciclo).slice(0,size).sort((a,b)=>a.row-b.row):[];
   let start=0;
   for(let end=1;end<=pending.length;end++){
     if(end<pending.length&&pending[end].row===pending[end-1].row+1)continue;

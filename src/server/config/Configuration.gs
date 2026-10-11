@@ -28,6 +28,7 @@ function initializeConfiguration(){
     const subscriptions=book_().getSheetByName('Suscripciones'),countSubscriptions=subscriptions.getLastRow()-1;
     if(countSubscriptions>0){const range=subscriptions.getRange(2,8,countSubscriptions,1);range.setValues(range.getValues().map(([value])=>[value||'es']));}
     initializeCollectionQueue_();
+    initializeBackgroundSchedules_();
     invalidateConfiguration_();return 'Configuración inicializada en Sheets. Los valores existentes se han conservado.';
   }finally{lock.releaseLock();}
 }
@@ -83,7 +84,7 @@ function writeConfiguration_(config,revision){
   try{
     if(revision!==String(properties_().getProperty('CONFIG_REVISION')||'0'))throw Error('La configuración ha cambiado en otra sesión. Recarga los catálogos antes de guardar.');
     const sheet=book_().getSheetByName('Configuracion'),rows=Object.entries(config).map(([key,value])=>[key,JSON.stringify(value)]);
-    sheet.getRange(2,1,Math.max(rows.length,sheet.getLastRow()-1),2).clearContent();append_('Configuracion',rows);invalidateConfiguration_();
+    sheet.getRange(2,1,Math.max(rows.length,sheet.getLastRow()-1),2).clearContent();append_('Configuracion',rows);invalidateConfiguration_();initializeBackgroundSchedules_();
     return 'Configuración guardada. Se aplicará a filtros, clasificación y próximas recopilaciones.';
   }finally{lock.releaseLock();}
 }
