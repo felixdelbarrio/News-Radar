@@ -1,5 +1,3 @@
 import config from "../../assets/app-config.json";
-var stdin_default = config;
-export {
-  stdin_default as default
-};
+export const defaultView=Object.keys(config.views)[0];
+export default config;

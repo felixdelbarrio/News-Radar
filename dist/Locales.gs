@@ -283,7 +283,7 @@ const translations = Object.freeze({
   "Recibe lanzamientos, mejoras de productos y alianzas de las entidades que sigues. Elige el contenido y la periodicidad.": ["Receive launches, product improvements and partnerships from the entities you follow. Choose the content and frequency.", "Takip ettiğiniz kurumların lansmanlarını, ürün iyileştirmelerini ve iş birliklerini alın. İçerik ve sıklığı seçin."],
   "Sin correos si no hay novedades": ["No emails without updates", "Yenilik yoksa e-posta gönderilmez"],
   "Las suscripciones tienen sus propios filtros. Cambiar la selección de noticias no modifica lo que recibes por correo.": ["Subscriptions have their own filters. Changing the news selection does not change what you receive by email.", "Aboneliklerin kendi filtreleri vardır. Haber seçimini değiştirmek e-postayla aldığınız içeriği değiştirmez."],
-  "Cargando el radar…": ["Loading radar…", "Radar yükleniyor…"],
+  "Cargando contenido…": ["Loading content…", "İçerik yükleniyor…"],
   "Cargando selección": ["Loading selection", "Seçim yükleniyor"],
   "Gestión de News Radar": ["News Radar management", "News Radar yönetimi"],
   "Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicación.": ["Manage collected content, subscriptions and application operation.", "Toplanan içeriği, abonelikleri ve uygulamanın işleyişini yönetin."],

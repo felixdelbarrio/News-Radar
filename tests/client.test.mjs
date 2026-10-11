@@ -76,7 +76,7 @@ test('exportar no vuelve a consultar el dashboard ni reconstruye los formularios
 
 
 test('la selección inicial se obtiene del servidor',async()=>{
-  const c=client();assert.equal(c.requests[0].query.initial,true);c.requests[0].resolve({...dashboard('Inicial'),initial:true,selection:{entity:'Santander',segment:'Retail',topic:'',country:'México'},segments:['Retail']});await settle();
+  const c=client();assert.equal(c.requests[0].query.view,'briefing');assert.equal(c.element('page-title').textContent,'Novedades');assert.equal(c.element('briefing-section').hidden,false);assert.equal(c.requests.length,1);assert.equal(c.requests[0].query.initial,true);c.requests[0].resolve({...dashboard('Inicial'),initial:true,selection:{entity:'Santander',segment:'Retail',topic:'',country:'México'},segments:['Retail']});await settle();
   assert.equal(c.form.elements.entity.value,'Santander');assert.equal(c.form.elements.segment.value,'Retail');assert.equal(c.form.elements.country.value,'México');
 });
 test('Radar y Noticias conservan selecciones independientes; administración deniega lectores',async()=>{
@@ -96,7 +96,8 @@ test('seleccionar un ámbito en el mapa actualiza los filtros compartidos',async
 test('el mapa refleja el volumen filtrado y comunica entidad y ausencia de noticias',async()=>{
   const c=client(),areas=['México','España'].map(country=>({dataset:{country},style:{setProperty(name,value){this[name]=value;}},setAttribute(name,value){this[name]=value;},title:{},querySelector(){return this.title;}}));
   c.element('world-map').querySelectorAll=selector=>selector==='[data-code]'?[]:areas;
-  c.requests[0].resolve(dashboard('Santander en México'));await settle();
+  await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'radar'}})}});
+  c.requests.at(-1).resolve(dashboard('Santander en México'));await settle();
   assert.equal(areas[0].style['--map-fill'],'var(--heat-4)');
   assert.match(areas[0].title.textContent,/Santander: 1/);
   assert.equal(areas[1].style['--map-fill'],'var(--heat-0)');
@@ -117,7 +118,7 @@ test('la activación de fuentes persiste al buscar y paginar antes de guardar',a
 });
 
 test('Radar oculta filtros adicionales y cambiar de vista conserva cada selección sin consultas duplicadas',async()=>{
-  const c=client();c.requests[0].resolve({...dashboard('Inicial'),initial:true,selection:{entity:'',segment:'Empresas e instituciones'}});await settle();
+  const c=client();await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'radar'}})}});c.requests.at(-1).resolve({...dashboard('Inicial'),initial:true,selection:{entity:'',segment:'Empresas e instituciones'}});await settle();
   assert.equal(c.element('geography-filter').hidden,true);assert.equal(c.element('advanced-filters').hidden,true);assert.equal(c.form.elements.segment.value,'Empresas e instituciones');
   c.change('entity','Santander');c.requests.at(-1).resolve({...dashboard('Radar'),selection:{entity:'Santander',segment:'Empresas e instituciones'}});await settle();
   await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'news'}})}});await settle();
@@ -151,7 +152,7 @@ test('cerrar un chip sincroniza panel, paginación y consulta e invalida respues
 });
 
 test('Radar y Novedades comparten chips cerrables y muestran solo sus filtros editables',async()=>{
- const c=client();c.requests[0].resolve({...dashboard('Inicial'),selection:{entity:'BBVA',segment:'Empresas e instituciones'}});await settle();
+ const c=client();await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'radar'}})}});c.requests.at(-1).resolve({...dashboard('Inicial'),selection:{entity:'BBVA',segment:'Empresas e instituciones'}});await settle();
  assert.match(c.element('active-filters').innerHTML,/Entidad: BBVA/);
  c.change('country','México');c.change('from','2026-10-01');assert.doesNotMatch(c.element('active-filters').innerHTML,/Geografía|Fecha desde/);
  c.element('active-filters').listeners.click({target:{closest:()=>({dataset:{removeFilter:'entity'}})}});assert.equal(c.requests.at(-1).query.entity,'');assert.equal(c.requests.at(-1).query.segment,'Empresas e instituciones');

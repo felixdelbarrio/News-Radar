@@ -1,8 +1,8 @@
 {
   "views": {
-    "radar": "Radar",
     "briefing": "Novedades",
     "news": "Noticias",
+    "radar": "Radar",
     "subscriptions": "Newsletter",
     "administration": "Administración"
   },
