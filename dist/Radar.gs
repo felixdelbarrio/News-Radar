@@ -5,7 +5,7 @@ function radarMetrics_(rows, query) {
   for(const row of rows){
     const entity=entityKey_(row.entidad),country=row.pais;
     entities.set(entity,(entities.get(entity)||0)+1);
-    publishers.set(row.medio,(publishers.get(row.medio)||0)+1);
+    if(row.medio)publishers.set(row.medio,(publishers.get(row.medio)||0)+1);
     if(knownCountries.has(country)){
       const area=geographies.get(country)||new Map();area.set(entity,(area.get(entity)||0)+1);geographies.set(country,area);
     }else unlocated++;
@@ -21,8 +21,9 @@ function radarMetrics_(rows, query) {
     const bucket=Math.floor((Date.parse(date)-start)/(intervalDays*86400000));
     for(const [entity,count] of counts){const group=index.get(entity)??series.length-1;if(bucket>=0&&bucket<buckets.length)series[group].values[bucket]+=count;}
   }
-  return {summary:{news:rows.length,entities:entities.size,sources:publishers.size,countries:geographies.size},ranking,
+  const publicationRanking=[...publishers].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'es')).map(([publisher,total])=>({publisher,total}));
+  return {publishers:publicationRanking.slice(0,6),summary:{news:rows.length,entities:entities.size,sources:publishers.size,countries:geographies.size},ranking,
     geographies:[...geographies].map(([country,counts])=>({country,total:[...counts.values()].reduce((a,b)=>a+b,0),entities:[...counts].map(([entity,count])=>({entity,count}))})).sort((a,b)=>b.total-a.total||a.country.localeCompare(b.country,'es')),
     trend:{from:from||'',to:to||'',intervalDays,buckets,series},unlocated,latest:days.at(-1)||'',
-    topPublisher:[...publishers].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'es'))[0]?.[0]||''};
+    topPublisher:publicationRanking[0]?.publisher||''};
 }

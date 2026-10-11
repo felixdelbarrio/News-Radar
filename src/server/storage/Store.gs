@@ -43,3 +43,21 @@ function trim_(name,limit) {
   const sheet=book_().getSheetByName(name),excess=sheet.getLastRow()-1-limit;
   if(excess>0)sheet.deleteRows(2,excess);
 }
+
+function rowsById_(name,ids,limit){
+  const sheet=book_().getSheetByName(name),count=Math.min(Math.max(0,sheet.getLastRow()-1),limit),keys=RADAR.sheets[name],result=[];
+  if(!count)return result;
+  const first=sheet.getLastRow()-count+1,positions=sheet.getRange(first,1,count,1).getDisplayValues().flatMap(([id],index)=>ids.has(id)?[first+index]:[]);
+  let start=0;
+  for(let end=1;end<=positions.length;end++){
+    if(end<positions.length&&positions[end]===positions[end-1]+1)continue;
+    for(const row of sheet.getRange(positions[start],1,end-start,keys.length).getDisplayValues())result.push(Object.fromEntries(keys.map((key,index)=>[key,row[index]])));
+    start=end;
+  }
+  return result;
+}
+
+function cacheJson_(key,value,seconds){
+  const encoded=JSON.stringify(value);
+  if(encoded.length<=90000&&encodeURIComponent(encoded).replace(/%[A-F\d]{2}/gi,'x').length<=90000)CacheService.getScriptCache().put(key,encoded,seconds);
+}

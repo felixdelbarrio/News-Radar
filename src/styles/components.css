@@ -14,3 +14,5 @@ label{display:grid;gap:var(--space-1);font-weight:500;font-size:var(--text-s);li
 
 .record-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--sidebar-width)),1fr));gap:var(--space-2);align-items:end;margin-block:var(--space-3)}
 .language-preview{display:grid;gap:var(--space-2);max-width:var(--sidebar-width);min-width:0}
+
+.collection-jobs{display:grid;gap:var(--space-2);margin:var(--space-2) 0 var(--space-3)}.collection-job{padding:var(--space-2);border:var(--stroke) solid var(--color-primary-border);border-radius:var(--radius-component)}.collection-job .panel-header{margin-bottom:var(--space-1)}.collection-job progress{display:block;width:100%;height:var(--space-1);margin:var(--space-2) 0;accent-color:var(--color-primary-bg-action)}.article-original{margin-top:var(--space-1);font-size:var(--text-s);color:var(--color-primary-text-secondary)}.article-original summary{cursor:pointer}.article-original p{margin-top:var(--space-1)}

@@ -1,6 +1,7 @@
 import { $, message } from "../core/dom.js";
 import config from "../config.js";
 import { loadMetrics } from "./metrics.js";
+import {loadRuns} from "./runs.js";
 import { loadAudit } from "./audit.js";
 function createAdministration({ isAdmin, track, onConfiguration, onSubscribers }) {
   let current = "configuration";
@@ -15,6 +16,7 @@ function createAdministration({ isAdmin, track, onConfiguration, onSubscribers }
     });
     if(view === "subscribers")await onSubscribers();
     if(view === "configuration")try{await onConfiguration();}catch(error){message(error.message||String(error),true);}
+    if (view === "runs") await loadRuns();
     if (view === "audit") await loadAudit();
     if (view === "telemetry" || view === "adoption") await loadMetrics(view, () => current === view && !$("administration-section").hidden);
   }

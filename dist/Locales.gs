@@ -1,5 +1,26 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "Recarga": ["Collection", "Toplama"],
+  "Recopilación diaria": ["Daily collection", "Günlük toplama"],
+  "Recuperación anual": ["Annual recovery", "Yıllık kurtarma"],
+  "Recuperación manual": ["Manual recovery", "Elle kurtarma"],
+  "Progreso de las recargas": ["Collection progress", "Toplama ilerlemesi"],
+  "Sin recuperaciones registradas.": ["No collections recorded.", "Kayıtlı toplama yok."],
+  "{done}/{total} consultas; {added} noticias incorporadas.": ["{done}/{total} queries; {added} articles saved.", "{done}/{total} sorgu; {added} kaydedilen haber."],
+  "{queued} recargas en cola.": ["{queued} collections queued.", "{queued} toplama sırada."],
+  "En cola": ["Queued", "Sırada"],
+  "Preparando": ["Preparing", "Hazırlanıyor"],
+  "En curso": ["Running", "Çalışıyor"],
+  "En pausa": ["Paused", "Duraklatıldı"],
+  "Traduciendo…": ["Translating…", "Çevriliyor…"],
+  "Traducción automática": ["Automatic translation", "Otomatik çeviri"],
+  "Traducción no disponible. Se muestra el original.": ["Translation unavailable. Showing the original.", "Çeviri kullanılamıyor. Özgün metin gösteriliyor."],
+  "Ver original": ["View original", "Özgün metni gör"],
+  "Continuar recuperación": ["Continue recovery", "Kurtarmaya devam et"],
+  "DISTRIBUCIÓN POR MEDIO": ["PUBLICATIONS BY PUBLISHER", "YAYINCIYA GÖRE DAĞILIM"],
+  "Publicaciones por medio": ["Publications by publisher", "Yayıncıya göre yayınlar"],
+  "Se muestran los seis medios con más publicaciones.": ["Showing the six publishers with the most publications.", "En fazla yayına sahip altı yayıncı gösterilir."],
+  "Recuperación: {processed}/{total} consultas; {pending} pendientes; {added} noticias incorporadas.": ["Recovery: {processed}/{total} queries; {pending} pending; {added} articles saved.", "Kurtarma: {processed}/{total} sorgu; {pending} bekleyen; {added} kaydedilen haber."],
   "Español": ["Spanish", "İspanyolca"],
   "Inglés": ["English", "İngilizce"],
   "Turco": ["Turkish", "Türkçe"],
@@ -702,5 +723,5 @@ function formatCalendarDay(value,language='es'){
 function formatText(text,values,language='es'){return translateText(text,language).replace(/\{(\w+)\}/g,(_,key)=>String(values[key]??''));}
 
 function feedLanguage(value){const tag=String(value||'').trim();return /^[a-z]{2}(?:-[A-Za-z0-9]{2,8})?$/.test(tag)?tag:'';}
-const recordLabels={radar:'Radar',news:'Noticias',briefing:'Novedades',subscriptions:'Newsletter',administration:'Administración',configuration:'Configuración de negocio',sources:'Fuentes y programación',audit:'Auditoría',telemetry:'Telemetría',adoption:'Adopción',subscribers:'Suscripciones',acceso:'Acceso',vista:'Vista',filtro:'Filtro',lectura:'Lectura',exportacion:'Exportación',rendimiento:'Rendimiento',error:'Error',dashboard:'Carga de selección',recopilacion:'Recopilación'};
+const recordLabels={radar:'Radar',news:'Noticias',briefing:'Novedades',subscriptions:'Newsletter',administration:'Administración',configuration:'Configuración de negocio',daily:'Recopilación diaria',annual:'Recuperación anual',manual:'Recuperación manual',sources:'Fuentes y programación',runs:'Últimas ejecuciones',audit:'Auditoría',telemetry:'Telemetría',adoption:'Adopción',subscribers:'Suscripciones',acceso:'Acceso',vista:'Vista',filtro:'Filtro',lectura:'Lectura',exportacion:'Exportación',rendimiento:'Rendimiento',error:'Error',dashboard:'Carga de selección',recopilacion:'Recopilación'};
 function displayRecord(value,language='es'){return translateText(Object.prototype.hasOwnProperty.call(recordLabels,value)?recordLabels[value]:value,language);}

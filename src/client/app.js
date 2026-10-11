@@ -1,3 +1,6 @@
+import {createNewsTranslations} from './features/news-translations.js';
+import {renderCollectionJobs} from './features/runs.js';
+import {createCollectionProgress} from './features/collection-progress.js';
 import {createFilterPanel} from './features/filter-panel.js';
 import {createSubscriptions} from './features/subscriptions.js';
 import {createNewsletterDelivery} from './features/newsletter-delivery.js';
@@ -21,7 +24,7 @@ const configuration = createConfiguration({run:action});
 const subscriptions = createSubscriptions({run:action,onApply:query=>{filters.show('news');filters.apply(query);navigation.show('news');}});
 const newsletterDelivery=createNewsletterDelivery({run:action});
 const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]) });
-const navigation = createNavigation({ onSelection:view=>{if(filters.show(view))load();}, onSubscriptions:()=>subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
+const navigation = createNavigation({ onSelection:view=>{if(filters.show(view))load();else if(state.data)renderSelection(state.data,view);}, onSubscriptions:()=>subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
 const filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
   track("filtro");
   load();
@@ -30,7 +33,16 @@ const briefing=createBriefing();
 $('briefing-signals').addEventListener('click',event=>{const button=event.target.closest('[data-signal]');if(button)filters.set('signal',button.dataset.signal);});
 const radar = createRadar({ onCountry: (country) => {filters.show("news");filters.set("country", country);navigation.show("news");}, onEntity: (entity) => filters.set("entity", entity), onNews: () => navigation.show("news") });
 const sources = createSources({ getData: () => state.data, run: action });
+const collectionProgress=createCollectionProgress({reload:load,isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;sources.renderProgress(status);if(state.data?.admin)renderCollectionJobs(status);}});
+const newsTranslations=createNewsTranslations({getView:()=>navigation.current,getData:()=>state.data,onUpdate:()=>{renderSelection(state.data,navigation.current,false);flushLocalization();}});
+function renderSelection(data,view=navigation.current,translate=true){
+  renderNews(data);
+  if(view==='radar')radar.render(data);
+  if(view==='briefing')briefing.render(data);
+  if(translate)newsTranslations.start();
+}
 async function load() {
+  newsTranslations.cancel();
   const request = ++state.request, started = performance.now();
   $("loading").hidden = false;
   if (!filters.isValid()) {
@@ -46,12 +58,11 @@ async function load() {
       if(window.RADAR_PREVIEW&&data.admin)$("preview-banner").textContent="Administración local · cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.";
       const renderStarted=performance.now();
       filters.render(data);
-      renderNews(data);
-      if(navigation.current==="radar")radar.render(data);
-      if(navigation.current==="briefing")briefing.render(data);
+      renderSelection(data);
       if(data.preferences){$("retention-days").textContent=data.preferences.retentionDays;$("event-limit").textContent=data.preferences.eventLimit;}
       renderShell(data);
       if (data.admin) sources.render(data);
+      collectionProgress.update(data);
       flushLocalization();
       track("rendimiento", performance.now() - started,{...data.performance,rpcMs:Math.round(renderStarted-started),renderMs:Math.round(performance.now()-renderStarted)});
       if (first) {
