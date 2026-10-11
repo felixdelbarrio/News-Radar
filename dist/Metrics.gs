@@ -6,10 +6,10 @@ function telemetry_(operation,duration,status,detail) {
 function recordEvents(events) {
   const session=authorize_(),now=new Date();
   if(!Array.isArray(events)||!events.length||events.length>20)throw new Error('Lote de eventos no válido.');
-  const allowed=['acceso','vista','filtro','lectura','exportacion','rendimiento','error'],views=['radar','news','audit','sources','telemetry','adoption','administration','configuration','briefing','subscriptions','subscribers','runs'];
+  const allowed=['acceso','vista','filtro','lectura','exportacion','rendimiento','error'],views=['radar','news','audit','sources','telemetry','adoption','administration','configuration','briefing','subscriptions','subscribers','runs','language'];
   const cleaned=events.map(event=>{
     if(!allowed.includes(event.event)||!views.includes(event.view)||!/^[a-z0-9-]{16,80}$/i.test(event.session))throw new Error('Evento no válido.');
-    if(['audit','sources','telemetry','adoption','administration','configuration','runs','subscribers'].includes(event.view)&&!session.admin)throw new Error('Vista restringida.');
+    if(['audit','sources','telemetry','adoption','administration','configuration','runs','subscribers','language'].includes(event.view)&&!session.admin)throw new Error('Vista restringida.');
     return [now.toISOString(),session.email,event.session,event.event,event.view,eventDuration_(event.duration)];
   });
   const lock=LockService.getScriptLock();if(!lock.tryLock(3000))return {saved:false};
@@ -38,7 +38,7 @@ function getTelemetry(query={}) {
   return {...records,rows:records.items,latencyP95:usage.latencyP95,clientErrors:usage.failures,collection:collectionStatus_()};
 }
 function maintenance_() {
-  const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return;try{pruneEvents_();trim_('Traducciones',settings_().newsReadLimit*3);}finally{lock.releaseLock();}
+  pruneEvents_();trim_('Traducciones',settings_().newsReadLimit*3);
 }
 function pruneEvents_() {
   const p=properties_(),today=new Date().toISOString().slice(0,10);if(p.getProperty('RETENTION_DATE')===today)return;

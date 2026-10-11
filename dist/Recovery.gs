@@ -45,13 +45,14 @@ function collectionFeedIndex_(){
 
 function initializeCollectionQueue_(){
   const value=properties_().getProperty('COLLECTION_RANGE'),range=value?JSON.parse(value):null,paused=properties_().getProperty('COLLECTION_AFTER')||'',tasks=rows_('Recopilacion'),jobs=collectionJobs_();
+  for(const job of jobs)if(job.tipo==='manual'){job.tipo='daily';writeCollectionJob_(job);}
   if(tasks.length){
     const jobIndex=new Map(jobs.map(job=>[job.id,job]));
     const priorities=tasks.map(task=>{if(task.prioridad)return task.prioridad;const before=task.url.match(/before(?::|%3A)(\d{4}-\d{2}-\d{2})/i);return before?new Date(Date.parse(before[1])-86400000).toISOString().slice(0,10):jobIndex.get(task.ciclo)?.hasta||range?.to||calendarDate_(new Date()).toISOString().slice(0,10);});
     book_().getSheetByName('Recopilacion').getRange(2,10,tasks.length,1).setNumberFormat('@').setValues(priorities.map(value=>[value]));
     for(const id of new Set(tasks.map(task=>task.ciclo)))if(!jobs.some(job=>job.id===id)){
       const dates=tasks.filter(task=>task.ciclo===id).map(task=>task.actualizada).filter(Boolean).sort(),period=range||{from:priorities.slice().sort()[0],to:priorities.slice().sort().at(-1)};
-      const job={id,tipo:Date.parse(period.to)-Date.parse(period.from)>7*86400000?'annual':'manual',desde:period.from,hasta:period.to,inicio:dates[0]||new Date().toISOString(),fin:'',estado:'Pendiente',total:0,procesadas:0,pendientes:0,omitidas:0,fallidas:0,nuevas:0,actualizada:'',pausa:paused};
+      const job={id,tipo:Date.parse(period.to)-Date.parse(period.from)>7*86400000?'annual':'daily',desde:period.from,hasta:period.to,inicio:dates[0]||new Date().toISOString(),fin:'',estado:'Pendiente',total:0,procesadas:0,pendientes:0,omitidas:0,fallidas:0,nuevas:0,actualizada:'',pausa:paused};
       collectionSnapshots_(tasks,[job]);append_('Recargas',[RADAR.sheets.Recargas.map(key=>job[key])]);jobs.push(job);
     }
   }

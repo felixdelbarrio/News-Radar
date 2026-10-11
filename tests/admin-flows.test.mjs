@@ -74,15 +74,28 @@ test('muestra progreso independiente y porcentajes atendidos para anual, diaria 
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="runs"]');
  a.replies.getRuns.collection=a.data.collection;await a.click('[data-admin-view="runs"]');assert.equal(a.find('#collection-jobs').children.length,2);assert.match(a.find('#collection-jobs').textContent,/Yıllık kurtarma/);assert.match(a.find('#collection-jobs').textContent,/Günlük toplama/);assert.equal(a.find('#collection-jobs progress').value,5);
 });
-test('traduce noticias progresivamente, permite consultar el original y reutiliza la traducción al volver',async t=>{
- const timers=new Map();let id=20000;
- const a=await app(t,{language:'en-US',configure({w,data,replies}){
-  const set=w.setTimeout.bind(w),clear=w.clearTimeout.bind(w);w.setTimeout=(fn,ms)=>{if(ms!==250&&ms!==10000)return set(fn,ms);timers.set(++id,fn);return id;};w.clearTimeout=key=>{timers.delete(key);clear(key);};Object.defineProperty(w.document,'hidden',{value:false});
-  data.items=[{id:'one',titular:'Titular original',extracto:'Extracto original',url:'https://example.com',fecha:'2026-10-11',medio:'Diario'}];
-  replies.translateNews={items:[{id:'one',titular:'Translated headline',extracto:'Translated summary',original:{titular:'Titular original',extracto:'Extracto original'},translation:{language:'en',state:'translated'}}],pending:[]};
+test('las tarjetas presentan traducciones guardadas y no llaman al traductor al navegar',async t=>{
+ const a=await app(t,{language:'en-US',configure({data}){
+  data.items=[{id:'one',titular:'Translated headline',extracto:'Translated summary',original:{titular:'Titular original',extracto:'Extracto original'},translation:{language:'en',state:'translated'},url:'https://example.com',fecha:'2026-10-11',medio:'Diario'}];
  }});
  await a.click('[data-view="news"]');assert.match(a.find('#news-list h3').textContent,/Translated headline/);assert.match(a.find('.article-original').textContent,/Titular original/);assert.match(a.find('#news-list').textContent,/Automatic translation/);
- const count=a.calls.filter(call=>call.method==='translateNews').length;await a.click('[data-view="administration"]');await a.click('[data-view="news"]');assert.equal(a.calls.filter(call=>call.method==='translateNews').length,count);
- a.data.briefing.items=[];await a.click('[data-view="briefing"]');await a.click('[data-view="news"]');assert.match(a.find('#news-list h3').textContent,/Translated headline/);assert.equal(a.calls.filter(call=>call.method==='translateNews').length,count);
- a.replies.translateNews=Error('Provider unavailable');a.data.items[0].id='changed';await a.click('[data-view="briefing"]');await a.click('[data-view="news"]');assert.match(a.find('#news-list').textContent,/Translation unavailable/);
+ await a.click('[data-view="administration"]');await a.click('[data-view="news"]');assert.ok(!a.calls.some(call=>call.method==='translateNews'));
+ a.data.items[0].translation.state='pending';await a.click('[data-view="briefing"]');await a.click('[data-view="news"]');assert.match(a.find('#news-list').textContent,/Awaiting overnight translation/);
+ assert.equal(a.calls.filter(call=>call.method==='getDashboard').at(-1).query.language,'en');
+});
+test('Idioma tiene sección propia, programación nocturna y progreso con controles administrativos',async t=>{
+ const a=await app(t,{language:'tr-TR',configure({replies}){replies.getTranslationStatus={scheduled:true,hour:2,timezone:'Europe/Madrid',queued:false,job:{state:'Completada',total:10,processed:10,translated:30,updated:'2026-10-11',error:''}};}});
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="language"]');assert.equal(a.find('#language-section').hidden,false);assert.ok(a.find('#language-section').contains(a.find('#preview-language')));assert.match(a.find('#translation-schedule').textContent,/02:00/);assert.equal(a.find('#translation-progress progress').value,10);
+ await a.click('#translation-toggle');assert.ok(a.calls.some(call=>call.method==='disableTranslationSchedule'));await a.click('#translation-start');assert.ok(a.calls.some(call=>call.method==='startTranslations'));
+ a.replies.getTranslationStatus.scheduled=false;await a.click('[data-admin-view="language"]');await a.click('#translation-toggle');assert.ok(a.calls.some(call=>call.method==='installTranslationSchedule'));await a.click('[data-admin-view="runs"]');assert.equal(a.find('#language-section').hidden,true);assert.match(a.find('#runs-section h2').textContent,/Çalıştırmalar/);
+});
+test('Explorar noticias conserva entidad y segmento del Radar para poder contrastar sus cifras',async t=>{
+ const a=await app(t,{configure({data}){data.selection={entity:'Santander',segment:'Empresas e instituciones'};}});await a.click('#radar-open-news');
+ const query=a.calls.filter(call=>call.method==='getDashboard').at(-1).query;assert.equal(query.view,'news');assert.equal(query.entity,'Santander');assert.equal(query.segment,'Empresas e instituciones');assert.equal(query.from,'');assert.equal(query.to,'');
+});
+test('Fuentes contiene Abrir hoja y Ejecuciones bloquea cada recuperación activa incluso después de otra acción',async t=>{
+ const a=await app(t);assert.ok(a.find('#sources-section #sheet-link'));assert.equal(a.w.document.querySelector('#sources-section #collect'),null);assert.ok(a.find('#runs-section #collect'));assert.equal(a.w.document.querySelector('#administration-section > .admin-heading #collect'),null);
+ a.data.collection={pending:1,blocked:{today:false,year:true},jobs:[]};a.replies.getRuns.collection=a.data.collection;await a.click('[data-view="administration"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('[value="year"][name="recovery-range"]').disabled,true);assert.equal(a.find('#collect').disabled,false);
+ a.data.collection.blocked.today=true;await a.click('[data-admin-view="sources"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('#collect').disabled,true);assert.match(a.find('#recovery-status').textContent,/diaria en curso/);await a.click('#retry-collection');assert.equal(a.find('#collect').disabled,true);
+ a.data.collection={pending:0,blocked:{today:false,year:false},jobs:[]};a.replies.getRuns.collection=a.data.collection;await a.click('[data-admin-view="sources"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('#collect').disabled,false);assert.equal(a.find('[value="year"][name="recovery-range"]').disabled,false);
 });
