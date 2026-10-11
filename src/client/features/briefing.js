@@ -1,12 +1,5 @@
-import { $, escape, validUrl, message } from '../core/dom.js';
-import {call} from '../core/api.js';
-export function downloadNewsletter(result){
-  const url=URL.createObjectURL(new Blob([result.html],{type:'text/html;charset=utf-8'})),link=document.createElement('a');
-  link.href=url;link.download='news-radar-newsletter.html';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
-  message('Novedades exportadas: '+result.count+(result.total>result.count?' de '+result.total+'. Reduce los filtros para incluirlas todas.':'.'));
-}
-export function createBriefing({query,run}){
-  $('newsletter-export').addEventListener('click',()=>run(async()=>downloadNewsletter(await call('exportNewsletter',{filters:query(),title:'Briefing de novedades'})),false));
+import { $, escape, validUrl } from '../core/dom.js';
+export function createBriefing(){
   return {render(data){
     const briefing=data.briefing||{total:0,bySignal:[],items:[]};
     $('briefing-count').textContent='Novedades detectadas: '+briefing.total;

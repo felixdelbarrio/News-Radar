@@ -1,5 +1,5 @@
 function telemetry_(operation,duration,status,detail) {
-  append_('Telemetria',[[new Date().toISOString(),operation,Math.max(0,Math.round(duration)),status,String(detail||'').slice(0,200)]]);
+  append_('Telemetria',[[new Date().toISOString(),operation,Math.max(0,Math.round(duration)),status,('v'+RADAR.version+'; '+String(detail||'')).slice(0,300)]]);
   trim_('Telemetria',settings_().eventLimit);
 }
 function recordEvents(events) {
@@ -15,7 +15,15 @@ function recordEvents(events) {
   try {
     const cache=CacheService.getScriptCache(),key='events:'+session.email+':'+events[0]?.session;
     if(cache.get(key))return {saved:false};
-    pruneEvents_();append_('Adopcion',cleaned);trim_('Adopcion',settings_().eventLimit);cache.put(key,'1',10);
+    pruneEvents_();append_('Adopcion',cleaned);trim_('Adopcion',settings_().eventLimit);
+    const timings=events.filter(event=>event.event==='rendimiento'&&event.performance);
+    if(timings.length){
+      append_('Telemetria',timings.map(event=>{
+        const bounded=value=>Math.max(0,Math.min(3600000,Math.round(Number(value)||0))),p=event.performance;
+        return [now.toISOString(),'dashboard',bounded(event.duration),'OK',event.view+'; RPC '+bounded(p.rpcMs)+' ms; servidor '+bounded(p.serverMs)+' ms; noticias '+bounded(p.newsMs)+' ms; render '+bounded(p.renderMs)+' ms; caché '+(p.cacheHit===true?'hit':'miss')+'; preparación '+bounded(p.preparationMs)+' ms; metadatos '+bounded(p.metadataMs)+' ms; v'+RADAR.version];
+      }));trim_('Telemetria',settings_().eventLimit);
+    }
+    cache.put(key,'1',10);
     return {saved:true};
   } finally {lock.releaseLock();}
 }
@@ -41,4 +49,23 @@ function pruneEvents_() {
     if(expired)sheet.deleteRows(2,expired);
   });
   p.setProperty('RETENTION_DATE',today);
+}
+
+function exportTelemetry(){
+  authorize_(true);const limit=settings_().eventLimit;
+  const telemetry=rows_('Telemetria',limit),runs=rows_('Ejecuciones',limit),audit=rows_('Auditoria',limit),tasks=rows_('Recopilacion');
+  const reasons=exclusionReasons_(audit);
+  return {schemaVersion:1,applicationVersion:RADAR.version,exportedAt:new Date().toISOString(),timezone:settings_().timezone,limits:{eventLimit:limit,newsReadLimit:settings_().newsReadLimit,collectionBatch:settings_().collectionBatch},collection:{...collectionStatus_(tasks),range:collectionRangeFromStore_(),tasks},telemetry,runs,audit,exclusionReasons:reasons,auditSampling:{maxExcludedExamplesPerReason:3,totals:'motivos en los resúmenes de Fuente consultada'},limited:{telemetry:telemetry.length===limit,runs:runs.length===limit,audit:audit.length===limit},usage:metrics_(rows_('Adopcion',limit),Date.now())};
+}
+
+function exclusionReasons_(audit){
+  const reasons={},summaries=new Set(),key=row=>JSON.stringify([row.ejecucion,row.fecha,row.fuente]);
+  for(const row of audit){
+    if(row.resultado!=='Fuente consultada')continue;
+    const match=row.motivo.match(/; motivos (\{.*\})(?:; posible|$)/);if(!match)continue;
+    const counts=JSON.parse(match[1]);summaries.add(key(row));
+    for(const [reason,count] of Object.entries(counts))reasons[reason]=(reasons[reason]||0)+Number(count);
+  }
+  for(const row of audit)if(row.resultado==='Excluida'&&!summaries.has(key(row)))reasons[row.motivo]=(reasons[row.motivo]||0)+1;
+  return reasons;
 }

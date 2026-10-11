@@ -1,8 +1,8 @@
 import { call } from "../core/api.js";
 function createUsage({ getView, isReady }) {
   const session = crypto.randomUUID(), events = [];
-  function track(event, duration = 0) {
-    events.push({ event, view: getView(), session, duration });
+  function track(event, duration = 0, performance) {
+    events.push({ event, view: getView(), session, duration, ...(performance?{performance}: {}) });
     if (events.length > 20) events.shift();
   }
   async function flush() {

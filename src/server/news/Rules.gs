@@ -50,7 +50,7 @@ function evaluate_(item, feed, now) {
   const publisher=plainText_(item.source),rawTitle=plainText_(item.title);
   const title=publisher&&rawTitle.endsWith(' - '+publisher)?rawTitle.slice(0,-publisher.length-3):rawTitle;
   let excerpt=plainText_(item.excerpt).slice(0,1500);
-  if(feed.kind==='profile'&&excerpt.startsWith(title))excerpt='';
+
   const url=canonicalUrl_(item.url),date=new Date(item.date);
   if (!title || !url || !domainMatches_(url,feed.domain) || !Number.isFinite(date.getTime())) return {reason:'Falta titular, URL del editor o fecha válida'};
   if(date>now)return {reason:'Fecha futura'};
@@ -58,7 +58,7 @@ function evaluate_(item, feed, now) {
   else if(now-date>settings_().windowDays*86400000)return {reason:'Fuera de la ventana de '+settings_().windowDays+' días'};
   const topic=classify_(title,excerpt);
   if (!topic) return {reason:'Sin coincidencia con los temas configurados'};
-  return {item:{date,title,excerpt,url,topic,publisher:feed.kind==='profile'?publisher:''}};
+  return {item:{date,title,excerpt:feed.kind==='profile'&&excerpt.startsWith(title)?'':excerpt,url,topic,publisher:feed.kind==='profile'?publisher:''}};
 }
 function safeCell_(value) {
   return typeof value==='string' && /^[=+@-]/.test(value) ? "'"+value : value;

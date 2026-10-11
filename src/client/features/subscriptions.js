@@ -1,6 +1,5 @@
 import {$,message} from '../core/dom.js';
 import {call} from '../core/api.js';
-import {downloadNewsletter} from './briefing.js';
 import {periods,subscriptionForm,subscriptionCards} from './subscription-templates.js';
 export function createSubscriptions({run,onApply}){
   let options,own=[],all=[];
@@ -17,7 +16,7 @@ export function createSubscriptions({run,onApply}){
     target.addEventListener('click',event=>{if(event.target.closest('[data-close-editor]'))target.hidden=true;});
     target.addEventListener('submit',event=>{event.preventDefault();const form=event.target,data=new FormData(form),filters={};for(const key of [...Object.keys(options.catalogs),'search'])filters[key]=String(data.get(key)||'');run(async()=>{message(await call(admin?'saveAdminSubscription':'saveSubscription',{id:form.dataset.id||undefined,email:data.get('email'),name:data.get('name'),periodicity:data.get('periodicity'),active:data.has('active'),filters}));await open(admin);},false);});
     $(admin?'new-admin-subscription':'new-subscription').addEventListener('click',()=>edit(admin));
-    $(admin?'admin-subscriptions-list':'subscriptions-list').addEventListener('click',event=>{const button=event.target.closest('[data-action]');if(!button)return;const row=(admin?all:own).find(r=>r.id===button.dataset.id);if(!row)return;if(button.dataset.action==='edit')edit(admin,row);if(button.dataset.action==='apply')onApply(row.query);if(button.dataset.action==='export')run(async()=>downloadNewsletter(await call('exportNewsletter',{subscriptionId:row.id})),false);if(button.dataset.action==='delete')run(async()=>{message(await call('deleteSubscription',row.id));await open();},false);});
+    $(admin?'admin-subscriptions-list':'subscriptions-list').addEventListener('click',event=>{const button=event.target.closest('[data-action]');if(!button)return;const row=(admin?all:own).find(r=>r.id===button.dataset.id);if(!row)return;if(button.dataset.action==='edit')edit(admin,row);if(button.dataset.action==='apply')onApply(row.query);if(button.dataset.action==='test')run(async()=>{const result=await call('sendSubscriptionTest',row.id);message('Gmail ha aceptado la prueba para '+result.recipient+' · '+result.count+' novedades.');},false);if(button.dataset.action==='delete')run(async()=>{message(await call('deleteSubscription',row.id));await open();},false);});
   }
   return {open};
 }

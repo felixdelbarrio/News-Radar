@@ -35,6 +35,7 @@ function append_(name, rows) {
   const s=book_().getSheetByName(name), start=s.getLastRow()+1, needed=start+rows.length-1;
   if (needed>s.getMaxRows()) s.insertRowsAfter(s.getMaxRows(),needed-s.getMaxRows());
   const range=s.getRange(start,1,rows.length,rows[0].length);range.setNumberFormat('@').setValues(rows.map(r=>r.map(safeCell_)));
+  if(name==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);
 }
 
 function trim_(name,limit) {

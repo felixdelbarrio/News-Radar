@@ -11,7 +11,7 @@ function configuration_(){
   return configurationMemory_=config;
 }
 function invalidateConfiguration_(){configurationMemory_=undefined;configurationVersionMemory_=undefined;properties_().setProperty('CONFIG_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));}
-function configurationEdited_(event){if(event?.range?.getSheet().getName()==='Configuracion')invalidateConfiguration_();}
+function configurationEdited_(event){const sheet=event?.range?.getSheet().getName();if(sheet==='Configuracion')invalidateConfiguration_();else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
 function initializeConfiguration(){
   authorize_(true);const lock=LockService.getScriptLock();lock.waitLock(10000);
   try{
@@ -82,4 +82,23 @@ function writeConfiguration_(config,revision){
     sheet.getRange(2,1,Math.max(rows.length,sheet.getLastRow()-1),2).clearContent();append_('Configuracion',rows);invalidateConfiguration_();
     return 'Configuración guardada. Se aplicará a filtros, clasificación y próximas recopilaciones.';
   }finally{lock.releaseLock();}
+}
+
+function testGmailAuthorization() {
+  authorize_(true);
+  const token = ScriptApp.getOAuthToken();
+
+  const response = UrlFetchApp.fetch(
+    'https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs',
+    {
+      method: 'get',
+      headers: {
+        Authorization: 'Bearer ' + token
+      },
+      muteHttpExceptions: true
+    }
+  );
+
+  Logger.log('HTTP: ' + response.getResponseCode());
+  Logger.log(response.getContentText());
 }

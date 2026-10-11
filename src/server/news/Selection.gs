@@ -1,12 +1,18 @@
 function searchText_(value) {
   return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es').trim();
 }
-function selectNews_(rows,query){return selectAnnotatedNews_(annotateNews_(rows),query);}
+function newsScope_(row,query,entity){
+  return (!query.country||row.pais===query.country)&&(!entity||entityKey_(row.entidad)===entity)&&(!query.source||row.medio===query.source||row.fuente===query.source)&&(!query.from||row.fecha>=query.from)&&(!query.to||row.fecha<=query.to);
+}
+function selectNews_(rows,query){
+  const entity=query.entity?entityKey_(query.entity):'';
+  return selectAnnotatedNews_(annotateNews_(rows.filter(row=>newsScope_(row,query,entity))),query);
+}
 function selectAnnotatedNews_(rows, query) {
   const q=searchText_(String(query.search||'').slice(0,160));
   if(query.from && query.to && query.from>query.to)throw new Error('La fecha desde debe ser anterior o igual a la fecha hasta.');
   const entity=query.entity?entityKey_(query.entity):'';
-  return rows.filter(r=>(!q || searchText_(r.titular+' '+r.extracto+' '+r.entidad+' '+r.medio).includes(q)) && (!query.country || r.pais===query.country) && (!entity || entityKey_(r.entidad)===entity) && (!query.type || r.tipo===query.type) && (!query.segment || r.segmentos.includes(query.segment)) && (!query.signal || r.senales.includes(query.signal)) && (!query.source || (r.medio===query.source||r.fuente===query.source)) && (!query.topic || r.tema===query.topic) && (!query.from || r.fecha>=query.from) && (!query.to || r.fecha<=query.to)).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  return rows.filter(r=>(!q || searchText_(r.titular+' '+r.extracto+' '+r.entidad+' '+r.medio).includes(q)) && newsScope_(r,query,entity) && (!query.type || r.tipo===query.type) && (!query.segment || r.segmentos.includes(query.segment)) && (!query.signal || r.senales.includes(query.signal)) && (!query.topic || r.tema===query.topic)).sort((a,b)=>b.fecha.localeCompare(a.fecha));
 }
 function newsDashboard_(rows, query, feeds) {
   const selected=selectNews_(rows,query),radar=radarMetrics_(selected,query),page=Math.min(Math.max(0,Math.floor(Number(query.page)||0)),Math.max(0,Math.ceil(selected.length/settings_().pageSize)-1));

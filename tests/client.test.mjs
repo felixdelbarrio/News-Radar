@@ -136,3 +136,32 @@ test('abrir Noticias desde el mapa por primera vez conserva las fechas iniciales
  const count=c.requests.length;c.element('map-panel').listeners.click({target:{closest:()=>({dataset:{country:'México'}})}});
  assert.equal(c.requests.length,count+1);assert.equal(c.requests.at(-1).query.country,'México');assert.equal(c.requests.at(-1).query.from,'2026-10-01');assert.equal(c.requests.at(-1).query.to,'2026-10-31');
 });
+
+test('cerrar un chip sincroniza panel, paginación y consulta e invalida respuestas anteriores',async()=>{
+ const c=client();c.requests[0].resolve(dashboard('Inicial'));await settle();
+ await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'news'}})}});
+ c.change('entity','Santander');c.change('from','2026-10-01');c.change('to','2026-10-31');
+ assert.match(c.element('active-filters').innerHTML,/Fecha hasta: 31\/10\/2026/);
+ const previous=c.requests.at(-1);
+ c.element('active-filters').listeners.click({target:{closest:()=>({dataset:{removeFilter:'entity'}})}});
+ assert.equal(c.form.elements.entity.value,'');assert.equal(c.requests.at(-1).query.entity,'');assert.equal(c.requests.at(-1).query.page,0);assert.equal(c.requests.at(-1).query.to,'2026-10-31');
+ previous.resolve(dashboard('Obsoleta'));await settle();assert.doesNotMatch(c.element('news-list').innerHTML,/Obsoleta/);
+ c.requests.at(-1).resolve(dashboard('Actualizada'));await settle();assert.doesNotMatch(c.element('active-filters').innerHTML,/Entidad: Santander/);assert.match(c.element('news-list').innerHTML,/Actualizada/);
+});
+
+test('Radar y Novedades comparten chips cerrables y muestran solo sus filtros editables',async()=>{
+ const c=client();c.requests[0].resolve({...dashboard('Inicial'),selection:{entity:'BBVA',segment:'Empresas e instituciones'}});await settle();
+ assert.match(c.element('active-filters').innerHTML,/Entidad: BBVA/);
+ c.change('country','México');c.change('from','2026-10-01');assert.doesNotMatch(c.element('active-filters').innerHTML,/Geografía|Fecha desde/);
+ c.element('active-filters').listeners.click({target:{closest:()=>({dataset:{removeFilter:'entity'}})}});assert.equal(c.requests.at(-1).query.entity,'');assert.equal(c.requests.at(-1).query.segment,'Empresas e instituciones');
+ c.requests.at(-1).resolve({...dashboard('Radar actualizado'),selection:{entity:'',segment:'Empresas e instituciones'}});await settle();
+ await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'briefing'}})}});
+ c.change('country','España');c.change('entity','Santander');c.change('to','2026-10-31');assert.match(c.element('active-filters').innerHTML,/Geografía: España/);assert.doesNotMatch(c.element('active-filters').innerHTML,/Fecha hasta/);
+ c.element('active-filters').listeners.click({target:{closest:()=>({dataset:{removeFilter:'country'}})}});assert.equal(c.requests.at(-1).query.country,'');assert.equal(c.requests.at(-1).query.view,'briefing');assert.equal(c.requests.at(-1).query.entity,'Santander');
+ await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'radar'}})}});assert.equal(c.form.elements.entity.value,'');assert.equal(c.form.elements.segment.value,'Empresas e instituciones');
+});
+
+test('los desplegables no disparan una consulta por input y otra por change',async()=>{
+ const c=client();c.requests[0].resolve(dashboard('Inicial'));await settle();const initial=c.requests.length;
+ c.change('entity','Santander','input');c.debounce();assert.equal(c.requests.length,initial);c.change('entity','Santander','change');assert.equal(c.requests.length,initial+1);
+});
