@@ -1,7 +1,7 @@
 import { $, message } from "../core/dom.js";
-import config from "../config.js";
+import config,{defaultView} from "../config.js";
 function createNavigation({ isAdmin, track, onAdministration, onSubscriptions, onSelection }) {
-  let current = "radar";
+  let current = defaultView;
   async function show(view) {
     if (!(view in config.views) || view === "administration" && !isAdmin()) return;
     current = view;

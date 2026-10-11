@@ -1,3 +1,4 @@
+import {defaultView} from './config.js';
 import {createLanguageSettings} from './features/language-settings.js';
 import {createRecoveryControls,renderCollectionJobs} from './features/runs.js';
 import {createCollectionProgress} from './features/collection-progress.js';
@@ -127,7 +128,7 @@ $('download-telemetry').addEventListener('click',()=>action(async()=>{
 },false));
 createFilterPanel();
 if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
-navigation.show("radar");
+navigation.show(defaultView);
 if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocation(async location=>{
   if(location.parameter.view!=='subscriptions')return;
   await navigation.show('subscriptions');
