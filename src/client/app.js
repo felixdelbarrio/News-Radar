@@ -66,11 +66,12 @@ async function load() {
     if (request === state.request) $("loading").hidden = true;
   }
 }
+const actionControls=".actions button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
 async function action(fn, refresh = true) {
   if (state.busy) return;
   state.busy = true;
   sources.setBusy(true);
-  document.querySelectorAll(".actions button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button").forEach((el) => el.disabled = true);
+  document.querySelectorAll(actionControls).forEach((el) => el.disabled = true);
   try {
     await fn();
     if (refresh) await load();
@@ -78,8 +79,7 @@ async function action(fn, refresh = true) {
     message(e.message || String(e), true);
   } finally {
     state.busy = false;
-    document.querySelectorAll(".actions button,#retry-collection,.recovery-range input,#save-source-settings").forEach((el) => el.disabled = false);
-    document.querySelectorAll("#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button").forEach(el=>el.disabled=false);
+    document.querySelectorAll(actionControls).forEach(el=>el.disabled=false);
     sources.setBusy(false);
     if (state.data) {
       $("previous").disabled = state.data.page === 0;

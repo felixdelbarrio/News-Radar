@@ -12,7 +12,7 @@ export function subscriptionForm(options,admin,row){
     <div class="subscription-fields">${filterFields(Object.fromEntries(Object.entries(options.catalogs).filter(([key])=>primary(key))),filters)}</div>
     <details class="subscription-more"><summary>Más preferencias <span>Tipo de entidad, tema, novedad, fuente y palabras clave</span></summary><div class="subscription-fields">${filterFields(Object.fromEntries(Object.entries(options.catalogs).filter(([key])=>!primary(key))),filters)}</div><label>Palabras clave<input name="search" maxlength="160" value="${escape(filters.search||'')}" placeholder="Opcional"></label></details>
     <label class="subscription-active"><input name="active" type="checkbox"${row?.activa===false?'':' checked'}> Suscripción activa</label>
-    <p class="small muted">La primera entrega corresponde al siguiente período completo después del alta. Recibirás un correo solo si se detectan novedades.</p>
+    <p class="small muted">La entrega comienza en el siguiente cierre después del alta e incluye novedades de los últimos 7 días. Recibirás un correo solo si hay contenido nuevo.</p>
     <div class="actions"><button class="button primary" type="submit">${row?'Guardar cambios':admin?'Crear suscripción':'Suscribirme'}</button>${admin?'<button class="button" type="button" data-close-editor>Cancelar</button>':''}</div>
   </form>`;
 }

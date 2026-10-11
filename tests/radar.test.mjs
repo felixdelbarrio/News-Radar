@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import fs from 'node:fs';
 import {readServerScript,renderIncludes,read,files} from '../scripts/source.mjs';
-const source=readServerScript();
+const source=readServerScript('dist',true);
 function context(email='felix.delbarrio@bbva.com'){
   const c=vm.createContext({console}),properties={OWNER_EMAIL:'felix.delbarrio@bbva.com',SPREADSHEET_ID:'book'},cache=new Map();
   c.PropertiesService={getScriptProperties:()=>({getProperty:key=>properties[key]||null,setProperty:(key,value)=>properties[key]=value,deleteProperty:key=>delete properties[key]})};
@@ -148,10 +148,10 @@ test('Radar descarta filtros ocultos y usa Empresas e instituciones por defecto'
   const selected=c.dashboardQuery_({view:'radar',entity:'BBVA',segment:'Retail',country:'México',source:'Editor',search:'cuenta'},now);
   assert.deepEqual(JSON.parse(JSON.stringify(selected)),{entity:'BBVA',segment:'Retail'});
 });
-test('Novedades impone el mes en curso y Noticias lo utiliza solo al abrir por primera vez',()=>{
+test('Novedades impone los últimos siete días y Noticias lo utiliza solo al abrir por primera vez',()=>{
   const c=context(),now=new Date('2026-10-31T23:30:00Z');
   const novelty=c.dashboardQuery_({view:'briefing',entity:'BBVA',from:'2026-01-01',to:'2026-01-31'},now);
-  assert.equal(novelty.from,'2026-11-01');assert.equal(novelty.to,'2026-11-30');assert.equal(novelty.entity,'BBVA');
+  assert.equal(novelty.from,'2026-10-26');assert.equal(novelty.to,'2026-11-01');assert.equal(novelty.entity,'BBVA');
   const news=c.dashboardQuery_({view:'news',initial:true},now);
   assert.equal(news.from,'2026-11-01');assert.equal(news.to,'2026-11-30');
   const edited=c.dashboardQuery_({view:'news',from:'2026-02-01',to:'2026-02-28'},now);
@@ -281,6 +281,6 @@ test('las ejecuciones se comparten entre cargas y una nueva escritura invalida l
 
 test('la telemetría identifica la versión que produjo cada operación y la exportación',()=>{
  const c=context();let rows;c.append_=(name,value)=>rows=value;c.trim_=()=>{};
- c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v1\.1\.1;/);
- c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'1.1.1');
+ c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v1\.2\.0;/);
+ c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'1.2.0');
 });

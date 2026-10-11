@@ -1,9 +1,16 @@
 import { $, escape, date, message } from "../core/dom.js";
 import { call } from "../core/api.js";
 import {createSourceCatalog} from "./source-catalog.js";
+import {createRecordFilters} from './record-filters.js';
+import {filterRecords,recordOptions,recordPage} from '../../shared/record-filters.js';
 function createSources({ getData, run }) {
   const catalog=createSourceCatalog();
   let busy = false, signature = "";
+  const runFilters=createRecordFilters('runs',[['estado','Estado']],renderRuns,{dates:true,placeholder:'Estado o error'});
+  function renderRuns(){
+    const rows=getData()?.runs||[],query=runFilters.query(),selected=filterRecords(rows,query,['estado'],['estado','errores','id'],'inicio',getData()?.preferences?.timezone),page=recordPage(selected,query);
+    $('runs-body').innerHTML=page.items.map(r=>`<tr><td>${escape(date(r.inicio))}</td><td>${escape(r.estado)}</td><td>${escape(r.evaluadas)}</td><td>${escape(r.nuevas)}</td><td>${escape(r.errores||'—')}</td></tr>`).join('')||'<tr><td colspan="5">Sin ejecuciones con estos filtros.</td></tr>';runFilters.page(page);
+  }
   function sourceFields(feeds) {
     $("source-fields").innerHTML = feeds.map((f, i) => `<fieldset class="source"><legend>Fuente ${i + 1}</legend>${[["name", "Nombre"], ["url", "URL del feed RSS"], ["domain", "Dominio del editor"], ["entity", "Entidad"], ["country", "País / alcance"]].map(([key, label]) => `<label class="${key === "url" ? "wide" : ""}">${label}<input data-key="${key}" value="${escape(f[key] || "")}" ${key === "url" ? 'type="url"' : ""} required></label>`).join("")}<label>Activa<input type="checkbox" data-key="enabled" ${f.enabled!==false?"checked":""}></label><button class="button remove-source" type="button">Eliminar fuente</button></fieldset>`).join("");
     $("sources-form").querySelectorAll("input,button").forEach((el) => el.disabled = !getData()?.admin || busy);
@@ -50,7 +57,7 @@ function createSources({ getData, run }) {
     }
     $("source-schedule").textContent=data.schedule||"";
     $("collection-status").textContent = collectionText(data.collection);
-    $("runs-body").innerHTML = data.runs.map((r) => `<tr><td>${escape(date(r.inicio))}</td><td>${escape(r.estado)}</td><td>${escape(r.evaluadas)}</td><td>${escape(r.nuevas)}</td><td>${escape(r.errores || "—")}</td></tr>`).join("") || '<tr><td colspan="5">Sin ejecuciones registradas.</td></tr>';
+    runFilters.options(recordOptions(data.runs,['estado']));renderRuns();
   }, setBusy(value) {
     busy = value;
     $("sources-form").querySelectorAll("input,button").forEach((el) => el.disabled = busy || !getData()?.admin);

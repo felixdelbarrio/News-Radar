@@ -34,6 +34,19 @@ test('vista autónoma comparte filtros, normalización de entidades y CSV con Ap
 test('vista local registra actividad real de la sesión y bloquea el correo remoto',async()=>{
  const fs=await import('node:fs'),vm=await import('node:vm');const html=fs.readFileSync('output/preview.html','utf8'),adapter=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].find(match=>match[1].includes('window.RADAR_PREVIEW='))[1].replace('admin=false','admin=true');
  const c=vm.createContext({window:{}});vm.runInContext(adapter,c);const preview=c.window.RADAR_PREVIEW;assert.equal((await preview.call('getAdoption')).events,0);
- await preview.call('recordEvents',[{session:'local-session',event:'rendimiento',view:'radar',duration:120}]);const activity=await preview.call('getAdoption');assert.equal(activity.events,1);assert.equal(activity.dau,1);assert.equal((await preview.call('getTelemetry')).latencyP95,120);assert.equal((await preview.call('getAudit')).length,0);
+ await preview.call('recordEvents',[{session:'local-session',event:'rendimiento',view:'radar',duration:120}]);const activity=await preview.call('getAdoption');assert.equal(activity.events,1);assert.equal(activity.dau,1);assert.equal((await preview.call('getTelemetry')).latencyP95,120);assert.equal((await preview.call('getAudit')).total,0);
  await assert.rejects(preview.call('sendNewsletterTest'),/No se envían correos/);
+});
+
+test('make kill cierra únicamente el servidor registrado con su token',async t=>{
+ const fs=await import('node:fs'),os=await import('node:os'),path=await import('node:path');
+ const {registerServer,killServer}=await import('../scripts/local-server.mjs');
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'radar-server-')),file=path.join(directory,'server.json'),token='test-token',server=createPreviewServer(token);
+ t.after(()=>{server.close();fs.rmSync(directory,{recursive:true,force:true});});
+ server.listen(0,'127.0.0.1');await once(server,'listening');registerServer(server,token,file);
+ const address='http://127.0.0.1:'+server.address().port;
+ assert.equal((await fetch(address+'/__preview/stop',{method:'POST',headers:{Authorization:'Bearer wrong'}})).status,403);
+ assert.equal((await fetch(address)).status,200);
+ const closed=once(server,'close');assert.equal(await killServer(file),true);await closed;
+ assert.equal(fs.existsSync(file),false);assert.equal(await killServer(file),false);
 });

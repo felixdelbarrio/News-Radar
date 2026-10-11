@@ -5,8 +5,8 @@ import {read,readServerScript} from '../scripts/source.mjs';
 function mail(){
   const calls=[],settings=JSON.parse(read('assets/configuration-defaults.json')).settings;
   let response={sendAsEmail:settings.newsletterSender,verificationStatus:'accepted'},code=200,admin=true;
-  const c=vm.createContext({Utilities:{Charset:{UTF_8:'UTF-8'},getUuid:()=> 'test-boundary',base64Encode:value=>Buffer.from(value).toString('base64'),base64EncodeWebSafe:value=>Buffer.from(value).toString('base64url')},ScriptApp:{getOAuthToken:()=> 'private-token'},UrlFetchApp:{fetch(url,options){calls.push({url,options});return {getResponseCode:()=>code,getContentText:()=>JSON.stringify(response)};}}});
-  vm.runInContext(readServerScript(),c);c.settings_=()=>settings;c.authorize_=()=>{if(!admin)throw Error('administrador');return {email:'owner@bbva.com'};};
+  const c=vm.createContext({SpreadsheetApp:{flush(){}},Utilities:{Charset:{UTF_8:'UTF-8'},getUuid:()=> 'test-boundary',base64Encode:value=>Buffer.from(value).toString('base64'),base64EncodeWebSafe:value=>Buffer.from(value).toString('base64url')},ScriptApp:{getOAuthToken:()=> 'private-token'},UrlFetchApp:{fetch(url,options){calls.push({url,options});return {getResponseCode:()=>code,getContentText:()=>JSON.stringify(response)};}}});
+  vm.runInContext(readServerScript('dist',true),c);c.settings_=()=>settings;c.authorize_=()=>{if(!admin)throw Error('administrador');return {email:'owner@bbva.com'};};
   return {c,calls,settings,setResponse(value,status=200){response=value;code=status;},setAdmin(value){admin=value;}};
 }
 test('el grupo requiere alias aceptado; errores de permisos y alias pendientes bloquean el envío',()=>{
@@ -50,7 +50,7 @@ test('la prueba usa el correo del administrador y registra Gmail ID; no consume 
 });
 
 test('rechazos explícitos conservan la causa de Gmail y permiten reintento; errores inciertos requieren revisión',()=>{
-  const m=mail(),{c}=m,states=[],sheet={getRange:()=>({setValues:rows=>states.push(rows[0])})},sender={address:m.settings.newsletterSender,name:'News Radar'},content={text:'Prueba',html:'<p>Prueba</p>'};
+  const m=mail(),{c}=m,states=[],sheet={getRange:()=>({setValues:rows=>states.push(rows[0])})},sender={address:m.settings.newsletterSender,name:'News Radar'},content={count:1,text:'Prueba',html:'<p>Prueba</p>'};
   m.setResponse({error:{message:'Recipient address rejected'}},400);
   assert.throws(()=>c.completeNewsletterDelivery_(sheet,2,sender,'user@bbva.com','Tema',content),/Recipient address rejected/);assert.equal(states[0][0],'No enviado');
   m.setResponse({error:{message:'Backend error'}},503);
@@ -79,4 +79,11 @@ test('newsletter usa prefijo bIA, imagen MIME inline y enlaces distintos para ge
   const mime=Buffer.from(JSON.parse(m.calls[0].options.payload).raw,'base64url').toString();
   const subject=mime.match(/Subject: ([\s\S]*?)\r\nDate:/)[1].replace(/=\?UTF-8\?B\?([^?]+)\?=/g,(_,value)=>Buffer.from(value,'base64').toString()).replace(/\r\n /g,'');
   assert.equal(subject,'[bIA] News Radar : Mi selección');assert.match(mime,/multipart\/related/);assert.match(mime,/multipart\/alternative/);assert.match(mime,/Content-ID: <bia-logo>/);assert.match(mime,/Content-Type: image\/png/);
+});
+
+test('una newsletter real vacía se bloquea antes de Gmail y una prueba vacía se permite',()=>{
+ const m=mail(),{c}=m,states=[],sheet={getRange:()=>({setValues:rows=>states.push(rows[0])})};m.setResponse({id:'empty-test'});
+ const sender={address:m.settings.newsletterSender,name:'News Radar'},content={count:0,text:'Sin novedades',html:'<p>Sin novedades</p>'};
+ assert.throws(()=>c.completeNewsletterDelivery_(sheet,2,sender,'user@bbva.com','Tema',content),/sin novedades/);assert.equal(m.calls.length,0);assert.equal(states.length,0);
+ assert.equal(c.completeNewsletterDelivery_(sheet,2,sender,'user@bbva.com','Prueba',content,true),'empty-test');assert.equal(m.calls.length,1);
 });

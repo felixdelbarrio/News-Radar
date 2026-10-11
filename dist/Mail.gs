@@ -22,8 +22,7 @@ function newsletterBudget_(deliveries,now){
   return Math.max(0,settings_().newsletterDailyLimit-deliveries.filter(row=>['Enviando','Enviada','Revisar'].includes(row.estado)&&new Date(row.fecha).getTime()>now.getTime()-86400000).length);
 }
 function getNewsletterDeliveryStatus(){
-  authorize_(true);const settings=settings_(),status={address:settings.newsletterSender,name:settings.newsletterSenderName,enabled:settings.newsletterEnabled,scheduled:ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='deliverNewsletters_'),remaining:newsletterBudget_(rows_('NewsletterEnvios'),new Date())};
-  status.last=rows_('NewsletterEnvios',1)[0]||null;
+  authorize_(true);const settings=settings_(),deliveries=rows_('NewsletterEnvios',undefined,8),status={address:settings.newsletterSender,name:settings.newsletterSenderName,enabled:settings.newsletterEnabled,scheduled:ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='deliverNewsletters_'),remaining:newsletterBudget_(deliveries,new Date()),last:deliveries.at(-1)||null,untracked:deliveries.filter(row=>row.suscripcion&&['Enviada','Enviando','Revisar'].includes(row.estado)&&!/(?:^|; )\d+ noticias incluidas/.test(row.detalle)).length};
   try{return {...status,...newsletterSender_(),available:true,error:''};}
   catch(error){return {...status,available:false,error:error.message};}
 }
@@ -58,21 +57,28 @@ function newsletterTest_(session,subscription){
   let claimed=false;
   try{
     const now=new Date();if(!newsletterBudget_(rows_('NewsletterEnvios'),now))throw Error('Se ha alcanzado el límite configurado de newsletters en 24 horas.');
-    const sender=newsletterSender_(),defaults=subscription?{name:subscription.nombre,filters:subscription.filtros}:subscriptionDefaults_(),end=calendarDate_(now),start=new Date(end);start.setUTCDate(start.getUTCDate()-settings_().windowDays+1);
-    const query=subscription?subscriptionQuery_(subscription,now):{...defaults.filters,from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10)},content=newsletter_(rows_('Noticias',settings_().newsReadLimit),query,defaults.name,now,subscription?.id);
+    const sender=newsletterSender_(),defaults=subscription?{name:subscription.nombre,filters:subscription.filtros}:subscriptionDefaults_();
+    const query=subscription?subscriptionQuery_(subscription,now):{...defaults.filters,...recentNewsRange_(now)},content=newsletter_(rows_('Noticias',settings_().newsReadLimit),query,defaults.name,now,subscription?.id);
     append_('NewsletterEnvios',[['prueba:'+Utilities.getUuid(),'',session.email,query.from,query.to,'Enviando',now.toISOString(),subscription?'Prueba de suscripción':'Prueba del administrador']]);
     claimed=true;
-    const sheet=book_().getSheetByName('NewsletterEnvios'),id=completeNewsletterDelivery_(sheet,sheet.getLastRow(),sender,session.email,'Prueba · '+defaults.name,content);
+    const sheet=book_().getSheetByName('NewsletterEnvios'),id=completeNewsletterDelivery_(sheet,sheet.getLastRow(),sender,session.email,'Prueba · '+defaults.name,content,true);
     return {accepted:true,recipient:session.email,sender:sender.address,messageId:id,count:content.count,from:query.from,to:query.to};
   }catch(error){if(!claimed)recordNewsletterBlock_(error,session.email);throw error;
   }finally{lock.releaseLock();}
 }
 function recordNewsletterBlock_(error,email){append_('NewsletterEnvios',[['diagnostico:'+Utilities.getUuid(),'',email,'','','Bloqueada',new Date().toISOString(),String(error.message).slice(0,500)]]);}
-function completeNewsletterDelivery_(sheet,index,sender,recipient,subject,content){
+function completeNewsletterDelivery_(sheet,index,sender,recipient,subject,content,test=false){
+  if(!test&&!content.count)throw Error('No se puede enviar una newsletter sin novedades.');
   try{
+    SpreadsheetApp.flush();
     const id=sendNewsletterMail_(sender,recipient,subject,content);
-    sheet.getRange(index,6,1,3).setValues([['Enviada',new Date().toISOString(),'Gmail ID: '+id]]);return id;
+    sheet.getRange(index,6,1,3).setValues([['Enviada',new Date().toISOString(),'Gmail ID: '+id+'; '+newsletterContentDetail_(content)]]);return id;
   }catch(error){
-    sheet.getRange(index,6,1,3).setValues([[error.rejected?'No enviado':'Revisar',new Date().toISOString(),String(error.message).slice(0,500)]]);throw error;
+    sheet.getRange(index,6,1,3).setValues([[error.rejected?'No enviado':'Revisar',new Date().toISOString(),String(error.message).slice(0,500)+'; '+newsletterContentDetail_(content)]]);throw error;
   }
+}
+
+function getNewsletterHistory(query={}){
+  authorize_(true);const data=administrativeRecords_('NewsletterEnvios',query,['correo','estado','suscripcion'],['correo','suscripcion','detalle','id']);
+  return {...data,items:data.items.map(row=>({...row,noticias:row.detalle.match(/(?:^|; )(\d+) noticias incluidas/)?.[1]??null}))};
 }

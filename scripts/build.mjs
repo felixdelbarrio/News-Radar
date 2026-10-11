@@ -17,6 +17,7 @@ const design=designOutputs(),tokens=JSON.parse(read('src/design/tokens.json')).c
 const newsletterStyle=read('src/styles/newsletter.css').replace(/var\(--([\w-]+)\)/g,(_,key)=>tokens[key]);
 const newsletterInline={};for(const [,selectors,rule] of newsletterStyle.matchAll(/([^{}]+)\{([^{}]*)\}/g))for(const selector of selectors.split(','))newsletterInline[selector.trim()]=(newsletterInline[selector.trim()]||'')+rule+';';
 const output={
+  'RecordFilters.gs':read('src/shared/record-filters.js').replace(/^export /gm,''),
   'Defaults.gs':'const CONFIGURATION_DEFAULTS = Object.freeze('+read('assets/configuration-defaults.json').trim()+');\n',
   'Design.gs':design.sheet,
   'Newsletter.gs':'const NEWSLETTER_BIA_PNG = '+JSON.stringify(fs.readFileSync(path.join(root,'assets/bia.png')).toString('base64'))+';\nconst NEWSLETTER_STYLE = '+JSON.stringify(newsletterStyle)+';\nconst NEWSLETTER_INLINE = '+JSON.stringify(newsletterInline)+';\n',

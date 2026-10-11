@@ -17,7 +17,7 @@ function createFilters({ onInvalidate, onChange }) {
       $('geography-filter').hidden=view==='radar';
       $('advanced-filters').hidden=view==='radar';
       for(const id of ['from-filter','to-filter'])$(id).hidden=view==='briefing';
-      $('filter-description').textContent=view==='radar'?'Entidad y segmento del Radar.':view==='briefing'?'Novedades del mes en curso.':'Selección de noticias y período de consulta.';
+      $('filter-description').textContent=view==='radar'?'Entidad y segmento del Radar.':view==='briefing'?'Novedades de los últimos 7 días.':'Selección de noticias y período de consulta.';
   }
   layout();
   const chipLabels={search:'Búsqueda',country:'Geografía',entity:'Entidad',source:'Medio',topic:'Tema',type:'Tipo de entidad',segment:'Segmento',signal:'Novedad',from:'Fecha desde',to:'Fecha hasta'};

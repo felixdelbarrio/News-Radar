@@ -24,11 +24,12 @@ function setupRadar() {
   if(p.getProperty('DAILY_ENABLED')==='true')enableDaily();
   return 'News Radar preparado: fuentes predeterminadas, recopilación automática y métricas.';
 }
-function rows_(sheet, limit) {
+function rows_(sheet, limit, width=RADAR.sheets[sheet].length) {
   const s=book_().getSheetByName(sheet), count=s.getLastRow()-1;
   if (count<1) return [];
   const size=limit?Math.min(count,limit):count;
-  return s.getRange(count-size+2,1,size,RADAR.sheets[sheet].length).getDisplayValues().map(r=>Object.fromEntries(RADAR.sheets[sheet].map((k,i)=>[k,r[i]])));
+  const keys=RADAR.sheets[sheet].slice(0,width);
+  return s.getRange(count-size+2,1,size,keys.length).getDisplayValues().map(r=>Object.fromEntries(keys.map((k,i)=>[k,r[i]])));
 }
 function append_(name, rows) {
   if (!rows.length) return;

@@ -8,7 +8,7 @@ function getDashboard(query) {
     ...(session.admin?{maxFeeds:settings_().maxCustomFeeds,schedule:'Ventana: últimos '+settings_().windowDays+' días. Recopilación diaria a partir de las '+settings_().dailyHour+':00 ('+settings_().timezone+').',runs:runs.reverse(),feeds:customFeeds_(),configuredFeeds:configuredFeeds_(),sheetUrl:book_().getUrl(),collection:collectionStatus_()}:{} )};
   return {...response,performance:{version:RADAR.version,serverMs:Date.now()-started,preparationMs,metadataMs:Date.now()-metadataStarted,newsMs:content.duration,cacheHit:content.cacheHit}};
 }
-function getAudit() { authorize_(true); return rows_('Auditoria',100).reverse(); }
+function getAudit(query={}){authorize_(true);return administrativeRecords_('Auditoria',query,['fuente','resultado','ejecucion'],['fuente','resultado','motivo','url','ejecucion']);}
 function exportNews(query) {
   authorize_();return newsCsv_(rows_('Noticias',settings_().newsReadLimit),dashboardQuery_(query));
 }
