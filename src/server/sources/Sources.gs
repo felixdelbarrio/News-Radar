@@ -5,7 +5,7 @@ function profileFeed_(geo,entity,range) {
   const period=range?'after:'+after.toISOString().slice(0,10)+' before:'+before.toISOString().slice(0,10):'when:'+settings_().windowDays+'d';
   const query='('+[entity.name,...entity.aliases].map(quote).join(' OR ')+') '+quote(geo.searchName)+' ('+settings_().searchTerms.map(quote).join(' OR ')+') '+period;
   const url=canonicalUrl_('https://news.google.com/rss/search?q='+encodeURIComponent(query)+'&hl='+geo.language+'&gl='+geo.code+'&ceid='+geo.code+':'+geo.language);
-  return {id:'profile/'+geo.code+'/'+entity.name,name:entity.name+' · '+geo.name,url,domain:'news.google.com',entity:entity.name,country:geo.name,kind:'profile',enabled:entity.enabled&&geo.enabled};
+  return {id:'profile/'+geo.code+'/'+entity.name,name:entity.name+' · '+geo.name,url,domain:'news.google.com',entity:entity.name,country:geo.name,kind:'profile',language:geo.language,enabled:entity.enabled&&geo.enabled};
 }
 function defaultFeeds_(range) {
   const config=configuration_(),disabled=new Set(config.settings.disabledSources);

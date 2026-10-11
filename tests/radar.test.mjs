@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import fs from 'node:fs';
+import {createHash} from 'node:crypto';
 import {readServerScript,renderIncludes,read,files} from '../scripts/source.mjs';
 const source=readServerScript('dist',true);
 function context(email='felix.delbarrio@bbva.com'){
@@ -10,7 +11,7 @@ function context(email='felix.delbarrio@bbva.com'){
   c.Session={getActiveUser:()=>({getEmail:()=>email}),getEffectiveUser:()=>({getEmail:()=> 'felix.delbarrio@bbva.com'})};
   c.CacheService={getScriptCache:()=>({get:key=>cache.get(key),put:(key,value)=>cache.set(key,value),remove:key=>cache.delete(key)})};
   c.LockService={getScriptLock:()=>({tryLock:()=>true,waitLock(){},releaseLock(){}})};
-  c.Utilities={getUuid:()=> 'id',formatDate:date=>date.toISOString().slice(0,10)};
+  c.Utilities={DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(_algorithm,value)=>Array.from(createHash('sha256').update(value).digest()),getUuid:()=> 'id',formatDate:date=>date.toISOString().slice(0,10)};
   vm.runInContext(source,c);let config=JSON.parse(read('assets/configuration-defaults.json'));c.configuration_=()=>config;c.configurationRevision_=()=>'test';c.writeConfiguration_=value=>{c.authorize_(true);c.validateConfiguration_(value);config=value;};return c;
 }
 const feed={name:'BBVA',domain:'bbva.com',entity:'BBVA',country:'Sin determinar',kind:'rss'},now=new Date('2026-10-09T12:00:00Z'),item={title:'BBVA financia a empresas',excerpt:'Operación de financiación corporativa',url:'https://www.bbva.com/es/noticia/?utm_source=rss',date:'2026-10-08T11:00:00Z'};
@@ -53,7 +54,7 @@ test('noticias agregadas se integran sin intervención y mantienen medio y enlac
   const c=context(),profile=c.defaultFeeds_().find(feed=>feed.entity==='Santander'&&feed.country==='España');
   const raw={title:'Santander financia empresas - Diario',source:'Diario',excerpt:'Santander financia empresas Diario',date:'2026-10-08',url:'https://news.google.com/rss/articles/123'};
   const result=c.evaluate_(raw,profile,now);assert.equal(result.item.title,'Santander financia empresas');assert.equal(result.item.publisher,'Diario');assert.equal(result.item.excerpt,'');assert.equal(result.item.url,raw.url);
-  const record=c.newsRecord_(result.item,profile,now);assert.equal(record.length,11);assert.equal(record[3],'Diario');assert.equal(record[10],profile.name);
+  const record=c.newsRecord_(result.item,profile,now);assert.equal(record.length,12);assert.equal(record[3],'Diario');assert.equal(record[10],profile.name);
 });
 test('recopila por lotes, integra automáticamente, deduplica y conserva reintentos parciales',()=>{
   const c=context(),saved={},writes=[];let released=false;
@@ -63,7 +64,7 @@ test('recopila por lotes, integra automáticamente, deduplica y conserva reinten
   c.feeds_=()=>[{...feed,url:'good'},{...feed,url:'bad'}];c.knownUrls_=()=>new Set();c.book_=()=>({getSheetByName:()=>({getLastRow:()=>1,getRange:()=>({setNumberFormat(){return this;},setValues:rows=>writes.push(rows)})})});
   c.UrlFetchApp={fetchAll:requests=>requests.map(({url})=>url==='good'?{getResponseCode:()=>200,getContentText:()=>'<rss/>'}:{getResponseCode:()=>503})};
   c.parseFeed_=()=>[{...item,date:new Date(Date.now()-86400000).toISOString()},{...item,date:new Date(Date.now()-86400000).toISOString()}];c.append_=(name,rows)=>saved[name]=rows;c.telemetry_=()=>{};
-  const result=c.collectionTick_();assert.equal(result.added,1);assert.equal(result.errors.length,1);assert.equal(saved.Noticias[0].length,11);assert.equal(writes.length,1);assert.equal(writes[0][1][0],'Reintento programado');assert.equal(saved.Ejecuciones[0][3],'Parcial');assert.ok(saved.Auditoria.some(row=>row[4]==='Duplicada'));assert.equal(released,true);
+  const result=c.collectionTick_();assert.equal(result.added,1);assert.equal(result.errors.length,1);assert.equal(saved.Noticias[0].length,12);assert.equal(writes.length,1);assert.equal(writes[0][1][0],'Reintento programado');assert.equal(saved.Ejecuciones[0][3],'Parcial');assert.ok(saved.Auditoria.some(row=>row[4]==='Duplicada'));assert.equal(released,true);
 });
 test('agotados tres intentos registra error y la recuperación escribe un único lote',()=>{
   const c=context(),tasks=[{ciclo:'cycle',fuente:'Error',url:'bad',estado:'Pendiente',intentos:'2',actualizada:'2026-10-09',evaluadas:'0',nuevas:'0',error:''}];let rows,writes=0;
@@ -281,6 +282,34 @@ test('las ejecuciones se comparten entre cargas y una nueva escritura invalida l
 
 test('la telemetría identifica la versión que produjo cada operación y la exportación',()=>{
  const c=context();let rows;c.append_=(name,value)=>rows=value;c.trim_=()=>{};
- c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v1\.2\.0;/);
- c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'1.2.0');
+ c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v1\.3\.0;/);
+ c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'1.3.0');
+});
+
+test('cada vista calcula solo su visualización y conserva el medio de las noticias',()=>{
+ const c=context(),rows=[{fecha:'2026-10-08',pais:'España',entidad:'BBVA',medio:'Diario independiente',titular:'BBVA lanza cuenta para empresas',extracto:'Nueva cuenta',url:'https://example.com'}];
+ const radar=c.radarMetrics_,briefing=c.briefing_;c.radarMetrics_=()=>{throw Error('No calcular Radar en otra vista');};c.briefing_=()=>{throw Error('No calcular Novedades en Noticias');};
+ const news=c.newsDashboard_(rows,{},[],'news');assert.equal(news.items[0].medio,'Diario independiente');assert.equal('radar' in news,false);assert.equal('briefing' in news,false);
+ c.briefing_=briefing;const novelty=c.newsDashboard_(rows,{},[],'briefing');assert.equal(novelty.briefing.items[0].medio,'Diario independiente');assert.equal('radar' in novelty,false);
+ c.radarMetrics_=radar;c.briefing_=()=>{throw Error('No calcular Novedades en Radar');};assert.equal(c.newsDashboard_(rows,{},[],'radar').stats.news,1);
+});
+test('la caché admite filtros largos y separa las respuestas de cada vista',()=>{
+ const c=context();let reads=0;c.rows_=()=>{reads++;return [];};const query={search:'b'.repeat(160),source:'Editor '+('á'.repeat(90)),country:'España'};
+ assert.equal(c.dashboardContent_(query,[],'news').cacheHit,false);assert.equal(c.dashboardContent_(query,[],'news').cacheHit,true);assert.equal(reads,1);
+ assert.equal(c.dashboardContent_(query,[],'briefing').cacheHit,false);assert.equal(reads,2);assert.equal(c.dashboardContent_(query,[],'briefing').cacheHit,true);
+ c.invalidateNews_();assert.equal(c.dashboardContent_(query,[],'news').cacheHit,false);assert.equal(reads,3);
+});
+test('los extractos de noticias descartadas por fecha no se procesan',()=>{
+ const c=context(),raw={...item,date:'2020-01-01'};Object.defineProperty(raw,'excerpt',{get(){throw Error('No procesar HTML fuera de fechas');}});
+ assert.match(c.evaluate_(raw,feed,now).reason,/Fuera de la ventana/);
+ assert.match(c.evaluate_(raw,{...feed,range:{from:'2026-10-01',to:'2026-10-09'}},now).reason,/Fuera del período/);
+ assert.equal(c.evaluate_(item,feed,now).item.excerpt,item.excerpt);
+});
+
+test('un perfil sin editor no presenta la consulta como medio y un RSS propio conserva su nombre',()=>{
+ const c=context(),article={...item,date:new Date(item.date),title:item.title,topic:'Financiación',publisher:''};
+ const medium=record=>record[vm.runInContext('RADAR.sheets.Noticias.indexOf("medio")',c)];
+ assert.equal(medium(c.newsRecord_(article,{...feed,kind:'profile',name:'BBVA · España'},now)),'');
+ assert.equal(medium(c.newsRecord_({...article,publisher:'Diario'}, {...feed,kind:'profile'},now)),'Diario');
+ assert.equal(medium(c.newsRecord_(article,feed,now)),'BBVA');
 });

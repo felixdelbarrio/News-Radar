@@ -5,13 +5,14 @@ function getSubscriptions(){const email=authorize_().email,deliveries=new Map(ro
 function getNewsletterOptions(){const session=authorize_(),c=configuration_();return {email:session.email,defaults:subscriptionDefaults_(),enabled:newsletterEnabled_(),catalogs:{type:[...new Set(c.entities.filter(r=>r.enabled).map(r=>r.type))],entity:c.entities.filter(r=>r.enabled).map(r=>r.name),segment:c.segments.filter(r=>r.enabled).map(r=>r.name),country:c.geographies.filter(r=>r.enabled).map(r=>r.name),topic:c.topics.filter(r=>r.enabled).map(r=>r.name),signal:c.signals.filter(r=>r.enabled).map(r=>r.name),source:[...new Set([...rows_('Noticias',settings_().newsReadLimit).map(r=>r.medio),...feeds_().map(r=>r.name)])].filter(Boolean).sort()}};}
 function getAdminSubscriptions(){authorize_(true);const deliveries=new Map();for(const row of rows_('NewsletterEnvios',undefined,8))deliveries.set(row.suscripcion,row);return subscriptionRows_().map(row=>({...row,nextDelivery:newsletterNextDate_(row,new Date(),deliveries.get(row.id)),ultimaEntrega:deliveries.get(row.id)||null}));}
 function subscriptionRecord_(input,email,id,now,count){
+  const language=input.language||'es';if(!supportedLanguage(language))throw Error('Idioma no admitido.');
   const name=plainText_(input.name).trim(),periodicity=input.periodicity||settings_().defaultPeriodicity;
   if(!name||name.length>100||/[\r\n]/.test(name)||!['monthly','weekly','daily'].includes(periodicity))throw Error('Indica un nombre y una periodicidad válida.');
   if(count>=settings_().maxSubscriptions)throw Error('Máximo '+settings_().maxSubscriptions+' suscripciones por usuario.');
   const filters={};for(const key of ['entity','country','source','topic','type','segment','signal','search']){const value=String(input.filters?.[key]||'');if(value.length>160)throw Error('Filtro demasiado largo.');filters[key]=value;}
   const catalogs={entity:'entities',country:'geographies',topic:'topics',segment:'segments',signal:'signals'};
   for(const [key,catalog] of Object.entries(catalogs))if(filters[key]&&!configuration_()[catalog].some(r=>r.enabled&&r.name===filters[key]))throw Error('Filtro no disponible: '+key);
-  return {id,correo:email,nombre:name,filtros:filters,periodicidad:periodicity,activa:input.active!==false,actualizada:now.toISOString()};
+  return {id,correo:email,nombre:name,filtros:filters,periodicidad:periodicity,activa:input.active!==false,actualizada:now.toISOString(),idioma:language};
 }
 function newsletterPeriod_(periodicity,now){
   const end=calendarDate_(now),start=new Date(end);

@@ -3,6 +3,7 @@ import { call } from "../core/api.js";
 import {createSourceCatalog} from "./source-catalog.js";
 import {createRecordFilters} from './record-filters.js';
 import {filterRecords,recordOptions,recordPage} from '../../shared/record-filters.js';
+import {t} from '../core/language.js';
 function createSources({ getData, run }) {
   const catalog=createSourceCatalog();
   let busy = false, signature = "";
@@ -19,7 +20,7 @@ function createSources({ getData, run }) {
     return [...$("source-fields").children].map((el) => Object.fromEntries([...el.querySelectorAll("[data-key]")].map((x) => [x.dataset.key, x.type==="checkbox"?x.checked:x.value])));
   }
   function collectionText(status) {
-    return status.total ? status.processed + " de " + status.total + " consultas completadas; " + status.pending + " pendientes y " + status.failed + " con error. Las noticias se integran automáticamente." : "Las fuentes están activas. La próxima recopilación las consultará por lotes.";
+    return status.total ? t('{processed} de {total} consultas completadas; {pending} pendientes y {failed} con error. Las noticias se integran automáticamente.',status) : "Las fuentes están activas. La próxima recopilación las consultará por lotes.";
   }
   $("collect").addEventListener("click", () => run(async () => {
     const result = await call("collectNow", document.querySelector('input[name="recovery-range"]:checked').value);

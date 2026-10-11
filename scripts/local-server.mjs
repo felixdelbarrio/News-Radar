@@ -1,23 +1,32 @@
 import fs from 'node:fs';
+import net from 'node:net';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-export const stateFile=path.resolve(import.meta.dirname,'../output/preview-server.json');
-export function registerServer(server,token,file=stateFile){
- const state={pid:process.pid,port:server.address().port,token};
- fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,JSON.stringify(state),{flag:'wx',mode:0o600});
- const clean=()=>{if(fs.existsSync(file)&&JSON.parse(fs.readFileSync(file,'utf8')).token===token)fs.unlinkSync(file);};
- server.once('close',clean);process.once('exit',clean);
+export const controlSocket=path.resolve(import.meta.dirname,'../output/preview-server.sock');
+export function registerServer(server,file=controlSocket){
+ fs.mkdirSync(path.dirname(file),{recursive:true});
  const close=()=>{server.close();server.closeIdleConnections();};
- process.once('SIGINT',close);process.once('SIGTERM',close);
+ const control=net.createServer(connection=>{
+  connection.setTimeout(1000,()=>connection.destroy());
+  connection.once('data',command=>{if(command.toString()!=='stop'){connection.destroy();return;}connection.end('closed');close();});
+ });
+ const clean=()=>{control.close();process.removeListener('SIGINT',close);process.removeListener('SIGTERM',close);};
+ return new Promise((resolve,reject)=>{
+  control.once('error',reject);
+  control.listen(file,()=>{fs.chmodSync(file,0o600);server.once('close',clean);process.once('SIGINT',close);process.once('SIGTERM',close);resolve();});
+ });
 }
-export async function killServer(file=stateFile){
+export async function killServer(file=controlSocket){
  if(!fs.existsSync(file))return false;
- const state=JSON.parse(fs.readFileSync(file,'utf8'));
- if(!Number.isInteger(state.pid)||state.pid<1||!Number.isInteger(state.port)||state.port<1||state.port>65535||typeof state.token!=='string')throw Error('Registro del servidor local no válido.');
- try{process.kill(state.pid,0);}catch(error){if(error.code!=='ESRCH')throw error;fs.unlinkSync(file);return false;}
- const response=await fetch('http://127.0.0.1:'+state.port+'/__preview/stop',{method:'POST',headers:{Authorization:'Bearer '+state.token},signal:AbortSignal.timeout(5000)});
- if(!response.ok)throw Error('El servidor no acepta el cierre; no se ha detenido ningún otro proceso.');
- await response.text();return true;
+ return new Promise((resolve,reject)=>{
+  // Local IPC: no PID, credentials or destination are read from a file.
+  const connection=net.createConnection({path:file});let response='';
+  connection.setTimeout(5000,()=>connection.destroy(Error('El servidor local no responde.')));
+  connection.once('connect',()=>connection.end('stop'));
+  connection.on('data',data=>response+=data);
+  connection.once('end',()=>response==='closed'?resolve(true):reject(Error('Respuesta de cierre no válida.')));
+  connection.once('error',error=>{if(error.code==='ECONNREFUSED'||error.code==='ENOENT'){fs.rmSync(file,{force:true});resolve(false);}else reject(error);});
+ });
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  try{console.log(await killServer()?'Servidor local cerrado.':'No hay servidor local activo.');}

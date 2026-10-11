@@ -38,7 +38,19 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
       "ticari bankacılık",
       "nakit yönetimi",
       "KOBİ",
-      "kredi"
+      "kredi",
+      "business",
+      "SME",
+      "account",
+      "card",
+      "finance",
+      "payment",
+      "product",
+      "launch",
+      "hesap",
+      "kart",
+      "ürün",
+      "lansman"
     ],
     "disabledSources": [],
     "maxSubscriptions": 20,
@@ -472,7 +484,10 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "caída",
         "outage",
         "kesinti",
-        "arıza"
+        "arıza",
+        "interruption",
+        "failure",
+        "hizmet kesintisi"
       ],
       "enabled": true
     },
@@ -489,7 +504,10 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "verifactu",
         "supervisor",
         "düzenleme",
-        "kredi notu"
+        "kredi notu",
+        "regulation",
+        "compliance",
+        "yönetmelik"
       ],
       "enabled": true
     },
@@ -528,7 +546,10 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "pagos",
         "nakit yönetimi",
         "ödeme",
-        "hazine"
+        "hazine",
+        "payment",
+        "payments",
+        "işlem bankacılığı"
       ],
       "enabled": true
     },
@@ -542,7 +563,12 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "capital ratio",
         "earnings",
         "kâr",
-        "sermaye"
+        "sermaye",
+        "dividend",
+        "buyback",
+        "profit",
+        "temettü",
+        "geri alım"
       ],
       "enabled": true
     },
@@ -556,7 +582,13 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "cib",
         "m&a",
         "birleşme",
-        "satın alma"
+        "satın alma",
+        "partnership",
+        "acquisition",
+        "merger",
+        "iş birliği",
+        "ortaklık",
+        "anlaşma"
       ],
       "enabled": true
     },
@@ -571,7 +603,10 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "emprendedor",
         "işletme",
         "ticari",
-        "kobi"
+        "kobi",
+        "enterprise",
+        "entrepreneur",
+        "girişimci"
       ],
       "enabled": true
     },
@@ -608,7 +643,21 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "terminal",
         "tpv",
         "factura",
-        "programa"
+        "programa",
+        "deposit",
+        "mortgage",
+        "insurance",
+        "investment",
+        "platform",
+        "service",
+        "hesap",
+        "kart",
+        "ürün",
+        "hizmet",
+        "sigorta",
+        "yatırım",
+        "fatura",
+        "program"
       ],
       "enabled": true
     }
@@ -679,7 +728,14 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "launch",
         "introduce",
         "unveils",
-        "yeni"
+        "yeni",
+        "launches",
+        "introduces",
+        "unveil",
+        "sunar",
+        "tanıt",
+        "başlat",
+        "piyasaya"
       ],
       "context": [
         "cuenta",
@@ -709,7 +765,23 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "wallet",
         "terminal",
         "tpv",
-        "programa"
+        "programa",
+        "service",
+        "platform",
+        "payment",
+        "deposit",
+        "mortgage",
+        "insurance",
+        "investment",
+        "hesap",
+        "kart",
+        "ürün",
+        "hizmet",
+        "ödeme",
+        "kredi",
+        "mevduat",
+        "sigorta",
+        "yatırım"
       ],
       "enabled": true,
       "scope": "headline",
@@ -721,7 +793,16 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "premio",
         "reskilling",
         "formación tecnológica",
-        "colaboradores"
+        "colaboradores",
+        "what is",
+        "what are",
+        "how to",
+        "guide",
+        "award",
+        "nedir",
+        "nasıl",
+        "rehber",
+        "ödül"
       ]
     },
     {
@@ -734,7 +815,14 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "reduce",
         "aumenta",
         "enhances",
-        "expands"
+        "expands",
+        "improves",
+        "upgrades",
+        "extends",
+        "yenile",
+        "geliştir",
+        "genişlet",
+        "iyileştir"
       ],
       "context": [
         "cuenta",
@@ -745,7 +833,27 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "tipo",
         "plataforma",
         "pago",
-        "financia"
+        "financia",
+        "account",
+        "card",
+        "product",
+        "service",
+        "platform",
+        "payment",
+        "loan",
+        "deposit",
+        "mortgage",
+        "insurance",
+        "investment",
+        "hesap",
+        "kart",
+        "ürün",
+        "hizmet",
+        "ödeme",
+        "kredi",
+        "mevduat",
+        "sigorta",
+        "yatırım"
       ],
       "enabled": true,
       "scope": "headline",
@@ -757,7 +865,16 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "premio",
         "reskilling",
         "formación tecnológica",
-        "colaboradores"
+        "colaboradores",
+        "what is",
+        "what are",
+        "how to",
+        "guide",
+        "award",
+        "nedir",
+        "nasıl",
+        "rehber",
+        "ödül"
       ]
     },
     {
@@ -768,7 +885,13 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "partnership",
         "acuerd",
         "colabora con",
-        "colaboración"
+        "colaboración",
+        "partners with",
+        "agreement",
+        "iş birliği",
+        "işbirliği",
+        "ortaklık",
+        "anlaşma"
       ],
       "context": [],
       "enabled": true,
@@ -781,7 +904,16 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "premio",
         "reskilling",
         "formación tecnológica",
-        "colaboradores"
+        "colaboradores",
+        "what is",
+        "what are",
+        "how to",
+        "guide",
+        "award",
+        "nedir",
+        "nasıl",
+        "rehber",
+        "ödül"
       ]
     }
   ],

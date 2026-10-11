@@ -6,7 +6,7 @@ function parseFeed_(xml) {
   return items.map(item=>({title:item.getChildText('title'),url:item.getChildText('link'),date:item.getChildText('pubDate'),excerpt:item.getChildText('description'),source:item.getChildText('source')}));
 }
 function newsRecord_(item,feed,now) {
-  const record={id:Utilities.getUuid(),fecha:Utilities.formatDate(item.date,settings_().timezone,'yyyy-MM-dd'),pais:feed.country,medio:item.publisher||feed.name,entidad:feed.entity,titular:item.title,extracto:item.excerpt,tema:item.topic,url:item.url,capturada:now.toISOString(),fuente:feed.name};
+  const record={id:Utilities.getUuid(),fecha:Utilities.formatDate(item.date,settings_().timezone,'yyyy-MM-dd'),pais:feed.country,medio:item.publisher||(feed.kind==='profile'?'':feed.name),entidad:feed.entity,titular:item.title,extracto:item.excerpt,tema:item.topic,url:item.url,capturada:now.toISOString(),fuente:feed.name,idioma:feed.language||configuration_().geographies.find(geo=>geo.name===feed.country)?.language||'es'};
   return RADAR.sheets.Noticias.map(key=>record[key]);
 }
 function ingestFeed_(feed,known,cycle,now,response) {

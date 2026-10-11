@@ -1,4 +1,4 @@
-export function recordText(value){return String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es').trim();}
+export function recordText(value){return String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ı/g,'i').trim();}
 export function recordQuery(input={},fields=[]){
   const query={};
   for(const key of ['search','from','to',...fields]){const value=String(input[key]??'').trim();if(value.length>160)throw Error('Filtro demasiado largo.');if(value)query[key]=value;}

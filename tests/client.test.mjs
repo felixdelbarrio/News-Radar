@@ -16,7 +16,7 @@ function client(responses={}){
     const select=form.elements[name];let html='';
     Object.defineProperty(select,'innerHTML',{get:()=>html,set(value){html=value;select.value='';}});
   }
-  const context=vm.createContext({document:{getElementById:element,querySelector:element,querySelectorAll:()=>[],createElement:()=>({click(){}})},
+  const context=vm.createContext({document:{addEventListener(){},documentElement:{},body:{nodeType:0},title:"",getElementById:element,querySelector:element,querySelectorAll:()=>[],createElement:()=>({click(){}})},
     Blob,URL:{createObjectURL:()=> 'blob:local',revokeObjectURL(){}},
     window:{scrollTo(){},matchMedia:()=>({matches:false,addEventListener(){}}),RADAR_PREVIEW:{call(method,query){rpc.push({method,query});if(method!=='getDashboard')return Promise.resolve(responses[method]||(method==='getNewsletterHistory'?{items:[],total:0,page:0,pageSize:30,options:{},limit:20000}:method==='getSubscriptions'?[]:method==='getNewsletterOptions'?{email:'reader@bbva.com',defaults:{name:'Mi canal',periodicity:'monthly',filters:{}},catalogs:{}}:method==='getConfiguration'?{config:JSON.parse(read('assets/configuration-defaults.json')),revision:'test'}:{saved:true}));return new Promise(resolve=>requests.push({query,resolve}));}}},
     FormData:class {constructor(){return Object.entries(form.elements).map(([name,input])=>[name,input.value]);}},

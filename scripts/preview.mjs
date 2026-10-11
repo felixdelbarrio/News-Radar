@@ -1,4 +1,3 @@
-import {randomUUID} from 'node:crypto';
 import {registerServer} from './local-server.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -15,9 +14,10 @@ const rows=raw.flatMap((item,i)=>{
   const feed=feeds[i<10?0:1],result=context.evaluate_(item,feed,now);if(!result.item)return [];
   const n=result.item;return [{id:String(i),fecha:n.date.toISOString().slice(0,10),pais:feed.country,medio:feed.name,entidad:feed.entity,titular:n.title,extracto:n.excerpt,tema:n.topic,url:n.url,fuente:feed.name}];
 });
-const names=['settings_','searchText_','businessIndex_','termsMatch_','classify_','annotateNews_','entityKey_','selectNews_','selectAnnotatedNews_','newsScope_','radarMetrics_','briefing_','newsDashboard_','safeCell_','newsCsv_','canonicalUrl_','domainMatches_','plainText_','validateConfiguration_','profileFeed_','defaultFeeds_','customFeeds_','configuredFeeds_','feeds_','saveFeeds','saveSourceSettings','newsletter_','newsletterContent_','newsletterLinks_','subscriptionRecord_','subscriptionQuery_','subscriptionDefaults_','calendarDate_','recentNewsRange_','newsletterDeliveryId_','currentMonth_','dashboardQuery_','collectionRange_','newsletterPeriod_','newsletterEmail_','newsletterNextDate_','eventDuration_','metrics_','recordText','recordQuery','filterRecords','recordOptions','recordPage','recordDay'];
+const names=['settings_','searchText_','businessIndex_','termsMatch_','classify_','annotateNews_','entityKey_','selectNews_','selectAnnotatedNews_','newsScope_','radarMetrics_','briefing_','newsDashboard_','safeCell_','newsCsv_','canonicalUrl_','domainMatches_','plainText_','validateConfiguration_','profileFeed_','defaultFeeds_','customFeeds_','configuredFeeds_','feeds_','saveFeeds','saveSourceSettings','newsletter_','newsletterContent_','newsletterLinks_','subscriptionRecord_','subscriptionQuery_','subscriptionDefaults_','calendarDate_','recentNewsRange_','newsletterDeliveryId_','currentMonth_','dashboardQuery_','collectionRange_','newsletterPeriod_','newsletterEmail_','newsletterNextDate_','eventDuration_','metrics_','recordText','recordQuery','filterRecords','recordOptions','recordPage','recordDay','supportedLanguage','detectLanguage','translateText','formatCalendarDay','formatText'];
 const shared=names.map(name=>context[name].toString()).join('\n'),serialize=value=>JSON.stringify(value).replace(/</g,'\\u003c');
 const preview=`<script>(()=>{
+const languageNames=${serialize(vm.runInContext('languageNames',context))},translations=${serialize(vm.runInContext('translations',context))};let translationPattern,translationIndex,calendarFormatters=new Map();
 const NEWSLETTER_INLINE=${serialize(vm.runInContext('NEWSLETTER_INLINE',context))};
 const RADAR=${serialize(vm.runInContext('RADAR',context))},NEWSLETTER_STYLE=${serialize(vm.runInContext('NEWSLETTER_STYLE',context))};
 let configuration=${serialize(seed)},businessIndexMemory_,configuredFeedMemory_,revision='0',recordDateFormatter;const selections=[],usage=[];
@@ -48,19 +48,15 @@ window.RADAR_PREVIEW={async call(method,q={}){
  if(method==='saveSubscription'||method==='saveAdminSubscription'){if(method==='saveAdminSubscription')authorize_();const index=q.id?selections.findIndex(r=>r.id===q.id):-1;const row=subscriptionRecord_(q,method==='saveAdminSubscription'?q.email:'usuario@bbva.com',q.id||String(selections.length+1)+'-'+Date.now(),new Date(),selections.filter(r=>r.id!==q.id).length);if(index<0)selections.push(row);else selections[index]=row;return 'Suscripción local guardada en memoria, sin envío de correo.';}
  if(method==='deleteSubscription'){const index=selections.findIndex(row=>row.id===q);if(index<0)throw Error('Selección no encontrada.');selections.splice(index,1);return 'Selección local eliminada.';}
  if(method!=='getDashboard')throw Error('Esta acción necesita la instalación en Apps Script.');
- const initial=Boolean(q.initial),settings=settings_();q=dashboardQuery_(q);
- const feeds=feeds_();return {...newsDashboard_(rows,q,feeds),initial,selection:q,defaults:dashboardQuery_({view:'news',initial:true}),preferences:{timezone:settings.timezone,retentionDays:settings.retentionDays,eventLimit:settings.eventLimit,unknownCountry:settings.unknownCountry,dailyLabel:settings.dailyHour+':00 · '+settings.timezone},geographies:configuration.geographies,runs:[],lastRun:'',sourceCount:feeds.length,daily:false,admin,...(admin?{maxFeeds:settings.maxCustomFeeds,feeds:customFeeds_(),configuredFeeds:configuredFeeds_(),collection:{total:0,processed:0,pending:0,failed:0}}:{})};
+ const view=q.view||'radar',initial=Boolean(q.initial),settings=settings_();q=dashboardQuery_(q);
+ const feeds=feeds_();return {...newsDashboard_(rows,q,feeds,view),initial,selection:q,defaults:dashboardQuery_({view:'news',initial:true}),preferences:{timezone:settings.timezone,retentionDays:settings.retentionDays,eventLimit:settings.eventLimit,unknownCountry:settings.unknownCountry,dailyLabel:settings.dailyHour+':00 · '+settings.timezone},geographies:configuration.geographies,runs:[],lastRun:'',sourceCount:feeds.length,daily:false,admin,...(admin?{maxFeeds:settings.maxCustomFeeds,feeds:customFeeds_(),configuredFeeds:configuredFeeds_(),collection:{total:0,processed:0,pending:0,failed:0}}:{})};
 }};
 })();</script>`;
 const read=name=>fs.readFileSync(path.join(dist,name+'.html'),'utf8');
 const html=renderIncludes(read('Index')).replace('<script id="radar-client">',preview+'<script id="radar-client">');
 fs.mkdirSync(path.join(root,'output'),{recursive:true});fs.writeFileSync(path.join(root,'output/preview.html'),html);
-export function createPreviewServer(token){
+export function createPreviewServer(){
  const server=http.createServer((req,res)=>{
-  if(req.url==='/__preview/stop'&&req.method==='POST'){
-   if(!token||req.headers.authorization!=='Bearer '+token){res.writeHead(403);res.end();return;}
-   res.writeHead(200);res.end('Servidor cerrado.',()=>{server.close();server.closeIdleConnections();});return;
-  }
   if(!['GET','HEAD'].includes(req.method)){res.writeHead(405,{Allow:'GET, HEAD'});res.end();return;}
   if(!['/','/favicon.ico'].includes(req.url)){res.writeHead(404);res.end();return;}
   res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(req.method==='HEAD'||req.url==='/favicon.ico'?'':html);
@@ -69,9 +65,9 @@ export function createPreviewServer(token){
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)&&!process.argv.includes('--write-only')){
  const port=Number(process.env.PORT??4173);if(!Number.isInteger(port)||port<0||port>65535)throw Error('PORT debe ser un puerto válido.');
- const token=randomUUID(),server=createPreviewServer(token);server.on('error',error=>{console.error('No se pudo iniciar la vista local: '+error.message);process.exitCode=1;});
- server.listen(port,'127.0.0.1',()=>{
-  try{registerServer(server,token);console.log('Vista previa: http://127.0.0.1:'+server.address().port+' · '+rows.length+' publicaciones reales');}
+ const server=createPreviewServer();server.on('error',error=>{console.error('No se pudo iniciar la vista local: '+error.message);process.exitCode=1;});
+ server.listen(port,'127.0.0.1',async()=>{
+  try{await registerServer(server);console.log('Vista previa: http://127.0.0.1:'+server.address().port+' · '+rows.length+' publicaciones reales');}
   catch(error){console.error('No se pudo registrar el servidor: '+error.message+'. Ejecuta make kill.');server.close();process.exitCode=1;}
  });
 }

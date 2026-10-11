@@ -1,3 +1,4 @@
+import {t} from '../core/language.js';
 import { $, escape } from "../core/dom.js";
 function createFilters({ onInvalidate, onChange }) {
   const form = $("filters");
@@ -44,7 +45,7 @@ function createFilters({ onInvalidate, onChange }) {
     initialized.add(view);
     onInvalidate();
     const from = form.elements.from.value, to = form.elements.to.value;
-    form.elements.to.setCustomValidity(from && to && from > to ? "La fecha hasta debe ser posterior o igual a la fecha desde." : "");
+    form.elements.to.setCustomValidity(from && to && from > to ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : "");
     $("message").hidden = true;
     renderChips();
     if (event.type === "input") timer = setTimeout(onChange, 250);

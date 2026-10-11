@@ -38,15 +38,15 @@ test('vista local registra actividad real de la sesión y bloquea el correo remo
  await assert.rejects(preview.call('sendNewsletterTest'),/No se envían correos/);
 });
 
-test('make kill cierra únicamente el servidor registrado con su token',async t=>{
- const fs=await import('node:fs'),os=await import('node:os'),path=await import('node:path');
+test('make kill usa IPC local protegido y cierra solo el servidor registrado',async t=>{
+ const fs=await import('node:fs'),os=await import('node:os'),path=await import('node:path'),net=await import('node:net');
  const {registerServer,killServer}=await import('../scripts/local-server.mjs');
- const directory=fs.mkdtempSync(path.join(os.tmpdir(),'radar-server-')),file=path.join(directory,'server.json'),token='test-token',server=createPreviewServer(token);
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'radar-')),file=path.join(directory,'server.sock'),server=createPreviewServer();
  t.after(()=>{server.close();fs.rmSync(directory,{recursive:true,force:true});});
- server.listen(0,'127.0.0.1');await once(server,'listening');registerServer(server,token,file);
- const address='http://127.0.0.1:'+server.address().port;
- assert.equal((await fetch(address+'/__preview/stop',{method:'POST',headers:{Authorization:'Bearer wrong'}})).status,403);
- assert.equal((await fetch(address)).status,200);
+ server.listen(0,'127.0.0.1');await once(server,'listening');await registerServer(server,file);
+ assert.equal(fs.statSync(file).mode&0o777,0o600);
+ const client=net.createConnection({path:file});await once(client,'connect');client.end('invalid');await once(client,'close');
+ assert.equal((await fetch('http://127.0.0.1:'+server.address().port)).status,200);
  const closed=once(server,'close');assert.equal(await killServer(file),true);await closed;
  assert.equal(fs.existsSync(file),false);assert.equal(await killServer(file),false);
 });

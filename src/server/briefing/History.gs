@@ -1,7 +1,7 @@
 let newsletterKeyMemory_;
 function newsletterItemKeys_(row){
   if(!newsletterKeyMemory_)newsletterKeyMemory_=new WeakMap();if(newsletterKeyMemory_.has(row))return newsletterKeyMemory_.get(row);
-  const keys=['url:'+newsletterHash_(canonicalUrl_(row.url)),'text:'+newsletterHash_(recordText(row.titular)+'\n'+recordText(row.extracto))];
+  const keys=['url:'+sha256_(canonicalUrl_(row.url)),'text:'+sha256_(recordText(row.titular)+'\n'+recordText(row.extracto))];
   newsletterKeyMemory_.set(row,keys);return keys;
 }
 function newsletterSentContent_(deliveries){
@@ -19,5 +19,4 @@ function newsletterUnseen_(rows,known){
   return rows.filter(row=>{const keys=newsletterItemKeys_(row);if(keys.some(key=>known.has(key)||seen.has(key)))return false;for(const key of keys)seen.add(key);return true;});
 }
 
-function newsletterHash_(value){return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,value,Utilities.Charset.UTF_8).map(byte=>(byte&255).toString(16).padStart(2,'0')).join('');}
 function newsletterContentDetail_(content){return content.count+' noticias incluidas'+(content.omitted?'; '+content.omitted+' noticias repetidas omitidas':'');}

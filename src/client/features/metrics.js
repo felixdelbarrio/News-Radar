@@ -2,6 +2,7 @@ import { $, escape, date, message, metricCards } from "../core/dom.js";
 import { call } from "../core/api.js";
 import {createRecordFilters} from './record-filters.js';
 import {activityChart} from './activity-chart.js';
+import {t} from '../core/language.js';
 const filters={},requests={};
 async function loadMetrics(view, isCurrent) {
   filters[view]||=createRecordFilters(view,view==='adoption'?[['correo','Usuario'],['vista','Vista'],['evento','Evento']]:[['operacion','Operación'],['estado','Estado']],()=>loadMetrics(view,isCurrent),{dates:true});
@@ -12,7 +13,7 @@ async function loadMetrics(view, isCurrent) {
     filters[view].options(data.options);filters[view].page(data);
     if (view === "adoption") {
       $("adoption-metrics").innerHTML = metricCards([["DAU", data.dau, "Usuarios · 24 horas"], ["WAU", data.wau, "Usuarios · 7 días"], ["MAU", data.mau, "Usuarios · 30 días"], ["Recurrentes", data.returning, "Más de una sesión · 30 días"]]);
-      $("adoption-note").textContent = data.sessions + " sesiones y " + data.events + " eventos que cumplen los filtros en los últimos 30 días. Incluye al administrador; sesiones identificadas por apertura del navegador. " + (data.limited ? "Límite de eventos alcanzado; métricas parciales." : "");
+      $("adoption-note").textContent = t('{sessions} sesiones y {events} eventos que cumplen los filtros en los últimos 30 días. Incluye al administrador; sesiones identificadas por apertura del navegador.',data)+' ' + (data.limited ? "Límite de eventos alcanzado; métricas parciales." : "");
       $("adoption-body").innerHTML = data.users.map((u) => `<tr><td>${escape(u.correo)}</td><td>${escape(date(u.first))}</td><td>${escape(date(u.last))}</td><td>${u.sessions}</td><td>${u.actions}</td></tr>`).join("") || '<tr><td colspan="5">Sin actividad registrada.</td></tr>';
       $("adoption-daily").innerHTML = data.daily.map((d) => `<tr><td>${escape(d.date)}</td><td>${d.users}</td><td>${d.sessions}</td></tr>`).join("") || '<tr><td colspan="3">Sin actividad diaria registrada.</td></tr>';
       $("adoption-chart").innerHTML=activityChart(data.daily);

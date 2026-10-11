@@ -13,6 +13,8 @@ import { renderShell } from "./features/shell.js";
 import { createSources } from "./features/sources.js";
 import { createUsage } from "./features/usage.js";
 import { createNavigation } from "./features/navigation.js";
+import {initializeLocalization} from './core/localization.js';
+initializeLocalization();
 const state = { data: null, request: 0, busy: false };
 const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => Boolean(state.data) }), { track, flush } = usage;
 const configuration = createConfiguration({run:action});

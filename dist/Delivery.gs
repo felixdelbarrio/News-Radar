@@ -33,7 +33,7 @@ function deliverNewsletters_(){
       const query={...row.filtros,...window},key=JSON.stringify(query);
       if(!prepared.has(key))prepared.set(key,selectAnnotatedNews_(news,query));
       const email=newsletterEmail_(row.correo);if(!history.has(email))history.set(email,new Set());
-      const known=history.get(email),selected=prepared.get(key),unseen=newsletterUnseen_(selected,known),content=newsletterContent_(unseen,query,row.nombre,now,row.id),keys=content.items.flatMap(newsletterItemKeys_);
+      const known=history.get(email),selected=prepared.get(key),unseen=newsletterUnseen_(selected,known),content=newsletterContent_(unseen,query,row.nombre,now,row.id,row.idioma),keys=content.items.flatMap(newsletterItemKeys_);
       const skipped=selected.length-unseen.length;content.omitted=skipped;result.duplicates+=skipped;
       if(content.count&&!sender)try{sender=newsletterSender_();}catch(error){recordNewsletterBlock_(error,properties_().getProperty('OWNER_EMAIL'));throw error;}
       append_('NewsletterEnvios',[[id,row.id,row.correo,window.from,window.to,content.count?'Enviando':'Sin novedades',now.toISOString(),newsletterContentDetail_(content),JSON.stringify(keys)]]);

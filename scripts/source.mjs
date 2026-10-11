@@ -10,7 +10,7 @@ export function files(dir){
 }
 export function readServerScript(dir='dist',coverage=false){
   const sources=coverage&&process.env.RADAR_COVERAGE?new Map(sourceFiles(path.join(root,'src/server')).map(file=>[path.basename(file),file])):null;
-  if(sources)sources.set('RecordFilters.gs',path.join(root,'src/shared/record-filters.js'));
+  if(sources){sources.set('RecordFilters.gs',path.join(root,'src/shared/record-filters.js'));sources.set('Locales.gs',path.join(root,'src/shared/locales.js'));}
   return files(dir).filter(file=>file.endsWith('.gs')).map(file=>{const source=sources?.get(path.basename(file));return source?instrument(fs.readFileSync(source,'utf8'),source).replace(/\bexport /g,''):read(file);}).join('\n');
 }
 let coverageClient;

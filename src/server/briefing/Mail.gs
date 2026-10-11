@@ -58,10 +58,10 @@ function newsletterTest_(session,subscription){
   try{
     const now=new Date();if(!newsletterBudget_(rows_('NewsletterEnvios'),now))throw Error('Se ha alcanzado el límite configurado de newsletters en 24 horas.');
     const sender=newsletterSender_(),defaults=subscription?{name:subscription.nombre,filters:subscription.filtros}:subscriptionDefaults_();
-    const query=subscription?subscriptionQuery_(subscription,now):{...defaults.filters,...recentNewsRange_(now)},content=newsletter_(rows_('Noticias',settings_().newsReadLimit),query,defaults.name,now,subscription?.id);
+    const query=subscription?subscriptionQuery_(subscription,now):{...defaults.filters,...recentNewsRange_(now)},content=newsletter_(rows_('Noticias',settings_().newsReadLimit),query,defaults.name,now,subscription?.id,subscription?.idioma||'es');
     append_('NewsletterEnvios',[['prueba:'+Utilities.getUuid(),'',session.email,query.from,query.to,'Enviando',now.toISOString(),subscription?'Prueba de suscripción':'Prueba del administrador']]);
     claimed=true;
-    const sheet=book_().getSheetByName('NewsletterEnvios'),id=completeNewsletterDelivery_(sheet,sheet.getLastRow(),sender,session.email,'Prueba · '+defaults.name,content,true);
+    const sheet=book_().getSheetByName('NewsletterEnvios'),id=completeNewsletterDelivery_(sheet,sheet.getLastRow(),sender,session.email,translateText('Prueba',subscription?.idioma||'es')+' · '+defaults.name,content,true);
     return {accepted:true,recipient:session.email,sender:sender.address,messageId:id,count:content.count,from:query.from,to:query.to};
   }catch(error){if(!claimed)recordNewsletterBlock_(error,session.email);throw error;
   }finally{lock.releaseLock();}

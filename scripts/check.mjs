@@ -11,7 +11,7 @@ for(const file of [...files('scripts'),...files('tests'),...files('src/client')]
   execFileSync(process.execPath,['--check',path.join(root,file)],{stdio:'inherit'});
 }
 for(const file of files('src/server'))checkAppsScriptSyntax(fs.readFileSync(path.join(root,file),'utf8'),file);
-checkAppsScriptSyntax(fs.readFileSync(path.join(root,'src/shared/record-filters.js'),'utf8').replace(/^export /gm,''),'src/shared/record-filters.js');
+for(const file of files('src/shared'))checkAppsScriptSyntax(fs.readFileSync(path.join(root,file),'utf8').replace(/^export /gm,''),file);
 new vm.Script(readServerScript('src/server'));
 new vm.Script(readClientScript());
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'src/appsscript.json')));

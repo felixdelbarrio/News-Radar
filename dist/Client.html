@@ -1,13 +1,2640 @@
 <script id="radar-client">
 (() => {
+  // src/shared/locales.js
+  var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    Espa\u00F1ol: [
+      "Spanish",
+      "\u0130spanyolca"
+    ],
+    Ingl\u00E9s: [
+      "English",
+      "\u0130ngilizce"
+    ],
+    Turco: [
+      "Turkish",
+      "T\xFCrk\xE7e"
+    ],
+    Idioma: [
+      "Language",
+      "Dil"
+    ],
+    "Idioma de la newsletter": [
+      "Newsletter language",
+      "B\xFClten dili"
+    ],
+    "Idioma de prueba de esta pesta\xF1a": [
+      "Language for this tab",
+      "Bu sekmenin dili"
+    ],
+    "Idioma del navegador": [
+      "Browser language",
+      "Taray\u0131c\u0131 dili"
+    ],
+    "Solo afecta a esta pesta\xF1a hasta que la cierres.": [
+      "Applies only to this tab until you close it.",
+      "Yaln\u0131zca bu sekmeyi kapatana kadar ge\xE7erlidir."
+    ],
+    Administraci\u00F3n: [
+      "Administration",
+      "Y\xF6netim"
+    ],
+    Novedades: [
+      "Product updates",
+      "Yenilikler"
+    ],
+    Noticias: [
+      "News",
+      "Haberler"
+    ],
+    Suscripciones: [
+      "Subscriptions",
+      "Abonelikler"
+    ],
+    Suscripci\u00F3n: [
+      "Subscription",
+      "Abonelik"
+    ],
+    "Configuraci\xF3n de negocio": [
+      "Business configuration",
+      "\u0130\u015F yap\u0131land\u0131rmas\u0131"
+    ],
+    Configuraci\u00F3n: [
+      "Configuration",
+      "Yap\u0131land\u0131rma"
+    ],
+    "Fuentes y programaci\xF3n": [
+      "Sources and scheduling",
+      "Kaynaklar ve zamanlama"
+    ],
+    Fuentes: [
+      "Sources",
+      "Kaynaklar"
+    ],
+    Fuente: [
+      "Source",
+      "Kaynak"
+    ],
+    Auditor\u00EDa: [
+      "Audit",
+      "Denetim"
+    ],
+    Telemetr\u00EDa: [
+      "Telemetry",
+      "Telemetri"
+    ],
+    Adopci\u00F3n: [
+      "Adoption",
+      "Kullan\u0131m"
+    ],
+    Entidad: [
+      "Entity",
+      "Kurum"
+    ],
+    Entidades: [
+      "Entities",
+      "Kurumlar"
+    ],
+    "Tipo de entidad": [
+      "Entity type",
+      "Kurum t\xFCr\xFC"
+    ],
+    Segmento: [
+      "Segment",
+      "Segment"
+    ],
+    Segmentos: [
+      "Segments",
+      "Segmentler"
+    ],
+    Geograf\u00EDa: [
+      "Geography",
+      "Co\u011Frafya"
+    ],
+    Geograf\u00EDas: [
+      "Geographies",
+      "Co\u011Frafyalar"
+    ],
+    Tema: [
+      "Topic",
+      "Konu"
+    ],
+    Temas: [
+      "Topics",
+      "Konular"
+    ],
+    Novedad: [
+      "Update",
+      "Yenilik"
+    ],
+    Se\u00F1ales: [
+      "Signals",
+      "Sinyaller"
+    ],
+    "Fuente RSS": [
+      "RSS source",
+      "RSS kayna\u011F\u0131"
+    ],
+    Medio: [
+      "Publisher",
+      "Yay\u0131nc\u0131"
+    ],
+    Todos: [
+      "All",
+      "T\xFCm\xFC"
+    ],
+    Todas: [
+      "All",
+      "T\xFCm\xFC"
+    ],
+    "Ver todo": [
+      "View all",
+      "T\xFCm\xFCn\xFC g\xF6r\xFCnt\xFCle"
+    ],
+    Buscar: [
+      "Search",
+      "Ara"
+    ],
+    "Buscar noticias": [
+      "Search news",
+      "Haber ara"
+    ],
+    "Palabras clave": [
+      "Keywords",
+      "Anahtar kelimeler"
+    ],
+    Opcional: [
+      "Optional",
+      "\u0130ste\u011Fe ba\u011Fl\u0131"
+    ],
+    Desde: [
+      "From",
+      "Ba\u015Flang\u0131\xE7"
+    ],
+    Hasta: [
+      "To",
+      "Biti\u015F"
+    ],
+    Filtrar: [
+      "Filter",
+      "Filtrele"
+    ],
+    Filtros: [
+      "Filters",
+      "Filtreler"
+    ],
+    Limpiar: [
+      "Clear",
+      "Temizle"
+    ],
+    Restablecer: [
+      "Reset",
+      "S\u0131f\u0131rla"
+    ],
+    Anterior: [
+      "Previous",
+      "\xD6nceki"
+    ],
+    Siguiente: [
+      "Next",
+      "Sonraki"
+    ],
+    P\u00E1gina: [
+      "Page",
+      "Sayfa"
+    ],
+    "Sin resultados": [
+      "No results",
+      "Sonu\xE7 yok"
+    ],
+    "Sin detalle": [
+      "No details",
+      "Ayr\u0131nt\u0131 yok"
+    ],
+    "Sin ejecuciones": [
+      "No runs",
+      "\xC7al\u0131\u015Ft\u0131rma yok"
+    ],
+    "Sin determinar": [
+      "Undetermined",
+      "Belirlenmemi\u015F"
+    ],
+    "Sin clasificar": [
+      "Unclassified",
+      "S\u0131n\u0131fland\u0131r\u0131lmam\u0131\u015F"
+    ],
+    "No indicado": [
+      "Not specified",
+      "Belirtilmemi\u015F"
+    ],
+    Guardar: [
+      "Save",
+      "Kaydet"
+    ],
+    "Guardar cambios": [
+      "Save changes",
+      "De\u011Fi\u015Fiklikleri kaydet"
+    ],
+    "Guardar configuraci\xF3n": [
+      "Save configuration",
+      "Yap\u0131land\u0131rmay\u0131 kaydet"
+    ],
+    Cancelar: [
+      "Cancel",
+      "\u0130ptal"
+    ],
+    Editar: [
+      "Edit",
+      "D\xFCzenle"
+    ],
+    Eliminar: [
+      "Delete",
+      "Sil"
+    ],
+    Subir: [
+      "Move up",
+      "Yukar\u0131 ta\u015F\u0131"
+    ],
+    Bajar: [
+      "Move down",
+      "A\u015Fa\u011F\u0131 ta\u015F\u0131"
+    ],
+    Recargar: [
+      "Reload",
+      "Yeniden y\xFCkle"
+    ],
+    "Nueva entrada": [
+      "New entry",
+      "Yeni kay\u0131t"
+    ],
+    "A\xF1adir entrada": [
+      "Add entry",
+      "Kay\u0131t ekle"
+    ],
+    Nombre: [
+      "Name",
+      "Ad"
+    ],
+    Estado: [
+      "Status",
+      "Durum"
+    ],
+    Activa: [
+      "Active",
+      "Etkin"
+    ],
+    Activo: [
+      "Active",
+      "Etkin"
+    ],
+    Activas: [
+      "Active",
+      "Etkin"
+    ],
+    Inactiva: [
+      "Inactive",
+      "Etkin de\u011Fil"
+    ],
+    Pausada: [
+      "Paused",
+      "Duraklat\u0131lm\u0131\u015F"
+    ],
+    Habilitada: [
+      "Enabled",
+      "Etkin"
+    ],
+    Deshabilitada: [
+      "Disabled",
+      "Devre d\u0131\u015F\u0131"
+    ],
+    Mensual: [
+      "Monthly",
+      "Ayl\u0131k"
+    ],
+    Semanal: [
+      "Weekly",
+      "Haftal\u0131k"
+    ],
+    Diaria: [
+      "Daily",
+      "G\xFCnl\xFCk"
+    ],
+    Periodicidad: [
+      "Frequency",
+      "S\u0131kl\u0131k"
+    ],
+    Correo: [
+      "Email",
+      "E-posta"
+    ],
+    "Correo corporativo": [
+      "Corporate email",
+      "Kurumsal e-posta"
+    ],
+    Suscriptor: [
+      "Subscriber",
+      "Abone"
+    ],
+    Destinatario: [
+      "Recipient",
+      "Al\u0131c\u0131"
+    ],
+    "Crear suscripci\xF3n": [
+      "Create subscription",
+      "Abonelik olu\u015Ftur"
+    ],
+    Suscribirme: [
+      "Subscribe",
+      "Abone ol"
+    ],
+    Probar: [
+      "Test",
+      "Test et"
+    ],
+    Prueba: [
+      "Test",
+      "Test"
+    ],
+    "Ver noticias": [
+      "View news",
+      "Haberleri g\xF6r\xFCnt\xFCle"
+    ],
+    "Dar de baja": [
+      "Unsubscribe",
+      "Aboneli\u011Fi iptal et"
+    ],
+    "Confirmar baja": [
+      "Confirm unsubscribe",
+      "\u0130ptali onayla"
+    ],
+    "Suscripci\xF3n activa": [
+      "Active subscription",
+      "Etkin abonelik"
+    ],
+    "EDITAR SUSCRIPCI\xD3N": [
+      "EDIT SUBSCRIPTION",
+      "ABONEL\u0130\u011E\u0130 D\xDCZENLE"
+    ],
+    "NUEVA SUSCRIPCI\xD3N": [
+      "NEW SUBSCRIPTION",
+      "YEN\u0130 ABONEL\u0130K"
+    ],
+    "Preferencias de recepci\xF3n": [
+      "Delivery preferences",
+      "Teslimat tercihleri"
+    ],
+    "Contenido y periodicidad": [
+      "Content and frequency",
+      "\u0130\xE7erik ve s\u0131kl\u0131k"
+    ],
+    "M\xE1s preferencias": [
+      "More preferences",
+      "Di\u011Fer tercihler"
+    ],
+    "Tipo de entidad, tema, novedad, fuente y palabras clave": [
+      "Entity type, topic, update, source and keywords",
+      "Kurum t\xFCr\xFC, konu, yenilik, kaynak ve anahtar kelimeler"
+    ],
+    "Gestiona una suscripci\xF3n del dominio BBVA.": [
+      "Manage a subscription in the BBVA domain.",
+      "BBVA alan ad\u0131na ait bir aboneli\u011Fi y\xF6netin."
+    ],
+    "La entrega comienza en el siguiente cierre despu\xE9s del alta e incluye novedades de los \xFAltimos 7 d\xEDas. Recibir\xE1s un correo solo si hay contenido nuevo.": [
+      "Delivery starts at the next period close after registration and includes updates from the last 7 days. You will receive an email only when there is new content.",
+      "Teslimat, kay\u0131ttan sonraki ilk d\xF6nem kapan\u0131\u015F\u0131nda ba\u015Flar ve son 7 g\xFCn\xFCn yeniliklerini i\xE7erir. Yaln\u0131zca yeni i\xE7erik oldu\u011Funda e-posta al\u0131rs\u0131n\u0131z."
+    ],
+    "Todo el sector": [
+      "The whole sector",
+      "T\xFCm sekt\xF6r"
+    ],
+    "Todas las geograf\xEDas": [
+      "All geographies",
+      "T\xFCm co\u011Frafyalar"
+    ],
+    "Novedades del canal": [
+      "Channel updates",
+      "Kanal yenilikleri"
+    ],
+    "Sin entregas registradas": [
+      "No deliveries recorded",
+      "Kay\u0131tl\u0131 teslimat yok"
+    ],
+    "Sin suscripciones": [
+      "No subscriptions",
+      "Abonelik yok"
+    ],
+    "No tienes suscripciones": [
+      "You have no subscriptions",
+      "Aboneli\u011Finiz yok"
+    ],
+    "Las altas del equipo aparecer\xE1n aqu\xED. Puedes crear una manualmente.": [
+      "Team subscriptions will appear here. You can create one manually.",
+      "Ekip abonelikleri burada g\xF6r\xFCn\xFCr. Manuel olarak bir abonelik olu\u015Fturabilirsiniz."
+    ],
+    "Completa el formulario para recibir novedades por correo.": [
+      "Complete the form to receive updates by email.",
+      "Yenilikleri e-postayla almak i\xE7in formu doldurun."
+    ],
+    "\xDAltimo intento": [
+      "Last attempt",
+      "Son deneme"
+    ],
+    "Disponible desde": [
+      "Available from",
+      "Ba\u015Flang\u0131\xE7 tarihi"
+    ],
+    "por defecto": [
+      "by default",
+      "varsay\u0131lan"
+    ],
+    suscriptores: [
+      "subscribers",
+      "abone"
+    ],
+    suscripciones: [
+      "subscriptions",
+      "abonelik"
+    ],
+    activas: [
+      "active",
+      "etkin"
+    ],
+    "Entrega peri\xF3dica activa. Recibir\xE1s \xFAnicamente las novedades de tu selecci\xF3n.": [
+      "Scheduled delivery is active. You will receive only updates matching your selection.",
+      "Zamanlanm\u0131\u015F teslimat etkin. Yaln\u0131zca se\xE7iminize uygun yenilikleri al\u0131rs\u0131n\u0131z."
+    ],
+    "Puedes guardar tu suscripci\xF3n. El administrador todav\xEDa debe activar la entrega.": [
+      "You can save your subscription. The administrator still needs to enable delivery.",
+      "Aboneli\u011Finizi kaydedebilirsiniz. Y\xF6neticinin teslimat\u0131 etkinle\u015Ftirmesi gerekir."
+    ],
+    "Gmail ha aceptado la prueba para": [
+      "Gmail accepted the test for",
+      "Gmail test g\xF6nderimini kabul etti:"
+    ],
+    "Confirma la baja de esta suscripci\xF3n.": [
+      "Confirm that you want to unsubscribe.",
+      "Bu aboneli\u011Fin iptalini onaylay\u0131n."
+    ],
+    "Abrir noticia": [
+      "Open article",
+      "Haberi a\xE7"
+    ],
+    "Consultar anuncio": [
+      "View announcement",
+      "Duyuruyu g\xF6r\xFCnt\xFCle"
+    ],
+    "Novedades detectadas": [
+      "Updates detected",
+      "Tespit edilen yenilikler"
+    ],
+    "Segmento no identificado": [
+      "Segment not identified",
+      "Segment belirlenmemi\u015F"
+    ],
+    "SEGMENTO Y TEMA": [
+      "SEGMENT AND TOPIC",
+      "SEGMENT VE KONU"
+    ],
+    "No hay novedades detectadas en esta selecci\xF3n.": [
+      "No updates detected for this selection.",
+      "Bu se\xE7imde yenilik tespit edilmedi."
+    ],
+    "Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.": [
+      "Broaden the entities or segments. Articles without product signals remain available in News.",
+      "Kurumlar\u0131 veya segmentleri geni\u015Fletin. \xDCr\xFCn sinyali olmayan haberler Haberler b\xF6l\xFCm\xFCnde kal\u0131r."
+    ],
+    "Consulta la fuente original para conocer la oferta y sus condiciones.": [
+      "Check the original source for the offer and its terms.",
+      "Teklif ve ko\u015Fullar\u0131 i\xE7in orijinal kayna\u011Fa bak\u0131n."
+    ],
+    "El feed no proporciona un extracto. Consulta la publicaci\xF3n original.": [
+      "The feed does not provide an excerpt. Check the original article.",
+      "Ak\u0131\u015F bir \xF6zet sa\u011Flam\u0131yor. Orijinal yay\u0131na bak\u0131n."
+    ],
+    "No hay noticias con estos filtros.": [
+      "No news matches these filters.",
+      "Bu filtrelere uygun haber yok."
+    ],
+    "Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.": [
+      "Try another entity, change the geography or select \u201CView all\u201D to broaden your selection.",
+      "Se\xE7imi geni\u015Fletmek i\xE7in ba\u015Fka bir kurum deneyin, co\u011Frafyay\u0131 de\u011Fi\u015Ftirin veya \u201CT\xFCm\xFCn\xFC g\xF6r\xFCnt\xFCle\u201D se\xE7ene\u011Fini se\xE7in."
+    ],
+    "publicaciones exportadas.": [
+      "articles exported.",
+      "haber d\u0131\u015Fa aktar\u0131ld\u0131."
+    ],
+    publicaciones: [
+      "articles",
+      "haber"
+    ],
+    novedades: [
+      "updates",
+      "yenilik"
+    ],
+    noticias: [
+      "news items",
+      "haber"
+    ],
+    resultados: [
+      "results",
+      "sonu\xE7"
+    ],
+    d\u00EDas: [
+      "days",
+      "g\xFCn"
+    ],
+    horas: [
+      "hours",
+      "saat"
+    ],
+    eventos: [
+      "events",
+      "olay"
+    ],
+    sesiones: [
+      "sessions",
+      "oturum"
+    ],
+    usuarios: [
+      "users",
+      "kullan\u0131c\u0131"
+    ],
+    registros: [
+      "records",
+      "kay\u0131t"
+    ],
+    selecciones: [
+      "selections",
+      "se\xE7im"
+    ],
+    coincidencias: [
+      "matches",
+      "e\u015Fle\u015Fme"
+    ],
+    "Banca de Empresas": [
+      "Business Banking",
+      "Ticari Bankac\u0131l\u0131k"
+    ],
+    "Empresas e instituciones": [
+      "Businesses and institutions",
+      "\u015Eirketler ve kurumlar"
+    ],
+    "Banco tradicional": [
+      "Traditional bank",
+      "Geleneksel banka"
+    ],
+    Neobanco: [
+      "Neobank",
+      "Dijital banka"
+    ],
+    Fintech: [
+      "Fintech",
+      "Fintek"
+    ],
+    Particulares: [
+      "Individuals",
+      "Bireysel m\xFC\u015Fteriler"
+    ],
+    Aut\u00F3nomos: [
+      "Self-employed",
+      "Serbest \xE7al\u0131\u015Fanlar"
+    ],
+    Aut\u00F3noma: [
+      "Autonomous",
+      "Otonom"
+    ],
+    Pymes: [
+      "SMEs",
+      "KOB\u0130'ler"
+    ],
+    Empresas: [
+      "Businesses",
+      "\u015Eirketler"
+    ],
+    Instituciones: [
+      "Institutions",
+      "Kurumlar"
+    ],
+    Espa\u00F1a: [
+      "Spain",
+      "\u0130spanya"
+    ],
+    M\u00E9xico: [
+      "Mexico",
+      "Meksika"
+    ],
+    Turqu\u00EDa: [
+      "T\xFCrkiye",
+      "T\xFCrkiye"
+    ],
+    Colombia: [
+      "Colombia",
+      "Kolombiya"
+    ],
+    Per\u00FA: [
+      "Peru",
+      "Peru"
+    ],
+    Argentina: [
+      "Argentina",
+      "Arjantin"
+    ],
+    "Estados Unidos": [
+      "United States",
+      "Amerika Birle\u015Fik Devletleri"
+    ],
+    "Reino Unido": [
+      "United Kingdom",
+      "Birle\u015Fik Krall\u0131k"
+    ],
+    Portugal: [
+      "Portugal",
+      "Portekiz"
+    ],
+    Brasil: [
+      "Brazil",
+      "Brezilya"
+    ],
+    Alemania: [
+      "Germany",
+      "Almanya"
+    ],
+    Francia: [
+      "France",
+      "Fransa"
+    ],
+    Italia: [
+      "Italy",
+      "\u0130talya"
+    ],
+    Financiaci\u00F3n: [
+      "Financing",
+      "Finansman"
+    ],
+    Pagos: [
+      "Payments",
+      "\xD6demeler"
+    ],
+    "Cuentas y tarjetas": [
+      "Accounts and cards",
+      "Hesaplar ve kartlar"
+    ],
+    Digitalizaci\u00F3n: [
+      "Digitalization",
+      "Dijitalle\u015Fme"
+    ],
+    Sostenibilidad: [
+      "Sustainability",
+      "S\xFCrd\xFCr\xFClebilirlik"
+    ],
+    Internacional: [
+      "International",
+      "Uluslararas\u0131"
+    ],
+    Lanzamiento: [
+      "Launch",
+      "Lansman"
+    ],
+    "Mejora de producto": [
+      "Product improvement",
+      "\xDCr\xFCn iyile\u015Ftirmesi"
+    ],
+    Alianza: [
+      "Partnership",
+      "\u0130\u015F birli\u011Fi"
+    ],
+    Producto: [
+      "Product",
+      "\xDCr\xFCn"
+    ],
+    "Nueva oferta": [
+      "New offer",
+      "Yeni teklif"
+    ],
+    "M\xE1s filtros": [
+      "More filters",
+      "Di\u011Fer filtreler"
+    ],
+    "Exportar selecci\xF3n": [
+      "Export selection",
+      "Se\xE7imi d\u0131\u015Fa aktar"
+    ],
+    "SELECCI\xD3N ACTUAL": [
+      "CURRENT SELECTION",
+      "GE\xC7ERL\u0130 SE\xC7\u0130M"
+    ],
+    "Resumen de publicaciones": [
+      "Article summary",
+      "Haber \xF6zeti"
+    ],
+    "Volumen, distribuci\xF3n geogr\xE1fica y evoluci\xF3n de las noticias recopiladas.": [
+      "Volume, geographic distribution and trends of collected news.",
+      "Toplanan haberlerin hacmi, co\u011Frafi da\u011F\u0131l\u0131m\u0131 ve e\u011Filimleri."
+    ],
+    "PRESENCIA GEOGR\xC1FICA": [
+      "GEOGRAPHIC PRESENCE",
+      "CO\u011ERAF\u0130 G\xD6R\xDCN\xDCM"
+    ],
+    "GEOGRAF\xCDAS DE SEGUIMIENTO": [
+      "TRACKED GEOGRAPHIES",
+      "\u0130ZLENEN CO\u011ERAFYALAR"
+    ],
+    "PRESENCIA EN MEDIOS": [
+      "MEDIA PRESENCE",
+      "MEDYA G\xD6R\xDCN\xDCM\xDC"
+    ],
+    "EVOLUCI\xD3N POR ENTIDAD": [
+      "TRENDS BY ENTITY",
+      "KURUMLARA G\xD6RE E\u011E\u0130L\u0130MLER"
+    ],
+    "MEDIO CON M\xC1S PUBLICACIONES": [
+      "LEADING PUBLISHER",
+      "EN \xC7OK HABER YAYIMLAYAN KAYNAK"
+    ],
+    "Entidades m\xE1s mencionadas": [
+      "Most mentioned entities",
+      "En \xE7ok bahsedilen kurumlar"
+    ],
+    "M\xE1s publicaciones": [
+      "Most articles",
+      "En fazla haber"
+    ],
+    "\xDAltima publicaci\xF3n": [
+      "Latest article",
+      "Son haber"
+    ],
+    "Publicaciones por geograf\xEDa": [
+      "Articles by geography",
+      "Co\u011Frafyaya g\xF6re haberler"
+    ],
+    "Selecciona una geograf\xEDa": [
+      "Select a geography",
+      "Bir co\u011Frafya se\xE7in"
+    ],
+    "Evoluci\xF3n de noticias": [
+      "News trends",
+      "Haber e\u011Filimleri"
+    ],
+    "Evoluci\xF3n de publicaciones por entidad": [
+      "Article trends by entity",
+      "Kurumlara g\xF6re haber e\u011Filimleri"
+    ],
+    "Evoluci\xF3n del n\xFAmero de publicaciones por entidad": [
+      "Trend in article counts by entity",
+      "Kurumlara g\xF6re haber say\u0131s\u0131 e\u011Filimi"
+    ],
+    "La evoluci\xF3n aparecer\xE1 cuando haya publicaciones en esta selecci\xF3n.": [
+      "Trends will appear when this selection contains articles.",
+      "Bu se\xE7imde haber oldu\u011Funda e\u011Filimler g\xF6r\xFCn\xFCr."
+    ],
+    "Volumen de publicaciones": [
+      "Article volume",
+      "Haber hacmi"
+    ],
+    "La geograf\xEDa corresponde a la fuente de seguimiento; no certifica d\xF3nde ocurre una operaci\xF3n. Geometr\xEDa: Natural Earth.": [
+      "Geography refers to the tracked source; it does not confirm where a transaction occurs. Geometry: Natural Earth.",
+      "Co\u011Frafya izlenen kayna\u011Fa aittir; i\u015Flemin ger\xE7ekle\u015Fti\u011Fi yeri do\u011Frulamaz. Geometri: Natural Earth."
+    ],
+    "La geograf\xEDa identifica el seguimiento de la fuente; no atribuye cada operaci\xF3n a ese pa\xEDs.": [
+      "Geography identifies the source being tracked; it does not assign each transaction to that country.",
+      "Co\u011Frafya kaynak takibini belirtir; her i\u015Flemi o \xFClkeye atfetmez."
+    ],
+    "Novedades del sector": [
+      "Sector updates",
+      "Sekt\xF6r yenilikleri"
+    ],
+    "Anuncios de productos y cambios de oferta detectados en las fuentes de tu selecci\xF3n.": [
+      "Product announcements and offer changes detected in your selected sources.",
+      "Se\xE7ti\u011Finiz kaynaklarda tespit edilen \xFCr\xFCn duyurular\u0131 ve teklif de\u011Fi\u015Fiklikleri."
+    ],
+    "Novedades de los \xFAltimos 7 d\xEDas.": [
+      "Updates from the last 7 days.",
+      "Son 7 g\xFCn\xFCn yenilikleri."
+    ],
+    "La selecci\xF3n supera el l\xEDmite del briefing. Reduce los filtros para incluir todas las novedades.": [
+      "The selection exceeds the briefing limit. Narrow the filters to include all updates.",
+      "Se\xE7im b\xFClten s\u0131n\u0131r\u0131n\u0131 a\u015F\u0131yor. T\xFCm yenilikleri dahil etmek i\xE7in filtreleri daralt\u0131n."
+    ],
+    "Las se\xF1ales proceden de t\xE9rminos configurables en el titular y extracto. Pueden contener falsos positivos o no detectar un lanzamiento. Consulta la fuente para confirmar oferta, disponibilidad y condiciones.": [
+      "Signals come from configurable terms in headlines and excerpts. They may produce false positives or miss a launch. Check the source to confirm the offer, availability and terms.",
+      "Sinyaller ba\u015Fl\u0131k ve \xF6zetlerdeki yap\u0131land\u0131r\u0131labilir terimlerden gelir. Yanl\u0131\u015F e\u015Fle\u015Fmeler olabilir veya bir lansman tespit edilmeyebilir. Teklifi, kullan\u0131labilirli\u011Fi ve ko\u015Fullar\u0131 kaynaktan do\u011Frulay\u0131n."
+    ],
+    "Recibe tu selecci\xF3n": [
+      "Receive your selection",
+      "Se\xE7iminizi al\u0131n"
+    ],
+    "Recibe lanzamientos, mejoras de productos y alianzas de las entidades que sigues. Elige el contenido y la periodicidad.": [
+      "Receive launches, product improvements and partnerships from the entities you follow. Choose the content and frequency.",
+      "Takip etti\u011Finiz kurumlar\u0131n lansmanlar\u0131n\u0131, \xFCr\xFCn iyile\u015Ftirmelerini ve i\u015F birliklerini al\u0131n. \u0130\xE7erik ve s\u0131kl\u0131\u011F\u0131 se\xE7in."
+    ],
+    "Sin correos si no hay novedades": [
+      "No emails without updates",
+      "Yenilik yoksa e-posta g\xF6nderilmez"
+    ],
+    "Las suscripciones tienen sus propios filtros. Cambiar la selecci\xF3n de noticias no modifica lo que recibes por correo.": [
+      "Subscriptions have their own filters. Changing the news selection does not change what you receive by email.",
+      "Aboneliklerin kendi filtreleri vard\u0131r. Haber se\xE7imini de\u011Fi\u015Ftirmek e-postayla ald\u0131\u011F\u0131n\u0131z i\xE7eri\u011Fi de\u011Fi\u015Ftirmez."
+    ],
+    "Cargando el radar\u2026": [
+      "Loading radar\u2026",
+      "Radar y\xFCkleniyor\u2026"
+    ],
+    "Cargando selecci\xF3n": [
+      "Loading selection",
+      "Se\xE7im y\xFCkleniyor"
+    ],
+    "Gesti\xF3n de News Radar": [
+      "News Radar management",
+      "News Radar y\xF6netimi"
+    ],
+    "Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicaci\xF3n.": [
+      "Manage collected content, subscriptions and application operation.",
+      "Toplanan i\xE7eri\u011Fi, abonelikleri ve uygulaman\u0131n i\u015Fleyi\u015Fini y\xF6netin."
+    ],
+    "Recopilaci\xF3n y configuraci\xF3n": [
+      "Collection and configuration",
+      "Toplama ve yap\u0131land\u0131rma"
+    ],
+    "Acciones disponibles solo para el administrador.": [
+      "Actions available only to administrators.",
+      "Yaln\u0131zca y\xF6neticinin kullanabilece\u011Fi i\u015Flemler."
+    ],
+    "Abrir hoja": [
+      "Open spreadsheet",
+      "Elektronik tabloyu a\xE7"
+    ],
+    "Per\xEDodo de recuperaci\xF3n": [
+      "Recovery period",
+      "Ge\xE7mi\u015F tarama d\xF6nemi"
+    ],
+    Hoy: [
+      "Today",
+      "Bug\xFCn"
+    ],
+    "\xDAltimo a\xF1o": [
+      "Last year",
+      "Son y\u0131l"
+    ],
+    "Recuperar noticias": [
+      "Recover news",
+      "Ge\xE7mi\u015F haberleri tara"
+    ],
+    "Cobertura del hist\xF3rico": [
+      "Historical coverage",
+      "Ge\xE7mi\u015F kapsam\u0131"
+    ],
+    "El \xFAltimo a\xF1o se consulta por semanas; las consultas saturadas se dividen autom\xE1ticamente hasta llegar a un d\xEDa. Los RSS de editores aportan solo el hist\xF3rico que mantengan disponible; la recuperaci\xF3n no garantiza cobertura completa.": [
+      "The last year is queried by week; saturated queries are split automatically down to a day. Publishers' RSS feeds provide only the history they retain; recovery does not guarantee complete coverage.",
+      "Son y\u0131l haftal\u0131k olarak taran\u0131r; dolan sorgular otomatik olarak bir g\xFCne kadar b\xF6l\xFCn\xFCr. Yay\u0131nc\u0131lar\u0131n RSS ak\u0131\u015Flar\u0131 yaln\u0131zca saklad\u0131klar\u0131 ge\xE7mi\u015Fi sa\u011Flar; tarama tam kapsam\u0131 garanti etmez."
+    ],
+    "Herramientas de administraci\xF3n": [
+      "Administration tools",
+      "Y\xF6netim ara\xE7lar\u0131"
+    ],
+    "CAT\xC1LOGOS Y OPERACI\xD3N": [
+      "CATALOGS AND OPERATION",
+      "KATALOGLAR VE \u0130\u015ELEY\u0130\u015E"
+    ],
+    Cat\u00E1logo: [
+      "Catalog",
+      "Katalog"
+    ],
+    "Los cat\xE1logos viven en Sheets. Cada cambio actualiza filtros, b\xFAsquedas y detecci\xF3n de novedades.": [
+      "Catalogs are stored in Sheets. Each change updates filters, searches and update detection.",
+      "Kataloglar Sheets'te saklan\u0131r. Her de\u011Fi\u015Fiklik filtreleri, aramalar\u0131 ve yenilik tespitini g\xFCnceller."
+    ],
+    "Lista de seguimiento editable. El tipo es una categor\xEDa editorial, no acredita licencia bancaria. Alias y pa\xEDses: separados por punto y coma.": [
+      "Editable watchlist. Type is an editorial category, not proof of a banking licence. Separate aliases and countries with semicolons.",
+      "D\xFCzenlenebilir takip listesi. T\xFCr, editoryal bir kategoridir; bankac\u0131l\u0131k lisans\u0131n\u0131 kan\u0131tlamaz. Takma adlar\u0131 ve \xFClkeleri noktal\u0131 virg\xFClle ay\u0131r\u0131n."
+    ],
+    "Alias de b\xFAsqueda": [
+      "Search aliases",
+      "Arama takma adlar\u0131"
+    ],
+    "Pa\xEDses del cat\xE1logo": [
+      "Catalog countries",
+      "Katalog \xFClkeleri"
+    ],
+    "C\xF3digo ISO": [
+      "ISO code",
+      "ISO kodu"
+    ],
+    "C\xF3digo ISO de dos letras e identificador cartogr\xE1fico ISO num\xE9rico de tres cifras. Ejemplo: Espa\xF1a, ES, es, 724.": [
+      "Two-letter ISO code and three-digit numeric ISO map identifier. Example: Spain, ES, es, 724.",
+      "\u0130ki harfli ISO kodu ve \xFC\xE7 haneli say\u0131sal ISO harita tan\u0131mlay\u0131c\u0131s\u0131. \xD6rnek: \u0130spanya, ES, es, 724."
+    ],
+    "Nombre del pa\xEDs en b\xFAsquedas": [
+      "Country name in searches",
+      "Aramalarda kullan\u0131lan \xFClke ad\u0131"
+    ],
+    "Idioma de Google News": [
+      "Google News language",
+      "Google News dili"
+    ],
+    "ISO num\xE9rico del mapa": [
+      "Numeric map ISO code",
+      "Say\u0131sal ISO harita kodu"
+    ],
+    "T\xE9rminos o ra\xEDces": [
+      "Terms or word stems",
+      "Terimler veya kelime k\xF6kleri"
+    ],
+    "La primera coincidencia determina el tema. Los t\xE9rminos admiten ra\xEDces de palabras y se separan por punto y coma. Se ignoran may\xFAsculas y acentos.": [
+      "The first match determines the topic. Terms accept word stems and are separated by semicolons. Case and accents are ignored.",
+      "\u0130lk e\u015Fle\u015Fme konuyu belirler. Terimler kelime k\xF6klerini kabul eder ve noktal\u0131 virg\xFClle ayr\u0131l\u0131r. B\xFCy\xFCk k\xFC\xE7\xFCk harf ve aksan farklar\u0131 yok say\u0131l\u0131r."
+    ],
+    "Una noticia puede pertenecer a varios segmentos. Sin coincidencia se mantiene sin segmento; no se atribuye por el nombre del banco.": [
+      "An article can belong to several segments. Without a match it remains unassigned; the bank name does not determine the segment.",
+      "Bir haber birden fazla segmente ait olabilir. E\u015Fle\u015Fme yoksa segmentsiz kal\u0131r; banka ad\u0131na g\xF6re segment atanmaz."
+    ],
+    "T\xE9rminos de se\xF1al": [
+      "Signal terms",
+      "Sinyal terimleri"
+    ],
+    "Contexto de producto": [
+      "Product context",
+      "\xDCr\xFCn ba\u011Flam\u0131"
+    ],
+    "Excluir si el titular contiene": [
+      "Exclude if the headline contains",
+      "Ba\u015Fl\u0131k i\xE7eriyorsa hari\xE7 tut"
+    ],
+    "Ubicaci\xF3n de la se\xF1al: headline o fullText": [
+      "Signal scope: headline or fullText",
+      "Sinyal kapsam\u0131: headline veya fullText"
+    ],
+    "Se exige se\xF1al y contexto de producto. headline busca la se\xF1al solo en el titular; fullText incluye el extracto. Las exclusiones siempre se aplican al titular. Listas separadas por punto y coma.": [
+      "A signal and product context are required. headline searches only the headline; fullText includes the excerpt. Exclusions always apply to the headline. Separate lists with semicolons.",
+      "Sinyal ve \xFCr\xFCn ba\u011Flam\u0131 gerekir. headline yaln\u0131zca ba\u015Fl\u0131kta arar; fullText \xF6zeti de i\xE7erir. Hari\xE7 tutmalar her zaman ba\u015Fl\u0131\u011Fa uygulan\u0131r. Listeleri noktal\u0131 virg\xFClle ay\u0131r\u0131n."
+    ],
+    "Operaci\xF3n y rendimiento": [
+      "Operation and performance",
+      "\u0130\u015Fleyi\u015F ve performans"
+    ],
+    "Operaci\xF3n y selecci\xF3n inicial": [
+      "Operation and initial selection",
+      "\u0130\u015Fleyi\u015F ve ba\u015Flang\u0131\xE7 se\xE7imi"
+    ],
+    "Recursos y conservaci\xF3n": [
+      "Resources and retention",
+      "Kaynaklar ve saklama"
+    ],
+    Programaci\u00F3n: [
+      "Scheduling",
+      "Zamanlama"
+    ],
+    "Selecci\xF3n inicial": [
+      "Initial selection",
+      "Ba\u015Flang\u0131\xE7 se\xE7imi"
+    ],
+    "Los l\xEDmites se validan al guardar. Cambiar hora o zona requiere reactivar la programaci\xF3n diaria. Listas: separadas por punto y coma.": [
+      "Limits are validated on save. Changing the time or zone requires re-enabling the daily schedule. Separate lists with semicolons.",
+      "S\u0131n\u0131rlar kaydederken do\u011Frulan\u0131r. Saat veya saat dilimi de\u011Fi\u015Fince g\xFCnl\xFCk zamanlama yeniden etkinle\u015Ftirilmelidir. Listeleri noktal\u0131 virg\xFClle ay\u0131r\u0131n."
+    ],
+    "Zona horaria": [
+      "Time zone",
+      "Saat dilimi"
+    ],
+    "Ventana de recopilaci\xF3n (d\xEDas)": [
+      "Collection window (days)",
+      "Toplama aral\u0131\u011F\u0131 (g\xFCn)"
+    ],
+    "Noticias por p\xE1gina": [
+      "News per page",
+      "Sayfa ba\u015F\u0131na haber"
+    ],
+    "M\xE1ximo de fuentes RSS": [
+      "Maximum RSS sources",
+      "Azami RSS kayna\u011F\u0131"
+    ],
+    "M\xE1ximo de caracteres de feed": [
+      "Maximum feed characters",
+      "Azami ak\u0131\u015F karakteri"
+    ],
+    "M\xE1ximo de entradas por feed": [
+      "Maximum items per feed",
+      "Ak\u0131\u015F ba\u015F\u0131na azami kay\u0131t"
+    ],
+    "M\xE1ximo de noticias exportadas": [
+      "Maximum exported articles",
+      "Azami d\u0131\u015Fa aktar\u0131lan haber"
+    ],
+    "M\xE1ximo de noticias consultadas": [
+      "Maximum articles read",
+      "Azami okunan haber"
+    ],
+    "M\xE1ximo de eventos conservados": [
+      "Maximum retained events",
+      "Azami saklanan olay"
+    ],
+    "Conservaci\xF3n de eventos (d\xEDas)": [
+      "Event retention (days)",
+      "Olay saklama s\xFCresi (g\xFCn)"
+    ],
+    "M\xE1ximo de intervalos de gr\xE1fica": [
+      "Maximum chart intervals",
+      "Azami grafik aral\u0131\u011F\u0131"
+    ],
+    "M\xE1ximo de series (incluye otras)": [
+      "Maximum series (including others)",
+      "Azami seri (di\u011Ferleri dahil)"
+    ],
+    "Fuentes por lote": [
+      "Sources per batch",
+      "Grup ba\u015F\u0131na kaynak"
+    ],
+    "Minutos de reintento": [
+      "Retry minutes",
+      "Yeniden deneme s\xFCresi (dakika)"
+    ],
+    "Minutos de pausa": [
+      "Pause minutes",
+      "Bekleme s\xFCresi (dakika)"
+    ],
+    "Hora de recopilaci\xF3n (0\u201323)": [
+      "Collection hour (0\u201323)",
+      "Toplama saati (0\u201323)"
+    ],
+    "M\xE1ximo de novedades por newsletter": [
+      "Maximum updates per newsletter",
+      "B\xFClten ba\u015F\u0131na azami yenilik"
+    ],
+    "Etiqueta sin tema": [
+      "Label for no topic",
+      "Konusuz kay\u0131t etiketi"
+    ],
+    "Entidad inicial (vac\xEDo: todas)": [
+      "Default entity (empty: all)",
+      "Varsay\u0131lan kurum (bo\u015F: t\xFCm\xFC)"
+    ],
+    "Segmento inicial (vac\xEDo: todos)": [
+      "Default segment (empty: all)",
+      "Varsay\u0131lan segment (bo\u015F: t\xFCm\xFC)"
+    ],
+    "Tema inicial (vac\xEDo: todos)": [
+      "Default topic (empty: all)",
+      "Varsay\u0131lan konu (bo\u015F: t\xFCm\xFC)"
+    ],
+    "Pa\xEDs inicial (vac\xEDo: todos)": [
+      "Default country (empty: all)",
+      "Varsay\u0131lan \xFClke (bo\u015F: t\xFCm\xFC)"
+    ],
+    "T\xE9rminos de b\xFAsqueda de sector": [
+      "Sector search terms",
+      "Sekt\xF6r arama terimleri"
+    ],
+    "IDs de fuentes de perfil desactivadas": [
+      "Disabled profile source IDs",
+      "Devre d\u0131\u015F\u0131 profil kayna\u011F\u0131 kimlikleri"
+    ],
+    "M\xE1ximo de selecciones por usuario": [
+      "Maximum selections per user",
+      "Kullan\u0131c\u0131 ba\u015F\u0131na azami se\xE7im"
+    ],
+    "Geograf\xEDa predeterminado de un RSS sin pa\xEDs": [
+      "Default geography for RSS without a country",
+      "\xDClkesi olmayan RSS i\xE7in varsay\u0131lan co\u011Frafya"
+    ],
+    "Periodicidad inicial": [
+      "Default frequency",
+      "Varsay\u0131lan s\u0131kl\u0131k"
+    ],
+    "Activar entrega de newsletters": [
+      "Enable newsletter delivery",
+      "B\xFClten teslimat\u0131n\u0131 etkinle\u015Ftir"
+    ],
+    "M\xE1ximo de destinatarios por ejecuci\xF3n": [
+      "Maximum recipients per run",
+      "\xC7al\u0131\u015Ft\u0131rma ba\u015F\u0131na azami al\u0131c\u0131"
+    ],
+    "Nombre inicial de la newsletter": [
+      "Default newsletter name",
+      "Varsay\u0131lan b\xFClten ad\u0131"
+    ],
+    "Remitente verificado en Gmail (correo del grupo)": [
+      "Verified Gmail sender (group email)",
+      "Gmail'de do\u011Frulanm\u0131\u015F g\xF6nderen (grup e-postas\u0131)"
+    ],
+    "Nombre visible del remitente": [
+      "Sender display name",
+      "G\xF6nderenin g\xF6r\xFCnen ad\u0131"
+    ],
+    "L\xEDmite de newsletters en 24 horas": [
+      "Newsletter limit per 24 hours",
+      "24 saatte b\xFClten s\u0131n\u0131r\u0131"
+    ],
+    "URL publicada de News Radar (gesti\xF3n de suscripciones)": [
+      "Published News Radar URL (subscription management)",
+      "Yay\u0131mlanan News Radar URL'si (abonelik y\xF6netimi)"
+    ],
+    "Selecci\xF3n de noticias y per\xEDodo de consulta.": [
+      "News selection and query period.",
+      "Haber se\xE7imi ve sorgu d\xF6nemi."
+    ],
+    "Entidad y segmento del Radar.": [
+      "Radar entity and segment.",
+      "Radar kurumu ve segmenti."
+    ],
+    Visualizaci\u00F3n: [
+      "Visualization",
+      "G\xF6rselle\u015Ftirme"
+    ],
+    "\xDAltima recopilaci\xF3n": [
+      "Last collection",
+      "Son toplama"
+    ],
+    "Comprobando automatizaci\xF3n": [
+      "Checking automation",
+      "Otomasyon kontrol ediliyor"
+    ],
+    "Automatizaci\xF3n desactivada": [
+      "Automation disabled",
+      "Otomasyon devre d\u0131\u015F\u0131"
+    ],
+    "Activar recopilaci\xF3n diaria": [
+      "Enable daily collection",
+      "G\xFCnl\xFCk toplamay\u0131 etkinle\u015Ftir"
+    ],
+    "Desactivar recopilaci\xF3n diaria": [
+      "Disable daily collection",
+      "G\xFCnl\xFCk toplamay\u0131 devre d\u0131\u015F\u0131 b\u0131rak"
+    ],
+    "Recopilaci\xF3n diaria desactivada": [
+      "Daily collection disabled",
+      "G\xFCnl\xFCk toplama devre d\u0131\u015F\u0131"
+    ],
+    "Recopilaci\xF3n actual": [
+      "Current collection",
+      "Ge\xE7erli toplama"
+    ],
+    Recopilaci\u00F3n: [
+      "Collection",
+      "Toplama"
+    ],
+    "\xDAltimas ejecuciones": [
+      "Recent runs",
+      "Son \xE7al\u0131\u015Ft\u0131rmalar"
+    ],
+    Inicio: [
+      "Start",
+      "Ba\u015Flang\u0131\xE7"
+    ],
+    Fin: [
+      "End",
+      "Biti\u015F"
+    ],
+    Evaluadas: [
+      "Evaluated",
+      "De\u011Ferlendirilen"
+    ],
+    Nuevas: [
+      "New",
+      "Yeni"
+    ],
+    Errores: [
+      "Errors",
+      "Hatalar"
+    ],
+    Ejecuci\u00F3n: [
+      "Run",
+      "\xC7al\u0131\u015Ft\u0131rma"
+    ],
+    "Fuentes por consultar": [
+      "Pending sources",
+      "Bekleyen kaynaklar"
+    ],
+    "RSS del editor": [
+      "Publisher RSS",
+      "Yay\u0131nc\u0131 RSS'i"
+    ],
+    "Dominio del editor": [
+      "Publisher domain",
+      "Yay\u0131nc\u0131 alan ad\u0131"
+    ],
+    "URL del feed RSS": [
+      "RSS feed URL",
+      "RSS ak\u0131\u015F\u0131 URL'si"
+    ],
+    "Pa\xEDs / alcance": [
+      "Country / scope",
+      "\xDClke / kapsam"
+    ],
+    "A\xF1adir fuente": [
+      "Add source",
+      "Kaynak ekle"
+    ],
+    "Guardar fuentes": [
+      "Save sources",
+      "Kaynaklar\u0131 kaydet"
+    ],
+    "No hay fuentes con este criterio.": [
+      "No sources match this criterion.",
+      "Bu \xF6l\xE7\xFCte uygun kaynak yok."
+    ],
+    "Las entidades y pa\xEDses del cat\xE1logo generan fuentes de seguimiento. Las b\xFAsquedas usan los t\xE9rminos configurados en Administraci\xF3n. Cada fuente puede desactivarse sin borrar el hist\xF3rico.": [
+      "Catalog entities and countries generate tracked sources. Searches use the terms configured in Administration. Each source can be disabled without deleting its history.",
+      "Katalog kurumlar\u0131 ve \xFClkeleri takip kaynaklar\u0131 olu\u015Fturur. Aramalar Y\xF6netim'de yap\u0131land\u0131r\u0131lan terimleri kullan\u0131r. Her kaynak, ge\xE7mi\u015Fi silinmeden devre d\u0131\u015F\u0131 b\u0131rak\u0131labilir."
+    ],
+    "Puedes editar todas las fuentes RSS y a\xF1adir feeds RSS 2.0 de otros editores. M\xE1ximo:": [
+      "You can edit all RSS sources and add RSS 2.0 feeds from other publishers. Maximum:",
+      "T\xFCm RSS kaynaklar\u0131n\u0131 d\xFCzenleyebilir ve di\u011Fer yay\u0131nc\u0131lar\u0131n RSS 2.0 ak\u0131\u015Flar\u0131n\u0131 ekleyebilirsiniz. Azami:"
+    ],
+    "Las fuentes se consultan en lotes para repartir el consumo de recursos.": [
+      "Sources are queried in batches to distribute resource usage.",
+      "Kaynaklar, kaynak kullan\u0131m\u0131n\u0131 da\u011F\u0131tmak i\xE7in gruplar halinde sorgulan\u0131r."
+    ],
+    "Las fuentes est\xE1n activas. La pr\xF3xima recopilaci\xF3n las consultar\xE1 por lotes.": [
+      "Sources are active. The next collection will query them in batches.",
+      "Kaynaklar etkin. Sonraki toplama bunlar\u0131 gruplar halinde sorgular."
+    ],
+    "Recuperaci\xF3n completada.": [
+      "Recovery complete.",
+      "Ge\xE7mi\u015F tarama tamamland\u0131."
+    ],
+    "consultas pendientes; la recuperaci\xF3n contin\xFAa autom\xE1ticamente.": [
+      "queries pending; recovery continues automatically.",
+      "sorgu bekliyor; ge\xE7mi\u015F tarama otomatik s\xFCrer."
+    ],
+    "con error. Las noticias se integran autom\xE1ticamente.": [
+      "failed. News is integrated automatically.",
+      "hatal\u0131. Haberler otomatik eklenir."
+    ],
+    "GESTI\xD3N DE SUSCRIPTORES": [
+      "SUBSCRIBER MANAGEMENT",
+      "ABONE Y\xD6NET\u0130M\u0130"
+    ],
+    "Suscripciones del equipo": [
+      "Team subscriptions",
+      "Ekip abonelikleri"
+    ],
+    "Historial de newsletters": [
+      "Newsletter history",
+      "B\xFClten ge\xE7mi\u015Fi"
+    ],
+    "Cada newsletter se env\xEDa a su destinatario. El grupo se usa como remitente y direcci\xF3n de respuesta.": [
+      "Each newsletter is sent to its recipient. The group is used as the sender and reply address.",
+      "Her b\xFClten al\u0131c\u0131s\u0131na g\xF6nderilir. Grup, g\xF6nderen ve yan\u0131t adresi olarak kullan\u0131l\u0131r."
+    ],
+    "El contenido de los nuevos env\xEDos queda registrado por suscriptor. Las pruebas se excluyen del control de duplicados.": [
+      "Content from new deliveries is recorded per subscriber. Tests are excluded from duplicate checks.",
+      "Yeni g\xF6nderimlerin i\xE7eri\u011Fi abone baz\u0131nda kaydedilir. Testler m\xFCkerrer kontrol\xFCnden hari\xE7tir."
+    ],
+    "Enviar prueba": [
+      "Send test",
+      "Test g\xF6nder"
+    ],
+    "Instalar programaci\xF3n": [
+      "Install schedule",
+      "Zamanlamay\u0131 kur"
+    ],
+    "Enviar pendientes": [
+      "Send pending",
+      "Bekleyenleri g\xF6nder"
+    ],
+    Remitente: [
+      "Sender",
+      "G\xF6nderen"
+    ],
+    "Gmail permite usar el remitente configurado.": [
+      "Gmail allows the configured sender.",
+      "Gmail yap\u0131land\u0131r\u0131lm\u0131\u015F g\xF6ndereni kullanmaya izin veriyor."
+    ],
+    "Sin activador": [
+      "No trigger",
+      "Tetikleyici yok"
+    ],
+    "\xDAltimo intento \xB7": [
+      "Last attempt \xB7",
+      "Son deneme \xB7"
+    ],
+    "No hay intentos de env\xEDo registrados.": [
+      "No delivery attempts recorded.",
+      "Kay\u0131tl\u0131 g\xF6nderim denemesi yok."
+    ],
+    "Hist\xF3rico limitado; consulta Sheets para registros anteriores.": [
+      "Limited history; check Sheets for older records.",
+      "Ge\xE7mi\u015F s\u0131n\u0131rl\u0131; eski kay\u0131tlar i\xE7in Sheets'e bak\u0131n."
+    ],
+    "Hist\xF3rico limitado.": [
+      "Limited history.",
+      "Ge\xE7mi\u015F s\u0131n\u0131rl\u0131."
+    ],
+    "Hist\xF3rico visible limitado a": [
+      "Visible history limited to",
+      "G\xF6r\xFCnt\xFClenen ge\xE7mi\u015F s\u0131n\u0131r\u0131:"
+    ],
+    "registros; el control de duplicados conserva el historial completo.": [
+      "records; duplicate checks retain the full history.",
+      "kay\u0131t; m\xFCkerrer kontrol\xFC t\xFCm ge\xE7mi\u015Fi saklar."
+    ],
+    "env\xEDos disponibles dentro del l\xEDmite configurado de 24 horas.": [
+      "deliveries available within the configured 24-hour limit.",
+      "yap\u0131land\u0131r\u0131lm\u0131\u015F 24 saatlik s\u0131n\u0131r i\xE7inde kullan\u0131labilir g\xF6nderim."
+    ],
+    "env\xEDos anteriores no registraron las noticias incluidas. El control de contenido se aplica a los env\xEDos con inventario; los anteriores requieren contrastar los correos originales.": [
+      "previous deliveries did not record their included articles. Content checks apply to deliveries with an inventory; older deliveries require checking the original emails.",
+      "\xF6nceki g\xF6nderimlerde i\xE7erikteki haberler kaydedilmedi. \u0130\xE7erik kontrol\xFC envanteri olan g\xF6nderimlere uygulan\u0131r; eski g\xF6nderimler i\xE7in orijinal e-postalar\u0131n kontrol\xFC gerekir."
+    ],
+    "Si no aparece en la bandeja de entrada, revisa Spam y la cuarentena de Workspace; la aceptaci\xF3n no confirma la recepci\xF3n.": [
+      "If it is not in the inbox, check Spam and Workspace quarantine; acceptance does not confirm receipt.",
+      "Gelen kutusunda yoksa Spam ve Workspace karantinas\u0131n\u0131 kontrol edin; kabul edilmesi teslim al\u0131nd\u0131\u011F\u0131n\u0131 do\u011Frulamaz."
+    ],
+    "en el correo": [
+      "in email",
+      "e-postada"
+    ],
+    "la periodicidad": [
+      "the frequency",
+      "s\u0131kl\u0131k"
+    ],
+    "No hay entregas pendientes. Las suscripciones nuevas comienzan en el siguiente cierre de su per\xEDodo.": [
+      "No pending deliveries. New subscriptions start at their next period close.",
+      "Bekleyen teslimat yok. Yeni abonelikler sonraki d\xF6nem kapan\u0131\u015F\u0131nda ba\u015Flar."
+    ],
+    "Hay otro env\xEDo en ejecuci\xF3n.": [
+      "Another delivery is running.",
+      "Ba\u015Fka bir g\xF6nderim s\xFCr\xFCyor."
+    ],
+    "Se ha alcanzado el l\xEDmite de env\xEDos en 24 horas.": [
+      "The 24-hour delivery limit has been reached.",
+      "24 saatlik g\xF6nderim s\u0131n\u0131r\u0131na ula\u015F\u0131ld\u0131."
+    ],
+    "correos aceptados por Gmail": [
+      "emails accepted by Gmail",
+      "Gmail taraf\u0131ndan kabul edilen e-posta"
+    ],
+    "selecciones sin novedades": [
+      "selections without updates",
+      "yenilik olmayan se\xE7im"
+    ],
+    Enviada: [
+      "Sent",
+      "G\xF6nderildi"
+    ],
+    Enviando: [
+      "Sending",
+      "G\xF6nderiliyor"
+    ],
+    Revisar: [
+      "Review",
+      "\u0130ncele"
+    ],
+    "No enviado": [
+      "Not sent",
+      "G\xF6nderilmedi"
+    ],
+    Bloqueada: [
+      "Blocked",
+      "Engellendi"
+    ],
+    "Sin novedades": [
+      "No updates",
+      "Yenilik yok"
+    ],
+    "Auditor\xEDa de recopilaci\xF3n": [
+      "Collection audit",
+      "Toplama denetimi"
+    ],
+    "El detalle completo est\xE1 en la hoja Auditoria.": [
+      "Full details are in the Auditoria sheet.",
+      "T\xFCm ayr\u0131nt\u0131lar Auditoria sayfas\u0131ndad\u0131r."
+    ],
+    Resultado: [
+      "Result",
+      "Sonu\xE7"
+    ],
+    Motivo: [
+      "Reason",
+      "Neden"
+    ],
+    Detalle: [
+      "Details",
+      "Ayr\u0131nt\u0131lar"
+    ],
+    Fecha: [
+      "Date",
+      "Tarih"
+    ],
+    Operaci\u00F3n: [
+      "Operation",
+      "\u0130\u015Flem"
+    ],
+    Duraci\u00F3n: [
+      "Duration",
+      "S\xFCre"
+    ],
+    "Sin ejecuciones con estos filtros.": [
+      "No runs match these filters.",
+      "Bu filtrelere uygun \xE7al\u0131\u015Ft\u0131rma yok."
+    ],
+    "Sin entradas con estos filtros.": [
+      "No entries match these filters.",
+      "Bu filtrelere uygun kay\u0131t yok."
+    ],
+    "Sin env\xEDos con estos filtros.": [
+      "No deliveries match these filters.",
+      "Bu filtrelere uygun g\xF6nderim yok."
+    ],
+    "Sin telemetr\xEDa de operaci\xF3n.": [
+      "No operation telemetry.",
+      "\u0130\u015Flem telemetrisi yok."
+    ],
+    "Telemetr\xEDa descargada.": [
+      "Telemetry downloaded.",
+      "Telemetri indirildi."
+    ],
+    "Descargar telemetr\xEDa": [
+      "Download telemetry",
+      "Telemetriyi indir"
+    ],
+    "Latencia p95": [
+      "p95 latency",
+      "p95 gecikme"
+    ],
+    "Errores de cliente": [
+      "Client errors",
+      "\u0130stemci hatalar\u0131"
+    ],
+    "La latencia se mide desde el navegador e incluye red y servidor. No se registran t\xE9rminos de b\xFAsqueda, contenido de formularios ni navegaci\xF3n externa.": [
+      "Latency is measured in the browser and includes network and server time. Search terms, form content and external navigation are not recorded.",
+      "Gecikme taray\u0131c\u0131da \xF6l\xE7\xFCl\xFCr; a\u011F ve sunucu s\xFCresini i\xE7erir. Arama terimleri, form i\xE7erikleri ve harici gezinme kaydedilmez."
+    ],
+    "Uso de News Radar": [
+      "News Radar usage",
+      "News Radar kullan\u0131m\u0131"
+    ],
+    "Usuarios \xB7 7 d\xEDas": [
+      "Users \xB7 7 days",
+      "Kullan\u0131c\u0131lar \xB7 7 g\xFCn"
+    ],
+    "Usuarios \xB7 30 d\xEDas": [
+      "Users \xB7 30 days",
+      "Kullan\u0131c\u0131lar \xB7 30 g\xFCn"
+    ],
+    "M\xE1s de una sesi\xF3n \xB7 30 d\xEDas": [
+      "More than one session \xB7 30 days",
+      "Birden fazla oturum \xB7 30 g\xFCn"
+    ],
+    "Eventos \xB7 30 d\xEDas, todos los usuarios": [
+      "Events \xB7 30 days, all users",
+      "Olaylar \xB7 30 g\xFCn, t\xFCm kullan\u0131c\u0131lar"
+    ],
+    "Cargas \xB7 30 d\xEDas, todos los usuarios": [
+      "Loads \xB7 30 days, all users",
+      "Y\xFCklemeler \xB7 30 g\xFCn, t\xFCm kullan\u0131c\u0131lar"
+    ],
+    "Primera actividad del per\xEDodo": [
+      "First activity in the period",
+      "D\xF6nemin ilk etkinli\u011Fi"
+    ],
+    "\xDAltima actividad": [
+      "Last activity",
+      "Son etkinlik"
+    ],
+    "Sin actividad diaria registrada.": [
+      "No daily activity recorded.",
+      "Kay\u0131tl\u0131 g\xFCnl\xFCk etkinlik yok."
+    ],
+    "Sin actividad registrada.": [
+      "No activity recorded.",
+      "Kay\u0131tl\u0131 etkinlik yok."
+    ],
+    "No hay actividad diaria registrada en este per\xEDodo.": [
+      "No daily activity recorded in this period.",
+      "Bu d\xF6nemde kay\u0131tl\u0131 g\xFCnl\xFCk etkinlik yok."
+    ],
+    "L\xEDmite de eventos alcanzado; m\xE9tricas parciales.": [
+      "Event limit reached; metrics are partial.",
+      "Olay s\u0131n\u0131r\u0131na ula\u015F\u0131ld\u0131; metrikler k\u0131smi."
+    ],
+    "eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.": [
+      "events matching the filters in the last 30 days. Includes administrators; sessions are identified when the browser opens.",
+      "son 30 g\xFCnde filtrelere uygun olay. Y\xF6netici dahildir; oturumlar taray\u0131c\u0131 a\xE7\u0131ld\u0131\u011F\u0131nda belirlenir."
+    ],
+    "Se registra tu correo corporativo y eventos de uso para medir adopci\xF3n. Datos visibles solo al administrador; conservaci\xF3n m\xE1xima de": [
+      "Corporate email and usage events are recorded to measure adoption. Only administrators can view the data; maximum retention of",
+      "Kullan\u0131m\u0131 \xF6l\xE7mek i\xE7in kurumsal e-postan\u0131z ve kullan\u0131m olaylar\u0131 kaydedilir. Verileri yaln\u0131zca y\xF6netici g\xF6r\xFCr; azami saklama s\xFCresi"
+    ],
+    "Vista previa local \xB7 instant\xE1nea de fuentes RSS \xB7 automatizaci\xF3n disponible al instalar en Google": [
+      "Local preview \xB7 RSS source snapshot \xB7 automation available after installation in Google",
+      "Yerel \xF6nizleme \xB7 RSS kaynak anl\u0131k g\xF6r\xFCnt\xFCs\xFC \xB7 Google'a kurulduktan sonra otomasyon kullan\u0131labilir"
+    ],
+    "Administraci\xF3n local \xB7 cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.": [
+      "Local administration \xB7 changes in memory, without Google access. Reloading restores initial values.",
+      "Yerel y\xF6netim \xB7 de\u011Fi\u015Fiklikler bellekte, Google eri\u015Fimi yok. Yeniden y\xFCkleme ba\u015Flang\u0131\xE7 de\u011Ferlerini geri getirir."
+    ],
+    "La fecha hasta debe ser posterior o igual a la fecha desde.": [
+      "The end date must be on or after the start date.",
+      "Biti\u015F tarihi ba\u015Flang\u0131\xE7 tarihiyle ayn\u0131 veya daha sonra olmal\u0131d\u0131r."
+    ],
+    Menos: [
+      "Less",
+      "Daha az"
+    ],
+    M\u00E1s: [
+      "More",
+      "Daha fazla"
+    ],
+    Tipo: [
+      "Type",
+      "T\xFCr"
+    ],
+    Usuario: [
+      "User",
+      "Kullan\u0131c\u0131"
+    ],
+    Usuarios: [
+      "Users",
+      "Kullan\u0131c\u0131lar"
+    ],
+    Evento: [
+      "Event",
+      "Olay"
+    ],
+    Vista: [
+      "View",
+      "G\xF6r\xFCn\xFCm"
+    ],
+    Entrega: [
+      "Delivery",
+      "Teslimat"
+    ],
+    Activada: [
+      "Enabled",
+      "Etkin"
+    ],
+    Desactivada: [
+      "Disabled",
+      "Devre d\u0131\u015F\u0131"
+    ],
+    Instalada: [
+      "Installed",
+      "Kurulu"
+    ],
+    Verificado: [
+      "Verified",
+      "Do\u011Fruland\u0131"
+    ],
+    Pendiente: [
+      "Pending",
+      "Bekliyor"
+    ],
+    Pendientes: [
+      "Pending",
+      "Bekleyen"
+    ],
+    Recurrentes: [
+      "Returning users",
+      "Tekrar gelen kullan\u0131c\u0131lar"
+    ],
+    "Errores cliente": [
+      "Client errors",
+      "\u0130stemci hatalar\u0131"
+    ],
+    "Procesando solicitud\u2026": [
+      "Processing request\u2026",
+      "\u0130stek i\u015Fleniyor\u2026"
+    ],
+    "Eliminar fuente": [
+      "Delete source",
+      "Kayna\u011F\u0131 sil"
+    ],
+    "Reintentar fuentes fallidas": [
+      "Retry failed sources",
+      "Ba\u015Far\u0131s\u0131z kaynaklar\u0131 yeniden dene"
+    ],
+    "Fuentes consultadas": [
+      "Sources queried",
+      "Sorgulanan kaynaklar"
+    ],
+    "Fuentes guardadas.": [
+      "Sources saved.",
+      "Kaynaklar kaydedildi."
+    ],
+    "Seguimiento personalizado": [
+      "Custom tracking",
+      "\xD6zel takip"
+    ],
+    "Otras entidades": [
+      "Other entities",
+      "Di\u011Fer kurumlar"
+    ],
+    "En la selecci\xF3n": [
+      "In the selection",
+      "Se\xE7imde"
+    ],
+    "Con presencia en medios": [
+      "With media coverage",
+      "Medyada yer alan"
+    ],
+    "Editores diferentes": [
+      "Different publishers",
+      "Farkl\u0131 yay\u0131nc\u0131lar"
+    ],
+    "En el per\xEDodo": [
+      "In the period",
+      "D\xF6nemde"
+    ],
+    "Usuarios \xB7 24 horas": [
+      "Users \xB7 24 hours",
+      "Kullan\u0131c\u0131lar \xB7 24 saat"
+    ],
+    Publicaciones: [
+      "Articles",
+      "Haberler"
+    ],
+    Medios: [
+      "Publishers",
+      "Yay\u0131nc\u0131lar"
+    ],
+    "Novedades y lanzamientos": [
+      "Updates and launches",
+      "Yenilikler ve lansmanlar"
+    ],
+    "Contexto requerido (opcional)": [
+      "Required context (optional)",
+      "Gerekli ba\u011Flam (iste\u011Fe ba\u011Fl\u0131)"
+    ],
+    "Minutos entre reintentos": [
+      "Minutes between retries",
+      "Yeniden denemeler aras\u0131 dakika"
+    ],
+    "Periodicidad inicial (monthly, weekly, daily)": [
+      "Default frequency (monthly, weekly, daily)",
+      "Varsay\u0131lan s\u0131kl\u0131k (monthly, weekly, daily)"
+    ],
+    "Novedades de mi canal": [
+      "My channel updates",
+      "Kanal\u0131m\u0131n yenilikleri"
+    ],
+    Incluye: [
+      "Includes",
+      "\u0130\xE7erir"
+    ],
+    al: [
+      "to",
+      "ile"
+    ],
+    "noticias repetidas omitidas": [
+      "duplicate articles omitted",
+      "atlanan m\xFCkerrer haber"
+    ],
+    pendientes: [
+      "pending",
+      "bekleyen"
+    ],
+    "Correo, nombre o selecci\xF3n": [
+      "Email, name or selection",
+      "E-posta, ad veya se\xE7im"
+    ],
+    "Gmail ID, correo o motivo": [
+      "Gmail ID, email or reason",
+      "Gmail kimli\u011Fi, e-posta veya neden"
+    ],
+    "Fuente, URL o motivo": [
+      "Source, URL or reason",
+      "Kaynak, URL veya neden"
+    ],
+    "Fuente, entidad o geograf\xEDa": [
+      "Source, entity or geography",
+      "Kaynak, kurum veya co\u011Frafya"
+    ],
+    "Correo, evento o sesi\xF3n": [
+      "Email, event or session",
+      "E-posta, olay veya oturum"
+    ],
+    "Operaci\xF3n o detalle": [
+      "Operation or details",
+      "\u0130\u015Flem veya ayr\u0131nt\u0131"
+    ],
+    "coincidencias en las \xFAltimas": [
+      "matches in the last",
+      "son d\xF6nemdeki e\u015Fle\u015Fmeler:"
+    ],
+    "y geograf\xEDas": [
+      "and geographies",
+      "ve co\u011Frafya"
+    ],
+    preparaci\u00F3n: [
+      "preparation",
+      "haz\u0131rl\u0131k"
+    ],
+    cach\u00E9: [
+      "cache",
+      "\xF6nbellek"
+    ],
+    nuevas: [
+      "new",
+      "yeni"
+    ],
+    excluidas: [
+      "excluded",
+      "hari\xE7 tutulan"
+    ],
+    duplicadas: [
+      "duplicates",
+      "m\xFCkerrer"
+    ],
+    motivos: [
+      "reasons",
+      "nedenler"
+    ],
+    "Accede con tu cuenta bbva.com. Google debe facilitar la identidad del usuario dentro del dominio.": [
+      "Sign in with your bbva.com account. Google must provide the user's identity within the domain.",
+      "bbva.com hesab\u0131n\u0131zla giri\u015F yap\u0131n. Google, alan ad\u0131 i\xE7indeki kullan\u0131c\u0131 kimli\u011Fini sa\u011Flamal\u0131d\u0131r."
+    ],
+    "Acceso no autorizado: se requiere administrador.": [
+      "Unauthorized access: administrator required.",
+      "Yetkisiz eri\u015Fim: y\xF6netici gerekli."
+    ],
+    "Vista restringida.": [
+      "Restricted view.",
+      "K\u0131s\u0131tl\u0131 g\xF6r\xFCn\xFCm."
+    ],
+    "Configuraci\xF3n de fuentes no v\xE1lida.": [
+      "Invalid source configuration.",
+      "Ge\xE7ersiz kaynak yap\u0131land\u0131rmas\u0131."
+    ],
+    "Configuraci\xF3n de newsletter no v\xE1lida.": [
+      "Invalid newsletter configuration.",
+      "Ge\xE7ersiz b\xFClten yap\u0131land\u0131rmas\u0131."
+    ],
+    "Configuraci\xF3n demasiado grande para la cach\xE9.": [
+      "Configuration too large for the cache.",
+      "Yap\u0131land\u0131rma \xF6nbellek i\xE7in \xE7ok b\xFCy\xFCk."
+    ],
+    "Configuraci\xF3n guardada. Se aplicar\xE1 a filtros, clasificaci\xF3n y pr\xF3ximas recopilaciones.": [
+      "Configuration saved. It will apply to filters, classification and future collections.",
+      "Yap\u0131land\u0131rma kaydedildi. Filtrelere, s\u0131n\u0131fland\u0131rmaya ve sonraki toplamalara uygulan\u0131r."
+    ],
+    "La configuraci\xF3n ha cambiado en otra sesi\xF3n. Recarga los cat\xE1logos antes de guardar.": [
+      "Configuration changed in another session. Reload the catalogs before saving.",
+      "Yap\u0131land\u0131rma ba\u015Fka bir oturumda de\u011Fi\u015Fti. Kaydetmeden \xF6nce kataloglar\u0131 yeniden y\xFCkleyin."
+    ],
+    "Cabecera de correo no v\xE1lida.": [
+      "Invalid email header.",
+      "Ge\xE7ersiz e-posta ba\u015Fl\u0131\u011F\u0131."
+    ],
+    "El correo de newsletter debe pertenecer al dominio bbva.com.": [
+      "The newsletter email must belong to the bbva.com domain.",
+      "B\xFClten e-postas\u0131 bbva.com alan ad\u0131na ait olmal\u0131d\u0131r."
+    ],
+    "Gmail no ha confirmado el identificador del mensaje. Revisa el env\xEDo antes de reintentar.": [
+      "Gmail did not confirm the message ID. Review the delivery before retrying.",
+      "Gmail ileti kimli\u011Fini do\u011Frulamad\u0131. Yeniden denemeden \xF6nce g\xF6nderimi kontrol edin."
+    ],
+    "No se puede enviar una newsletter sin novedades.": [
+      "A newsletter without updates cannot be sent.",
+      "Yenilik i\xE7ermeyen bir b\xFClten g\xF6nderilemez."
+    ],
+    "Suscripci\xF3n no encontrada.": [
+      "Subscription not found.",
+      "Abonelik bulunamad\u0131."
+    ],
+    "Suscripci\xF3n guardada": [
+      "Subscription saved",
+      "Abonelik kaydedildi"
+    ],
+    "Suscripci\xF3n eliminada.": [
+      "Subscription deleted.",
+      "Abonelik silindi."
+    ],
+    "Recibir\xE1s las novedades de los \xFAltimos 7 d\xEDas.": [
+      "You will receive updates from the last 7 days.",
+      "Son 7 g\xFCn\xFCn yeniliklerini al\u0131rs\u0131n\u0131z."
+    ],
+    "La entrega est\xE1 pendiente de activaci\xF3n por el administrador.": [
+      "Delivery is waiting for administrator activation.",
+      "Teslimat y\xF6neticinin etkinle\u015Ftirmesini bekliyor."
+    ],
+    "Indica un nombre y una periodicidad v\xE1lida.": [
+      "Enter a name and a valid frequency.",
+      "Bir ad ve ge\xE7erli s\u0131kl\u0131k girin."
+    ],
+    "Filtro demasiado largo.": [
+      "Filter too long.",
+      "Filtre \xE7ok uzun."
+    ],
+    "Filtro no disponible": [
+      "Filter unavailable",
+      "Filtre kullan\u0131lam\u0131yor"
+    ],
+    M\u00E1ximo: [
+      "Maximum",
+      "Azami"
+    ],
+    "suscripciones por usuario.": [
+      "subscriptions per user.",
+      "kullan\u0131c\u0131 ba\u015F\u0131na abonelik."
+    ],
+    "Idioma no admitido.": [
+      "Unsupported language.",
+      "Desteklenmeyen dil."
+    ],
+    "Se ha alcanzado el l\xEDmite configurado de newsletters en 24 horas.": [
+      "The configured newsletter limit for 24 hours has been reached.",
+      "Yap\u0131land\u0131r\u0131lm\u0131\u015F 24 saatlik b\xFClten s\u0131n\u0131r\u0131na ula\u015F\u0131ld\u0131."
+    ],
+    "A\xF1ade y verifica el grupo en Gmail \u2192 Cuentas \u2192 Enviar como.": [
+      "Add and verify the group in Gmail \u2192 Accounts \u2192 Send mail as.",
+      "Grubu Gmail \u2192 Hesaplar \u2192 Postalar\u0131 \u015Fu adresten g\xF6nder b\xF6l\xFCm\xFCnde ekleyip do\u011Frulay\u0131n."
+    ],
+    "Revisa los permisos del propietario y que Gmail API est\xE9 habilitada en el proyecto de Google Cloud.": [
+      "Check the owner's permissions and that Gmail API is enabled in the Google Cloud project.",
+      "Sahibin izinlerini ve Google Cloud projesinde Gmail API'nin etkin oldu\u011Funu kontrol edin."
+    ],
+    "L\xEDmite de env\xEDo alcanzado; revisa las cuotas de Google.": [
+      "Sending limit reached; check Google's quotas.",
+      "G\xF6nderim s\u0131n\u0131r\u0131na ula\u015F\u0131ld\u0131; Google kotalar\u0131n\u0131 kontrol edin."
+    ],
+    "Revisa el registro antes de reintentar.": [
+      "Check the log before retrying.",
+      "Yeniden denemeden \xF6nce kay\u0131tlar\u0131 kontrol edin."
+    ],
+    "El remitente": [
+      "The sender",
+      "G\xF6nderen"
+    ],
+    "debe estar verificado en Gmail \u2192 Cuentas \u2192 Enviar como.": [
+      "must be verified in Gmail \u2192 Accounts \u2192 Send mail as.",
+      "Gmail \u2192 Hesaplar \u2192 Postalar\u0131 \u015Fu adresten g\xF6nder b\xF6l\xFCm\xFCnde do\u011Frulanmal\u0131d\u0131r."
+    ],
+    "Programaci\xF3n instalada. Activa la entrega en Configuraci\xF3n de negocio \u2192 Newsletter.": [
+      "Schedule installed. Enable delivery in Business configuration \u2192 Newsletter.",
+      "Zamanlama kuruldu. \u0130\u015F yap\u0131land\u0131rmas\u0131 \u2192 Newsletter b\xF6l\xFCm\xFCnde teslimat\u0131 etkinle\u015Ftirin."
+    ],
+    "La entrega est\xE1 desactivada. Act\xEDvala en Configuraci\xF3n de negocio \u2192 Newsletter.": [
+      "Delivery is disabled. Enable it in Business configuration \u2192 Newsletter.",
+      "Teslimat devre d\u0131\u015F\u0131. \u0130\u015F yap\u0131land\u0131rmas\u0131 \u2192 Newsletter b\xF6l\xFCm\xFCnde etkinle\u015Ftirin."
+    ],
+    "La fecha desde debe ser anterior o igual a la fecha hasta.": [
+      "The start date must be on or before the end date.",
+      "Ba\u015Flang\u0131\xE7 tarihi biti\u015F tarihiyle ayn\u0131 veya daha \xF6nce olmal\u0131d\u0131r."
+    ],
+    "Zona horaria no v\xE1lida.": [
+      "Invalid time zone.",
+      "Ge\xE7ersiz saat dilimi."
+    ],
+    "Falta configuraci\xF3n operativa.": [
+      "Operational configuration is missing.",
+      "\u0130\u015Fleyi\u015F yap\u0131land\u0131rmas\u0131 eksik."
+    ],
+    "Claves de configuraci\xF3n no reconocidas.": [
+      "Unrecognized configuration keys.",
+      "Tan\u0131nmayan yap\u0131land\u0131rma anahtarlar\u0131."
+    ],
+    "Cat\xE1logo no v\xE1lido": [
+      "Invalid catalog",
+      "Ge\xE7ersiz katalog"
+    ],
+    "Lista de t\xE9rminos no v\xE1lida": [
+      "Invalid term list",
+      "Ge\xE7ersiz terim listesi"
+    ],
+    "Lista operativa no v\xE1lida": [
+      "Invalid operational list",
+      "Ge\xE7ersiz i\u015Fleyi\u015F listesi"
+    ],
+    "Nombre duplicado, vac\xEDo o activaci\xF3n no v\xE1lida": [
+      "Duplicate or empty name, or invalid activation",
+      "M\xFCkerrer veya bo\u015F ad ya da ge\xE7ersiz etkinle\u015Ftirme"
+    ],
+    "Entidad incompleta": [
+      "Incomplete entity",
+      "Eksik kurum"
+    ],
+    "Alias compartido por varias entidades": [
+      "Alias shared by multiple entities",
+      "Birden fazla kurumda ortak takma ad"
+    ],
+    "Pa\xEDs desconocido en": [
+      "Unknown country in",
+      "Bilinmeyen \xFClke:"
+    ],
+    "C\xF3digo de pa\xEDs duplicado.": [
+      "Duplicate country code.",
+      "M\xFCkerrer \xFClke kodu."
+    ],
+    "Pa\xEDs: c\xF3digo ISO, identificador cartogr\xE1fico o idioma incorrectos.": [
+      "Country: invalid ISO code, map identifier or language.",
+      "\xDClke: ge\xE7ersiz ISO kodu, harita tan\u0131mlay\u0131c\u0131s\u0131 veya dil."
+    ],
+    "Fuente RSS duplicada.": [
+      "Duplicate RSS source.",
+      "M\xFCkerrer RSS kayna\u011F\u0131."
+    ],
+    "Fuente RSS no v\xE1lida": [
+      "Invalid RSS source",
+      "Ge\xE7ersiz RSS kayna\u011F\u0131"
+    ],
+    "A\xF1ade t\xE9rminos a": [
+      "Add terms to",
+      "Terim ekleyin:"
+    ],
+    "Define el contexto de": [
+      "Define the context for",
+      "Ba\u011Flam\u0131 tan\u0131mlay\u0131n:"
+    ],
+    "Define entre 1 y 80 t\xE9rminos de b\xFAsqueda.": [
+      "Define between 1 and 80 search terms.",
+      "1 ile 80 aras\u0131nda arama terimi tan\u0131mlay\u0131n."
+    ],
+    "Define la geograf\xEDa predeterminada de los RSS.": [
+      "Define the default RSS geography.",
+      "Varsay\u0131lan RSS co\u011Frafyas\u0131n\u0131 tan\u0131mlay\u0131n."
+    ],
+    "Indica la etiqueta para noticias sin tema.": [
+      "Enter a label for articles without a topic.",
+      "Konusu olmayan haberler i\xE7in bir etiket girin."
+    ],
+    "Selecci\xF3n inicial no v\xE1lida": [
+      "Invalid initial selection",
+      "Ge\xE7ersiz ba\u015Flang\u0131\xE7 se\xE7imi"
+    ],
+    "Nombre del remitente no v\xE1lido.": [
+      "Invalid sender name.",
+      "Ge\xE7ersiz g\xF6nderen ad\u0131."
+    ],
+    "Nombre inicial de newsletter no v\xE1lido.": [
+      "Invalid default newsletter name.",
+      "Ge\xE7ersiz varsay\u0131lan b\xFClten ad\u0131."
+    ],
+    "URL de newsletter no v\xE1lida: indica la WebApp publicada en Apps Script.": [
+      "Invalid newsletter URL: enter the published Apps Script WebApp.",
+      "Ge\xE7ersiz b\xFClten URL'si: yay\u0131mlanan Apps Script WebApp adresini girin."
+    ],
+    "Evento no v\xE1lido.": [
+      "Invalid event.",
+      "Ge\xE7ersiz olay."
+    ],
+    "Lote de eventos no v\xE1lido.": [
+      "Invalid event batch.",
+      "Ge\xE7ersiz olay grubu."
+    ],
+    "Selecciona Hoy o \xDAltimo a\xF1o.": [
+      "Select Today or Last year.",
+      "Bug\xFCn veya Son y\u0131l se\xE7in."
+    ],
+    "Hay una recuperaci\xF3n en curso. Espera a que termine antes de cambiar el per\xEDodo.": [
+      "Recovery is in progress. Wait for it to finish before changing the period.",
+      "Ge\xE7mi\u015F tarama s\xFCr\xFCyor. D\xF6nemi de\u011Fi\u015Ftirmeden \xF6nce bitmesini bekleyin."
+    ],
+    "Reduce el per\xEDodo para exportar hasta": [
+      "Narrow the period to export up to",
+      "D\xF6nemi daralt\u0131n; d\u0131\u015Fa aktarma s\u0131n\u0131r\u0131:"
+    ],
+    "Fuente desactivada o eliminada": [
+      "Source disabled or deleted",
+      "Kaynak devre d\u0131\u015F\u0131 veya silinmi\u015F"
+    ],
+    "Reintento programado": [
+      "Retry scheduled",
+      "Yeniden deneme zamanland\u0131"
+    ],
+    Incluida: [
+      "Included",
+      "Dahil edildi"
+    ],
+    Excluida: [
+      "Excluded",
+      "Hari\xE7 tutuldu"
+    ],
+    Duplicada: [
+      "Duplicate",
+      "M\xFCkerrer"
+    ],
+    Omitida: [
+      "Skipped",
+      "Atland\u0131"
+    ],
+    Parcial: [
+      "Partial",
+      "K\u0131smi"
+    ],
+    Completada: [
+      "Completed",
+      "Tamamland\u0131"
+    ],
+    "Cobertura parcial": [
+      "Partial coverage",
+      "K\u0131smi kapsam"
+    ],
+    "Fuente consultada": [
+      "Source queried",
+      "Kaynak sorguland\u0131"
+    ],
+    "Falta titular, URL del editor o fecha v\xE1lida": [
+      "Missing headline, publisher URL or valid date",
+      "Ba\u015Fl\u0131k, yay\u0131nc\u0131 URL'si veya ge\xE7erli tarih eksik"
+    ],
+    "Fecha futura": [
+      "Future date",
+      "Gelecekteki tarih"
+    ],
+    "Fuera del per\xEDodo de recuperaci\xF3n": [
+      "Outside the recovery period",
+      "Ge\xE7mi\u015F tarama d\xF6nemi d\u0131\u015F\u0131nda"
+    ],
+    "Fuera de la ventana de": [
+      "Outside the window of",
+      "Aral\u0131k d\u0131\u015F\u0131nda:"
+    ],
+    "Sin coincidencia con los temas configurados": [
+      "No configured topic matched",
+      "Yap\u0131land\u0131r\u0131lm\u0131\u015F konularla e\u015Fle\u015Fme yok"
+    ],
+    "URL ya recopilada": [
+      "URL already collected",
+      "URL zaten topland\u0131"
+    ],
+    "Noticia integrada desde RSS de Google News": [
+      "Article collected from Google News RSS",
+      "Google News RSS'ten al\u0131nan haber"
+    ],
+    "Noticia integrada desde RSS del editor": [
+      "Article collected from publisher RSS",
+      "Yay\u0131nc\u0131 RSS'inden al\u0131nan haber"
+    ],
+    "Consulta saturada; dividida en dos per\xEDodos menores": [
+      "Saturated query; split into two shorter periods",
+      "Dolu sorgu; iki k\u0131sa d\xF6neme b\xF6l\xFCnd\xFC"
+    ],
+    "Consulta diaria saturada; el proveedor puede omitir publicaciones": [
+      "Daily query saturated; provider may omit articles",
+      "G\xFCnl\xFCk sorgu dolu; sa\u011Flay\u0131c\u0131 baz\u0131 haberleri atlayabilir"
+    ],
+    "posible l\xEDmite del proveedor: cobertura parcial": [
+      "possible provider limit: partial coverage",
+      "olas\u0131 sa\u011Flay\u0131c\u0131 s\u0131n\u0131r\u0131: k\u0131smi kapsam"
+    ],
+    "redirecci\xF3n no permitida o demasiados saltos": [
+      "redirect not allowed or too many hops",
+      "y\xF6nlendirmeye izin verilmiyor veya \xE7ok fazla y\xF6nlendirme var"
+    ],
+    "Feed excede el tama\xF1o m\xE1ximo permitido.": [
+      "Feed exceeds the maximum allowed size.",
+      "Ak\u0131\u015F izin verilen azami boyutu a\u015F\u0131yor."
+    ],
+    "Feed demasiado grande (m\xE1ximo": [
+      "Feed too large (maximum",
+      "Ak\u0131\u015F \xE7ok b\xFCy\xFCk (azami"
+    ],
+    "entradas).": [
+      "items).",
+      "kay\u0131t)."
+    ],
+    "Se requiere RSS 2.0 con channel/item.": [
+      "RSS 2.0 with channel/item is required.",
+      "channel/item i\xE7eren RSS 2.0 gerekir."
+    ],
+    "Prueba de suscripci\xF3n": [
+      "Subscription test",
+      "Abonelik testi"
+    ],
+    "Prueba del administrador": [
+      "Administrator test",
+      "Y\xF6netici testi"
+    ],
+    "Registro de contenido no v\xE1lido. Revisa el env\xEDo": [
+      "Invalid content record. Review delivery",
+      "Ge\xE7ersiz i\xE7erik kayd\u0131. G\xF6nderimi inceleyin:"
+    ],
+    "antes de continuar.": [
+      "before continuing.",
+      "devam etmeden \xF6nce."
+    ],
+    "fuentes seleccionadas. Entidades y pa\xEDses desactivados permanecen desactivados.": [
+      "sources selected. Disabled entities and countries remain disabled.",
+      "kaynak se\xE7ildi. Devre d\u0131\u015F\u0131 kurumlar ve \xFClkeler devre d\u0131\u015F\u0131 kal\u0131r."
+    ],
+    "fuentes RSS.": [
+      "RSS sources.",
+      "RSS kayna\u011F\u0131."
+    ],
+    "Recopilaci\xF3n diaria activada a partir de las": [
+      "Daily collection enabled from",
+      "G\xFCnl\xFCk toplama etkinle\u015Ftirildi; saat:"
+    ],
+    "Ir a Newsradar": [
+      "Go to News Radar",
+      "News Radar'a git"
+    ],
+    Gestiona: [
+      "Manage",
+      "Y\xF6net"
+    ],
+    "Gestiona tu suscripci\xF3n": [
+      "Manage your subscription",
+      "Aboneli\u011Fini y\xF6net"
+    ],
+    "Has recibido esta selecci\xF3n por tu suscripci\xF3n a News Radar.": [
+      "You received this selection because you subscribed to News Radar.",
+      "Bu se\xE7imi News Radar aboneli\u011Finiz nedeniyle ald\u0131n\u0131z."
+    ],
+    "Gestiona o da de baja tu suscripci\xF3n desde Newsletter en News Radar.": [
+      "Manage or cancel your subscription from Newsletter in News Radar.",
+      "Aboneli\u011Finizi News Radar'daki Newsletter b\xF6l\xFCm\xFCnden y\xF6netin veya iptal edin."
+    ],
+    o: [
+      "or",
+      "veya"
+    ],
+    "da de baja": [
+      "unsubscribe",
+      "aboneli\u011Fi iptal et"
+    ],
+    "tu suscripci\xF3n desde Newsletter en News Radar.": [
+      "your subscription from Newsletter in News Radar.",
+      "aboneli\u011Finizi News Radar'daki Newsletter b\xF6l\xFCm\xFCnden."
+    ],
+    "Impulsado por": [
+      "Powered by",
+      "Destekleyen"
+    ],
+    "Banca Inteligente y Aut\xF3noma": [
+      "Intelligent and Autonomous Banking",
+      "Ak\u0131ll\u0131 ve Otonom Bankac\u0131l\u0131k"
+    ],
+    "Banca de Empresas e Instituciones": [
+      "Business and Institutional Banking",
+      "Ticari ve Kurumsal Bankac\u0131l\u0131k"
+    ],
+    "Se\xF1ales por coincidencia de t\xE9rminos; consulta cada fuente antes de comunicar condiciones comerciales.": [
+      "Signals match configured terms; check each source before communicating commercial terms.",
+      "Sinyaller yap\u0131land\u0131r\u0131lm\u0131\u015F terimlerle e\u015Fle\u015Fir; ticari ko\u015Fullar\u0131 iletmeden \xF6nce her kayna\u011F\u0131 kontrol edin."
+    ],
+    "Se muestra un m\xE1ximo de": [
+      "Showing a maximum of",
+      "G\xF6sterilen azami say\u0131:"
+    ],
+    "novedades; reduce la selecci\xF3n para incluirlas todas.": [
+      "updates; narrow the selection to include them all.",
+      "yenilik; t\xFCm\xFCn\xFC dahil etmek i\xE7in se\xE7imi daralt\u0131n."
+    ],
+    "noticias incluidas": [
+      "articles included",
+      "dahil edilen haber"
+    ],
+    "P\xE1gina {page} de {pages}": [
+      "Page {page} of {pages}",
+      "Sayfa {page} / {pages}"
+    ],
+    "{total} resultados \xB7 p\xE1gina {page} de {pages}": [
+      "{total} results \xB7 page {page} of {pages}",
+      "{total} sonu\xE7 \xB7 sayfa {page} / {pages}"
+    ],
+    "{processed} de {total} consultas completadas; {pending} pendientes y {failed} con error. Las noticias se integran autom\xE1ticamente.": [
+      "{processed} of {total} queries completed; {pending} pending and {failed} failed. News is integrated automatically.",
+      "{total} sorgudan {processed} tamamland\u0131; {pending} bekleyen ve {failed} hatal\u0131. Haberler otomatik eklenir."
+    ],
+    "{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.": [
+      "{sessions} sessions and {events} events matching filters in the last 30 days. Includes administrators; sessions are identified when the browser opens.",
+      "Son 30 g\xFCnde filtrelere uygun {sessions} oturum ve {events} olay. Y\xF6netici dahildir; oturumlar taray\u0131c\u0131 a\xE7\u0131ld\u0131\u011F\u0131nda belirlenir."
+    ],
+    "Gmail ha aceptado la prueba para {recipient}. Remitente: {sender}. Gmail ID: {id}. Incluye {count} novedades del {from} al {to}.": [
+      "Gmail accepted the test for {recipient}. Sender: {sender}. Gmail ID: {id}. Includes {count} updates from {from} to {to}.",
+      "Gmail {recipient} i\xE7in test g\xF6nderimini kabul etti. G\xF6nderen: {sender}. Gmail kimli\u011Fi: {id}. {from} ile {to} aras\u0131nda {count} yenilik i\xE7erir."
+    ],
+    "Alta manual": [
+      "Manual registration",
+      "Manuel kay\u0131t"
+    ],
+    "IDENTIDAD Y ENTREGA": [
+      "IDENTITY AND DELIVERY",
+      "K\u0130ML\u0130K VE TESL\u0130MAT"
+    ],
+    "Comprobar remitente": [
+      "Check sender",
+      "G\xF6ndereni kontrol et"
+    ],
+    "Enviar prueba a mi correo": [
+      "Send a test to my email",
+      "E-postama test g\xF6nder"
+    ],
+    "Programar entrega diaria": [
+      "Schedule daily delivery",
+      "G\xFCnl\xFCk teslimat\u0131 zamanla"
+    ],
+    "Procesar pendientes": [
+      "Process pending deliveries",
+      "Bekleyen g\xF6nderimleri i\u015Fle"
+    ],
+    "Noticias incluidas": [
+      "Included articles",
+      "Dahil edilen haberler"
+    ],
+    Quitar: [
+      "Remove",
+      "Kald\u0131r"
+    ],
+    B\u00FAsqueda: [
+      "Search",
+      "Arama"
+    ],
+    "Fecha desde": [
+      "Start date",
+      "Ba\u015Flang\u0131\xE7 tarihi"
+    ],
+    "Fecha hasta": [
+      "End date",
+      "Biti\u015F tarihi"
+    ],
+    "Fuentes configuradas": [
+      "Configured sources",
+      "Yap\u0131land\u0131r\u0131lm\u0131\u015F kaynaklar"
+    ],
+    "fuentes configuradas": [
+      "configured sources",
+      "yap\u0131land\u0131r\u0131lm\u0131\u015F kaynak"
+    ],
+    "Sin publicaciones": [
+      "No articles",
+      "Haber yok"
+    ],
+    "Todas las entidades de la selecci\xF3n": [
+      "All selected entities",
+      "Se\xE7ilen t\xFCm kurumlar"
+    ],
+    "publicaciones sin geograf\xEDa conocida, excluidas del mapa.": [
+      "articles without known geography, excluded from the map.",
+      "co\u011Frafyas\u0131 bilinmeyen ve haritadan hari\xE7 tutulan haber."
+    ],
+    "Todas las publicaciones de la selecci\xF3n tienen una geograf\xEDa conocida.": [
+      "All selected articles have a known geography.",
+      "Se\xE7ilen t\xFCm haberlerin co\u011Frafyas\u0131 biliniyor."
+    ],
+    "Volumen agrupado en intervalos de": [
+      "Volume grouped into intervals of",
+      "Hacmin grupland\u0131\u011F\u0131 aral\u0131k:"
+    ],
+    "N\xFAmero de publicaciones por d\xEDa, incluidos los d\xEDas sin noticias.": [
+      "Number of articles per day, including days without news.",
+      "Habersiz g\xFCnler dahil, g\xFCnl\xFCk haber say\u0131s\u0131."
+    ],
+    "Las entidades aparecer\xE1n al ampliar tu selecci\xF3n.": [
+      "Entities will appear when you broaden the selection.",
+      "Se\xE7imi geni\u015Fletti\u011Finizde kurumlar g\xF6r\xFCn\xFCr."
+    ],
+    "Se muestran las seis entidades con m\xE1s publicaciones.": [
+      "Showing the six entities with the most articles.",
+      "En \xE7ok haber bulunan alt\u0131 kurum g\xF6sterilir."
+    ],
+    "Selecciona una entidad para explorar su actualidad.": [
+      "Select an entity to explore its latest news.",
+      "G\xFCncel haberlerini g\xF6rmek i\xE7in bir kurum se\xE7in."
+    ],
+    "Filtrar por esta geograf\xEDa.": [
+      "Filter by this geography.",
+      "Bu co\u011Frafyaya g\xF6re filtrele."
+    ],
+    "Editores presentes": [
+      "Publishers represented",
+      "Yer alan yay\u0131nc\u0131lar"
+    ],
+    Activar: [
+      "Enable",
+      "Etkinle\u015Ftir"
+    ],
+    "Abrir feed": [
+      "Open feed",
+      "Ak\u0131\u015F\u0131 a\xE7"
+    ],
+    "Entidad, geograf\xEDa o editor": [
+      "Entity, geography or publisher",
+      "Kurum, co\u011Frafya veya yay\u0131nc\u0131"
+    ],
+    "Estado o error": [
+      "Status or error",
+      "Durum veya hata"
+    ],
+    "Motivo, fuente o URL": [
+      "Reason, source or URL",
+      "Neden, kaynak veya URL"
+    ],
+    "Usuarios activos por d\xEDa": [
+      "Active users per day",
+      "G\xFCnl\xFCk etkin kullan\u0131c\u0131lar"
+    ],
+    "entradas disponibles.": [
+      "available entries.",
+      "kullan\u0131labilir kay\u0131t."
+    ],
+    "operaciones disponibles.": [
+      "available operations.",
+      "kullan\u0131labilir i\u015Flem."
+    ],
+    "El navegador no permite guardar el idioma de esta pesta\xF1a.": [
+      "The browser cannot store this tab's language.",
+      "Taray\u0131c\u0131 bu sekmenin dilini saklayam\u0131yor."
+    ],
+    "Continuidad de servicio": [
+      "Service continuity",
+      "Hizmet s\xFCreklili\u011Fi"
+    ],
+    "Regulaci\xF3n y ratings": [
+      "Regulation and ratings",
+      "D\xFCzenlemeler ve derecelendirmeler"
+    ],
+    "Resultados y capital": [
+      "Results and capital",
+      "Sonu\xE7lar ve sermaye"
+    ],
+    "Estrategia y alianzas": [
+      "Strategy and partnerships",
+      "Strateji ve i\u015F birlikleri"
+    ],
+    "Empresas y pymes": [
+      "Businesses and SMEs",
+      "\u015Eirketler ve KOB\u0130'ler"
+    ],
+    "Productos y experiencia": [
+      "Products and experience",
+      "\xDCr\xFCnler ve deneyim"
+    ],
+    "Lanzamiento de producto": [
+      "Product launch",
+      "\xDCr\xFCn lansman\u0131"
+    ],
+    "Mejora de oferta": [
+      "Offer improvement",
+      "Teklif iyile\u015Ftirmesi"
+    ],
+    "Alianza estrat\xE9gica": [
+      "Strategic partnership",
+      "Stratejik i\u015F birli\u011Fi"
+    ],
+    "Mapa mundial de publicaciones por \xE1mbito": [
+      "World map of articles by geography",
+      "Co\u011Frafyaya g\xF6re d\xFCnya haber haritas\u0131"
+    ],
+    Sesiones: [
+      "Sessions",
+      "Oturumlar"
+    ],
+    Eventos: [
+      "Events",
+      "Olaylar"
+    ],
+    "Actividad diaria": [
+      "Daily activity",
+      "G\xFCnl\xFCk etkinlik"
+    ],
+    Trazabilidad: [
+      "Traceability",
+      "\u0130zlenebilirlik"
+    ],
+    "Motivo / enlace": [
+      "Reason / link",
+      "Neden / ba\u011Flant\u0131"
+    ],
+    "LANZAMIENTOS, MEJORAS Y ALIANZAS": [
+      "LAUNCHES, IMPROVEMENTS AND PARTNERSHIPS",
+      "LANSMANLAR, \u0130Y\u0130LE\u015ET\u0130RMELER VE \u0130\u015E B\u0130RL\u0130KLER\u0130"
+    ],
+    "Descartar y recargar": [
+      "Discard and reload",
+      "Vazge\xE7 ve yeniden y\xFCkle"
+    ],
+    "Tipo, novedad, tema, medio y fechas": [
+      "Type, update, topic, publisher and dates",
+      "T\xFCr, yenilik, konu, yay\u0131nc\u0131 ve tarihler"
+    ],
+    "Filtros de la vista": [
+      "View filters",
+      "G\xF6r\xFCn\xFCm filtreleri"
+    ],
+    "Titular, entidad o palabra clave": [
+      "Headline, entity or keyword",
+      "Ba\u015Fl\u0131k, kurum veya anahtar kelime"
+    ],
+    "Ir al contenido": [
+      "Skip to content",
+      "\u0130\xE7eri\u011Fe ge\xE7"
+    ],
+    "d\xEDas y": [
+      "days and",
+      "g\xFCn ve"
+    ],
+    "Ver resultados": [
+      "View results",
+      "Sonu\xE7lar\u0131 g\xF6r\xFCnt\xFCle"
+    ],
+    "Configurar filtros": [
+      "Configure filters",
+      "Filtreleri yap\u0131land\u0131r"
+    ],
+    "Cerrar filtros": [
+      "Close filters",
+      "Filtreleri kapat"
+    ],
+    "Navegaci\xF3n principal": [
+      "Main navigation",
+      "Ana gezinme"
+    ],
+    "Publicaciones recopiladas": [
+      "Collected articles",
+      "Toplanan haberler"
+    ],
+    "Noticias recopiladas": [
+      "Collected news",
+      "Toplanan haberler"
+    ],
+    "Filtros activos": [
+      "Active filters",
+      "Etkin filtreler"
+    ],
+    "Explorar noticias": [
+      "Explore news",
+      "Haberleri ke\u015Ffet"
+    ],
+    "Indicadores de la selecci\xF3n": [
+      "Selection metrics",
+      "Se\xE7im metrikleri"
+    ],
+    "e Instituciones": [
+      "and Institutions",
+      "ve Kurumsal"
+    ],
+    "Banca Inteligente y": [
+      "Intelligent Banking and",
+      "Ak\u0131ll\u0131 Bankac\u0131l\u0131k ve"
+    ],
+    "Marca y filtros": [
+      "Brand and filters",
+      "Marka ve filtreler"
+    ],
+    "Fuentes RSS": [
+      "RSS sources",
+      "RSS kaynaklar\u0131"
+    ],
+    "Guardar fuentes RSS": [
+      "Save RSS sources",
+      "RSS kaynaklar\u0131n\u0131 kaydet"
+    ],
+    "SUSCRIPCIONES PERSONALES": [
+      "PERSONAL SUBSCRIPTIONS",
+      "K\u0130\u015E\u0130SEL ABONEL\u0130KLER"
+    ],
+    "Configura tu newsletter.": [
+      "Configure your newsletter.",
+      "B\xFClteninizi yap\u0131land\u0131r\u0131n."
+    ],
+    "Selecciona entidades": [
+      "Select entities",
+      "Kurumlar\u0131 se\xE7in"
+    ],
+    Configura: [
+      "Configure",
+      "Yap\u0131land\u0131r\u0131n"
+    ],
+    "TUS PREFERENCIAS": [
+      "YOUR PREFERENCES",
+      "TERC\u0130HLER\u0130N\u0130Z"
+    ],
+    "Mis suscripciones": [
+      "My subscriptions",
+      "Aboneliklerim"
+    ],
+    Nueva: [
+      "New",
+      "Yeni"
+    ],
+    "Descargar JSON": [
+      "Download JSON",
+      "JSON indir"
+    ],
+    "Campo obligatorio.": [
+      "Required field.",
+      "Zorunlu alan."
+    ],
+    "Introduce un valor v\xE1lido.": [
+      "Enter a valid value.",
+      "Ge\xE7erli bir de\u011Fer girin."
+    ],
+    "Editores distintos": [
+      "Distinct publishers",
+      "Farkl\u0131 yay\u0131nc\u0131lar"
+    ],
+    "Con publicaciones en la selecci\xF3n": [
+      "With articles in the selection",
+      "Se\xE7imde haberi bulunan"
+    ],
+    "requiere un entero entre": [
+      "requires an integer between",
+      "gereken tam say\u0131 aral\u0131\u011F\u0131:"
+    ],
+    y: [
+      "and",
+      "ve"
+    ],
+    "BANCA DE EMPRESAS E INSTITUCIONES": [
+      "BUSINESS AND INSTITUTIONAL BANKING",
+      "T\u0130CAR\u0130 VE KURUMSAL BANKACILIK"
+    ],
+    "(puede estar vac\xEDo).": [
+      "(may be empty).",
+      "(bo\u015F olabilir)."
+    ],
+    "Configuraci\xF3n inicializada en Sheets. Los valores existentes se han conservado.": [
+      "Configuration initialized in Sheets. Existing values were retained.",
+      "Yap\u0131land\u0131rma Sheets'te ba\u015Flat\u0131ld\u0131. Mevcut de\u011Ferler korundu."
+    ],
+    "El cat\xE1logo excede el tama\xF1o de una celda": [
+      "Catalog exceeds the size of a cell",
+      "Katalog bir h\xFCcrenin boyutunu a\u015F\u0131yor"
+    ],
+    "Ejecuta setupRadar desde el editor de Apps Script.": [
+      "Run setupRadar from the Apps Script editor.",
+      "Apps Script d\xFCzenleyicisinden setupRadar \xE7al\u0131\u015Ft\u0131r\u0131n."
+    ],
+    "Inicializa desde el editor con la cuenta propietaria.": [
+      "Initialize from the editor with the owner's account.",
+      "Sahibin hesab\u0131yla d\xFCzenleyiciden ba\u015Flat\u0131n."
+    ],
+    "Inicializa la configuraci\xF3n desde el editor: initializeConfiguration.": [
+      "Initialize configuration from the editor: initializeConfiguration.",
+      "Yap\u0131land\u0131rmay\u0131 d\xFCzenleyiciden ba\u015Flat\u0131n: initializeConfiguration."
+    ],
+    "News Radar preparado: fuentes predeterminadas, recopilaci\xF3n autom\xE1tica y m\xE9tricas.": [
+      "News Radar ready: default sources, automatic collection and metrics.",
+      "News Radar haz\u0131r: varsay\u0131lan kaynaklar, otomatik toplama ve metrikler."
+    ],
+    "Solo el propietario puede inicializar.": [
+      "Only the owner can initialize.",
+      "Yaln\u0131zca sahibi ba\u015Flatabilir."
+    ],
+    "Estructura inesperada en": [
+      "Unexpected structure in",
+      "Beklenmeyen yap\u0131:"
+    ],
+    "Fragmento desconocido.": [
+      "Unknown fragment.",
+      "Bilinmeyen par\xE7a."
+    ],
+    "nombre@bbva.com": [
+      "name@bbva.com",
+      "ad@bbva.com"
+    ]
+  });
+  function supportedLanguage(value) {
+    return typeof value == "string" && Object.prototype.hasOwnProperty.call(languageNames, value);
+  }
+  function detectLanguage(preferences) {
+    for (let value of preferences) {
+      let code = String(value).toLowerCase().split(/[-_]/)[0];
+      if (supportedLanguage(code)) return code;
+    }
+    return "es";
+  }
+  var translationPattern, translationIndex;
+  function translateText(value, language2 = "es") {
+    let text = String(value ?? "");
+    return language2 === "es" || !supportedLanguage(language2) ? text : Object.prototype.hasOwnProperty.call(translations, text) ? translations[text][language2 === "en" ? 0 : 1] : (translationPattern || (translationIndex = Object.fromEntries(Object.keys(translations).map((key) => [key.toLowerCase(), key])), translationPattern = new RegExp("(?<![\\p{L}\\p{N}])(" + Object.keys(translations).filter((key) => !key.includes("{")).sort((a, b) => b.length - a.length).map((key) => key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")(?![\\p{L}\\p{N}])", "giu")), text.replace(translationPattern, (key) => {
+      let translated = translations[key] || translations[translationIndex[key.toLowerCase()]], result = translated[language2 === "en" ? 0 : 1];
+      return key === key.toUpperCase() ? result.toLocaleUpperCase(language2) : result;
+    }));
+  }
+  var calendarFormatters = /* @__PURE__ */ new Map();
+  function formatCalendarDay(value, language2 = "es") {
+    if (!value) return "";
+    let day = /* @__PURE__ */ new Date(value + "T00:00:00Z");
+    return Number.isFinite(day.getTime()) ? (calendarFormatters.has(language2) || calendarFormatters.set(language2, new Intl.DateTimeFormat(language2, { dateStyle: "short", timeZone: "UTC" })), calendarFormatters.get(language2).format(day)) : String(value);
+  }
+  function formatText(text, values, language2 = "es") {
+    return translateText(text, language2).replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ""));
+  }
+
+  // src/client/core/language.js
+  var storageKey = "news-radar-language";
+  function browserLanguage() {
+    return detectLanguage(typeof navigator > "u" ? [] : navigator.languages || [navigator.language]);
+  }
+  var override;
+  try {
+    override = globalThis.sessionStorage?.getItem(storageKey);
+  } catch {
+  }
+  var language = Object.hasOwn(languageNames, override) ? override : browserLanguage(), t = (value, values) => values ? formatText(value, values, language) : translateText(value, language);
+  function setLanguage(value) {
+    if (value && !Object.hasOwn(languageNames, value)) throw Error(t("Idioma no admitido."));
+    try {
+      value ? sessionStorage.setItem(storageKey, value) : sessionStorage.removeItem(storageKey);
+    } catch {
+      throw Error(t("El navegador no permite guardar el idioma de esta pesta\xF1a."));
+    }
+    window.location.reload();
+  }
+
   // src/client/core/dom.js
-  var $ = (id) => document.getElementById(id), escape = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]), validUrl = (value) => /^https:\/\//i.test(value || "") ? value : "", dateFormat = new Intl.DateTimeFormat("es-ES", { dateStyle: "short", timeStyle: "short" }), timezone;
+  var $ = (id) => document.getElementById(id), escape = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]), validUrl = (value) => /^https:\/\//i.test(value || "") ? value : "", dateFormat = new Intl.DateTimeFormat(language, { dateStyle: "short", timeStyle: "short" }), timezone;
   function setTimezone(value) {
-    value && value !== timezone && (timezone = value, dateFormat = new Intl.DateTimeFormat("es-ES", { dateStyle: "short", timeStyle: "short", timeZone: value }));
+    value && value !== timezone && (timezone = value, dateFormat = new Intl.DateTimeFormat(language, { dateStyle: "short", timeStyle: "short", timeZone: value }));
   }
   var date = (value) => value ? dateFormat.format(new Date(value)) : "Sin ejecuciones";
   function message(text, error = !1) {
     $("message").textContent = text, $("message").classList.toggle("error", error), $("message").hidden = !1;
+  }
+  function newsPublisher(row) {
+    return "<span>Medio: " + (row.medio ? "<span data-original>" + escape(row.medio) + "</span>" : "No indicado") + "</span>";
   }
   function metricCards(values) {
     return values.map(([label, value, note]) => `<article class="metric"><p class="eyebrow">${escape(label)}</p><strong>${escape(value ?? "\u2014")}</strong><span class="small muted">${escape(note)}</span></article>`).join("");
@@ -26,12 +2653,12 @@
 
   // src/client/core/api.js
   function call(method, ...args) {
-    return window.RADAR_PREVIEW ? window.RADAR_PREVIEW.call(method, ...args) : new Promise((resolve, reject) => google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[method](...args));
+    return window.RADAR_PREVIEW ? window.RADAR_PREVIEW.call(method, ...args) : new Promise((resolve, reject) => google.script.run.withSuccessHandler(resolve).withFailureHandler((error) => reject(Error(t(error.message || String(error)))))[method](...args));
   }
 
   // src/shared/record-filters.js
   function recordText(value) {
-    return String(value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("es").trim();
+    return String(value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/ı/g, "i").trim();
   }
   function recordQuery(input = {}, fields = []) {
     let query = {};
@@ -107,7 +2734,7 @@
     }, page(data) {
       page = data.page;
       let pages = Math.max(1, Math.ceil(data.total / data.pageSize));
-      $(id + "-pagination").innerHTML = '<button class="button" type="button" data-page="-1" ' + (page === 0 ? "disabled" : "") + '>Anterior</button><span class="small muted" role="status">' + data.total + " resultados \xB7 p\xE1gina " + (page + 1) + " de " + pages + '</span><button class="button" type="button" data-page="1" ' + (page >= pages - 1 ? "disabled" : "") + ">Siguiente</button>";
+      $(id + "-pagination").innerHTML = '<button class="button" type="button" data-page="-1" ' + (page === 0 ? "disabled" : "") + '>Anterior</button><span class="small muted" role="status">' + t("{total} resultados \xB7 p\xE1gina {page} de {pages}", { total: data.total, page: page + 1, pages }) + '</span><button class="button" type="button" data-page="1" ' + (page >= pages - 1 ? "disabled" : "") + ">Siguiente</button>";
     } };
   }
 
@@ -121,7 +2748,7 @@
     return `<form data-subscription-form data-admin="${admin}" data-id="${escape(row?.id || "")}">
     <div><p class="eyebrow">${row ? "EDITAR SUSCRIPCI\xD3N" : "NUEVA SUSCRIPCI\xD3N"}</p><h2>${row ? "Preferencias de recepci\xF3n" : "Contenido y periodicidad"}</h2><p class="small muted">${admin ? "Gestiona una suscripci\xF3n del dominio BBVA." : escape(options.email)}</p></div>
     ${admin ? `<label>Correo corporativo<input name="email" type="email" required value="${escape(row?.correo || "")}" placeholder="nombre@bbva.com"></label>` : ""}
-    <div class="subscription-basics"><label>Nombre<input name="name" required maxlength="100" value="${escape(row?.nombre || defaults.name)}"></label><label>Periodicidad<select name="periodicity">${Object.entries(periods).map(([value, label]) => `<option value="${value}"${selected(value, row?.periodicidad || defaults.periodicity)}>${label}</option>`).join("")}</select></label></div>
+    <div class="subscription-basics"><label>Nombre<input name="name" required maxlength="100" value="${escape(row?.nombre || t(defaults.name))}"></label><label>Idioma de la newsletter<select name="language">${Object.entries(languageNames).map(([value, label]) => `<option value="${value}"${selected(value, row?.idioma || (admin ? "es" : language))}>${label}</option>`).join("")}</select></label><label>Periodicidad<select name="periodicity">${Object.entries(periods).map(([value, label]) => `<option value="${value}"${selected(value, row?.periodicidad || defaults.periodicity)}>${label}</option>`).join("")}</select></label></div>
     <div class="subscription-fields">${filterFields(Object.fromEntries(Object.entries(options.catalogs).filter(([key]) => primary(key))), filters4)}</div>
     <details class="subscription-more"><summary>M\xE1s preferencias <span>Tipo de entidad, tema, novedad, fuente y palabras clave</span></summary><div class="subscription-fields">${filterFields(Object.fromEntries(Object.entries(options.catalogs).filter(([key]) => !primary(key))), filters4)}</div><label>Palabras clave<input name="search" maxlength="160" value="${escape(filters4.search || "")}" placeholder="Opcional"></label></details>
     <label class="subscription-active"><input name="active" type="checkbox"${row?.activa === !1 ? "" : " checked"}> Suscripci\xF3n activa</label>
@@ -130,7 +2757,7 @@
   </form>`;
   }
   function subscriptionCards(rows, admin) {
-    return rows.map((row) => `<article class="panel selection-card"><div class="news-meta"><span class="badge">${periods[row.periodicidad]}</span><span class="status-pill" data-state="${row.activa ? "positive" : ""}">${row.activa ? "Activa" : "Pausada"}</span></div><h3>${escape(row.nombre)}</h3>${admin ? `<p>${escape(row.correo)}</p>` : ""}<div class="subscription-summary"><p class="small">${escape(Object.values(row.filtros).filter(Boolean).join(" \xB7 ") || "Todo el sector")}</p><p class="small muted">${row.filtros.country ? "" : "Todas las geograf\xEDas \xB7 "}Novedades del canal</p></div><p class="small muted">${escape(row.ultimaEntrega ? "\xDAltimo intento: " + row.ultimaEntrega.estado + " \xB7 " + row.ultimaEntrega.desde + " / " + row.ultimaEntrega.hasta : "Sin entregas registradas")}${row.nextDelivery ? " \xB7 Disponible desde " + escape(row.nextDelivery) : ""}</p><div class="actions"><button class="button" data-action="edit" data-id="${escape(row.id)}">Editar</button>${admin ? "" : `<button class="button" data-action="test" data-id="${escape(row.id)}">Probar</button><button class="button" data-action="apply" data-id="${escape(row.id)}">Ver noticias</button><button class="button" data-action="delete" data-id="${escape(row.id)}">Dar de baja</button>`}</div></article>`).join("") || `<div class="panel empty"><h3>${admin ? "Sin suscripciones" : "No tienes suscripciones"}</h3><p>${admin ? "Las altas del equipo aparecer\xE1n aqu\xED. Puedes crear una manualmente." : "Completa el formulario para recibir novedades por correo."}</p></div>`;
+    return rows.map((row) => `<article class="panel selection-card"><div class="news-meta"><span class="badge">${periods[row.periodicidad]}</span><span class="status-pill" data-state="${row.activa ? "positive" : ""}">${row.activa ? "Activa" : "Pausada"}</span></div><h3 data-original>${escape(row.nombre)}</h3><p class="small">Idioma de la newsletter: ${escape(languageNames[row.idioma])}</p>${admin ? `<p>${escape(row.correo)}</p>` : ""}<div class="subscription-summary"><p class="small">${escape(Object.values(row.filtros).filter(Boolean).join(" \xB7 ") || "Todo el sector")}</p><p class="small muted">${row.filtros.country ? "" : "Todas las geograf\xEDas \xB7 "}Novedades del canal</p></div><p class="small muted">${escape(row.ultimaEntrega ? "\xDAltimo intento: " + row.ultimaEntrega.estado + " \xB7 " + row.ultimaEntrega.desde + " / " + row.ultimaEntrega.hasta : "Sin entregas registradas")}${row.nextDelivery ? " \xB7 Disponible desde " + escape(row.nextDelivery) : ""}</p><div class="actions"><button class="button" data-action="edit" data-id="${escape(row.id)}">Editar</button>${admin ? "" : `<button class="button" data-action="test" data-id="${escape(row.id)}">Probar</button><button class="button" data-action="apply" data-id="${escape(row.id)}">Ver noticias</button><button class="button" data-action="delete" data-id="${escape(row.id)}">Dar de baja</button>`}</div></article>`).join("") || `<div class="panel empty"><h3>${admin ? "Sin suscripciones" : "No tienes suscripciones"}</h3><p>${admin ? "Las altas del equipo aparecer\xE1n aqu\xED. Puedes crear una manualmente." : "Completa el formulario para recibir novedades por correo."}</p></div>`;
   }
 
   // src/client/features/subscriptions.js
@@ -160,7 +2787,7 @@
         let form = event.target, data = new FormData(form), filters5 = {};
         for (let key of [...Object.keys(options.catalogs), "search"]) filters5[key] = String(data.get(key) || "");
         run(async () => {
-          message(await call(admin ? "saveAdminSubscription" : "saveSubscription", { id: form.dataset.id || void 0, email: data.get("email"), name: data.get("name"), periodicity: data.get("periodicity"), active: data.has("active"), filters: filters5 })), await open(admin);
+          message(await call(admin ? "saveAdminSubscription" : "saveSubscription", { id: form.dataset.id || void 0, email: data.get("email"), name: data.get("name"), periodicity: data.get("periodicity"), language: data.get("language"), active: data.has("active"), filters: filters5 })), await open(admin);
         }, !1);
       }), $(admin ? "new-admin-subscription" : "new-subscription").addEventListener("click", () => edit(admin)), $(admin ? "admin-subscriptions-list" : "subscriptions-list").addEventListener("click", (event) => {
         let button = event.target.closest("[data-action]");
@@ -207,7 +2834,7 @@
         await open();
       }, !1);
     }
-    return $("validate-newsletter-sender").addEventListener("click", () => run(open, !1)), $("test-newsletter").addEventListener("click", () => execute("sendNewsletterTest", (result) => `Gmail ha aceptado la prueba para ${result.recipient}. Remitente: ${result.sender}. Gmail ID: ${result.messageId}. Incluye ${result.count} novedades del ${result.from} al ${result.to}. Si no aparece en la bandeja de entrada, revisa Spam y la cuarentena de Workspace; la aceptaci\xF3n no confirma la recepci\xF3n.`)), $("install-newsletter").addEventListener("click", () => execute("installNewsletterSchedule", (result) => result)), $("send-pending-newsletters").addEventListener("click", () => execute("sendPendingNewsletters", (result) => result.state === "no_due" ? "No hay entregas pendientes. Las suscripciones nuevas comienzan en el siguiente cierre de su per\xEDodo." : result.state === "busy" ? "Hay otro env\xEDo en ejecuci\xF3n." : result.state === "limit" ? "Se ha alcanzado el l\xEDmite de env\xEDos en 24 horas." : `${result.accepted} correos aceptados por Gmail \xB7 ${result.empty} selecciones sin novedades \xB7 ${result.duplicates} noticias repetidas omitidas \xB7 ${result.pending} pendientes.${result.error ? " " + result.error : ""}`)), { open };
+    return $("validate-newsletter-sender").addEventListener("click", () => run(open, !1)), $("test-newsletter").addEventListener("click", () => execute("sendNewsletterTest", (result) => t("Gmail ha aceptado la prueba para {recipient}. Remitente: {sender}. Gmail ID: {id}. Incluye {count} novedades del {from} al {to}.", { ...result, id: result.messageId }) + " " + t("Si no aparece en la bandeja de entrada, revisa Spam y la cuarentena de Workspace; la aceptaci\xF3n no confirma la recepci\xF3n."))), $("install-newsletter").addEventListener("click", () => execute("installNewsletterSchedule", (result) => result)), $("send-pending-newsletters").addEventListener("click", () => execute("sendPendingNewsletters", (result) => result.state === "no_due" ? "No hay entregas pendientes. Las suscripciones nuevas comienzan en el siguiente cierre de su per\xEDodo." : result.state === "busy" ? "Hay otro env\xEDo en ejecuci\xF3n." : result.state === "limit" ? "Se ha alcanzado el l\xEDmite de env\xEDos en 24 horas." : `${result.accepted} correos aceptados por Gmail \xB7 ${result.empty} selecciones sin novedades \xB7 ${result.duplicates} noticias repetidas omitidas \xB7 ${result.pending} pendientes.${result.error ? " " + result.error : ""}`)), { open };
   }
 
   // assets/admin-schema.json
@@ -510,12 +3137,12 @@
   function createBriefing() {
     return { render(data) {
       let briefing2 = data.briefing || { total: 0, bySignal: [], items: [] };
-      $("briefing-count").textContent = "Novedades detectadas: " + briefing2.total, $("briefing-signals").innerHTML = briefing2.bySignal.map((row) => `<button type="button" class="signal-card" data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(row.name)}</span></button>`).join(""), $("briefing-list").innerHTML = briefing2.items.map((row) => `<article class="panel novelty-card"><div class="news-meta">${row.senales.map((signal) => `<span class="badge">${escape(signal)}</span>`).join("")}<time>${escape(row.fecha)}</time></div><h3><a href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">${escape(row.titular)}</a></h3><p class="novelty-context">${escape(row.entidad)} \xB7 ${escape(row.tipo)} \xB7 ${escape(row.pais)} \xB7 ${escape(row.medio)}</p><p>${escape(row.extracto || "Consulta la fuente original para conocer la oferta y sus condiciones.")}</p><div class="novelty-use"><span class="eyebrow">SEGMENTO Y TEMA</span><p>${escape(row.segmentos.length ? row.segmentos.join(" \xB7 ") : "Segmento no identificado")} \xB7 ${escape(row.tema)}</p></div><a class="button" href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">Consultar anuncio \u2197</a></article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.</p></div>', $("briefing-limit").hidden = !briefing2.limited;
+      $("briefing-count").textContent = "Novedades detectadas: " + briefing2.total, $("briefing-signals").innerHTML = briefing2.bySignal.map((row) => `<button type="button" class="signal-card" data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(row.name)}</span></button>`).join(""), $("briefing-list").innerHTML = briefing2.items.map((row) => `<article class="panel novelty-card"><div class="news-meta">${row.senales.map((signal) => `<span class="badge">${escape(signal)}</span>`).join("")}<time datetime="${escape(row.fecha)}">${escape(formatCalendarDay(row.fecha, language))}</time>${newsPublisher(row)}</div><h3 data-original><a href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">${escape(row.titular)}</a></h3><p class="novelty-context">${escape(row.entidad)} \xB7 ${escape(row.tipo)} \xB7 ${escape(row.pais)}</p><p ${row.extracto ? "data-original" : ""}>${escape(row.extracto || "Consulta la fuente original para conocer la oferta y sus condiciones.")}</p><div class="novelty-use"><span class="eyebrow">SEGMENTO Y TEMA</span><p>${escape(row.segmentos.length ? row.segmentos.join(" \xB7 ") : "Segmento no identificado")} \xB7 ${escape(row.tema)}</p></div><a class="button" href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">Consultar anuncio \u2197</a></article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.</p></div>', $("briefing-limit").hidden = !briefing2.limited;
     } };
   }
 
   // src/client/features/trend-chart.js
-  var dateFormat2 = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", timeZone: "UTC" });
+  var dateFormat2 = new Intl.DateTimeFormat(language, { day: "numeric", month: "short", timeZone: "UTC" });
   function trendChart({ buckets, series }, availableWidth = 900) {
     if (!buckets.length) return '<div class="chart-empty"><span class="empty-orbit" aria-hidden="true">\u25CE</span><p>La evoluci\xF3n aparecer\xE1 cuando haya publicaciones en esta selecci\xF3n.</p></div>';
     let width = Math.max(320, Math.min(900, availableWidth || 900)), height = 260, left = 38, right = 20, top = 24, bottom = 42, max = Math.max(1, ...series.flatMap((row) => row.values)), ceiling = Math.max(4, Math.ceil(max / 4) * 4), x = (index) => left + (buckets.length === 1 ? 0.5 : index / (buckets.length - 1)) * (width - left - right), y = (value) => height - bottom - value / ceiling * (height - top - bottom), ticks = Array.from({ length: 5 }, (_, i) => {
@@ -613,7 +3240,7 @@
     try {
       let data = await call(view === "adoption" ? "getAdoption" : "getTelemetry", filters[view].query());
       if (!isCurrent() || requests[view] !== request2) return;
-      filters[view].options(data.options), filters[view].page(data), view === "adoption" ? ($("adoption-metrics").innerHTML = metricCards([["DAU", data.dau, "Usuarios \xB7 24 horas"], ["WAU", data.wau, "Usuarios \xB7 7 d\xEDas"], ["MAU", data.mau, "Usuarios \xB7 30 d\xEDas"], ["Recurrentes", data.returning, "M\xE1s de una sesi\xF3n \xB7 30 d\xEDas"]]), $("adoption-note").textContent = data.sessions + " sesiones y " + data.events + " eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador. " + (data.limited ? "L\xEDmite de eventos alcanzado; m\xE9tricas parciales." : ""), $("adoption-body").innerHTML = data.users.map((u) => `<tr><td>${escape(u.correo)}</td><td>${escape(date(u.first))}</td><td>${escape(date(u.last))}</td><td>${u.sessions}</td><td>${u.actions}</td></tr>`).join("") || '<tr><td colspan="5">Sin actividad registrada.</td></tr>', $("adoption-daily").innerHTML = data.daily.map((d) => `<tr><td>${escape(d.date)}</td><td>${d.users}</td><td>${d.sessions}</td></tr>`).join("") || '<tr><td colspan="3">Sin actividad diaria registrada.</td></tr>', $("adoption-chart").innerHTML = activityChart(data.daily)) : ($("telemetry-note").textContent = data.total + " coincidencias en las \xFAltimas " + data.limit + " operaciones disponibles." + (data.limited ? " Hist\xF3rico limitado." : ""), $("telemetry-metrics").innerHTML = metricCards([["Latencia p95", data.latencyP95 == null ? "\u2014" : data.latencyP95 + " ms", "Cargas \xB7 30 d\xEDas, todos los usuarios"], ["Errores cliente", data.clientErrors, "Eventos \xB7 30 d\xEDas, todos los usuarios"], ["Fuentes consultadas", data.collection.processed, "Recopilaci\xF3n actual"], ["Pendientes", data.collection.pending, "Fuentes por consultar"]]), $("telemetry-body").innerHTML = data.rows.map((r) => `<tr><td>${escape(date(r.fecha))}</td><td>${escape(r.operacion)}</td><td>${escape(r.duracion_ms)} ms</td><td>${escape(r.estado)}</td><td>${escape(r.detalle)}</td></tr>`).join("") || '<tr><td colspan="5">Sin telemetr\xEDa de operaci\xF3n.</td></tr>');
+      filters[view].options(data.options), filters[view].page(data), view === "adoption" ? ($("adoption-metrics").innerHTML = metricCards([["DAU", data.dau, "Usuarios \xB7 24 horas"], ["WAU", data.wau, "Usuarios \xB7 7 d\xEDas"], ["MAU", data.mau, "Usuarios \xB7 30 d\xEDas"], ["Recurrentes", data.returning, "M\xE1s de una sesi\xF3n \xB7 30 d\xEDas"]]), $("adoption-note").textContent = t("{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.", data) + " " + (data.limited ? "L\xEDmite de eventos alcanzado; m\xE9tricas parciales." : ""), $("adoption-body").innerHTML = data.users.map((u) => `<tr><td>${escape(u.correo)}</td><td>${escape(date(u.first))}</td><td>${escape(date(u.last))}</td><td>${u.sessions}</td><td>${u.actions}</td></tr>`).join("") || '<tr><td colspan="5">Sin actividad registrada.</td></tr>', $("adoption-daily").innerHTML = data.daily.map((d) => `<tr><td>${escape(d.date)}</td><td>${d.users}</td><td>${d.sessions}</td></tr>`).join("") || '<tr><td colspan="3">Sin actividad diaria registrada.</td></tr>', $("adoption-chart").innerHTML = activityChart(data.daily)) : ($("telemetry-note").textContent = data.total + " coincidencias en las \xFAltimas " + data.limit + " operaciones disponibles." + (data.limited ? " Hist\xF3rico limitado." : ""), $("telemetry-metrics").innerHTML = metricCards([["Latencia p95", data.latencyP95 == null ? "\u2014" : data.latencyP95 + " ms", "Cargas \xB7 30 d\xEDas, todos los usuarios"], ["Errores cliente", data.clientErrors, "Eventos \xB7 30 d\xEDas, todos los usuarios"], ["Fuentes consultadas", data.collection.processed, "Recopilaci\xF3n actual"], ["Pendientes", data.collection.pending, "Fuentes por consultar"]]), $("telemetry-body").innerHTML = data.rows.map((r) => `<tr><td>${escape(date(r.fecha))}</td><td>${escape(r.operacion)}</td><td>${escape(r.duracion_ms)} ms</td><td>${escape(r.estado)}</td><td>${escape(r.detalle)}</td></tr>`).join("") || '<tr><td colspan="5">Sin telemetr\xEDa de operaci\xF3n.</td></tr>');
     } catch (e) {
       requests[view] === request2 && isCurrent() && message(e.message, !0);
     }
@@ -696,7 +3323,7 @@
       if (event.type === "input" && event.target?.name !== "search") return;
       clearTimeout(timer), page = 0, initialized.add(view), onInvalidate();
       let from = form.elements.from.value, to = form.elements.to.value;
-      form.elements.to.setCustomValidity(from && to && from > to ? "La fecha hasta debe ser posterior o igual a la fecha desde." : ""), $("message").hidden = !0, renderChips(), event.type === "input" ? timer = setTimeout(onChange, 250) : onChange();
+      form.elements.to.setCustomValidity(from && to && from > to ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : ""), $("message").hidden = !0, renderChips(), event.type === "input" ? timer = setTimeout(onChange, 250) : onChange();
     }
     return form.addEventListener("input", filterChanged), form.addEventListener("change", filterChanged), form.addEventListener("reset", () => {
       clearTimeout(timer), onInvalidate(), queueMicrotask(() => {
@@ -737,7 +3364,7 @@
 
   // src/client/features/news.js
   function renderNews(data) {
-    $("news-list").innerHTML = data.items.length ? data.items.map((n, index) => `<article class="news-item"><span class="news-index" aria-hidden="true">${String(data.page * data.pageSize + index + 1).padStart(2, "0")}</span><div><div class="news-meta"><span class="badge">${escape(n.tema)}</span><time datetime="${escape(n.fecha)}">${escape(n.fecha)}</time><span>${escape(n.pais)}</span><span>${escape(n.medio)}</span><span>${escape(n.tipo || "")}</span></div><h3><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">${escape(n.titular)}</a></h3><p>${escape(n.extracto || "El feed no proporciona un extracto. Consulta la publicaci\xF3n original.")}</p><div class="news-footer"><span class="muted">${escape([n.entidad, ...n.segmentos || [], n.fuente || n.medio].filter(Boolean).join(" \xB7 "))}</span><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">Abrir noticia \u2197</a></div></div></article>`).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>', $("result-count").textContent = data.total + " publicaciones", $("page-label").textContent = data.total ? "P\xE1gina " + (data.page + 1) + " de " + Math.ceil(data.total / data.pageSize) : "Sin resultados", $("previous").disabled = data.page === 0, $("next").disabled = (data.page + 1) * data.pageSize >= data.total;
+    $("news-list").innerHTML = data.items.length ? data.items.map((n, index) => `<article class="news-item"><span class="news-index" aria-hidden="true">${String(data.page * data.pageSize + index + 1).padStart(2, "0")}</span><div><div class="news-meta"><span class="badge">${escape(n.tema)}</span><time datetime="${escape(n.fecha)}">${escape(formatCalendarDay(n.fecha, language))}</time><span>${escape(n.pais)}</span>${newsPublisher(n)}<span>${escape(n.tipo || "")}</span></div><h3 data-original><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">${escape(n.titular)}</a></h3><p ${n.extracto ? "data-original" : ""}>${escape(n.extracto || "El feed no proporciona un extracto. Consulta la publicaci\xF3n original.")}</p><div class="news-footer"><span class="muted">${escape([n.entidad, ...n.segmentos || []].filter(Boolean).join(" \xB7 "))}</span><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">Abrir noticia \u2197</a></div></div></article>`).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>', $("result-count").textContent = data.total + " publicaciones", $("page-label").textContent = data.total ? t("P\xE1gina {page} de {pages}", { page: data.page + 1, pages: Math.ceil(data.total / data.pageSize) }) : "Sin resultados", $("previous").disabled = data.page === 0, $("next").disabled = (data.page + 1) * data.pageSize >= data.total;
   }
 
   // src/client/features/shell.js
@@ -776,7 +3403,7 @@
       return [...$("source-fields").children].map((el) => Object.fromEntries([...el.querySelectorAll("[data-key]")].map((x) => [x.dataset.key, x.type === "checkbox" ? x.checked : x.value])));
     }
     function collectionText(status) {
-      return status.total ? status.processed + " de " + status.total + " consultas completadas; " + status.pending + " pendientes y " + status.failed + " con error. Las noticias se integran autom\xE1ticamente." : "Las fuentes est\xE1n activas. La pr\xF3xima recopilaci\xF3n las consultar\xE1 por lotes.";
+      return status.total ? t("{processed} de {total} consultas completadas; {pending} pendientes y {failed} con error. Las noticias se integran autom\xE1ticamente.", status) : "Las fuentes est\xE1n activas. La pr\xF3xima recopilaci\xF3n las consultar\xE1 por lotes.";
     }
     return $("collect").addEventListener("click", () => run(async () => {
       let result = await call("collectNow", document.querySelector('input[name="recovery-range"]:checked').value);
@@ -846,7 +3473,58 @@
     } };
   }
 
+  // src/client/core/localization.js
+  var attributes = ["placeholder", "title", "aria-label", "alt"], excluded = "[data-original],script,style,textarea";
+  function localize(root) {
+    if (root.nodeType === 3) {
+      root.parentElement?.closest(excluded) || (root.textContent = t(root.textContent));
+      return;
+    }
+    if (!(root.nodeType !== 1 || root.matches(excluded))) {
+      root.tagName === "OPTION" && !root.hasAttribute("value") && root.setAttribute("value", root.value);
+      for (let key of attributes) if (root.hasAttribute(key)) {
+        let value = root.getAttribute(key), translated = t(value);
+        value !== translated && root.setAttribute(key, translated);
+      }
+      for (let node of root.childNodes) localize(node);
+    }
+  }
+  function initializeLocalization() {
+    document.documentElement.lang = language, document.title = t(document.title);
+    let select = document.getElementById("preview-language");
+    select.innerHTML = '<option value="">' + t("Idioma del navegador") + "</option>" + Object.entries(languageNames).map(([code, name]) => '<option value="' + code + '">' + name + "</option>").join("");
+    try {
+      select.value = sessionStorage.getItem("news-radar-language") || "";
+    } catch {
+    }
+    select.addEventListener("change", () => setLanguage(select.value));
+    let invalid = /* @__PURE__ */ new WeakSet();
+    if (document.addEventListener("invalid", (event) => {
+      let input = event.target;
+      input.validity.customError || (input.setCustomValidity(t(input.validity.valueMissing ? "Campo obligatorio." : "Introduce un valor v\xE1lido.")), invalid.add(input));
+    }, !0), document.addEventListener("input", (event) => {
+      let input = event.target;
+      invalid.has(input) && (input.setCustomValidity(""), invalid.delete(input));
+    }, !0), localize(document.body), language === "es") return;
+    let options = { subtree: !0, childList: !0, characterData: !0, attributes: !0, attributeFilter: attributes }, observer = new MutationObserver((records) => {
+      observer.disconnect();
+      let roots = /* @__PURE__ */ new Set();
+      for (let record of records)
+        if (record.type === "childList") for (let node of record.addedNodes) roots.add(node);
+        else roots.add(record.target);
+      for (let node of roots) {
+        if (!node.isConnected || node.parentElement?.closest(excluded)) continue;
+        let parent = node.parentNode;
+        for (; parent && !roots.has(parent); ) parent = parent.parentNode;
+        parent || localize(node);
+      }
+      observer.observe(document.body, options);
+    });
+    observer.observe(document.body, options);
+  }
+
   // src/client/app.js
+  initializeLocalization();
   var state = { data: null, request: 0, busy: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data }), { track, flush } = usage, configuration = createConfiguration({ run: action }), subscriptions = createSubscriptions({ run: action, onApply: (query) => {
     filters3.show("news"), filters3.apply(query), navigation.show("news");
   } }), newsletterDelivery = createNewsletterDelivery({ run: action }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]) }), navigation = createNavigation({ onSelection: (view) => {

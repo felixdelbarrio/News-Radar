@@ -1,6 +1,7 @@
 import {$,escape,date} from '../core/dom.js';
 import {call} from '../core/api.js';
 import {createRecordFilters} from './record-filters.js';
+import {t} from '../core/language.js';
 export function createNewsletterDelivery({run}){
   function feedback(text,error=false){const target=$('newsletter-test-result');target.hidden=false;target.textContent=text;target.classList.toggle('error',error);}
   let historyFilters,historyRequest=0;
@@ -28,7 +29,7 @@ export function createNewsletterDelivery({run}){
     await open();
   },false);}
   $('validate-newsletter-sender').addEventListener('click',()=>run(open,false));
-  $('test-newsletter').addEventListener('click',()=>execute('sendNewsletterTest',result=>`Gmail ha aceptado la prueba para ${result.recipient}. Remitente: ${result.sender}. Gmail ID: ${result.messageId}. Incluye ${result.count} novedades del ${result.from} al ${result.to}. Si no aparece en la bandeja de entrada, revisa Spam y la cuarentena de Workspace; la aceptación no confirma la recepción.`));
+  $('test-newsletter').addEventListener('click',()=>execute('sendNewsletterTest',result=>t('Gmail ha aceptado la prueba para {recipient}. Remitente: {sender}. Gmail ID: {id}. Incluye {count} novedades del {from} al {to}.',{...result,id:result.messageId})+' '+t('Si no aparece en la bandeja de entrada, revisa Spam y la cuarentena de Workspace; la aceptación no confirma la recepción.')));
   $('install-newsletter').addEventListener('click',()=>execute('installNewsletterSchedule',result=>result));
   $('send-pending-newsletters').addEventListener('click',()=>execute('sendPendingNewsletters',result=>result.state==='no_due'?'No hay entregas pendientes. Las suscripciones nuevas comienzan en el siguiente cierre de su período.':result.state==='busy'?'Hay otro envío en ejecución.':result.state==='limit'?'Se ha alcanzado el límite de envíos en 24 horas.':`${result.accepted} correos aceptados por Gmail · ${result.empty} selecciones sin novedades · ${result.duplicates} noticias repetidas omitidas · ${result.pending} pendientes.${result.error?' '+result.error:''}`));
   return {open};
