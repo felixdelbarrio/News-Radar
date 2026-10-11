@@ -24,7 +24,7 @@ const filters = createFilters({ onInvalidate: () => ++state.request, onChange: (
   track("filtro");
   load();
 } });
-const briefing=createBriefing({query:()=>filters.query(),run:action});
+const briefing=createBriefing();
 $('briefing-signals').addEventListener('click',event=>{const button=event.target.closest('[data-signal]');if(button)filters.set('signal',button.dataset.signal);});
 const radar = createRadar({ onCountry: (country) => {filters.show("news");filters.set("country", country);navigation.show("news");}, onEntity: (entity) => filters.set("entity", entity), onNews: () => navigation.show("news") });
 const sources = createSources({ getData: () => state.data, run: action });
@@ -107,7 +107,19 @@ $("export").addEventListener("click", () => action(async () => {
 $("news-list").addEventListener("click", (event) => {
   if (event.target.closest("a")) track("lectura");
 });
+$('download-telemetry').addEventListener('click',()=>action(async()=>{
+  const data=await call('exportTelemetry'),url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'})),link=document.createElement('a');
+  link.href=url;link.download='news-radar-telemetria.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message('Telemetría descargada.');
+},false));
 createFilterPanel();
 if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
 navigation.show("radar");
+if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocation(async location=>{
+  if(location.parameter.view!=='subscriptions')return;
+  await navigation.show('subscriptions');
+  const id=location.parameter.unsubscribe;if(!id)return;
+  const target=$('message');message('Confirma la baja de esta suscripción.');
+  const button=document.createElement('button');button.type='button';button.className='button';button.textContent='Confirmar baja';
+  button.addEventListener('click',()=>action(async()=>{message(await call('deleteSubscription',id));await subscriptions.open();},false));target.appendChild(button);
+});
 load();

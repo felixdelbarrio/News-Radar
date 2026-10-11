@@ -83,3 +83,22 @@ function writeConfiguration_(config,revision){
     return 'Configuración guardada. Se aplicará a filtros, clasificación y próximas recopilaciones.';
   }finally{lock.releaseLock();}
 }
+
+function testGmailAuthorization() {
+  authorize_(true);
+  const token = ScriptApp.getOAuthToken();
+
+  const response = UrlFetchApp.fetch(
+    'https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs',
+    {
+      method: 'get',
+      headers: {
+        Authorization: 'Bearer ' + token
+      },
+      muteHttpExceptions: true
+    }
+  );
+
+  Logger.log('HTTP: ' + response.getResponseCode());
+  Logger.log(response.getContentText());
+}

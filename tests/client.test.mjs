@@ -136,3 +136,14 @@ test('abrir Noticias desde el mapa por primera vez conserva las fechas iniciales
  const count=c.requests.length;c.element('map-panel').listeners.click({target:{closest:()=>({dataset:{country:'México'}})}});
  assert.equal(c.requests.length,count+1);assert.equal(c.requests.at(-1).query.country,'México');assert.equal(c.requests.at(-1).query.from,'2026-10-01');assert.equal(c.requests.at(-1).query.to,'2026-10-31');
 });
+
+test('cerrar un chip sincroniza panel, paginación y consulta e invalida respuestas anteriores',async()=>{
+ const c=client();c.requests[0].resolve(dashboard('Inicial'));await settle();
+ c.change('entity','Santander');c.change('from','2026-10-01');c.change('to','2026-10-31');
+ assert.match(c.element('active-filters').innerHTML,/Fecha hasta: 31\/10\/2026/);
+ const previous=c.requests.at(-1);
+ c.element('active-filters').listeners.click({target:{closest:()=>({dataset:{removeFilter:'entity'}})}});
+ assert.equal(c.form.elements.entity.value,'');assert.equal(c.requests.at(-1).query.entity,'');assert.equal(c.requests.at(-1).query.page,0);assert.equal(c.requests.at(-1).query.to,'2026-10-31');
+ previous.resolve(dashboard('Obsoleta'));await settle();assert.doesNotMatch(c.element('news-list').innerHTML,/Obsoleta/);
+ c.requests.at(-1).resolve(dashboard('Actualizada'));await settle();assert.doesNotMatch(c.element('active-filters').innerHTML,/Entidad: Santander/);assert.match(c.element('news-list').innerHTML,/Actualizada/);
+});

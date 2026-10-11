@@ -28,9 +28,9 @@ function deliverNewsletters_(){
     result.state='processed';
     for(const {row,period,id} of due){
       if(!remaining||!quota)break;
-      const query={...row.filtros,from:period.from,to:period.to},key=JSON.stringify([query,row.nombre]);
-      if(!prepared.has(key))prepared.set(key,newsletterContent_(selectAnnotatedNews_(news,query),query,row.nombre,now));
-      const content=prepared.get(key);
+      const query={...row.filtros,from:period.from,to:period.to},key=JSON.stringify(query);
+      if(!prepared.has(key))prepared.set(key,selectAnnotatedNews_(news,query));
+      const content=newsletterContent_(prepared.get(key),query,row.nombre,now,row.id);
       append_('NewsletterEnvios',[[id,row.id,row.correo,period.from,period.to,content.count?'Enviando':'Sin novedades',now.toISOString(),'']]);
       remaining--;result.pending--;
       if(!content.count){result.empty++;continue;}

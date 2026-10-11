@@ -29,18 +29,6 @@
     return window.RADAR_PREVIEW ? window.RADAR_PREVIEW.call(method, ...args) : new Promise((resolve, reject) => google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[method](...args));
   }
 
-  // src/client/features/briefing.js
-  function downloadNewsletter(result) {
-    let url = URL.createObjectURL(new Blob([result.html], { type: "text/html;charset=utf-8" })), link = document.createElement("a");
-    link.href = url, link.download = "news-radar-newsletter.html", link.click(), setTimeout(() => URL.revokeObjectURL(url), 1e3), message("Novedades exportadas: " + result.count + (result.total > result.count ? " de " + result.total + ". Reduce los filtros para incluirlas todas." : "."));
-  }
-  function createBriefing({ query, run }) {
-    return $("newsletter-export").addEventListener("click", () => run(async () => downloadNewsletter(await call("exportNewsletter", { filters: query(), title: "Briefing de novedades" })), !1)), { render(data) {
-      let briefing2 = data.briefing || { total: 0, bySignal: [], items: [] };
-      $("briefing-count").textContent = "Novedades detectadas: " + briefing2.total, $("briefing-signals").innerHTML = briefing2.bySignal.map((row) => `<button type="button" class="signal-card" data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(row.name)}</span></button>`).join(""), $("briefing-list").innerHTML = briefing2.items.map((row) => `<article class="panel novelty-card"><div class="news-meta">${row.senales.map((signal) => `<span class="badge">${escape(signal)}</span>`).join("")}<time>${escape(row.fecha)}</time></div><h3><a href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">${escape(row.titular)}</a></h3><p class="novelty-context">${escape(row.entidad)} \xB7 ${escape(row.tipo)} \xB7 ${escape(row.pais)} \xB7 ${escape(row.medio)}</p><p>${escape(row.extracto || "Consulta la fuente original para conocer la oferta y sus condiciones.")}</p><div class="novelty-use"><span class="eyebrow">SEGMENTO Y TEMA</span><p>${escape(row.segmentos.length ? row.segmentos.join(" \xB7 ") : "Segmento no identificado")} \xB7 ${escape(row.tema)}</p></div><a class="button" href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">Consultar anuncio \u2197</a></article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.</p></div>', $("briefing-limit").hidden = !briefing2.limited;
-    } };
-  }
-
   // src/client/features/subscription-templates.js
   var periods = { monthly: "Mensual", weekly: "Semanal", daily: "Diaria" }, labels = { type: "Tipo de entidad", entity: "Entidad", segment: "Segmento", country: "Geograf\xEDa", topic: "Tema", signal: "Novedad", source: "Fuente" }, selected = (value, current) => value === current ? " selected" : "";
   function filterFields(catalogs, filters2) {
@@ -60,7 +48,7 @@
   </form>`;
   }
   function subscriptionCards(rows, admin) {
-    return rows.map((row) => `<article class="panel selection-card"><div class="news-meta"><span class="badge">${periods[row.periodicidad]}</span><span class="status-pill" data-state="${row.activa ? "positive" : ""}">${row.activa ? "Activa" : "Pausada"}</span></div><h3>${escape(row.nombre)}</h3>${admin ? `<p>${escape(row.correo)}</p>` : ""}<div class="subscription-summary"><p class="small">${escape(Object.values(row.filtros).filter(Boolean).join(" \xB7 ") || "Todo el sector")}</p><p class="small muted">${row.filtros.country ? "" : "Todas las geograf\xEDas \xB7 "}Novedades del canal</p></div><p class="small muted">${escape(row.ultimaEntrega ? "\xDAltimo intento: " + row.ultimaEntrega.estado + " \xB7 " + row.ultimaEntrega.desde + " / " + row.ultimaEntrega.hasta : "Sin entregas registradas")}${row.nextDelivery ? " \xB7 Disponible desde " + escape(row.nextDelivery) : ""}</p><div class="actions"><button class="button" data-action="edit" data-id="${escape(row.id)}">Editar</button>${admin ? "" : `<button class="button" data-action="export" data-id="${escape(row.id)}">Vista previa</button><button class="button" data-action="apply" data-id="${escape(row.id)}">Ver noticias</button><button class="button" data-action="delete" data-id="${escape(row.id)}">Dar de baja</button>`}</div></article>`).join("") || `<div class="panel empty"><h3>${admin ? "Sin suscripciones" : "No tienes suscripciones"}</h3><p>${admin ? "Las altas del equipo aparecer\xE1n aqu\xED. Puedes crear una manualmente." : "Completa el formulario para recibir novedades por correo."}</p></div>`;
+    return rows.map((row) => `<article class="panel selection-card"><div class="news-meta"><span class="badge">${periods[row.periodicidad]}</span><span class="status-pill" data-state="${row.activa ? "positive" : ""}">${row.activa ? "Activa" : "Pausada"}</span></div><h3>${escape(row.nombre)}</h3>${admin ? `<p>${escape(row.correo)}</p>` : ""}<div class="subscription-summary"><p class="small">${escape(Object.values(row.filtros).filter(Boolean).join(" \xB7 ") || "Todo el sector")}</p><p class="small muted">${row.filtros.country ? "" : "Todas las geograf\xEDas \xB7 "}Novedades del canal</p></div><p class="small muted">${escape(row.ultimaEntrega ? "\xDAltimo intento: " + row.ultimaEntrega.estado + " \xB7 " + row.ultimaEntrega.desde + " / " + row.ultimaEntrega.hasta : "Sin entregas registradas")}${row.nextDelivery ? " \xB7 Disponible desde " + escape(row.nextDelivery) : ""}</p><div class="actions"><button class="button" data-action="edit" data-id="${escape(row.id)}">Editar</button>${admin ? "" : `<button class="button" data-action="test" data-id="${escape(row.id)}">Probar</button><button class="button" data-action="apply" data-id="${escape(row.id)}">Ver noticias</button><button class="button" data-action="delete" data-id="${escape(row.id)}">Dar de baja</button>`}</div></article>`).join("") || `<div class="panel empty"><h3>${admin ? "Sin suscripciones" : "No tienes suscripciones"}</h3><p>${admin ? "Las altas del equipo aparecer\xE1n aqu\xED. Puedes crear una manualmente." : "Completa el formulario para recibir novedades por correo."}</p></div>`;
   }
 
   // src/client/features/subscriptions.js
@@ -89,7 +77,10 @@
         let button = event.target.closest("[data-action]");
         if (!button) return;
         let row = (admin ? all : own).find((r) => r.id === button.dataset.id);
-        row && (button.dataset.action === "edit" && edit(admin, row), button.dataset.action === "apply" && onApply(row.query), button.dataset.action === "export" && run(async () => downloadNewsletter(await call("exportNewsletter", { subscriptionId: row.id })), !1), button.dataset.action === "delete" && run(async () => {
+        row && (button.dataset.action === "edit" && edit(admin, row), button.dataset.action === "apply" && onApply(row.query), button.dataset.action === "test" && run(async () => {
+          let result = await call("sendSubscriptionTest", row.id);
+          message("Gmail ha aceptado la prueba para " + result.recipient + " \xB7 " + result.count + " novedades.");
+        }, !1), button.dataset.action === "delete" && run(async () => {
           message(await call("deleteSubscription", row.id)), await open();
         }, !1));
       });
@@ -420,6 +411,14 @@
     } };
   }
 
+  // src/client/features/briefing.js
+  function createBriefing() {
+    return { render(data) {
+      let briefing2 = data.briefing || { total: 0, bySignal: [], items: [] };
+      $("briefing-count").textContent = "Novedades detectadas: " + briefing2.total, $("briefing-signals").innerHTML = briefing2.bySignal.map((row) => `<button type="button" class="signal-card" data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(row.name)}</span></button>`).join(""), $("briefing-list").innerHTML = briefing2.items.map((row) => `<article class="panel novelty-card"><div class="news-meta">${row.senales.map((signal) => `<span class="badge">${escape(signal)}</span>`).join("")}<time>${escape(row.fecha)}</time></div><h3><a href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">${escape(row.titular)}</a></h3><p class="novelty-context">${escape(row.entidad)} \xB7 ${escape(row.tipo)} \xB7 ${escape(row.pais)} \xB7 ${escape(row.medio)}</p><p>${escape(row.extracto || "Consulta la fuente original para conocer la oferta y sus condiciones.")}</p><div class="novelty-use"><span class="eyebrow">SEGMENTO Y TEMA</span><p>${escape(row.segmentos.length ? row.segmentos.join(" \xB7 ") : "Segmento no identificado")} \xB7 ${escape(row.tema)}</p></div><a class="button" href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">Consultar anuncio \u2197</a></article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.</p></div>', $("briefing-limit").hidden = !briefing2.limited;
+    } };
+  }
+
   // src/client/features/trend-chart.js
   var dateFormat2 = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", timeZone: "UTC" });
   function trendChart({ buckets, series }, availableWidth = 900) {
@@ -578,11 +577,23 @@
       $("filter-description").textContent = view === "radar" ? "Entidad y segmento del Radar." : view === "briefing" ? "Novedades del mes en curso." : "Selecci\xF3n de noticias y per\xEDodo de consulta.";
     }
     layout();
+    let chipLabels = { search: "B\xFAsqueda", country: "Geograf\xEDa", entity: "Entidad", source: "Medio", topic: "Tema", type: "Tipo de entidad", segment: "Segmento", signal: "Novedad", from: "Fecha desde", to: "Fecha hasta" };
+    function renderChips() {
+      let target = $("active-filters"), values = Object.entries(chipLabels).filter(([name]) => form.elements[name].value);
+      target.hidden = !values.length, target.innerHTML = values.map(([name, label]) => {
+        let raw = form.elements[name].value, value = ["from", "to"].includes(name) ? raw.split("-").reverse().join("/") : raw, text = label + ": " + value;
+        return '<button type="button" class="filter-chip" data-remove-filter="' + name + '" aria-label="Quitar ' + escape(text) + '"><span>' + escape(text) + '</span><span aria-hidden="true">\xD7</span></button>';
+      }).join("");
+    }
+    $("active-filters").addEventListener("click", (event) => {
+      let button = event.target.closest("[data-remove-filter]");
+      button && (form.elements[button.dataset.removeFilter].value = "", filterChanged({ type: "change" }));
+    });
     let timer;
     function filterChanged(event) {
       clearTimeout(timer), page = 0, initialized.add(view), onInvalidate();
       let from = form.elements.from.value, to = form.elements.to.value;
-      form.elements.to.setCustomValidity(from && to && from > to ? "La fecha hasta debe ser posterior o igual a la fecha desde." : ""), $("message").hidden = !0, event.type === "input" ? timer = setTimeout(onChange, 250) : onChange();
+      form.elements.to.setCustomValidity(from && to && from > to ? "La fecha hasta debe ser posterior o igual a la fecha desde." : ""), $("message").hidden = !0, renderChips(), event.type === "input" ? timer = setTimeout(onChange, 250) : onChange();
     }
     return form.addEventListener("input", filterChanged), form.addEventListener("change", filterChanged), form.addEventListener("reset", () => {
       clearTimeout(timer), onInvalidate(), queueMicrotask(() => {
@@ -616,6 +627,7 @@
         page = data.page, defaults = data.defaults || defaults, initialized.add(view);
         for (let [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["topic", "topics"], ["type", "types"], ["segment", "segments"], ["signal", "signals"]]) options(name, data[key] || []);
         if (data.selection) for (let input of form.elements) input.name && (input.value = data.selection[input.name] || "");
+        renderChips();
       }
     };
   }
@@ -715,7 +727,7 @@
       if (!(!(view in stdin_default.views) || view === "administration" && !isAdmin())) {
         current = view, window.scrollTo({ top: 0, behavior: "auto" }), track2("vista");
         for (let name of Object.keys(stdin_default.views)) $(name + "-section").hidden = name !== view;
-        $("filters-section").hidden = ["administration", "subscriptions"].includes(view), $("sidebar-context-title").textContent = view === "administration" ? "Gesti\xF3n de News Radar" : "Seguimiento personalizado", $("sidebar-context-copy").textContent = view === "administration" ? "Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicaci\xF3n." : "Las suscripciones tienen sus propios filtros. Cambiar la selecci\xF3n de noticias no modifica lo que recibes por correo.", $("sidebar-context").hidden = !["administration", "subscriptions"].includes(view), $("open-filters").hidden = ["administration", "subscriptions"].includes(view), $("export").hidden = ["administration", "subscriptions"].includes(view), $("page-title").textContent = stdin_default.views[view], document.querySelectorAll("[data-view]").forEach((button) => {
+        $("filters-section").hidden = ["administration", "subscriptions"].includes(view), $("sidebar-context-title").textContent = view === "administration" ? "Gesti\xF3n de News Radar" : "Seguimiento personalizado", $("sidebar-context-copy").textContent = view === "administration" ? "Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicaci\xF3n." : "Las suscripciones tienen sus propios filtros. Cambiar la selecci\xF3n de noticias no modifica lo que recibes por correo.", $("sidebar-context").hidden = !["administration", "subscriptions"].includes(view), $("open-filters").hidden = ["administration", "subscriptions"].includes(view), $("export").hidden = view !== "news", $("page-title").textContent = stdin_default.views[view], document.querySelectorAll("[data-view]").forEach((button) => {
           button.dataset.view === view ? button.setAttribute("aria-current", "page") : button.removeAttribute("aria-current");
         });
         try {
@@ -740,7 +752,7 @@
     filters.show(view) && load();
   }, onSubscriptions: () => subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
-  } }), briefing = createBriefing({ query: () => filters.query(), run: action });
+  } }), briefing = createBriefing();
   $("briefing-signals").addEventListener("click", (event) => {
     let button = event.target.closest("[data-signal]");
     button && filters.set("signal", button.dataset.signal);
@@ -791,9 +803,25 @@
   $("news-list").addEventListener("click", (event) => {
     event.target.closest("a") && track("lectura");
   });
+  $("download-telemetry").addEventListener("click", () => action(async () => {
+    let data = await call("exportTelemetry"), url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" })), link = document.createElement("a");
+    link.href = url, link.download = "news-radar-telemetria.json", link.click(), setTimeout(() => URL.revokeObjectURL(url), 1e3), message("Telemetr\xEDa descargada.");
+  }, !1));
   createFilterPanel();
   window.RADAR_PREVIEW && ($("preview-banner").hidden = !1);
   navigation.show("radar");
+  !window.RADAR_PREVIEW && typeof google < "u" && google.script.url.getLocation(async (location) => {
+    if (location.parameter.view !== "subscriptions") return;
+    await navigation.show("subscriptions");
+    let id = location.parameter.unsubscribe;
+    if (!id) return;
+    let target = $("message");
+    message("Confirma la baja de esta suscripci\xF3n.");
+    let button = document.createElement("button");
+    button.type = "button", button.className = "button", button.textContent = "Confirmar baja", button.addEventListener("click", () => action(async () => {
+      message(await call("deleteSubscription", id)), await subscriptions.open();
+    }, !1)), target.appendChild(button);
+  });
   load();
 })();
 </script>

@@ -19,6 +19,21 @@ function createFilters({ onInvalidate, onChange }) {
       $('filter-description').textContent=view==='radar'?'Entidad y segmento del Radar.':view==='briefing'?'Novedades del mes en curso.':'Selección de noticias y período de consulta.';
   }
   layout();
+  const chipLabels={search:'Búsqueda',country:'Geografía',entity:'Entidad',source:'Medio',topic:'Tema',type:'Tipo de entidad',segment:'Segmento',signal:'Novedad',from:'Fecha desde',to:'Fecha hasta'};
+  function renderChips(){
+    const target=$('active-filters');
+    const values=Object.entries(chipLabels).filter(([name])=>form.elements[name].value);
+    target.hidden=!values.length;
+    target.innerHTML=values.map(([name,label])=>{
+      const raw=form.elements[name].value,value=['from','to'].includes(name)?raw.split('-').reverse().join('/'):raw;
+      const text=label+': '+value;
+      return '<button type="button" class="filter-chip" data-remove-filter="'+name+'" aria-label="Quitar '+escape(text)+'"><span>'+escape(text)+'</span><span aria-hidden="true">×</span></button>';
+    }).join('');
+  }
+  $('active-filters').addEventListener('click',event=>{
+    const button=event.target.closest('[data-remove-filter]');if(!button)return;
+    form.elements[button.dataset.removeFilter].value='';filterChanged({type:'change'});
+  });
   let timer;
   function filterChanged(event) {
     clearTimeout(timer);
@@ -28,6 +43,7 @@ function createFilters({ onInvalidate, onChange }) {
     const from = form.elements.from.value, to = form.elements.to.value;
     form.elements.to.setCustomValidity(from && to && from > to ? "La fecha hasta debe ser posterior o igual a la fecha desde." : "");
     $("message").hidden = true;
+    renderChips();
     if (event.type === "input") timer = setTimeout(onChange, 250);
     else onChange();
   }
@@ -69,6 +85,7 @@ function createFilters({ onInvalidate, onChange }) {
       initialized.add(view);
       for (const [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["topic", "topics"], ["type","types"], ["segment","segments"], ["signal","signals"]]) options(name, data[key]||[]);
       if(data.selection)for(const input of form.elements)if(input.name)input.value=data.selection[input.name]||'';
+      renderChips();
     }
   };
 }

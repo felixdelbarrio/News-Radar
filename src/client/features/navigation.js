@@ -13,7 +13,7 @@ function createNavigation({ isAdmin, track, onAdministration, onSubscriptions, o
     $("sidebar-context-copy").textContent=view==="administration"?"Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicación.":"Las suscripciones tienen sus propios filtros. Cambiar la selección de noticias no modifica lo que recibes por correo.";
     $("sidebar-context").hidden=!["administration","subscriptions"].includes(view);
     $("open-filters").hidden=["administration","subscriptions"].includes(view);
-    $("export").hidden = ["administration","subscriptions"].includes(view);
+    $("export").hidden = view !== "news";
     $("page-title").textContent = config.views[view];
     document.querySelectorAll("[data-view]").forEach((button) => {
       if (button.dataset.view === view) button.setAttribute("aria-current", "page");

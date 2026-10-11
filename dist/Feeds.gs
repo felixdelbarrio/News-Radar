@@ -23,8 +23,8 @@ function ingestFeed_(feed,known,cycle,now) {
     }
     audit.push([cycle,date,feed.name,item?.url||String(raw.url||''),state,reason]);
   }
-  audit.push([cycle,date,feed.name,feed.url,'Fuente consultada',items.length+' evaluadas; '+news.length+' nuevas']);
-  return {news,audit,evaluated:items.length};
+  audit.push([cycle,date,feed.name,feed.url,'Fuente consultada',items.length+' evaluadas; '+news.length+' nuevas; '+audit.filter(row=>row[4]==='Excluida').length+' excluidas; '+audit.filter(row=>row[4]==='Duplicada').length+' duplicadas'+(feed.kind==='profile'&&items.length>=100?'; posible límite del proveedor: cobertura parcial':'')]);
+  return {news,audit,evaluated:items.length,saturated:feed.kind==='profile'&&items.length>=100};
 }
 function knownUrls_() {
   const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1;

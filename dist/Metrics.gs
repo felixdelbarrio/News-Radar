@@ -42,3 +42,10 @@ function pruneEvents_() {
   });
   p.setProperty('RETENTION_DATE',today);
 }
+
+function exportTelemetry(){
+  authorize_(true);const limit=settings_().eventLimit;
+  const telemetry=rows_('Telemetria',limit),runs=rows_('Ejecuciones',limit),audit=rows_('Auditoria',limit),tasks=rows_('Recopilacion');
+  const reasons={};for(const row of audit)if(row.resultado==='Excluida')reasons[row.motivo]=(reasons[row.motivo]||0)+1;
+  return {schemaVersion:1,exportedAt:new Date().toISOString(),timezone:settings_().timezone,limits:{eventLimit:limit,newsReadLimit:settings_().newsReadLimit,collectionBatch:settings_().collectionBatch},collection:{...collectionStatus_(),range:collectionRangeFromStore_(),tasks},telemetry,runs,audit,exclusionReasons:reasons,limited:{telemetry:telemetry.length===limit,runs:runs.length===limit,audit:audit.length===limit},usage:metrics_(rows_('Adopcion',limit),Date.now())};
+}

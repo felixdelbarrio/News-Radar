@@ -83,7 +83,9 @@ function writeConfiguration_(config,revision){
     return 'Configuración guardada. Se aplicará a filtros, clasificación y próximas recopilaciones.';
   }finally{lock.releaseLock();}
 }
+
 function testGmailAuthorization() {
+  authorize_(true);
   const token = ScriptApp.getOAuthToken();
 
   const response = UrlFetchApp.fetch(
