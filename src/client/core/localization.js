@@ -1,5 +1,7 @@
 import {language,t,setLanguage} from './language.js';
 import {languageNames} from '../../shared/locales.js';
+let observer,translateChanges;
+export function flushLocalization(){if(observer)translateChanges(observer.takeRecords());}
 const attributes=['placeholder','title','aria-label','alt'],excluded='[data-original],script,style,textarea';
 export function localize(root){
   if(root.nodeType===3){if(!root.parentElement?.closest(excluded))root.textContent=t(root.textContent);return;}
@@ -19,7 +21,7 @@ export function initializeLocalization(){
   document.addEventListener('input',event=>{const input=event.target;if(invalid.has(input)){input.setCustomValidity('');invalid.delete(input);}},true);
   localize(document.body);if(language==='es')return;
   const options={subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:attributes};
-  const observer=new MutationObserver(records=>{
+  translateChanges=records=>{
     observer.disconnect();
     const roots=new Set();for(const record of records){if(record.type==='childList')for(const node of record.addedNodes)roots.add(node);else roots.add(record.target);}
     // Skip detached nodes and descendants already covered by an ancestor in this batch.
@@ -29,6 +31,7 @@ export function initializeLocalization(){
       if(!parent)localize(node);
     }
     observer.observe(document.body,options);
-  });
+  };
+  observer=new MutationObserver(translateChanges);
   observer.observe(document.body,options);
 }

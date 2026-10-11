@@ -56,7 +56,7 @@ function evaluate_(item, feed, now) {
   else if(now-date>settings_().windowDays*86400000)return {reason:'Fuera de la ventana de '+settings_().windowDays+' días'};
   const excerpt=plainText_(item.excerpt).slice(0,1500),topic=classify_(title,excerpt);
   if (!topic) return {reason:'Sin coincidencia con los temas configurados'};
-  return {item:{date,title,excerpt:feed.kind==='profile'&&excerpt.startsWith(title)?'':excerpt,url,topic,publisher:feed.kind==='profile'?publisher:''}};
+  return {item:{date,title,excerpt:feed.kind==='profile'&&excerpt.startsWith(title)?'':excerpt,url,topic,language:item.language||feed.language||'',publisher:feed.kind==='profile'?publisher:''}};
 }
 function safeCell_(value) {
   return typeof value==='string' && /^[=+@-]/.test(value) ? "'"+value : value;

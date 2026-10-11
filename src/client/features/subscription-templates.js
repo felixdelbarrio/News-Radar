@@ -1,16 +1,16 @@
-import {language,t} from '../core/language.js';
-import {languageNames} from '../../shared/locales.js';
+import {language} from '../core/language.js';
+import {languageNames,translateText} from '../../shared/locales.js';
 import {escape} from '../core/dom.js';
 export const periods={monthly:'Mensual',weekly:'Semanal',daily:'Diaria'};
 const labels={type:'Tipo de entidad',entity:'Entidad',segment:'Segmento',country:'Geografía',topic:'Tema',signal:'Novedad',source:'Fuente'};
 const selected=(value,current)=>value===current?' selected':'';
 function filterFields(catalogs,filters){return Object.entries(catalogs).map(([key,values])=>`<label>${labels[key]}<select name="${key}"><option value="">Todos</option>${values.map(value=>`<option${selected(value,filters[key])}>${escape(value)}</option>`).join('')}</select></label>`).join('');}
 export function subscriptionForm(options,admin,row){
-  const defaults=options.defaults,filters=row?.filtros||defaults.filters,primary=key=>['entity','segment','country'].includes(key);
+  const newsletterLanguage=row?.idioma||(admin?'es':language),defaults=options.defaults,filters=row?.filtros||defaults.filters,primary=key=>['entity','segment','country'].includes(key);
   return `<form data-subscription-form data-admin="${admin}" data-id="${escape(row?.id||'')}">
     <div><p class="eyebrow">${row?'EDITAR SUSCRIPCIÓN':'NUEVA SUSCRIPCIÓN'}</p><h2>${row?'Preferencias de recepción':'Contenido y periodicidad'}</h2><p class="small muted">${admin?'Gestiona una suscripción del dominio BBVA.':escape(options.email)}</p></div>
     ${admin?`<label>Correo corporativo<input name="email" type="email" required value="${escape(row?.correo||'')}" placeholder="nombre@bbva.com"></label>`:''}
-    <div class="subscription-basics"><label>Nombre<input name="name" required maxlength="100" value="${escape(row?.nombre||t(defaults.name))}"></label><label>Idioma de la newsletter<select name="language">${Object.entries(languageNames).map(([value,label])=>`<option value="${value}"${selected(value,row?.idioma||(admin?'es':language))}>${label}</option>`).join('')}</select></label><label>Periodicidad<select name="periodicity">${Object.entries(periods).map(([value,label])=>`<option value="${value}"${selected(value,row?.periodicidad||defaults.periodicity)}>${label}</option>`).join('')}</select></label></div>
+    <div class="subscription-basics"><label>Nombre<input name="name" required maxlength="100" value="${escape(row?.nombre||translateText(defaults.name,newsletterLanguage))}"></label><label>Idioma de la newsletter<select name="language">${Object.entries(languageNames).map(([value,label])=>`<option value="${value}"${selected(value,newsletterLanguage)}>${label}</option>`).join('')}</select></label><label>Periodicidad<select name="periodicity">${Object.entries(periods).map(([value,label])=>`<option value="${value}"${selected(value,row?.periodicidad||defaults.periodicity)}>${label}</option>`).join('')}</select></label></div>
     <div class="subscription-fields">${filterFields(Object.fromEntries(Object.entries(options.catalogs).filter(([key])=>primary(key))),filters)}</div>
     <details class="subscription-more"><summary>Más preferencias <span>Tipo de entidad, tema, novedad, fuente y palabras clave</span></summary><div class="subscription-fields">${filterFields(Object.fromEntries(Object.entries(options.catalogs).filter(([key])=>!primary(key))),filters)}</div><label>Palabras clave<input name="search" maxlength="160" value="${escape(filters.search||'')}" placeholder="Opcional"></label></details>
     <label class="subscription-active"><input name="active" type="checkbox"${row?.activa===false?'':' checked'}> Suscripción activa</label>

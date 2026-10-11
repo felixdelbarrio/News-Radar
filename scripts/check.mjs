@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import {execFileSync} from 'node:child_process';
-import {readClientScript,readServerScript,files} from './source.mjs';
+import {readClientScript,readServerScript,files,serverModule} from './source.mjs';
 import {designTokens} from './design.mjs';
 import {checkAppsScriptSyntax} from './apps-script-syntax.mjs';
 
@@ -11,7 +11,7 @@ for(const file of [...files('scripts'),...files('tests'),...files('src/client')]
   execFileSync(process.execPath,['--check',path.join(root,file)],{stdio:'inherit'});
 }
 for(const file of files('src/server'))checkAppsScriptSyntax(fs.readFileSync(path.join(root,file),'utf8'),file);
-for(const file of files('src/shared'))checkAppsScriptSyntax(fs.readFileSync(path.join(root,file),'utf8').replace(/^export /gm,''),file);
+for(const file of files('src/shared'))checkAppsScriptSyntax(serverModule(fs.readFileSync(path.join(root,file),'utf8')),file);
 new vm.Script(readServerScript('src/server'));
 new vm.Script(readClientScript());
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'src/appsscript.json')));

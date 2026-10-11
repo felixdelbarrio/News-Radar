@@ -925,7 +925,8 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
       "domain": "bbva.com",
       "entity": "BBVA",
       "country": "Sin determinar",
-      "enabled": true
+      "enabled": true,
+      "language": "es"
     },
     {
       "id": "bbva-corporativo",
@@ -934,6 +935,17 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
       "domain": "bbva.com",
       "entity": "BBVA",
       "country": "Sin determinar",
+      "enabled": true,
+      "language": "es"
+    },
+    {
+      "id": "bbva-english",
+      "name": "BBVA · English",
+      "url": "https://www.bbva.com/en/feed/",
+      "domain": "bbva.com",
+      "entity": "BBVA",
+      "country": "Sin determinar",
+      "language": "en",
       "enabled": true
     }
   ]

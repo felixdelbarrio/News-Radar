@@ -1,4 +1,5 @@
-import {t} from '../core/language.js';
+import {t,language} from '../core/language.js';
+import {formatCalendarDay} from '../../shared/locales.js';
 import { $, escape } from "../core/dom.js";
 function createFilters({ onInvalidate, onChange }) {
   const form = $("filters");
@@ -28,9 +29,9 @@ function createFilters({ onInvalidate, onChange }) {
     const values=Object.entries(chipLabels).filter(([name])=>allowed(name)&&form.elements[name].value);
     target.hidden=!values.length;
     target.innerHTML=values.map(([name,label])=>{
-      const raw=form.elements[name].value,value=['from','to'].includes(name)?raw.split('-').reverse().join('/'):raw;
-      const text=label+': '+value;
-      return '<button type="button" class="filter-chip" data-remove-filter="'+name+'" aria-label="Quitar '+escape(text)+'"><span>'+escape(text)+'</span><span aria-hidden="true">×</span></button>';
+      const raw=form.elements[name].value,value=['from','to'].includes(name)?formatCalendarDay(raw,language):raw;
+      const original=['search','entity','source'].includes(name),text=t(label)+': '+(original?value:t(value));
+      return '<button type="button" class="filter-chip" data-original data-remove-filter="'+name+'" aria-label="'+escape(t('Quitar'))+' '+escape(text)+'"><span>'+escape(text)+'</span><span aria-hidden="true">×</span></button>';
     }).join('');
   }
   $('active-filters').addEventListener('click',event=>{

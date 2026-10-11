@@ -51,6 +51,7 @@ function validateConfiguration_(config){
       if(key==='signals'&&(!Array.isArray(row.context)||!Array.isArray(row.exclude)||!['headline','fullText'].includes(row.scope)))throw Error('Define el contexto de '+row.name+' (puede estar vacío).');
       if(key==='entities'&&(!row.type||!Array.isArray(row.aliases)||!Array.isArray(row.countries)))throw Error('Entidad incompleta: '+row.name);
       if(key==='geographies'&&(!row.searchName||!/^[A-Z]{2}$/.test(row.code)||!/^\d{3}$/.test(row.mapId)||!/^[a-z]{2}(?:-[A-Za-z0-9]{2,8})?$/.test(row.language)))throw Error('País: código ISO, identificador cartográfico o idioma incorrectos.');
+      if(key==='feeds'&&row.language&&feedLanguage(row.language)!==row.language)throw Error('Idioma de fuente no válido.');
       if(key==='feeds'&&(!row.id||!canonicalUrl_(row.url)||!domainMatches_(row.url,row.domain)||!/^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(row.domain)||!row.entity))throw Error('Fuente RSS no válida: '+row.name);
     }
     if(JSON.stringify(list).length>40000)throw Error('El catálogo excede el tamaño de una celda: '+key);

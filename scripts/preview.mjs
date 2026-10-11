@@ -12,14 +12,13 @@ const feeds=seed.feeds,now=new Date('2026-10-09T10:00:00+02:00');
 const raw=JSON.parse(fs.readFileSync(path.join(root,'assets/feed-snapshot.json'),'utf8'));
 const rows=raw.flatMap((item,i)=>{
   const feed=feeds[i<10?0:1],result=context.evaluate_(item,feed,now);if(!result.item)return [];
-  const n=result.item;return [{id:String(i),fecha:n.date.toISOString().slice(0,10),pais:feed.country,medio:feed.name,entidad:feed.entity,titular:n.title,extracto:n.excerpt,tema:n.topic,url:n.url,fuente:feed.name}];
+  const n=result.item;return [{id:String(i),fecha:n.date.toISOString().slice(0,10),pais:feed.country,medio:feed.name,entidad:feed.entity,titular:n.title,extracto:n.excerpt,tema:n.topic,url:n.url,fuente:feed.name,idioma:n.language||feed.language||''}];
 });
-const names=['settings_','searchText_','businessIndex_','termsMatch_','classify_','annotateNews_','entityKey_','selectNews_','selectAnnotatedNews_','newsScope_','radarMetrics_','briefing_','newsDashboard_','safeCell_','newsCsv_','canonicalUrl_','domainMatches_','plainText_','validateConfiguration_','profileFeed_','defaultFeeds_','customFeeds_','configuredFeeds_','feeds_','saveFeeds','saveSourceSettings','newsletter_','newsletterContent_','newsletterLinks_','subscriptionRecord_','subscriptionQuery_','subscriptionDefaults_','calendarDate_','recentNewsRange_','newsletterDeliveryId_','currentMonth_','dashboardQuery_','collectionRange_','newsletterPeriod_','newsletterEmail_','newsletterNextDate_','eventDuration_','metrics_','recordText','recordQuery','filterRecords','recordOptions','recordPage','recordDay','supportedLanguage','detectLanguage','translateText','formatCalendarDay','formatText'];
+const names=['settings_','searchText_','businessIndex_','termsMatch_','classify_','annotateNews_','entityKey_','selectNews_','selectAnnotatedNews_','newsScope_','radarMetrics_','briefing_','newsDashboard_','safeCell_','newsCsv_','canonicalUrl_','domainMatches_','plainText_','validateConfiguration_','profileFeed_','defaultFeeds_','customFeeds_','configuredFeeds_','feeds_','saveFeeds','saveSourceSettings','subscriptionRecord_','subscriptionQuery_','subscriptionDefaults_','calendarDate_','recentNewsRange_','newsletterDeliveryId_','currentMonth_','dashboardQuery_','collectionRange_','newsletterPeriod_','newsletterEmail_','newsletterNextDate_','eventDuration_','metrics_','recordText','recordQuery','filterRecords','recordOptions','recordPage','recordDay','supportedLanguage','feedLanguage'];
 const shared=names.map(name=>context[name].toString()).join('\n'),serialize=value=>JSON.stringify(value).replace(/</g,'\\u003c');
 const preview=`<script>(()=>{
-const languageNames=${serialize(vm.runInContext('languageNames',context))},translations=${serialize(vm.runInContext('translations',context))};let translationPattern,translationIndex,calendarFormatters=new Map();
-const NEWSLETTER_INLINE=${serialize(vm.runInContext('NEWSLETTER_INLINE',context))};
-const RADAR=${serialize(vm.runInContext('RADAR',context))},NEWSLETTER_STYLE=${serialize(vm.runInContext('NEWSLETTER_STYLE',context))};
+const languageNames=${serialize(vm.runInContext('languageNames',context))};
+const RADAR=${serialize(vm.runInContext('RADAR',context))};
 let configuration=${serialize(seed)},businessIndexMemory_,configuredFeedMemory_,revision='0',recordDateFormatter;const selections=[],usage=[];
 const configuration_=()=>configuration,rows=${serialize(rows)},admin=${process.env.PREVIEW_ADMIN==='1'};
 const authorize_=()=>{if(!admin)throw Error('Acción de administrador.');};

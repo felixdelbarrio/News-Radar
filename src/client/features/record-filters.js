@@ -1,11 +1,12 @@
-import {t} from '../core/language.js';
+import {t,language} from '../core/language.js';
+import {displayRecord} from '../../shared/locales.js';
 import {$,escape,message} from '../core/dom.js';
 import {recordQuery} from '../../shared/record-filters.js';
 export function createRecordFilters(id,fields,onChange,{dates=false,placeholder='Buscar'}={}){
   let page=0,timer;
   const keys=['search',...fields.map(([key])=>key),...(dates?['from','to']:[])];
   $(id+'-filters').innerHTML='<div class="record-filters"><label>Buscar<input type="search" id="'+id+'-search" placeholder="'+escape(placeholder)+'"></label>'+fields.map(([key,label,values])=>'<label>'+escape(label)+'<select id="'+id+'-'+key+'"><option value="">Todos</option>'+options(values||[])+'</select></label>').join('')+(dates?['from','to'].map((key,i)=>'<label>'+['Desde','Hasta'][i]+'<input type="date" id="'+id+'-'+key+'"></label>').join(''):'')+'<button class="button" type="button" id="'+id+'-clear">Limpiar filtros</button></div>';
-  function options(values){return values.map(value=>{const [key,label]=Array.isArray(value)?value:[value,value];return '<option value="'+escape(key)+'">'+escape(label)+'</option>';}).join('');}
+  function options(values){return values.map(value=>{const [key,label]=Array.isArray(value)?value:[value,value];return '<option value="'+escape(key)+'">'+escape(displayRecord(label,language))+'</option>';}).join('');}
   function change(){clearTimeout(timer);page=0;try{query();Promise.resolve(onChange()).catch(error=>message(error.message,true));}catch(error){message(error.message,true);}}
   function query(){return recordQuery(Object.fromEntries([...keys.map(key=>[key,$(id+'-'+key).value]),['page',page]]),fields.map(([key])=>key));}
   for(const key of keys)$(id+'-'+key).addEventListener(key==='search'?'input':'change',()=>{if(key==='search'){clearTimeout(timer);timer=setTimeout(change,250);}else change();});

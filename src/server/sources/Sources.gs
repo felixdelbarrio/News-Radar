@@ -24,7 +24,7 @@ function saveSourceSettings(enabledIds){
 function saveFeeds(feeds){
   authorize_(true);const config=JSON.parse(JSON.stringify(configuration_()));
   if(!Array.isArray(feeds)||feeds.length>settings_().maxCustomFeeds)throw Error('Máximo '+settings_().maxCustomFeeds+' fuentes RSS.');
-  config.feeds=feeds.map(feed=>({id:'rss/'+canonicalUrl_(feed.url),name:plainText_(feed.name).slice(0,100),url:canonicalUrl_(feed.url),domain:String(feed.domain||'').toLowerCase().trim(),entity:plainText_(feed.entity).slice(0,80),country:plainText_(feed.country||settings_().unknownCountry).slice(0,60),enabled:feed.enabled!==false}));
+  config.feeds=feeds.map(feed=>({id:'rss/'+canonicalUrl_(feed.url),name:plainText_(feed.name).slice(0,100),url:canonicalUrl_(feed.url),domain:String(feed.domain||'').toLowerCase().trim(),entity:plainText_(feed.entity).slice(0,80),country:plainText_(feed.country||settings_().unknownCountry).slice(0,60),language:String(feed.language||'').trim(),enabled:feed.enabled!==false}));
   return writeConfiguration_(config,configurationRevision_());
 }
 function enableDaily() {

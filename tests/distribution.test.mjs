@@ -20,3 +20,9 @@ test('la distribución coincide con el código fuente y comprobarla detecta camb
     assert.equal(read('dist/Config.gs'),read('src/server/config/Config.gs'));
   }finally{fs.rmSync(temporary,{recursive:true,force:true});}
 });
+
+test('los módulos compartidos se convierten sin alterar literales que contienen export',async()=>{
+ const {serverModule}=await import('../scripts/source.mjs');
+ const code=serverModule("export const label='Please export the selection'; export function run(){return label;} export {run as alias};");
+ assert.equal(code,"const label='Please export the selection'; function run(){return label;} ");
+});

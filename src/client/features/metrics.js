@@ -2,7 +2,8 @@ import { $, escape, date, message, metricCards } from "../core/dom.js";
 import { call } from "../core/api.js";
 import {createRecordFilters} from './record-filters.js';
 import {activityChart} from './activity-chart.js';
-import {t} from '../core/language.js';
+import {t,language} from '../core/language.js';
+import {displayRecord} from '../../shared/locales.js';
 const filters={},requests={};
 async function loadMetrics(view, isCurrent) {
   filters[view]||=createRecordFilters(view,view==='adoption'?[['correo','Usuario'],['vista','Vista'],['evento','Evento']]:[['operacion','Operación'],['estado','Estado']],()=>loadMetrics(view,isCurrent),{dates:true});
@@ -20,7 +21,7 @@ async function loadMetrics(view, isCurrent) {
     } else {
       $("telemetry-note").textContent=data.total+" coincidencias en las últimas "+data.limit+" operaciones disponibles."+(data.limited?" Histórico limitado.":"");
       $("telemetry-metrics").innerHTML = metricCards([["Latencia p95", data.latencyP95 == null ? "—" : data.latencyP95 + " ms", "Cargas · 30 días, todos los usuarios"], ["Errores cliente", data.clientErrors, "Eventos · 30 días, todos los usuarios"], ["Fuentes consultadas", data.collection.processed, "Recopilación actual"], ["Pendientes", data.collection.pending, "Fuentes por consultar"]]);
-      $("telemetry-body").innerHTML = data.rows.map((r) => `<tr><td>${escape(date(r.fecha))}</td><td>${escape(r.operacion)}</td><td>${escape(r.duracion_ms)} ms</td><td>${escape(r.estado)}</td><td>${escape(r.detalle)}</td></tr>`).join("") || '<tr><td colspan="5">Sin telemetría de operación.</td></tr>';
+      $("telemetry-body").innerHTML = data.rows.map((r) => `<tr><td>${escape(date(r.fecha))}</td><td>${escape(displayRecord(r.operacion,language))}</td><td>${escape(r.duracion_ms)} ms</td><td>${escape(r.estado)}</td><td>${escape(r.detalle)}</td></tr>`).join("") || '<tr><td colspan="5">Sin telemetría de operación.</td></tr>';
     }
   } catch (e) {
     if(requests[view]===request&&isCurrent())message(e.message, true);

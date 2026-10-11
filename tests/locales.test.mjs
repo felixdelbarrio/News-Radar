@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {JSDOM} from 'jsdom';
-import {detectLanguage,supportedLanguage,translations,translateText,formatText,formatCalendarDay} from '../src/shared/locales.js';
+import {detectLanguage,supportedLanguage,translations,translateText,formatText,formatCalendarDay,feedLanguage} from '../src/shared/locales.js';
 import {files,read,readServerScript} from '../scripts/source.mjs';
 import {app,tick} from './helpers/app.mjs';
 
@@ -14,7 +14,8 @@ test('la detección usa preferencias ordenadas, variantes regionales y español 
  assert.equal(translateText('Medio: No indicado','en'),'Publisher: Not specified');assert.equal(translateText('ADMINISTRACIÓN','tr'),'YÖNETİM');
  assert.equal(translateText('RSS / URL / News Radar','en'),'RSS / URL / News Radar');assert.equal(translateText('noticias@bbva.com https://example.com/Noticias/España','en'),'noticias@bbva.com https://example.com/Noticias/España');
  assert.equal(formatText('Página {page} de {pages}',{page:1,pages:2},'tr'),'Sayfa 1 / 2');assert.equal(formatText('{empty}',{},'en'),'');
- for(const language of ['es','en','tr'])assert.equal(formatCalendarDay('2026-10-11',language),new Intl.DateTimeFormat(language,{dateStyle:'short',timeZone:'UTC'}).format(new Date('2026-10-11T00:00:00Z')));
+ for(const language of ['es','en','tr'])assert.equal(formatCalendarDay('2026-10-11',language),new Intl.DateTimeFormat(language,{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'}).format(new Date('2026-10-11T00:00:00Z')));
+ for(const tag of ['es','en-US','es-419','tr'])assert.equal(feedLanguage(tag),tag);for(const tag of ['',null,'invalid_language','x'.repeat(1000000)])assert.equal(feedLanguage(tag),'');assert.equal(feedLanguage(' en-US '),'en-US');
  assert.equal(formatCalendarDay('', 'es'),'');assert.equal(formatCalendarDay('invalid','tr'),'invalid');
 });
 
@@ -46,7 +47,9 @@ for(const language of ['es','en','tr'])test('interfaz '+language+': formularios,
  const name=a.find('#personal-editor [name="name"]');name.value='Noticias de España';await a.submit('#personal-editor form');const saved=a.calls.find(row=>row.method==='saveSubscription').query;assert.equal(saved.language,language);assert.equal(saved.name,'Noticias de España');
  await a.click('[data-view="administration"]');assert.equal(a.find('#preview-language').value,'');await a.click('[data-admin-view="subscribers"]');await a.click('#new-admin-subscription');assert.equal(a.find('#admin-subscription-editor [name="language"]').value,'es');
  await a.change('#admin-subscription-editor [name="language"]','tr');await a.submit('#admin-subscription-editor form');assert.equal(a.calls.find(row=>row.method==='saveAdminSubscription').query.language,'tr');
+ a.replies.getAdoption.options={vista:['administration'],evento:['rendimiento']};
  for(const view of ['configuration','sources','audit','telemetry','adoption']){await a.click('[data-admin-view="'+view+'"]');assert.ok(a.find('#'+view+'-section').textContent.length);}
+ assert.equal(a.find('#adoption-vista option[value="administration"]').textContent,translateText('Administración',language));await a.change('#adoption-vista','administration');assert.equal(a.calls.filter(row=>row.method==='getAdoption').at(-1).query.vista,'administration');
  const required=a.find('#source-fields input');required.value='';required.dispatchEvent(new a.w.Event('invalid',{bubbles:false}));assert.equal(required.validationMessage,translateText('Campo obligatorio.',language));required.value='test';required.dispatchEvent(new a.w.Event('input',{bubbles:true}));assert.equal(required.validity.customError,false);
 });
 
@@ -70,4 +73,15 @@ test('clasificación inglesa y turca reconoce productos, segmentos y exclusiones
  const c=vm.createContext({});vm.runInContext(readServerScript('dist',true),c);c.configuration_=()=>JSON.parse(read('assets/configuration-defaults.json'));
  const rows=c.annotateNews_([{entidad:'BBVA',titular:'BBVA introduces a new business account',extracto:''},{entidad:'BBVA',titular:'Garanti BBVA KOBİ için yeni hesap sunar',extracto:''},{entidad:'BBVA',titular:'Yeni hesap nedir: rehber',extracto:''}]);
  assert.ok(rows[0].senales.includes('Lanzamiento de producto'));assert.ok(rows[1].senales.includes('Lanzamiento de producto'));assert.ok(rows[1].segmentos.includes('Empresas e instituciones'));assert.equal(rows[2].senales.length,0);assert.equal(c.searchText_('İŞ BANKACILIĞI'),c.searchText_('iş bankacılığı'));
+});
+
+test('la recopilación conserva inglés y turco y el idioma explícito o declarado por el RSS',()=>{
+ const c=vm.createContext({Utilities:{getUuid:()=> 'id',formatDate:value=>value.toISOString().slice(0,10)}});vm.runInContext(readServerScript('dist',true),c);const config=JSON.parse(read('assets/configuration-defaults.json'));c.configuration_=()=>config;
+ const values={title:'BBVA introduces a new business account',link:'https://www.bbva.com/en/account/',pubDate:'2026-10-10T10:00:00Z',description:'An account for small businesses',source:''};
+ c.XmlService={parse:()=>({getRootElement:()=>({getChild:()=>({getChildText:()=> 'en-US',getChildren:()=>[{getChildText:key=>values[key]}]})})})};
+ const raw=c.parseFeed_('<rss/>')[0],feed=config.feeds.find(row=>row.language==='en'),now=new Date('2026-10-11T12:00:00Z'),item=c.evaluate_(raw,feed,now).item,record=c.newsRecord_(item,feed,now);
+ assert.equal(record[5],values.title);assert.equal(record[6],values.description);assert.equal(record[11],'en-US');
+ const trFeed=c.profileFeed_(config.geographies.find(row=>row.language==='tr'),config.entities[0]);assert.equal(trFeed.language,'tr');assert.match(trFeed.url,/hl=tr/);
+ const tr=c.evaluate_({title:'Garanti BBVA yeni hesap sunar',excerpt:'KOBİ için ticari hesap',url:'https://news.google.com/article',date:values.pubDate},trFeed,now).item;assert.ok(tr);assert.equal(c.newsRecord_(tr,trFeed,now)[11],'tr');
+ const original=JSON.stringify(config);config.feeds[0].language='invalid_language';assert.throws(()=>c.validateConfiguration_(config),/Idioma de fuente/);assert.notEqual(JSON.stringify(config),original);
 });

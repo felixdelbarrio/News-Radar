@@ -150,3 +150,16 @@ test('newsletter incluye el límite de siete días y excluye noticias anteriores
  const result=f.c.deliverNewsletters_();assert.equal(result.accepted,1);assert.equal(f.sent[0].content.count,1);assert.equal(f.sent[0].content.items[0].fecha,range.from);
  assert.equal(f.sheets.get('NewsletterEnvios').grid[1][3],range.from);assert.equal(f.sheets.get('NewsletterEnvios').grid[1][4],range.to);
 });
+
+test('el idioma del destinatario cambia los literales del correo sin reiniciar el control de duplicados',()=>{
+ const f=deliveryFixture();f.add('language');f.subscriptions[0].idioma='en';f.subscriptions.push({...f.subscriptions[0],id:'tr',idioma:'tr'});
+ let result=f.c.deliverNewsletters_();assert.equal(result.accepted,1);assert.equal(result.empty,1);assert.match(f.sent[0].content.html,/lang="en"/);
+ f.subscriptions[0]={...f.subscriptions[0],id:'changed',idioma:'tr'};result=f.c.deliverNewsletters_();assert.equal(result.accepted,0);assert.equal(f.sent.length,1);
+ f.add('new-language','BBVA lanza tarjeta para empresas');f.subscriptions[0].id='new-tr';result=f.c.deliverNewsletters_();assert.equal(result.accepted,1);assert.match(f.sent[1].content.html,/lang="tr"/);assert.equal(f.sent[1].content.count,1);
+});
+
+test('la actualización explícita de idiomas conserva catálogos propios y fuentes desactivadas y es idempotente',()=>{
+ const s=storage(),{c}=s;c.initializeConfiguration();let snapshot=c.getConfiguration();snapshot.config.feeds=snapshot.config.feeds.filter(row=>row.id!=='bbva-english');snapshot.config.topics[0].terms=['personalizado'];snapshot.config.topics.push({name:'Propio',terms:['propio'],enabled:true});snapshot.config.settings.searchTerms=['seguimiento propio'];snapshot.config.feeds[0].enabled=false;c.saveConfiguration(snapshot);
+ c.initializeLanguages();const updated=c.getConfiguration();assert.ok(updated.config.topics[0].terms.includes('personalizado'));assert.ok(updated.config.topics[0].terms.includes('outage'));assert.ok(updated.config.topics.some(row=>row.name==='Propio'));assert.equal(updated.config.feeds[0].enabled,false);assert.equal(updated.config.feeds.filter(row=>row.id==='bbva-english').length,1);assert.ok(updated.config.settings.searchTerms.includes('seguimiento propio'));
+ c.initializeLanguages();assert.equal(c.getConfiguration().revision,updated.revision);s.setEmail('reader@bbva.com');assert.throws(()=>c.initializeLanguages(),/administrador/);
+});

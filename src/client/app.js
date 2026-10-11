@@ -13,7 +13,7 @@ import { renderShell } from "./features/shell.js";
 import { createSources } from "./features/sources.js";
 import { createUsage } from "./features/usage.js";
 import { createNavigation } from "./features/navigation.js";
-import {initializeLocalization} from './core/localization.js';
+import {initializeLocalization,flushLocalization} from './core/localization.js';
 initializeLocalization();
 const state = { data: null, request: 0, busy: false };
 const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => Boolean(state.data) }), { track, flush } = usage;
@@ -52,6 +52,7 @@ async function load() {
       if(data.preferences){$("retention-days").textContent=data.preferences.retentionDays;$("event-limit").textContent=data.preferences.eventLimit;}
       renderShell(data);
       if (data.admin) sources.render(data);
+      flushLocalization();
       track("rendimiento", performance.now() - started,{...data.performance,rpcMs:Math.round(renderStarted-started),renderMs:Math.round(performance.now()-renderStarted)});
       if (first) {
         track("acceso");
