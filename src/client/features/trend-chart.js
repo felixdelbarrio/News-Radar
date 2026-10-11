@@ -1,5 +1,6 @@
+import {language} from '../core/language.js';
 import { escape } from "../core/dom.js";
-const dateFormat = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", timeZone: "UTC" });
+const dateFormat = new Intl.DateTimeFormat(language, { day: "numeric", month: "short", timeZone: "UTC" });
 function trendChart({ buckets, series }, availableWidth = 900) {
   if (!buckets.length) return '<div class="chart-empty"><span class="empty-orbit" aria-hidden="true">◎</span><p>La evolución aparecerá cuando haya publicaciones en esta selección.</p></div>';
   const width = Math.max(320, Math.min(900, availableWidth || 900)), height = 260, left = 38, right = 20, top = 24, bottom = 42, max = Math.max(1, ...series.flatMap((row) => row.values)), ceiling = Math.max(4, Math.ceil(max / 4) * 4);

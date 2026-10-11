@@ -13,6 +13,8 @@ import { renderShell } from "./features/shell.js";
 import { createSources } from "./features/sources.js";
 import { createUsage } from "./features/usage.js";
 import { createNavigation } from "./features/navigation.js";
+import {initializeLocalization,flushLocalization} from './core/localization.js';
+initializeLocalization();
 const state = { data: null, request: 0, busy: false };
 const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => Boolean(state.data) }), { track, flush } = usage;
 const configuration = createConfiguration({run:action});
@@ -50,6 +52,7 @@ async function load() {
       if(data.preferences){$("retention-days").textContent=data.preferences.retentionDays;$("event-limit").textContent=data.preferences.eventLimit;}
       renderShell(data);
       if (data.admin) sources.render(data);
+      flushLocalization();
       track("rendimiento", performance.now() - started,{...data.performance,rpcMs:Math.round(renderStarted-started),renderMs:Math.round(performance.now()-renderStarted)});
       if (first) {
         track("acceso");
@@ -66,11 +69,12 @@ async function load() {
     if (request === state.request) $("loading").hidden = true;
   }
 }
+const actionControls=".actions button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
 async function action(fn, refresh = true) {
   if (state.busy) return;
   state.busy = true;
   sources.setBusy(true);
-  document.querySelectorAll(".actions button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button").forEach((el) => el.disabled = true);
+  document.querySelectorAll(actionControls).forEach((el) => el.disabled = true);
   try {
     await fn();
     if (refresh) await load();
@@ -78,8 +82,7 @@ async function action(fn, refresh = true) {
     message(e.message || String(e), true);
   } finally {
     state.busy = false;
-    document.querySelectorAll(".actions button,#retry-collection,.recovery-range input,#save-source-settings").forEach((el) => el.disabled = false);
-    document.querySelectorAll("#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button").forEach(el=>el.disabled=false);
+    document.querySelectorAll(actionControls).forEach(el=>el.disabled=false);
     sources.setBusy(false);
     if (state.data) {
       $("previous").disabled = state.data.page === 0;

@@ -10,4 +10,5 @@ for(const file of files('dist').filter(file=>file.endsWith('.gs'))){
   fs.copyFileSync(path.join(root,file),path.join(target,path.basename(file,'.gs')+'.js'));
 }
 fs.cpSync(path.join(root,'src/client'),path.join(target,'client'),{recursive:true});
+fs.cpSync(path.join(root,'src/shared'),path.join(target,'shared'),{recursive:true});
 console.log('Backend y cliente preparados en codeql-source/.');

@@ -1,3 +1,5 @@
+import {t,language} from '../core/language.js';
+import {formatCalendarDay} from '../../shared/locales.js';
 import { $, escape } from "../core/dom.js";
 function createFilters({ onInvalidate, onChange }) {
   const form = $("filters");
@@ -9,7 +11,7 @@ function createFilters({ onInvalidate, onChange }) {
     const signature = JSON.stringify(values);
     if (el.dataset.options === signature) return;
     el.dataset.options = signature;
-    el.innerHTML = '<option value="">Todos</option>' + values.map((x) => "<option>" + escape(x) + "</option>").join("");
+    el.innerHTML = '<option value="">Todos</option>' + values.map((x) => '<option value="'+escape(x)+'">' + escape(x) + "</option>").join("");
     el.value = current || "";
   }
   function layout(){
@@ -17,7 +19,7 @@ function createFilters({ onInvalidate, onChange }) {
       $('geography-filter').hidden=view==='radar';
       $('advanced-filters').hidden=view==='radar';
       for(const id of ['from-filter','to-filter'])$(id).hidden=view==='briefing';
-      $('filter-description').textContent=view==='radar'?'Entidad y segmento del Radar.':view==='briefing'?'Novedades del mes en curso.':'Selección de noticias y período de consulta.';
+      $('filter-description').textContent=view==='radar'?'Entidad y segmento del Radar.':view==='briefing'?'Novedades de los últimos 7 días.':'Selección de noticias y período de consulta.';
   }
   layout();
   const chipLabels={search:'Búsqueda',country:'Geografía',entity:'Entidad',source:'Medio',topic:'Tema',type:'Tipo de entidad',segment:'Segmento',signal:'Novedad',from:'Fecha desde',to:'Fecha hasta'};
@@ -27,9 +29,9 @@ function createFilters({ onInvalidate, onChange }) {
     const values=Object.entries(chipLabels).filter(([name])=>allowed(name)&&form.elements[name].value);
     target.hidden=!values.length;
     target.innerHTML=values.map(([name,label])=>{
-      const raw=form.elements[name].value,value=['from','to'].includes(name)?raw.split('-').reverse().join('/'):raw;
-      const text=label+': '+value;
-      return '<button type="button" class="filter-chip" data-remove-filter="'+name+'" aria-label="Quitar '+escape(text)+'"><span>'+escape(text)+'</span><span aria-hidden="true">×</span></button>';
+      const raw=form.elements[name].value,value=['from','to'].includes(name)?formatCalendarDay(raw,language):raw;
+      const original=['search','entity','source'].includes(name),text=t(label)+': '+(original?value:t(value));
+      return '<button type="button" class="filter-chip" data-original data-remove-filter="'+name+'" aria-label="'+escape(t('Quitar'))+' '+escape(text)+'"><span>'+escape(text)+'</span><span aria-hidden="true">×</span></button>';
     }).join('');
   }
   $('active-filters').addEventListener('click',event=>{
@@ -44,7 +46,7 @@ function createFilters({ onInvalidate, onChange }) {
     initialized.add(view);
     onInvalidate();
     const from = form.elements.from.value, to = form.elements.to.value;
-    form.elements.to.setCustomValidity(from && to && from > to ? "La fecha hasta debe ser posterior o igual a la fecha desde." : "");
+    form.elements.to.setCustomValidity(from && to && from > to ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : "");
     $("message").hidden = true;
     renderChips();
     if (event.type === "input") timer = setTimeout(onChange, 250);

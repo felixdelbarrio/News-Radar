@@ -5,7 +5,7 @@ function profileFeed_(geo,entity,range) {
   const period=range?'after:'+after.toISOString().slice(0,10)+' before:'+before.toISOString().slice(0,10):'when:'+settings_().windowDays+'d';
   const query='('+[entity.name,...entity.aliases].map(quote).join(' OR ')+') '+quote(geo.searchName)+' ('+settings_().searchTerms.map(quote).join(' OR ')+') '+period;
   const url=canonicalUrl_('https://news.google.com/rss/search?q='+encodeURIComponent(query)+'&hl='+geo.language+'&gl='+geo.code+'&ceid='+geo.code+':'+geo.language);
-  return {id:'profile/'+geo.code+'/'+entity.name,name:entity.name+' · '+geo.name,url,domain:'news.google.com',entity:entity.name,country:geo.name,kind:'profile',enabled:entity.enabled&&geo.enabled};
+  return {id:'profile/'+geo.code+'/'+entity.name,name:entity.name+' · '+geo.name,url,domain:'news.google.com',entity:entity.name,country:geo.name,kind:'profile',language:geo.language,enabled:entity.enabled&&geo.enabled};
 }
 function defaultFeeds_(range) {
   const config=configuration_(),disabled=new Set(config.settings.disabledSources);
@@ -24,7 +24,7 @@ function saveSourceSettings(enabledIds){
 function saveFeeds(feeds){
   authorize_(true);const config=JSON.parse(JSON.stringify(configuration_()));
   if(!Array.isArray(feeds)||feeds.length>settings_().maxCustomFeeds)throw Error('Máximo '+settings_().maxCustomFeeds+' fuentes RSS.');
-  config.feeds=feeds.map(feed=>({id:'rss/'+canonicalUrl_(feed.url),name:plainText_(feed.name).slice(0,100),url:canonicalUrl_(feed.url),domain:String(feed.domain||'').toLowerCase().trim(),entity:plainText_(feed.entity).slice(0,80),country:plainText_(feed.country||settings_().unknownCountry).slice(0,60),enabled:feed.enabled!==false}));
+  config.feeds=feeds.map(feed=>({id:'rss/'+canonicalUrl_(feed.url),name:plainText_(feed.name).slice(0,100),url:canonicalUrl_(feed.url),domain:String(feed.domain||'').toLowerCase().trim(),entity:plainText_(feed.entity).slice(0,80),country:plainText_(feed.country||settings_().unknownCountry).slice(0,60),language:String(feed.language||'').trim(),enabled:feed.enabled!==false}));
   return writeConfiguration_(config,configurationRevision_());
 }
 function enableDaily() {

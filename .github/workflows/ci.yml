@@ -34,3 +34,17 @@ jobs:
           path: dist/
           if-no-files-found: error
           retention-days: 14
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: news-radar-coverage
+          path: |
+            output/coverage/index.html
+            output/coverage/**/*.html
+            output/coverage/*.css
+            output/coverage/*.js
+            output/coverage/lcov.info
+            output/coverage/coverage-summary.json
+          if-no-files-found: error
+          retention-days: 14
