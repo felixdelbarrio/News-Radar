@@ -1,5 +1,5 @@
 const RADAR = Object.freeze({
-  version:'1.8.0',
+  version:'1.9.3',
   sheets:{
     Configuracion:['clave','valor'],
     Suscripciones:['id','correo','nombre','filtros','periodicidad','activa','actualizada','idioma'],
@@ -15,3 +15,5 @@ const RADAR = Object.freeze({
   }
 });
 const TRANSLATION_WORK=Object.freeze({hour:2,dailyCalls:3000,batchCalls:20,batchRows:100,readRows:20,maxMs:45000,retryMs:900000});
+
+const BACKGROUND_WORK=Object.freeze({maxBatches:3,maxMs:45000});

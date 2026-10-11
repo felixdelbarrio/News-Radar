@@ -137,3 +137,5 @@ if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocat
   button.addEventListener('click',()=>action(async()=>{message(await call('deleteSubscription',id));await subscriptions.open();},false));target.appendChild(button);
 });
 load();
+
+window.addEventListener('news-radar-language-change',async()=>{await load();if(navigation.current==='administration'&&administration.current==='language')await languageSettings.open();});

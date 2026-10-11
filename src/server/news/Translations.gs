@@ -5,11 +5,21 @@ function articleTranslationIndex_(){
   const sheet=book_().getSheetByName('Traducciones'),count=sheet.getLastRow()-1;
   return articleTranslationRows_=new Map(count?sheet.getRange(2,1,count,1).getDisplayValues().map(([key],index)=>[key,index+2]):[]);
 }
-function cachedArticleTranslation_(key){
-  articleTranslationMemory_=articleTranslationMemory_||new Map();if(articleTranslationMemory_.has(key))return articleTranslationMemory_.get(key);
-  const cache=CacheService.getScriptCache(),cached=cache.get('article:'+key);let value=cached?JSON.parse(cached):null;
-  if(!value){const row=articleTranslationIndex_().get(key);if(row){const [title,excerpt]=book_().getSheetByName('Traducciones').getRange(row,3,1,2).getDisplayValues()[0];value={titular:title,extracto:excerpt};}}
-  if(value){cacheJson_('article:'+key,value,21600);articleTranslationMemory_.set(key,value);}return value;
+function cachedArticleTranslations_(keys){
+  articleTranslationMemory_=articleTranslationMemory_||new Map();
+  const missing=[...new Set(keys)].filter(key=>!articleTranslationMemory_.has(key));if(!missing.length)return articleTranslationMemory_;
+  const cache=CacheService.getScriptCache(),cached=cache.getAll(missing.map(key=>'article:'+key)),uncached=[];
+  for(const key of missing){const value=cached['article:'+key];if(value)articleTranslationMemory_.set(key,JSON.parse(value));else uncached.push(key);}
+  if(!uncached.length)return articleTranslationMemory_;
+  const index=articleTranslationIndex_(),positions=uncached.filter(key=>index.has(key)).map(key=>({key,row:index.get(key)})).sort((a,b)=>a.row-b.row),values={};
+  for(const key of uncached)articleTranslationMemory_.set(key,null);
+  let start=0;
+  for(let end=1;end<=positions.length;end++){
+    if(end<positions.length&&positions[end].row===positions[end-1].row+1)continue;
+    const rows=book_().getSheetByName('Traducciones').getRange(positions[start].row,3,end-start,2).getDisplayValues();
+    rows.forEach(([titular,extracto],offset)=>{const key=positions[start+offset].key,value={titular,extracto};articleTranslationMemory_.set(key,value);const encoded=cacheJsonValue_(value);if(encoded)values['article:'+key]=encoded;});start=end;
+  }
+  if(Object.keys(values).length)cache.putAll(values,21600);return articleTranslationMemory_;
 }
 function translateArticleText_(row,language){
   const escape=value=>String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -22,9 +32,10 @@ function translateArticleText_(row,language){
 function nativeArticle_(row,language,feeds){return feeds.has(row.fuente)&&String(row.idioma||'').toLowerCase().split(/[-_]/)[0]===language;}
 function savedArticleTranslations_(rows,language){
   const feeds=new Set(configuration_().feeds.map(feed=>feed.name));
-  return rows.map(row=>{
+  const keys=rows.map(row=>nativeArticle_(row,language,feeds)?null:articleTranslationKey_(row,language)),values=cachedArticleTranslations_(keys.filter(Boolean));
+  return rows.map((row,index)=>{
     if(nativeArticle_(row,language,feeds))return {...row,translation:{language,state:'native'}};
-    const value=cachedArticleTranslation_(articleTranslationKey_(row,language));
+    const value=values.get(keys[index]);
     return {...row,...(value?{...value,original:{titular:row.titular,extracto:row.extracto}}:{}),translation:{language,state:value?'translated':'pending'}};
   });
 }

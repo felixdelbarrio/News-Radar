@@ -2,6 +2,42 @@
 (() => {
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Respuesta de traducci\xF3n incompleta.": ["Incomplete translation response.", "\xC7eviri yan\u0131t\u0131 eksik."],
+    Versi\u00F3n: ["Version", "S\xFCr\xFCm"],
+    "Suscripci\xF3n guardada. La entrega est\xE1 pendiente de activaci\xF3n por el administrador.": ["Subscription saved. Delivery is awaiting activation by the administrator.", "Abonelik kaydedildi. Teslimat y\xF6neticinin etkinle\u015Ftirmesini bekliyor."],
+    "Suscripci\xF3n guardada. Recibir\xE1s las novedades de los \xFAltimos 7 d\xEDas.": ["Subscription saved. You will receive updates from the last 7 days.", "Abonelik kaydedildi. Son 7 g\xFCn\xFCn yeniliklerini alacaks\u0131n\u0131z."],
+    "Define el contexto de {name} (puede estar vac\xEDo).": ["Define the context for {name} (may be empty).", "{name} i\xE7in ba\u011Flam tan\u0131mlay\u0131n (bo\u015F olabilir)."],
+    "{field}: requiere un entero entre {min} y {max}.": ["{field}: requires an integer between {min} and {max}.", "{field}: {min} ile {max} aras\u0131nda bir tam say\u0131 gerektirir."],
+    "Registro de contenido no v\xE1lido. Revisa el env\xEDo {id} antes de continuar.": ["Invalid content record. Review delivery {id} before continuing.", "Ge\xE7ersiz i\xE7erik kayd\u0131. Devam etmeden \xF6nce {id} g\xF6nderimini inceleyin."],
+    "El remitente {email} debe estar verificado en Gmail \u2192 Cuentas \u2192 Enviar como.": ["Sender {email} must be verified in Gmail \u2192 Accounts \u2192 Send mail as.", "{email} g\xF6ndereni Gmail \u2192 Hesaplar \u2192 Postalar\u0131 \u015Fu adresten g\xF6nder b\xF6l\xFCm\xFCnde do\u011Frulanmal\u0131d\u0131r."],
+    "M\xE1ximo {count} suscripciones por usuario.": ["Maximum {count} subscriptions per user.", "Kullan\u0131c\u0131 ba\u015F\u0131na en fazla {count} abonelik."],
+    "Reduce el per\xEDodo para exportar hasta {count} publicaciones.": ["Shorten the period to export up to {count} articles.", "En fazla {count} haber d\u0131\u015Fa aktarmak i\xE7in d\xF6nemi k\u0131salt\u0131n."],
+    "Feed demasiado grande (m\xE1ximo {count} entradas).": ["Feed too large (maximum {count} entries).", "Ak\u0131\u015F \xE7ok b\xFCy\xFCk (en fazla {count} kay\u0131t)."],
+    "Fuera de la ventana de {days} d\xEDas": ["Outside the {days}-day window", "{days} g\xFCnl\xFCk zaman aral\u0131\u011F\u0131n\u0131n d\u0131\u015F\u0131nda"],
+    "{count} fuentes seleccionadas. Entidades y pa\xEDses desactivados permanecen desactivados.": ["{count} sources selected. Disabled entities and countries remain disabled.", "{count} kaynak se\xE7ildi. Devre d\u0131\u015F\u0131 kurumlar ve \xFClkeler devre d\u0131\u015F\u0131 kal\u0131r."],
+    "{count} fuentes preparadas para reintentar.": ["{count} sources ready to retry.", "{count} kaynak yeniden denemeye haz\u0131r."],
+    "Recopilaci\xF3n diaria activada a partir de las {hour}:00 ({timezone}).": ["Daily collection enabled from {hour}:00 ({timezone}).", "G\xFCnl\xFCk toplama {hour}:00 itibar\u0131yla etkin ({timezone})."],
+    "Ventana: \xFAltimos {days} d\xEDas. Recopilaci\xF3n diaria a partir de las {hour}:00 ({timezone}).": ["Window: last {days} days. Daily collection from {hour}:00 ({timezone}).", "Zaman aral\u0131\u011F\u0131: son {days} g\xFCn. G\xFCnl\xFCk toplama {hour}:00 itibar\u0131yla ({timezone})."],
+    "M\xE1ximo {count} fuentes RSS.": ["Maximum {count} RSS sources.", "En fazla {count} RSS kayna\u011F\u0131."],
+    "{count} fuentes configuradas \xB7 {active} activas": ["{count} configured sources \xB7 {active} active", "{count} yap\u0131land\u0131r\u0131lm\u0131\u015F kaynak \xB7 {active} etkin"],
+    "Gmail ha aceptado la prueba para {recipient} \xB7 {count} novedades.": ["Gmail accepted the test for {recipient} \xB7 {count} updates.", "Gmail {recipient} i\xE7in test g\xF6nderimini kabul etti \xB7 {count} yenilik."],
+    "{subscriptions} suscripciones \xB7 {active} activas": ["{subscriptions} subscriptions \xB7 {active} active", "{subscriptions} abonelik \xB7 {active} etkin"],
+    "{subscribers} suscriptores \xB7 {subscriptions} suscripciones": ["{subscribers} subscribers \xB7 {subscriptions} subscriptions", "{subscribers} abone \xB7 {subscriptions} abonelik"],
+    "{accepted} correos aceptados por Gmail \xB7 {empty} selecciones sin novedades \xB7 {duplicates} noticias repetidas omitidas \xB7 {pending} pendientes.": ["{accepted} emails accepted by Gmail \xB7 {empty} selections without updates \xB7 {duplicates} repeated articles omitted \xB7 {pending} pending.", "Gmail {accepted} e-postay\u0131 kabul etti \xB7 {empty} se\xE7imde yenilik yok \xB7 {duplicates} yinelenen haber atland\u0131 \xB7 {pending} g\xF6nderim bekliyor."],
+    "{count} env\xEDos anteriores no registraron las noticias incluidas. El control de contenido se aplica a los env\xEDos con inventario; los anteriores requieren contrastar los correos originales.": ["{count} previous deliveries did not record their included articles. Content checks apply to deliveries with an inventory; older deliveries require checking the original emails.", "\xD6nceki {count} g\xF6nderimde i\xE7erikteki haberler kaydedilmedi. \u0130\xE7erik kontrol\xFC envanteri olan g\xF6nderimlere uygulan\u0131r; eski g\xF6nderimler i\xE7in \xF6zg\xFCn e-postalar\u0131n kontrol\xFC gerekir."],
+    "{count} env\xEDos disponibles dentro del l\xEDmite configurado de 24 horas.": ["{count} deliveries available within the configured 24-hour limit.", "Yap\u0131land\u0131r\u0131lm\u0131\u015F 24 saatlik s\u0131n\u0131r dahilinde {count} g\xF6nderim hakk\u0131 kald\u0131."],
+    "Hist\xF3rico visible limitado a {limit} registros; el control de duplicados conserva el historial completo.": ["Visible history is limited to {limit} records; duplicate checks retain the full history.", "G\xF6r\xFCn\xFCr ge\xE7mi\u015F {limit} kay\u0131tla s\u0131n\u0131rl\u0131d\u0131r; yinelenen i\xE7erik kontrol\xFC t\xFCm ge\xE7mi\u015Fi korur."],
+    "{count} coincidencias.": ["{count} matches.", "{count} e\u015Fle\u015Fme."],
+    "{total} coincidencias en las \xFAltimas {limit} operaciones disponibles.": ["{total} matches in the latest {limit} available operations.", "Mevcut son {limit} i\u015Flemde {total} e\u015Fle\u015Fme."],
+    "{total} coincidencias en las \xFAltimas {limit} entradas disponibles.": ["{total} matches in the latest {limit} available entries.", "Mevcut son {limit} kay\u0131tta {total} e\u015Fle\u015Fme."],
+    "Volumen agrupado en intervalos de {days} d\xEDas.": ["Volume grouped into {days}-day intervals.", "Haber hacmi {days} g\xFCnl\xFCk aral\u0131klarla grupland\u0131r\u0131lm\u0131\u015Ft\u0131r."],
+    "{count} publicaciones sin geograf\xEDa conocida, excluidas del mapa.": ["{count} articles with unknown geography, excluded from the map.", "Co\u011Frafyas\u0131 bilinmeyen {count} haber haritaya dahil edilmedi."],
+    "{count} publicaciones en seguimiento": ["{count} articles being tracked", "{count} haber takip ediliyor"],
+    "Recopilaci\xF3n diaria desactivada.": ["Daily collection disabled.", "G\xFCnl\xFCk toplama devre d\u0131\u015F\u0131."],
+    "Ampl\xEDa los filtros para descubrir nuevas publicaciones y su distribuci\xF3n.": ["Broaden the filters to discover more articles and their distribution.", "Daha fazla haber ve da\u011F\u0131l\u0131mlar\u0131n\u0131 g\xF6rmek i\xE7in filtreleri geni\u015Fletin."],
+    "Distribuci\xF3n geogr\xE1fica, entidades mencionadas y evoluci\xF3n de las publicaciones recopiladas.": ["Geographic distribution, mentioned entities and trends in collected articles.", "Toplanan haberlerin co\u011Frafi da\u011F\u0131l\u0131m\u0131, bahsedilen kurumlar ve zaman i\xE7indeki e\u011Filimleri."],
+    "Sin publicaciones en la selecci\xF3n": ["No articles in this selection", "Bu se\xE7imde haber yok"],
+    "Panorama de entidades": ["Entity overview", "Kurumlara genel bak\u0131\u015F"],
     Anual: ["Annual", "Y\u0131ll\u0131k"],
     "Tipo de recuperaci\xF3n": ["Recovery type", "Kurtarma t\xFCr\xFC"],
     "Ya hay una recuperaci\xF3n anual en curso.": ["An annual recovery is already in progress.", "Y\u0131ll\u0131k kurtarma zaten devam ediyor."],
@@ -584,7 +620,6 @@
     "noticias incluidas": ["articles included", "dahil edilen haber"],
     "P\xE1gina {page} de {pages}": ["Page {page} of {pages}", "Sayfa {page} / {pages}"],
     "{total} resultados \xB7 p\xE1gina {page} de {pages}": ["{total} results \xB7 page {page} of {pages}", "{total} sonu\xE7 \xB7 sayfa {page} / {pages}"],
-    "{processed} de {total} consultas completadas; {pending} pendientes y {failed} con error. Las noticias se integran autom\xE1ticamente.": ["{processed} of {total} queries completed; {pending} pending and {failed} failed. News is integrated automatically.", "{total} sorgudan {processed} tamamland\u0131; {pending} bekleyen ve {failed} hatal\u0131. Haberler otomatik eklenir."],
     "{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.": ["{sessions} sessions and {events} events matching filters in the last 30 days. Includes administrators; sessions are identified when the browser opens.", "Son 30 g\xFCnde filtrelere uygun {sessions} oturum ve {events} olay. Y\xF6netici dahildir; oturumlar taray\u0131c\u0131 a\xE7\u0131ld\u0131\u011F\u0131nda belirlenir."],
     "Gmail ha aceptado la prueba para {recipient}. Remitente: {sender}. Gmail ID: {id}. Incluye {count} novedades del {from} al {to}.": ["Gmail accepted the test for {recipient}. Sender: {sender}. Gmail ID: {id}. Includes {count} updates from {from} to {to}.", "Gmail {recipient} i\xE7in test g\xF6nderimini kabul etti. G\xF6nderen: {sender}. Gmail kimli\u011Fi: {id}. {from} ile {to} aras\u0131nda {count} yenilik i\xE7erir."],
     "Alta manual": ["Manual registration", "Manuel kay\u0131t"],
@@ -726,16 +761,35 @@
     }
     return "es";
   }
-  var translationPattern, translationIndex;
-  function translateText(value, language2 = "es") {
-    let text = String(value ?? "");
-    return language2 === "es" || !supportedLanguage(language2) ? text : Object.prototype.hasOwnProperty.call(translations, text) ? translations[text][language2 === "en" ? 0 : 1] : (translationPattern || (translationIndex = Object.fromEntries(Object.keys(translations).map((key) => [key.toLowerCase(), key])), translationPattern = new RegExp("https?://[^\\s]+|[a-z0-9.!#$%&*+/=?^_~-]+@[a-z0-9.-]+\\.[a-z]{2,}|(?<![\\p{L}\\p{N}])(" + Object.keys(translations).filter((key) => !key.includes("{")).sort((a, b) => b.length - a.length).map((key) => key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")(?![\\p{L}\\p{N}])", "giu")), text.replace(translationPattern, (key) => {
-      if (key.includes("@") || /^https?:\/\//i.test(key)) return key;
-      let translated = translations[key] || translations[translationIndex[key.toLowerCase()]], result = translated[language2 === "en" ? 0 : 1];
-      return key === key.toUpperCase() ? result.toLocaleUpperCase(language2) : result;
-    }));
+  var translationMatchers = /* @__PURE__ */ new Map();
+  function translationMatcher(language2) {
+    if (translationMatchers.has(language2)) return translationMatchers.get(language2);
+    let index = Object.fromEntries(Object.keys(translations).map((key) => [language2 === "es" ? key : translations[key][language2 === "en" ? 0 : 1], key])), lowercase = Object.fromEntries(Object.entries(index).map(([key, value]) => [key.toLowerCase(), value])), pattern = new RegExp("News Radar|https?://[^\\s]+|[a-z0-9.!#$%&*+/=?^_~-]+@[a-z0-9.-]+\\.[a-z]{2,}|(?<![\\p{L}\\p{N}])(" + Object.keys(index).filter((key) => !key.includes("{")).sort((a, b) => b.length - a.length).map((key) => key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")(?![\\p{L}\\p{N}])", "giu"), templates = [], group = 1, templatePattern = new RegExp("^(?:" + Object.entries(index).filter(([text]) => text.includes("{")).sort(([a], [b]) => b.replace(/\{\w+\}/g, "").length - a.replace(/\{\w+\}/g, "").length).map(([text, key]) => {
+      let names = [], parts = text.split(/(\{\w+\})/g).map((part) => /^\{\w+\}$/.test(part) ? (names.push(part.slice(1, -1)), "(.*?)") : part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+      return templates.push({ key, names, group }), group += names.length + 1, "(" + parts.join("") + ")";
+    }).join("|") + ")$", "u"), matcher = { index, lowercase, pattern, templates, templatePattern };
+    return translationMatchers.set(language2, matcher), matcher;
   }
-  var calendarFormatters = /* @__PURE__ */ new Map();
+  function translateText(value, language2 = "es", source = "es") {
+    let text = String(value ?? "");
+    if (language2 === source || !supportedLanguage(language2) || !supportedLanguage(source)) return text;
+    let { index, lowercase, pattern, templates, templatePattern } = translationMatcher(source), translated = (key) => language2 === "es" ? key : translations[key][language2 === "en" ? 0 : 1];
+    if (Object.prototype.hasOwnProperty.call(index, text)) return translated(index[text]);
+    let match = text.trim().match(templatePattern);
+    if (match) {
+      let template = templates.find((item) => match[item.group] !== void 0), values = Object.fromEntries(template.names.map((name, i) => [name, match[template.group + i + 1]]));
+      return text.replace(text.trim(), translated(template.key).replace(/\{(\w+)\}/g, (_, name) => values[name]));
+    }
+    return text.replace(pattern, (key) => {
+      if (/^news radar$/i.test(key) || key.includes("@") || /^https?:\/\//i.test(key)) return key;
+      let result = translated(index[key] || lowercase[key.toLowerCase()]);
+      return key === key.toUpperCase() ? result.toLocaleUpperCase(language2) : result;
+    });
+  }
+  var calendarFormatters = /* @__PURE__ */ new Map(), trendFormatters = /* @__PURE__ */ new Map();
+  function formatTrendDay(value, language2 = "es") {
+    return trendFormatters.has(language2) || trendFormatters.set(language2, new Intl.DateTimeFormat(language2, { day: "numeric", month: "short", timeZone: "UTC" })), trendFormatters.get(language2).format(new Date(value));
+  }
   function formatCalendarDay(value, language2 = "es") {
     if (!value) return "";
     let day = /* @__PURE__ */ new Date(value + "T00:00:00Z");
@@ -759,7 +813,11 @@
     override = globalThis.sessionStorage?.getItem(storageKey);
   } catch {
   }
-  var language = Object.hasOwn(languageNames, override) ? override : browserLanguage(), t = (value, values) => values ? formatText(value, values, language) : translateText(value, language);
+  var language = Object.hasOwn(languageNames, override) ? override : browserLanguage();
+  function getLanguageOverride() {
+    return Object.hasOwn(languageNames, override) ? override : "";
+  }
+  var t = (value, values) => values ? formatText(value, values, language) : translateText(value, language);
   function setLanguage(value) {
     if (value && !Object.hasOwn(languageNames, value)) throw Error(t("Idioma no admitido."));
     try {
@@ -767,13 +825,15 @@
     } catch {
       throw Error(t("El navegador no permite guardar el idioma de esta pesta\xF1a."));
     }
-    window.location.reload();
+    override = value;
+    let next = value || browserLanguage();
+    next !== language && (language = next, window.dispatchEvent(new Event("news-radar-language-change")));
   }
 
   // src/client/core/dom.js
-  var $ = (id) => document.getElementById(id), escape = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]), validUrl = (value) => /^https:\/\//i.test(value || "") ? value : "", dateFormat = new Intl.DateTimeFormat(language, { dateStyle: "short", timeStyle: "short" }), timezone;
+  var $ = (id) => document.getElementById(id), escape = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]), validUrl = (value) => /^https:\/\//i.test(value || "") ? value : "", dateFormat = new Intl.DateTimeFormat(language, { dateStyle: "short", timeStyle: "short" }), timezone, dateLanguage = language;
   function setTimezone(value) {
-    value && value !== timezone && (timezone = value, dateFormat = new Intl.DateTimeFormat(language, { dateStyle: "short", timeStyle: "short", timeZone: value }));
+    value && (value !== timezone || language !== dateLanguage) && (timezone = value, dateLanguage = language, dateFormat = new Intl.DateTimeFormat(language, { dateStyle: "short", timeStyle: "short", timeZone: value }));
   }
   var date = (value) => value ? dateFormat.format(new Date(value)) : "Sin ejecuciones";
   function message(text, error = !1) {
@@ -1032,7 +1092,7 @@
     }
     async function open(admin = !1) {
       let [settings, rows] = await Promise.all([call("getNewsletterOptions"), call(admin ? "getAdminSubscriptions" : "getSubscriptions")]);
-      options = settings, admin ? (all = rows, $("subscribers-count").textContent = new Set(rows.map((r) => r.correo)).size + " suscriptores \xB7 " + rows.length + " suscripciones", render(!0)) : (own = rows, $("subscriptions-count").textContent = rows.length + " suscripciones \xB7 " + rows.filter((row) => row.activa).length + " activas", render(!1), $("newsletter-delivery-status").textContent = options.enabled ? "Entrega peri\xF3dica activa. Recibir\xE1s \xFAnicamente las novedades de tu selecci\xF3n." : "Puedes guardar tu suscripci\xF3n. El administrador todav\xEDa debe activar la entrega."), edit(admin), admin && ($(editorId(admin)).hidden = !0), admin || ($("newsletter-default-period").textContent = periods[options.defaults.periodicity] + " por defecto");
+      options = settings, admin ? (all = rows, $("subscribers-count").textContent = t("{subscribers} suscriptores \xB7 {subscriptions} suscripciones", { subscribers: new Set(rows.map((r) => r.correo)).size, subscriptions: rows.length }), render(!0)) : (own = rows, $("subscriptions-count").textContent = t("{subscriptions} suscripciones \xB7 {active} activas", { subscriptions: rows.length, active: rows.filter((row) => row.activa).length }), render(!1), $("newsletter-delivery-status").textContent = options.enabled ? "Entrega peri\xF3dica activa. Recibir\xE1s \xFAnicamente las novedades de tu selecci\xF3n." : "Puedes guardar tu suscripci\xF3n. El administrador todav\xEDa debe activar la entrega."), edit(admin), admin && ($(editorId(admin)).hidden = !0), admin || ($("newsletter-default-period").textContent = periods[options.defaults.periodicity] + " por defecto");
     }
     for (let admin of [!1, !0]) {
       let target = $(editorId(admin));
@@ -1051,7 +1111,7 @@
         let row = (admin ? all : own).find((r) => r.id === button.dataset.id);
         row && (button.dataset.action === "edit" && edit(admin, row), button.dataset.action === "apply" && onApply(row.query), button.dataset.action === "test" && run(async () => {
           let result = await call("sendSubscriptionTest", row.id);
-          message("Gmail ha aceptado la prueba para " + result.recipient + " \xB7 " + result.count + " novedades.");
+          message(t("Gmail ha aceptado la prueba para {recipient} \xB7 {count} novedades.", result));
         }, !1), button.dataset.action === "delete" && run(async () => {
           message(await call("deleteSubscription", row.id)), await open();
         }, !1));
@@ -1407,13 +1467,12 @@
   }
 
   // src/client/features/trend-chart.js
-  var dateFormat2 = new Intl.DateTimeFormat(language, { day: "numeric", month: "short", timeZone: "UTC" });
   function trendChart({ buckets, series }, availableWidth = 900) {
     if (!buckets.length) return '<div class="chart-empty"><span class="empty-orbit" aria-hidden="true">\u25CE</span><p>La evoluci\xF3n aparecer\xE1 cuando haya publicaciones en esta selecci\xF3n.</p></div>';
     let width = Math.max(320, Math.min(900, availableWidth || 900)), height = 260, left = 38, right = 20, top = 24, bottom = 42, max = Math.max(1, ...series.flatMap((row) => row.values)), ceiling = Math.max(4, Math.ceil(max / 4) * 4), x = (index) => left + (buckets.length === 1 ? 0.5 : index / (buckets.length - 1)) * (width - left - right), y = (value) => height - bottom - value / ceiling * (height - top - bottom), ticks = Array.from({ length: 5 }, (_, i) => {
       let value = ceiling * i / 4;
       return `<line x1="${left}" x2="${width - right}" y1="${y(value)}" y2="${y(value)}" class="chart-grid"/><text x="${left - 12}" y="${y(value) + 4}" text-anchor="end">${value}</text>`;
-    }).join(""), labels2 = [.../* @__PURE__ */ new Set([0, Math.floor((buckets.length - 1) / 2), buckets.length - 1])].map((i) => `<text x="${x(i)}" y="${height - 12}" text-anchor="${i === 0 ? "start" : i === buckets.length - 1 ? "end" : "middle"}">${dateFormat2.format(new Date(buckets[i]))}</text>`).join(""), lines = series.map((row, i) => {
+    }).join(""), labels2 = [.../* @__PURE__ */ new Set([0, Math.floor((buckets.length - 1) / 2), buckets.length - 1])].map((i) => `<text x="${x(i)}" y="${height - 12}" text-anchor="${i === 0 ? "start" : i === buckets.length - 1 ? "end" : "middle"}">${formatTrendDay(buckets[i], language)}</text>`).join(""), lines = series.map((row, i) => {
       let points = row.values.map((value, index) => [x(index), y(value)]), path = points.map(([px, py], index) => (index ? "L" : "M") + px.toFixed(1) + "," + py.toFixed(1)).join(" "), color = "var(--chart-series-" + (i + 1) + ")";
       return (series.length === 1 ? `<path d="${path} L${x(buckets.length - 1)},${y(0)} L${x(0)},${y(0)} Z" class="chart-area"/>` : "") + `<path d="${path}" stroke="${color}" class="chart-line"><title>${escape(row.entity)} \xB7 ${row.total} publicaciones</title></path>` + points.map(([px, py], j) => `<circle cx="${px}" cy="${py}" r="${buckets.length > 30 ? 2 : 4}" fill="${color}"><title>${escape(row.entity)} \xB7 ${buckets[j]} \xB7 ${row.values[j]} publicaciones</title></circle>`).join("");
     }).join(""), legend = series.map((row, i) => `<span><i style="background:var(--chart-series-${i + 1})"></i>${escape(row.entity)}<strong>${row.total}</strong></span>`).join("");
@@ -1450,9 +1509,9 @@
           country ? (node.dataset.country = country, node.removeAttribute("aria-hidden"), node.setAttribute("role", "button"), node.setAttribute("tabindex", marker ? "0" : "-1"), marker && (node.style.display = "")) : (delete node.dataset.country, node.setAttribute("aria-hidden", "true"), node.removeAttribute("role"), node.removeAttribute("tabindex"), marker && (node.style.display = "none")), node.removeAttribute("hidden");
         });
       }
-      let radar2 = data.radar, next = JSON.stringify([radar2, data.countries, geography]);
+      let radar2 = data.radar, next = JSON.stringify([radar2, data.countries, geography, language]);
       if (next === signature) return;
-      signature = next, $("metrics").innerHTML = metricCards([["Publicaciones", data.stats.news, "En la selecci\xF3n"], ["Entidades", data.stats.entities, "Con presencia en medios"], ["Medios", data.stats.sources, "Editores distintos"], ["Geograf\xEDas", data.stats.countries, "Con publicaciones en la selecci\xF3n"]]), $("radar-focus").textContent = radar2.ranking.length === 1 ? radar2.ranking[0].entity : "Panorama de entidades", $("radar-headline").textContent = radar2.summary.news ? radar2.summary.news + " publicaciones en seguimiento" : "Sin publicaciones en la selecci\xF3n", $("radar-context").textContent = radar2.summary.news ? "Distribuci\xF3n geogr\xE1fica, entidades mencionadas y evoluci\xF3n de las publicaciones recopiladas." : "Ampl\xEDa los filtros para descubrir nuevas publicaciones y su distribuci\xF3n.", $("radar-latest").textContent = radar2.latest || "Sin publicaciones", $("map-selection").textContent = radar2.ranking.length === 1 ? radar2.ranking[0].entity : "Todas las entidades de la selecci\xF3n";
+      signature = next, $("metrics").innerHTML = metricCards([["Publicaciones", data.stats.news, "En la selecci\xF3n"], ["Entidades", data.stats.entities, "Con presencia en medios"], ["Medios", data.stats.sources, "Editores distintos"], ["Geograf\xEDas", data.stats.countries, "Con publicaciones en la selecci\xF3n"]]), $("radar-focus").textContent = radar2.ranking.length === 1 ? radar2.ranking[0].entity : "Panorama de entidades", $("radar-headline").textContent = radar2.summary.news ? t("{count} publicaciones en seguimiento", { count: radar2.summary.news }) : "Sin publicaciones en la selecci\xF3n", $("radar-context").textContent = radar2.summary.news ? "Distribuci\xF3n geogr\xE1fica, entidades mencionadas y evoluci\xF3n de las publicaciones recopiladas." : "Ampl\xEDa los filtros para descubrir nuevas publicaciones y su distribuci\xF3n.", $("radar-latest").textContent = radar2.latest || "Sin publicaciones", $("map-selection").textContent = radar2.ranking.length === 1 ? radar2.ranking[0].entity : "Todas las entidades de la selecci\xF3n";
       let max = Math.max(1, ...radar2.geographies.map((area) => area.total)), areas = new Map(radar2.geographies.map((area) => [area.country, area]));
       $("world-map").querySelectorAll("[data-country]").forEach((node) => {
         let area = areas.get(node.dataset.country), count = area?.total || 0, level = count ? Math.ceil(count / max * 4) : 0;
@@ -1464,7 +1523,7 @@
       $("map-countries").innerHTML = countries.map((country) => {
         let count = areas.get(country)?.total || 0;
         return `<button type="button" class="geo-row" data-country="${escape(country)}"><span>${escape(country)}</span><span class="geo-count">${count}</span><span class="geo-track"><span style="width:${count / max * 100}%"></span></span></button>`;
-      }).join(""), $("map-note").textContent = radar2.unlocated ? radar2.unlocated + " publicaciones sin geograf\xEDa conocida, excluidas del mapa." : "Todas las publicaciones de la selecci\xF3n tienen una geograf\xEDa conocida.", trend = radar2.trend, renderTrend($("trend-chart").clientWidth || 900), $("trend-period").textContent = radar2.trend.buckets.length ? radar2.trend.from + " \u2014 " + radar2.trend.to : "Sin publicaciones", $("trend-note").textContent = radar2.trend.intervalDays > 1 ? "Volumen agrupado en intervalos de " + radar2.trend.intervalDays + " d\xEDas." : "N\xFAmero de publicaciones por d\xEDa, incluidos los d\xEDas sin noticias.", $("entity-ranking").innerHTML = radar2.ranking.length ? radar2.ranking.slice(0, 6).map((row, i) => `<button type="button" class="ranking-row" data-entity="${escape(row.entity)}"><span class="ranking-index">${String(i + 1).padStart(2, "0")}</span><span class="ranking-name">${escape(row.entity)}<span class="ranking-track"><span style="width:${row.total / Math.max(1, radar2.summary.news) * 100}%"></span></span></span><strong>${row.total}</strong></button>`).join("") : '<p class="muted">Las entidades aparecer\xE1n al ampliar tu selecci\xF3n.</p>', $("ranking-note").textContent = radar2.ranking.length > 6 ? "Se muestran las seis entidades con m\xE1s publicaciones." : "Selecciona una entidad para explorar su actualidad.";
+      }).join(""), $("map-note").textContent = radar2.unlocated ? t("{count} publicaciones sin geograf\xEDa conocida, excluidas del mapa.", { count: radar2.unlocated }) : "Todas las publicaciones de la selecci\xF3n tienen una geograf\xEDa conocida.", trend = radar2.trend, renderTrend($("trend-chart").clientWidth || 900), $("trend-period").textContent = radar2.trend.buckets.length ? radar2.trend.from + " \u2014 " + radar2.trend.to : "Sin publicaciones", $("trend-note").textContent = radar2.trend.intervalDays > 1 ? t("Volumen agrupado en intervalos de {days} d\xEDas.", { days: radar2.trend.intervalDays }) : "N\xFAmero de publicaciones por d\xEDa, incluidos los d\xEDas sin noticias.", $("entity-ranking").innerHTML = radar2.ranking.length ? radar2.ranking.slice(0, 6).map((row, i) => `<button type="button" class="ranking-row" data-entity="${escape(row.entity)}"><span class="ranking-index">${String(i + 1).padStart(2, "0")}</span><span class="ranking-name">${escape(row.entity)}<span class="ranking-track"><span style="width:${row.total / Math.max(1, radar2.summary.news) * 100}%"></span></span></span><strong>${row.total}</strong></button>`).join("") : '<p class="muted">Las entidades aparecer\xE1n al ampliar tu selecci\xF3n.</p>', $("ranking-note").textContent = radar2.ranking.length > 6 ? "Se muestran las seis entidades con m\xE1s publicaciones." : "Selecciona una entidad para explorar su actualidad.";
       let publishers = radar2.publishers || [], publisherMax = Math.max(1, ...publishers.map((row) => row.total));
       $("publisher-chart").innerHTML = publishers.length ? publishers.map((row) => `<div class="ranking-row"><span class="ranking-name" data-original>${escape(row.publisher)}<span class="ranking-track"><span style="width:${row.total / publisherMax * 100}%"></span></span></span><strong>${row.total}</strong></div>`).join("") : '<p class="muted">Sin publicaciones</p>', $("radar-publisher").textContent = radar2.topPublisher || "Sin publicaciones";
     } };
@@ -1734,38 +1793,55 @@
   function flushLocalization() {
     observer && translateChanges(observer.takeRecords());
   }
+  var originals = /* @__PURE__ */ new WeakMap();
+  function localized(node, key, value) {
+    let values = originals.get(node);
+    values || (values = /* @__PURE__ */ new Map(), originals.set(node, values));
+    let previous = values.get(key), source = previous?.output === value ? previous.source : translateText(value, "es", language), output = t(source);
+    return values.set(key, { source, output }), output;
+  }
   var attributes = ["placeholder", "title", "aria-label", "alt"], excluded = "[data-original],script,style,textarea";
   function localize(root) {
     if (root.nodeType === 3) {
-      root.parentElement?.closest(excluded) || (root.textContent = t(root.textContent));
+      if (!root.parentElement?.closest(excluded)) {
+        let output = localized(root, "text", root.textContent);
+        output !== root.textContent && (root.textContent = output);
+      }
       return;
     }
     if (!(root.nodeType !== 1 || root.matches(excluded))) {
       root.tagName === "OPTION" && !root.hasAttribute("value") && root.setAttribute("value", root.value);
       for (let key of attributes) if (root.hasAttribute(key)) {
-        let value = root.getAttribute(key), translated = t(value);
+        let value = root.getAttribute(key), translated = localized(root, key, value);
         value !== translated && root.setAttribute(key, translated);
       }
       for (let node of root.childNodes) localize(node);
     }
   }
   function initializeLocalization() {
+    let title = document.title;
     document.documentElement.lang = language, document.title = t(document.title);
     let select = document.getElementById("preview-language");
-    select.innerHTML = '<option value="">' + t("Idioma del navegador") + "</option>" + Object.entries(languageNames).map(([code, name]) => '<option value="' + code + '">' + name + "</option>").join("");
-    try {
-      select.value = sessionStorage.getItem("news-radar-language") || "";
-    } catch {
-    }
-    select.addEventListener("change", () => setLanguage(select.value));
+    select.innerHTML = '<option value="">' + t("Idioma del navegador") + "</option>" + Object.entries(languageNames).map(([code, name]) => '<option value="' + code + '">' + name + "</option>").join(""), select.value = getLanguageOverride(), select.addEventListener("change", () => {
+      flushLocalization();
+      try {
+        setLanguage(select.value);
+      } catch (error) {
+        select.value = getLanguageOverride();
+        let target = document.getElementById("message");
+        target.textContent = error.message, target.classList.add("error"), target.hidden = !1;
+      }
+    });
     let invalid = /* @__PURE__ */ new WeakSet();
-    if (document.addEventListener("invalid", (event) => {
+    document.addEventListener("invalid", (event) => {
       let input = event.target;
       input.validity.customError || (input.setCustomValidity(t(input.validity.valueMissing ? "Campo obligatorio." : "Introduce un valor v\xE1lido.")), invalid.add(input));
     }, !0), document.addEventListener("input", (event) => {
       let input = event.target;
       invalid.has(input) && (input.setCustomValidity(""), invalid.delete(input));
-    }, !0), localize(document.body), language === "es") return;
+    }, !0), window.addEventListener("news-radar-language-change", () => {
+      flushLocalization(), observer.disconnect(), document.documentElement.lang = language, document.title = t(title), localize(document.body), observer.observe(document.body, options);
+    }), localize(document.body);
     let options = { subtree: !0, childList: !0, characterData: !0, attributes: !0, attributeFilter: attributes };
     translateChanges = (records) => {
       observer.disconnect();
@@ -1873,5 +1949,8 @@
     }, !1)), target.appendChild(button);
   });
   load();
+  window.addEventListener("news-radar-language-change", async () => {
+    await load(), navigation.current === "administration" && administration.current === "language" && await languageSettings.open();
+  });
 })();
 </script>
