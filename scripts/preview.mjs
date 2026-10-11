@@ -26,9 +26,13 @@ const configurationRevision_=()=>revision;
 function writeConfiguration_(config,version){authorize_();if(version!==revision)throw Error('La configuración ha cambiado. Recarga los catálogos.');validateConfiguration_(config);configuration=JSON.parse(JSON.stringify(config));revision=String(Number(revision)+1);return 'Configuración local guardada en memoria. No se ha escrito en Google.';}
 ${shared}
 window.RADAR_PREVIEW={async call(method,q={}){
+ if(method==='resumeCollection'){authorize_();return {added:0,pending:0,errors:[]};}
  if(method==='collectNow'){authorize_();const range=collectionRange_(q||'today',new Date()),available=rows.filter(row=>row.fecha>=range.from&&row.fecha<=range.to).length;return {added:0,pending:0,errors:[],notice:'Vista local: '+available+' noticias de la instantánea en el período '+range.from+' / '+range.to+'. La consulta remota se ejecuta únicamente en Apps Script.'};}
  if(method==='recordEvents'){usage.push(...q.map(event=>({fecha:new Date().toISOString(),correo:'usuario@bbva.com',sesion:event.session,evento:event.event,vista:event.view,duracion_ms:eventDuration_(event.duration)})));if(usage.length>settings_().eventLimit)usage.splice(0,usage.length-settings_().eventLimit);return {saved:true};}
  if(method==='getNewsletterHistory'){authorize_();return {...recordPage([],q),options:{},limit:settings_().eventLimit,limited:false};}
+ if(method==='getRuns') {authorize_();return {...recordPage([],q),options:{},collection:{jobs:[]},limit:settings_().eventLimit,limited:false};}
+ if(method==='translateNews')return {items:rows.filter(row=>q.ids.includes(row.id)).map(row=>({id:row.id,titular:row.titular,extracto:row.extracto,translation:{language:q.language,state:'unavailable'}})),pending:[]};
+ if(method==='getCollectionProgress')return {newsRevision:revision,collection:{total:0,pending:0}};
  if(method==='getAudit'){authorize_();return {...recordPage([],q),options:{},limit:settings_().eventLimit,limited:false};}
  if(method==='getAdoption'){authorize_();const selected=filterRecords(usage,q,['correo','vista','evento'],['correo','vista','evento','sesion'],'fecha',settings_().timezone),metrics=metrics_(selected,Date.now()),page=recordPage(metrics.users,q,settings_().pageSize);return {...metrics,users:page.items,total:page.total,page:page.page,pageSize:page.pageSize,options:recordOptions(usage,['correo','vista','evento']),retentionDays:settings_().retentionDays,limited:usage.length===settings_().eventLimit};}
  if(method==='exportTelemetry'){authorize_();return {schemaVersion:1,exportedAt:new Date().toISOString(),preview:true,telemetry:[],runs:[],audit:[],collection:{tasks:[]},usage:metrics_(usage,Date.now())};}
@@ -48,7 +52,7 @@ window.RADAR_PREVIEW={async call(method,q={}){
  if(method==='deleteSubscription'){const index=selections.findIndex(row=>row.id===q);if(index<0)throw Error('Selección no encontrada.');selections.splice(index,1);return 'Selección local eliminada.';}
  if(method!=='getDashboard')throw Error('Esta acción necesita la instalación en Apps Script.');
  const view=q.view||'radar',initial=Boolean(q.initial),settings=settings_();q=dashboardQuery_(q);
- const feeds=feeds_();return {...newsDashboard_(rows,q,feeds,view),initial,selection:q,defaults:dashboardQuery_({view:'news',initial:true}),preferences:{timezone:settings.timezone,retentionDays:settings.retentionDays,eventLimit:settings.eventLimit,unknownCountry:settings.unknownCountry,dailyLabel:settings.dailyHour+':00 · '+settings.timezone},geographies:configuration.geographies,runs:[],lastRun:'',sourceCount:feeds.length,daily:false,admin,...(admin?{maxFeeds:settings.maxCustomFeeds,feeds:customFeeds_(),configuredFeeds:configuredFeeds_(),collection:{total:0,processed:0,pending:0,failed:0}}:{})};
+ const feeds=feeds_();return {...newsDashboard_(rows,q,feeds,view),initial,selection:q,defaults:dashboardQuery_({view:'news',initial:true}),preferences:{timezone:settings.timezone,retentionDays:settings.retentionDays,eventLimit:settings.eventLimit,unknownCountry:settings.unknownCountry,dailyLabel:settings.dailyHour+':00 · '+settings.timezone},geographies:configuration.geographies,newsRevision:revision,collection:{total:0,pending:0},lastRun:'',sourceCount:feeds.length,daily:false,admin,...(admin?{maxFeeds:settings.maxCustomFeeds,feeds:customFeeds_(),configuredFeeds:configuredFeeds_()}:{})};
 }};
 })();</script>`;
 const read=name=>fs.readFileSync(path.join(dist,name+'.html'),'utf8');

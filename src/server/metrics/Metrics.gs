@@ -6,10 +6,10 @@ function telemetry_(operation,duration,status,detail) {
 function recordEvents(events) {
   const session=authorize_(),now=new Date();
   if(!Array.isArray(events)||!events.length||events.length>20)throw new Error('Lote de eventos no válido.');
-  const allowed=['acceso','vista','filtro','lectura','exportacion','rendimiento','error'],views=['radar','news','audit','sources','telemetry','adoption','administration','configuration','briefing','subscriptions','subscribers'];
+  const allowed=['acceso','vista','filtro','lectura','exportacion','rendimiento','error'],views=['radar','news','audit','sources','telemetry','adoption','administration','configuration','briefing','subscriptions','subscribers','runs'];
   const cleaned=events.map(event=>{
     if(!allowed.includes(event.event)||!views.includes(event.view)||!/^[a-z0-9-]{16,80}$/i.test(event.session))throw new Error('Evento no válido.');
-    if(['audit','sources','telemetry','adoption','administration','configuration'].includes(event.view)&&!session.admin)throw new Error('Vista restringida.');
+    if(['audit','sources','telemetry','adoption','administration','configuration','runs','subscribers'].includes(event.view)&&!session.admin)throw new Error('Vista restringida.');
     return [now.toISOString(),session.email,event.session,event.event,event.view,eventDuration_(event.duration)];
   });
   const lock=LockService.getScriptLock();if(!lock.tryLock(3000))return {saved:false};
@@ -38,7 +38,7 @@ function getTelemetry(query={}) {
   return {...records,rows:records.items,latencyP95:usage.latencyP95,clientErrors:usage.failures,collection:collectionStatus_()};
 }
 function maintenance_() {
-  const lock=LockService.getScriptLock();lock.waitLock(10000);try{pruneEvents_();}finally{lock.releaseLock();}
+  const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return;try{pruneEvents_();trim_('Traducciones',settings_().newsReadLimit*3);}finally{lock.releaseLock();}
 }
 function pruneEvents_() {
   const p=properties_(),today=new Date().toISOString().slice(0,10);if(p.getProperty('RETENTION_DATE')===today)return;
@@ -57,7 +57,7 @@ function exportTelemetry(){
   authorize_(true);const limit=settings_().eventLimit;
   const telemetry=rows_('Telemetria',limit),runs=rows_('Ejecuciones',limit),audit=rows_('Auditoria',limit),tasks=rows_('Recopilacion');
   const reasons=exclusionReasons_(audit);
-  return {schemaVersion:1,applicationVersion:RADAR.version,exportedAt:new Date().toISOString(),timezone:settings_().timezone,limits:{eventLimit:limit,newsReadLimit:settings_().newsReadLimit,collectionBatch:settings_().collectionBatch},collection:{...collectionStatus_(tasks),range:collectionRangeFromStore_(),tasks},telemetry,runs,audit,exclusionReasons:reasons,auditSampling:{maxExcludedExamplesPerReason:3,totals:'motivos en los resúmenes de Fuente consultada'},limited:{telemetry:telemetry.length===limit,runs:runs.length===limit,audit:audit.length===limit},usage:metrics_(rows_('Adopcion',limit),Date.now())};
+  return {schemaVersion:1,applicationVersion:RADAR.version,exportedAt:new Date().toISOString(),timezone:settings_().timezone,limits:{eventLimit:limit,newsReadLimit:settings_().newsReadLimit,collectionBatch:settings_().collectionBatch},collection:{...collectionStatus_(tasks),tasks},telemetry,runs,audit,exclusionReasons:reasons,auditSampling:{maxExcludedExamplesPerReason:3,totals:'motivos en los resúmenes de Fuente consultada'},limited:{telemetry:telemetry.length===limit,runs:runs.length===limit,audit:audit.length===limit},usage:metrics_(rows_('Adopcion',limit),Date.now())};
 }
 
 function exclusionReasons_(audit){

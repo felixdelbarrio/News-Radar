@@ -7,7 +7,7 @@ function configuration_(){
   const sheet=book_().getSheetByName('Configuracion');
   if(!sheet)throw Error('Inicializa la configuración desde el editor: initializeConfiguration.');
   const count=sheet.getLastRow()-1,config=Object.fromEntries(count?sheet.getRange(2,1,count,2).getValues().map(([key,value])=>[key,JSON.parse(value)]):[]);
-  validateConfiguration_(config);cache.put(key,JSON.stringify(config),21600);
+  validateConfiguration_(config);cacheJson_(key,config,21600);
   return configurationMemory_=config;
 }
 function invalidateConfiguration_(){configurationMemory_=undefined;configurationVersionMemory_=undefined;properties_().setProperty('CONFIG_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));}
@@ -15,7 +15,7 @@ function configurationEdited_(event){const sheet=event?.range?.getSheet().getNam
 function initializeConfiguration(){
   authorize_(true);const lock=LockService.getScriptLock();lock.waitLock(10000);
   try{
-    for(const name of ['Configuracion','Suscripciones','NewsletterEnvios','Noticias']){
+    for(const name of ['Configuracion','Suscripciones','NewsletterEnvios','Noticias','Recopilacion','Recargas','Traducciones']){
       if(book_().getSheetByName(name)){if(name!=='Configuracion')book_().getSheetByName(name).getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]);continue;}
       const sheet=book_().insertSheet(name);sheet.getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]).setFontWeight('bold').setBackground(SHEET_THEME.background).setFontColor(SHEET_THEME.foreground);sheet.setFrozenRows(1);
     }
@@ -27,6 +27,7 @@ function initializeConfiguration(){
     if(!ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='configurationEdited_'))ScriptApp.newTrigger('configurationEdited_').forSpreadsheet(book_()).onEdit().create();
     const subscriptions=book_().getSheetByName('Suscripciones'),countSubscriptions=subscriptions.getLastRow()-1;
     if(countSubscriptions>0){const range=subscriptions.getRange(2,8,countSubscriptions,1);range.setValues(range.getValues().map(([value])=>[value||'es']));}
+    initializeCollectionQueue_();
     invalidateConfiguration_();return 'Configuración inicializada en Sheets. Los valores existentes se han conservado.';
   }finally{lock.releaseLock();}
 }

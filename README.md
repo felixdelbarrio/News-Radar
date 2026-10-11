@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.4.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.6.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -187,7 +187,7 @@ Los filtros administrativos comparten componente, normalización, validación de
 
 El servidor se valida con un analizador de sintaxis limitado a ES2020, tanto al compilar como en `make check`. Esto impide introducir operadores como `||=`, `&&=` y `??=` en los archivos `.gs`, aunque Node.js los acepte. El cliente se ejecuta en el navegador y conserva su propia validación.
 
-Noticias y Novedades identifican el editor con «Medio» en los metadatos de cada tarjeta. Una consulta RSS de perfil no sustituye el nombre del editor; si no se informa, se muestra «No indicado». La release 1.3.0 calcula únicamente la visualización de la vista solicitada y utiliza claves de caché de tamaño fijo, con invalidación por cambios en noticias o configuración. El análisis del último export está en [docs/telemetry-1.3.0.md](docs/telemetry-1.3.0.md).
+Noticias y Novedades identifican el editor con «Medio» en los metadatos de cada tarjeta. Una consulta RSS de perfil no sustituye el nombre del editor; si no se informa, se muestra «No indicado». La release 1.3.0 calcula únicamente la visualización de la vista solicitada y utiliza claves de caché de tamaño fijo, con invalidación por cambios en noticias o configuración. El análisis de aquel export está en [docs/telemetry-1.3.0.md](docs/telemetry-1.3.0.md).
 
 
 ### Idiomas (1.4.0)
@@ -201,3 +201,17 @@ Cada suscripción almacena `idioma` (`es`, `en`, `tr`). Las altas personales par
 Al actualizar una instalación existente, ejecutar **initializeConfiguration** una vez desde el editor con la cuenta administradora: prepara las columnas de idioma y asigna español a suscripciones sin idioma. Ejecutar también **initializeLanguages** para añadir el RSS oficial inglés y ampliar los términos de búsqueda y detección, conservando entradas propias y fuentes desactivadas. Después publicar la nueva distribución `dist/`. Las noticias y el inventario de entregas permanecen intactos.
 
 `make kill` usa un socket Unix privado (`output/preview-server.sock`, permisos `0600`). No lee credenciales o destinos de un archivo, no realiza peticiones HTTP y no envía señales a PID externos. `make run` sigue sirviendo la aplicación por HTTP local.
+
+### Recarga progresiva y gráficos (1.5.0)
+
+Radar apila evolución y publicaciones por medio; las ejecuciones tienen una pestaña administrativa con filtros y paginación. La recuperación anual prioriza semanas recientes y amplía el lote configurado cuatro veces, hasta veinte consultas; con el valor predeterminado son doce. Cada lote persiste sus resultados. El navegador consulta el progreso mientras haya trabajo y la pestaña sea visible, y refresca las noticias solo cuando cambia su revisión. «Continuar recuperación» conserva el período y las tareas del ciclo activo.
+
+Al instalar, ejecutar `initializeConfiguration` antes de publicar: añade y rellena la prioridad de la cola existente sin reiniciarla. El diagnóstico de la telemetría y los límites de la mejora están en [docs/telemetry-1.5.0.md](docs/telemetry-1.5.0.md).
+
+## Recargas y traducciones · 1.6.0
+
+La diaria y la anual conservan sus propias solicitudes, progreso y pausas. El trabajador reserva capacidad para las cargas recientes y avanza también la anual. Administración → Ejecuciones muestra una barra por ciclo y permite filtrar su historial. «Recuperar noticias» inicia el período seleccionado; «Continuar recuperación» reanuda el trabajo pendiente.
+
+Noticias y Novedades traducen titulares y extractos al idioma activo (español, inglés o turco), conservan el original y reutilizan traducciones persistidas. La vista local muestra el original porque no dispone de LanguageApp.
+
+Para actualizar una instalación, copiar `dist/`, ejecutar `initializeConfiguration` y publicar la nueva versión de la WebApp. La inicialización conserva la cola anual existente y crea las hojas Recargas y Traducciones. Véase [funcionamiento y validación](docs/collections-and-translations-1.6.0.md).

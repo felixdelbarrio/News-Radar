@@ -2,6 +2,27 @@
 (() => {
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    Recarga: ["Collection", "Toplama"],
+    "Recopilaci\xF3n diaria": ["Daily collection", "G\xFCnl\xFCk toplama"],
+    "Recuperaci\xF3n anual": ["Annual recovery", "Y\u0131ll\u0131k kurtarma"],
+    "Recuperaci\xF3n manual": ["Manual recovery", "Elle kurtarma"],
+    "Progreso de las recargas": ["Collection progress", "Toplama ilerlemesi"],
+    "Sin recuperaciones registradas.": ["No collections recorded.", "Kay\u0131tl\u0131 toplama yok."],
+    "{done}/{total} consultas; {added} noticias incorporadas.": ["{done}/{total} queries; {added} articles saved.", "{done}/{total} sorgu; {added} kaydedilen haber."],
+    "{queued} recargas en cola.": ["{queued} collections queued.", "{queued} toplama s\u0131rada."],
+    "En cola": ["Queued", "S\u0131rada"],
+    Preparando: ["Preparing", "Haz\u0131rlan\u0131yor"],
+    "En curso": ["Running", "\xC7al\u0131\u015F\u0131yor"],
+    "En pausa": ["Paused", "Duraklat\u0131ld\u0131"],
+    "Traduciendo\u2026": ["Translating\u2026", "\xC7evriliyor\u2026"],
+    "Traducci\xF3n autom\xE1tica": ["Automatic translation", "Otomatik \xE7eviri"],
+    "Traducci\xF3n no disponible. Se muestra el original.": ["Translation unavailable. Showing the original.", "\xC7eviri kullan\u0131lam\u0131yor. \xD6zg\xFCn metin g\xF6steriliyor."],
+    "Ver original": ["View original", "\xD6zg\xFCn metni g\xF6r"],
+    "Continuar recuperaci\xF3n": ["Continue recovery", "Kurtarmaya devam et"],
+    "DISTRIBUCI\xD3N POR MEDIO": ["PUBLICATIONS BY PUBLISHER", "YAYINCIYA G\xD6RE DA\u011EILIM"],
+    "Publicaciones por medio": ["Publications by publisher", "Yay\u0131nc\u0131ya g\xF6re yay\u0131nlar"],
+    "Se muestran los seis medios con m\xE1s publicaciones.": ["Showing the six publishers with the most publications.", "En fazla yay\u0131na sahip alt\u0131 yay\u0131nc\u0131 g\xF6sterilir."],
+    "Recuperaci\xF3n: {processed}/{total} consultas; {pending} pendientes; {added} noticias incorporadas.": ["Recovery: {processed}/{total} queries; {pending} pending; {added} articles saved.", "Kurtarma: {processed}/{total} sorgu; {pending} bekleyen; {added} kaydedilen haber."],
     Espa\u00F1ol: ["Spanish", "\u0130spanyolca"],
     Ingl\u00E9s: ["English", "\u0130ngilizce"],
     Turco: ["Turkish", "T\xFCrk\xE7e"],
@@ -705,7 +726,7 @@
   function formatText(text, values, language2 = "es") {
     return translateText(text, language2).replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ""));
   }
-  var recordLabels = { radar: "Radar", news: "Noticias", briefing: "Novedades", subscriptions: "Newsletter", administration: "Administraci\xF3n", configuration: "Configuraci\xF3n de negocio", sources: "Fuentes y programaci\xF3n", audit: "Auditor\xEDa", telemetry: "Telemetr\xEDa", adoption: "Adopci\xF3n", subscribers: "Suscripciones", acceso: "Acceso", vista: "Vista", filtro: "Filtro", lectura: "Lectura", exportacion: "Exportaci\xF3n", rendimiento: "Rendimiento", error: "Error", dashboard: "Carga de selecci\xF3n", recopilacion: "Recopilaci\xF3n" };
+  var recordLabels = { radar: "Radar", news: "Noticias", briefing: "Novedades", subscriptions: "Newsletter", administration: "Administraci\xF3n", configuration: "Configuraci\xF3n de negocio", daily: "Recopilaci\xF3n diaria", annual: "Recuperaci\xF3n anual", manual: "Recuperaci\xF3n manual", sources: "Fuentes y programaci\xF3n", runs: "\xDAltimas ejecuciones", audit: "Auditor\xEDa", telemetry: "Telemetr\xEDa", adoption: "Adopci\xF3n", subscribers: "Suscripciones", acceso: "Acceso", vista: "Vista", filtro: "Filtro", lectura: "Lectura", exportacion: "Exportaci\xF3n", rendimiento: "Rendimiento", error: "Error", dashboard: "Carga de selecci\xF3n", recopilacion: "Recopilaci\xF3n" };
   function displayRecord(value, language2 = "es") {
     return translateText(Object.prototype.hasOwnProperty.call(recordLabels, value) ? recordLabels[value] : value, language2);
   }
@@ -731,6 +752,57 @@
     window.location.reload();
   }
 
+  // src/client/core/api.js
+  function call(method, ...args) {
+    return window.RADAR_PREVIEW ? window.RADAR_PREVIEW.call(method, ...args) : new Promise((resolve, reject) => google.script.run.withSuccessHandler(resolve).withFailureHandler((error) => reject(Error(t(error.message || String(error)))))[method](...args));
+  }
+
+  // src/client/features/news-translations.js
+  function createNewsTranslations({ getView, getData, onUpdate }) {
+    let generation = 0, timer, key = (row) => row.id + "|" + (row.original?.titular || row.titular) + "|" + (row.original?.extracto || row.extracto || ""), memory = /* @__PURE__ */ new Map();
+    function cancel() {
+      generation++, clearTimeout(timer);
+    }
+    function start() {
+      cancel();
+      let view = getView(), data = getData();
+      if (!["news", "briefing"].includes(view) || !data) return;
+      let rows = view === "briefing" ? data.briefing?.items || [] : data.items, ids = [], applied = !1;
+      for (let row of rows) {
+        let value = memory.get(key(row));
+        value ? (Object.assign(row, value), applied = !0) : row.translation?.state !== "translated" && row.translation?.state !== "native" && ids.push(row.id);
+      }
+      if (applied && onUpdate(), !ids.length) return;
+      let current = generation, retries = 0;
+      async function batch(pending) {
+        if (!(current !== generation || getView() !== view || document.hidden))
+          try {
+            let response = await call("translateNews", { ids: pending, language });
+            if (current !== generation || getView() !== view) return;
+            for (let value of response.items) {
+              let source = rows.find((row) => row.id === value.id);
+              source && memory.set(key(source), value);
+              for (let row of [...data.items || [], ...data.briefing?.items || []]) row.id === value.id && Object.assign(row, value);
+            }
+            if (!response.busy) for (let row of rows) pending.includes(row.id) && !response.items.some((item) => item.id === row.id) && !response.pending.includes(row.id) && (row.translation = { language, state: "unavailable" });
+            for (; memory.size > 200; ) memory.delete(memory.keys().next().value);
+            if (onUpdate(), response.pending.length)
+              if (!response.busy || retries++ < 12) timer = setTimeout(() => batch(response.pending), response.busy ? 1e4 : 250);
+              else {
+                for (let row of rows) response.pending.includes(row.id) && (row.translation = { language, state: "unavailable" });
+                onUpdate();
+              }
+          } catch {
+            if (current !== generation) return;
+            for (let row of rows) pending.includes(row.id) && (row.translation = { language, state: "unavailable" });
+            onUpdate();
+          }
+      }
+      batch(ids);
+    }
+    return { start, cancel };
+  }
+
   // src/client/core/dom.js
   var $ = (id) => document.getElementById(id), escape = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]), validUrl = (value) => /^https:\/\//i.test(value || "") ? value : "", dateFormat = new Intl.DateTimeFormat(language, { dateStyle: "short", timeStyle: "short" }), timezone;
   function setTimezone(value) {
@@ -745,22 +817,6 @@
   }
   function metricCards(values) {
     return values.map(([label, value, note]) => `<article class="metric"><p class="eyebrow">${escape(label)}</p><strong>${escape(value ?? "\u2014")}</strong><span class="small muted">${escape(note)}</span></article>`).join("");
-  }
-
-  // src/client/features/filter-panel.js
-  function createFilterPanel() {
-    let dialog = $("filters-dialog"), filters4 = $("filters-section"), mobile = window.matchMedia("(max-width:767px)");
-    function place() {
-      dialog.open && dialog.close(), $(mobile.matches ? "mobile-filters" : "desktop-filters").appendChild(filters4);
-    }
-    $("open-filters").addEventListener("click", () => dialog.showModal());
-    for (let id of ["close-filters", "apply-filters"]) $(id).addEventListener("click", () => dialog.close());
-    mobile.addEventListener("change", place), place();
-  }
-
-  // src/client/core/api.js
-  function call(method, ...args) {
-    return window.RADAR_PREVIEW ? window.RADAR_PREVIEW.call(method, ...args) : new Promise((resolve, reject) => google.script.run.withSuccessHandler(resolve).withFailureHandler((error) => reject(Error(t(error.message || String(error)))))[method](...args));
   }
 
   // src/shared/record-filters.js
@@ -845,19 +901,78 @@
     } };
   }
 
+  // src/client/features/runs.js
+  var filters, request = 0;
+  async function loadRuns() {
+    filters ||= createRecordFilters("runs", [["estado", "Estado"], ["id", "Recarga"]], loadRuns, { dates: !0, placeholder: "Estado o error" });
+    let current = ++request;
+    try {
+      let data = await call("getRuns", filters.query());
+      if (current !== request) return;
+      renderCollectionJobs(data.collection), filters.options(data.options), filters.page(data), $("runs-body").innerHTML = data.items.map((r) => `<tr><td>${escape(displayRecord(r.tipo, language))} ${escape(r.desde)} \u2014 ${escape(r.hasta)}</td><td>${escape(date(r.inicio))}</td><td>${escape(r.estado)}</td><td>${escape(r.evaluadas)}</td><td>${escape(r.nuevas)}</td><td>${escape(r.errores || "\u2014")}</td></tr>`).join("") || '<tr><td colspan="6">Sin ejecuciones con estos filtros.</td></tr>';
+    } catch (error) {
+      current === request && message(error.message, !0);
+    }
+  }
+  function renderCollectionJobs(status) {
+    $("collection-jobs").innerHTML = (status?.jobs || []).map((job) => {
+      let done = Number(job.procesadas || 0) + Number(job.omitidas || 0) + Number(job.fallidas || 0), total = Number(job.total || 0);
+      return `<article class="collection-job"><div class="panel-header"><h3>${escape(displayRecord(job.tipo, language))}</h3><span>${escape(t(job.estado))}</span></div><p class="small muted">${escape(formatCalendarDay(job.desde, language))} \u2014 ${escape(formatCalendarDay(job.hasta, language))}</p><progress max="${Math.max(1, total)}" value="${done}" aria-label="${escape(displayRecord(job.tipo, language))}"></progress><p>${escape(t("{done}/{total} consultas; {added} noticias incorporadas.", { done, total, added: job.nuevas || 0 }))}</p><p class="small muted">${Number(job.pendientes || 0)} ${escape(t("Pendientes"))} \xB7 ${Number(job.fallidas || 0)} ${escape(t("Errores"))}${job.actualizada ? " \xB7 " + escape(t("\xDAltima actividad")) + ": " + escape(date(job.actualizada)) : ""}${Number(job.pausa) > Date.now() ? " \xB7 " + escape(t("Reintento programado")) + ": " + escape(date(new Date(Number(job.pausa)))) : ""}</p></article>`;
+    }).join("") || '<p class="muted">Sin recuperaciones registradas.</p>';
+  }
+
+  // src/client/features/collection-progress.js
+  function createCollectionProgress({ reload, isBusy, onStatus }) {
+    let timer, revision, polling = !1;
+    function render(status) {
+      let node = $("collection-progress");
+      node.hidden = !(status?.total || status?.queued), onStatus(status), !node.hidden && (node.textContent = t("Recuperaci\xF3n: {processed}/{total} consultas; {pending} pendientes; {added} noticias incorporadas.", status) + (status.lastActivity ? " " + t("\xDAltima actividad") + ": " + date(status.lastActivity) + "." : "") + (status.queued ? " " + t("{queued} recargas en cola.", status) : "") + (status.failed ? " " + status.failed + " " + t("Errores") + "." : ""));
+    }
+    function update(data) {
+      revision = data.newsRevision, render(data.collection), clearTimeout(timer), (data.collection?.pending || data.collection?.queued) && (timer = setTimeout(poll, 3e4));
+    }
+    async function poll() {
+      if (document.hidden || isBusy() || polling) {
+        timer = setTimeout(poll, 3e4);
+        return;
+      }
+      polling = !0;
+      try {
+        let data = await call("getCollectionProgress"), changed = data.newsRevision !== revision;
+        update(data), changed && await reload();
+      } catch {
+        timer = setTimeout(poll, 6e4);
+      } finally {
+        polling = !1;
+      }
+    }
+    return { update };
+  }
+
+  // src/client/features/filter-panel.js
+  function createFilterPanel() {
+    let dialog = $("filters-dialog"), filters5 = $("filters-section"), mobile = window.matchMedia("(max-width:767px)");
+    function place() {
+      dialog.open && dialog.close(), $(mobile.matches ? "mobile-filters" : "desktop-filters").appendChild(filters5);
+    }
+    $("open-filters").addEventListener("click", () => dialog.showModal());
+    for (let id of ["close-filters", "apply-filters"]) $(id).addEventListener("click", () => dialog.close());
+    mobile.addEventListener("change", place), place();
+  }
+
   // src/client/features/subscription-templates.js
   var periods = { monthly: "Mensual", weekly: "Semanal", daily: "Diaria" }, labels = { type: "Tipo de entidad", entity: "Entidad", segment: "Segmento", country: "Geograf\xEDa", topic: "Tema", signal: "Novedad", source: "Fuente" }, selected = (value, current) => value === current ? " selected" : "";
-  function filterFields(catalogs, filters4) {
-    return Object.entries(catalogs).map(([key, values]) => `<label>${labels[key]}<select name="${key}"><option value="">Todos</option>${values.map((value) => `<option${selected(value, filters4[key])}>${escape(value)}</option>`).join("")}</select></label>`).join("");
+  function filterFields(catalogs, filters5) {
+    return Object.entries(catalogs).map(([key, values]) => `<label>${labels[key]}<select name="${key}"><option value="">Todos</option>${values.map((value) => `<option${selected(value, filters5[key])}>${escape(value)}</option>`).join("")}</select></label>`).join("");
   }
   function subscriptionForm(options, admin, row) {
-    let newsletterLanguage = row?.idioma || (admin ? "es" : language), defaults = options.defaults, filters4 = row?.filtros || defaults.filters, primary = (key) => ["entity", "segment", "country"].includes(key);
+    let newsletterLanguage = row?.idioma || (admin ? "es" : language), defaults = options.defaults, filters5 = row?.filtros || defaults.filters, primary = (key) => ["entity", "segment", "country"].includes(key);
     return `<form data-subscription-form data-admin="${admin}" data-id="${escape(row?.id || "")}">
     <div><p class="eyebrow">${row ? "EDITAR SUSCRIPCI\xD3N" : "NUEVA SUSCRIPCI\xD3N"}</p><h2>${row ? "Preferencias de recepci\xF3n" : "Contenido y periodicidad"}</h2><p class="small muted">${admin ? "Gestiona una suscripci\xF3n del dominio BBVA." : escape(options.email)}</p></div>
     ${admin ? `<label>Correo corporativo<input name="email" type="email" required value="${escape(row?.correo || "")}" placeholder="nombre@bbva.com"></label>` : ""}
     <div class="subscription-basics"><label>Nombre<input name="name" required maxlength="100" value="${escape(row?.nombre || translateText(defaults.name, newsletterLanguage))}"></label><label>Idioma de la newsletter<select name="language">${Object.entries(languageNames).map(([value, label]) => `<option value="${value}"${selected(value, newsletterLanguage)}>${label}</option>`).join("")}</select></label><label>Periodicidad<select name="periodicity">${Object.entries(periods).map(([value, label]) => `<option value="${value}"${selected(value, row?.periodicidad || defaults.periodicity)}>${label}</option>`).join("")}</select></label></div>
-    <div class="subscription-fields">${filterFields(Object.fromEntries(Object.entries(options.catalogs).filter(([key]) => primary(key))), filters4)}</div>
-    <details class="subscription-more"><summary>M\xE1s preferencias <span>Tipo de entidad, tema, novedad, fuente y palabras clave</span></summary><div class="subscription-fields">${filterFields(Object.fromEntries(Object.entries(options.catalogs).filter(([key]) => !primary(key))), filters4)}</div><label>Palabras clave<input name="search" maxlength="160" value="${escape(filters4.search || "")}" placeholder="Opcional"></label></details>
+    <div class="subscription-fields">${filterFields(Object.fromEntries(Object.entries(options.catalogs).filter(([key]) => primary(key))), filters5)}</div>
+    <details class="subscription-more"><summary>M\xE1s preferencias <span>Tipo de entidad, tema, novedad, fuente y palabras clave</span></summary><div class="subscription-fields">${filterFields(Object.fromEntries(Object.entries(options.catalogs).filter(([key]) => !primary(key))), filters5)}</div><label>Palabras clave<input name="search" maxlength="160" value="${escape(filters5.search || "")}" placeholder="Opcional"></label></details>
     <label class="subscription-active"><input name="active" type="checkbox"${row?.activa === !1 ? "" : " checked"}> Suscripci\xF3n activa</label>
     <p class="small muted">La entrega comienza en el siguiente cierre despu\xE9s del alta e incluye novedades de los \xFAltimos 7 d\xEDas. Recibir\xE1s un correo solo si hay contenido nuevo.</p>
     <div class="actions"><button class="button primary" type="submit">${row ? "Guardar cambios" : admin ? "Crear suscripci\xF3n" : "Suscribirme"}</button>${admin ? '<button class="button" type="button" data-close-editor>Cancelar</button>' : ""}</div>
@@ -869,12 +984,12 @@
 
   // src/client/features/subscriptions.js
   function createSubscriptions({ run, onApply }) {
-    let options, own = [], all = [], filters4 = {};
+    let options, own = [], all = [], filters5 = {};
     function render(admin) {
       let id = admin ? "subscribers" : "subscriptions", rows = admin ? all : own;
-      filters4[id] ||= createRecordFilters(id, [...admin ? [["correo", "Suscriptor"]] : [], ["activa", "Estado", [["true", "Activa"], ["false", "Pausada"]]], ["periodicidad", "Periodicidad", Object.entries(periods)]], () => render(admin), { placeholder: "Correo, nombre o selecci\xF3n" }), filters4[id].options(recordOptions(rows, admin ? ["correo"] : []));
-      let query = filters4[id].query(), selected2 = filterRecords(rows.map((row) => ({ ...row, selection: Object.values(row.filtros).join(" ") })), query, admin ? ["correo", "activa", "periodicidad"] : ["activa", "periodicidad"], ["correo", "nombre", "selection"]), page = recordPage(selected2, query);
-      $(admin ? "admin-subscriptions-list" : "subscriptions-list").innerHTML = subscriptionCards(page.items, admin), filters4[id].page(page);
+      filters5[id] ||= createRecordFilters(id, [...admin ? [["correo", "Suscriptor"]] : [], ["activa", "Estado", [["true", "Activa"], ["false", "Pausada"]]], ["periodicidad", "Periodicidad", Object.entries(periods)]], () => render(admin), { placeholder: "Correo, nombre o selecci\xF3n" }), filters5[id].options(recordOptions(rows, admin ? ["correo"] : []));
+      let query = filters5[id].query(), selected2 = filterRecords(rows.map((row) => ({ ...row, selection: Object.values(row.filtros).join(" ") })), query, admin ? ["correo", "activa", "periodicidad"] : ["activa", "periodicidad"], ["correo", "nombre", "selection"]), page = recordPage(selected2, query);
+      $(admin ? "admin-subscriptions-list" : "subscriptions-list").innerHTML = subscriptionCards(page.items, admin), filters5[id].page(page);
     }
     let editorId = (admin) => admin ? "admin-subscription-editor" : "personal-editor";
     function edit(admin, row) {
@@ -891,10 +1006,10 @@
         event.target.closest("[data-close-editor]") && (target.hidden = !0);
       }), target.addEventListener("submit", (event) => {
         event.preventDefault();
-        let form = event.target, data = new FormData(form), filters5 = {};
-        for (let key of [...Object.keys(options.catalogs), "search"]) filters5[key] = String(data.get(key) || "");
+        let form = event.target, data = new FormData(form), filters6 = {};
+        for (let key of [...Object.keys(options.catalogs), "search"]) filters6[key] = String(data.get(key) || "");
         run(async () => {
-          message(await call(admin ? "saveAdminSubscription" : "saveSubscription", { id: form.dataset.id || void 0, email: data.get("email"), name: data.get("name"), periodicity: data.get("periodicity"), language: data.get("language"), active: data.has("active"), filters: filters5 })), await open(admin);
+          message(await call(admin ? "saveAdminSubscription" : "saveSubscription", { id: form.dataset.id || void 0, email: data.get("email"), name: data.get("name"), periodicity: data.get("periodicity"), language: data.get("language"), active: data.has("active"), filters: filters6 })), await open(admin);
         }, !1);
       }), $(admin ? "new-admin-subscription" : "new-subscription").addEventListener("click", () => edit(admin)), $(admin ? "admin-subscriptions-list" : "subscriptions-list").addEventListener("click", (event) => {
         let button = event.target.closest("[data-action]");
@@ -920,8 +1035,8 @@
     let historyFilters, historyRequest = 0;
     async function history() {
       historyFilters ||= createRecordFilters("delivery", [["correo", "Suscriptor"], ["estado", "Estado"], ["suscripcion", "Suscripci\xF3n"]], history, { dates: !0, placeholder: "Gmail ID, correo o motivo" });
-      let request2 = ++historyRequest, data = await call("getNewsletterHistory", historyFilters.query());
-      request2 === historyRequest && (historyFilters.options(data.options), historyFilters.page(data), $("delivery-history-body").innerHTML = data.items.map((row) => `<tr><td>${escape(date(row.fecha))}</td><td>${escape(row.correo)}</td><td>${escape(row.estado)}</td><td>${row.noticias ?? "Sin detalle"}</td><td>${escape(row.detalle)}</td></tr>`).join("") || '<tr><td colspan="5">Sin env\xEDos con estos filtros.</td></tr>', $("delivery-history-note").textContent = data.total + " coincidencias." + (data.limited ? " Hist\xF3rico visible limitado a " + data.limit + " registros; el control de duplicados conserva el historial completo." : ""));
+      let request3 = ++historyRequest, data = await call("getNewsletterHistory", historyFilters.query());
+      request3 === historyRequest && (historyFilters.options(data.options), historyFilters.page(data), $("delivery-history-body").innerHTML = data.items.map((row) => `<tr><td>${escape(date(row.fecha))}</td><td>${escape(row.correo)}</td><td>${escape(row.estado)}</td><td>${row.noticias ?? "Sin detalle"}</td><td>${escape(row.detalle)}</td></tr>`).join("") || '<tr><td colspan="5">Sin env\xEDos con estos filtros.</td></tr>', $("delivery-history-note").textContent = data.total + " coincidencias." + (data.limited ? " Hist\xF3rico visible limitado a " + data.limit + " registros; el control de duplicados conserva el historial completo." : ""));
     }
     async function open() {
       let [status] = await Promise.all([call("getNewsletterDeliveryStatus"), history()]);
@@ -1240,11 +1355,20 @@
     } };
   }
 
+  // src/client/features/article-text.js
+  function articleTranslationNote(row) {
+    let state2 = row.translation?.state;
+    return state2 === "native" ? "" : '<p class="small muted">' + (state2 === "translated" ? "Traducci\xF3n autom\xE1tica" : state2 === "unavailable" ? "Traducci\xF3n no disponible. Se muestra el original." : "Traduciendo\u2026") + "</p>";
+  }
+  function articleOriginal(row) {
+    return row.original ? '<details class="article-original"><summary>Ver original</summary><p data-original><strong>' + escape(row.original.titular) + "</strong></p>" + (row.original.extracto ? "<p data-original>" + escape(row.original.extracto) + "</p>" : "") + "</details>" : "";
+  }
+
   // src/client/features/briefing.js
   function createBriefing() {
     return { render(data) {
       let briefing2 = data.briefing || { total: 0, bySignal: [], items: [] };
-      $("briefing-count").textContent = "Novedades detectadas: " + briefing2.total, $("briefing-signals").innerHTML = briefing2.bySignal.map((row) => `<button type="button" class="signal-card" data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(row.name)}</span></button>`).join(""), $("briefing-list").innerHTML = briefing2.items.map((row) => `<article class="panel novelty-card"><div class="news-meta">${row.senales.map((signal) => `<span class="badge">${escape(signal)}</span>`).join("")}<time datetime="${escape(row.fecha)}">${escape(formatCalendarDay(row.fecha, language))}</time>${newsPublisher(row)}</div><h3 data-original><a href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">${escape(row.titular)}</a></h3><p class="novelty-context">${escape(row.entidad)} \xB7 ${escape(row.tipo)} \xB7 ${escape(row.pais)}</p><p ${row.extracto ? "data-original" : ""}>${escape(row.extracto || "Consulta la fuente original para conocer la oferta y sus condiciones.")}</p><div class="novelty-use"><span class="eyebrow">SEGMENTO Y TEMA</span><p>${escape(row.segmentos.length ? row.segmentos.join(" \xB7 ") : "Segmento no identificado")} \xB7 ${escape(row.tema)}</p></div><a class="button" href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">Consultar anuncio \u2197</a></article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.</p></div>', $("briefing-limit").hidden = !briefing2.limited;
+      $("briefing-count").textContent = "Novedades detectadas: " + briefing2.total, $("briefing-signals").innerHTML = briefing2.bySignal.map((row) => `<button type="button" class="signal-card" data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(row.name)}</span></button>`).join(""), $("briefing-list").innerHTML = briefing2.items.map((row) => `<article class="panel novelty-card"><div class="news-meta">${row.senales.map((signal) => `<span class="badge">${escape(signal)}</span>`).join("")}<time datetime="${escape(row.fecha)}">${escape(formatCalendarDay(row.fecha, language))}</time>${newsPublisher(row)}</div>${articleTranslationNote(row)}<h3 data-original><a href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">${escape(row.titular)}</a></h3><p class="novelty-context">${escape(row.entidad)} \xB7 ${escape(row.tipo)} \xB7 ${escape(row.pais)}</p><p ${row.extracto ? "data-original" : ""}>${escape(row.extracto || "Consulta la fuente original para conocer la oferta y sus condiciones.")}</p>${articleOriginal(row)}<div class="novelty-use"><span class="eyebrow">SEGMENTO Y TEMA</span><p>${escape(row.segmentos.length ? row.segmentos.join(" \xB7 ") : "Segmento no identificado")} \xB7 ${escape(row.tema)}</p></div><a class="button" href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">Consultar anuncio \u2197</a></article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.</p></div>', $("briefing-limit").hidden = !briefing2.limited;
     } };
   }
 
@@ -1306,7 +1430,9 @@
       $("map-countries").innerHTML = countries.map((country) => {
         let count = areas.get(country)?.total || 0;
         return `<button type="button" class="geo-row" data-country="${escape(country)}"><span>${escape(country)}</span><span class="geo-count">${count}</span><span class="geo-track"><span style="width:${count / max * 100}%"></span></span></button>`;
-      }).join(""), $("map-note").textContent = radar2.unlocated ? radar2.unlocated + " publicaciones sin geograf\xEDa conocida, excluidas del mapa." : "Todas las publicaciones de la selecci\xF3n tienen una geograf\xEDa conocida.", trend = radar2.trend, renderTrend($("trend-chart").clientWidth || 900), $("trend-period").textContent = radar2.trend.buckets.length ? radar2.trend.from + " \u2014 " + radar2.trend.to : "Sin publicaciones", $("trend-note").textContent = radar2.trend.intervalDays > 1 ? "Volumen agrupado en intervalos de " + radar2.trend.intervalDays + " d\xEDas." : "N\xFAmero de publicaciones por d\xEDa, incluidos los d\xEDas sin noticias.", $("entity-ranking").innerHTML = radar2.ranking.length ? radar2.ranking.slice(0, 6).map((row, i) => `<button type="button" class="ranking-row" data-entity="${escape(row.entity)}"><span class="ranking-index">${String(i + 1).padStart(2, "0")}</span><span class="ranking-name">${escape(row.entity)}<span class="ranking-track"><span style="width:${row.total / Math.max(1, radar2.summary.news) * 100}%"></span></span></span><strong>${row.total}</strong></button>`).join("") : '<p class="muted">Las entidades aparecer\xE1n al ampliar tu selecci\xF3n.</p>', $("ranking-note").textContent = radar2.ranking.length > 6 ? "Se muestran las seis entidades con m\xE1s publicaciones." : "Selecciona una entidad para explorar su actualidad.", $("radar-publisher").textContent = radar2.topPublisher || "Sin publicaciones";
+      }).join(""), $("map-note").textContent = radar2.unlocated ? radar2.unlocated + " publicaciones sin geograf\xEDa conocida, excluidas del mapa." : "Todas las publicaciones de la selecci\xF3n tienen una geograf\xEDa conocida.", trend = radar2.trend, renderTrend($("trend-chart").clientWidth || 900), $("trend-period").textContent = radar2.trend.buckets.length ? radar2.trend.from + " \u2014 " + radar2.trend.to : "Sin publicaciones", $("trend-note").textContent = radar2.trend.intervalDays > 1 ? "Volumen agrupado en intervalos de " + radar2.trend.intervalDays + " d\xEDas." : "N\xFAmero de publicaciones por d\xEDa, incluidos los d\xEDas sin noticias.", $("entity-ranking").innerHTML = radar2.ranking.length ? radar2.ranking.slice(0, 6).map((row, i) => `<button type="button" class="ranking-row" data-entity="${escape(row.entity)}"><span class="ranking-index">${String(i + 1).padStart(2, "0")}</span><span class="ranking-name">${escape(row.entity)}<span class="ranking-track"><span style="width:${row.total / Math.max(1, radar2.summary.news) * 100}%"></span></span></span><strong>${row.total}</strong></button>`).join("") : '<p class="muted">Las entidades aparecer\xE1n al ampliar tu selecci\xF3n.</p>', $("ranking-note").textContent = radar2.ranking.length > 6 ? "Se muestran las seis entidades con m\xE1s publicaciones." : "Selecciona una entidad para explorar su actualidad.";
+      let publishers = radar2.publishers || [], publisherMax = Math.max(1, ...publishers.map((row) => row.total));
+      $("publisher-chart").innerHTML = publishers.length ? publishers.map((row) => `<div class="ranking-row"><span class="ranking-name" data-original>${escape(row.publisher)}<span class="ranking-track"><span style="width:${row.total / publisherMax * 100}%"></span></span></span><strong>${row.total}</strong></div>`).join("") : '<p class="muted">Sin publicaciones</p>', $("radar-publisher").textContent = radar2.topPublisher || "Sin publicaciones";
     } };
   }
 
@@ -1325,7 +1451,8 @@
       audit: "Auditor\xEDa",
       telemetry: "Telemetr\xEDa",
       adoption: "Adopci\xF3n",
-      subscribers: "Suscripciones"
+      subscribers: "Suscripciones",
+      runs: "\xDAltimas ejecuciones"
     }
   };
 
@@ -1340,30 +1467,30 @@
   }
 
   // src/client/features/metrics.js
-  var filters = {}, requests = {};
+  var filters2 = {}, requests = {};
   async function loadMetrics(view, isCurrent) {
-    filters[view] ||= createRecordFilters(view, view === "adoption" ? [["correo", "Usuario"], ["vista", "Vista"], ["evento", "Evento"]] : [["operacion", "Operaci\xF3n"], ["estado", "Estado"]], () => loadMetrics(view, isCurrent), { dates: !0 });
-    let request2 = requests[view] = (requests[view] || 0) + 1;
+    filters2[view] ||= createRecordFilters(view, view === "adoption" ? [["correo", "Usuario"], ["vista", "Vista"], ["evento", "Evento"]] : [["operacion", "Operaci\xF3n"], ["estado", "Estado"]], () => loadMetrics(view, isCurrent), { dates: !0 });
+    let request3 = requests[view] = (requests[view] || 0) + 1;
     try {
-      let data = await call(view === "adoption" ? "getAdoption" : "getTelemetry", filters[view].query());
-      if (!isCurrent() || requests[view] !== request2) return;
-      filters[view].options(data.options), filters[view].page(data), view === "adoption" ? ($("adoption-metrics").innerHTML = metricCards([["DAU", data.dau, "Usuarios \xB7 24 horas"], ["WAU", data.wau, "Usuarios \xB7 7 d\xEDas"], ["MAU", data.mau, "Usuarios \xB7 30 d\xEDas"], ["Recurrentes", data.returning, "M\xE1s de una sesi\xF3n \xB7 30 d\xEDas"]]), $("adoption-note").textContent = t("{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.", data) + " " + (data.limited ? "L\xEDmite de eventos alcanzado; m\xE9tricas parciales." : ""), $("adoption-body").innerHTML = data.users.map((u) => `<tr><td>${escape(u.correo)}</td><td>${escape(date(u.first))}</td><td>${escape(date(u.last))}</td><td>${u.sessions}</td><td>${u.actions}</td></tr>`).join("") || '<tr><td colspan="5">Sin actividad registrada.</td></tr>', $("adoption-daily").innerHTML = data.daily.map((d) => `<tr><td>${escape(d.date)}</td><td>${d.users}</td><td>${d.sessions}</td></tr>`).join("") || '<tr><td colspan="3">Sin actividad diaria registrada.</td></tr>', $("adoption-chart").innerHTML = activityChart(data.daily)) : ($("telemetry-note").textContent = data.total + " coincidencias en las \xFAltimas " + data.limit + " operaciones disponibles." + (data.limited ? " Hist\xF3rico limitado." : ""), $("telemetry-metrics").innerHTML = metricCards([["Latencia p95", data.latencyP95 == null ? "\u2014" : data.latencyP95 + " ms", "Cargas \xB7 30 d\xEDas, todos los usuarios"], ["Errores cliente", data.clientErrors, "Eventos \xB7 30 d\xEDas, todos los usuarios"], ["Fuentes consultadas", data.collection.processed, "Recopilaci\xF3n actual"], ["Pendientes", data.collection.pending, "Fuentes por consultar"]]), $("telemetry-body").innerHTML = data.rows.map((r) => `<tr><td>${escape(date(r.fecha))}</td><td>${escape(displayRecord(r.operacion, language))}</td><td>${escape(r.duracion_ms)} ms</td><td>${escape(r.estado)}</td><td>${escape(r.detalle)}</td></tr>`).join("") || '<tr><td colspan="5">Sin telemetr\xEDa de operaci\xF3n.</td></tr>');
+      let data = await call(view === "adoption" ? "getAdoption" : "getTelemetry", filters2[view].query());
+      if (!isCurrent() || requests[view] !== request3) return;
+      filters2[view].options(data.options), filters2[view].page(data), view === "adoption" ? ($("adoption-metrics").innerHTML = metricCards([["DAU", data.dau, "Usuarios \xB7 24 horas"], ["WAU", data.wau, "Usuarios \xB7 7 d\xEDas"], ["MAU", data.mau, "Usuarios \xB7 30 d\xEDas"], ["Recurrentes", data.returning, "M\xE1s de una sesi\xF3n \xB7 30 d\xEDas"]]), $("adoption-note").textContent = t("{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.", data) + " " + (data.limited ? "L\xEDmite de eventos alcanzado; m\xE9tricas parciales." : ""), $("adoption-body").innerHTML = data.users.map((u) => `<tr><td>${escape(u.correo)}</td><td>${escape(date(u.first))}</td><td>${escape(date(u.last))}</td><td>${u.sessions}</td><td>${u.actions}</td></tr>`).join("") || '<tr><td colspan="5">Sin actividad registrada.</td></tr>', $("adoption-daily").innerHTML = data.daily.map((d) => `<tr><td>${escape(d.date)}</td><td>${d.users}</td><td>${d.sessions}</td></tr>`).join("") || '<tr><td colspan="3">Sin actividad diaria registrada.</td></tr>', $("adoption-chart").innerHTML = activityChart(data.daily)) : ($("telemetry-note").textContent = data.total + " coincidencias en las \xFAltimas " + data.limit + " operaciones disponibles." + (data.limited ? " Hist\xF3rico limitado." : ""), $("telemetry-metrics").innerHTML = metricCards([["Latencia p95", data.latencyP95 == null ? "\u2014" : data.latencyP95 + " ms", "Cargas \xB7 30 d\xEDas, todos los usuarios"], ["Errores cliente", data.clientErrors, "Eventos \xB7 30 d\xEDas, todos los usuarios"], ["Fuentes consultadas", data.collection.processed, "Recopilaci\xF3n actual"], ["Pendientes", data.collection.pending, "Fuentes por consultar"]]), $("telemetry-body").innerHTML = data.rows.map((r) => `<tr><td>${escape(date(r.fecha))}</td><td>${escape(displayRecord(r.operacion, language))}</td><td>${escape(r.duracion_ms)} ms</td><td>${escape(r.estado)}</td><td>${escape(r.detalle)}</td></tr>`).join("") || '<tr><td colspan="5">Sin telemetr\xEDa de operaci\xF3n.</td></tr>');
     } catch (e) {
-      requests[view] === request2 && isCurrent() && message(e.message, !0);
+      requests[view] === request3 && isCurrent() && message(e.message, !0);
     }
   }
 
   // src/client/features/audit.js
-  var filters2, request = 0;
+  var filters3, request2 = 0;
   async function loadAudit() {
-    filters2 ||= createRecordFilters("audit", [["fuente", "Fuente"], ["resultado", "Resultado"], ["ejecucion", "Ejecuci\xF3n"]], loadAudit, { dates: !0, placeholder: "Motivo, fuente o URL" });
-    let current = ++request;
+    filters3 ||= createRecordFilters("audit", [["fuente", "Fuente"], ["resultado", "Resultado"], ["ejecucion", "Ejecuci\xF3n"]], loadAudit, { dates: !0, placeholder: "Motivo, fuente o URL" });
+    let current = ++request2;
     try {
-      let data = await call("getAudit", filters2.query());
-      if (current !== request) return;
-      filters2.options(data.options), filters2.page(data), $("audit-note").textContent = data.total + " coincidencias en las \xFAltimas " + data.limit + " entradas disponibles." + (data.limited ? " Hist\xF3rico limitado; consulta Sheets para registros anteriores." : ""), $("audit-body").innerHTML = data.items.map((row) => `<tr><td>${escape(date(row.fecha))}</td><td>${escape(row.fuente)}</td><td>${escape(row.resultado)}</td><td>${escape(row.motivo)} ${validUrl(row.url) ? `<a href="${escape(row.url)}" target="_blank" rel="noopener noreferrer">Fuente \u2197</a>` : ""}</td></tr>`).join("") || '<tr><td colspan="4">Sin entradas con estos filtros.</td></tr>';
+      let data = await call("getAudit", filters3.query());
+      if (current !== request2) return;
+      filters3.options(data.options), filters3.page(data), $("audit-note").textContent = data.total + " coincidencias en las \xFAltimas " + data.limit + " entradas disponibles." + (data.limited ? " Hist\xF3rico limitado; consulta Sheets para registros anteriores." : ""), $("audit-body").innerHTML = data.items.map((row) => `<tr><td>${escape(date(row.fecha))}</td><td>${escape(row.fuente)}</td><td>${escape(row.resultado)}</td><td>${escape(row.motivo)} ${validUrl(row.url) ? `<a href="${escape(row.url)}" target="_blank" rel="noopener noreferrer">Fuente \u2197</a>` : ""}</td></tr>`).join("") || '<tr><td colspan="4">Sin entradas con estos filtros.</td></tr>';
     } catch (error) {
-      current === request && message(error.message, !0);
+      current === request2 && message(error.message, !0);
     }
   }
 
@@ -1381,7 +1508,7 @@
         } catch (error) {
           message(error.message || String(error), !0);
         }
-        view === "audit" && await loadAudit(), (view === "telemetry" || view === "adoption") && await loadMetrics(view, () => current === view && !$("administration-section").hidden);
+        view === "runs" && await loadRuns(), view === "audit" && await loadAudit(), (view === "telemetry" || view === "adoption") && await loadMetrics(view, () => current === view && !$("administration-section").hidden);
       }
     }
     return $("admin-tabs").addEventListener("click", (event) => {
@@ -1471,7 +1598,7 @@
 
   // src/client/features/news.js
   function renderNews(data) {
-    $("news-list").innerHTML = data.items.length ? data.items.map((n, index) => `<article class="news-item"><span class="news-index" aria-hidden="true">${String(data.page * data.pageSize + index + 1).padStart(2, "0")}</span><div><div class="news-meta"><span class="badge">${escape(n.tema)}</span><time datetime="${escape(n.fecha)}">${escape(formatCalendarDay(n.fecha, language))}</time><span>${escape(n.pais)}</span>${newsPublisher(n)}<span>${escape(n.tipo || "")}</span></div><h3 data-original><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">${escape(n.titular)}</a></h3><p ${n.extracto ? "data-original" : ""}>${escape(n.extracto || "El feed no proporciona un extracto. Consulta la publicaci\xF3n original.")}</p><div class="news-footer"><span class="muted">${escape([n.entidad, ...n.segmentos || []].filter(Boolean).join(" \xB7 "))}</span><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">Abrir noticia \u2197</a></div></div></article>`).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>', $("result-count").textContent = data.total + " publicaciones", $("page-label").textContent = data.total ? t("P\xE1gina {page} de {pages}", { page: data.page + 1, pages: Math.ceil(data.total / data.pageSize) }) : "Sin resultados", $("previous").disabled = data.page === 0, $("next").disabled = (data.page + 1) * data.pageSize >= data.total;
+    $("news-list").innerHTML = data.items.length ? data.items.map((n, index) => `<article class="news-item"><span class="news-index" aria-hidden="true">${String(data.page * data.pageSize + index + 1).padStart(2, "0")}</span><div><div class="news-meta"><span class="badge">${escape(n.tema)}</span><time datetime="${escape(n.fecha)}">${escape(formatCalendarDay(n.fecha, language))}</time><span>${escape(n.pais)}</span>${newsPublisher(n)}<span>${escape(n.tipo || "")}</span></div>${articleTranslationNote(n)}<h3 data-original><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">${escape(n.titular)}</a></h3><p ${n.extracto ? "data-original" : ""}>${escape(n.extracto || "El feed no proporciona un extracto. Consulta la publicaci\xF3n original.")}</p>${articleOriginal(n)}<div class="news-footer"><span class="muted">${escape([n.entidad, ...n.segmentos || []].filter(Boolean).join(" \xB7 "))}</span><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">Abrir noticia \u2197</a></div></div></article>`).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>', $("result-count").textContent = data.total + " publicaciones", $("page-label").textContent = data.total ? t("P\xE1gina {page} de {pages}", { page: data.page + 1, pages: Math.ceil(data.total / data.pageSize) }) : "Sin resultados", $("previous").disabled = data.page === 0, $("next").disabled = (data.page + 1) * data.pageSize >= data.total;
   }
 
   // src/client/features/shell.js
@@ -1483,26 +1610,22 @@
 
   // src/client/features/source-catalog.js
   function createSourceCatalog() {
-    let feeds = [], enabled = /* @__PURE__ */ new Set(), pageSize = 30, filters4 = createRecordFilters("source", [["entity", "Entidad"], ["country", "Geograf\xEDa"], ["kind", "Tipo", [["profile", "Google News RSS"], ["rss", "RSS del editor"]]], ["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]], render, { placeholder: "Entidad, geograf\xEDa o editor" });
+    let feeds = [], enabled = /* @__PURE__ */ new Set(), pageSize = 30, filters5 = createRecordFilters("source", [["entity", "Entidad"], ["country", "Geograf\xEDa"], ["kind", "Tipo", [["profile", "Google News RSS"], ["rss", "RSS del editor"]]], ["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]], render, { placeholder: "Entidad, geograf\xEDa o editor" });
     function render() {
-      let query = filters4.query(), rows = filterRecords(feeds.map((feed) => ({ ...feed, enabled: enabled.has(feed.id) })), query, ["entity", "country", "kind", "enabled"], ["name", "entity", "country", "url"]), page = recordPage(rows, query, pageSize);
-      $("configured-sources-body").innerHTML = page.items.map((feed) => `<tr><td><input type="checkbox" class="source-enabled" data-id="${escape(feed.id)}" aria-label="Activar ${escape(feed.name)}" ${enabled.has(feed.id) ? "checked" : ""}></td><td>${escape(feed.name)}</td><td>${escape(feed.country)}</td><td>${feed.kind === "profile" ? "Google News RSS" : "RSS del editor"}</td><td><a href="${escape(validUrl(feed.url))}" target="_blank" rel="noopener noreferrer">Abrir feed \u2197</a></td></tr>`).join("") || '<tr><td colspan="5">No hay fuentes con este criterio.</td></tr>', filters4.page(page), $("configured-source-count").textContent = feeds.length + " fuentes configuradas \xB7 " + enabled.size + " activas";
+      let query = filters5.query(), rows = filterRecords(feeds.map((feed) => ({ ...feed, enabled: enabled.has(feed.id) })), query, ["entity", "country", "kind", "enabled"], ["name", "entity", "country", "url"]), page = recordPage(rows, query, pageSize);
+      $("configured-sources-body").innerHTML = page.items.map((feed) => `<tr><td><input type="checkbox" class="source-enabled" data-id="${escape(feed.id)}" aria-label="Activar ${escape(feed.name)}" ${enabled.has(feed.id) ? "checked" : ""}></td><td>${escape(feed.name)}</td><td>${escape(feed.country)}</td><td>${feed.kind === "profile" ? "Google News RSS" : "RSS del editor"}</td><td><a href="${escape(validUrl(feed.url))}" target="_blank" rel="noopener noreferrer">Abrir feed \u2197</a></td></tr>`).join("") || '<tr><td colspan="5">No hay fuentes con este criterio.</td></tr>', filters5.page(page), $("configured-source-count").textContent = feeds.length + " fuentes configuradas \xB7 " + enabled.size + " activas";
     }
     return $("configured-sources-body").addEventListener("change", (event) => {
       let input = event.target;
       input.matches(".source-enabled") && (input.checked ? enabled.add(input.dataset.id) : enabled.delete(input.dataset.id), render());
     }), { update(rows, size) {
-      feeds = rows, pageSize = size, enabled = new Set(rows.filter((row) => row.enabled).map((row) => row.id)), filters4.options(recordOptions(rows, ["entity", "country"])), render();
+      feeds = rows, pageSize = size, enabled = new Set(rows.filter((row) => row.enabled).map((row) => row.id)), filters5.options(recordOptions(rows, ["entity", "country"])), render();
     }, selected: () => [...enabled] };
   }
 
   // src/client/features/sources.js
   function createSources({ getData, run }) {
-    let catalog = createSourceCatalog(), busy = !1, signature = "", runFilters = createRecordFilters("runs", [["estado", "Estado"]], renderRuns, { dates: !0, placeholder: "Estado o error" });
-    function renderRuns() {
-      let rows = getData()?.runs || [], query = runFilters.query(), selected2 = filterRecords(rows, query, ["estado"], ["estado", "errores", "id"], "inicio", getData()?.preferences?.timezone), page = recordPage(selected2, query);
-      $("runs-body").innerHTML = page.items.map((r) => `<tr><td>${escape(date(r.inicio))}</td><td>${escape(r.estado)}</td><td>${escape(r.evaluadas)}</td><td>${escape(r.nuevas)}</td><td>${escape(r.errores || "\u2014")}</td></tr>`).join("") || '<tr><td colspan="5">Sin ejecuciones con estos filtros.</td></tr>', runFilters.page(page);
-    }
+    let catalog = createSourceCatalog(), busy = !1, signature = "";
     function sourceFields(feeds) {
       $("source-fields").innerHTML = feeds.map((f, i) => `<fieldset class="source"><legend>Fuente ${i + 1}</legend>${[["name", "Nombre"], ["url", "URL del feed RSS"], ["domain", "Dominio del editor"], ["entity", "Entidad"], ["country", "Pa\xEDs / alcance"], ["language", "Idioma del feed (opcional)"]].map(([key, label]) => `<label class="${key === "url" ? "wide" : ""}">${label}<input data-key="${key}" value="${escape(f[key] || "")}" ${key === "url" ? 'type="url"' : ""} ${key === "language" ? "" : "required"}></label>`).join("")}<label>Activa<input type="checkbox" data-key="enabled" ${f.enabled !== !1 ? "checked" : ""}></label><button class="button remove-source" type="button">Eliminar fuente</button></fieldset>`).join(""), $("sources-form").querySelectorAll("input,button").forEach((el) => el.disabled = !getData()?.admin || busy);
     }
@@ -1512,10 +1635,13 @@
     function collectionText(status) {
       return status.total ? t("{processed} de {total} consultas completadas; {pending} pendientes y {failed} con error. Las noticias se integran autom\xE1ticamente.", status) : "Las fuentes est\xE1n activas. La pr\xF3xima recopilaci\xF3n las consultar\xE1 por lotes.";
     }
-    return $("collect").addEventListener("click", () => run(async () => {
-      let result = await call("collectNow", document.querySelector('input[name="recovery-range"]:checked').value);
-      message(result.notice || result.added + " noticias nuevas. " + (result.pending ? result.pending + " consultas pendientes; la recuperaci\xF3n contin\xFAa autom\xE1ticamente." : "Recuperaci\xF3n completada.") + (result.errors.length ? " " + result.errors.join(" | ") : ""), result.errors.length > 0);
-    })), $("sources-form").addEventListener("submit", (e) => {
+    function recover(method, range) {
+      return run(async () => {
+        let result = await call(method, ...range ? [range] : []);
+        message(result.notice || result.added + " noticias nuevas. " + (result.pending ? result.pending + " consultas pendientes; la recuperaci\xF3n contin\xFAa autom\xE1ticamente." : "Recuperaci\xF3n completada.") + (result.errors.length ? " " + result.errors.join(" | ") : ""), result.errors.length > 0);
+      });
+    }
+    return $("collect").addEventListener("click", () => recover("collectNow", document.querySelector('input[name="recovery-range"]:checked').value)), $("continue-collection").addEventListener("click", () => recover("resumeCollection")), $("sources-form").addEventListener("submit", (e) => {
       e.preventDefault(), run(async () => {
         await call("saveFeeds", currentFeeds()), message("Fuentes guardadas.");
       });
@@ -1530,7 +1656,9 @@
       message(enabled ? "Recopilaci\xF3n diaria desactivada." : result);
     })), $("save-source-settings").addEventListener("click", () => run(async () => message(await call("saveSourceSettings", catalog.selected())))), $("retry-collection").addEventListener("click", () => run(async () => message(await call("retryCollectionErrors")))), { render(data) {
       let next = JSON.stringify([data.feeds, data.configuredFeeds]);
-      next !== signature && (signature = next, sourceFields(data.feeds), $("source-fields").dataset.max = data.maxFeeds, $("source-limit").textContent = data.maxFeeds, catalog.update(data.configuredFeeds, data.pageSize)), $("source-schedule").textContent = data.schedule || "", $("collection-status").textContent = collectionText(data.collection), runFilters.options(recordOptions(data.runs, ["estado"])), renderRuns();
+      next !== signature && (signature = next, sourceFields(data.feeds), $("source-fields").dataset.max = data.maxFeeds, $("source-limit").textContent = data.maxFeeds, catalog.update(data.configuredFeeds, data.pageSize)), $("source-schedule").textContent = data.schedule || "", $("collection-status").textContent = collectionText(data.collection);
+    }, renderProgress(status) {
+      $("collection-status").textContent = collectionText(status), $("continue-collection").hidden = !(status.pending || status.queued);
     }, setBusy(value) {
       busy = value, $("sources-form").querySelectorAll("input,button").forEach((el) => el.disabled = busy || !getData()?.admin);
     } };
@@ -1637,37 +1765,45 @@
   // src/client/app.js
   initializeLocalization();
   var state = { data: null, request: 0, busy: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data }), { track, flush } = usage, configuration = createConfiguration({ run: action }), subscriptions = createSubscriptions({ run: action, onApply: (query) => {
-    filters3.show("news"), filters3.apply(query), navigation.show("news");
+    filters4.show("news"), filters4.apply(query), navigation.show("news");
   } }), newsletterDelivery = createNewsletterDelivery({ run: action }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]) }), navigation = createNavigation({ onSelection: (view) => {
-    filters3.show(view) && load();
-  }, onSubscriptions: () => subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters3 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
+    filters4.show(view) ? load() : state.data && renderSelection(state.data, view);
+  }, onSubscriptions: () => subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
   } }), briefing = createBriefing();
   $("briefing-signals").addEventListener("click", (event) => {
     let button = event.target.closest("[data-signal]");
-    button && filters3.set("signal", button.dataset.signal);
+    button && filters4.set("signal", button.dataset.signal);
   });
   var radar = createRadar({ onCountry: (country) => {
-    filters3.show("news"), filters3.set("country", country), navigation.show("news");
-  }, onEntity: (entity) => filters3.set("entity", entity), onNews: () => navigation.show("news") }), sources = createSources({ getData: () => state.data, run: action });
+    filters4.show("news"), filters4.set("country", country), navigation.show("news");
+  }, onEntity: (entity) => filters4.set("entity", entity), onNews: () => navigation.show("news") }), sources = createSources({ getData: () => state.data, run: action }), collectionProgress = createCollectionProgress({ reload: load, isBusy: () => state.busy || !$("loading").hidden, onStatus: (status) => {
+    state.data && (state.data.collection = status), sources.renderProgress(status), state.data?.admin && renderCollectionJobs(status);
+  } }), newsTranslations = createNewsTranslations({ getView: () => navigation.current, getData: () => state.data, onUpdate: () => {
+    renderSelection(state.data, navigation.current, !1), flushLocalization();
+  } });
+  function renderSelection(data, view = navigation.current, translate = !0) {
+    renderNews(data), view === "radar" && radar.render(data), view === "briefing" && briefing.render(data), translate && newsTranslations.start();
+  }
   async function load() {
-    let request2 = ++state.request, started = performance.now();
-    if ($("loading").hidden = !1, !filters3.isValid()) {
+    newsTranslations.cancel();
+    let request3 = ++state.request, started = performance.now();
+    if ($("loading").hidden = !1, !filters4.isValid()) {
       $("loading").hidden = !0;
       return;
     }
     try {
-      let data = await call("getDashboard", filters3.query());
-      if (request2 === state.request) {
+      let data = await call("getDashboard", filters4.query());
+      if (request3 === state.request) {
         let first = !state.data;
         state.data = data, setTimezone(data.preferences?.timezone), window.RADAR_PREVIEW && data.admin && ($("preview-banner").textContent = "Administraci\xF3n local \xB7 cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.");
         let renderStarted = performance.now();
-        filters3.render(data), renderNews(data), navigation.current === "radar" && radar.render(data), navigation.current === "briefing" && briefing.render(data), data.preferences && ($("retention-days").textContent = data.preferences.retentionDays, $("event-limit").textContent = data.preferences.eventLimit), renderShell(data), data.admin && sources.render(data), flushLocalization(), track("rendimiento", performance.now() - started, { ...data.performance, rpcMs: Math.round(renderStarted - started), renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
+        filters4.render(data), renderSelection(data), data.preferences && ($("retention-days").textContent = data.preferences.retentionDays, $("event-limit").textContent = data.preferences.eventLimit), renderShell(data), data.admin && sources.render(data), collectionProgress.update(data), flushLocalization(), track("rendimiento", performance.now() - started, { ...data.performance, rpcMs: Math.round(renderStarted - started), renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
       }
     } catch (error) {
-      request2 === state.request && (track("error"), message(error.message || String(error), !0));
+      request3 === state.request && (track("error"), message(error.message || String(error), !0));
     } finally {
-      request2 === state.request && ($("loading").hidden = !0);
+      request3 === state.request && ($("loading").hidden = !0);
     }
   }
   var actionControls = ".actions button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
@@ -1684,13 +1820,13 @@
     }
   }
   $("previous").addEventListener("click", () => {
-    filters3.setPage(state.data.page - 1), load();
+    filters4.setPage(state.data.page - 1), load();
   });
   $("next").addEventListener("click", () => {
-    filters3.setPage(state.data.page + 1), load();
+    filters4.setPage(state.data.page + 1), load();
   });
   $("export").addEventListener("click", () => action(async () => {
-    let result = await call("exportNews", filters3.query()), url = URL.createObjectURL(new Blob([result.csv], { type: "text/csv;charset=utf-8" })), link = document.createElement("a");
+    let result = await call("exportNews", filters4.query()), url = URL.createObjectURL(new Blob([result.csv], { type: "text/csv;charset=utf-8" })), link = document.createElement("a");
     link.href = url, link.download = "news-radar.csv", link.click(), setTimeout(() => URL.revokeObjectURL(url), 1e3), track("exportacion"), message(result.count + " publicaciones exportadas.");
   }, !1));
   $("news-list").addEventListener("click", (event) => {

@@ -1,22 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import {createHash} from 'node:crypto';
+import {storage} from './helpers/server.mjs';
 import {read,readServerScript} from '../scripts/source.mjs';
 const seed=()=>JSON.parse(read('assets/configuration-defaults.json'));
-function storage(){
-  const sheets=new Map(),properties={OWNER_EMAIL:'owner@bbva.com',SPREADSHEET_ID:'book'},cache=new Map(),triggers=[];let email='owner@bbva.com',reads=0,id=0;
-  function sheet(name){
-    const grid=[];return {grid,getName:()=>name,getLastRow:()=>{let size=grid.length;while(size&&!(grid[size-1]||[]).some(value=>value!==''&&value!=null))size--;return size;},getMaxRows:()=>10000,setFrozenRows(){},
-      getRange(row,column,height,width){const range={getValues(){reads++;return Array.from({length:height},(_,i)=>Array.from({length:width},(_,j)=>grid[row-1+i]?.[column-1+j]??''));},getDisplayValues(){return this.getValues().map(values=>values.map(String));},setValues(values){values.forEach((values,i)=>{grid[row-1+i]??=[];values.forEach((value,j)=>grid[row-1+i][column-1+j]=value);});return range;},clearContent(){return this.setValues(Array.from({length:height},()=>Array(width).fill('')));}};for(const method of ['setFontWeight','setBackground','setFontColor','setNumberFormat'])range[method]=()=>range;return range;},deleteRow(row){grid.splice(row-1,1);}};
-  }
-  const book={getSheetByName:name=>sheets.get(name),insertSheet:name=>{const value=sheet(name);sheets.set(name,value);return value;}};
-  const c=vm.createContext({PropertiesService:{getScriptProperties:()=>({getProperty:key=>properties[key]||null,setProperty:(key,value)=>properties[key]=value})},CacheService:{getScriptCache:()=>({get:key=>cache.get(key),put:(key,value)=>cache.set(key,value),remove:key=>cache.delete(key)})},SpreadsheetApp:{openById:()=>book,flush(){}},Session:{getActiveUser:()=>({getEmail:()=>email})},LockService:{getScriptLock:()=>({waitLock(){},tryLock:()=>true,releaseLock(){}})},Utilities:{getUuid:()=>String(++id),DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(_algorithm,value)=>Array.from(createHash('sha256').update(value).digest())},ScriptApp:{getProjectTriggers:()=>triggers,newTrigger:handler=>{const trigger={forSpreadsheet:()=>trigger,onEdit:()=>trigger,create:()=>triggers.push({getHandlerFunction:()=>handler})};return trigger;}}});
-  vm.runInContext(readServerScript('dist',true),c);
-  return {c,sheets,cache,book,setEmail:value=>email=value,get reads(){return reads;}};
-}
 test('inicializa solo claves ausentes, persiste en Sheets y reutiliza e invalida la caché versionada',()=>{
-  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,4);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
+  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,7);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
   config.settings.defaultEntity='Qonto';config.topics.push({name:'Prueba editorial',terms:['innovación verificable'],enabled:true});c.saveConfiguration({config,revision:c.getConfiguration().revision});assert.equal(c.getConfiguration().config.settings.defaultEntity,'Qonto');
   c.initializeConfiguration();assert.equal(c.getConfiguration().config.settings.defaultEntity,'Qonto');assert.ok(c.getConfiguration().config.topics.some(row=>row.name==='Prueba editorial'));
   const sheet=s.sheets.get('Configuracion'),index=sheet.grid.findIndex(row=>row[0]==='settings'),settings=JSON.parse(sheet.grid[index][1]);settings.defaultEntity='Revolut';sheet.grid[index][1]=JSON.stringify(settings);
@@ -162,4 +151,12 @@ test('la actualización explícita de idiomas conserva catálogos propios y fuen
  const s=storage(),{c}=s;c.initializeConfiguration();let snapshot=c.getConfiguration();snapshot.config.feeds=snapshot.config.feeds.filter(row=>row.id!=='bbva-english');snapshot.config.topics[0].terms=['personalizado'];snapshot.config.topics.push({name:'Propio',terms:['propio'],enabled:true});snapshot.config.settings.searchTerms=['seguimiento propio'];snapshot.config.feeds[0].enabled=false;c.saveConfiguration(snapshot);
  c.initializeLanguages();const updated=c.getConfiguration();assert.ok(updated.config.topics[0].terms.includes('personalizado'));assert.ok(updated.config.topics[0].terms.includes('outage'));assert.ok(updated.config.topics.some(row=>row.name==='Propio'));assert.equal(updated.config.feeds[0].enabled,false);assert.equal(updated.config.feeds.filter(row=>row.id==='bbva-english').length,1);assert.ok(updated.config.settings.searchTerms.includes('seguimiento propio'));
  c.initializeLanguages();assert.equal(c.getConfiguration().revision,updated.revision);s.setEmail('reader@bbva.com');assert.throws(()=>c.initializeLanguages(),/administrador/);
+});
+
+test('inicializar prioridades conserva íntegra la recuperación anual que ya estaba en curso',()=>{
+ const s=storage(),{c}=s;c.initializeConfiguration();const queue=s.sheets.get('Recopilacion');
+ const old=['cycle','Fuente','https://news.google.com/rss/search?q=after%3A2025-10-01%20before%3A2025-10-09','Completada','1','2026-10-11',10,3,''];
+ const recent=[...old];recent[2]='https://news.google.com/rss/search?q=after%3A2026-10-01%20before%3A2026-10-09';recent[3]='Pendiente';queue.grid.push([...old],[...recent]);
+ c.initializeCollectionQueue_();assert.deepEqual(queue.grid[1].slice(0,9),old);assert.equal(queue.grid[1][9],'2025-10-08');assert.equal(queue.grid[2][9],'2026-10-08');
+ c.initializeCollectionQueue_();assert.equal(queue.grid.length,3);queue.grid.push(['cycle','RSS','https://bbva.com/rss','Pendiente',0,'',0,0,'']);c.initializeCollectionQueue_();assert.equal(queue.grid[3][9],'2026-10-08');
 });
