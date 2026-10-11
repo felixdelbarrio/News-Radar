@@ -184,3 +184,5 @@ Los filtros administrativos comparten componente, normalización, validación de
 `make coverage` ejecuta todas las pruebas e instrumenta todos los archivos JavaScript y Apps Script de `src/`, incluidos los no ejecutados. Se exige **más del 80 %** global en líneas, sentencias, funciones y ramas; un 80 % exacto falla. La instrumentación solo se carga al medir cobertura y no forma parte de `dist/` ni del servidor local. El informe HTML, LCOV y resumen JSON se generan en `output/coverage/`.
 
 `make verify` incluye este umbral. El check existente **Integrity and tests** falla si falla cualquier prueba o categoría de cobertura; GitHub conserva el informe como artefacto también cuando el umbral falla. Las protecciones de rama deben mantener este check como obligatorio.
+
+El servidor se valida con un analizador de sintaxis limitado a ES2020, tanto al compilar como en `make check`. Esto impide introducir operadores como `||=`, `&&=` y `??=` en los archivos `.gs`, aunque Node.js los acepte. El cliente se ejecuta en el navegador y conserva su propia validación.

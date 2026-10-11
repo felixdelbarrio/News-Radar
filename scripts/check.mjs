@@ -4,11 +4,14 @@ import vm from 'node:vm';
 import {execFileSync} from 'node:child_process';
 import {readClientScript,readServerScript,files} from './source.mjs';
 import {designTokens} from './design.mjs';
+import {checkAppsScriptSyntax} from './apps-script-syntax.mjs';
 
 const root=path.resolve(import.meta.dirname,'..');
 for(const file of [...files('scripts'),...files('tests'),...files('src/client')].filter(file=>file.match(/\.(mjs|js)$/))){
   execFileSync(process.execPath,['--check',path.join(root,file)],{stdio:'inherit'});
 }
+for(const file of files('src/server'))checkAppsScriptSyntax(fs.readFileSync(path.join(root,file),'utf8'),file);
+checkAppsScriptSyntax(fs.readFileSync(path.join(root,'src/shared/record-filters.js'),'utf8').replace(/^export /gm,''),'src/shared/record-filters.js');
 new vm.Script(readServerScript('src/server'));
 new vm.Script(readClientScript());
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'src/appsscript.json')));

@@ -1,6 +1,6 @@
 let newsletterKeyMemory_;
 function newsletterItemKeys_(row){
-  newsletterKeyMemory_||=new WeakMap();if(newsletterKeyMemory_.has(row))return newsletterKeyMemory_.get(row);
+  if(!newsletterKeyMemory_)newsletterKeyMemory_=new WeakMap();if(newsletterKeyMemory_.has(row))return newsletterKeyMemory_.get(row);
   const keys=['url:'+newsletterHash_(canonicalUrl_(row.url)),'text:'+newsletterHash_(recordText(row.titular)+'\n'+recordText(row.extracto))];
   newsletterKeyMemory_.set(row,keys);return keys;
 }
