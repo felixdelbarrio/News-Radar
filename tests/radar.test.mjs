@@ -59,6 +59,7 @@ test('recopila por lotes, integra automáticamente, deduplica y conserva reinten
   const c=context(),saved={},writes=[];let released=false;
   c.LockService={getScriptLock:()=>({tryLock:()=>true,releaseLock:()=>released=true})};
   c.rows_=()=>[{ciclo:'cycle',fuente:'BBVA',url:'good',estado:'Pendiente',intentos:'0'},{ciclo:'cycle',fuente:'Error',url:'bad',estado:'Pendiente',intentos:'0'}];
+  c.collectionWork_=()=>({tasks:c.rows_(),pending:c.rows_().map((task,index)=>({...task,row:index+2}))});
   c.feeds_=()=>[{...feed,url:'good'},{...feed,url:'bad'}];c.knownUrls_=()=>new Set();c.book_=()=>({getSheetByName:()=>({getLastRow:()=>1,getRange:()=>({setNumberFormat(){return this;},setValues:rows=>writes.push(rows)})})});
   c.UrlFetchApp={fetchAll:requests=>requests.map(({url})=>url==='good'?{getResponseCode:()=>200,getContentText:()=>'<rss/>'}:{getResponseCode:()=>503})};
   c.parseFeed_=()=>[{...item,date:new Date(Date.now()-86400000).toISOString()},{...item,date:new Date(Date.now()-86400000).toISOString()}];c.append_=(name,rows)=>saved[name]=rows;c.telemetry_=()=>{};
@@ -66,7 +67,7 @@ test('recopila por lotes, integra automáticamente, deduplica y conserva reinten
 });
 test('agotados tres intentos registra error y la recuperación escribe un único lote',()=>{
   const c=context(),tasks=[{ciclo:'cycle',fuente:'Error',url:'bad',estado:'Pendiente',intentos:'2',actualizada:'2026-10-09',evaluadas:'0',nuevas:'0',error:''}];let rows,writes=0;
-  c.rows_=()=>tasks;c.feeds_=()=>[{...feed,url:'bad'}];c.knownUrls_=()=>new Set();c.book_=()=>({getSheetByName:()=>({getLastRow:()=>1,getRange:()=>({setNumberFormat(){return this;},setValues:value=>{rows=value;writes++;}})})});c.UrlFetchApp={fetchAll:requests=>requests.map(()=>({getResponseCode:()=>503}))};c.append_=()=>{};c.telemetry_=()=>{};c.collectionTick_();assert.equal(rows[0][0],'Error');
+  c.rows_=()=>tasks;c.collectionWork_=()=>({tasks,pending:tasks.map((task,index)=>({...task,row:index+2}))});c.feeds_=()=>[{...feed,url:'bad'}];c.knownUrls_=()=>new Set();c.book_=()=>({getSheetByName:()=>({getLastRow:()=>1,getRange:()=>({setNumberFormat(){return this;},setValues:value=>{rows=value;writes++;}})})});c.UrlFetchApp={fetchAll:requests=>requests.map(()=>({getResponseCode:()=>503}))};c.append_=()=>{};c.telemetry_=()=>{};c.collectionTick_();assert.equal(rows[0][0],'Error');
   tasks[0].estado='Error';writes=0;c.ScriptApp={getProjectTriggers:()=>[{getHandlerFunction:()=> 'collectionTick_'}]};assert.match(c.retryCollectionErrors(),/^1 fuentes/);assert.equal(writes,1);assert.equal(rows[0][0],'Pendiente');assert.equal(rows[0][1],0);
 });
 test('adopción calcula ventanas y sesiones y obtiene el correo exclusivamente del servidor',()=>{
@@ -182,6 +183,7 @@ test('exportación de telemetría incluye exclusiones, límites y cola; exige ad
 test('el lote saturado persiste consultas hijas y evita finalizar una cola con trabajo nuevo',()=>{
  const c=context(),range={from:'2025-10-09',to:'2025-10-15'},feed={...c.defaultFeeds_(range).find(row=>row.kind==='profile'),range},saved={};let sorted=false;
  c.rows_=()=>[{ciclo:'cycle',fuente:feed.name,url:feed.url,estado:'Pendiente',intentos:0}];c.collectionFeeds_=()=>{throw Error('No reconstruir la cola anual en cada lote');};c.knownUrls_=()=>new Set();
+ c.collectionWork_=()=>({tasks:c.rows_(),pending:c.rows_().map((task,index)=>({...task,row:index+2}))});
  c.UrlFetchApp={fetchAll:requests=>requests.map(()=>({getResponseCode:()=>200}))};c.ingestFeed_=()=>({news:[],audit:[],evaluated:100,saturated:true});c.append_=(name,rows)=>saved[name]=rows;c.telemetry_=()=>{};
  c.book_=()=>({getSheetByName:()=>({getLastRow:()=>3,getRange:()=>({setNumberFormat(){return this;},setValues(){},sort(){sorted=true;}})})});
  c.collectionTick_();assert.equal(saved.Recopilacion.length,2);assert.ok(saved.Recopilacion.every(row=>row[3]==='Pendiente'));assert.equal(sorted,false);assert.ok(saved.Auditoria.some(row=>row[4]==='Cobertura parcial'));
@@ -248,4 +250,37 @@ test('los tiempos de dashboard se guardan con los eventos sin otro RPC ni nuevas
  const c=context(),saved={};c.pruneEvents_=()=>{};c.trim_=()=>{};c.append_=(name,rows)=>saved[name]=rows;
  c.recordEvents([{session:'test-session-123456',event:'rendimiento',view:'radar',duration:1800,performance:{serverMs:300,newsMs:50,rpcMs:1700,renderMs:100,cacheHit:true}}]);
  assert.equal(saved.Telemetria[0].length,5);assert.equal(saved.Telemetria[0][1],'dashboard');assert.equal(saved.Telemetria[0][2],1800);assert.match(saved.Telemetria[0][4],/RPC 1700 ms; servidor 300 ms; noticias 50 ms; render 100 ms; caché hit/);assert.equal(saved.Adopcion.length,1);
+});
+
+
+test('la cola anual lee URLs solo de las tareas elegidas y conserva filas, contadores y reintentos',()=>{
+ const c=context(),reads=[],started=Date.now(),states=Array.from({length:2594},()=>['Completada','1','',0,'2','']);
+ states[1]=['Reintento programado','1',new Date(started).toISOString(),0,0,'HTTP 503'];
+ states[3]=['Pendiente','0','',0,0,''];states[4]=['Pendiente','0','',0,0,''];
+ states[20]=['Reintento programado','1',new Date(started-3600000).toISOString(),0,0,'HTTP 503'];
+ states[21]=['Pendiente','0','',0,0,''];
+ c.book_=()=>({getSheetByName:()=>({getLastRow:()=>2595,getRange:(row,column,height,width)=>({getDisplayValues:()=>{reads.push([row,column,height,width]);return column===4?states:Array.from({length:height},(_,i)=>['cycle','source'+(row+i),'https://news.google.com/'+(row+i)]);}})})});
+ const {tasks,pending}=c.collectionWork_(started);
+ assert.equal(tasks.length,2594);assert.deepEqual(Array.from(pending,task=>task.row),[5,6,22]);
+ assert.deepEqual(reads,[[2,4,2594,6],[5,1,2,3],[22,1,1,3]]);assert.equal(tasks[0].nuevas,'2');assert.equal(tasks[0].url,undefined);assert.equal(pending[2].intentos,'1');assert.equal(pending[2].url,'https://news.google.com/22');
+});
+
+test('cola sin tareas elegibles no lee identidades ni URLs',()=>{
+ const c=context();let reads=0;
+ c.book_=()=>({getSheetByName:()=>({getLastRow:()=>2,getRange:(row,column,height,width)=>{assert.equal(column,4);assert.equal(width,6);return {getDisplayValues:()=>{reads++;return [['Error',3,'',0,0,'HTTP 302']];}};}})});
+ const work=c.collectionWork_(Date.now());assert.equal(work.pending.length,0);assert.equal(reads,1);
+});
+
+test('las ejecuciones se comparten entre cargas y una nueva escritura invalida la caché',()=>{
+ const c=context();let reads=0;
+ c.rows_=()=>{reads++;return [{inicio:'first'}];};assert.equal(c.dashboardRuns_()[0].inicio,'first');c.dashboardRuns_();assert.equal(reads,1);
+ c.book_=()=>({getSheetByName:()=>({getLastRow:()=>1,getMaxRows:()=>100,getRange:()=>({setNumberFormat(){return this;},setValues(){}})})});
+ c.append_('Ejecuciones',[['next']]);c.rows_=()=>{reads++;return [{inicio:'next'}];};assert.equal(c.dashboardRuns_()[0].inicio,'next');assert.equal(reads,2);
+ const reader=context('reader@bbva.com');reader.rows_=name=>name==='Ejecuciones'?[{inicio:'last',errores:'private'}]:[];reader.book_=()=>{throw Error('No abrir Sheets');};const data=reader.getDashboard({});assert.equal(data.lastRun,'last');assert.equal(data.runs,undefined);assert.equal(data.sheetUrl,undefined);assert.ok('metadataMs' in data.performance);
+});
+
+test('la telemetría identifica la versión que produjo cada operación y la exportación',()=>{
+ const c=context();let rows;c.append_=(name,value)=>rows=value;c.trim_=()=>{};
+ c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v1\.1\.1;/);
+ c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'1.1.1');
 });

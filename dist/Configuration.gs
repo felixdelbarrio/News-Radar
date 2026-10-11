@@ -11,7 +11,7 @@ function configuration_(){
   return configurationMemory_=config;
 }
 function invalidateConfiguration_(){configurationMemory_=undefined;configurationVersionMemory_=undefined;properties_().setProperty('CONFIG_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));}
-function configurationEdited_(event){const sheet=event?.range?.getSheet().getName();if(sheet==='Configuracion')invalidateConfiguration_();else if(sheet==='Noticias')invalidateNews_();}
+function configurationEdited_(event){const sheet=event?.range?.getSheet().getName();if(sheet==='Configuracion')invalidateConfiguration_();else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
 function initializeConfiguration(){
   authorize_(true);const lock=LockService.getScriptLock();lock.waitLock(10000);
   try{

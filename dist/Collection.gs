@@ -34,7 +34,7 @@ function collectionTick_() {
   const started=Date.now(),news=[],audit=[],errors=[],newTasks=[];let evaluated=0;
   try{
     if(started<Number(properties_().getProperty('COLLECTION_AFTER')||0))return {...collectionStatus_(),added:0,evaluated:0,errors:[],paused:true};
-    const tasks=rows_('Recopilacion'),pending=tasks.map((task,index)=>({...task,row:index+2})).filter(task=>task.estado==='Pendiente'||(task.estado==='Reintento programado'&&started-new Date(task.actualizada).getTime()>=settings_().retryMinutes*60000)).slice(0,settings_().collectionBatch);
+    const {tasks,pending}=collectionWork_(started);
     if(!pending.length){
       if(!tasks.some(task=>task.estado==='Reintento programado'))ScriptApp.getProjectTriggers().filter(trigger=>trigger.getHandlerFunction()==='collectionTick_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
       return {...collectionStatus_(tasks),added:0,evaluated:0,errors:[]};
@@ -42,7 +42,7 @@ function collectionTick_() {
     const feeds=collectionFeedIndex_(),known=knownUrls_(),now=new Date(),updates=tasks.map(task=>[task.estado,task.intentos,task.actualizada,task.evaluadas,task.nuevas,task.error]);
     const work=pending.map(task=>({task,feed:collectionTaskFeed_(task,feeds)})),fetchStart=Date.now();
     const responses=fetchFeedBatch_(work.filter(item=>item.feed).map(item=>item.feed));
-    const fetchMs=Date.now()-fetchStart;let responseIndex=0;
+    const fetchMs=Date.now()-fetchStart,processingStarted=Date.now();let responseIndex=0;
     for(const {task,feed} of work){
       const attempts=Number(task.intentos)+1;let status='Completada',count=0,added=0,error='';
       try{
@@ -58,6 +58,7 @@ function collectionTick_() {
       updates[task.row-2]=[status,attempts,now.toISOString(),count,added,error];
       Object.assign(tasks[task.row-2],{estado:status,nuevas:added});
     }
+    const processingMs=Date.now()-processingStarted,writeStarted=Date.now();
     append_('Noticias',news);if(news.length)invalidateNews_();
     append_('Auditoria',audit);append_('Recopilacion',newTasks);
     writeCollectionTasks_(pending,updates);
@@ -65,7 +66,7 @@ function collectionTick_() {
     append_('Ejecuciones',[[pending[0].ciclo,now.toISOString(),new Date().toISOString(),errors.length?'Parcial':'Completada',pending.length,evaluated,news.length,errors.join(' | ')]]);
     if(errors.length>=2)properties_().setProperty('COLLECTION_AFTER',String(Date.now()+settings_().pauseMinutes*60000));
     const collection=collectionStatus_(tasks.concat(newTasks.map(row=>({estado:row[3],nuevas:row[7]}))));
-    telemetry_('recopilacion',Date.now()-started,errors.length?'Parcial':'OK',pending.length+' fuentes; '+news.length+' nuevas; red '+fetchMs+' ms; proceso/escritura '+(Date.now()-fetchStart-fetchMs)+' ms');
+    telemetry_('recopilacion',Date.now()-started,errors.length?'Parcial':'OK',pending.length+' fuentes; '+news.length+' nuevas; preparación '+(fetchStart-started)+' ms; red '+fetchMs+' ms; proceso '+processingMs+' ms; escritura '+(Date.now()-writeStarted)+' ms');
     return {...collection,added:news.length,evaluated,errors};
   }catch(error){telemetry_('recopilacion',Date.now()-started,'Error',error.message);throw error;}
   finally{lock.releaseLock();}
@@ -87,4 +88,21 @@ function writeCollectionTasks_(pending,updates){
     if(end<pending.length&&pending[end].row===pending[end-1].row+1)continue;
     const group=pending.slice(start,end);sheet.getRange(group[0].row,4,group.length,6).setNumberFormat('@').setValues(group.map(task=>updates[task.row-2].map(safeCell_)));start=end;
   }
+}
+
+function collectionWork_(started){
+  const sheet=book_().getSheetByName('Recopilacion'),count=sheet.getLastRow()-1,keys=RADAR.sheets.Recopilacion.slice(3);
+  const tasks=count>0?sheet.getRange(2,4,count,6).getDisplayValues().map(row=>Object.fromEntries(keys.map((key,index)=>[key,row[index]]))):[];
+  const pending=[],retryMs=settings_().retryMinutes*60000;
+  for(let index=0;index<tasks.length&&pending.length<settings_().collectionBatch;index++){
+    const task=tasks[index];
+    if(task.estado==='Pendiente'||(task.estado==='Reintento programado'&&started-new Date(task.actualizada).getTime()>=retryMs))pending.push({...task,row:index+2});
+  }
+  let start=0;
+  for(let end=1;end<=pending.length;end++){
+    if(end<pending.length&&pending[end].row===pending[end-1].row+1)continue;
+    const group=pending.slice(start,end),sources=sheet.getRange(group[0].row,1,group.length,3).getDisplayValues();
+    group.forEach((task,index)=>Object.assign(task,{ciclo:sources[index][0],fuente:sources[index][1],url:sources[index][2]}));start=end;
+  }
+  return {tasks,pending};
 }

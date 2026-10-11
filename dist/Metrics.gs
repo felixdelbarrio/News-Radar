@@ -1,5 +1,5 @@
 function telemetry_(operation,duration,status,detail) {
-  append_('Telemetria',[[new Date().toISOString(),operation,Math.max(0,Math.round(duration)),status,String(detail||'').slice(0,200)]]);
+  append_('Telemetria',[[new Date().toISOString(),operation,Math.max(0,Math.round(duration)),status,('v'+RADAR.version+'; '+String(detail||'')).slice(0,300)]]);
   trim_('Telemetria',settings_().eventLimit);
 }
 function recordEvents(events) {
@@ -20,7 +20,7 @@ function recordEvents(events) {
     if(timings.length){
       append_('Telemetria',timings.map(event=>{
         const bounded=value=>Math.max(0,Math.min(3600000,Math.round(Number(value)||0))),p=event.performance;
-        return [now.toISOString(),'dashboard',bounded(event.duration),'OK',event.view+'; RPC '+bounded(p.rpcMs)+' ms; servidor '+bounded(p.serverMs)+' ms; noticias '+bounded(p.newsMs)+' ms; render '+bounded(p.renderMs)+' ms; caché '+(p.cacheHit===true?'hit':'miss')];
+        return [now.toISOString(),'dashboard',bounded(event.duration),'OK',event.view+'; RPC '+bounded(p.rpcMs)+' ms; servidor '+bounded(p.serverMs)+' ms; noticias '+bounded(p.newsMs)+' ms; render '+bounded(p.renderMs)+' ms; caché '+(p.cacheHit===true?'hit':'miss')+'; preparación '+bounded(p.preparationMs)+' ms; metadatos '+bounded(p.metadataMs)+' ms; v'+RADAR.version];
       }));trim_('Telemetria',settings_().eventLimit);
     }
     cache.put(key,'1',10);
@@ -55,7 +55,7 @@ function exportTelemetry(){
   authorize_(true);const limit=settings_().eventLimit;
   const telemetry=rows_('Telemetria',limit),runs=rows_('Ejecuciones',limit),audit=rows_('Auditoria',limit),tasks=rows_('Recopilacion');
   const reasons=exclusionReasons_(audit);
-  return {schemaVersion:1,exportedAt:new Date().toISOString(),timezone:settings_().timezone,limits:{eventLimit:limit,newsReadLimit:settings_().newsReadLimit,collectionBatch:settings_().collectionBatch},collection:{...collectionStatus_(tasks),range:collectionRangeFromStore_(),tasks},telemetry,runs,audit,exclusionReasons:reasons,auditSampling:{maxExcludedExamplesPerReason:3,totals:'motivos en los resúmenes de Fuente consultada'},limited:{telemetry:telemetry.length===limit,runs:runs.length===limit,audit:audit.length===limit},usage:metrics_(rows_('Adopcion',limit),Date.now())};
+  return {schemaVersion:1,applicationVersion:RADAR.version,exportedAt:new Date().toISOString(),timezone:settings_().timezone,limits:{eventLimit:limit,newsReadLimit:settings_().newsReadLimit,collectionBatch:settings_().collectionBatch},collection:{...collectionStatus_(tasks),range:collectionRangeFromStore_(),tasks},telemetry,runs,audit,exclusionReasons:reasons,auditSampling:{maxExcludedExamplesPerReason:3,totals:'motivos en los resúmenes de Fuente consultada'},limited:{telemetry:telemetry.length===limit,runs:runs.length===limit,audit:audit.length===limit},usage:metrics_(rows_('Adopcion',limit),Date.now())};
 }
 
 function exclusionReasons_(audit){

@@ -52,3 +52,29 @@ Publicar los archivos regenerados de `dist/` en la instalación existente de App
 Tras usar Radar, Novedades y Noticias, incluidas visitas repetidas con los mismos filtros, descargar otra exportación de Telemetría. Comparar cargas con caché `hit` y `miss`, tiempos RPC/servidor/render, duración de los lotes y errores de Uruguay. Comprobar los totales de descartes en `exclusionReasons` y la información de muestreo en `auditSampling`.
 
 Referencias de implementación: [operaciones de UrlFetchApp y fetchAll](https://developers.google.com/apps-script/reference/url-fetch/url-fetch-app), [prácticas recomendadas de Apps Script](https://developers.google.com/apps-script/guides/support/best-practices).
+
+
+## Segunda exportación y correcciones · release 1.1.1
+
+Fuente: `news-radar-telemetria new.json`, exportado a las 12:00:57 Europe/Madrid. Contiene 319 registros de telemetría y mezcla ejecuciones anteriores con las posteriores al cambio. Los primeros registros con la instrumentación nueva aparecen a las 11:59; se comparan por separado. El p95 global de 5.890 ms incluye el histórico y no demuestra una mejora ni una regresión de esta versión.
+
+| Vista | Total cliente | RPC | Servidor | Noticias | Render | Caché |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Radar | 4.249 ms | 4.230 ms | 1.367 ms | 747 ms | 19 ms | miss |
+| Novedades | 3.106 ms | 3.103 ms | 1.546 ms | 987 ms | 3 ms | miss |
+| Noticias | 4.148 ms | 4.143 ms | 1.450 ms | 98 ms | 5 ms | hit |
+
+La caché de noticias se utiliza, pero esa carga sigue dedicando 1.352 ms del servidor a otras fases. La diferencia RPC menos servidor oscila entre 1.557 y 2.863 ms: no se atribuye a render, cuyo coste observado es de 3–19 ms, ni se puede desglosar entre arranque de Apps Script, transporte y serialización con este JSON.
+
+Los dos lotes instrumentados duran 5.453 y 5.079 ms: red 795 y 1.408 ms; proceso/escritura 2.727 y 2.691 ms. Quedan 1.931 y 980 ms de preparación. Ambos terminan sin errores. Santander · Uruguay se consulta correctamente a las 12:00, con 64 entradas evaluadas. Los siete estados Error HTTP 302 pertenecen a ejecuciones anteriores; no se han borrado ni reintentado mediante esta modificación local. El botón existente de Administración permite reintentarlos después de publicar.
+
+La cola crece de 2.554 a 2.594 por la división de consultas saturadas; las tareas completadas pasan de 8 a 56, con 2.531 pendientes y 7 errores. Los últimos lotes añaden cero noticias: predominan fechas ajenas al intervalo consultado. Que una consulta HTTP termine correctamente no demuestra cobertura histórica completa. Se mantiene la validación de fechas y la advertencia de cobertura parcial; no se aceptan noticias fuera de rango para mejorar artificialmente el contador. La exportación de auditoría sigue limitada a 20.000 filas.
+
+Correcciones implementadas:
+
+- El recolector lee estados y contadores de toda la cola, pero carga ciclo, fuente y URL únicamente de las tareas elegidas. Agrupa filas contiguas, respeta reintentos aún no vencidos y conserva los índices originales para escribir. Evita transferir y duplicar en memoria miles de URLs largas en cada ejecución. La exportación mantiene todas las tareas completas.
+- Las últimas diez ejecuciones tienen caché de 15 segundos compartida entre selecciones. Una nueva ejecución o una edición manual en Ejecuciones la invalida. La autorización se comprueba en cada petición; un lector solo recibe la fecha de la última ejecución. La activación diaria y el resto de datos administrativos conservan su lectura habitual.
+- Dashboard separa preparación, cálculo de noticias y metadatos. La recopilación separa preparación, red, procesamiento y escritura. Estas duraciones no incluyen la escritura del propio registro de Telemetría.
+- Cada nuevo registro identifica la release y la exportación incluye `applicationVersion`. Se conserva el formato de cinco columnas y no hacen falta nuevos permisos ni inicialización de Sheets.
+
+Verificación: pruebas de cola anual de 2.594 tareas, selección de filas contiguas y dispersas, reintentos vencidos y pendientes, cola sin trabajo elegible, invalidación de caché y ausencia de datos administrativos para lectores. La reducción de latencia real queda pendiente de medir tras publicar `dist/` de la release 1.1.1; la evidencia actual no permite prometer un porcentaje.
