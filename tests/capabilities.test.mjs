@@ -57,7 +57,7 @@ test('deduplicación exacta y ligera persiste entre ejecuciones sin mezclar merc
  const first=c.ingestFeed_(feed,c.knownUrls_(),'cycle',now,response);assert.equal(first.news.length,1);assert.equal(first.duplicated,1);c.append_('Noticias',first.news);assert.equal(c.ingestFeed_(feed,c.knownUrls_(),'retry',now,response).news.length,0);
  for(const change of [{title:raw.title+' versión 2'},{date:'2026-10-03T10:00:00Z'}]){items=[{...raw,...change,url:raw.url+JSON.stringify(change)}];assert.equal(c.ingestFeed_(feed,c.knownUrls_(),'new',now,response).news.length,1);}
  const known=c.knownUrls_();assert.equal(c.duplicateTitle_(known,{...raw,title:raw.title,date:new Date(raw.date),entity:'Qonto',country:'México'},feed),false);
- const included=first.news[0];assert.equal(included.length,13);assert.ok(included[8].startsWith('https://'));assert.equal(included[10],feed.name);assert.equal(included[3],'');
+ const included=first.news[0];assert.equal(included.length,14);assert.ok(included[8].startsWith('https://'));assert.equal(included[10],feed.name);assert.equal(included[3],'');
 });
 test('inicialización incorpora capacidades y RSS una vez, conserva catálogos y repara solo consultas pendientes',()=>{
  const {c,sheets,properties}=server(),sheet=sheets.get('Configuracion');delete properties.CATALOG_VERSION;sheet.grid.splice(sheet.grid.findIndex(row=>row[0]==='capabilities'),1);const feeds=sheet.grid.find(row=>row[0]==='feeds');feeds[1]=JSON.stringify(JSON.parse(feeds[1]).filter(row=>!row.id.startsWith('finextra-')).map(row=>({...row,enabled:false})));

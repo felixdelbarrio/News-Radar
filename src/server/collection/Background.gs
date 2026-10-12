@@ -27,7 +27,7 @@ function collectionReadyAt_(work){
 function backgroundTick_(){return processBackground_();}
 function backgroundTask_(work,daily){
   if(daily)return 'collection';
-  const available={collection:work.pending.length>0,translation:translationReadyAt_()<=Date.now(),classification:classificationReadyAt_()<=Date.now()},order=['collection','translation','classification'],last=order.indexOf(properties_().getProperty('BACKGROUND_LAST'));
+  const available={collection:work.pending.length>0,translation:translationReadyAt_()<=Date.now(),classification:classificationReadyAt_()<=Date.now(),taxonomy:!work.pending.length&&taxonomyReadyAt_()<=Date.now()},order=['collection','translation','classification','taxonomy'],last=order.indexOf(properties_().getProperty('BACKGROUND_LAST'));
   for(let i=1;i<=order.length;i++){const task=order[(last+i)%order.length];if(available[task])return task;}return '';
 }
 function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
@@ -39,10 +39,11 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
       drainCollectionRequests_();work=collectionWork_(Date.now());
       const daily=Boolean(work.pending.length&&work.jobs.some(job=>job.id===work.pending[0].ciclo&&job.tipo==='daily'));
       if(!work.pending.length&&batch===0)collectionBatch_(work);
-      if(!daily)drainClassificationRequest_();
+      if(!daily){drainClassificationRequest_();drainTaxonomyRequest_();}
       const task=backgroundTask_(work,daily);if(!task)break;
       const remaining=BACKGROUND_WORK.maxMs-(Date.now()-started);if(remaining<=0)break;
-      if(task==='classification')newsClassificationBatch_(Math.min(CLASSIFICATION_WORK.maxMs,remaining));
+      if(task==='taxonomy')taxonomyBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
+      else if(task==='classification')newsClassificationBatch_(Math.min(CLASSIFICATION_WORK.maxMs,remaining));
       else if(task==='translation')translationBatch_(Math.min(TRANSLATION_WORK.maxMs,remaining));
       else{
         known=known||knownUrls_();const result=collectionBatch_({...work,known}),day=recordDay(new Date(),settings_().timezone);added+=result.added;errors.push(...result.errors);
@@ -53,7 +54,7 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
     completed=true;return {...collectionStatus_(null,work?.jobs),added,errors};
   }finally{
     try{
-      const queued=collectionRequests_().length||(properties_().getProperty('CLASSIFICATION_REQUEST')&&!classificationPending_()),next=queued||!completed?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_(),classificationReadyAt_());
+      const queued=collectionRequests_().length||(properties_().getProperty('CLASSIFICATION_REQUEST')&&!classificationPending_())||(properties_().getProperty('TAXONOMY_REQUEST')&&!taxonomyPending_()),next=queued||!completed?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_(),classificationReadyAt_(),taxonomyReadyAt_());
       if(Number.isFinite(next))ensureBackgroundWorker_(next-Date.now());
     }finally{lock.releaseLock();}
   }
@@ -65,5 +66,6 @@ function initializeBackgroundSchedules_(){
   if(properties_().getProperty('TRANSLATION_ENABLED')!=='false'){replaceDailySchedule_('nightlyTranslations_',TRANSLATION_WORK.hour);properties_().setProperty('TRANSLATION_ENABLED','true');}
   else scheduledTriggers_('nightlyTranslations_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   replaceDailySchedule_('dailyClassification_',settings_().dailyHour,CLASSIFICATION_WORK.dailyMinute);
-  if(classificationPending_()||properties_().getProperty('CLASSIFICATION_REQUEST')||collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_()))ensureBackgroundWorker_();
+  replaceDailySchedule_('dailyTaxonomy_',settings_().dailyHour,TAXONOMY_POLICY.dailyMinute);
+  if(taxonomyPending_()||properties_().getProperty('TAXONOMY_REQUEST')||classificationPending_()||properties_().getProperty('CLASSIFICATION_REQUEST')||collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_()))ensureBackgroundWorker_();
 }

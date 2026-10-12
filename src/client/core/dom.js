@@ -1,3 +1,4 @@
+import {taxonomyPath} from '../../shared/taxonomy-path.js';
 import {language} from './language.js';
 const $ = (id) => document.getElementById(id);
 const escape = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -11,6 +12,7 @@ function message(text, error = false) {
   $("message").hidden = false;
 }
 function newsPublisher(row){return '<span>Medio: '+(row.medio?'<span data-original>'+escape(row.medio)+'</span>':'No indicado')+'</span>';}
+function newsTaxonomy(row){return (row.taxonomia||[]).map(item=>'<span class="badge" data-original>'+escape(taxonomyPath(item))+'</span>').join('');}
 function newsCoverage(row){return [['generalista','Generalista'],['digital','Canal digital']].filter(([key])=>row.etiquetas?.[key]).map(([,label])=>'<span class="badge">'+label+'</span>').join('');}
 function metricCards(values) {
   return values.map(([label, value, note]) => `<article class="metric"><p class="eyebrow">${escape(label)}</p><strong>${escape(value ?? "—")}</strong><span class="small muted">${escape(note)}</span></article>`).join("");
@@ -24,5 +26,6 @@ export {
   metricCards,
   newsPublisher,
   newsCoverage,
+  newsTaxonomy,
   validUrl
 };

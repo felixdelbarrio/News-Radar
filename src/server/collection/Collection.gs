@@ -8,8 +8,7 @@ function collectionStatus_(tasks,jobs){
     for(const [key,column] of [['total','total'],['processed','procesadas'],['pending','pendientes'],['skipped','omitidas'],['failed','fallidas'],['added','nuevas']])status[key]+=Number(job[column]||0);
     if(job.actualizada>status.lastActivity)status.lastActivity=job.actualizada;
   }
-  status.jobs=[...active,...ordered.filter(job=>!active.includes(job)).slice(0,10)].map(({row,...job})=>job)
-    .concat(requests.map(request=>({id:request.id,tipo:request.kind,desde:request.range.from,hasta:request.range.to,inicio:request.created,estado:'En cola',total:0,procesadas:0,pendientes:0,omitidas:0,fallidas:0,nuevas:0})));
+  status.jobs=recoveryProgressJobs(jobs.map(({row,...job})=>job).concat(requests.map(request=>({id:request.id,tipo:request.kind,desde:request.range.from,hasta:request.range.to,inicio:request.created,estado:'En cola',total:0,procesadas:0,pendientes:0,omitidas:0,fallidas:0,nuevas:0}))));
   cacheJson_('collection-status',status,15);return status;
 }
 function resumeCollection(){authorize_(true);ensureBackgroundWorker_();return {...collectionStatus_(),added:0,errors:[],notice:'Continuación en cola.'};}

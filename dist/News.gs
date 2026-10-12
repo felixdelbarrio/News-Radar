@@ -23,7 +23,7 @@ function dashboardContent_(query,feeds,view='radar',language='es'){
   cacheJson_(key,data,60);
   return {data,duration:Date.now()-started,cacheHit:false};
 }
-function invalidateNews_(){properties_().setProperty('NEWS_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));}
+function invalidateNews_(content=true){const revision=Date.now()+'-'+Math.random().toString(36).slice(2);properties_().setProperty('NEWS_REVISION',revision);if(content)properties_().setProperty('NEWS_CONTENT_REVISION',revision);}
 
 function dashboardRuns_(){
   const cache=CacheService.getScriptCache(),key='dashboard-runs:'+RADAR.version,cached=cache.get(key);

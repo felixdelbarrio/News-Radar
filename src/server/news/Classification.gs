@@ -27,7 +27,7 @@ function drainClassificationRequest_(){
   requestNewsClassification_(true);p.deleteProperty('CLASSIFICATION_REQUEST');
 }
 function getClassificationStatus(){
-  authorize_(true);const job=classificationJob_();return {queued:Boolean(properties_().getProperty('CLASSIFICATION_REQUEST')),scheduled:scheduledTriggers_('dailyClassification_').length>0,hour:settings_().dailyHour,minute:CLASSIFICATION_WORK.dailyMinute,timezone:settings_().timezone,job:job?{...job,processed:Math.min(job.total,job.next-2)}:null};
+  authorize_(true);const job=classificationJob_();return {newsRevision:properties_().getProperty('NEWS_REVISION')||'0',queued:Boolean(properties_().getProperty('CLASSIFICATION_REQUEST')),scheduled:scheduledTriggers_('dailyClassification_').length>0,hour:settings_().dailyHour,minute:CLASSIFICATION_WORK.dailyMinute,timezone:settings_().timezone,job:job?{...job,processed:Math.min(job.total,job.next-2)}:null};
 }
 function startClassification(){
   authorize_(true);const lock=LockService.getScriptLock();lock.waitLock(10000);

@@ -1,25 +1,15 @@
-import { $, escape, message, date } from '../core/dom.js';
+import { $, escape, message } from '../core/dom.js';
 import { call } from '../core/api.js';
 import {t} from '../core/language.js';
+import {createJobMonitor,jobProgressHtml} from './job-monitor.js';
 import schema from '../../../assets/admin-schema.json';
-export function createConfiguration({run,isActive}){
-  let timer,request=0;
+export function createConfiguration({run,isActive,onRevision}){
   let config,revision,category='entities',segment='Empresas',capabilityDefaults;
-  function close(){request++;clearTimeout(timer);}
-  function renderProgress(data){
-    const job=data.job,total=Number(job?.total||0),done=Number(job?.processed||0),active=Boolean(data.queued||job&&job.state!=='Completada');
-    $('classification-start').disabled=active&&job?.state!=='En pausa';
+  const monitor=createJobMonitor({id:'classification',get:'getClassificationStatus',start:'startClassification',run,isActive,onRevision,render(data){
+    const job=data.job,total=Number(job?.total||0),done=Number(job?.processed||0);
     $('classification-schedule').textContent=t('Clasificación diaria: {hour} · {timezone} · {state}. La recuperación diaria tiene prioridad.',{hour:String(data.hour).padStart(2,'0')+':'+String(data.minute).padStart(2,'0'),timezone:data.timezone,state:t(data.scheduled?'Activada':'Desactivada')});
-    $('classification-progress').innerHTML=job?`<div class="panel-header"><span>${escape(t(data.queued?'En cola':job.state))}</span><span>${done}/${total}</span></div><progress max="${Math.max(1,total)}" value="${done}" aria-label="${escape(t('Progreso de clasificación'))}"></progress><p>${escape(t('{done}/{total} noticias revisadas; {classified} etiquetas actualizadas; {digital} digitales.',{done,total,classified:job.classified,digital:job.digital}))}</p><p class="small muted">${escape(t('Última actividad'))}: ${escape(date(job.updated))}</p>${job.error?'<p>'+escape(job.error)+'</p>':''}`:'<p class="muted">'+t(data.queued?'En cola':'Sin clasificaciones ejecutadas.')+'</p>';
-    return active;
-  }
-  async function refreshProgress(){
-    close();const current=request;
-    try{const data=await call('getClassificationStatus');if(current!==request)return;if(renderProgress(data)&&isActive())timer=setTimeout(poll,30000);}
-    catch(error){if(current===request){message(error.message,true);if(isActive())timer=setTimeout(poll,60000);}}
-  }
-  async function poll(){if(!isActive())return;if(document.hidden){timer=setTimeout(poll,30000);return;}await refreshProgress();}
-  $('classification-start').addEventListener('click',()=>run(async()=>{await call('startClassification');await refreshProgress();},false));
+    $('classification-progress').innerHTML=job?jobProgressHtml(job,{total,done,label:'Progreso de clasificación',queued:data.queued,summary:t('{done}/{total} noticias revisadas; {classified} etiquetas actualizadas; {digital} digitales.',{done,total,classified:job.classified,digital:job.digital})}):'<p class="muted">'+t(data.queued?'En cola':'Sin clasificaciones ejecutadas.')+'</p>';
+  }});
   const entries=()=>category==='capabilities'?config.capabilities[segment]:config[category];
   const setEntries=rows=>{if(category==='capabilities')config.capabilities[segment]=rows;else config[category]=rows;};
   async function fetchConfig(){const snapshot=await call('getConfiguration');config=snapshot.config;revision=snapshot.revision;capabilityDefaults=snapshot.capabilityDefaults;}
@@ -40,7 +30,7 @@ export function createConfiguration({run,isActive}){
   $('capability-segment').addEventListener('change',()=>{readFields();segment=$('capability-segment').value;render();});
   $('capability-restore').addEventListener('click',()=>{readFields();config.capabilities[segment]=JSON.parse(JSON.stringify(capabilityDefaults[segment]));render();});
   $('catalog-add').addEventListener('click',()=>{readFields();entries().push(Object.fromEntries(schema[category].fields.map(([key,,type])=>[key,type==='list'?[]:type==='boolean'?true:''])));render();});
-  $('catalog-form').addEventListener('submit',event=>{event.preventDefault();readFields();run(async()=>{message(await call('saveConfiguration',{config,revision}));await fetchConfig();render();await refreshProgress();});});
+  $('catalog-form').addEventListener('submit',event=>{event.preventDefault();readFields();run(async()=>{message(await call('saveConfiguration',{config,revision}));await fetchConfig();render();await monitor.open();});});
   $('catalog-reload').addEventListener('click',()=>run(async()=>{await fetchConfig();render();},false));
-  return {async open(){if(!config){await fetchConfig();render();}await refreshProgress();},close};
+  return {async open(){if(!config){await fetchConfig();render();}await monitor.open();},close:monitor.close};
 }

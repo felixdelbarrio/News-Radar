@@ -1,15 +1,17 @@
 const RADAR = Object.freeze({
-  version:'1.12.0',
+  version:'1.13.0',
   sheets:{
     Configuracion:['clave','valor'],
     Suscripciones:['id','correo','nombre','filtros','periodicidad','activa','actualizada','idioma'],
     NewsletterEnvios:['id','suscripcion','correo','desde','hasta','estado','fecha','detalle','contenido'],
-    Noticias:['id','fecha','pais','medio','entidad','titular','extracto','tema','url','capturada','fuente','idioma','clasificacion'],
+    Noticias:['id','fecha','pais','medio','entidad','titular','extracto','tema','url','capturada','fuente','idioma','clasificacion','taxonomia'],
     Auditoria:['ejecucion','fecha','fuente','url','resultado','motivo'],
     Ejecuciones:['id','inicio','fin','estado','fuentes','evaluadas','nuevas','errores'],
     Telemetria:['fecha','operacion','duracion_ms','estado','detalle'],
     Adopcion:['fecha','correo','sesion','evento','vista','duracion_ms'],
     Recargas:['id','tipo','desde','hasta','inicio','fin','estado','total','procesadas','pendientes','omitidas','fallidas','nuevas','actualizada','pausa'],
+    Taxonomia:['id','palanca','subpalanca','segmentos','terminos','noticias','peso','origen'],
+    TaxonomiaTrabajo:['estado'],
     Traducciones:['clave','idioma','titular','extracto','fecha'],
     Recopilacion:['ciclo','fuente','url','estado','intentos','actualizada','evaluadas','nuevas','error','prioridad']
   }
