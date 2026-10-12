@@ -1952,7 +1952,7 @@
       },
       setPage: (value) => page = value,
       render: (data) => {
-        page = data.page, savePreference = !1, defaults = data.defaults || defaults, initialized.add(view);
+        page = data.page, savePreference = !1, preference = data.personalization?.active || preference, defaults = data.defaults || defaults, initialized.add(view);
         for (let [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["topic", "topics"], ["type", "types"], ["segment", "segments"], ["signal", "signals"], ["palanca", "palanca"], ["subpalanca", "subpalanca"]]) options(name, data[key] || []);
         if (data.selection) for (let input of form.elements) input.name && (input.value = data.selection[input.name] || "");
         renderChips();

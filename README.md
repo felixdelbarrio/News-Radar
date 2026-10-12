@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.15.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.15.3`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -292,8 +292,26 @@ El orden es Novedades, Noticias, Radar, Newsletter y Administración. Novedades 
 
 Los nuevos correos enlazan su edición privada: Novedades y Noticias mantienen exactamente las noticias enviadas, las etiquetas y el período, aunque luego cambien las preferencias, la taxonomía o el inventario de Noticias. Los filtros refinan esa edición; Volver a la actualidad, limpiar filtros o quitar el período abandona su contexto. El botón no modifica las suscripciones. La misma agrupación BBVA primero y resto por cantidad de novedades se aplica al correo y a Novedades.
 
-Mi selección permite elegir una suscripción activa o el ámbito predeterminado. La elección se guarda por usuario en un único RPC que también devuelve el dashboard. Sin elección explícita se usa la suscripción activa editada más recientemente; sin suscripciones se conservan los valores predeterminados. Cambiar temporalmente los filtros no cambia preferencias ni los correos recibidos.
+Mi selección permite elegir una suscripción activa o el ámbito predeterminado. La elección se guarda por usuario en un único RPC que también devuelve el dashboard. La entrada directa comienza por la primera suscripción activa, en orden de creación. Sin suscripciones activas se conservan los valores predeterminados. Cambiar temporalmente los filtros no cambia preferencias ni los correos recibidos.
 
 Radar muestra un mapa de calor interactivo por entidad o geografía, palanca o subpalanca, con números absolutos o porcentaje de noticias del grupo. Cada celda abre Noticias con la selección y fechas conservadas; el mapa informa también de las noticias sin catalogar. Agrupación, medida y paginación se resuelven en el cliente, sin nuevas consultas. La escala usa los tokens comunes y el DOM se mantiene acotado.
 
 Tras desplegar, ejecutar `initializeConfiguration` para crear **Preferencias**, **NewsletterEdiciones** y **NewsletterContenido**. Los enlaces genéricos de correos enviados antes de esta versión no identifican una edición; la continuidad archivada se aplica a los nuevos envíos. Véase [el análisis de telemetría y validación](docs/telemetry-1.15.0.md).
+
+## Novedades y newsletter por defecto · 1.15.1
+
+Novedades abre con **Empresas e instituciones** y **últimos 7 días**, incluido el día actual, sin limitar entidad, geografía, tema ni cobertura. Canal digital permanece como filtro opcional. Las nuevas newsletters y la prueba del administrador utilizan el mismo segmento y ventana temporal. Las preferencias guardadas explícitamente, las suscripciones editadas y las ediciones históricas conservan su selección.
+
+Se elimina la elección implícita de la última suscripción activa, que podía restringir Novedades sin intervención del usuario. Esta corrección no cambia las preferencias de recepción ya guardadas. Publicar `dist/` aplica el cambio; no requiere nuevas hojas ni activadores. El diagnóstico de la exportación del 12/10/2026 a las 13:49 UTC está en [el informe de telemetría](docs/telemetry-1.15.1.md).
+
+## Entrada directa por primera newsletter · 1.15.2
+
+Al abrir la aplicación directamente, Novedades utiliza los filtros de la primera newsletter activa del usuario, según el orden de alta, y los últimos siete días. Editar una newsletter no modifica ese orden. Sin newsletters activas se aplican Empresas e instituciones y los últimos siete días. La elección manual de otra newsletter se conserva durante la navegación de la sesión; una nueva entrada directa comienza de nuevo por la primera. Abrir desde un correo conserva la edición enviada y su periodo histórico.
+
+La resolución reutiliza la caché privada de suscripciones y evita ordenar por fecha de edición o leer preferencias guardadas en la entrada directa. Publicar `dist/` aplica el cambio, sin nuevas hojas ni activadores.
+
+## Segmento empresarial sin tema duplicado · 1.15.3
+
+La selección empresarial de una newsletter utiliza Segmento: Empresas e instituciones sin añadir Tema: Empresas y pymes. La regla se comparte al leer y guardar suscripciones, por lo que Novedades deja de heredar ese tema redundante al abrir con la primera newsletter. Se conserva la última semana y los demás criterios configurados. No se eliminan otros temas específicos ni se modifica el contenido o los filtros de ediciones ya enviadas.
+
+La normalización no reescribe las suscripciones existentes ni reclasifica noticias; no añade consultas ni jobs. Publicar `dist/` aplica la corrección sin cambios de esquema.

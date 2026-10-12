@@ -1,6 +1,6 @@
 function getDashboard(query) {
   const started=Date.now(),session=authorize_(),feeds=feeds_(),config=configuration_();
-  const view=query?.view||'radar',initial=Boolean(query?.initial),language=supportedLanguage(query?.language)?query.language:'es',edition=query?.edition?newsletterEdition_(query.edition,session.email):null,personal=newsPreferences_(session.email,query?.preference);
+  const view=query?.view||'radar',initial=Boolean(query?.initial),language=supportedLanguage(query?.language)?query.language:'es',edition=query?.edition?newsletterEdition_(query.edition,session.email):null,personal=newsPreferences_(session.email,query?.preference,initial&&!edition);
   query=dashboardQuery_(edition&&initial?{...edition.query,view,initial:false}:!edition&&initial&&personal.selected&&['news','briefing','radar'].includes(view)?{...personal.selected.filtros,...recentNewsRange_(),view,initial:false}:query);
   const preparationMs=Date.now()-started,content=dashboardContent_(query||{},feeds,view,language,edition),metadataStarted=Date.now(),runs=dashboardRuns_();
   const response={...content.data,

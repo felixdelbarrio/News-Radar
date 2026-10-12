@@ -1,10 +1,14 @@
-function newsPreferences_(email,requested){
-  const revision=properties_().getProperty('SUBSCRIPTIONS_REVISION')||'0',key='preferences:'+sha256_(email+'|'+revision),cached=CacheService.getScriptCache().get(key);
-  const rows=cached?JSON.parse(cached):subscriptionRows_(email).filter(row=>row.activa).sort((a,b)=>b.actualizada.localeCompare(a.actualizada)||a.id.localeCompare(b.id));
+function newsPreferences_(email,requested,first=false){
+  const revision=properties_().getProperty('SUBSCRIPTIONS_REVISION')||'0',key='preferences:'+RADAR.version+':'+sha256_(email+'|'+revision),cached=CacheService.getScriptCache().get(key);
+  const rows=cached?JSON.parse(cached):subscriptionRows_(email).filter(row=>row.activa);
   if(!cached)cacheJson_(key,rows,300);
-  const profileKey='news-preference:'+sha256_(email),profileCache=CacheService.getScriptCache().get(profileKey),saved=profileCache?JSON.parse(profileCache):rows_('Preferencias').find(row=>row.correo===email)?.suscripcion||'';
-  if(!profileCache)cacheJson_(profileKey,saved,300);
-  const choice=requested||saved,selected=choice==='default'?null:(rows.find(row=>row.id===choice)||(!requested?rows[0]:null));
+  let choice=requested|| (first?(rows[0]?.id||'default'):'');
+  if(!choice){
+    const profileKey='news-preference:'+sha256_(email),profileCache=CacheService.getScriptCache().get(profileKey);
+    choice=profileCache?JSON.parse(profileCache):rows_('Preferencias').find(row=>row.correo===email)?.suscripcion||'';
+    if(!profileCache)cacheJson_(profileKey,choice,300);
+  }
+  const selected=choice==='default'?null:(rows.find(row=>row.id===choice)||null);
   if(requested&&requested!=='default'&&!selected)throw Error('Selección personal no disponible.');
   return {selected,options:rows.map(row=>({id:row.id,name:row.nombre})),active:selected?.id||'default'};
 }

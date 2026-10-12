@@ -26,8 +26,8 @@ test('los enlaces incluyen la edición y la gestión y baja conservan su destino
 test('preferencias persistentes por usuario, alternativa predeterminada y suscripciones pausadas o eliminadas no contaminan otra cuenta',()=>{
  const s=server(),c=s.c,a=own(s,'BBVA'),b=own(s,'Santander',{entity:'Santander',palanca:''});
  const data=c.saveNewsPreference({preference:a.id,view:'briefing',language:'es'});assert.equal(data.personalization.active,a.id);assert.equal(data.selection.entity,'BBVA');assert.equal(c.rows_('Preferencias').length,1);assert.equal(c.getDashboard({view:'news',initial:true}).selection.entity,'BBVA');
- c.saveNewsPreference({preference:'default',view:'briefing'});assert.equal(c.getDashboard({view:'briefing',initial:true}).selection.coverage,'digital');assert.equal(c.getDashboard({view:'briefing',initial:true}).selection.segment,'Empresas e instituciones');
- c.saveNewsPreference({preference:b.id,view:'briefing'});assert.equal(c.getDashboard({view:'radar',initial:true}).selection.entity,'Santander');c.deleteSubscription(b.id);assert.equal(c.getDashboard({view:'briefing',initial:true}).selection.entity,'BBVA');
+ c.saveNewsPreference({preference:'default',view:'briefing'});assert.equal(c.getDashboard({view:'briefing',initial:true,preference:'default'}).selection.coverage,undefined);assert.equal(c.getDashboard({view:'briefing',initial:true,preference:'default'}).selection.segment,'Empresas e instituciones');
+ c.saveNewsPreference({preference:b.id,view:'briefing'});assert.equal(c.getDashboard({view:'radar',initial:true,preference:b.id}).selection.entity,'Santander');c.deleteSubscription(b.id);assert.equal(c.getDashboard({view:'briefing',initial:true}).selection.entity,'BBVA');
  s.setEmail('other@bbva.com');assert.throws(()=>c.saveNewsPreference({preference:a.id,view:'news'}),/no disponible/);assert.equal(c.getDashboard({view:'briefing',initial:true}).context.mode,'current');assert.equal(c.getDashboard({view:'briefing',initial:true}).personalization.options.length,0);
 });
 test('entrega real guarda únicamente noticias no repetidas y el flujo aceptado habilita su lectura sin duplicar envíos',()=>{
@@ -49,4 +49,40 @@ test('mapa disperso cuenta una vez por noticia y palanca, incluye todas las geog
  assert.equal(data.tagged,2);assert.equal(data.total,3);assert.equal(data.nodes.find(node=>node.level==='palanca').count,2);assert.equal(data.nodes.find(node=>node.subpalanca==='Biometría').count,2);assert.equal(data.entities[0].name,'BBVA');assert.equal(data.countries.find(row=>row.name==='México').total,2);
  const page=heatmapPage(data,'countries','palanca',20,20);assert.equal(page.rowPage,0);assert.equal(page.columns.length,1);assert.equal(heatmapValue(1,2,'share',2).share,50);assert.equal(heatmapValue(0,0,'count',1).level,0);assert.equal(heatmapValue(1,0,'count',1).share,0);assert.equal(heatmapValue(100,100,'share',1).level,4);
  const large={...data,nodes:Array.from({length:80},(_,i)=>({...data.nodes[0],id:String(i)})),entities:Array.from({length:80},()=>data.entities[0])},bounded=heatmapPage(large,'entities','palanca',1,1);assert.equal(bounded.rows.length,HEATMAP_PAGE.rows);assert.equal(bounded.columns.length,HEATMAP_PAGE.columns);
+});
+
+test('Novedades y newsletter predeterminadas incluyen novedades generalistas de todas las entidades de la última semana cuando no hay suscripciones',()=>{
+ const s=server(),c=s.c,range=c.recentNewsRange_(),old=new Date(range.from+'T00:00:00Z');old.setUTCDate(old.getUTCDate()-1);
+ c.configuration_().settings.defaultEntity='BBVA';c.configuration_().settings.defaultCountry='México';c.configuration_().settings.defaultTopic='Financiación';
+ const general={...raw('general','Santander',range.from),titular:'Santander lanza financiación para empresas',extracto:'Nueva oferta de crédito para pymes',clasificacion:JSON.stringify({digital:false,generalista:true,capacidades:[]})};
+ const digital=raw('digital','BBVA',range.to),expired={...general,id:'old',fecha:old.toISOString().slice(0,10)},retail={...general,id:'retail',titular:'Santander lanza una cuenta para particulares',extracto:'Oferta para particulares'};
+ add(s,[general,digital,expired,retail]);
+ const dashboard=c.getDashboard({view:'briefing',initial:true});assert.deepEqual(JSON.parse(JSON.stringify(dashboard.selection)),{segment:'Empresas e instituciones',...JSON.parse(JSON.stringify(range))});assert.equal(dashboard.context.mode,'current');assert.equal(dashboard.personalization.active,'default');assert.deepEqual(Array.from(dashboard.briefing.items,row=>row.id),['digital','general']);
+ const defaults=c.subscriptionDefaults_();assert.deepEqual(JSON.parse(JSON.stringify(defaults.filters)),{segment:'Empresas e instituciones'});
+ c.saveSubscription({name:defaults.name,periodicity:defaults.periodicity,filters:defaults.filters});const subscription=c.subscriptionRows_('owner@bbva.com').at(-1),query=c.subscriptionQuery_(subscription,new Date());assert.deepEqual(Object.fromEntries(Object.entries(query).filter(([,value])=>value)),JSON.parse(JSON.stringify(dashboard.selection)));
+ c.newsletterSender_=()=>({address:'sender@bbva.com',name:'Radar'});let mailed;c.sendNewsletterMail_=(_sender,_recipient,_subject,content)=>{mailed=content;return 'gmail-defaults';};const testMail=c.sendNewsletterTest();assert.equal(testMail.count,2);assert.deepEqual(Array.from(mailed.items,row=>row.id),['digital','general']);
+ assert.equal(c.getDashboard({view:'briefing',coverage:'digital',from:range.from,to:range.to}).briefing.total,1);
+});
+
+test('la entrada directa usa la primera newsletter activa por orden de creación, incluso después de editarla o elegir otra; sin activas recupera los filtros comunes',()=>{
+ const s=server(),c=s.c,first=own(s,'primera',{entity:'Santander',country:'España'}),second=own(s,'segunda',{entity:'BBVA'}),range=c.recentNewsRange_();
+ add(s,[raw('santander','Santander',range.to),raw('bbva','BBVA',range.to)]);
+ c.saveSubscription({id:first.id,name:'Primera editada',periodicity:'daily',filters:first.filtros});
+ const manual=c.saveNewsPreference({preference:second.id,view:'briefing'});assert.equal(manual.selection.entity,'BBVA');
+ for(let i=0;i<2;i++){const direct=c.getDashboard({view:'briefing',initial:true});assert.equal(direct.personalization.active,first.id);assert.deepEqual(Array.from(direct.personalization.options,row=>row.id),[first.id,second.id]);assert.equal(direct.selection.entity,'Santander');assert.equal(direct.selection.country,'España');assert.equal(direct.selection.from,range.from);assert.equal(direct.selection.to,range.to);assert.deepEqual(Array.from(direct.briefing.items,row=>row.id),['santander']);}
+ c.saveSubscription({id:first.id,name:'Primera pausada',periodicity:'daily',active:false,filters:first.filtros});assert.equal(c.getDashboard({view:'briefing',initial:true}).personalization.active,second.id);
+ c.deleteSubscription(second.id);const defaults=c.getDashboard({view:'briefing',initial:true});assert.equal(defaults.personalization.active,'default');assert.equal(defaults.selection.segment,'Empresas e instituciones');assert.equal(defaults.selection.from,range.from);assert.equal(defaults.selection.to,range.to);assert.equal(defaults.selection.entity,undefined);
+ s.setEmail('other@bbva.com');assert.equal(c.getDashboard({view:'briefing',initial:true}).personalization.options.length,0);
+});
+
+test('la primera newsletter empresarial no impone el tema Empresas y pymes; persiste la regla y conserva otros temas y ediciones enviadas',()=>{
+ const s=server(),c=s.c,range=c.recentNewsRange_(),filters={segment:'Empresas e instituciones',topic:'Empresas y pymes'};
+ const first=own(s,'empresas',filters);assert.equal(first.filtros.topic,undefined);
+ s.sheets.get('Suscripciones').grid[1][3]=JSON.stringify(filters);
+ const news={...raw('financiacion','Santander',range.to),titular:'Santander lanza financiación para empresas',extracto:'Nueva oferta de crédito para pymes',tema:'Financiación'};add(s,[news]);
+ const dashboard=c.getDashboard({view:'briefing',initial:true});assert.equal(dashboard.selection.segment,'Empresas e instituciones');assert.equal(dashboard.selection.topic,undefined);assert.equal(dashboard.selection.from,range.from);assert.deepEqual(Array.from(dashboard.briefing.items,row=>row.id),['financiacion']);
+ assert.equal(c.subscriptionQuery_(c.subscriptionRows_('owner@bbva.com')[0],new Date()).topic,undefined);assert.equal(JSON.parse(s.sheets.get('Suscripciones').grid[1][3]).topic,'Empresas y pymes');
+ c.saveSubscription({id:first.id,name:'Empresas guardada',periodicity:'daily',filters});assert.equal(JSON.parse(s.sheets.get('Suscripciones').grid[1][3]).topic,undefined);
+ c.saveSubscription({id:first.id,name:'Financiación',periodicity:'daily',filters:{...filters,topic:'Financiación'}});assert.equal(c.getDashboard({view:'briefing',initial:true}).selection.topic,'Financiación');
+ const rows=c.annotateNews_([news]);rows[0].tema='Empresas y pymes';c.saveNewsletterEdition_('edition-business','delivery-business','owner@bbva.com','Empresas archivadas',{...filters,...range},'es',rows);c.completeNewsletterEdition_('edition-business','Enviada');const archived=c.getDashboard({view:'briefing',initial:true,edition:'edition-business'});assert.equal(archived.selection.topic,'Empresas y pymes');assert.equal(archived.briefing.total,1);
 });

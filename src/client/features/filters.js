@@ -98,7 +98,7 @@ function createFilters({ onInvalidate, onChange }) {
     apply:query=>{initialized.add(view);for(const input of form.elements)if(input.name){const value=query[input.name]||'';if(value&&input.tagName==='SELECT')options(input.name,[value]);input.value=value;}filterChanged({type:'change'});},
     setPage: (value) => page = value,
     render: (data) => {
-      page = data.page;savePreference=false;
+      page = data.page;savePreference=false;preference=data.personalization?.active||preference;
       defaults=data.defaults||defaults;
       initialized.add(view);
       for (const [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["topic", "topics"], ["type","types"], ["segment","segments"], ["signal","signals"], ["palanca","palanca"], ["subpalanca","subpalanca"]]) options(name, data[key]||[]);
