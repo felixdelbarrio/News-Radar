@@ -20,9 +20,9 @@ function newsDashboard_(rows, query, feeds,view='radar') {
   return {...taxonomyOptions_(),items:selected.slice(page*settings_().pageSize,(page+1)*settings_().pageSize),total:selected.length,page,pageSize:settings_().pageSize,
     countries:values([...rows.map(r=>r.pais),...feeds.map(f=>f.country)]),entities:values([...rows.map(r=>entityKey_(r.entidad)),...feeds.map(f=>entityKey_(f.entity))]),sources:values(rows.map(r=>r.medio)),topics:values([...configuration_().topics.filter(row=>row.enabled).map(row=>row.name),settings_().unclassifiedTopic]),types:values(configuration_().entities.filter(row=>row.enabled).map(row=>row.type)),segments:configuration_().segments.filter(row=>row.enabled).map(row=>row.name),signals:configuration_().signals.filter(row=>row.enabled).map(row=>row.name),...(radar?{radar,stats:radar.summary}:{}),...(view==='briefing'?{briefing:briefing_(selected,true)}:{})};
 }
-function newsCsv_(rows, query) {
-  const selected=selectNews_(rows,query),keys=[...RADAR.sheets.Noticias.filter(k=>!['id','capturada','clasificacion','taxonomia'].includes(k)),'tipo','segmentos','senales','palancas','subpalancas'];
+function newsCsv_(rows, query, language='es') {
+  const label=taxonomyLanguage_(language),selected=selectNews_(rows,query),keys=[...RADAR.sheets.Noticias.filter(k=>!['id','capturada','clasificacion','taxonomia'].includes(k)),'tipo','segmentos','senales','palancas','subpalancas'];
   if(selected.length>settings_().exportLimit)throw new Error('Reduce el período para exportar hasta '+settings_().exportLimit+' publicaciones.');
-  return {csv:'\ufeff'+[keys,...selected.map(r=>keys.map(k=>k==='palancas'?[...new Set(r.taxonomia.map(item=>item.palanca))].join(' · '):k==='subpalancas'?r.taxonomia.map(taxonomyPath).join(' · '):r[k]))].map(row=>row.map(value=>'"'+String(safeCell_(value)||'').replace(/"/g,'""')+'"').join(';')).join('\r\n'),count:selected.length};
+  return {csv:'\ufeff'+[keys,...selected.map(r=>keys.map(k=>k==='palancas'?[...new Set(r.taxonomia.map(item=>label(item.palanca)))].join(' · '):k==='subpalancas'?r.taxonomia.map(item=>label(taxonomyPath(item))).join(' · '):r[k]))].map(row=>row.map(value=>'"'+String(safeCell_(value)||'').replace(/"/g,'""')+'"').join(';')).join('\r\n'),count:selected.length};
 }
 function entityKey_(entity){return businessIndex_().entities.get(searchText_(entity))?.name||String(entity||'').trim();}

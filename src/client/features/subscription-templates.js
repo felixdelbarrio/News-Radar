@@ -4,7 +4,7 @@ import {escape} from '../core/dom.js';
 export const periods={monthly:'Mensual',weekly:'Semanal',daily:'Diaria'};
 const labels={type:'Tipo de entidad',entity:'Entidad',segment:'Segmento',country:'Geografía',topic:'Tema',signal:'Novedad',source:'Fuente',palanca:'Palanca',subpalanca:'Subpalanca'};
 const selected=(value,current)=>value===current?' selected':'';
-function filterFields(catalogs,filters){return Object.entries(catalogs).map(([key,values])=>`<label>${labels[key]}<select name="${key}"><option value="">Todos</option>${(filters[key]&&!values.includes(filters[key])?[...values,filters[key]]:values).map(value=>`<option${selected(value,filters[key])}>${escape(value)}</option>`).join('')}</select></label>`).join('');}
+function filterFields(catalogs,filters){return Object.entries(catalogs).map(([key,values])=>`<label>${labels[key]}<select name="${key}"><option value="">Todos</option>${(filters[key]&&!values.includes(filters[key])?[...values,filters[key]]:values).map(value=>`<option value="${escape(value)}"${selected(value,filters[key])}>${escape(value)}</option>`).join('')}</select></label>`).join('');}
 export function subscriptionForm(options,admin,row){
   const newsletterLanguage=row?.idioma||(admin?'es':language),defaults=options.defaults,filters=row?.filtros||defaults.filters,primary=key=>['entity','segment','country'].includes(key);
   return `<form data-subscription-form data-admin="${admin}" data-id="${escape(row?.id||'')}">

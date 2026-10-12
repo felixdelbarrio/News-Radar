@@ -27,7 +27,7 @@ const configuration = createConfiguration({run:action,onRevision:noteNewsRevisio
 const taxonomy=createTaxonomy({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='taxonomy'});
 const subscriptions = createSubscriptions({run:action,onApply:query=>{filters.show('news');filters.apply(query);navigation.show('news');}});
 const newsletterDelivery=createNewsletterDelivery({run:action});
-const languageSettings=createLanguageSettings({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='language'});
+const languageSettings=createLanguageSettings({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='language'});
 const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onLanguage:()=>languageSettings.open(),onLeaveLanguage:()=>languageSettings.close(),onLeaveConfiguration:()=>configuration.close(),onTaxonomy:()=>taxonomy.open(),onLeaveTaxonomy:()=>taxonomy.close() });
 const navigation = createNavigation({ onSelection:view=>{configuration.close();taxonomy.close();if(filters.show(view)||state.contentStale)load();else if(state.data)renderSelection(state.data,view);}, onSubscriptions:()=>{configuration.close();taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
 const filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
@@ -96,7 +96,7 @@ async function action(fn, refresh = true) {
     message(e.message || String(e), true);
   } finally {
     state.busy = false;
-    document.querySelectorAll(actionControls).forEach(el=>el.disabled=false);
+    document.querySelectorAll(actionControls).forEach(el=>el.disabled=el.dataset.jobActive==='true');
     sources.setBusy(false);recoveryControls.setBusy(false);
     if (state.data) {
       $("previous").disabled = state.data.page === 0;
@@ -142,4 +142,4 @@ if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocat
 });
 load();
 
-window.addEventListener('news-radar-language-change',async()=>{await load();if(navigation.current==='administration'&&administration.current==='language')await languageSettings.open();});
+window.addEventListener('news-radar-language-change',async()=>{await load();if(navigation.current==='administration'&&administration.current==='language')await languageSettings.open();if(navigation.current==='administration'&&administration.current==='taxonomy')await taxonomy.open();});

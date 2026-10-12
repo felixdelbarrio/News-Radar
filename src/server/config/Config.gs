@@ -1,5 +1,5 @@
 const RADAR = Object.freeze({
-  version:'1.13.0',
+  version:'1.14.0',
   sheets:{
     Configuracion:['clave','valor'],
     Suscripciones:['id','correo','nombre','filtros','periodicidad','activa','actualizada','idioma'],
@@ -12,6 +12,7 @@ const RADAR = Object.freeze({
     Recargas:['id','tipo','desde','hasta','inicio','fin','estado','total','procesadas','pendientes','omitidas','fallidas','nuevas','actualizada','pausa'],
     Taxonomia:['id','palanca','subpalanca','segmentos','terminos','noticias','peso','origen'],
     TaxonomiaTrabajo:['estado'],
+    TaxonomiaTraducciones:['clave','idioma','texto','fecha'],
     Traducciones:['clave','idioma','titular','extracto','fecha'],
     Recopilacion:['ciclo','fuente','url','estado','intentos','actualizada','evaluadas','nuevas','error','prioridad']
   }

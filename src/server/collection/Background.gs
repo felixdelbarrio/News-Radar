@@ -10,7 +10,7 @@ function ensureBackgroundWorker_(delay=60000){
 }
 function translationReadyAt_(){
   const job=translationJob_(),request=properties_().getProperty('TRANSLATION_REQUEST'),today=recordDay(new Date(),settings_().timezone);
-  if(job?.callDay===today&&job.calls>=TRANSLATION_WORK.dailyCalls)return Infinity;
+  if(translationCallsToday_()>=TRANSLATION_WORK.dailyCalls)return Infinity;
   if(request&&(!job||job.state==='Completada'||recordDay(job.started,settings_().timezone)<today))return Date.now();
   return job&&job.state!=='Completada'?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;
 }
@@ -27,7 +27,7 @@ function collectionReadyAt_(work){
 function backgroundTick_(){return processBackground_();}
 function backgroundTask_(work,daily){
   if(daily)return 'collection';
-  const available={collection:work.pending.length>0,translation:translationReadyAt_()<=Date.now(),classification:classificationReadyAt_()<=Date.now(),taxonomy:!work.pending.length&&taxonomyReadyAt_()<=Date.now()},order=['collection','translation','classification','taxonomy'],last=order.indexOf(properties_().getProperty('BACKGROUND_LAST'));
+  const available={collection:work.pending.length>0,translation:translationReadyAt_()<=Date.now(),classification:classificationReadyAt_()<=Date.now(),taxonomy:!work.pending.length&&taxonomyReadyAt_()<=Date.now(),taxonomyTranslation:!work.pending.length&&taxonomyTranslationReadyAt_()<=Date.now()},order=['collection','translation','classification','taxonomy','taxonomyTranslation'],last=order.indexOf(properties_().getProperty('BACKGROUND_LAST'));
   for(let i=1;i<=order.length;i++){const task=order[(last+i)%order.length];if(available[task])return task;}return '';
 }
 function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
@@ -42,7 +42,8 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
       if(!daily){drainClassificationRequest_();drainTaxonomyRequest_();}
       const task=backgroundTask_(work,daily);if(!task)break;
       const remaining=BACKGROUND_WORK.maxMs-(Date.now()-started);if(remaining<=0)break;
-      if(task==='taxonomy')taxonomyBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
+      if(task==='taxonomyTranslation')taxonomyTranslationBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
+      else if(task==='taxonomy')taxonomyBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
       else if(task==='classification')newsClassificationBatch_(Math.min(CLASSIFICATION_WORK.maxMs,remaining));
       else if(task==='translation')translationBatch_(Math.min(TRANSLATION_WORK.maxMs,remaining));
       else{
@@ -54,7 +55,7 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
     completed=true;return {...collectionStatus_(null,work?.jobs),added,errors};
   }finally{
     try{
-      const queued=collectionRequests_().length||(properties_().getProperty('CLASSIFICATION_REQUEST')&&!classificationPending_())||(properties_().getProperty('TAXONOMY_REQUEST')&&!taxonomyPending_()),next=queued||!completed?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_(),classificationReadyAt_(),taxonomyReadyAt_());
+      const queued=collectionRequests_().length||(properties_().getProperty('CLASSIFICATION_REQUEST')&&!classificationPending_())||(properties_().getProperty('TAXONOMY_REQUEST')&&!taxonomyPending_()),next=queued||!completed?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_(),classificationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_());
       if(Number.isFinite(next))ensureBackgroundWorker_(next-Date.now());
     }finally{lock.releaseLock();}
   }
@@ -67,5 +68,5 @@ function initializeBackgroundSchedules_(){
   else scheduledTriggers_('nightlyTranslations_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   replaceDailySchedule_('dailyClassification_',settings_().dailyHour,CLASSIFICATION_WORK.dailyMinute);
   replaceDailySchedule_('dailyTaxonomy_',settings_().dailyHour,TAXONOMY_POLICY.dailyMinute);
-  if(taxonomyPending_()||properties_().getProperty('TAXONOMY_REQUEST')||classificationPending_()||properties_().getProperty('CLASSIFICATION_REQUEST')||collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_()))ensureBackgroundWorker_();
+  if(Number.isFinite(taxonomyTranslationReadyAt_())||taxonomyPending_()||properties_().getProperty('TAXONOMY_REQUEST')||classificationPending_()||properties_().getProperty('CLASSIFICATION_REQUEST')||collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_()))ensureBackgroundWorker_();
 }

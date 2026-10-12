@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.13.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.14.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -132,6 +132,10 @@ La puntuación utiliza TF sublineal `1 + log(frecuencia)` e IDF suavizado `log((
 Los identificadores dependen de la palanca y subpalanca, no de sus frecuencias o pesos. El job compara el modelo semántico y la huella del texto; solo escribe etiquetas diferentes. Una ejecución idéntica no reescribe noticias ni el catálogo. Las noticias nuevas reciben etiquetas de la taxonomía vigente al incorporarse. Noticias, Novedades, exportación CSV y newsletters comparten los filtros de Palanca y Subpalanca y los nombres de las etiquetas. Una subpalanca que desaparece deja de ofrecerse como filtro; las suscripciones existentes no amplían su alcance automáticamente.
 
 El área de progreso de recuperación muestra una sola línea por tipología, con el ciclo activo o más reciente. La tabla de Ejecuciones conserva el histórico completo.
+
+Al finalizar el análisis y etiquetado se encola la traducción de los nombres a español, inglés y turco. Administración > Idiomas muestra su progreso y permite traducir pendientes o reanudar un proceso en pausa. Cada nombre se guarda por contenido e idioma: los nombres compartidos se traducen una sola vez, las traducciones vigentes se reutilizan y se retiran las que ya no pertenecen al catálogo. Los nombres del catálogo estático aprovechan el diccionario incluido; los nombres dinámicos utilizan LanguageApp con detección automática del idioma de origen. Las pantallas y newsletters leen únicamente traducciones guardadas y mantienen los valores canónicos de los filtros y los IDs de las etiquetas.
+
+La traducción de taxonomía utiliza el mismo trabajador y bloqueo que los otros jobs, con lotes de hasta 20 llamadas y 10 segundos. Cede a cualquier recuperación preparada y se detiene entre llamadas si llega una petición diaria. Comparte el presupuesto de 3.000 llamadas diarias con la traducción de noticias y reanuda tras errores sin repetir resultados guardados. Tras desplegar **1.14.0**, ejecutar `initializeConfiguration` para crear **TaxonomiaTraducciones**; no añade permisos ni un cron independiente.
 
 ## Fuentes y recopilación automática
 

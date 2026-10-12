@@ -1,5 +1,12 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "Traducción de taxonomía": ["Taxonomy translation", "Taksonomi çevirisi"],
+  "Las palancas y subpalancas se traducen automáticamente al finalizar la actualización de la taxonomía. Se reutilizan los nombres ya traducidos. La recuperación diaria tiene prioridad.": ["Levers and sublevers are translated automatically after the taxonomy update finishes. Existing name translations are reused. Daily collection has priority.", "Taksonomi güncellemesi tamamlandığında ana ve alt başlıklar otomatik çevrilir. Mevcut ad çevirileri yeniden kullanılır. Günlük toplama önceliklidir."],
+  "Traducir taxonomía pendiente": ["Translate pending taxonomy", "Bekleyen taksonomiyi çevir"],
+  "Progreso de traducción de taxonomía": ["Taxonomy translation progress", "Taksonomi çeviri ilerlemesi"],
+  "{done}/{total} nombres revisados; {translated} traducciones guardadas.": ["{done}/{total} names reviewed; {translated} translations saved.", "{done}/{total} ad incelendi; {translated} çeviri kaydedildi."],
+  "Sin traducciones de taxonomía ejecutadas.": ["No taxonomy translations have run.", "Henüz taksonomi çevirisi yapılmadı."],
+
   "Clasificación de noticias": ["News classification", "Haber sınıflandırması"],
   "Clasificar noticias": ["Classify news", "Haberleri sınıflandır"],
   "Progreso de clasificación": ["Classification progress", "Sınıflandırma ilerlemesi"],

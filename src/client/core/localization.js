@@ -27,6 +27,7 @@ export function initializeLocalization(){
   document.addEventListener('invalid',event=>{const input=event.target;if(!input.validity.customError){input.setCustomValidity(t(input.validity.valueMissing?'Campo obligatorio.':'Introduce un valor válido.'));invalid.add(input);}},true);
   document.addEventListener('input',event=>{const input=event.target;if(invalid.has(input)){input.setCustomValidity('');invalid.delete(input);}},true);
   window.addEventListener('news-radar-language-change',()=>{flushLocalization();observer.disconnect();document.documentElement.lang=language;document.title=t(title);localize(document.body);observer.observe(document.body,options);});
+  window.addEventListener('news-radar-taxonomy-translations',()=>{flushLocalization();observer.disconnect();localize(document.body);observer.observe(document.body,options);});
   localize(document.body);
   const options={subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:attributes};
   translateChanges=records=>{

@@ -15,7 +15,7 @@ function configurationEdited_(event){const sheet=event?.range?.getSheet().getNam
 function initializeConfiguration(){
   authorize_(true);const lock=LockService.getScriptLock();lock.waitLock(10000);
   try{
-    for(const name of ['Configuracion','Suscripciones','NewsletterEnvios','Noticias','Recopilacion','Recargas','Traducciones','Taxonomia','TaxonomiaTrabajo']){
+    for(const name of ['Configuracion','Suscripciones','NewsletterEnvios','Noticias','Recopilacion','Recargas','Traducciones','Taxonomia','TaxonomiaTrabajo','TaxonomiaTraducciones']){
       if(book_().getSheetByName(name)){if(name!=='Configuracion')book_().getSheetByName(name).getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]);continue;}
       const sheet=book_().insertSheet(name);sheet.getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]).setFontWeight('bold').setBackground(SHEET_THEME.background).setFontColor(SHEET_THEME.foreground);sheet.setFrozenRows(1);
     }
