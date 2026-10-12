@@ -3,11 +3,12 @@ import config from "../config.js";
 import { loadMetrics } from "./metrics.js";
 import {loadRuns} from "./runs.js";
 import { loadAudit } from "./audit.js";
-function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,onLanguage,onLeaveLanguage }) {
+function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,onLanguage,onLeaveLanguage,onLeaveConfiguration }) {
   let current = "configuration";
   async function open(view = current) {
     if (!isAdmin() || !(view in config.adminViews)) return;
     if(current==="language"&&view!==current)onLeaveLanguage();
+    if(current==="configuration"&&view!==current)onLeaveConfiguration();
     current = view;
     track("vista");
     for (const name of Object.keys(config.adminViews)) $(name + "-section").hidden = name !== view;

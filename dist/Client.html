@@ -26,6 +26,12 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Clasificaci\xF3n de noticias": ["News classification", "Haber s\u0131n\u0131fland\u0131rmas\u0131"],
+    "Clasificar noticias": ["Classify news", "Haberleri s\u0131n\u0131fland\u0131r"],
+    "Progreso de clasificaci\xF3n": ["Classification progress", "S\u0131n\u0131fland\u0131rma ilerlemesi"],
+    "Sin clasificaciones ejecutadas.": ["No classifications have run.", "Hen\xFCz s\u0131n\u0131fland\u0131rma yap\u0131lmad\u0131."],
+    "Clasificaci\xF3n diaria: {hour} \xB7 {timezone} \xB7 {state}. La recuperaci\xF3n diaria tiene prioridad.": ["Daily classification: {hour} \xB7 {timezone} \xB7 {state}. Daily collection has priority.", "G\xFCnl\xFCk s\u0131n\u0131fland\u0131rma: {hour} \xB7 {timezone} \xB7 {state}. G\xFCnl\xFCk toplama \xF6nceliklidir."],
+    "{done}/{total} noticias revisadas; {classified} etiquetas actualizadas; {digital} digitales.": ["{done}/{total} articles reviewed; {classified} labels updated; {digital} digital.", "{done}/{total} haber incelendi; {classified} etiket g\xFCncellendi; {digital} dijital."],
     Cobertura: ["Coverage", "Kapsam"],
     Generalista: ["General banking", "Genel bankac\u0131l\u0131k"],
     "Canal digital": ["Digital channel", "Dijital kanal"],
@@ -341,6 +347,8 @@
     "Recuperar noticias": ["Recover news", "Ge\xE7mi\u015F haberleri tara"],
     "Cobertura del hist\xF3rico": ["Historical coverage", "Ge\xE7mi\u015F kapsam\u0131"],
     "El \xFAltimo a\xF1o se consulta por semanas; las consultas saturadas se dividen autom\xE1ticamente hasta llegar a un d\xEDa. Los RSS de editores aportan solo el hist\xF3rico que mantengan disponible; la recuperaci\xF3n no garantiza cobertura completa.": ["The last year is queried by week; saturated queries are split automatically down to a day. Publishers' RSS feeds provide only the history they retain; recovery does not guarantee complete coverage.", "Son y\u0131l haftal\u0131k olarak taran\u0131r; dolan sorgular otomatik olarak bir g\xFCne kadar b\xF6l\xFCn\xFCr. Yay\u0131nc\u0131lar\u0131n RSS ak\u0131\u015Flar\u0131 yaln\u0131zca saklad\u0131klar\u0131 ge\xE7mi\u015Fi sa\u011Flar; tarama tam kapsam\u0131 garanti etmez."],
+    "Google News RSS": ["Google News RSS", "Google News RSS"],
+    "Tipos de fuente": ["Source types", "Kaynak t\xFCrleri"],
     "Herramientas de administraci\xF3n": ["Administration tools", "Y\xF6netim ara\xE7lar\u0131"],
     "CAT\xC1LOGOS Y OPERACI\xD3N": ["CATALOGS AND OPERATION", "KATALOGLAR VE \u0130\u015ELEY\u0130\u015E"],
     Cat\u00E1logo: ["Catalog", "Katalog"],
@@ -1004,7 +1012,9 @@
     }), $(id + "-pagination").addEventListener("click", (event) => {
       let button = event.target.closest("[data-page]");
       !button || button.disabled || (page += Number(button.dataset.page), Promise.resolve(onChange()).catch((error) => message(error.message, !0)));
-    }), { query, options(values) {
+    }), { query, reset() {
+      clearTimeout(timer), page = 0;
+    }, options(values) {
       for (let [key, list] of Object.entries(values)) {
         if (!fields.some(([field]) => field === key)) continue;
         let input = $(id + "-" + key), value = input.value;
@@ -1471,8 +1481,39 @@
   };
 
   // src/client/features/configuration.js
-  function createConfiguration({ run }) {
-    let config, revision, category = "entities", segment = "Empresas", capabilityDefaults, entries = () => category === "capabilities" ? config.capabilities[segment] : config[category], setEntries = (rows) => {
+  function createConfiguration({ run, isActive }) {
+    let timer, request3 = 0, config, revision, category = "entities", segment = "Empresas", capabilityDefaults;
+    function close() {
+      request3++, clearTimeout(timer);
+    }
+    function renderProgress(data) {
+      let job = data.job, total = Number(job?.total || 0), done = Number(job?.processed || 0), active = !!(data.queued || job && job.state !== "Completada");
+      return $("classification-start").disabled = active && job?.state !== "En pausa", $("classification-schedule").textContent = t("Clasificaci\xF3n diaria: {hour} \xB7 {timezone} \xB7 {state}. La recuperaci\xF3n diaria tiene prioridad.", { hour: String(data.hour).padStart(2, "0") + ":" + String(data.minute).padStart(2, "0"), timezone: data.timezone, state: t(data.scheduled ? "Activada" : "Desactivada") }), $("classification-progress").innerHTML = job ? `<div class="panel-header"><span>${escape(t(data.queued ? "En cola" : job.state))}</span><span>${done}/${total}</span></div><progress max="${Math.max(1, total)}" value="${done}" aria-label="${escape(t("Progreso de clasificaci\xF3n"))}"></progress><p>${escape(t("{done}/{total} noticias revisadas; {classified} etiquetas actualizadas; {digital} digitales.", { done, total, classified: job.classified, digital: job.digital }))}</p><p class="small muted">${escape(t("\xDAltima actividad"))}: ${escape(date(job.updated))}</p>${job.error ? "<p>" + escape(job.error) + "</p>" : ""}` : '<p class="muted">' + t(data.queued ? "En cola" : "Sin clasificaciones ejecutadas.") + "</p>", active;
+    }
+    async function refreshProgress() {
+      close();
+      let current = request3;
+      try {
+        let data = await call("getClassificationStatus");
+        if (current !== request3) return;
+        renderProgress(data) && isActive() && (timer = setTimeout(poll, 3e4));
+      } catch (error) {
+        current === request3 && (message(error.message, !0), isActive() && (timer = setTimeout(poll, 6e4)));
+      }
+    }
+    async function poll() {
+      if (isActive()) {
+        if (document.hidden) {
+          timer = setTimeout(poll, 3e4);
+          return;
+        }
+        await refreshProgress();
+      }
+    }
+    $("classification-start").addEventListener("click", () => run(async () => {
+      await call("startClassification"), await refreshProgress();
+    }, !1));
+    let entries = () => category === "capabilities" ? config.capabilities[segment] : config[category], setEntries = (rows) => {
       category === "capabilities" ? config.capabilities[segment] = rows : config[category] = rows;
     };
     async function fetchConfig() {
@@ -1513,13 +1554,13 @@
       readFields(), entries().push(Object.fromEntries(admin_schema_default[category].fields.map(([key, , type]) => [key, type === "list" ? [] : type === "boolean" ? !0 : ""]))), render();
     }), $("catalog-form").addEventListener("submit", (event) => {
       event.preventDefault(), readFields(), run(async () => {
-        message(await call("saveConfiguration", { config, revision })), await fetchConfig(), render();
+        message(await call("saveConfiguration", { config, revision })), await fetchConfig(), render(), await refreshProgress();
       });
     }), $("catalog-reload").addEventListener("click", () => run(async () => {
       await fetchConfig(), render();
     }, !1)), { async open() {
-      config || (await fetchConfig(), render());
-    } };
+      config || (await fetchConfig(), render()), await refreshProgress();
+    }, close };
   }
 
   // src/client/features/article-text.js
@@ -1638,11 +1679,11 @@
   }
 
   // src/client/features/administration.js
-  function createAdministration({ isAdmin, track: track2, onConfiguration, onSubscribers, onLanguage, onLeaveLanguage }) {
+  function createAdministration({ isAdmin, track: track2, onConfiguration, onSubscribers, onLanguage, onLeaveLanguage, onLeaveConfiguration }) {
     let current = "configuration";
     async function open(view = current) {
       if (!(!isAdmin() || !(view in config_default.adminViews))) {
-        current === "language" && view !== current && onLeaveLanguage(), current = view, track2("vista");
+        current === "language" && view !== current && onLeaveLanguage(), current === "configuration" && view !== current && onLeaveConfiguration(), current = view, track2("vista");
         for (let name of Object.keys(config_default.adminViews)) $(name + "-section").hidden = name !== view;
         if ($("admin-tabs").querySelectorAll("[data-admin-view]").forEach((button) => {
           button.setAttribute("aria-selected", String(button.dataset.adminView === view)), button.tabIndex = button.dataset.adminView === view ? 0 : -1;
@@ -1752,18 +1793,43 @@
   }
 
   // src/client/features/source-catalog.js
+  var sourceTypes = { profile: "Google News RSS", rss: "RSS del editor" };
   function createSourceCatalog() {
-    let feeds = [], enabled = /* @__PURE__ */ new Set(), pageSize = 30, filters5 = createRecordFilters("source", [["entity", "Entidad"], ["country", "Geograf\xEDa"], ["kind", "Tipo", [["profile", "Google News RSS"], ["rss", "RSS del editor"]]], ["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]], render, { placeholder: "Entidad, geograf\xEDa o editor" });
+    let groups = { all: [], profile: [], rss: [] }, byId = /* @__PURE__ */ new Map(), enabled = /* @__PURE__ */ new Set(), pageSize = 30, kind = "all", filters5 = createRecordFilters("source", [
+      ["entity", "Entidad"],
+      ["country", "Geograf\xEDa"],
+      ["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]
+    ], render, { placeholder: "Entidad, geograf\xEDa o editor" });
     function render() {
-      let query = filters5.query(), rows = filterRecords(feeds.map((feed) => ({ ...feed, enabled: enabled.has(feed.id) })), query, ["entity", "country", "kind", "enabled"], ["name", "entity", "country", "url"]), page = recordPage(rows, query, pageSize);
-      $("configured-sources-body").innerHTML = page.items.map((feed) => `<tr><td><input type="checkbox" class="source-enabled" data-id="${escape(feed.id)}" aria-label="Activar ${escape(feed.name)}" ${enabled.has(feed.id) ? "checked" : ""}></td><td>${escape(feed.name)}</td><td>${escape(feed.country)}</td><td>${feed.kind === "profile" ? "Google News RSS" : "RSS del editor"}</td><td><a href="${escape(validUrl(feed.url))}" target="_blank" rel="noopener noreferrer">Abrir feed \u2197</a></td></tr>`).join("") || '<tr><td colspan="5">No hay fuentes con este criterio.</td></tr>', filters5.page(page), $("configured-source-count").textContent = feeds.length + " fuentes configuradas \xB7 " + enabled.size + " activas";
+      let query = filters5.query(), rows = filterRecords(groups[kind], query, ["entity", "country", "enabled"], ["name", "entity", "country", "url"]), page = recordPage(rows, query, pageSize);
+      $("configured-sources-body").innerHTML = page.items.map((feed) => `<tr><td><input type="checkbox" class="source-enabled" data-id="${escape(feed.id)}" aria-label="Activar ${escape(feed.name)}" ${feed.enabled ? "checked" : ""}></td><td>${escape(feed.name)}</td><td>${escape(feed.country)}</td><td>${sourceTypes[feed.kind]}</td><td><a href="${escape(validUrl(feed.url))}" target="_blank" rel="noopener noreferrer">Abrir feed \u2197</a></td></tr>`).join("") || '<tr><td colspan="5">No hay fuentes con este criterio.</td></tr>', filters5.page(page), $("configured-source-count").textContent = groups.all.length + " fuentes configuradas \xB7 " + enabled.size + " activas";
     }
-    return $("configured-sources-body").addEventListener("change", (event) => {
+    function select(next) {
+      !Object.hasOwn(groups, next) || next === kind || (kind = next, $("source-tabs").querySelectorAll("[data-source-kind]").forEach((button) => {
+        let active = button.dataset.sourceKind === kind;
+        button.setAttribute("aria-selected", String(active)), button.tabIndex = active ? 0 : -1;
+      }), $("source-panel").setAttribute("aria-labelledby", "source-tab-" + kind), $("source-rss-editor").hidden = kind !== "rss", filters5.reset(), filters5.options(recordOptions(groups[kind], ["entity", "country"])), render());
+    }
+    return $("source-tabs").addEventListener("click", (event) => {
+      let button = event.target.closest("[data-source-kind]");
+      button && select(button.dataset.sourceKind);
+    }), $("source-tabs").addEventListener("keydown", (event) => {
+      if (!event.target.closest("[data-source-kind]") || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      let kinds = Object.keys(groups), index = kinds.indexOf(kind), next = event.key === "Home" ? 0 : event.key === "End" ? kinds.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + kinds.length) % kinds.length;
+      select(kinds[next]), $("source-tab-" + kind).focus();
+    }), $("configured-sources-body").addEventListener("change", (event) => {
       let input = event.target;
-      input.matches(".source-enabled") && (input.checked ? enabled.add(input.dataset.id) : enabled.delete(input.dataset.id), render());
-    }), { update(rows, size) {
-      feeds = rows, pageSize = size, enabled = new Set(rows.filter((row) => row.enabled).map((row) => row.id)), filters5.options(recordOptions(rows, ["entity", "country"])), render();
-    }, selected: () => [...enabled] };
+      input.matches(".source-enabled") && (byId.get(input.dataset.id).enabled = input.checked, input.checked ? enabled.add(input.dataset.id) : enabled.delete(input.dataset.id), render());
+    }), {
+      update(rows, size) {
+        let feeds = rows.map((row) => ({ ...row }));
+        groups = { all: feeds, profile: [], rss: [] };
+        for (let feed of feeds) groups[feed.kind].push(feed);
+        byId = new Map(feeds.map((feed) => [feed.id, feed])), pageSize = size, enabled = new Set(feeds.filter((feed) => feed.enabled).map((feed) => feed.id)), filters5.options(recordOptions(groups[kind], ["entity", "country"])), render();
+      },
+      selected: () => [...enabled]
+    };
   }
 
   // src/client/features/sources.js
@@ -1910,11 +1976,11 @@
 
   // src/client/app.js
   initializeLocalization();
-  var state = { data: null, request: 0, busy: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data }), { track, flush } = usage, configuration = createConfiguration({ run: action }), subscriptions = createSubscriptions({ run: action, onApply: (query) => {
+  var state = { data: null, request: 0, busy: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data }), { track, flush } = usage, configuration = createConfiguration({ run: action, isActive: () => navigation.current === "administration" && administration.current === "configuration" }), subscriptions = createSubscriptions({ run: action, onApply: (query) => {
     filters4.show("news"), filters4.apply(query), navigation.show("news");
-  } }), newsletterDelivery = createNewsletterDelivery({ run: action }), languageSettings = createLanguageSettings({ run: action, isActive: () => navigation.current === "administration" && administration.current === "language" }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]), onLanguage: () => languageSettings.open(), onLeaveLanguage: () => languageSettings.close() }), navigation = createNavigation({ onSelection: (view) => {
-    filters4.show(view) ? load() : state.data && renderSelection(state.data, view);
-  }, onSubscriptions: () => subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
+  } }), newsletterDelivery = createNewsletterDelivery({ run: action }), languageSettings = createLanguageSettings({ run: action, isActive: () => navigation.current === "administration" && administration.current === "language" }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]), onLanguage: () => languageSettings.open(), onLeaveLanguage: () => languageSettings.close(), onLeaveConfiguration: () => configuration.close() }), navigation = createNavigation({ onSelection: (view) => {
+    configuration.close(), filters4.show(view) ? load() : state.data && renderSelection(state.data, view);
+  }, onSubscriptions: () => (configuration.close(), subscriptions.open()), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
   } }), briefing = createBriefing();
   $("briefing-signals").addEventListener("click", (event) => {

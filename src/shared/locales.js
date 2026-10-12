@@ -1,5 +1,11 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Clasificación de noticias": ["News classification", "Haber sınıflandırması"],
+  "Clasificar noticias": ["Classify news", "Haberleri sınıflandır"],
+  "Progreso de clasificación": ["Classification progress", "Sınıflandırma ilerlemesi"],
+  "Sin clasificaciones ejecutadas.": ["No classifications have run.", "Henüz sınıflandırma yapılmadı."],
+  "Clasificación diaria: {hour} · {timezone} · {state}. La recuperación diaria tiene prioridad.": ["Daily classification: {hour} · {timezone} · {state}. Daily collection has priority.", "Günlük sınıflandırma: {hour} · {timezone} · {state}. Günlük toplama önceliklidir."],
+  "{done}/{total} noticias revisadas; {classified} etiquetas actualizadas; {digital} digitales.": ["{done}/{total} articles reviewed; {classified} labels updated; {digital} digital.", "{done}/{total} haber incelendi; {classified} etiket güncellendi; {digital} dijital."],
   "Cobertura": ["Coverage", "Kapsam"],
   "Generalista": ["General banking", "Genel bankacılık"],
   "Canal digital": ["Digital channel", "Dijital kanal"],
@@ -316,6 +322,8 @@ export const translations = Object.freeze({
   "Recuperar noticias": ["Recover news", "Geçmiş haberleri tara"],
   "Cobertura del histórico": ["Historical coverage", "Geçmiş kapsamı"],
   "El último año se consulta por semanas; las consultas saturadas se dividen automáticamente hasta llegar a un día. Los RSS de editores aportan solo el histórico que mantengan disponible; la recuperación no garantiza cobertura completa.": ["The last year is queried by week; saturated queries are split automatically down to a day. Publishers' RSS feeds provide only the history they retain; recovery does not guarantee complete coverage.", "Son yıl haftalık olarak taranır; dolan sorgular otomatik olarak bir güne kadar bölünür. Yayıncıların RSS akışları yalnızca sakladıkları geçmişi sağlar; tarama tam kapsamı garanti etmez."],
+  "Google News RSS": ["Google News RSS", "Google News RSS"],
+  "Tipos de fuente": ["Source types", "Kaynak türleri"],
   "Herramientas de administración": ["Administration tools", "Yönetim araçları"],
   "CATÁLOGOS Y OPERACIÓN": ["CATALOGS AND OPERATION", "KATALOGLAR VE İŞLEYİŞ"],
   "Catálogo": ["Catalog", "Katalog"],

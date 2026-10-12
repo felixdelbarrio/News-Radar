@@ -56,7 +56,7 @@ function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
     append_('Noticias',news);let sorted=false;
     append_('Auditoria',audit);append_('Recopilacion',newTasks);
     writeCollectionTasks_(pending,updates);
-    if((news.length||tasks.some(task=>Number(task.nuevas)>0))&&!newTasks.length&&updates.every(row=>!['Pendiente','Reintento programado'].includes(row[0]))){const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1;if(count>1){if(properties_().getProperty('CLASSIFICATION_JOB'))requestNewsClassification_(true);sheet.getRange(2,1,count,RADAR.sheets.Noticias.length).sort({column:2,ascending:true});sorted=true;}}
+    if((news.length||tasks.some(task=>Number(task.nuevas)>0))&&!newTasks.length&&updates.every(row=>!['Pendiente','Reintento programado'].includes(row[0]))){const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1;if(count>1){if(classificationPending_())requestNewsClassification_(true);sheet.getRange(2,1,count,RADAR.sheets.Noticias.length).sort({column:2,ascending:true});sorted=true;}}
     SpreadsheetApp.flush();if(news.length||sorted)invalidateNews_();
     append_('Ejecuciones',[...affected].map(id=>{const batch=pending.filter(task=>task.ciclo===id),rows=batch.map(task=>updates[task.row-2]),failures=rows.map(row=>row[5]).filter(Boolean);return [id,now.toISOString(),new Date().toISOString(),failures.length?'Parcial':'Completada',batch.length,rows.reduce((sum,row)=>sum+Number(row[3]),0),rows.reduce((sum,row)=>sum+Number(row[4]),0),failures.join(' | ')];}));
     for(const job of jobs)if(pending.filter(task=>task.ciclo===job.id&&updates[task.row-2][5]).length>=2)job.pausa=String(Date.now()+settings_().pauseMinutes*60000);

@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.11.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.12.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -120,6 +120,8 @@ Cada ciclo conserva su período y progreso en Recargas. Las solicitudes se regis
 En local, la acción muestra cuántas noticias de la instantánea corresponden al período. No consulta fuentes remotas ni simula noticias nuevas. No requiere permisos nuevos.
 
 ## Fuentes y recopilación automática
+
+Administración > Fuentes organiza el catálogo en las pestañas Todas, Google News RSS y RSS del editor. Comparten búsqueda, filtros y paginación; las activaciones se conservan entre pestañas y se guardan para todo el catálogo. La edición y alta de feeds está en RSS del editor y conserva los cambios al cambiar de pestaña. La agrupación se calcula al cargar la configuración, sin consultas adicionales al navegar.
 
 La configuración inicial genera 50 fuentes: dos RSS oficiales de BBVA y 48 búsquedas de Google News por entidad y país. Los alias se combinan en una consulta para evitar feeds redundantes. El número cambia al editar catálogos. Todas las URLs RSS son configurables; las búsquedas utilizan nombres, alias, países, idioma y términos de sector guardados en Sheets. No requieren claves API.
 

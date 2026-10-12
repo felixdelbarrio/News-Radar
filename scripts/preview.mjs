@@ -19,6 +19,7 @@ const shared=names.map(name=>context[name].toString()).join('\n'),serialize=valu
 const preview=`<script>(()=>{
 const languageNames=${serialize(vm.runInContext('languageNames',context))};
 const COLLECTION_POLICY=${serialize(vm.runInContext('COLLECTION_POLICY',context))};
+const CLASSIFICATION_WORK=${serialize(vm.runInContext('CLASSIFICATION_WORK',context))};
 const DIGITAL_RULES=${serialize(vm.runInContext('DIGITAL_RULES',context))};
 const capabilityDefaults=${serialize(seed.capabilities)};
 const newsRelevanceMemory_=new WeakMap();
@@ -35,6 +36,8 @@ window.RADAR_PREVIEW={async call(method,q={}){
  if(method==='recordEvents'){usage.push(...q.map(event=>({fecha:new Date().toISOString(),correo:'usuario@bbva.com',sesion:event.session,evento:event.event,vista:event.view,duracion_ms:eventDuration_(event.duration)})));if(usage.length>settings_().eventLimit)usage.splice(0,usage.length-settings_().eventLimit);return {saved:true};}
  if(method==='getNewsletterHistory'){authorize_();return {...recordPage([],q),options:{},limit:settings_().eventLimit,limited:false};}
  if(method==='getRuns') {authorize_();return {...recordPage([],q),options:{},collection:{jobs:[]},limit:settings_().eventLimit,limited:false};}
+ if(method==='getClassificationStatus') {authorize_();return {scheduled:false,hour:settings_().dailyHour,minute:CLASSIFICATION_WORK.dailyMinute,timezone:settings_().timezone,job:null};}
+ if(method==='startClassification'){authorize_();throw Error('La clasificación se ejecuta en Google Apps Script.');}
  if(method==='getTranslationStatus'){authorize_();return {scheduled:false,hour:2,timezone:settings_().timezone,job:null,queued:false};}
  if(['installTranslationSchedule','disableTranslationSchedule','startTranslations'].includes(method)){authorize_();throw Error('La traducción nocturna se ejecuta en Google Apps Script.');}
  if(method==='getCollectionProgress')return {newsRevision:revision,collection:{total:0,pending:0}};

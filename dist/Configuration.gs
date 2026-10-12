@@ -20,8 +20,8 @@ function initializeConfiguration(){
       const sheet=book_().insertSheet(name);sheet.getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]).setFontWeight('bold').setBackground(SHEET_THEME.background).setFontColor(SHEET_THEME.foreground);sheet.setFrozenRows(1);
     }
     const sheet=book_().getSheetByName('Configuracion'),count=sheet.getLastRow()-1,keys=new Set(count?sheet.getRange(2,1,count,1).getValues().flat():[]);
-    // Add only absent defaults once per release; preserve existing edits and activations.
-    if(properties_().getProperty('CATALOG_VERSION')!==RADAR.version){
+    // Add only absent defaults when the catalog version changes; preserve existing edits and activations.
+    if(properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION){
       const data=count?sheet.getRange(2,1,count,2).getValues():[];
       for(const key of ['feeds','entities','capabilities']){
         const index=data.findIndex(row=>row[0]===key);if(index<0)continue;
@@ -46,7 +46,8 @@ function initializeConfiguration(){
     const subscriptions=book_().getSheetByName('Suscripciones'),countSubscriptions=subscriptions.getLastRow()-1;
     if(countSubscriptions>0){const range=subscriptions.getRange(2,8,countSubscriptions,1);range.setValues(range.getValues().map(([value])=>[value||'es']));}
     invalidateConfiguration_();
-    if(properties_().getProperty('CATALOG_VERSION')!==RADAR.version){upgradeCollectionQueries_();properties_().setProperty('CATALOG_VERSION',RADAR.version);}
+    if(properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION){upgradeCollectionQueries_();properties_().setProperty('CATALOG_VERSION',CONFIGURATION_CATALOG_VERSION);}
+    properties_().deleteProperty('CLASSIFICATION_VERSION');
     requestNewsClassification_();
     initializeCollectionQueue_();
     initializeBackgroundSchedules_();
@@ -105,7 +106,7 @@ function writeConfiguration_(config,revision){
   validateConfiguration_(config);const lock=LockService.getScriptLock();lock.waitLock(10000);
   try{
     if(revision!==String(properties_().getProperty('CONFIG_REVISION')||'0'))throw Error('La configuración ha cambiado en otra sesión. Recarga los catálogos antes de guardar.');
-    const reclassify=JSON.stringify(configuration_().capabilities)!==JSON.stringify(config.capabilities)||JSON.stringify(configuration_().topics)!==JSON.stringify(config.topics);
+    const reclassify=classificationRulesRevision_()!==classificationRulesRevision_(config);
     const sheet=book_().getSheetByName('Configuracion'),rows=Object.entries(config).map(([key,value])=>[key,JSON.stringify(value)]);
     sheet.getRange(2,1,Math.max(rows.length,sheet.getLastRow()-1),2).clearContent();append_('Configuracion',rows);invalidateConfiguration_();if(reclassify)requestNewsClassification_(true);initializeBackgroundSchedules_();
     return 'Configuración guardada. Se aplicará a filtros, clasificación y próximas recopilaciones.';
