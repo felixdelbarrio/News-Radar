@@ -5,7 +5,7 @@ import {storage} from './helpers/server.mjs';
 import {read,readServerScript} from '../scripts/source.mjs';
 const seed=()=>JSON.parse(read('assets/configuration-defaults.json'));
 test('inicializa solo claves ausentes, persiste en Sheets y reutiliza e invalida la caché versionada',()=>{
-  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,13);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
+  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,12);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
   config.settings.defaultEntity='Qonto';config.segments.push({name:'Prueba editorial',terms:['innovación verificable'],enabled:true});c.saveConfiguration({config,revision:c.getConfiguration().revision});assert.equal(c.getConfiguration().config.settings.defaultEntity,'Qonto');
   c.initializeConfiguration();assert.equal(c.getConfiguration().config.settings.defaultEntity,'Qonto');assert.ok(c.getConfiguration().config.segments.some(row=>row.name==='Prueba editorial'));
   const sheet=s.sheets.get('Configuracion'),index=sheet.grid.findIndex(row=>row[0]==='settings'),settings=JSON.parse(sheet.grid[index][1]);settings.defaultEntity='Revolut';sheet.grid[index][1]=JSON.stringify(settings);

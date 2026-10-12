@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `2.1.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `2.2.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -292,11 +292,11 @@ El orden es Novedades, Noticias, Radar, Newsletter y Administración. Novedades 
 
 Los nuevos correos enlazan su edición privada: Novedades y Noticias mantienen exactamente las noticias enviadas, las etiquetas y el período, aunque luego cambien las preferencias, la taxonomía o el inventario de Noticias. Los filtros refinan esa edición; Volver a la actualidad, limpiar filtros o quitar el período abandona su contexto. El botón no modifica las suscripciones. La misma agrupación BBVA primero y resto por cantidad de novedades se aplica al correo y a Novedades.
 
-Mi selección permite elegir una suscripción activa o el ámbito predeterminado. La elección se guarda por usuario en un único RPC que también devuelve el dashboard. La entrada directa comienza por la primera suscripción activa, en orden de creación. Sin suscripciones activas se conservan los valores predeterminados. Cambiar temporalmente los filtros no cambia preferencias ni los correos recibidos.
+La entrada directa comienza por la primera suscripción activa, en orden de creación. Sin suscripciones activas se conservan los valores predeterminados. Cambiar temporalmente los filtros no cambia preferencias ni los correos recibidos.
 
 Radar muestra un mapa de calor interactivo por entidad o geografía, palanca o subpalanca, con números absolutos o porcentaje de noticias del grupo. Cada celda abre Noticias con la selección y fechas conservadas; el mapa informa también de las noticias sin catalogar. Agrupación, medida y paginación se resuelven en el cliente, sin nuevas consultas. La escala usa los tokens comunes y el DOM se mantiene acotado.
 
-Tras desplegar, ejecutar `initializeConfiguration` para crear **Preferencias**, **NewsletterEdiciones** y **NewsletterContenido**. Los enlaces genéricos de correos enviados antes de esta versión no identifican una edición; la continuidad archivada se aplica a los nuevos envíos. Véase [el análisis de telemetría y validación](docs/telemetry-1.15.0.md).
+Tras desplegar, ejecutar `initializeConfiguration` para crear **NewsletterEdiciones** y **NewsletterContenido**. Los enlaces genéricos de correos enviados antes de esta versión no identifican una edición; la continuidad archivada se aplica a los nuevos envíos. Véase [el análisis de telemetría y validación](docs/telemetry-1.15.0.md).
 
 ## Novedades y newsletter por defecto · 1.15.1
 
@@ -328,7 +328,7 @@ Validación de 1.15.4: 244 pruebas superadas y cobertura de líneas 96,52 %. La 
 
 Novedades comienza en los últimos siete días; la primera newsletter activa puede elegir ese período, el mes o el año en curso. Noticias comienza en el mes en curso y Radar en el año en curso, también con una selección personalizada. Los filtros editados y las ediciones históricas conservan sus fechas. Los rangos se calculan en la zona de negocio y se comparten entre consultas y envíos.
 
-El asunto se genera exclusivamente con los filtros aplicados y el prefijo `[bIA]`, en el idioma de la newsletter. El formulario permite configurar período, idioma, periodicidad y filtros, sin campo de nombre o asunto. Se elimina la configuración obsoleta de nombre inicial. «Mi selección» se integra en el panel lateral de filtros y aparece con más de una newsletter activa; el contexto de una edición enviada mantiene el período y la opción de volver a la actualidad. En móvil viaja con los filtros al diálogo existente.
+El asunto se genera exclusivamente con los filtros aplicados y el prefijo `[bIA]`, en el idioma de la newsletter. El formulario permite configurar período, idioma, periodicidad y filtros, sin campo de nombre o asunto. Se elimina la configuración obsoleta de nombre inicial. El contexto de una edición enviada mantiene el período y la opción de volver a la actualidad. En móvil viaja con los filtros al diálogo existente.
 
 Los envíos preparan una única vez el corpus del intervalo necesario para las suscripciones pendientes, reutilizan las selecciones iguales y mantienen la prioridad de recuperación diaria y el control de duplicados.
 
@@ -435,3 +435,17 @@ Las nueve secciones de Administración pasan al lateral izquierdo y se elimina l
 Validación: 297 pruebas superadas; sintaxis, diseño y permisos comprobados. Para publicar, copiar la distribución actualizada y publicar la WebApp. Esta versión modifica la interfaz y conserva el esquema de datos de 2.0.0.
 
 Chrome verifica el panel vertical y la navegación entre 320 y 1440 px, la conservación de Buscar y Estado al redimensionar, una sola instancia de cada control y ausencia de desbordamiento horizontal. La cabecera y la navegación inferior se adaptan también a 320 px con Administración habilitada.
+
+## Diagnóstico de una publicación incompleta · 2.1.0
+
+`dailyScheduleStatus_ is not defined` identifica la ausencia del código de `dist/Background.gs` en la ejecución; `newsEntityPage is not defined` identifica la ausencia de su definición en `dist/NewsGroups.gs`. Ambas funciones están en la distribución 2.1.0 generada. Una instalación de archivos incompletos o desactualizados puede provocar estos fallos sin cambiar permisos: el dashboard no entrega su respuesta y la interfaz no recibe `admin`, por lo que Administración queda oculta. Las pruebas reproducen los errores al omitir esos módulos y verifican que la distribución completa responde a las tres vistas con el rol correcto.
+
+Sustituir todos los archivos por `dist/`, incluidos los módulos nuevos, y publicar una Nueva versión de la implementación existente; guardar archivos no actualiza una implementación que sigue apuntando a una versión anterior. Si después de recuperar la carga aún falta Administración, comprobar que OWNER_EMAIL coincide con la cuenta corporativa activa. Este diagnóstico no cambia la lógica de autorización ni necesita una nueva release de código.
+
+## Suscripciones únicas y filtros simplificados · 2.2.0
+
+No se permite guardar dos suscripciones con el mismo destinatario, periodicidad, idioma y filtros efectivos, ni siquiera pausadas. La comprobación central se aplica a altas y ediciones personales o administrativas, dentro del bloqueo de escritura. Editar la misma suscripción sigue permitido; los filtros vacíos y el orden de sus claves no generan selecciones distintas. La búsqueda se normaliza igual que al consultar noticias. No se borran suscripciones existentes automáticamente.
+
+Se retira el selector «Mi selección» y su texto duplicado de Novedades, Noticias y Radar. La entrada directa sigue usando la primera newsletter activa. «Más filtros» aparece exclusivamente en Noticias; en Novedades y Radar los criterios avanzados heredados siguen activos y aparecen como etiquetas con ×. Las ediciones privadas mantienen su contenido, período y botón para volver a la actualidad.
+
+Se eliminan el endpoint de preferencias, su esquema y el catálogo personal del dashboard. La primera suscripción se cachea por usuario y revisión, solo se resuelve al inicializar una vista y no calcula asuntos traducidos. Véase [el análisis de telemetría](docs/telemetry-2.2.0.md). Publicar todos los archivos de `dist/` en una nueva versión aplica el cambio.
