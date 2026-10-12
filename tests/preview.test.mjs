@@ -50,3 +50,12 @@ test('make kill usa IPC local protegido y cierra solo el servidor registrado',as
  const closed=once(server,'close');assert.equal(await killServer(file),true);await closed;
  assert.equal(fs.existsSync(file),false);assert.equal(await killServer(file),false);
 });
+
+test('la vista local configura períodos y asuntos traducidos y personaliza sin trasladar fechas entre vistas',async()=>{
+ const fs=await import('node:fs'),vm=await import('node:vm'),html=fs.readFileSync('output/preview.html','utf8'),adapter=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].find(match=>match[1].includes('window.RADAR_PREVIEW='))[1];
+ const c=vm.createContext({window:{}});vm.runInContext(adapter,c);const preview=c.window.RADAR_PREVIEW;
+ await preview.call('saveSubscription',{name:'Nombre ignorado',language:'en',filters:{entity:'Santander',range:'year'}});await preview.call('saveSubscription',{language:'tr',filters:{entity:'BBVA',range:'week'}});
+ const subscriptions=await preview.call('getSubscriptions');assert.match(subscriptions[0].nombre,/^\[bIA\] Entity: Santander/);assert.doesNotMatch(subscriptions[0].nombre,/ignorado/);assert.match(subscriptions[1].nombre,/Son 7 gün/);
+ for(const [view,from] of [['briefing','-01-01'],['news','-'+new Date().toISOString().slice(5,7)+'-01'],['radar','-01-01']]){const data=await preview.call('getDashboard',{view,initial:true});assert.ok(data.selection.from.endsWith(from));assert.equal(data.selection.entity,'Santander');assert.equal(data.personalization.options.length,2);assert.equal(data.context.mode,'personal');}
+ const options=await preview.call('getNewsletterOptions');assert.equal(options.defaults.name,undefined);assert.equal(options.defaults.filters.range,'week');
+});

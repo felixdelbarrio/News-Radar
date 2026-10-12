@@ -13,9 +13,19 @@ function currentMonth_(now=new Date()){
   const end=new Date(start);end.setUTCMonth(end.getUTCMonth()+1);end.setUTCDate(0);
   return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10)};
 }
+function newsRange_(range='week',now=new Date()){
+  if(range==='week')return recentNewsRange_(now);
+  if(range==='month')return currentMonth_(now);
+  if(range==='year'){const year=calendarDate_(now).getUTCFullYear();return {from:year+'-01-01',to:year+'-12-31'};}
+  throw Error('Período de contenido no válido.');
+}
+function personalDashboardQuery_(subscription,view,now=new Date()){
+  const {range,...filters}=subscription.filtros;
+  return {...filters,...newsRange_(view==='briefing'?range||'week':view==='news'?'month':'year',now),view,initial:false};
+}
 function dashboardQuery_(query={},now=new Date()){
   const {view,initial,...filters}=query;delete filters.language;delete filters.edition;delete filters.preference;delete filters.savePreference;
-  if(view==='radar')return initial?{entity:'',...sectorNewsFilters_()}:filters;
+  if(view==='radar')return initial?{entity:'',...sectorNewsFilters_(),...newsRange_('year',now)}:filters;
   if(['news','briefing'].includes(view)&&filters.coverage&&!['generalista','digital'].includes(filters.coverage))throw Error('Filtro de cobertura no válido.');
   if(view==='briefing')return {...(initial?{...sectorNewsFilters_(),...recentNewsRange_(now)}:filters),...(!initial&&!filters.from&&!filters.to?recentNewsRange_(now):{})};
   const selection=initial?{entity:settings_().defaultEntity,segment:settings_().defaultSegment,topic:settings_().defaultTopic,country:settings_().defaultCountry,...currentMonth_(now)}:filters;

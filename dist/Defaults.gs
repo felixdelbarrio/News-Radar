@@ -58,7 +58,6 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
     "defaultPeriodicity": "monthly",
     "newsletterEnabled": false,
     "newsletterBatch": 20,
-    "defaultNewsletterName": "Novedades de mi canal",
     "newsletterSender": "news-radar.group@bbva.com",
     "newsletterSenderName": "News Radar · BBVA Empresas",
     "newsletterDailyLimit": 100,

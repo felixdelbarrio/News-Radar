@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {app} from './helpers/app.mjs';
 test('suscripciones personales y administrativas guardan, editan, prueban y eliminan sin alterar filtros',async t=>{
  const a=await app(t);await a.click('[data-view="subscriptions"]');assert.match(a.find('#subscriptions-list').textContent,/Mi canal/);
- await a.click('#subscriptions-list [data-action="edit"]');assert.equal(a.find('#personal-editor [name="name"]').value,'Mi canal');
- await a.change('#personal-editor [name="name"]','Mi edición');await a.submit('#personal-editor form');assert.equal(a.calls.find(r=>r.method==='saveSubscription').query.name,'Mi edición');
+ await a.click('#subscriptions-list [data-action="edit"]');assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);assert.equal(a.find('#personal-editor [name="range"]').value,'week');
+ await a.change('#personal-editor [name="range"]','month');await a.submit('#personal-editor form');assert.equal(a.calls.find(r=>r.method==='saveSubscription').query.filters.range,'month');assert.equal(a.calls.find(r=>r.method==='saveSubscription').query.name,undefined);
  await a.click('#subscriptions-list [data-action="test"]');assert.match(a.find('#message').textContent,/aceptado/);
  await a.click('#subscriptions-list [data-action="apply"]');assert.equal(a.find('#page-title').textContent,'Noticias');
  await a.click('[data-view="subscriptions"]');await a.click('#subscriptions-list [data-action="delete"]');assert.ok(a.calls.some(r=>r.method==='deleteSubscription'));

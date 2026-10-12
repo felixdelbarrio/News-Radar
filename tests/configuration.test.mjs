@@ -49,7 +49,7 @@ test('newsletter selecciona siete días y conserva cierres naturales en la zona 
 test('administración da altas y edita suscripciones; lectores no acceden a otros usuarios',()=>{
  const s=storage(),{c}=s;c.initializeConfiguration();s.book.insertSheet('Noticias').grid.push([]);const defaults=c.getNewsletterOptions().defaults;assert.equal(defaults.periodicity,'monthly');assert.equal(defaults.filters.entity,undefined);assert.equal(defaults.filters.segment,'Empresas e instituciones');assert.equal(defaults.filters.country,undefined);
  c.saveAdminSubscription({email:'equipo@bbva.com',name:'Equipo',filters:defaults.filters});let rows=c.getAdminSubscriptions();assert.equal(rows.length,1);c.saveAdminSubscription({id:rows[0].id,email:'equipo@bbva.com',name:'Pausada',active:false,periodicity:'weekly',filters:defaults.filters});rows=c.getAdminSubscriptions();assert.equal(rows[0].activa,false);assert.equal(rows[0].periodicidad,'weekly');
- assert.throws(()=>c.saveAdminSubscription({email:'outside@example.com',name:'Fuera',filters:{}}),/dominio/);s.setEmail('equipo@bbva.com');assert.equal(c.getSubscriptions().length,1);assert.throws(()=>c.getAdminSubscriptions(),/administrador/);assert.throws(()=>c.saveAdminSubscription({}),/administrador/);c.saveSubscription({id:rows[0].id,name:'Mía',periodicity:'monthly',active:true,filters:{}});assert.equal(c.getSubscriptions()[0].nombre,'Mía');
+ assert.throws(()=>c.saveAdminSubscription({email:'outside@example.com',name:'Fuera',filters:{}}),/dominio/);s.setEmail('equipo@bbva.com');assert.equal(c.getSubscriptions().length,1);assert.throws(()=>c.getAdminSubscriptions(),/administrador/);assert.throws(()=>c.saveAdminSubscription({}),/administrador/);c.saveSubscription({id:rows[0].id,name:'Mía',periodicity:'monthly',active:true,filters:{}});assert.equal(c.getSubscriptions()[0].nombre,'[bIA] Últimos 7 días');
 });
 
 test('la entrega registra cada período antes de enviar y no duplica ni reintenta envíos inciertos',()=>{
@@ -60,7 +60,7 @@ test('la entrega registra cada período antes de enviar y no duplica ni reintent
  c.deliverNewsletters_();c.deliverNewsletters_();assert.equal(sent,1);assert.equal(s.sheets.get('NewsletterEnvios').grid[1][5],'Enviada');
  c.rows_=name=>name==='Noticias'?[{fecha:period.from,pais:'España',entidad:'BBVA',medio:'BBVA',titular:'BBVA lanza tarjeta para empresas',extracto:'Nueva tarjeta',url:'https://example.com/card'}]:s.sheets.get(name).grid.slice(1).map(row=>Object.fromEntries(['id','suscripcion','correo','desde','hasta','estado','fecha','detalle','contenido'].map((key,i)=>[key,row[i]])));
  c.subscriptionRows_=()=>[{id:'fallo',correo:'equipo@bbva.com',nombre:'Canal',periodicidad:'monthly',activa:true,actualizada:'2020-01-01T00:00:00Z',filtros:{entity:'BBVA'}}];c.sendNewsletterMail_=()=>{sent++;throw Error('Resultado incierto');};c.deliverNewsletters_();c.deliverNewsletters_();assert.equal(sent,2);assert.equal(s.sheets.get('NewsletterEnvios').grid[2][5],'Revisar');
- c.newsletterBudget_=()=>0;c.subscriptionRows_=()=>[{id:'quota',activa:true}];c.deliverNewsletters_();assert.equal(sent,2);
+ c.newsletterBudget_=()=>0;c.subscriptionRows_=()=>[{id:'quota',activa:true,filtros:{}}];c.deliverNewsletters_();assert.equal(sent,2);
 });
 
 test('la próxima entrega diferencia altas nuevas, pendientes, rechazos y suscripciones pausadas',()=>{
@@ -73,7 +73,7 @@ test('un rechazo confirmado se puede reintentar y los mensajes de selecciones di
  const s=storage(),{c}=s;c.initializeConfiguration();const cfg=c.getConfiguration();cfg.config.settings.newsletterEnabled=true;c.saveConfiguration(cfg);s.book.insertSheet('Noticias').grid.push([]);
  const names=[],rows=['Canal A','Canal B'].map((nombre,i)=>({id:String(i),nombre,correo:'user'+i+'@bbva.com',periodicidad:'monthly',activa:true,actualizada:'2020-01-01',filtros:{}}));c.subscriptionRows_=()=>rows;c.newsletterSender_=()=>({});
  c.newsletterContent_=(_rows,_query,title)=>{names.push(title);return {count:1,html:title,text:title,items:[]};};c.sendNewsletterMail_=()=>{const error=Error('Rechazado');error.rejected=true;throw error;};
- assert.equal(c.deliverNewsletters_().state,'error');assert.equal(s.sheets.get('NewsletterEnvios').grid[1][5],'No enviado');c.sendNewsletterMail_=(_s,_r,_subject,content)=>{assert.match(content.html,/Canal [AB]/);return 'accepted';};
+ assert.equal(c.deliverNewsletters_().state,'error');assert.equal(s.sheets.get('NewsletterEnvios').grid[1][5],'No enviado');c.sendNewsletterMail_=(_s,_r,content)=>{assert.match(content.html,/Canal [AB]/);return 'accepted';};
  const result=c.deliverNewsletters_();assert.equal(result.accepted,2);assert.deepEqual(names,['Canal A','Canal A','Canal B']);assert.equal(c.deliverNewsletters_().state,'no_due');
 });
 
@@ -82,7 +82,7 @@ function deliveryFixture(){
  const news=s.book.insertSheet('Noticias');news.grid.push(c.RADAR?.sheets?.Noticias||['id','fecha','pais','medio','entidad','titular','extracto','tema','url','capturada','fuente']);
  const period=c.recentNewsRange_(new Date()),add=(id,title='BBVA lanza cuenta para empresas',url='https://example.com/'+id)=>news.grid.push([id,period.from,'España','BBVA','BBVA',title,'Nueva cuenta','',url,'','BBVA']);
  const subscriptions=[{id:'a',correo:'equipo@bbva.com',nombre:'Canal',periodicidad:'monthly',activa:true,actualizada:'2020-01-01',filtros:{entity:'BBVA'}}],sent=[];
- c.subscriptionRows_=()=>subscriptions;c.newsletterSender_=()=>({});c.sendNewsletterMail_=(_sender,email,_subject,content)=>{const record=s.sheets.get('NewsletterEnvios').grid.at(-1);assert.equal(record[5],'Enviando');assert.ok(JSON.parse(record[8]).length);sent.push({email,content});return 'gmail-'+sent.length;};
+ c.subscriptionRows_=()=>subscriptions;c.newsletterSender_=()=>({});c.sendNewsletterMail_=(_sender,email,content)=>{const record=s.sheets.get('NewsletterEnvios').grid.at(-1);assert.equal(record[5],'Enviando');assert.ok(JSON.parse(record[8]).length);sent.push({email,content});return 'gmail-'+sent.length;};
  return {...s,period,add,subscriptions,sent};
 }
 test('el mismo correo no repite noticias entre suscripciones; otro correo sí puede recibirlas',()=>{
@@ -115,7 +115,7 @@ test('solo se reservan las noticias incluidas; el límite no bloquea las que que
 });
 test('un rechazo permite reintentar el contenido y un registro dañado impide enviar sin control',()=>{
  const f=deliveryFixture();f.add('first');f.c.sendNewsletterMail_=()=>{const error=Error('Rechazado');error.rejected=true;throw error;};f.c.deliverNewsletters_();
- f.c.sendNewsletterMail_=(_s,_email,_title,content)=>{assert.equal(content.count,1);return 'accepted';};assert.equal(f.c.deliverNewsletters_().accepted,1);
+ f.c.sendNewsletterMail_=(_s,_email,content)=>{assert.equal(content.count,1);return 'accepted';};assert.equal(f.c.deliverNewsletters_().accepted,1);
  assert.throws(()=>f.c.newsletterSentContent_([{id:'bad',suscripcion:'a',correo:'equipo@bbva.com',estado:'Enviada',contenido:'["broken"]'}]),/Registro de contenido/);
 });
 test('el envío exige persistir la reserva antes de Gmail y el bloqueo impide ejecuciones simultáneas',()=>{

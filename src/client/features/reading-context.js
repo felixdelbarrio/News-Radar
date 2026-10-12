@@ -5,7 +5,10 @@ export function createReadingContext({onPreference,onCurrent}){
   $('reading-current').addEventListener('click',onCurrent);
   return {render(data,view){
     const context=data.context||{mode:'current'},personal=data.personalization||{options:[],active:'default'};
-    $('reading-context').hidden=!['news','briefing','radar'].includes(view);
+    const available=context.mode==='edition'||personal.options.length>1;
+    $('reading-context').dataset.available=String(available);
+    $('reading-context').hidden=!available||!['news','briefing','radar'].includes(view);
+    $('reading-choice').hidden=personal.options.length<=1;
     const select=$('reading-preference'),signature=JSON.stringify(personal.options);
     if(select.dataset.options!==signature){select.dataset.options=signature;select.innerHTML='<option value="default">'+t('Selección predeterminada')+'</option>'+personal.options.map(row=>'<option value="'+escape(row.id)+'">'+escape(row.name)+'</option>').join('');}
     select.value=personal.active;select.disabled=context.mode==='edition';

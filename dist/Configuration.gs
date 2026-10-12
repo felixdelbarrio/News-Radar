@@ -59,7 +59,6 @@ function validateConfiguration_(config){
   if(!config||typeof config.settings!=='object')throw Error('Falta configuración operativa.');
   for(const [name,[min,max]] of Object.entries(numeric)){const n=config.settings[name];if(!Number.isInteger(n)||n<min||n>max)throw Error(name+': requiere un entero entre '+min+' y '+max+'.');}
   if(!['monthly','weekly','daily'].includes(config.settings.defaultPeriodicity)||typeof config.settings.newsletterEnabled!=='boolean')throw Error('Configuración de newsletter no válida.');
-  if(typeof config.settings.defaultNewsletterName!=='string'||!config.settings.defaultNewsletterName.trim()||config.settings.defaultNewsletterName.length>100)throw Error('Nombre inicial de newsletter no válido.');
   newsletterEmail_(config.settings.newsletterSender);
   if(typeof config.settings.newsletterAppUrl!=='string'||(config.settings.newsletterAppUrl&&!/^https:\/\/script\.google\.com\/(?:a\/macros\/bbva\.com\/|macros\/)s\/[A-Za-z0-9_-]+\/exec$/.test(config.settings.newsletterAppUrl)))throw Error('URL de newsletter no válida: indica la WebApp publicada en Apps Script.');
   if(typeof config.settings.newsletterSenderName!=='string'||!config.settings.newsletterSenderName.trim()||config.settings.newsletterSenderName.length>100||/[\r\n]/.test(config.settings.newsletterSenderName))throw Error('Nombre del remitente no válido.');

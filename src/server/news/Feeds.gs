@@ -30,23 +30,11 @@ function ingestFeed_(feed,known,cycle,now,response) {
   audit.push([cycle,date,feed.name,feed.url,'Fuente consultada',items.length+' evaluadas; '+news.length+' nuevas; '+excluded+' excluidas; '+duplicated+' duplicadas; '+relevant+' relevantes; '+inside+' dentro del período; motivos '+JSON.stringify(reasons)+(feed.kind==='profile'&&items.length>=COLLECTION_POLICY.providerLimit?'; posible límite del proveedor: cobertura parcial':'')]);
   return {news,audit,evaluated:items.length,relevant,digital,duplicated,excluded,saturated:feed.kind==='profile'&&items.length>=COLLECTION_POLICY.providerLimit&&inside>=COLLECTION_POLICY.providerLimit*COLLECTION_POLICY.saturationRatio};
 }
-function titleKey_(title,entity){
-  const normalized=searchText_(title).replace(/[^a-z0-9]+/g,' ').trim();
-  return normalized.length>=30&&normalized.split(' ').length>=5?searchText_(entity)+'|'+normalized:'';
-}
-function rememberTitle_(known,item,feed){
-  const key=titleKey_(item.title,item.entity||feed.entity);if(!key)return;
-  const entries=known.titles.get(key)||[];entries.push({day:Date.parse(calendarDate_(item.date).toISOString().slice(0,10)),country:item.country||feed.country});known.titles.set(key,entries);
-}
-function duplicateTitle_(known,item,feed){
-  const key=titleKey_(item.title,item.entity||feed.entity),day=Date.parse(calendarDate_(item.date).toISOString().slice(0,10)),country=item.country||feed.country;
-  return !!key&&(known.titles.get(key)||[]).some(entry=>Math.abs(day-entry.day)<=COLLECTION_POLICY.duplicateDays*86400000&&entry.country===country);
-}
 function knownUrls_() {
   const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1,known=new Set();known.titles=new Map();
   if(count>0)for(const row of sheet.getRange(2,2,count,8).getDisplayValues()){
     const url=canonicalUrl_(row[7]);if(url)known.add(url);
-    const date=new Date(row[0]);if(Number.isFinite(date.getTime()))rememberTitle_(known,{date,title:row[4],entity:row[3],country:row[1]},{});
+    const date=row[0];if(Number.isFinite(Date.parse(date)))rememberTitle_(known,{date,title:row[4],entity:row[3],country:row[1],publisher:row[2]},{});
   }
   return known;
 }
