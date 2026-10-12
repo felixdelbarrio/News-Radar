@@ -1,3 +1,4 @@
+import {coverageOptions} from '../../shared/selection-policy.js';
 import {defaultView} from '../config.js';
 import {t,language} from '../core/language.js';
 import {formatCalendarDay} from '../../shared/locales.js';
@@ -18,7 +19,6 @@ function createFilters({ onInvalidate, onChange }) {
   function layout(){
       $(view+'-filter-chips').appendChild($('active-filters'));
       $('geography-filter').hidden=false;
-      $('coverage-filter').hidden=!['news','briefing'].includes(view);
       $('advanced-filters').hidden=false;
       for(const id of ['from-filter','to-filter'])$(id).hidden=false;
       $('filter-description').textContent='Selección de noticias y período de consulta.';
@@ -30,7 +30,7 @@ function createFilters({ onInvalidate, onChange }) {
     const values=Object.entries(chipLabels).filter(([name])=>form.elements[name].value);
     target.hidden=!values.length;
     target.innerHTML=values.map(([name,label])=>{
-      const raw=form.elements[name].value,value=name==='coverage'?{digital:'Canal digital',generalista:'Generalista'}[raw]:['from','to'].includes(name)?formatCalendarDay(raw,language):raw;
+      const raw=form.elements[name].value,value=name==='coverage'?coverageOptions[raw]:['from','to'].includes(name)?formatCalendarDay(raw,language):raw;
       const original=['search','entity','source'].includes(name),text=t(label)+': '+(original?value:t(value));
       return '<button type="button" class="filter-chip" data-original data-remove-filter="'+name+'" aria-label="'+escape(t('Quitar'))+' '+escape(text)+'"><span>'+escape(text)+'</span><span aria-hidden="true">×</span></button>';
     }).join('');

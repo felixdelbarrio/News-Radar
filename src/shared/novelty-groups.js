@@ -1,3 +1,4 @@
+import {geographyOrder} from './selection-policy.js';
 export function noveltyOverview(items,signalNames=[]){
   const signals=new Map(signalNames.map(name=>[name,0])),geographies=new Map(),entities=new Set();
   for(const row of items){
@@ -7,7 +8,7 @@ export function noveltyOverview(items,signalNames=[]){
     for(const signal of new Set(row.senales||[])){signals.set(signal,(signals.get(signal)||0)+1);geography.signals.set(signal,(geography.signals.get(signal)||0)+1);}
   }
   const counts=values=>[...values].map(([name,total])=>({name,total}));
-  return {total:items.length,entities:entities.size,bySignal:counts(signals),geographies:[...geographies.values()].map(({signals,entities,...row})=>({...row,entityCount:entities.size,bySignal:counts(signals)})).sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name,'es'))};
+  return {total:items.length,entities:entities.size,bySignal:counts(signals),geographies:[...geographies.values()].map(({signals,entities,...row})=>({...row,entityCount:entities.size,bySignal:counts(signals)})).sort(geographyOrder)};
 }
 export function noveltyGroups(items){
   const geographies=new Map();
@@ -20,6 +21,6 @@ export function noveltyGroups(items){
     if(!group.segments.has(segment))group.segments.set(segment,{name:segment,items:[]});
     group.segments.get(segment).items.push(row);
   }
-  return [...geographies.values()].map(row=>({...row,entities:[...row.entities.values()].map(entity=>({...entity,segments:[...entity.segments.values()]})).sort((a,b)=>Number(b.name==='BBVA')-Number(a.name==='BBVA')||b.items.length-a.items.length||a.name.localeCompare(b.name,'es'))})).sort((a,b)=>b.items.length-a.items.length||a.name.localeCompare(b.name,'es'));
+  return [...geographies.values()].map(row=>({...row,entities:[...row.entities.values()].map(entity=>({...entity,segments:[...entity.segments.values()]})).sort((a,b)=>Number(b.name==='BBVA')-Number(a.name==='BBVA')||b.items.length-a.items.length||a.name.localeCompare(b.name,'es'))})).sort(geographyOrder);
 }
 export function noveltyCount(count,singular,plural,translate=value=>value){return count+' '+translate(count===1?singular:plural);}

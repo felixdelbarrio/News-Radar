@@ -147,7 +147,7 @@ test('la recuperación escribe solo los estados cambiados sin reescribir toda la
 test('Radar respeta los filtros visibles y usa Empresas e instituciones por defecto',()=>{
   const c=context(),now=new Date('2026-10-10T12:00:00Z');
   const initial=c.dashboardQuery_({view:'radar',initial:true,country:'México',topic:'Financiación',segment:'Retail',from:'2026-01-01'},now);
-  assert.deepEqual(JSON.parse(JSON.stringify(initial)),{entity:'',segment:'Empresas e instituciones',from:'2026-01-01',to:'2026-12-31'});
+  assert.deepEqual(JSON.parse(JSON.stringify(initial)),{entity:'',segment:'Empresas e instituciones',coverage:'digital',from:'2026-01-01',to:'2026-12-31'});
   const selected=c.dashboardQuery_({view:'radar',entity:'BBVA',segment:'Retail',country:'México',source:'Editor',search:'cuenta'},now);
   assert.deepEqual(JSON.parse(JSON.stringify(selected)),{entity:'BBVA',segment:'Retail',country:'México',source:'Editor',search:'cuenta'});
 });
@@ -261,8 +261,8 @@ test('las ejecuciones se comparten entre cargas y una nueva escritura invalida l
 
 test('la telemetría identifica la versión que produjo cada operación y la exportación',()=>{
  const c=context();let rows;c.append_=(name,value)=>rows=value;c.trim_=()=>{};
- c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v1\.18\.0;/);
- c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'1.18.0');
+ c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v1\.20\.0;/);
+ c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'1.20.0');
 });
 
 test('cada vista calcula solo su visualización y conserva el medio de las noticias',()=>{

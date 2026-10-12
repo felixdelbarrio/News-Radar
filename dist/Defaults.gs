@@ -19,7 +19,6 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
     "briefingLimit": 50,
     "unclassifiedTopic": "Sin clasificar",
     "defaultEntity": "BBVA",
-    "defaultSegment": "Empresas e instituciones",
     "defaultTopic": "",
     "defaultCountry": "",
     "searchTerms": [

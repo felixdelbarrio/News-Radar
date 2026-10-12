@@ -1,3 +1,4 @@
+import {identityMark} from '../../shared/visual-identity.js';
 import {$,escape} from '../core/dom.js';
 import {t,language} from '../core/language.js';
 import {taxonomyPath} from '../../shared/taxonomy-path.js';
@@ -9,9 +10,9 @@ export function createTaxonomyHeatmap({onExplore}){
     const axis=$('heatmap-axis').value,level=$('heatmap-level').value,mode=$('heatmap-measure').value,page=heatmapPage(data,axis,level,rowPage,columnPage);rowPage=page.rowPage;columnPage=page.columnPage;
     const label=node=>node.level==='palanca'?t(node.palanca):t(taxonomyPath(node)),number=new Intl.NumberFormat(language);
     $('heatmap-summary').textContent=t('{tagged}/{total} noticias con taxonomía; {missing} sin catalogar.',{tagged:data.tagged,total:data.total,missing:data.total-data.tagged});
-    $('heatmap-table').innerHTML=page.columns.length?'<table><caption>'+t('Temas de conversación por entidad y geografía')+'</caption><thead><tr><th scope="col">'+t(axis==='entities'?'Entidad':'Geografía')+'</th>'+page.columns.map(node=>'<th scope="col" data-original>'+escape(label(node))+'</th>').join('')+'</tr></thead><tbody>'+page.rows.map((row,index)=>'<tr><th scope="row" data-original>'+escape(t(row.name))+'<small>'+escape(t('{count} noticias',{count:row.total}))+'</small></th>'+page.columns.map(node=>{
+    $('heatmap-table').innerHTML=page.columns.length?'<table><caption>'+t('Temas de conversación por entidad y geografía')+'</caption><thead><tr><th scope="col">'+t(axis==='entities'?'Entidad':'Geografía')+'</th>'+page.columns.map(node=>'<th scope="col" data-original>'+escape(label(node))+'</th>').join('')+'</tr></thead><tbody>'+page.rows.map((row,index)=>'<tr><th scope="row" data-original>'+identityMark(axis,row.name,escape)+escape(t(row.name))+'<small>'+escape(t('{count} noticias',{count:row.total}))+'</small></th>'+page.columns.map(node=>{
       const count=row.counts.get(node.index)||0,value=heatmapValue(count,row.total,mode,page.max),text=t('{group} · {topic}: {count} noticias ({share} %). Ver noticias.',{group:t(row.name),topic:label(node),count,share:value.share});
-      return '<td><button type="button" class="heat-cell heat-'+value.level+'" data-row="'+index+'" data-node="'+node.index+'" aria-label="'+escape(text)+'" title="'+escape(text)+'"'+(!count?' disabled':'')+'>'+escape(mode==='share'?value.share+' %':number.format(count))+'</button></td>';
+      return '<td><button type="button" class="heat-cell heat-'+value.level+'" data-row="'+index+'" data-node="'+node.index+'" aria-label="'+escape(text)+'" title="'+escape(text)+'"'+(!count?' disabled':'')+'><span class="heat-cell-topic" aria-hidden="true">'+escape(label(node))+'</span><span>'+escape(mode==='share'?value.share+' %':number.format(count))+'</span></button></td>';
     }).join('')+'</tr>').join('')+'</tbody></table>':'<p class="muted">'+t('No hay noticias catalogadas en esta selección.')+'</p>';
     $('heatmap-rows-label').textContent=t('Grupos {page}/{pages}',{page:page.pages.rows?rowPage+1:0,pages:page.pages.rows});$('heatmap-columns-label').textContent=t('Temas {page}/{pages}',{page:page.pages.columns?columnPage+1:0,pages:page.pages.columns});
     for(const [id,value,max] of [['rows',rowPage,page.pages.rows],['columns',columnPage,page.pages.columns]]){$('heatmap-'+id+'-previous').disabled=!value;$('heatmap-'+id+'-next').disabled=value+1>=max;}

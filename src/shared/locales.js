@@ -1,5 +1,6 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Transversal": ["Cross-market", "Ülkeler arası"],
   "Explorar selección": ["Explore selection", "Seçimi keşfet"],
   "Explorar Radar": ["Explore Radar", "Radar’ı keşfet"],
   "Periodicidad de la Newsletter": ["Newsletter frequency", "Bülten sıklığı"],

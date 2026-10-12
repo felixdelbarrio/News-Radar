@@ -1,3 +1,4 @@
+import {identityMark} from '../../shared/visual-identity.js';
 import { $, escape, metricCards } from "../core/dom.js";
 import {language,t} from '../core/language.js';
 import { trendChart } from "./trend-chart.js";
@@ -59,13 +60,13 @@ function createRadar({ onCountry, onEntity, onNews }) {
     const countries = (data.geographies||[]).map(row=>row.name);
     $("map-countries").innerHTML = countries.map((country) => {
       const count = areas.get(country)?.total || 0;
-      return `<button type="button" class="geo-row" data-country="${escape(country)}"><span>${escape(country)}</span><span class="geo-count">${count}</span><span class="geo-track"><span style="width:${count / max * 100}%"></span></span></button>`;
+      return `<button type="button" class="geo-row" data-country="${escape(country)}"><span class="identity-label">${identityMark('countries',country,escape)}${escape(country)}</span><span class="geo-count">${count}</span><span class="geo-track"><span style="width:${count / max * 100}%"></span></span></button>`;
     }).join("");
     $("map-note").textContent = radar.unlocated ? t('{count} publicaciones sin geografía conocida, excluidas del mapa.',{count:radar.unlocated}) : "Todas las publicaciones de la selección tienen una geografía conocida.";
     trend=radar.trend;renderTrend($("trend-chart").clientWidth||900);
     $("trend-period").textContent = radar.trend.buckets.length ? radar.trend.from + " — " + radar.trend.to : "Sin publicaciones";
     $("trend-note").textContent = radar.trend.intervalDays > 1 ? t('Volumen agrupado en intervalos de {days} días.',{days:radar.trend.intervalDays}) : "Número de publicaciones por día, incluidos los días sin noticias.";
-    $("entity-ranking").innerHTML = radar.ranking.length ? radar.ranking.slice(0, 6).map((row, i) => `<button type="button" class="ranking-row" data-entity="${escape(row.entity)}"><span class="ranking-index">${String(i + 1).padStart(2, "0")}</span><span class="ranking-name">${escape(row.entity)}<span class="ranking-track"><span style="width:${row.total / Math.max(1, radar.summary.news) * 100}%"></span></span></span><strong>${row.total}</strong></button>`).join("") : '<p class="muted">Las entidades aparecerán al ampliar tu selección.</p>';
+    $("entity-ranking").innerHTML = radar.ranking.length ? radar.ranking.slice(0, 6).map((row, i) => `<button type="button" class="ranking-row" data-entity="${escape(row.entity)}"><span class="ranking-index">${String(i + 1).padStart(2, "0")}</span>${identityMark('entities',row.entity,escape)}<span class="ranking-name">${escape(row.entity)}<span class="ranking-track"><span style="width:${row.total / Math.max(1, radar.summary.news) * 100}%"></span></span></span><strong>${row.total}</strong></button>`).join("") : '<p class="muted">Las entidades aparecerán al ampliar tu selección.</p>';
     $("ranking-note").textContent = radar.ranking.length > 6 ? "Se muestran las seis entidades con más publicaciones." : "Selecciona una entidad para explorar su actualidad.";
     const publishers=radar.publishers||[],publisherMax=Math.max(1,...publishers.map(row=>row.total));
     $('publisher-chart').innerHTML=publishers.length?publishers.map(row=>`<div class="ranking-row"><span class="ranking-name" data-original>${escape(row.publisher)}<span class="ranking-track"><span style="width:${row.total/publisherMax*100}%"></span></span></span><strong>${row.total}</strong></div>`).join(''):'<p class="muted">Sin publicaciones</p>';

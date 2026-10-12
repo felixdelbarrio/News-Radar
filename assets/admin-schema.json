@@ -152,7 +152,6 @@
       "windowDays": "Ventana de recopilación (días)",
       "pageSize": "Noticias por página",
       "defaultEntity": "Entidad inicial (vacío: todas)",
-      "defaultSegment": "Segmento inicial (vacío: todos)",
       "defaultTopic": "Tema inicial (vacío: todos)",
       "defaultCountry": "País inicial (vacío: todos)",
       "dailyHour": "Hora de recopilación (0–23)",
@@ -201,7 +200,6 @@
         "label": "Selección inicial",
         "keys": [
           "defaultEntity",
-          "defaultSegment",
           "defaultTopic",
           "defaultCountry"
         ]

@@ -47,18 +47,18 @@ test('histórico acotado, reanudable e idempotente sin volver a consultar fuente
  c.initializeConfiguration();assert.equal(c.classificationJob_().state,'Completada');c.requestNewsClassification_(true);while(c.classificationPending_())c.newsClassificationBatch_();assert.equal(writes.filter(row=>row[1]===13).length,3);
  const snapshot=JSON.parse(JSON.stringify(c.getConfiguration()));snapshot.config.capabilities={Empresas:[],Retail:[]};c.saveConfiguration(snapshot);assert.ok(properties.CLASSIFICATION_JOB);while(c.classificationPending_())c.newsClassificationBatch_();assert.equal(JSON.parse(sheet.grid[1][12]).digital,false);assert.equal(JSON.parse(sheet.grid[1][12]).generalista,true);
 });
-test('filtros independientes se combinan y Novedades no impone cobertura digital',()=>{
- const {c}=server(),now=new Date('2026-10-12T12:00:00Z');assert.equal(c.dashboardQuery_({view:'news',initial:true},now).coverage,'digital');const briefing=c.dashboardQuery_({view:'briefing',initial:true},now);assert.equal(briefing.segment,'Empresas e instituciones');assert.equal(briefing.coverage,undefined);assert.equal(briefing.entity,undefined);
- assert.equal(c.dashboardQuery_({view:'news',coverage:''},now).coverage,'');assert.equal(c.dashboardQuery_({view:'radar',coverage:'digital'},now).coverage,'digital');assert.equal(c.dashboardQuery_({coverage:'digital'},now).coverage,undefined);assert.throws(()=>c.dashboardQuery_({view:'news',coverage:'mobile'}),/cobertura/);
+test('filtros independientes se combinan y todas las vistas incluyen cobertura digital por defecto',()=>{
+ const {c}=server(),now=new Date('2026-10-12T12:00:00Z');assert.equal(c.dashboardQuery_({view:'news',initial:true},now).coverage,'digital');const briefing=c.dashboardQuery_({view:'briefing',initial:true},now);assert.equal(briefing.segment,'Empresas e instituciones');assert.equal(briefing.coverage,'digital');assert.equal(briefing.entity,undefined);
+ assert.equal(c.dashboardQuery_({view:'news',coverage:''},now).coverage,'');assert.equal(c.dashboardQuery_({view:'radar',coverage:'digital'},now).coverage,'digital');assert.equal(c.dashboardQuery_({coverage:'digital'},now).coverage,'digital');assert.throws(()=>c.dashboardQuery_({view:'news',coverage:'mobile'}),/cobertura/);
  const rows=positive.slice(0,2).map((title,i)=>({id:String(i),fecha:'2026-10-10',entidad:'BBVA',pais:i?'México':'España',titular:title,extracto:'',clasificacion:JSON.stringify({generalista:true,digital:true,capacidades:[]})}));rows.push({...rows[0],id:'general',titular:'BBVA presenta financiación para nuevas empresas',url:'https://example.com/general',clasificacion:JSON.stringify({generalista:true,digital:false,capacidades:[]})});
  assert.equal(c.selectNews_(rows,{}).length,3);assert.equal(c.selectNews_(rows,{coverage:'generalista'}).length,3);assert.equal(c.selectNews_(rows,{coverage:'digital'}).length,2);assert.equal(c.selectNews_(rows,{coverage:'digital',country:'España',entity:'BBVA',from:'2026-10-09',to:'2026-10-11'}).length,1);
 });
-test('el selector real conserva elecciones por vista, permite Todos y no aparece en Radar',async t=>{
+test('el selector real conserva elecciones por vista, permite Todos y aparece en Radar',async t=>{
  const {c}=server(),a=await app(t,{configure:({data})=>{data.selection=c.dashboardQuery_({view:'briefing',initial:true});data.defaults=c.dashboardQuery_({view:'news',initial:true});}});
- assert.equal(a.find('#filters [name="coverage"]').value,'');assert.equal(a.find('#filters [name="segment"]').value,'Empresas e instituciones');assert.equal(a.find('#coverage-filter').hidden,false);
+ assert.equal(a.find('#filters [name="coverage"]').value,'digital');assert.equal(a.find('#filters [name="segment"]').value,'Empresas e instituciones');assert.equal(a.find('#coverage-filter').hidden,false);
  a.data.selection=undefined;await a.change('#filters [name="coverage"]','generalista');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.coverage,'generalista');
  await a.click('[data-view="news"]');assert.equal(a.find('#filters [name="coverage"]').value,'digital');await a.change('#filters [name="coverage"]','');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.coverage,'');
- await a.click('[data-view="briefing"]');assert.equal(a.find('#filters [name="coverage"]').value,'generalista');await a.click('[data-view="radar"]');assert.equal(a.find('#coverage-filter').hidden,true);
+ await a.click('[data-view="briefing"]');assert.equal(a.find('#filters [name="coverage"]').value,'generalista');await a.click('[data-view="radar"]');assert.equal(a.find('#coverage-filter').hidden,false);
 });
 test('migración conserva noticias y ediciones; incorpora valores nuevos una sola vez',()=>{
  const {c,sheets,properties}=server(),sheet=sheets.get('Configuracion'),caps=sheet.grid.find(row=>row[0]==='capabilities'),feeds=sheet.grid.find(row=>row[0]==='feeds'),entities=sheet.grid.find(row=>row[0]==='entities');

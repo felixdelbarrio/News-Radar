@@ -19,7 +19,7 @@ test('la periodicidad define el ámbito, el período y el asunto sin aceptar un 
  for(const [periodicity,view,range] of [['weekly','briefing','week'],['monthly','news','month'],['yearly','radar','year']]){
   const row=c.subscriptionRecord_({name:'Asunto arbitrario',periodicity,language:'en',filters:{entity:'BBVA',segment:'Empresas e instituciones',range:'year'}},'owner@bbva.com','id',now,0);
   assert.equal(row.filtros.range,undefined);assert.match(row.nombre,/^\[bIA\] Entity: BBVA · Segment: /);assert.doesNotMatch(row.nombre,/arbitrario/);
-  assert.deepEqual(clean(c.subscriptionQuery_(row,now)),{entity:'BBVA',segment:'Empresas e instituciones',...clean(c.newsRange_(range,now)),view});
+  assert.deepEqual(clean(c.subscriptionQuery_(row,now)),{entity:'BBVA',segment:'Empresas e instituciones',coverage:'digital',...clean(c.newsRange_(range,now)),view});
   const closed=c.subscriptionQuery_(row,now,true),period=c.newsletterPeriod_(periodicity,now);assert.equal(closed.from,period.from);assert.equal(closed.to,period.to);assert.equal(closed.view,view);
  }
  for(const periodicity of ['daily','invalid','constructor'])assert.throws(()=>c.subscriptionRecord_({periodicity,filters:{}},'owner@bbva.com','id',now,0),/Periodicidad/);
@@ -27,7 +27,7 @@ test('la periodicidad define el ámbito, el período y el asunto sin aceptar un 
 });
 test('el lote prepara una sola vez los períodos completos necesarios y excluye la semana en curso',()=>{
  const s=server(),{c}=s;c.configuration_().settings.newsletterEnabled=true;
- for(const [email,periodicity] of [['week@bbva.com','weekly'],['year@bbva.com','yearly']])c.saveAdminSubscription({email,periodicity,filters:{entity:'BBVA'}});
+ for(const [email,periodicity] of [['week@bbva.com','weekly'],['year@bbva.com','yearly']])c.saveAdminSubscription({email,periodicity,filters:{entity:'BBVA',coverage:''}});
  for(const row of s.sheets.get('Suscripciones').grid.slice(1))row[6]='2000-01-01';
  const week=c.newsletterPeriod_('weekly',new Date()),year=c.newsletterPeriod_('yearly',new Date()),keys=vm.runInContext('RADAR.sheets.Noticias',c);
  const rows=[{id:'old',fecha:year.from,titular:'BBVA lanza tarjeta para empresas',url:'https://example.com/old'},{id:'new',fecha:week.from,titular:'BBVA lanza cuenta para empresas',url:'https://example.com/new'},{id:'future',fecha:'2099-01-01',titular:'BBVA lanza crédito para empresas',url:'https://example.com/future'}].map(row=>({...row,entidad:'BBVA',pais:'España',medio:'Editor',extracto:'Nueva oferta para empresas'}));
