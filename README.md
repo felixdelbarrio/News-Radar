@@ -435,3 +435,9 @@ Las nueve secciones de Administración pasan al lateral izquierdo y se elimina l
 Validación: 297 pruebas superadas; sintaxis, diseño y permisos comprobados. Para publicar, copiar la distribución actualizada y publicar la WebApp. Esta versión modifica la interfaz y conserva el esquema de datos de 2.0.0.
 
 Chrome verifica el panel vertical y la navegación entre 320 y 1440 px, la conservación de Buscar y Estado al redimensionar, una sola instancia de cada control y ausencia de desbordamiento horizontal. La cabecera y la navegación inferior se adaptan también a 320 px con Administración habilitada.
+
+## Diagnóstico de una publicación incompleta · 2.1.0
+
+`dailyScheduleStatus_ is not defined` identifica la ausencia del código de `dist/Background.gs` en la ejecución; `newsEntityPage is not defined` identifica la ausencia de su definición en `dist/NewsGroups.gs`. Ambas funciones están en la distribución 2.1.0 generada. Una instalación de archivos incompletos o desactualizados puede provocar estos fallos sin cambiar permisos: el dashboard no entrega su respuesta y la interfaz no recibe `admin`, por lo que Administración queda oculta. Las pruebas reproducen los errores al omitir esos módulos y verifican que la distribución completa responde a las tres vistas con el rol correcto.
+
+Sustituir todos los archivos por `dist/`, incluidos los módulos nuevos, y publicar una Nueva versión de la implementación existente; guardar archivos no actualiza una implementación que sigue apuntando a una versión anterior. Si después de recuperar la carga aún falta Administración, comprobar que OWNER_EMAIL coincide con la cuenta corporativa activa. Este diagnóstico no cambia la lógica de autorización ni necesita una nueva release de código.
