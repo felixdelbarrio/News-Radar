@@ -1,3 +1,6 @@
+import {createGeographyTabs} from './features/geography-tabs.js';
+import {createReadingContext} from './features/reading-context.js';
+import {createTaxonomyHeatmap} from './features/taxonomy-heatmap.js';
 import {createTaxonomy} from './features/taxonomy.js';
 import {defaultView} from './config.js';
 import {createLanguageSettings} from './features/language-settings.js';
@@ -25,24 +28,28 @@ const usage = createUsage({ getView: () => navigation.current === "administratio
 const noteNewsRevision=revision=>{if(revision&&state.data&&revision!==state.data.newsRevision)state.contentStale=true;};
 const configuration = createConfiguration({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='configuration'});
 const taxonomy=createTaxonomy({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='taxonomy'});
-const subscriptions = createSubscriptions({run:action,onApply:query=>{filters.show('news');filters.apply(query);navigation.show('news');}});
+const subscriptions = createSubscriptions({run:action,onApply:query=>{const view=query.view;filters.show(view);filters.apply(query);navigation.show(view);}});
 const newsletterDelivery=createNewsletterDelivery({run:action});
 const languageSettings=createLanguageSettings({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='language'});
 const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onLanguage:()=>languageSettings.open(),onLeaveLanguage:()=>languageSettings.close(),onLeaveConfiguration:()=>configuration.close(),onTaxonomy:()=>taxonomy.open(),onLeaveTaxonomy:()=>taxonomy.close() });
-const navigation = createNavigation({ onSelection:view=>{configuration.close();taxonomy.close();if(filters.show(view)||state.contentStale)load();else if(state.data)renderSelection(state.data,view);}, onSubscriptions:()=>{configuration.close();taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
+const panel=createFilterPanel();
+const navigation = createNavigation({onPanel:panel.show, onSelection:view=>{configuration.close();taxonomy.close();if(filters.show(view)||state.contentStale)load();else if(state.data)renderSelection(state.data,view);}, onSubscriptions:()=>{configuration.close();taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
 const filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
   track("filtro");
   load();
 } });
+const reading=createReadingContext({onPreference:id=>filters.usePreference(id),onCurrent:()=>filters.current()});
+const heatmap=createTaxonomyHeatmap({onExplore:query=>{filters.show('news');filters.apply(query);navigation.show('news');}});
 const briefing=createBriefing();
-$('briefing-signals').addEventListener('click',event=>{const button=event.target.closest('[data-signal]');if(button)filters.set('signal',button.dataset.signal);});
+const newsTabs=createGeographyTabs('news-geographies','news-list',name=>filters.setGeography(name));
+$('briefing-signals').addEventListener('click',event=>{const button=event.target.closest('[data-signal]');if(button)filters.apply({...filters.query(),country:briefing.geography,signal:button.dataset.signal});});
 const radar = createRadar({ onCountry: (country) => {filters.show("news");filters.apply({...state.data.selection,country});navigation.show("news");}, onEntity: (entity) => filters.set("entity", entity), onNews: () => {const selection=state.data.selection;filters.show("news");filters.apply(selection);navigation.show("news");} });
 const sources = createSources({ getData: () => state.data, run: action });
 const recoveryControls=createRecoveryControls({getData:()=>state.data,run:action});
 const collectionProgress=createCollectionProgress({reload:load,isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
 function renderSelection(data,view=navigation.current){
-  renderNews(data);
-  if(view==='radar')radar.render(data);
+  reading.render(data,view);if(view==='news'){renderNews(data);newsTabs.render(data.newsGeographies||[],data.newsGeography||'');}
+  if(view==='radar'){radar.render(data);heatmap.render(data);}
   if(view==='briefing')briefing.render(data);
 }
 async function load() {
@@ -53,7 +60,7 @@ async function load() {
     return;
   }
   try {
-    const data = await call("getDashboard", filters.query());
+    const query=filters.query(),data=await call(query.savePreference?"saveNewsPreference":"getDashboard",query);
     if (request === state.request) {
       const first = !state.data;
       state.data = data;state.contentStale=false;
@@ -129,17 +136,17 @@ $('download-telemetry').addEventListener('click',()=>action(async()=>{
   const data=await call('exportTelemetry'),url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'})),link=document.createElement('a');
   link.href=url;link.download='news-radar-telemetria.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message('Telemetría descargada.');
 },false));
-createFilterPanel();
 if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
 navigation.show(defaultView);
 if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocation(async location=>{
+  if(location.parameter.edition){const params=location.parameter,view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;filters.show(view);navigation.show(view);filters.useEdition(params.edition,{country:params.country,entity:params.entity});return;}
+  load();
   if(location.parameter.view!=='subscriptions')return;
   await navigation.show('subscriptions');
   const id=location.parameter.unsubscribe;if(!id)return;
   const target=$('message');message('Confirma la baja de esta suscripción.');
   const button=document.createElement('button');button.type='button';button.className='button';button.textContent='Confirmar baja';
   button.addEventListener('click',()=>action(async()=>{message(await call('deleteSubscription',id));await subscriptions.open();},false));target.appendChild(button);
-});
-load();
+});else load();
 
 window.addEventListener('news-radar-language-change',async()=>{await load();if(navigation.current==='administration'&&administration.current==='language')await languageSettings.open();if(navigation.current==='administration'&&administration.current==='taxonomy')await taxonomy.open();});

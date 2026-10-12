@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {buildSync} from 'esbuild';
 import {parse} from 'acorn';
+import {identityAssets} from './identity.mjs';
 const {instrument,sourceFiles}=process.env.RADAR_COVERAGE?await import('./coverage-source.mjs'):{};
 
 export const root=path.resolve(import.meta.dirname,'..');
@@ -10,7 +11,7 @@ export function files(dir){
   return fs.readdirSync(path.join(root,dir),{withFileTypes:true}).flatMap(entry=>entry.isDirectory()?files(path.join(dir,entry.name)):[path.join(dir,entry.name)]).sort();
 }
 export function serverModule(source){
-  const exports=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body.filter(node=>node.type==='ExportNamedDeclaration');
+  const exports=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body.filter(node=>node.type==='ExportNamedDeclaration'||node.type==='ImportDeclaration');
   for(const node of exports.reverse())source=source.slice(0,node.start)+source.slice(node.declaration?node.declaration.start:node.end);
   return source;
 }
@@ -23,16 +24,17 @@ export function readServerScript(dir='dist',coverage=false){
   return scripts.join('\n');
 }
 let coverageClient;
+const identityDefine=()=>({IDENTITY_ASSETS:JSON.stringify(identityAssets())});
 export function readClientScript(coverage=false){
   if(coverage&&process.env.RADAR_COVERAGE){
     if(coverageClient)return coverageClient;
     const directory=path.join(root,'output/coverage/instrumented',String(process.pid));
     fs.mkdirSync(directory,{recursive:true});fs.symlinkSync(path.join(root,'assets'),path.join(directory,'assets'),'dir');
     for(const file of sourceFiles(path.join(root,'src')).filter(file=>file.endsWith('.js'))){const target=path.join(directory,path.relative(root,file));fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,instrument(fs.readFileSync(file,'utf8'),file));}
-    coverageClient=buildSync({entryPoints:[path.join(directory,'src/client/app.js')],bundle:true,write:false,format:'iife',target:'es2022',legalComments:'none'}).outputFiles[0].text;
+    coverageClient=buildSync({entryPoints:[path.join(directory,'src/client/app.js')],bundle:true,write:false,define:identityDefine(),format:'iife',target:'es2022',legalComments:'none'}).outputFiles[0].text;
     return coverageClient;
   }
-  return buildSync({entryPoints:[path.join(root,'src/client/app.js')],bundle:true,write:false,format:'iife',target:'es2022',minifySyntax:true,legalComments:'none'}).outputFiles[0].text;
+  return buildSync({entryPoints:[path.join(root,'src/client/app.js')],bundle:true,write:false,define:identityDefine(),format:'iife',target:'es2022',minifySyntax:true,legalComments:'none'}).outputFiles[0].text;
 }
 export function renderIncludes(html){
   return html.replace(/<\?!= include_\('([\w]+)'\); \?>/g,(_,name)=>read('dist/'+name+'.html'));

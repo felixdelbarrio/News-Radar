@@ -1,0 +1,373 @@
+{
+  "entities": {
+    "BBVA": {
+      "id": "entity-0",
+      "file": "entity-0.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.bbva.com/wp-content/themes/coronita-bbvacom/assets/images/comun/favicon.ico"
+    },
+    "Santander": {
+      "id": "entity-1",
+      "file": "entity-1.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.santander.com/content/dam/santander-com/resources/favicon/apple-touch-icon.png"
+    },
+    "CaixaBank": {
+      "id": "entity-2",
+      "file": "entity-2.png",
+      "width": 36,
+      "height": 36,
+      "source": "https://www.caixabank.com/favicon.ico"
+    },
+    "Sabadell": {
+      "id": "entity-3",
+      "file": "entity-3.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.bancsabadell.com/StaticFiles/BSNacional/Favicon/apple-icon-72x72.png?version=26.07"
+    },
+    "Banco del Bajío": {
+      "id": "entity-6",
+      "file": "entity-6.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.bb.com.mx/favicon.ico"
+    },
+    "HSBC": {
+      "id": "entity-7",
+      "file": "entity-7.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.hsbc.com/apple-touch-icon-precomposed.png"
+    },
+    "Interbank": {
+      "id": "entity-9",
+      "file": "entity-9.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://interbank.pe/favicon.ico"
+    },
+    "Scotiabank": {
+      "id": "entity-10",
+      "file": "entity-10.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.scotiabank.com/content/dam/scotiabank/enterprise/images/logos/favicon.ico"
+    },
+    "Bancolombia": {
+      "id": "entity-11",
+      "file": "entity-11.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.bancolombia.com/apple-touch-icon.png"
+    },
+    "Banco Galicia": {
+      "id": "entity-15",
+      "file": "entity-15.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.galicia.ar/etc.clientlibs/galicia/clientlibs/clientlib-react/resources/logoGalicia.png"
+    },
+    "Banco Nación": {
+      "id": "entity-16",
+      "file": "entity-16.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.bna.com.ar/Images/ico/apple-touch-icon-144.png"
+    },
+    "Banco Macro": {
+      "id": "entity-17",
+      "file": "entity-17.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.macro.com.ar/imagen/favicon.ico"
+    },
+    "Akbank": {
+      "id": "entity-18",
+      "file": "entity-18.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.akbank.com/SiteAssets/img/favicon.ico"
+    },
+    "İşbank": {
+      "id": "entity-19",
+      "file": "entity-19.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://gorsel.isbank.com.tr/sttk/StaticFiles/Isbank/images/icons/isbank-apple-touch-icon-57x57.jpg"
+    },
+    "Yapı Kredi": {
+      "id": "entity-20",
+      "file": "entity-20.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.yapikredi.com.tr/favicon.ico"
+    },
+    "Halkbank": {
+      "id": "entity-21",
+      "file": "entity-21.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.halkbank.com.tr/etc.clientlibs/corporate-website/clientlibs/clientlib-site/resources/images/touch-icons/halkbank-180x180.png"
+    },
+    "BROU": {
+      "id": "entity-22",
+      "file": "entity-22.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.brou.com.uy/o/brouarea-theme/images/favicon.ico"
+    },
+    "N26": {
+      "id": "entity-25",
+      "file": "entity-25.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://n26.com/_build/logo-152x152.png"
+    },
+    "Qonto": {
+      "id": "entity-26",
+      "file": "entity-26.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://qonto.com/blog/assets/apple-touch-icon-4d8a168a3ba8d53fa08beaf4d665da32d9a43f49b88fa9f08d3017e23663ef53.png"
+    },
+    "Wise": {
+      "id": "entity-27",
+      "file": "entity-27.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://wise.com/public-resources/assets/icons/wise-personal/android_chrome_256x256.png"
+    },
+    "Nubank": {
+      "id": "entity-28",
+      "file": "entity-28.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://nubank.com.br/favicon.ico"
+    },
+    "Mercado Pago": {
+      "id": "entity-29",
+      "file": "entity-29.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.mercadopago.com/favicon.ico"
+    },
+    "Ualá": {
+      "id": "entity-30",
+      "file": "entity-30.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.uala.com.ar/favicon.ico"
+    },
+    "Klar": {
+      "id": "entity-31",
+      "file": "entity-31.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://cdn.prod.website-files.com/62f28d86df04385706ee23d7/6a676f50e6a4c15a93e4410a_Webclip%20Klar.png"
+    },
+    "Yape": {
+      "id": "entity-33",
+      "file": "entity-33.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.yape.com.pe/favicon.ico"
+    },
+    "Openbank": {
+      "id": "entity-34",
+      "file": "entity-34.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.openbank.es/favicon.ico"
+    },
+    "bunq": {
+      "id": "entity-35",
+      "file": "entity-35.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://framerusercontent.com/images/ziGDZruFQDclo0tQlc6TKONVk.png"
+    },
+    "myPOS": {
+      "id": "entity-36",
+      "file": "entity-36.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://static.mypos.com/public/info/images/fav/apple-touch-icon.png"
+    },
+    "Stripe": {
+      "id": "entity-37",
+      "file": "entity-37.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://assets.stripeassets.com/fzn2n1nzq965/nu0iR4KqmkdJ52fgRts09/c3a10df318e7ffb1f516073daadea625/favicon.ico"
+    },
+    "BCP": {
+      "id": "entity-8",
+      "file": "entity-8.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.viabcp.com/"
+    },
+    "Bankinter": {
+      "id": "entity-4",
+      "file": "entity-4.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bankinter.com&sz=64",
+      "site": "https://bankinter.com"
+    },
+    "Banorte": {
+      "id": "entity-5",
+      "file": "entity-5.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=banorte.com&sz=64",
+      "site": "https://banorte.com"
+    },
+    "Banco de Bogotá": {
+      "id": "entity-12",
+      "file": "entity-12.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.google.com/s2/favicons?domain=bancodebogota.com&sz=64",
+      "site": "https://bancodebogota.com"
+    },
+    "Banco de Occidente": {
+      "id": "entity-13",
+      "file": "entity-13.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.google.com/s2/favicons?domain=bancodeoccidente.com.co&sz=64",
+      "site": "https://bancodeoccidente.com.co"
+    },
+    "Davivienda": {
+      "id": "entity-14",
+      "file": "entity-14.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.google.com/s2/favicons?domain=davivienda.com&sz=64",
+      "site": "https://davivienda.com"
+    },
+    "Itaú": {
+      "id": "entity-23",
+      "file": "entity-23.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.google.com/s2/favicons?domain=itau.com.br&sz=64",
+      "site": "https://itau.com.br"
+    },
+    "Revolut": {
+      "id": "entity-24",
+      "file": "entity-24.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.google.com/s2/favicons?domain=revolut.com&sz=64",
+      "site": "https://revolut.com"
+    },
+    "Konfío": {
+      "id": "entity-32",
+      "file": "entity-32.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=konfio.mx&sz=64",
+      "site": "https://konfio.mx"
+    }
+  },
+  "countries": {
+    "España": {
+      "id": "country-es",
+      "file": "country-es.png",
+      "width": 48,
+      "height": 32,
+      "source": "https://flagcdn.com/w80/es.png"
+    },
+    "México": {
+      "id": "country-mx",
+      "file": "country-mx.png",
+      "width": 48,
+      "height": 28,
+      "source": "https://flagcdn.com/w80/mx.png"
+    },
+    "Perú": {
+      "id": "country-pe",
+      "file": "country-pe.png",
+      "width": 48,
+      "height": 32,
+      "source": "https://flagcdn.com/w80/pe.png"
+    },
+    "Colombia": {
+      "id": "country-co",
+      "file": "country-co.png",
+      "width": 48,
+      "height": 32,
+      "source": "https://flagcdn.com/w80/co.png"
+    },
+    "Argentina": {
+      "id": "country-ar",
+      "file": "country-ar.png",
+      "width": 48,
+      "height": 30,
+      "source": "https://flagcdn.com/w80/ar.png"
+    },
+    "Turquía": {
+      "id": "country-tr",
+      "file": "country-tr.png",
+      "width": 48,
+      "height": 32,
+      "source": "https://flagcdn.com/w80/tr.png"
+    },
+    "Uruguay": {
+      "id": "country-uy",
+      "file": "country-uy.png",
+      "width": 48,
+      "height": 32,
+      "source": "https://flagcdn.com/w80/uy.png"
+    }
+  },
+  "publishers": {
+    "El Economista": {
+      "id": "publisher-0",
+      "file": "publisher-0.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.eleconomista.es/favicon.ico"
+    },
+    "Infobae": {
+      "id": "publisher-1",
+      "file": "publisher-1.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.infobae.com/favicon.ico"
+    },
+    "Pulzo": {
+      "id": "publisher-3",
+      "file": "publisher-3.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.pulzo.com/favicon.ico"
+    },
+    "El Tiempo": {
+      "id": "publisher-4",
+      "file": "publisher-4.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.eltiempo.com/favicon.ico"
+    },
+    "BBVA": {
+      "id": "entity-0",
+      "file": "entity-0.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.bbva.com/wp-content/themes/coronita-bbvacom/assets/images/comun/favicon.ico"
+    },
+    "BBVA · Empresas": {
+      "id": "entity-0",
+      "file": "entity-0.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.bbva.com/wp-content/themes/coronita-bbvacom/assets/images/comun/favicon.ico"
+    }
+  }
+}

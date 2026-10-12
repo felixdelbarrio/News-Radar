@@ -1,0 +1,1 @@
+const newsletterCadences=Object.freeze({weekly:{label:'Semanal',view:'briefing',scope:'Novedades',range:'week'},monthly:{label:'Mensual',view:'news',scope:'Noticias',range:'month'},yearly:{label:'Anual',view:'radar',scope:'Radar',range:'year'}});

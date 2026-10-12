@@ -1,11 +1,11 @@
 import vm from 'node:vm';
 import {read,readServerScript} from './source.mjs';
-const config=JSON.parse(read('assets/configuration-defaults.json'));
+const config=JSON.parse(read('assets/configuration-defaults.json')),historical=JSON.parse(read('tests/fixtures/iteration1-configuration.json'));
 const search=JSON.parse(read('tests/fixtures/digital-search.json')),sources=JSON.parse(read('tests/fixtures/digital-feeds.json'));
 function context(before=false){
  const c=vm.createContext({});let source=readServerScript();
  if(before)source=source.replace(read('src/server/news/Rules.gs'),read('tests/fixtures/iteration1-rules.txt')).replace(read('src/server/sources/Sources.gs'),read('tests/fixtures/iteration1-sources.txt'));
- vm.runInContext(source,c);c.configuration_=()=>config;return c;
+ vm.runInContext(source,c);c.configuration_=()=>before?{...config,...historical,settings:{...config.settings,...historical.settings}}:config;return c;
 }
 export function compareCollection(){
  const old=context(true),current=context(),now=new Date(search.now),metrics={before:{queries:0,retrieved:0,outside:0,useful:0},after:{queries:0,retrieved:0,outside:0,useful:0}},articles={before:new Map(),after:new Map()};

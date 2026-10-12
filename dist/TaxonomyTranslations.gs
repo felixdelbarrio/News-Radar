@@ -18,8 +18,8 @@ function taxonomyTranslations_(){
     result[language]=names;
   }cacheJson_(key,result,21600);return result;
 }
-function taxonomyLanguage_(language){
-  const names=taxonomyTranslations_()[language]||{};return value=>Object.hasOwn(names,value)?names[value]:translateText(value,language);
+function taxonomyLanguage_(language,names=taxonomyTranslations_()[language]||{}){
+  return value=>Object.hasOwn(names,value)?names[value]:translateText(value,language);
 }
 function translationCallsToday_(){
   const today=recordDay(new Date(),settings_().timezone);
@@ -80,5 +80,5 @@ function taxonomyTranslationBatch_(maxMs=TAXONOMY_POLICY.maxMs){
     if(!job)throw error;
     Object.assign(job,{state:'En pausa',error:'Traducción temporalmente no disponible. Se reintentará automáticamente.',pausedUntil:Date.now()+TRANSLATION_WORK.retryMs});
     telemetry_('traduccion-taxonomia',Date.now()-started,'Error',String(error.message).slice(0,180));
-  }finally{if(job){job.updated=new Date().toISOString();writeTaxonomyTranslationJob_(job);}if(written){p.setProperty('TAXONOMY_TRANSLATIONS_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));invalidateNews_(false);}}
+  }finally{if(job){job.updated=new Date().toISOString();writeTaxonomyTranslationJob_(job);}if(written){p.setProperty('TAXONOMY_TRANSLATIONS_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));invalidateNews_(false,false);}}
 }
