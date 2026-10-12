@@ -8,6 +8,7 @@
   },
   "adminViews": {
     "configuration": "Configuración de negocio",
+    "taxonomy": "Taxonomía",
     "sources": "Fuentes",
     "audit": "Auditoría",
     "telemetry": "Telemetría",

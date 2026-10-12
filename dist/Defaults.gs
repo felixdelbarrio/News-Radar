@@ -17,10 +17,7 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
     "pauseMinutes": 5,
     "dailyHour": 7,
     "briefingLimit": 50,
-    "unclassifiedTopic": "Sin clasificar",
     "defaultEntity": "BBVA",
-    "defaultSegment": "Empresas e instituciones",
-    "defaultTopic": "",
     "defaultCountry": "",
     "searchTerms": [
       "banca",
@@ -58,7 +55,6 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
     "defaultPeriodicity": "monthly",
     "newsletterEnabled": false,
     "newsletterBatch": 20,
-    "defaultNewsletterName": "Novedades de mi canal",
     "newsletterSender": "news-radar.group@bbva.com",
     "newsletterSenderName": "News Radar · BBVA Empresas",
     "newsletterDailyLimit": 100,
@@ -415,6 +411,48 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "Perú"
       ],
       "enabled": true
+    },
+    {
+      "name": "Openbank",
+      "type": "Neobanco",
+      "aliases": [
+        "Open Bank"
+      ],
+      "countries": [
+        "España"
+      ],
+      "enabled": true
+    },
+    {
+      "name": "bunq",
+      "type": "Neobanco",
+      "aliases": [],
+      "countries": [
+        "España"
+      ],
+      "enabled": true
+    },
+    {
+      "name": "myPOS",
+      "type": "Fintech",
+      "aliases": [
+        "myPOS Glass"
+      ],
+      "countries": [
+        "España"
+      ],
+      "enabled": true
+    },
+    {
+      "name": "Stripe",
+      "type": "Fintech",
+      "aliases": [
+        "Stripe Terminal"
+      ],
+      "countries": [
+        "España"
+      ],
+      "enabled": true
     }
   ],
   "geographies": [
@@ -473,193 +511,6 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
       "mapId": "858",
       "enabled": true,
       "searchName": "Uruguay"
-    }
-  ],
-  "topics": [
-    {
-      "name": "Continuidad de servicio",
-      "terms": [
-        "incidencia",
-        "interrupción",
-        "caída",
-        "outage",
-        "kesinti",
-        "arıza",
-        "interruption",
-        "failure",
-        "hizmet kesintisi"
-      ],
-      "enabled": true
-    },
-    {
-      "name": "Regulación y ratings",
-      "terms": [
-        "regulación",
-        "sanción",
-        "rating",
-        "calificación",
-        "regulator",
-        "downgrade",
-        "normativa",
-        "verifactu",
-        "supervisor",
-        "düzenleme",
-        "kredi notu",
-        "regulation",
-        "compliance",
-        "yönetmelik"
-      ],
-      "enabled": true
-    },
-    {
-      "name": "Financiación",
-      "terms": [
-        "financia",
-        "préstamo",
-        "sindicado",
-        "bono",
-        "project finance",
-        "loan",
-        "bond",
-        "emisión",
-        "deuda",
-        "capital markets",
-        "finansman",
-        "kredi",
-        "tahvil",
-        "leasing",
-        "factoring",
-        "confirming",
-        "crédito",
-        "aval"
-      ],
-      "enabled": true
-    },
-    {
-      "name": "Transaction banking",
-      "terms": [
-        "cash management",
-        "transaction banking",
-        "tesorería",
-        "comercio exterior",
-        "trade finance",
-        "pagos",
-        "nakit yönetimi",
-        "ödeme",
-        "hazine",
-        "payment",
-        "payments",
-        "işlem bankacılığı"
-      ],
-      "enabled": true
-    },
-    {
-      "name": "Resultados y capital",
-      "terms": [
-        "recompra",
-        "dividendo",
-        "resultados",
-        "beneficio",
-        "capital ratio",
-        "earnings",
-        "kâr",
-        "sermaye",
-        "dividend",
-        "buyback",
-        "profit",
-        "temettü",
-        "geri alım"
-      ],
-      "enabled": true
-    },
-    {
-      "name": "Estrategia y alianzas",
-      "terms": [
-        "alianza",
-        "adquisición",
-        "fusión",
-        "corporate",
-        "cib",
-        "m&a",
-        "birleşme",
-        "satın alma",
-        "partnership",
-        "acquisition",
-        "merger",
-        "iş birliği",
-        "ortaklık",
-        "anlaşma"
-      ],
-      "enabled": true
-    },
-    {
-      "name": "Empresas y pymes",
-      "terms": [
-        "empresa",
-        "pyme",
-        "sme",
-        "b2b",
-        "business banking",
-        "emprendedor",
-        "işletme",
-        "ticari",
-        "kobi",
-        "enterprise",
-        "entrepreneur",
-        "girişimci"
-      ],
-      "enabled": true
-    },
-    {
-      "name": "Sostenibilidad",
-      "terms": [
-        "sostenib",
-        "esg",
-        "sustainable",
-        "sürdürülebilir"
-      ],
-      "enabled": true
-    },
-    {
-      "name": "Productos y experiencia",
-      "terms": [
-        "cuenta",
-        "tarjeta",
-        "depósito",
-        "hipoteca",
-        "app",
-        "plataforma",
-        "producto",
-        "servicio",
-        "account",
-        "card",
-        "product",
-        "mevduat",
-        "seguro",
-        "inversión",
-        "fondo",
-        "monedero",
-        "wallet",
-        "terminal",
-        "tpv",
-        "factura",
-        "programa",
-        "deposit",
-        "mortgage",
-        "insurance",
-        "investment",
-        "platform",
-        "service",
-        "hesap",
-        "kart",
-        "ürün",
-        "hizmet",
-        "sigorta",
-        "yatırım",
-        "fatura",
-        "program"
-      ],
-      "enabled": true
     }
   ],
   "segments": [
@@ -947,6 +798,763 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
       "country": "Sin determinar",
       "language": "en",
       "enabled": true
+    },
+    {
+      "id": "finextra-mobile",
+      "name": "Finextra · Mobile & online",
+      "url": "https://www.finextra.com/rss/channel.aspx?channel=mobile",
+      "domain": "finextra.com",
+      "entity": "Sector",
+      "country": "Sin determinar",
+      "enabled": true,
+      "language": "en"
+    },
+    {
+      "id": "finextra-payments",
+      "name": "Finextra · Payments",
+      "url": "https://www.finextra.com/rss/channel.aspx?channel=payments",
+      "domain": "finextra.com",
+      "entity": "Sector",
+      "country": "Sin determinar",
+      "enabled": true,
+      "language": "en"
+    },
+    {
+      "id": "bankinter-blog",
+      "name": "Bankinter · Blog",
+      "url": "https://www.bankinter.com/blog/rss",
+      "domain": "bankinter.com",
+      "entity": "Bankinter",
+      "country": "Sin determinar",
+      "enabled": true,
+      "language": "es"
+    },
+    {
+      "id": "stripe-blog",
+      "name": "Stripe · Blog",
+      "url": "https://stripe.com/blog/feed.rss",
+      "domain": "stripe.com",
+      "entity": "Stripe",
+      "country": "Sin determinar",
+      "enabled": true,
+      "language": "en"
     }
-  ]
+  ],
+  "capabilities": {
+    "Empresas": [
+      {
+        "name": "Aplicaciones móviles empresariales",
+        "terms": [
+          "app empresas",
+          "business app",
+          "mobile business banking"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Banca electrónica corporativa",
+        "terms": [
+          "banca electronica corporativa",
+          "corporate online banking",
+          "net cash"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Onboarding digital de empresas",
+        "terms": [
+          "onboarding empresas",
+          "business onboarding",
+          "apertura digital empresas"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Gestión de usuarios, roles y permisos",
+        "terms": [
+          "roles y permisos",
+          "user permissions",
+          "multiusuario"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Autenticación y seguridad",
+        "terms": [
+          "autenticacion",
+          "authentication",
+          "seguridad digital"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Firma electrónica",
+        "terms": [
+          "firma electronica",
+          "electronic signature",
+          "e-signature"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Autorización de operaciones",
+        "terms": [
+          "autorizacion de operaciones",
+          "payment approval",
+          "firma mancomunada"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Pagos",
+        "terms": [
+          "pagos",
+          "payments",
+          "pagos digitales",
+          "digital payments"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Cobros y recaudación",
+        "terms": [
+          "cobros digitales",
+          "digital collections",
+          "recaudacion"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Tesorería y cash management",
+        "terms": [
+          "tesoreria",
+          "cash management",
+          "nakit yonetimi"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Gestión de liquidez",
+        "terms": [
+          "gestion de liquidez",
+          "liquidity management",
+          "cash pooling"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Conciliación bancaria",
+        "terms": [
+          "conciliacion",
+          "reconciliation"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Financiación digital",
+        "terms": [
+          "financiacion digital",
+          "digital lending"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Préstamos y líneas de crédito",
+        "terms": [
+          "prestamo online",
+          "digital loan",
+          "linea de credito"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Factoring",
+        "terms": [
+          "factoring"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Comercio exterior",
+        "terms": [
+          "comercio exterior",
+          "trade finance"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Divisas y pagos internacionales",
+        "terms": [
+          "pagos internacionales",
+          "cross-border payments",
+          "divisas",
+          "money transfer"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Tarjetas de empresa",
+        "terms": [
+          "tarjetas de empresa",
+          "business cards",
+          "corporate cards"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Gestión de gastos corporativos",
+        "terms": [
+          "gestion de gastos",
+          "expense management"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Integraciones ERP",
+        "terms": [
+          "integracion erp",
+          "erp integration"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "API bancarias",
+        "terms": [
+          "api bancaria",
+          "banking api",
+          "banking apis",
+          "api"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Open banking empresarial",
+        "terms": [
+          "open banking empresarial",
+          "business open banking"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Embedded finance",
+        "terms": [
+          "embedded finance",
+          "finanzas embebidas"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Automatización de procesos",
+        "terms": [
+          "automatizacion",
+          "automation"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Inteligencia artificial aplicada al canal",
+        "terms": [
+          "inteligencia artificial",
+          "artificial intelligence",
+          "agentic ai",
+          "ia",
+          "ai"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Asistentes digitales",
+        "terms": [
+          "asistente digital",
+          "digital assistant"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Personalización de la experiencia",
+        "terms": [
+          "personalizacion",
+          "personalisation",
+          "personalization"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Experiencia de usuario y accesibilidad",
+        "terms": [
+          "experiencia de usuario",
+          "user experience",
+          "accesibilidad"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Autoservicio empresarial",
+        "terms": [
+          "autoservicio",
+          "self-service"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Notificaciones y alertas",
+        "terms": [
+          "notificaciones",
+          "notifications",
+          "alertas"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Documentación y gestión documental",
+        "terms": [
+          "gestion documental",
+          "document management"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Identidad y verificación digital",
+        "terms": [
+          "identidad digital",
+          "digital identity",
+          "kyb"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Omnicanalidad",
+        "terms": [
+          "omnicanal",
+          "omnichannel"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Analítica y reporting financiero",
+        "terms": [
+          "reporting financiero",
+          "financial reporting",
+          "analitica financiera"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Nuevos servicios digitales para pymes y autónomos",
+        "terms": [
+          "servicios digitales pymes",
+          "digital sme",
+          "digital freelancers"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Biometría",
+        "terms": [
+          "biometria",
+          "biometric"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Beneficiarios",
+        "terms": [
+          "beneficiarios",
+          "beneficiaries"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Remesas",
+        "terms": [
+          "remesas",
+          "remittances"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Pagos masivos",
+        "terms": [
+          "pagos masivos",
+          "bulk payments"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Aprobaciones multinivel",
+        "terms": [
+          "aprobaciones multinivel",
+          "multi-level approvals"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Accesibilidad",
+        "terms": [
+          "accesibilidad",
+          "accessibility"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Confirming",
+        "terms": [
+          "confirming",
+          "reverse factoring"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Transferencias",
+        "terms": [
+          "transferencias",
+          "transfers"
+        ],
+        "enabled": true
+      }
+    ],
+    "Retail": [
+      {
+        "name": "Aplicaciones de banca móvil",
+        "terms": [
+          "banca movil",
+          "mobile banking",
+          "banking app",
+          "mobil bankacilik"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Banca online",
+        "terms": [
+          "banca online",
+          "online banking",
+          "internet banking"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Onboarding digital",
+        "terms": [
+          "onboarding digital",
+          "digital onboarding"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Identificación y verificación digital",
+        "terms": [
+          "verificacion digital",
+          "digital verification",
+          "kyc"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Autenticación biométrica",
+        "terms": [
+          "biometria",
+          "biometric",
+          "face id"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Seguridad y prevención del fraude",
+        "terms": [
+          "prevencion del fraude",
+          "fraud prevention"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Pagos móviles",
+        "terms": [
+          "pagos moviles",
+          "mobile payments",
+          "bizum pay"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Transferencias inmediatas",
+        "terms": [
+          "transferencias inmediatas",
+          "instant payments",
+          "instant transfers"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Pagos P2P",
+        "terms": [
+          "pagos p2p",
+          "p2p payments"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Tarjetas virtuales",
+        "terms": [
+          "tarjeta virtual",
+          "virtual card"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Wallets digitales",
+        "terms": [
+          "wallet",
+          "monedero digital"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Gestión de tarjetas",
+        "terms": [
+          "gestion de tarjetas",
+          "card management"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Finanzas personales",
+        "terms": [
+          "finanzas personales",
+          "personal finance"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Ahorro digital",
+        "terms": [
+          "ahorro digital",
+          "digital savings",
+          "deposit account"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Inversión digital",
+        "terms": [
+          "inversion digital",
+          "digital investing",
+          "robo-advisor",
+          "cash fund"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Financiación al consumo",
+        "terms": [
+          "financiacion al consumo",
+          "consumer lending"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Hipotecas digitales",
+        "terms": [
+          "hipoteca digital",
+          "digital mortgage"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Contratación digital",
+        "terms": [
+          "contratacion digital",
+          "digital contracting"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Firma electrónica",
+        "terms": [
+          "firma electronica",
+          "electronic signature",
+          "e-signature"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Gestión de suscripciones",
+        "terms": [
+          "gestion de suscripciones",
+          "subscription management"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Open banking",
+        "terms": [
+          "open banking",
+          "banca abierta"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Embedded finance",
+        "terms": [
+          "embedded finance",
+          "finanzas embebidas"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Personalización",
+        "terms": [
+          "personalizacion",
+          "personalisation",
+          "personalization"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Experiencia de usuario",
+        "terms": [
+          "experiencia de usuario",
+          "user experience"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Accesibilidad",
+        "terms": [
+          "accesibilidad",
+          "accessibility"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Asistentes virtuales",
+        "terms": [
+          "asistente virtual",
+          "virtual assistant",
+          "chatbot"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Inteligencia artificial",
+        "terms": [
+          "inteligencia artificial",
+          "artificial intelligence",
+          "agentic ai",
+          "ia",
+          "ai"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Atención al cliente digital",
+        "terms": [
+          "atencion digital",
+          "digital customer service"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Autoservicio",
+        "terms": [
+          "autoservicio",
+          "self-service"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Notificaciones inteligentes",
+        "terms": [
+          "notificaciones inteligentes",
+          "smart notifications"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Educación financiera digital",
+        "terms": [
+          "educacion financiera digital",
+          "digital financial education"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Fidelización y recompensas",
+        "terms": [
+          "fidelizacion",
+          "rewards",
+          "loyalty"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Omnicanalidad",
+        "terms": [
+          "omnicanal",
+          "omnichannel"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Agregación financiera",
+        "terms": [
+          "agregacion financiera",
+          "account aggregation"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Nuevos productos y funcionalidades digitales",
+        "terms": [
+          "funcionalidad digital",
+          "digital feature",
+          "nueva funcionalidad",
+          "new feature",
+          "nuevas funcionalidades",
+          "mobile feature"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Recibos",
+        "terms": [
+          "recibos",
+          "direct debits"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Control de gastos",
+        "terms": [
+          "control de gastos",
+          "spending controls"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Límites de tarjetas",
+        "terms": [
+          "limites de tarjetas",
+          "card limits"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Dispositivos",
+        "terms": [
+          "dispositivos",
+          "devices"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Seguridad",
+        "terms": [
+          "seguridad",
+          "security"
+        ],
+        "enabled": true
+      }
+    ]
+  }
 });

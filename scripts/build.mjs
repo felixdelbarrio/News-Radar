@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import {root,read,files,readClientScript,serverModule,serverModuleName} from './source.mjs';
+import {identityAssets} from './identity.mjs';
 import {worldMap} from './world-map.mjs';
 import {designOutputs} from './design.mjs';
 import {checkAppsScriptSyntax} from './apps-script-syntax.mjs';
@@ -15,15 +16,16 @@ const views=files('src/views').filter(file=>file.endsWith('.html'));
 for(const file of views)parts[path.basename(file,'.html')]=read(file);
 function template(html){return html.replace(/\{\{(\w+)\}\}/g,(_,name)=>{if(!(name in parts))throw Error('Bloque desconocido: '+name);return template(String(parts[name]));});}
 const design=designOutputs(),tokens=JSON.parse(read('src/design/tokens.json')).css;
-const newsletterStyle=read('src/styles/newsletter.css').replace(/var\(--([\w-]+)\)/g,(_,key)=>tokens[key]);
+const newsletterStyle=(read('src/styles/identity.css')+'\n'+read('src/styles/newsletter.css')).replace(/var\(--([\w-]+)\)/g,(_,key)=>tokens[key]);
 const newsletterInline={};for(const [,selectors,rule] of newsletterStyle.matchAll(/([^{}]+)\{([^{}]*)\}/g))for(const selector of selectors.split(','))newsletterInline[selector.trim()]=(newsletterInline[selector.trim()]||'')+rule+';';
 const output={
   'Defaults.gs':'const CONFIGURATION_DEFAULTS = Object.freeze('+read('assets/configuration-defaults.json').trim()+');\n',
   'Design.gs':design.sheet,
+  'IdentityAssets.gs':'const IDENTITY_ASSETS = Object.freeze('+JSON.stringify(identityAssets())+');\n',
   'Newsletter.gs':'const NEWSLETTER_BIA_PNG = '+JSON.stringify(fs.readFileSync(path.join(root,'assets/bia.png')).toString('base64'))+';\nconst NEWSLETTER_STYLE = '+JSON.stringify(newsletterStyle)+';\nconst NEWSLETTER_INLINE = '+JSON.stringify(newsletterInline)+';\n',
   'Index.html':template(parts.Index),
   'Tokens.html':design.tokens,
-  'Styles.html':'<style>\n'+['base','layout','components','dashboard','briefing','responsive'].map(name=>read('src/styles/'+name+'.css')).join('\n')+'\n</style>',
+  'Styles.html':'<style>\n'+['base','layout','components','identity','dashboard','briefing','intelligence','responsive'].map(name=>read('src/styles/'+name+'.css')).join('\n')+'\n</style>',
   'Client.html':'<script id="radar-client">\n'+readClientScript()+'</script>',
   'appsscript.json':read('src/appsscript.json')
 };

@@ -37,11 +37,12 @@ function mailHeader_(value){
   if(word)words.push('=?UTF-8?B?'+Utilities.base64Encode(word,Utilities.Charset.UTF_8)+'?=');
   return words.join('\r\n ');
 }
-function sendNewsletterMail_(sender,recipient,subject,content){
+function sendNewsletterMail_(sender,recipient,content){
   const boundary='news_radar_'+Utilities.getUuid().replace(/-/g,''),body=value=>Utilities.base64Encode(value,Utilities.Charset.UTF_8).match(/.{1,76}/g)?.join('\r\n')||'';
-  const mime=['From: '+mailHeader_(sender.name)+' <'+newsletterEmail_(sender.address)+'>','Reply-To: '+newsletterEmail_(sender.address),'To: '+newsletterEmail_(recipient),'Subject: '+mailHeader_('[bIA] News Radar : '+subject),'Date: '+new Date().toUTCString(),'MIME-Version: 1.0','Content-Type: multipart/alternative; boundary="'+boundary+'"','','--'+boundary,'Content-Type: text/plain; charset=UTF-8','Content-Transfer-Encoding: base64','',body(content.text),'--'+boundary,'Content-Type: text/html; charset=UTF-8','Content-Transfer-Encoding: base64','',body(content.html),'--'+boundary+'--',''].join('\r\n');
+  const mime=['From: '+mailHeader_(sender.name)+' <'+newsletterEmail_(sender.address)+'>','Reply-To: '+newsletterEmail_(sender.address),'To: '+newsletterEmail_(recipient),'Subject: '+mailHeader_(content.subject),'Date: '+new Date().toUTCString(),'MIME-Version: 1.0','Content-Type: multipart/alternative; boundary="'+boundary+'"','','--'+boundary,'Content-Type: text/plain; charset=UTF-8','Content-Transfer-Encoding: base64','',body(content.text),'--'+boundary,'Content-Type: text/html; charset=UTF-8','Content-Transfer-Encoding: base64','',body(content.html),'--'+boundary+'--',''].join('\r\n');
   const related=boundary+'_related';
-  const raw=content.inlineBia?mime.replace('Content-Type: multipart/alternative; boundary="'+boundary+'"','Content-Type: multipart/related; boundary="'+related+'"').replace('\r\n\r\n--'+boundary,'\r\n\r\n--'+related+'\r\nContent-Type: multipart/alternative; boundary="'+boundary+'"\r\n\r\n--'+boundary)+'--'+related+'\r\nContent-Type: image/png\r\nContent-Transfer-Encoding: base64\r\nContent-ID: <bia-logo>\r\nContent-Disposition: inline; filename="bia.png"\r\n\r\n'+NEWSLETTER_BIA_PNG.match(/.{1,76}/g).join('\r\n')+'\r\n--'+related+'--\r\n':mime;
+  const images=content.images||[],attachments=images.map(image=>'--'+related+'\r\nContent-Type: image/png\r\nContent-Transfer-Encoding: base64\r\nContent-ID: <'+image.id+'>\r\nContent-Disposition: inline; filename="'+image.id+'.png"\r\n\r\n'+image.data.match(/.{1,76}/g).join('\r\n')+'\r\n').join('');
+  const raw=images.length?mime.replace('Content-Type: multipart/alternative; boundary="'+boundary+'"','Content-Type: multipart/related; boundary="'+related+'"').replace('\r\n\r\n--'+boundary,'\r\n\r\n--'+related+'\r\nContent-Type: multipart/alternative; boundary="'+boundary+'"\r\n\r\n--'+boundary)+attachments+'--'+related+'--\r\n':mime;
   const result=gmailRequest_('messages/send',{raw:Utilities.base64EncodeWebSafe(raw,Utilities.Charset.UTF_8).replace(/=+$/,'')});
   if(!result.id)throw Error('Gmail no ha confirmado el identificador del mensaje. Revisa el envío antes de reintentar.');
   return result.id;
@@ -57,22 +58,24 @@ function newsletterTest_(session,subscription){
   let claimed=false;
   try{
     const now=new Date();if(!newsletterBudget_(rows_('NewsletterEnvios'),now))throw Error('Se ha alcanzado el límite configurado de newsletters en 24 horas.');
-    const sender=newsletterSender_(),defaults=subscription?{name:subscription.nombre,filters:subscription.filtros}:subscriptionDefaults_();
-    const query=subscription?subscriptionQuery_(subscription,now):{...defaults.filters,...recentNewsRange_(now)},content=newsletter_(rows_('Noticias',settings_().newsReadLimit),query,defaults.name,now,subscription?.id,subscription?.idioma||'es');
-    append_('NewsletterEnvios',[['prueba:'+Utilities.getUuid(),'',session.email,query.from,query.to,'Enviando',now.toISOString(),subscription?'Prueba de suscripción':'Prueba del administrador']]);
+    const sender=newsletterSender_(),defaults=subscription?{filters:subscription.filtros}:subscriptionDefaults_();
+    const edition=Utilities.getUuid(),delivery='prueba:'+Utilities.getUuid();
+    const query=subscriptionQuery_(subscription||{filtros:defaults.filters,periodicidad:defaults.periodicity},now),title=newsletterSubject_(query,subscription?.idioma||'es'),content=newsletter_(rows_('Noticias',settings_().newsReadLimit),query,title,now,subscription?.id,subscription?.idioma||'es',edition);
+    saveNewsletterEdition_(edition,delivery,session.email,title,query,subscription?.idioma||'es',content.evidence);
+    append_('NewsletterEnvios',[[delivery,'',session.email,query.from,query.to,'Enviando',now.toISOString(),subscription?'Prueba de suscripción':'Prueba del administrador']]);
     claimed=true;
-    const sheet=book_().getSheetByName('NewsletterEnvios'),id=completeNewsletterDelivery_(sheet,sheet.getLastRow(),sender,session.email,translateText('Prueba',subscription?.idioma||'es')+' · '+defaults.name,content,true);
+    const sheet=book_().getSheetByName('NewsletterEnvios'),id=completeNewsletterDelivery_(sheet,sheet.getLastRow(),sender,session.email,content,true);
     return {accepted:true,recipient:session.email,sender:sender.address,messageId:id,count:content.count,from:query.from,to:query.to};
   }catch(error){if(!claimed)recordNewsletterBlock_(error,session.email);throw error;
   }finally{lock.releaseLock();}
 }
 function recordNewsletterBlock_(error,email){append_('NewsletterEnvios',[['diagnostico:'+Utilities.getUuid(),'',email,'','','Bloqueada',new Date().toISOString(),String(error.message).slice(0,500)]]);}
-function completeNewsletterDelivery_(sheet,index,sender,recipient,subject,content,test=false){
+function completeNewsletterDelivery_(sheet,index,sender,recipient,content,test=false){
   if(!test&&!content.count)throw Error('No se puede enviar una newsletter sin novedades.');
   try{
     SpreadsheetApp.flush();
-    const id=sendNewsletterMail_(sender,recipient,subject,content);
-    sheet.getRange(index,6,1,3).setValues([['Enviada',new Date().toISOString(),'Gmail ID: '+id+'; '+newsletterContentDetail_(content)]]);return id;
+    const id=sendNewsletterMail_(sender,recipient,content);
+    sheet.getRange(index,6,1,3).setValues([['Enviada',new Date().toISOString(),'Gmail ID: '+id+'; '+newsletterContentDetail_(content)]]);if(content.editionId)completeNewsletterEdition_(content.editionId,'Enviada');return id;
   }catch(error){
     sheet.getRange(index,6,1,3).setValues([[error.rejected?'No enviado':'Revisar',new Date().toISOString(),String(error.message).slice(0,500)+'; '+newsletterContentDetail_(content)]]);throw error;
   }

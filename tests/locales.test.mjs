@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {createHash} from 'node:crypto';
 import {parse} from 'acorn';
 import {JSDOM} from 'jsdom';
 import {detectLanguage,supportedLanguage,translations,translateText,formatText,formatCalendarDay,feedLanguage} from '../src/shared/locales.js';
@@ -45,9 +46,9 @@ for(const language of ['es','en','tr'])test('interfaz '+language+': formularios,
  await a.change('#filters [name="country"]','España');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.country,'España');assert.equal(a.find('#filters [name="country"]').value,'España');assert.equal(a.find('#filters [name="country"] option[value="España"]').textContent,translateText('España',language));
  a.data.items=[{titular:'Noticias de España',extracto:'Nueva cuenta en España',medio:'Noticias España',pais:'España',fecha:'2026-10-11',url:'https://example.com/original',entidad:'BBVA',tema:'Financiación'}];a.data.total=1;
  await a.click('[data-view="radar"]');await a.click('[data-view="news"]');
- assert.equal(a.find('#news-list h3').textContent,'Noticias de España');assert.equal(a.find('#news-list .news-meta [data-original]')?.textContent??'Noticias España','Noticias España');assert.equal(a.find('#news-list p[data-original]').textContent,'Nueva cuenta en España');
+ assert.equal(a.find('#news-list h3').textContent,'Noticias de España');assert.equal(a.find('#news-list .identity-label [data-original]')?.textContent??'Noticias España','Noticias España');assert.equal(a.find('#news-list p[data-original]').textContent,'Nueva cuenta en España');
  await a.click('[data-view="subscriptions"]');await a.click('#new-subscription');assert.equal(a.find('#personal-editor [name="language"]').value,language);
- const name=a.find('#personal-editor [name="name"]');name.value='Noticias de España';await a.submit('#personal-editor form');const saved=a.calls.find(row=>row.method==='saveSubscription').query;assert.equal(saved.language,language);assert.equal(saved.name,'Noticias de España');
+ assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);await a.change('#personal-editor [name="periodicity"]','yearly');await a.submit('#personal-editor form');const saved=a.calls.find(row=>row.method==='saveSubscription').query;assert.equal(saved.language,language);assert.equal(saved.name,undefined);assert.equal(saved.periodicity,'yearly');
  await a.click('[data-view="administration"]');assert.equal(a.find('#preview-language').value,'');await a.click('[data-admin-view="subscribers"]');await a.click('#new-admin-subscription');assert.equal(a.find('#admin-subscription-editor [name="language"]').value,'es');
  await a.change('#admin-subscription-editor [name="language"]','tr');await a.submit('#admin-subscription-editor form');assert.equal(a.calls.find(row=>row.method==='saveAdminSubscription').query.language,'tr');
  a.replies.getAdoption.options={vista:['administration'],evento:['rendimiento']};
@@ -63,7 +64,7 @@ test('la preferencia de prueba es propia de la pestaña y puede restaurarse al i
 });
 
 test('newsletters HTML y texto se generan por destinatario en tres idiomas sin traducir noticias ni URLs',()=>{
- const config=JSON.parse(read('assets/configuration-defaults.json')),c=vm.createContext({});vm.runInContext(readServerScript('dist',true),c);c.configuration_=()=>config;c.settings_=()=>config.settings;config.settings.newsletterAppUrl='https://script.google.com/macros/s/test/exec';
+ const config=JSON.parse(read('assets/configuration-defaults.json')),c=vm.createContext({});vm.runInContext(readServerScript('dist',true),c);c.taxonomyCatalog_=()=>[];c.configuration_=()=>config;c.settings_=()=>config.settings;config.settings.newsletterAppUrl='https://script.google.com/macros/s/test/exec';
  const row={titular:'Noticias de España',extracto:'Oferta original en español.',pais:'España',fecha:'2026-10-11',entidad:'BBVA',medio:'Noticias España',tipo:'Banco tradicional',senales:['Lanzamiento de producto'],segmentos:['Empresas e instituciones'],tema:'Financiación',url:'https://example.com/noticias'};
  for(const language of ['es','en','tr']){const result=c.newsletterContent_([row],{entity:'BBVA'},'Noticias de España',new Date('2026-10-11T12:00:00Z'),'sub-id',language);assert.match(result.html,new RegExp('lang="'+language+'"'));assert.ok(result.html.includes(translateText('Gestiona tu suscripción',language)));assert.ok(result.text.includes(translateText('Novedades detectadas',language)));assert.ok(result.html.includes(row.extracto));assert.ok(result.html.includes(row.titular));assert.ok(result.text.includes(row.url));assert.equal(result.count,1);assert.equal(result.items[0],row);const document=new JSDOM(result.html).window.document;assert.equal(document.head.querySelector('meta[name="color-scheme"]').content,'light only');assert.match(document.querySelector('header').style.backgroundImage,/linear-gradient/);assert.match(document.querySelector('style').textContent,/color-scheme:only light/);}
  assert.throws(()=>c.newsletterContent_([],{},'Title',new Date(),'', 'fr'),/Idioma/);
@@ -73,19 +74,19 @@ test('newsletters HTML y texto se generan por destinatario en tres idiomas sin t
 });
 
 test('clasificación inglesa y turca reconoce productos, segmentos y exclusiones sin llamadas externas',()=>{
- const c=vm.createContext({});vm.runInContext(readServerScript('dist',true),c);c.configuration_=()=>JSON.parse(read('assets/configuration-defaults.json'));
+ const c=vm.createContext({});vm.runInContext(readServerScript('dist',true),c);c.taxonomyCatalog_=()=>[];c.configuration_=()=>JSON.parse(read('assets/configuration-defaults.json'));
  const rows=c.annotateNews_([{entidad:'BBVA',titular:'BBVA introduces a new business account',extracto:''},{entidad:'BBVA',titular:'Garanti BBVA KOBİ için yeni hesap sunar',extracto:''},{entidad:'BBVA',titular:'Yeni hesap nedir: rehber',extracto:''}]);
  assert.ok(rows[0].senales.includes('Lanzamiento de producto'));assert.ok(rows[1].senales.includes('Lanzamiento de producto'));assert.ok(rows[1].segmentos.includes('Empresas e instituciones'));assert.equal(rows[2].senales.length,0);assert.equal(c.searchText_('İŞ BANKACILIĞI'),c.searchText_('iş bankacılığı'));
 });
 
 test('la recopilación conserva inglés y turco y el idioma explícito o declarado por el RSS',()=>{
- const c=vm.createContext({Utilities:{getUuid:()=> 'id',formatDate:value=>value.toISOString().slice(0,10)}});vm.runInContext(readServerScript('dist',true),c);const config=JSON.parse(read('assets/configuration-defaults.json'));c.configuration_=()=>config;
+ const c=vm.createContext({Utilities:{DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(_,value)=>Array.from(createHash('sha256').update(value).digest()),getUuid:()=> 'id',formatDate:value=>value.toISOString().slice(0,10)}});vm.runInContext(readServerScript('dist',true),c);c.taxonomyCatalog_=()=>[];const config=JSON.parse(read('assets/configuration-defaults.json'));c.configuration_=()=>config;
  const values={title:'BBVA introduces a new business account',link:'https://www.bbva.com/en/account/',pubDate:'2026-10-10T10:00:00Z',description:'An account for small businesses',source:''};
  c.XmlService={parse:()=>({getRootElement:()=>({getChild:()=>({getChildText:()=> 'en-US',getChildren:()=>[{getChildText:key=>values[key]}]})})})};
  const raw=c.parseFeed_('<rss/>')[0],feed=config.feeds.find(row=>row.language==='en'),now=new Date('2026-10-11T12:00:00Z'),item=c.evaluate_(raw,feed,now).item,record=c.newsRecord_(item,feed,now);
- assert.equal(record[5],values.title);assert.equal(record[6],values.description);assert.equal(record[11],'en-US');
+ assert.equal(record[5],values.title);assert.equal(record[6],values.description);assert.equal(record[10],'en-US');
  const trFeed=c.profileFeed_(config.geographies.find(row=>row.language==='tr'),config.entities[0]);assert.equal(trFeed.language,'tr');assert.match(trFeed.url,/hl=tr/);
- const tr=c.evaluate_({title:'Garanti BBVA yeni hesap sunar',excerpt:'KOBİ için ticari hesap',url:'https://news.google.com/article',date:values.pubDate},trFeed,now).item;assert.ok(tr);assert.equal(c.newsRecord_(tr,trFeed,now)[11],'tr');
+ const tr=c.evaluate_({title:'Garanti BBVA yeni hesap sunar',excerpt:'KOBİ için ticari hesap',url:'https://news.google.com/article',date:values.pubDate},trFeed,now).item;assert.ok(tr);assert.equal(c.newsRecord_(tr,trFeed,now)[10],'tr');
  const original=JSON.stringify(config);config.feeds[0].language='invalid_language';assert.throws(()=>c.validateConfiguration_(config),/Idioma de fuente/);assert.notEqual(JSON.stringify(config),original);
 });
 test('cambiar de idioma conserva documento, sección, borradores y filtros sin navegar ni recargar',async t=>{

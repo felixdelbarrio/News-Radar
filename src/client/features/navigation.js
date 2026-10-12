@@ -1,18 +1,18 @@
 import { $, message } from "../core/dom.js";
 import config,{defaultView} from "../config.js";
-function createNavigation({ isAdmin, track, onAdministration, onSubscriptions, onSelection }) {
+function createNavigation({ isAdmin, track, onAdministration, onSubscriptions, onSelection, onPanel }) {
   let current = defaultView;
   async function show(view) {
     if (!(view in config.views) || view === "administration" && !isAdmin()) return;
     current = view;
+    $('reading-context').hidden=$('reading-context').dataset.available!=='true'||!['news','briefing','radar'].includes(view);
     window.scrollTo({top:0,behavior:"auto"});
     track("vista");
     for (const name of Object.keys(config.views)) $(name + "-section").hidden = name !== view;
-    $("filters-section").hidden = ["administration","subscriptions"].includes(view);
+    onPanel(view);
     $("sidebar-context-title").textContent=view==="administration"?"Gestión de News Radar":"Seguimiento personalizado";
     $("sidebar-context-copy").textContent=view==="administration"?"Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicación.":"Las suscripciones tienen sus propios filtros. Cambiar la selección de noticias no modifica lo que recibes por correo.";
     $("sidebar-context").hidden=!["administration","subscriptions"].includes(view);
-    $("open-filters").hidden=["administration","subscriptions"].includes(view);
     $("export").hidden = view !== "news";
     $("page-title").textContent = config.views[view];
     document.querySelectorAll("[data-view]").forEach((button) => {

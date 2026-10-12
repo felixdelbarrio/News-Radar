@@ -8,9 +8,21 @@ function currentMonth_(now=new Date()){
   const end=new Date(start);end.setUTCMonth(end.getUTCMonth()+1);end.setUTCDate(0);
   return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10)};
 }
+function newsRange_(range='week',now=new Date()){
+  if(range==='week')return recentNewsRange_(now);
+  if(range==='month')return currentMonth_(now);
+  if(range==='year'){const year=calendarDate_(now).getUTCFullYear();return {from:year+'-01-01',to:year+'-12-31'};}
+  throw Error('Período de contenido no válido.');
+}
+function personalDashboardQuery_(subscription,view,now=new Date()){
+  const filters=subscriptionFilters_(subscription.filtros);
+  return {...filters,...newsRange_(view==='briefing'?'week':view==='news'?'month':'year',now),view,initial:false};
+}
 function dashboardQuery_(query={},now=new Date()){
-  const {view,initial,language,...filters}=query;
-  if(view==='radar')return {entity:initial?'':filters.entity||'',segment:initial?'Empresas e instituciones':filters.segment||''};
-  const selection=initial?{entity:settings_().defaultEntity,segment:settings_().defaultSegment,topic:settings_().defaultTopic,country:settings_().defaultCountry,...currentMonth_(now)}:filters;
-  return view==='briefing'?{...selection,...recentNewsRange_(now)}:selection;
+  const {view,initial}=query,filters=Object.fromEntries([...subscriptionFilterKeys,'from','to','page','newsGeography'].filter(key=>Object.hasOwn(query,key)).map(key=>[key,query[key]]));
+  if(filters.coverage&&!Object.hasOwn(coverageOptions,filters.coverage))throw Error('Filtro de cobertura no válido.');
+  if(view==='radar')return initial?{entity:'',...sectorNewsDefaults,...newsRange_('year',now)}:{...filters,...(!filters.from&&!filters.to?newsRange_('year',now):{})};
+  if(view==='briefing')return {...(initial?{...sectorNewsDefaults,...recentNewsRange_(now)}:filters),...(!initial&&!filters.from&&!filters.to?recentNewsRange_(now):{})};
+  const selection=initial?{entity:settings_().defaultEntity,...sectorNewsDefaults,country:settings_().defaultCountry,...currentMonth_(now)}:filters;
+  return selection;
 }

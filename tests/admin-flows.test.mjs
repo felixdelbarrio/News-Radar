@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import {app} from './helpers/app.mjs';
 test('suscripciones personales y administrativas guardan, editan, prueban y eliminan sin alterar filtros',async t=>{
  const a=await app(t);await a.click('[data-view="subscriptions"]');assert.match(a.find('#subscriptions-list').textContent,/Mi canal/);
- await a.click('#subscriptions-list [data-action="edit"]');assert.equal(a.find('#personal-editor [name="name"]').value,'Mi canal');
- await a.change('#personal-editor [name="name"]','Mi edición');await a.submit('#personal-editor form');assert.equal(a.calls.find(r=>r.method==='saveSubscription').query.name,'Mi edición');
+ await a.click('#subscriptions-list [data-action="edit"]');assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);assert.equal(a.find('#personal-editor [name="periodicity"]').value,'weekly');
+ await a.change('#personal-editor [name="periodicity"]','monthly');await a.submit('#personal-editor form');assert.equal(a.calls.find(r=>r.method==='saveSubscription').query.periodicity,'monthly');assert.equal(a.calls.find(r=>r.method==='saveSubscription').query.name,undefined);
  await a.click('#subscriptions-list [data-action="test"]');assert.match(a.find('#message').textContent,/aceptado/);
- await a.click('#subscriptions-list [data-action="apply"]');assert.equal(a.find('#page-title').textContent,'Noticias');
+ await a.click('#subscriptions-list [data-action="apply"]');assert.equal(a.find('#page-title').textContent,'Novedades');
  await a.click('[data-view="subscriptions"]');await a.click('#subscriptions-list [data-action="delete"]');assert.ok(a.calls.some(r=>r.method==='deleteSubscription'));
  await a.click('#new-subscription');await a.click('[data-view="administration"]');await a.click('[data-admin-view="subscribers"]');
  await a.click('#new-admin-subscription');await a.submit('#admin-subscription-editor form');assert.ok(a.calls.some(r=>r.method==='saveAdminSubscription'));
@@ -33,7 +33,7 @@ test('catálogos preservan cambios al cambiar de categoría y permiten ordenar, 
 test('fuentes y novedades recorren formularios reales, recuperación y filtros de administración',async t=>{
  const a=await app(t);await a.click('[data-view="briefing"]');assert.match(a.find('#briefing-list').textContent,/BBVA lanza cuenta/);await a.click('[data-signal]');assert.equal(a.calls.filter(r=>r.method==='getDashboard').at(-1).query.signal,'Lanzamiento de producto');
  a.data.briefing={total:0,bySignal:[],items:[]};await a.click('[data-view="news"]');await a.click('[data-view="briefing"]');assert.match(a.find('#briefing-list').textContent,/No hay novedades/);
- await a.click('[data-view="administration"]');await a.click('[data-admin-view="sources"]');await a.click('#add-source');assert.equal(a.find('#source-fields').children.length,2);await a.click('#add-source');assert.match(a.find('#message').textContent,/Máximo/);
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="sources"]');await a.click('#source-tab-rss');await a.click('#add-source');assert.equal(a.find('#source-fields').children.length,2);await a.click('#add-source');assert.match(a.find('#message').textContent,/Máximo/);
  await a.click('#source-fields .source:last-child .remove-source');await a.submit('#sources-form');assert.equal(a.calls.find(r=>r.method==='saveFeeds').query.length,1);
  a.data.daily=true;await a.click('#toggle-daily');assert.ok(a.calls.some(r=>r.method==='enableDaily'));await a.click('#toggle-daily');assert.ok(a.calls.some(r=>r.method==='disableDaily'));
  await a.click('#collect');assert.ok(a.calls.some(r=>r.method==='collectNow'));await a.click('#retry-collection');await a.click('#save-source-settings');
@@ -78,9 +78,9 @@ test('las tarjetas presentan traducciones guardadas y no llaman al traductor al 
  const a=await app(t,{language:'en-US',configure({data}){
   data.items=[{id:'one',titular:'Translated headline',extracto:'Translated summary',original:{titular:'Titular original',extracto:'Extracto original'},translation:{language:'en',state:'translated'},url:'https://example.com',fecha:'2026-10-11',medio:'Diario'}];
  }});
- await a.click('[data-view="news"]');assert.match(a.find('#news-list h3').textContent,/Translated headline/);assert.match(a.find('.article-original').textContent,/Titular original/);assert.match(a.find('#news-list').textContent,/Automatic translation/);
+ await a.click('[data-view="news"]');assert.match(a.find('#news-list h3').textContent,/Translated headline/);assert.match(a.find('.article-original').textContent,/Titular original/);assert.doesNotMatch(a.find('#news-list').textContent,/Automatic translation/);
  await a.click('[data-view="administration"]');await a.click('[data-view="news"]');assert.ok(!a.calls.some(call=>call.method==='translateNews'));
- a.data.items[0].translation.state='pending';await a.click('[data-view="briefing"]');await a.click('[data-view="news"]');assert.match(a.find('#news-list').textContent,/Awaiting overnight translation/);
+ a.data.items[0].translation.state='pending';await a.click('[data-view="briefing"]');await a.click('[data-view="news"]');assert.doesNotMatch(a.find('#news-list').textContent,/Awaiting overnight translation/);
  assert.equal(a.calls.filter(call=>call.method==='getDashboard').at(-1).query.language,'en');
 });
 test('Idioma tiene sección propia, programación nocturna y progreso con controles administrativos',async t=>{

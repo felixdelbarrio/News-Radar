@@ -104,3 +104,11 @@ test('una diaria llegada durante un lote anual es el siguiente lote y las llamad
  const s=server(),c=s.c;addJob(s,'annual','annual',50);const order=[],collect=c.collectionBatch_;c.collectionBatch_=work=>{order.push(work.pending[0]?.ciclo);const result=collect(work);if(order.length===1)c.requestDailyCollection_();return result;};c.processBackground_();assert.equal(order[0],'annual');assert.match(order[1],/^daily\//);assert.equal(order[2],'annual');
  const nativeDate=vm.runInContext('Date',c);let clock=Date.now(),batches=0;c.Date=class extends nativeDate{constructor(value){super(value===undefined?clock:value);}static now(){return clock;}};c.collectionBatch_=work=>{batches++;const result=collect(work);clock+=50000;return result;};c.processBackground_();assert.equal(batches,1);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
 });
+
+test('relanzar diaria o anual reutiliza una única línea por tipo y conserva el histórico de ejecuciones',()=>{
+ const s=server(),c=s.c;addJob(s,'old-daily','daily',1);addJob(s,'old-annual','annual',1);
+ for(const row of s.sheets.get('Recargas').grid.slice(1)){row[4]='2026-10-10';row[6]='Completada';row[9]=0;}
+ addJob(s,'new-daily','daily',2);addJob(s,'new-annual','annual',3);
+ const status=c.collectionStatus_();assert.equal(status.jobs.length,2);assert.deepEqual([...status.jobs.map(job=>job.id)],['new-daily','new-annual']);assert.equal(c.collectionJobs_().length,4);
+ s.properties['COLLECTION_REQUEST:new']=JSON.stringify({id:'queued',kind:'daily',range:{from:'2026-10-01',to:'2026-10-12'},created:'2099-10-12'});s.cache.delete('collection-status');assert.equal(c.collectionStatus_().jobs.length,2);
+});

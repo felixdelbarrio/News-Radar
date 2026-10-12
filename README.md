@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.9.4`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `2.2.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -60,7 +60,7 @@ Para bloquear pushes directos, las protecciones remotas de `master` y `develop` 
 - `src/server/metrics/Analytics.gs`: cálculos de adopción sin acceso a servicios de Google.
 - `assets/app-config.json`: estructura de navegación del cliente. La selección inicial se recibe de Sheets al cargar.
 - `assets/configuration-defaults.json`: valores usados únicamente al inicializar claves ausentes en Sheets.
-- `assets/admin-schema.json`: campos y etiquetas del editor de catálogos; no contiene entidades, temas ni términos de negocio.
+- `assets/admin-schema.json`: campos y etiquetas del editor de catálogos; no contiene entidades ni términos de negocio.
 - `src/server/config/Configuration.gs`: lectura, validación, caché, inicialización y escritura de configuración.
 - `src/server/briefing/Briefing.gs`: señales de novedades y renderizado HTML/texto de newsletter.
 - `src/server/briefing/Mail.gs`: alias verificado, MIME, Gmail API y diagnóstico del remitente.
@@ -75,9 +75,9 @@ El build conserva los módulos de servidor separados: actualmente genera 31 arch
 
 ## Configuración de negocio en Sheets
 
-La pestaña `Configuracion` contiene una fila por catálogo: `settings`, `entities`, `geographies`, `topics`, `segments`, `signals` y `feeds`. `valor` almacena JSON; el editor de Administración ofrece formularios, activación, altas, bajas y ordenación para evitar editar JSON manualmente. `Config.gs` conserva únicamente esquemas de almacenamiento. `Defaults.gs` sustituye a `Profile.gs` y solo participa en la inicialización: el código de consulta y clasificación lee Sheets.
+La pestaña `Configuracion` contiene una fila por catálogo: `settings`, `entities`, `geographies`, `capabilities`, `segments`, `signals` y `feeds`. `valor` almacena JSON; el editor de Administración ofrece formularios, activación, altas, bajas y ordenación para evitar editar JSON manualmente. `Config.gs` conserva únicamente esquemas de almacenamiento. `Defaults.gs` sustituye a `Profile.gs` y solo participa en la inicialización: el código de consulta y clasificación lee Sheets.
 
-Se pueden configurar entidades y alias, tipos de entidad, países e idiomas, temas y términos, segmentos, señales de lanzamiento, términos de contexto, exclusiones y fuentes RSS. Operación incluye selección inicial, ventana temporal, hora y zona de recopilación, límites y tamaño de lote. Los límites técnicos máximos de validación protegen las cuotas, el tamaño de celda y la caché. La taxonomía de tipos es editorial: no acredita una licencia bancaria ni disponibilidad de productos.
+Se pueden configurar entidades y alias, tipos de entidad, países e idiomas, capacidades digitales y sus términos, segmentos, señales de lanzamiento, términos de contexto, exclusiones y fuentes RSS. Operación incluye selección inicial, ventana temporal, hora y zona de recopilación, límites y tamaño de lote. Los límites técnicos máximos de validación protegen las cuotas, el tamaño de celda y la caché. La taxonomía de tipos es editorial: no acredita una licencia bancaria ni disponibilidad de productos.
 
 La configuración inicial incluye 34 entidades, siete países, Empresas e instituciones —pymes, autónomos, empresas e instituciones— y Retail. Añade Revolut, N26, Qonto, Wise, Nubank, Mercado Pago, Ualá, Klar, Konfío y Yape a los bancos del perfil aportado. Todas comienzan activas. Son valores iniciales editables, no promesas de cobertura exhaustiva.
 
@@ -87,25 +87,25 @@ Sheets es el almacenamiento permanente. La caché de Apps Script dura como máxi
 
 ## Radar, Noticias y Novedades
 
-La navegación sigue el orden Radar, Novedades, Noticias y Newsletter. Radar contiene KPIs, mapa y evolución; permite seleccionar únicamente entidad y segmento, con todas las geografías y Empresas e instituciones como segmento inicial. Seleccionar una geografía en el mapa abre Noticias. Novedades muestra únicamente lanzamientos de producto, mejoras de oferta y alianzas de los últimos 7 días. Noticias conserva todos sus filtros y comienza con el primer y último día del mes en curso. Cada vista conserva su selección; las fechas se calculan en la zona configurada. «Ver todo» elimina los filtros editables, manteniendo los últimos 7 días en Novedades.
+La navegación sigue el orden Novedades, Noticias, Radar y Newsletter. Radar contiene KPIs, mapa y evolución; comienza con el año en curso. Las tres vistas parten de Segmento: Empresas e instituciones y Cobertura: Canal digital; el usuario puede cambiarlos o quitarlos. Seleccionar una geografía en el mapa abre Noticias. Novedades muestra lanzamientos de producto, mejoras de oferta y alianzas de los últimos siete días por defecto, o del período de una edición de newsletter. Noticias conserva todos sus filtros y comienza con el primer y último día del mes en curso. Cada vista conserva su selección; las fechas se calculan en la zona configurada. «Ver todo» elimina los filtros editables, manteniendo los últimos 7 días en Novedades.
 
 Las señales buscan por defecto en el titular y requieren contexto de producto cuando está definido. Las exclusiones reducen artículos educativos y genéricos. Administración puede elegir `headline` o `fullText`, cambiar los términos o desactivar señales. Una noticia puede pertenecer a varios segmentos y señales; lo desconocido no se asigna artificialmente. La clasificación se vuelve a calcular con los catálogos actuales al consultar el histórico. No hay puntuación ni verificación de productos: se muestran titular, extracto y enlace del editor. Las reglas pueden tener falsos positivos y omisiones.
 
 La geografía es la de la fuente de seguimiento, no una geolocalización confirmada de la operación. Las noticias sin país conocido quedan fuera del mapa. La geometría mundial se genera en el build; los países activos se asignan por identificador ISO numérico desde Sheets, sin SDK ni consultas externas en el navegador. El radar calcula toda la selección leída; la evolución limita intervalos y series según la configuración, agrupa el resto y conserva los días sin noticias.
 
-Los filtros activos de Radar, Novedades y Noticias aparecen como chips pequeños con ámbito y valor. Un único componente se mueve entre las tres vistas, que conservan su selección. Radar muestra entidad y segmento; Novedades muestra los filtros editables y mantiene los últimos 7 días como período fijo. Cerrar uno vacía el campo correspondiente, restablece la primera página y actualiza recuentos, gráficas o listados según la vista. Los desplegables consultan únicamente en `change`; el texto de búsqueda conserva el debounce. Exportar selección solo está disponible en Noticias de escritorio; Novedades no ofrece descarga de newsletter.
+Los filtros activos de Radar, Novedades y Noticias aparecen como chips pequeños con ámbito y valor. Un único componente se mueve entre las tres vistas, que conservan su selección. Radar muestra también el selector de cobertura; Novedades muestra los filtros editables y usa por defecto los últimos 7 días o el período de una edición de newsletter. Cerrar uno vacía el campo correspondiente, restablece la primera página y actualiza recuentos, gráficas o listados según la vista. Los desplegables consultan únicamente en `change`; el texto de búsqueda conserva el debounce. Exportar selección solo está disponible en Noticias de escritorio; Novedades no ofrece descarga de newsletter.
 
 Administración reúne configuración, fuentes, auditoría, telemetría, adopción, recopilar y abrir hoja. Se oculta al lector y sus endpoints exigen autorización en servidor. Telemetría permite descargar JSON con versión de esquema, fecha, límites, operaciones, ejecuciones, cola, auditoría, motivos de exclusión y métricas de uso; señala los conjuntos que alcanzan el límite de lectura.
 
 ## Autoservicio de newsletter
 
-La entrada principal es **Radar**. La fecha disponible de la próxima entrega aparece en cada suscripción. Cada usuario crea, edita, pausa o da de baja sus suscripciones, asociadas exclusivamente al correo obtenido en el servidor. Los criterios de recepción son independientes de los filtros de exploración: abrir Noticias o cambiar sus filtros no cambia una suscripción guardada. El administrador ve correos, criterios, periodicidad, estado y última entrega; puede crear altas manuales y modificar cualquier suscripción del dominio. Los endpoints administrativos deniegan lectores.
+La entrada principal es **Novedades**. La fecha disponible de la próxima entrega aparece en cada suscripción. Cada usuario crea, edita, pausa o da de baja sus suscripciones, asociadas exclusivamente al correo obtenido en el servidor. Los criterios de recepción son independientes de los filtros de exploración: abrir Noticias o cambiar sus filtros no cambia una suscripción guardada. El administrador ve correos, criterios, periodicidad, estado y última entrega; puede crear altas manuales y modificar cualquier suscripción del dominio. Los endpoints administrativos deniegan lectores.
 
-Valores iniciales: **mensual, BBVA, Empresas e instituciones, todas las geografías y todas las novedades del canal**. La periodicidad puede ser diaria, semanal o mensual. Los cierres diarios, semanales y mensuales determinan cuándo enviar; el contenido siempre comprende los últimos 7 días, incluido hoy, en la zona configurada. Una suscripción nueva empieza en el siguiente cierre posterior a su alta; las modificaciones se aplican al siguiente cierre posterior a la edición. No se envían newsletters vacías. «Probar» envía un correo al usuario conectado con los filtros de esa suscripción y los últimos 7 días, incluso si no contiene novedades. No adelanta ni consume la entrega periódica; registra un envío de prueba independiente y consume el presupuesto de correo.
+Valores iniciales: **mensual, Empresas e instituciones, Canal digital, todas las entidades y geografías**. La única selección temporal es la periodicidad: **semanal → Novedades**, **mensual → Noticias**, **anual → Radar**. Los envíos periódicos cubren la última semana completa (lunes a domingo), mes completo o año natural completo, en la zona configurada. Una suscripción nueva o editada empieza en el siguiente cierre posterior a su actualización. No se envían newsletters vacías. «Probar» envía al usuario conectado el contenido del período actual correspondiente a su periodicidad; no adelanta ni consume la entrega periódica, registra una prueba independiente y consume el presupuesto de correo.
 
-Nombre y periodicidad iniciales, entidad, segmento, geografía, límites y activación de entrega proceden de `Configuracion.settings`. El contenido se filtra por entidad o tipo —incluidos fintechs y neobancos—, segmento, geografía, tema, novedad, fuente y palabras clave. Los catálogos proceden de Sheets. «Fuente» admite tanto el medio editorial como el feed de seguimiento.
+La periodicidad inicial, los límites y la activación de entrega proceden de `Configuracion.settings`. El asunto se genera a partir de los filtros aplicados con el prefijo `[bIA]`. El contenido se filtra por entidad o tipo —incluidos fintechs y neobancos—, segmento, cobertura, geografía, novedad, fuente y palabras clave. Los catálogos proceden de Sheets. «Fuente» admite tanto el medio editorial como el feed de seguimiento.
 
-El envío usa **Gmail API**, ejecutada por el propietario, con **news-radar.group@bbva.com** como `From` y `Reply-To`. Como en Market Pulse, el grupo debe estar verificado en Gmail → Cuentas → Enviar como. Cada newsletter va exclusivamente a su destinatario; no se copia al grupo. El mensaje pertenece al buzón del propietario: un Google Group no tiene una carpeta Enviados propia. `NewsletterEnvios` registra cada período antes de enviar; el estado impide repetirlo si se vuelve a ejecutar el activador. Un envío con resultado incierto queda en «Revisar» y no se reintenta automáticamente; el administrador debe contrastarlo con los envíos reales. El límite configurable en una ventana de 24 horas (100 inicialmente) y el tamaño de lote limitan el trabajo; no son una lectura de la cuota real de Google. Los destinatarios pendientes continúan en otro lote. Un error de Gmail detiene el lote y su continuación inmediata. Gmail ID queda guardado cuando Gmail acepta el mensaje; no confirma recepción en la bandeja del destinatario. Los rechazos explícitos quedan como «No enviado» y permiten reintento; los bloqueos previos al envío quedan como «Bloqueada». Los estados inciertos también reservan presupuesto. La entrega queda **desactivada inicialmente**. La clasificación se calcula una vez por lote y las selecciones idénticas comparten resultados en memoria. El registro de entregas es persistente en Sheets. La columna `contenido` guarda las huellas de las noticias efectivamente incluidas. El control se comparte por correo entre todas sus suscripciones y periodicidades; usa URL canónica y texto normalizado. Solo se reserva lo incluido en el correo, antes de llamar a Gmail. Las pruebas quedan fuera; los rechazos confirmados liberan el contenido y los resultados inciertos lo mantienen reservado. Los envíos anteriores sin inventario no permiten reconstruir con certeza el contenido: Administración muestra esa limitación y deben contrastarse con los correos originales. No borrar ni recortar NewsletterEnvios: es la memoria permanente del control.
+El envío usa **Gmail API**, ejecutada por el propietario, con **news-radar.group@bbva.com** como `From` y `Reply-To`. Como en Market Pulse, el grupo debe estar verificado en Gmail → Cuentas → Enviar como. Cada newsletter va exclusivamente a su destinatario; no se copia al grupo. El mensaje pertenece al buzón del propietario: un Google Group no tiene una carpeta Enviados propia. `NewsletterEnvios` registra cada período antes de enviar; el estado impide repetirlo si se vuelve a ejecutar el activador. Un envío con resultado incierto queda en «Revisar» y no se reintenta automáticamente; el administrador debe contrastarlo con los envíos reales. El límite configurable en una ventana de 24 horas (100 inicialmente) y el tamaño de lote limitan el trabajo; no son una lectura de la cuota real de Google. Los destinatarios pendientes continúan en otro lote. Un error de Gmail detiene el lote y su continuación inmediata. Gmail ID queda guardado cuando Gmail acepta el mensaje; no confirma recepción en la bandeja del destinatario. Los rechazos explícitos quedan como «No enviado» y permiten reintento; los bloqueos previos al envío quedan como «Bloqueada». Los estados inciertos también reservan presupuesto. La entrega queda **desactivada inicialmente**. La clasificación se calcula una vez por lote y las selecciones idénticas comparten resultados en memoria. El registro de entregas es persistente en Sheets. La columna `contenido` guarda las huellas de las noticias efectivamente incluidas. La deduplicación del contenido semanal se comparte por correo; usa URL canónica y texto normalizado. Los resúmenes mensual y anual analizan todo su período, incluyendo noticias ya enviadas semanalmente, para preservar los KPIs. El identificador de entrega impide enviar dos veces el mismo cierre de una suscripción. Solo se reserva lo incluido en el correo, antes de llamar a Gmail. Las pruebas quedan fuera; los rechazos confirmados liberan el contenido y los resultados inciertos lo mantienen reservado. Los envíos anteriores sin inventario no permiten reconstruir con certeza el contenido: Administración muestra esa limitación y deben contrastarse con los correos originales. No borrar ni recortar NewsletterEnvios: es la memoria permanente del control.
 
 Los newsletters incluyen titulares, extractos, entidades, segmentos, señales y enlaces originales, tanto en HTML como en texto UTF-8. El asunto comienza siempre por `[bIA] News Radar : `. El pie incluye la marca bIA con una imagen PNG inline, «Ir a Newsradar» y enlaces separados para gestionar y dar de baja la suscripción. La URL publicada se obtiene de `newsletterAppUrl` o del despliegue activo de Apps Script. El enlace de baja abre Newsletter y requiere confirmar con la cuenta propietaria de la suscripción; una apertura GET no elimina registros. Los estilos de correo se generan desde los mismos tokens y se incrustan en cada elemento. El límite de novedades es configurable y se indica si se supera. La cobertura depende del histórico capturado; no se inventan productos o condiciones.
 
@@ -119,13 +119,33 @@ Cada ciclo conserva su período y progreso en Recargas. Las solicitudes se regis
 
 En local, la acción muestra cuántas noticias de la instantánea corresponden al período. No consulta fuentes remotas ni simula noticias nuevas. No requiere permisos nuevos.
 
+## Taxonomía dinámica de canales digitales
+
+Administración > Taxonomía muestra palancas, subpalancas, segmentos, términos, origen y noticias que sustentan cada categoría, con búsqueda y paginación. El administrador puede actualizarla manualmente y consultar una sola barra de progreso. Ejecutar `initializeConfiguration` tras desplegar 1.13.0 crea las hojas Taxonomia y TaxonomiaTrabajo, añade la columna taxonomia a Noticias y programa el job diario en la hora de recuperación configurada, cerca del minuto 45. No requiere permisos nuevos.
+
+El trabajador compartido mantiene el bloqueo de script y da prioridad absoluta a los lotes de recuperación diaria disponibles. Los demás procesos se alternan; la taxonomía también cede cuando hay lotes anuales de recuperación listos. Trabaja en lotes de hasta 100 noticias y 10 segundos dentro del presupuesto común. La petición diaria persiste aunque el trabajador esté ocupado; los errores conservan el cursor y aplican la espera de reintento configurada. Un cambio del contenido o las reglas durante el job reinicia su análisis para evitar mezclar corpus y posiciones de filas.
+
+El análisis recorre todas las noticias almacenadas, sin limitarse a la ventana del dashboard. Las capacidades habilitadas de Empresas y Retail y las reglas de API, IA, banca online y experiencia móvil definen las categorías iniciales. Se excluyen noticias corporativas negativas y contenido editorial según las reglas digitales existentes. Las expresiones de dos palabras con vocabulario digital generan subpalancas al aparecer en al menos dos noticias; se omiten palabras vacías y nombres de entidades. Se conservan hasta tres subpalancas emergentes por palanca, con un vocabulario acotado que prioriza las expresiones de las noticias más recientes y estadísticas dispersas en Sheets, sin guardar una matriz de documentos en RAM.
+
+La puntuación utiliza TF sublineal `1 + log(frecuencia)` e IDF suavizado `log((1 + documentos)/(1 + documentos_con_término)) + 1`, conforme a la [definición de TF-IDF documentada por scikit-learn](https://scikit-learn.org/stable/modules/feature_extraction.html#tfidf-term-weighting). No instala scikit-learn ni utiliza APIs externas. La ordenación de candidatos usa el TF-IDF medio del corpus; las reglas agrupan las palancas. Es una clasificación por evidencia textual: las expresiones emergentes reproducen el contenido de las noticias y no cuentan con revisión editorial manual.
+
+Los identificadores dependen de la palanca y subpalanca, no de sus frecuencias o pesos. El job compara el modelo semántico y la huella del texto; solo escribe etiquetas diferentes. Una ejecución idéntica no reescribe noticias ni el catálogo. Las noticias nuevas reciben etiquetas de la taxonomía vigente al incorporarse. Noticias, Novedades, exportación CSV y newsletters comparten los filtros de Palanca y Subpalanca y los nombres de las etiquetas. Una subpalanca que desaparece deja de ofrecerse como filtro; las suscripciones existentes no amplían su alcance automáticamente.
+
+El área de progreso de recuperación muestra una sola línea por tipología, con el ciclo activo o más reciente. La tabla de Ejecuciones conserva el histórico completo.
+
+Al finalizar el análisis y etiquetado se encola la traducción de los nombres a español, inglés y turco. Administración > Idiomas muestra su progreso y permite traducir pendientes o reanudar un proceso en pausa. Cada nombre se guarda por contenido e idioma: los nombres compartidos se traducen una sola vez, las traducciones vigentes se reutilizan y se retiran las que ya no pertenecen al catálogo. Los nombres del catálogo estático aprovechan el diccionario incluido; los nombres dinámicos utilizan LanguageApp con detección automática del idioma de origen. Las pantallas y newsletters leen únicamente traducciones guardadas y mantienen los valores canónicos de los filtros y los IDs de las etiquetas.
+
+La traducción de taxonomía utiliza el mismo trabajador y bloqueo que los otros jobs, con lotes de hasta 20 llamadas y 10 segundos. Cede a cualquier recuperación preparada y se detiene entre llamadas si llega una petición diaria. Comparte el presupuesto de 3.000 llamadas diarias con la traducción de noticias y reanuda tras errores sin repetir resultados guardados. Tras desplegar **1.14.0**, ejecutar `initializeConfiguration` para crear **TaxonomiaTraducciones**; no añade permisos ni un cron independiente.
+
 ## Fuentes y recopilación automática
+
+Administración > Fuentes organiza el catálogo en las pestañas Todas, Google News RSS y RSS del editor. Comparten búsqueda, filtros y paginación; las activaciones se conservan entre pestañas y se guardan para todo el catálogo. La edición y alta de feeds está en RSS del editor y conserva los cambios al cambiar de pestaña. La agrupación se calcula al cargar la configuración, sin consultas adicionales al navegar.
 
 La configuración inicial genera 50 fuentes: dos RSS oficiales de BBVA y 48 búsquedas de Google News por entidad y país. Los alias se combinan en una consulta para evitar feeds redundantes. El número cambia al editar catálogos. Todas las URLs RSS son configurables; las búsquedas utilizan nombres, alias, países, idioma y términos de sector guardados en Sheets. No requieren claves API.
 
 Desactivar una entidad, un país o una fuente evita consultas futuras sin eliminar el histórico. Las noticias de Google News mantienen el enlace agregado y el medio que declara el feed; no se atribuyen URLs canónicas ficticias. Las opciones de entidad y país incluyen el catálogo activo aunque todavía no haya noticias. Búsqueda sin acentos, fechas inclusivas, invalidación de respuestas antiguas y paginación se comparten con la vista local.
 
-Las publicaciones se incorporan directamente a Noticias con fecha, medio, entidad, geografía, tema y enlace, sin intervención manual. Los enlaces de Google News se mantienen como enlaces agregados, no se presentan como URLs canónicas de editores. La clasificación temática, el límite temporal y la deduplicación por URL se aplican al recibir el RSS. El cuadro de mando incluye las noticias disponibles sin intervención manual. El filtrado de entidad, geografía, medio y fechas precede a la clasificación temática. Los resultados del dashboard se reutilizan durante 60 segundos si caben en 90 KB UTF-8, con claves por selección, configuración y revisión de noticias; una captura o edición manual invalida la revisión. Los datos administrativos se consultan fuera de esa caché. Las operaciones `dashboard` registran RPC, servidor, noticias, render y acierto de caché mediante el envío periódico de eventos existente.
+Las publicaciones se incorporan directamente a Noticias con fecha, medio, entidad, geografía y enlace, sin intervención manual. Los enlaces de Google News se mantienen como enlaces agregados, no se presentan como URLs canónicas de editores. La clasificación de cobertura digital, el límite temporal y la deduplicación por URL se aplican al recibir el RSS. El cuadro de mando incluye las noticias disponibles sin intervención manual. El filtrado de entidad, geografía, medio y fechas precede a los cálculos de la taxonomía. Los resultados del dashboard se reutilizan durante 300 segundos si caben en 90 KB UTF-8, con claves por selección, configuración y revisión de noticias; una captura o edición manual invalida la revisión. Los datos administrativos se consultan fuera de esa caché. Las operaciones `dashboard` registran RPC, servidor, noticias, render y acierto de caché mediante el envío periódico de eventos existente.
 
 La captura diaria usa la hora y zona configuradas (inicialmente 07:00 Europe/Madrid). Consulta el tamaño de lote configurado (inicialmente tres fuentes por minuto) mediante una cola persistente. HTTP 429/503 se reintenta hasta tres veces con el intervalo configurado (inicialmente diez minutos); si fallan varias fuentes, se aplica la pausa configurada (inicialmente cinco minutos). Las fuentes desactivadas durante un ciclo se omiten. Un ciclo en curso se conserva al iniciar otro; su estado y sus errores son visibles al administrador. La disponibilidad y cobertura de Google News pueden variar.
 
@@ -267,3 +287,165 @@ Las pruebas exigen entradas completas para los textos estáticos, las frases del
 ## Navegación inicial · 1.9.4
 
 El orden es Novedades, Noticias, Radar, Newsletter y Administración. Novedades se abre por defecto y la consulta inicial solicita únicamente esa vista. Administración permanece visible solo para administradores. El orden y la vista inicial del cliente se obtienen del catálogo de navegación compartido.
+
+## Lectura coherente e inteligencia de taxonomía · 1.15.0
+
+Los nuevos correos enlazan su edición privada: Novedades y Noticias mantienen exactamente las noticias enviadas, las etiquetas y el período, aunque luego cambien las preferencias, la taxonomía o el inventario de Noticias. Los filtros refinan esa edición; Volver a la actualidad, limpiar filtros o quitar el período abandona su contexto. El botón no modifica las suscripciones. La misma agrupación BBVA primero y resto por cantidad de novedades se aplica al correo y a Novedades.
+
+La entrada directa comienza por la primera suscripción activa, en orden de creación. Sin suscripciones activas se conservan los valores predeterminados. Cambiar temporalmente los filtros no cambia preferencias ni los correos recibidos.
+
+Radar muestra un mapa de calor interactivo por entidad o geografía, palanca o subpalanca, con números absolutos o porcentaje de noticias del grupo. Cada celda abre Noticias con la selección y fechas conservadas; el mapa informa también de las noticias sin catalogar. Agrupación, medida y paginación se resuelven en el cliente, sin nuevas consultas. La escala usa los tokens comunes y el DOM se mantiene acotado.
+
+Tras desplegar, ejecutar `initializeConfiguration` para crear **NewsletterEdiciones** y **NewsletterContenido**. Los enlaces genéricos de correos enviados antes de esta versión no identifican una edición; la continuidad archivada se aplica a los nuevos envíos. Véase [el análisis de telemetría y validación](docs/telemetry-1.15.0.md).
+
+## Novedades y newsletter por defecto · 1.15.1
+
+Novedades abre con **Empresas e instituciones** y **últimos 7 días**, incluido el día actual, sin limitar entidad, geografía, tema ni cobertura. Canal digital permanece como filtro opcional. Las nuevas newsletters y la prueba del administrador utilizan el mismo segmento y ventana temporal. Las preferencias guardadas explícitamente, las suscripciones editadas y las ediciones históricas conservan su selección.
+
+Se elimina la elección implícita de la última suscripción activa, que podía restringir Novedades sin intervención del usuario. Esta corrección no cambia las preferencias de recepción ya guardadas. Publicar `dist/` aplica el cambio; no requiere nuevas hojas ni activadores. El diagnóstico de la exportación del 12/10/2026 a las 13:49 UTC está en [el informe de telemetría](docs/telemetry-1.15.1.md).
+
+## Entrada directa por primera newsletter · 1.15.2
+
+Al abrir la aplicación directamente, Novedades utiliza los filtros de la primera newsletter activa del usuario, según el orden de alta, y los últimos siete días. Editar una newsletter no modifica ese orden. Sin newsletters activas se aplican Empresas e instituciones y los últimos siete días. La elección manual de otra newsletter se conserva durante la navegación de la sesión; una nueva entrada directa comienza de nuevo por la primera. Abrir desde un correo conserva la edición enviada y su periodo histórico.
+
+La resolución reutiliza la caché privada de suscripciones y evita ordenar por fecha de edición o leer preferencias guardadas en la entrada directa. Publicar `dist/` aplica el cambio, sin nuevas hojas ni activadores.
+
+## Segmento empresarial sin tema duplicado · 1.15.3
+
+La selección empresarial de una newsletter utiliza Segmento: Empresas e instituciones sin añadir Tema: Empresas y pymes. La regla se comparte al leer y guardar suscripciones, por lo que Novedades deja de heredar ese tema redundante al abrir con la primera newsletter. Se conserva la última semana y los demás criterios configurados. No se eliminan otros temas específicos ni se modifica el contenido o los filtros de ediciones ya enviadas.
+
+La normalización no reescribe las suscripciones existentes ni reclasifica noticias; no añade consultas ni jobs. Publicar `dist/` aplica la corrección sin cambios de esquema.
+
+## Noticias únicas en vistas y mapa de calor · 1.15.4
+
+Noticias, Novedades, Radar, mapa de calor, CSV y nuevas newsletters cuentan una sola vez las noticias repetidas. La selección deduplica antes de paginar y agregar, por URL canónica o titular largo normalizado de la misma entidad y país en una ventana de dos días. Se unifican alias de entidad, espacios, acentos y puntuación, y se retira el sufijo del editor si está identificado en el registro. No se utilizan comparaciones difusas ni traducciones para decidir equivalencia. Se conservan cifras distintas, otros países y repeticiones distantes.
+
+La misma identidad se utiliza al recuperar noticias, con un índice por día de coste acotado. Si existen varias copias se conserva un representante determinista, priorizando extracto completo y enlace directo. El filtro de fuente se aplica antes de deduplicar, de modo que se puede consultar cada medio. Los registros originales y los envíos archivados no se borran; las vistas dejan de sumar copias ya guardadas tras publicar `dist/`. No se añade ningún job ni se requiere limpiar Sheets.
+
+Validación de 1.15.4: 244 pruebas superadas y cobertura de líneas 96,52 %. La regresión con ocho copias del titular de Santander verifica una noticia y una contribución por categoría en el mapa, además de CSV, newsletter y consulta de fuentes individuales.
+
+## Períodos por vista y newsletter · 1.16.0
+
+Novedades comienza en los últimos siete días; la primera newsletter activa puede elegir ese período, el mes o el año en curso. Noticias comienza en el mes en curso y Radar en el año en curso, también con una selección personalizada. Los filtros editados y las ediciones históricas conservan sus fechas. Los rangos se calculan en la zona de negocio y se comparten entre consultas y envíos.
+
+El asunto se genera exclusivamente con los filtros aplicados y el prefijo `[bIA]`, en el idioma de la newsletter. El formulario permite configurar período, idioma, periodicidad y filtros, sin campo de nombre o asunto. Se elimina la configuración obsoleta de nombre inicial. El contexto de una edición enviada mantiene el período y la opción de volver a la actualidad. En móvil viaja con los filtros al diálogo existente.
+
+Los envíos preparan una única vez el corpus del intervalo necesario para las suscripciones pendientes, reutilizan las selecciones iguales y mantienen la prioridad de recuperación diaria y el control de duplicados.
+
+Validación de 1.16.0: 251 pruebas superadas, cobertura de líneas del 96,55 %, comprobaciones de sintaxis y distribución reproducible. Chrome verifica rangos por vista, asuntos derivados de filtros, selector lateral y diálogo móvil sin desbordamiento.
+
+## Novedades por geografía y newsletter editorial · 1.17.0
+
+Novedades presenta una pestaña por geografía con resultados y conserva la selección mientras siga disponible. Las pestañas cambian tarjetas, recuentos y señales en memoria, sin RPC. Los filtros efectivos se aplican antes de agrupar y deduplicar. El límite del briefing se aplica por geografía en esta vista para que un mercado mayoritario no oculte otros; los indicadores muestran la población completa de la geografía y avisan cuando las tarjetas están limitadas. Seleccionar una señal aplica también la geografía activa. Las pestañas admiten flechas, Inicio y Fin y anuncian el panel seleccionado.
+
+La newsletter mantiene su límite total y muestra KPIs calculados exclusivamente sobre las noticias incluidas en el correo. Su maquetación incorpora cabecera con período, tarjetas de indicadores, resumen de geografías y capítulos por geografía, entidad y combinación de segmentos. Cada noticia aparece una vez, incluso con varios segmentos. BBVA encabeza cada geografía y las demás entidades se ordenan por volumen y nombre. Las palancas y subpalancas se muestran en las noticias. El correo conserva los enlaces a su edición, gestión y baja, y dispone de texto plano con la misma estructura.
+
+Los cálculos y agrupaciones se comparten entre Apps Script y cliente. El CSS utiliza los tokens existentes; tarjetas, tablas, etiquetas y jerarquías llevan estilos inline para correo. No se añaden jobs ni consultas al cambiar de pestaña.
+
+Validación de 1.17.0: 257 pruebas superadas, cobertura de líneas del 96,48 %, sintaxis y distribución reproducible verificadas. Chrome valida pestañas y teclado, indicadores por mercado y maquetación de newsletter en escritorio y móvil sin desbordamiento. Vista previa local en `output/newsletter-preview.html` y `output/newsletter-preview.png`, con contenido de la instantánea RSS.
+
+
+## Newsletter por periodicidad y Noticias por geografía · 1.18.0
+
+Se elimina Período del contenido. Periodicidad determina conjuntamente el ámbito y las fechas: semanal presenta Novedades, mensual presenta Noticias y anual presenta Radar. El asunto `[bIA]` continúa generándose con los filtros y fechas de la selección, sin campo editable. Los cierres reales usan períodos completos; las pruebas usan el período actual.
+
+Las newsletters semanal y mensual muestran una noticia por geografía, elegida de la palanca con más noticias en ese país y período. Cada noticia cuenta una vez por palanca, sumando entidades y subpalancas. Los empates de palanca se resuelven alfabéticamente y el destacado es el más reciente; a igual fecha se prioriza BBVA, después el nombre de entidad y el ID. Si no hay taxonomía se muestra Sin clasificar. Los KPI y la edición guardada conservan toda la evidencia; el registro de entrega identifica los destacados comunicados. «Ver más · N noticias» abre la selección de ese país en Novedades o Noticias, según la periodicidad, conservando edición y período y sin restringirla a la entidad destacada.
+
+La anual presenta cobertura, entidad con mayor presencia, evolución trimestral y hasta cinco categorías dominantes por entidad/geografía, con enlaces a Radar que conservan la entidad, geografía y edición. HTML y texto plano se generan en español, inglés y turco a partir del mismo modelo. Los resúmenes analíticos incluyen noticias de sus períodos ya enviadas semanalmente, para evitar sesgos en sus KPIs.
+
+Noticias incorpora pestañas solo para geografías con resultados, contadores y paginación independiente. La consulta mantiene los filtros comunes y envía solo una página; exportar descarga la geografía activa. Comparte el componente accesible de pestañas con Novedades, incluyendo teclado y foco.
+
+Para actualizar, copiar `dist/`, ejecutar `initializeConfiguration` y publicar la WebApp. La inicialización elimina claves ajenas a los filtros de suscripciones y normaliza periodicidades fuera del catálogo a semanal; mantiene fechas de actualización y ediciones archivadas. La recuperación diaria continúa siendo prioritaria antes de preparar el corpus y entre destinatarios.
+
+Los enlaces al contenido de la newsletter incluyen su edición y ámbito: semanal abre Novedades, mensual abre Noticias y anual abre Radar. Los enlaces por entidad/geografía conservan ese ámbito y añaden sus filtros al período archivado. Navegar entre vistas mantiene la edición; «Ver actualidad» abandona el archivo y recupera las fechas actuales de la vista.
+
+Validación de 1.18.0: 268 pruebas superadas; cobertura de líneas 96,81 %. Verificadas sintaxis, diseño y distribución reproducible. Chrome comprueba las tres plantillas en escritorio y móvil sin desbordamiento, pestañas y teclado, y el destino de los enlaces. Las vistas previas de `output/newsletter-monthly.html` y `output/newsletter-yearly.html` utilizan datos de demostración.
+
+## 1.19.0 — Cobertura inicial y geografías
+
+Novedades, Noticias, Radar y las nuevas newsletters comparten los valores iniciales Empresas e instituciones y Canal digital. Cobertura se puede cambiar a Generalista o Todos; guardar, editar y consultar una newsletter conserva esa elección explícita. El asunto generado incluye la cobertura aplicada.
+
+Las pestañas de Novedades y Noticias se ordenan alfabéticamente y muestran Transversal al final. El correo utiliza el mismo orden y nombre. La clave de datos «Sin determinar» se conserva en las selecciones y enlaces para mantener el contexto de las ediciones enviadas.
+
+Tras copiar `dist/`, ejecutar `initializeConfiguration` y publicar la WebApp. La inicialización incorpora Canal digital a las suscripciones sin cobertura definida y conserva las selecciones explícitas, sin modificar ediciones archivadas.
+
+Validación: 273 pruebas superadas; cobertura de líneas 96,82 %. Sintaxis y distribución reproducible verificadas. Chrome comprueba los valores iniciales de las tres vistas, la cobertura editable en Radar, la persistencia de Todos en newsletters y la maquetación móvil sin desbordamiento.
+
+## 1.20.0 — Identidad visual y Radar móvil
+
+Las tarjetas de Noticias y Novedades muestran un logo de entidad y una bandera discretos en la esquina superior derecha. Pestañas geográficas, ranking y mapa de calor, suscripciones y fuentes comparten la misma identidad. Las newsletters utilizan los mismos recursos en tarjetas y encabezados geográficos y de entidad. Transversal conserva su nombre y no recibe una bandera; una entidad añadida sin logo utiliza un monograma accesible.
+
+Los 38 logos y las 7 banderas actuales están en `assets/identity/`, con procedencia en `manifest.json`. El catálogo completo pesa 62.754 bytes en PNG. El build incorpora recursos y dimensiones al cliente y a Apps Script; no hay consultas externas para mostrarlos. Un único renderizador y los tokens de identidad fijan tamaños y proporciones. Las imágenes del cliente usan carga diferida; cada correo integra una sola copia de cada recurso utilizado mediante CID, además de bIA.
+
+Radar utiliza columnas que pueden reducirse al ancho disponible. En móvil, el mapa de calor presenta grupos y categorías verticalmente, conservando recuentos, porcentajes, paginación y enlaces a la evidencia. Los nombres largos se ajustan dentro de sus tarjetas y rankings. Las cabeceras geográficas y los trimestres del correo también caben en pantallas estrechas.
+
+Para publicar, copiar todos los archivos de `dist/` a Apps Script, incluidos `IdentityAssets.gs` y `VisualIdentity.gs`, y actualizar el despliegue de la WebApp. No requiere permisos, activadores ni cambios de datos adicionales.
+
+Validación de 1.20.0: 276 pruebas superadas; cobertura de líneas 96,83 %. Sintaxis, diseño y distribución reproducible verificados. Chrome comprueba Radar entre 320 y 1.440 píxeles con diez categorías y nombres largos, el mapa de calor vertical, tarjetas móviles y las tres newsletters entre 320 y 800 píxeles, sin desbordamiento. El contenido y las capturas de `output/identity-newsletter-*.html` y `output/radar-identity-mobile.png` son datos de demostración. Las pruebas de MIME verifican que todos los CID tienen exactamente un adjunto, sin envíos de correo reales.
+
+## 1.21.0 — Noticias por entidad y prioridad visual del Radar
+
+Noticias mantiene las pestañas por país y presenta las entidades en bloques identificados por su nombre y logo. BBVA aparece primero; el resto se ordena por número de noticias de la selección y, en caso de empate, alfabéticamente. Dentro de cada entidad las fechas van de más reciente a más antigua. El orden se calcula antes de paginar, compartiendo el criterio con Novedades. Transversal conserva la última posición.
+
+El mapa de calor de canales digitales ocupa la primera sección después de los KPI, antes de Presencia geográfica. Se evita construir tarjetas de Noticias ocultas en otras vistas y se reutiliza el estado de programación diaria con invalidación inmediata desde los controles de administración. El trabajador compartido conserva sus consultas directas y la prioridad de recuperación diaria.
+
+El [análisis de telemetría](docs/telemetry-1.21.0.md) documenta la línea base, los cambios y los límites de la muestra. La mejora de latencia real deberá contrastarse con nueva telemetría tras publicar.
+
+Validación de 1.21.0: 282 pruebas superadas; cobertura de líneas 96,86 %. Chrome verifica el orden visual del Radar y ausencia de desplazamiento horizontal entre 320 y 1.440 píxeles. Distribución reproducible y controles de sintaxis y diseño verificados. Versión preparada para publicación.
+
+
+## 1.22.0 — Newsletters de lectura breve
+
+Novedades y Noticias incluyen como máximo una tarjeta por país, representativa de la palanca más frecuente en la selección. El diseño elimina el índice repetido y los bloques por entidad; muestra la palanca, el titular, identidad visual, extracto de hasta 240 caracteres y un botón «Ver más» con el volumen restante. Las geografías con un único artículo no generan un enlace sobrante. Los KPI siguen midiendo toda la evidencia, que se guarda para mantener el contexto de lectura de la edición.
+
+El ranking se calcula una vez y la selección y el recorte del extracto están centralizados para HTML y texto plano. Las categorías acumulan contadores y un único representante en lugar de listas repetidas de artículos. La newsletter anual conserva el resumen de Radar.
+
+Validación de 1.22.0: 285 pruebas superadas; cobertura de líneas 96,87 %. Chrome verifica una tarjeta por geografía en las dos newsletters, el diseño de las tres periodicidades entre 320 y 800 píxeles y ausencia de desplazamiento horizontal en Radar entre 320 y 1.440 píxeles. Vista de demostración en `output/identity-newsletter-news.html` y captura del bloque en `output/newsletter-compact-country.png`. Sin envíos reales ni publicación del despliegue.
+
+
+## 1.22.1 — Bloques de entidad en Noticias
+
+Noticias presenta cada entidad en una sección identificada por su nombre y logo. Dentro del país activo, BBVA aparece primero y el resto de entidades sigue el orden alfabético, sin usar el número de noticias como prioridad. Cada grupo conserva las fechas descendentes y la paginación se aplica después del agrupado. Novedades mantiene su criterio de volumen previamente configurado; los dos comparadores comparten la prioridad de BBVA y el desempate alfabético.
+
+La telemetría `news-radar-telemetria (2).json`, exportada el 12 de octubre, corresponde a 1.22.0 e incluye siete cargas de esa versión. La mediana de RPC es de 6.325 ms, servidor 2.078 ms y renderizado 13 ms. Ninguno de esos dashboards reutiliza la caché de contenido. Los tiempos no permiten deducir el orden de los titulares ni atribuir un error de presentación al transporte. El cambio corrige el criterio por volumen que seguía vigente y hace explícitos los bloques en el DOM. La nueva versión renueva las claves de caché existentes.
+
+Validación de 1.22.1: 286 pruebas superadas y cobertura de líneas del 96,87 %. Se comprueban entidades con volúmenes diferentes, fechas mezcladas, continuidad de paginación y bloques visibles. Chrome verifica BBVA → Qonto → Santander con más noticias de Santander, el agrupado móvil y ausencia de desbordamiento horizontal. Sintaxis, diseño y distribución reproducible comprobados.
+
+
+## Lectura clara y filtros relacionados · 2.0.0
+
+Novedades muestra en la cabecera el total de todas las geografías. Noticias y Novedades comparten tarjetas con titular y logo primero, extracto y metadatos antes de Consultar. Los filtros activos no se repiten en las etiquetas y el original se ofrece únicamente si es diferente. El encabezado de entidad en Noticias es compacto, con espaciado, borde y fondo coherentes con las tarjetas.
+
+Palanca y Subpalanca se presentan por separado. Los combos se limitan mutuamente en las tres vistas y en newsletters; las subpalancas no muestran prefijos de palanca. Se incluyen logos locales de los principales medios disponibles. Radar recupera su ámbito anual cuando no hay fechas explícitas y contextualiza el recuento de publicaciones con la evidencia disponible.
+
+El [análisis de telemetría y alcance](docs/telemetry-2.0.0.md) documenta los datos, la recuperación anual parcial y la ampliación de la caché de contenido con invalidación por revisiones.
+
+## Capacidades y taxonomía sin catálogo de temas · 2.0.0
+
+Se elimina Tema de la configuración de negocio, filtros, tarjetas, newsletters, asuntos, exportación y esquema de Noticias. La cobertura generalista comprende las noticias válidas de las entidades de seguimiento; Canal digital conserva la exigencia de capacidades activas y contexto de canal. No se descartan publicaciones por no coincidir con un tema. La taxonomía ya utilizaba contenido, capacidades y reglas propias: se mantiene el cálculo TF-IDF y la estabilidad de sus etiquetas.
+
+Para actualizar, copiar `dist/`, ejecutar `initializeConfiguration` antes de publicar la WebApp. La inicialización elimina físicamente la antigua columna tema y el catálogo topics, conserva URLs, idiomas, clasificación, taxonomía y demás preferencias y limpia los filtros de las suscripciones. Las ediciones enviadas conservan su corpus y su período; su contexto solo utiliza los filtros vigentes. La traducción localiza la columna de captura mediante el esquema central.
+
+Validación: 297 pruebas superadas, cobertura de líneas 96,89 %, comprobación móvil en Chrome y distribución reproducible. No se ha publicado ni enviado correo real.
+
+## Panel lateral de Administración y Newsletter · 2.1.0
+
+Las nueve secciones de Administración pasan al lateral izquierdo y se elimina la segunda columna de navegación del área de trabajo. Buscar, Estado, Periodicidad y Limpiar filtros de Mis suscripciones se sitúan en ese mismo lateral al abrir Newsletter. En móvil, Menú y Filtros abren un panel vertical accesible; elegir una herramienta cierra el panel y muestra su contenido. Se mueven los controles existentes al cambiar de tamaño, sin clones, sin reiniciar selecciones y sin consultas adicionales por redimensionamiento.
+
+Validación: 297 pruebas superadas; sintaxis, diseño y permisos comprobados. Para publicar, copiar la distribución actualizada y publicar la WebApp. Esta versión modifica la interfaz y conserva el esquema de datos de 2.0.0.
+
+Chrome verifica el panel vertical y la navegación entre 320 y 1440 px, la conservación de Buscar y Estado al redimensionar, una sola instancia de cada control y ausencia de desbordamiento horizontal. La cabecera y la navegación inferior se adaptan también a 320 px con Administración habilitada.
+
+## Diagnóstico de una publicación incompleta · 2.1.0
+
+`dailyScheduleStatus_ is not defined` identifica la ausencia del código de `dist/Background.gs` en la ejecución; `newsEntityPage is not defined` identifica la ausencia de su definición en `dist/NewsGroups.gs`. Ambas funciones están en la distribución 2.1.0 generada. Una instalación de archivos incompletos o desactualizados puede provocar estos fallos sin cambiar permisos: el dashboard no entrega su respuesta y la interfaz no recibe `admin`, por lo que Administración queda oculta. Las pruebas reproducen los errores al omitir esos módulos y verifican que la distribución completa responde a las tres vistas con el rol correcto.
+
+Sustituir todos los archivos por `dist/`, incluidos los módulos nuevos, y publicar una Nueva versión de la implementación existente; guardar archivos no actualiza una implementación que sigue apuntando a una versión anterior. Si después de recuperar la carga aún falta Administración, comprobar que OWNER_EMAIL coincide con la cuenta corporativa activa. Este diagnóstico no cambia la lógica de autorización ni necesita una nueva release de código.
+
+## Suscripciones únicas y filtros simplificados · 2.2.0
+
+No se permite guardar dos suscripciones con el mismo destinatario, periodicidad, idioma y filtros efectivos, ni siquiera pausadas. La comprobación central se aplica a altas y ediciones personales o administrativas, dentro del bloqueo de escritura. Editar la misma suscripción sigue permitido; los filtros vacíos y el orden de sus claves no generan selecciones distintas. La búsqueda se normaliza igual que al consultar noticias. No se borran suscripciones existentes automáticamente.
+
+Se retira el selector «Mi selección» y su texto duplicado de Novedades, Noticias y Radar. La entrada directa sigue usando la primera newsletter activa. «Más filtros» aparece exclusivamente en Noticias; en Novedades y Radar los criterios avanzados heredados siguen activos y aparecen como etiquetas con ×. Las ediciones privadas mantienen su contenido, período y botón para volver a la actualidad.
+
+Se eliminan el endpoint de preferencias, su esquema y el catálogo personal del dashboard. La primera suscripción se cachea por usuario y revisión, solo se resuelve al inicializar una vista y no calcula asuntos traducidos. Véase [el análisis de telemetría](docs/telemetry-2.2.0.md). Publicar todos los archivos de `dist/` en una nueva versión aplica el cambio.
