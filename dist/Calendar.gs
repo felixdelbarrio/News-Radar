@@ -20,8 +20,8 @@ function newsRange_(range='week',now=new Date()){
   throw Error('Período de contenido no válido.');
 }
 function personalDashboardQuery_(subscription,view,now=new Date()){
-  const {range,...filters}=subscription.filtros;
-  return {...filters,...newsRange_(view==='briefing'?range||'week':view==='news'?'month':'year',now),view,initial:false};
+  const filters=subscriptionFilters_(subscription.filtros);
+  return {...filters,...newsRange_(view==='briefing'?'week':view==='news'?'month':'year',now),view,initial:false};
 }
 function dashboardQuery_(query={},now=new Date()){
   const {view,initial,...filters}=query;delete filters.language;delete filters.edition;delete filters.preference;delete filters.savePreference;

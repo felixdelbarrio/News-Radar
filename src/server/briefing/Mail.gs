@@ -59,8 +59,8 @@ function newsletterTest_(session,subscription){
     const now=new Date();if(!newsletterBudget_(rows_('NewsletterEnvios'),now))throw Error('Se ha alcanzado el límite configurado de newsletters en 24 horas.');
     const sender=newsletterSender_(),defaults=subscription?{filters:subscription.filtros}:subscriptionDefaults_();
     const edition=Utilities.getUuid(),delivery='prueba:'+Utilities.getUuid();
-    const query=subscriptionQuery_(subscription||{filtros:defaults.filters},now),title=newsletterSubject_(query,subscription?.idioma||'es'),content=newsletter_(rows_('Noticias',settings_().newsReadLimit),query,title,now,subscription?.id,subscription?.idioma||'es',edition);
-    saveNewsletterEdition_(edition,delivery,session.email,title,query,subscription?.idioma||'es',content.items);
+    const query=subscriptionQuery_(subscription||{filtros:defaults.filters,periodicidad:defaults.periodicity},now),title=newsletterSubject_(query,subscription?.idioma||'es'),content=newsletter_(rows_('Noticias',settings_().newsReadLimit),query,title,now,subscription?.id,subscription?.idioma||'es',edition);
+    saveNewsletterEdition_(edition,delivery,session.email,title,query,subscription?.idioma||'es',content.evidence);
     append_('NewsletterEnvios',[[delivery,'',session.email,query.from,query.to,'Enviando',now.toISOString(),subscription?'Prueba de suscripción':'Prueba del administrador']]);
     claimed=true;
     const sheet=book_().getSheetByName('NewsletterEnvios'),id=completeNewsletterDelivery_(sheet,sheet.getLastRow(),sender,session.email,content,true);

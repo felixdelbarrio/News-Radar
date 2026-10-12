@@ -1,3 +1,4 @@
+import {createGeographyTabs} from './geography-tabs.js';
 import {noveltyGroups,noveltyCount} from '../../shared/novelty-groups.js';
 import {articleTranslationNote,articleOriginal} from './article-text.js';
 import {formatCalendarDay} from '../../shared/locales.js';
@@ -5,18 +6,10 @@ import {language,t} from '../core/language.js';
 import { $, escape, validUrl, newsPublisher, newsCoverage, newsTaxonomy } from '../core/dom.js';
 export function createBriefing(){
   let briefing,groups=[],active='';
-  const tabs=$('briefing-geographies');
-  function select(name,focus=false){active=name;paint();if(focus)tabs.querySelector('[aria-selected="true"]').focus();}
-  tabs.addEventListener('click',event=>{const button=event.target.closest('[data-geography]');if(button)select(button.dataset.geography,true);});
-  tabs.addEventListener('keydown',event=>{
-    const keys=['ArrowLeft','ArrowRight','Home','End'];if(!keys.includes(event.key)||!event.target.closest('[role="tab"]'))return;
-    event.preventDefault();const index=groups.findIndex(row=>row.name===active),next=event.key==='Home'?0:event.key==='End'?groups.length-1:(index+(event.key==='ArrowRight'?1:-1)+groups.length)%groups.length;select(groups[next].name,true);
-  });
+  const tabs=createGeographyTabs('briefing-geographies','briefing-list',name=>{active=name;paint();});
   function paint(){
     const group=groups.find(row=>row.name===active),stats=group||briefing;
-    tabs.hidden=!groups.length;
-    tabs.innerHTML=groups.map((row,index)=>`<button type="button" class="button" role="tab" id="briefing-geography-${index}" aria-controls="briefing-list" aria-selected="${row.name===active}" tabindex="${row.name===active?0:-1}" data-geography="${escape(row.name)}">${escape(t(row.name))}<span class="geography-count">${row.total}</span></button>`).join('');
-    const panel=$('briefing-list');if(group)panel.setAttribute('aria-labelledby','briefing-geography-'+groups.indexOf(group));else panel.removeAttribute('aria-labelledby');
+    tabs.render(groups,active);
     $('briefing-geography-summary').textContent=group?t('{geography} · {updates} · {entities}',{geography:t(group.name),updates:noveltyCount(stats.total,'novedad','novedades',t),entities:noveltyCount(group.entityCount,'entidad','entidades',t)}):'';
 
     $('briefing-count').textContent='Novedades detectadas: '+stats.total;

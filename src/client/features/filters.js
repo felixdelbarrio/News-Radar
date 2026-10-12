@@ -4,7 +4,7 @@ import {formatCalendarDay} from '../../shared/locales.js';
 import { $, escape } from "../core/dom.js";
 function createFilters({ onInvalidate, onChange }) {
   const form = $("filters");
-  let page = 0, view=defaultView, defaults={},edition='',preference='',savePreference=false;
+  let page = 0, view=defaultView, defaults={},edition='',preference='',savePreference=false,newsGeography='',editionSelection={};
   const selections=new Map(),initialized=new Set();
   function options(name, values) {
     const el = form.elements[name], current = el.value;
@@ -71,19 +71,19 @@ function createFilters({ onInvalidate, onChange }) {
     filterChanged({ type: "submit" });
   });
   function resetContext(nextEdition,nextPreference){
-    edition=nextEdition;preference=nextPreference;savePreference=Boolean(nextPreference);clearTimeout(timer);page=0;
+    edition=nextEdition;preference=nextPreference;newsGeography='';savePreference=Boolean(nextPreference);clearTimeout(timer);page=0;
     for(const name of ['news','briefing','radar']){initialized.delete(name);selections.delete(name);}
     for(const input of form.elements)if(input.name)input.value='';
     form.elements.to.setCustomValidity('');onInvalidate();onChange();
   }
   function current(){resetContext('','');}
   return {
-    useEdition:id=>resetContext(id,''),usePreference:id=>resetContext('',id),current,
-    query: () => ({ ...Object.fromEntries(new FormData(form)), page,view,language,...(edition?{edition}:{}),...(preference?{preference}:{}),...(savePreference?{savePreference:true}:{}),initial:!initialized.has(view) }),
+    useEdition:(id,selection={})=>{editionSelection=selection;resetContext(id,'');},usePreference:id=>resetContext('',id),current,
+    query: () => ({ ...Object.fromEntries(new FormData(form)), page,view,language,...(edition?{edition,...(!initialized.has(view)?editionSelection:{})}:{}),...(view==='news'&&newsGeography?{newsGeography}:{}),...(preference?{preference}:{}),...(savePreference?{savePreference:true}:{}),initial:!initialized.has(view) }),
     show: next => {
       if(next===view)return false;
       clearTimeout(timer);onInvalidate();
-      const selection=Object.fromEntries(new FormData(form));selections.set(view,selection);if(edition){selections.set(next,selection);initialized.add(next);}view=next;page=0;layout();
+      const selection=Object.fromEntries(new FormData(form));selections.set(view,selection);if(edition){selections.set(next,selection);initialized.add(next);}view=next;page=0;newsGeography='';layout();
       for(const input of form.elements)if(input.name)input.value=(selections.get(view)||defaults)[input.name]||'';
       form.elements.to.setCustomValidity('');
       renderChips();
@@ -96,9 +96,10 @@ function createFilters({ onInvalidate, onChange }) {
       filterChanged({ type: "change" });
     },
     apply:query=>{initialized.add(view);for(const input of form.elements)if(input.name){const value=query[input.name]||'';if(value&&input.tagName==='SELECT')options(input.name,[value]);input.value=value;}filterChanged({type:'change'});},
+    setGeography:name=>{newsGeography=name;page=0;onInvalidate();onChange();},
     setPage: (value) => page = value,
     render: (data) => {
-      page = data.page;savePreference=false;preference=data.personalization?.active||preference;
+      page = data.page;newsGeography=data.newsGeography||'';savePreference=false;preference=data.personalization?.active||preference;
       defaults=data.defaults||defaults;
       initialized.add(view);
       for (const [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["topic", "topics"], ["type","types"], ["segment","segments"], ["signal","signals"], ["palanca","palanca"], ["subpalanca","subpalanca"]]) options(name, data[key]||[]);
