@@ -24,6 +24,9 @@
   function geographyOrder(a, b) {
     return +(a.name === "Sin determinar") - +(b.name === "Sin determinar") || a.name.localeCompare(b.name, "es");
   }
+  function entityOrder(a, b) {
+    return +(b.name === "BBVA") - +(a.name === "BBVA") || b.total - a.total || a.name.localeCompare(b.name, "es");
+  }
 
   // src/shared/taxonomy-path.js
   function taxonomyPath(row) {
@@ -1806,7 +1809,7 @@
       let group = geography.entities.get(entity);
       group.items.push(row), group.segments.has(segment) || group.segments.set(segment, { name: segment, items: [] }), group.segments.get(segment).items.push(row);
     }
-    return [...geographies.values()].map((row) => ({ ...row, entities: [...row.entities.values()].map((entity) => ({ ...entity, segments: [...entity.segments.values()] })).sort((a, b) => +(b.name === "BBVA") - +(a.name === "BBVA") || b.items.length - a.items.length || a.name.localeCompare(b.name, "es")) })).sort(geographyOrder);
+    return [...geographies.values()].map((row) => ({ ...row, entities: [...row.entities.values()].map((entity) => ({ ...entity, total: entity.items.length, segments: [...entity.segments.values()] })).sort(entityOrder) })).sort(geographyOrder);
   }
   function noveltyCount(count, singular, plural, translate = (value) => value) {
     return count + " " + translate(count === 1 ? singular : plural);
@@ -2079,7 +2082,7 @@
 
   // src/client/features/news.js
   function renderNews(data) {
-    $("news-list").innerHTML = data.items.length ? data.items.map((n, index) => `<article class="news-item"><span class="news-index" aria-hidden="true">${String(data.page * data.pageSize + index + 1).padStart(2, "0")}</span><div>${articleHeader(n, `<span class="badge">${escape(n.tema)}</span>${newsCoverage(n)}${newsTaxonomy(n)}<time datetime="${escape(n.fecha)}">${escape(formatCalendarDay(n.fecha, language))}</time><span>${escape(n.pais)}</span>${newsPublisher(n)}<span>${escape(n.tipo || "")}</span>`)}${articleTranslationNote(n)}<h3 data-original><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">${escape(n.titular)}</a></h3><p ${n.extracto ? "data-original" : ""}>${escape(n.extracto || "El feed no proporciona un extracto. Consulta la publicaci\xF3n original.")}</p>${articleOriginal(n)}<div class="news-footer"><span class="muted">${escape([n.entidad, ...n.segmentos || []].filter(Boolean).join(" \xB7 "))}</span><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">Abrir noticia \u2197</a></div></div></article>`).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>', $("result-count").textContent = data.total + " publicaciones", $("page-label").textContent = data.total ? t("P\xE1gina {page} de {pages}", { page: data.page + 1, pages: Math.ceil(data.total / data.pageSize) }) : "Sin resultados", $("previous").disabled = data.page === 0, $("next").disabled = (data.page + 1) * data.pageSize >= data.total;
+    $("news-list").innerHTML = data.items.length ? data.items.map((n, index) => `${index === 0 || n.entidad !== data.items[index - 1].entidad ? '<h2 class="news-entity-heading" data-original>' + identityMark("entities", n.entidad, escape) + escape(n.entidad || "Entidad no identificada") + "</h2>" : ""}<article class="news-item"><span class="news-index" aria-hidden="true">${String(data.page * data.pageSize + index + 1).padStart(2, "0")}</span><div>${articleHeader(n, `<span class="badge">${escape(n.tema)}</span>${newsCoverage(n)}${newsTaxonomy(n)}<time datetime="${escape(n.fecha)}">${escape(formatCalendarDay(n.fecha, language))}</time><span>${escape(n.pais)}</span>${newsPublisher(n)}<span>${escape(n.tipo || "")}</span>`)}${articleTranslationNote(n)}<h3 data-original><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">${escape(n.titular)}</a></h3><p ${n.extracto ? "data-original" : ""}>${escape(n.extracto || "El feed no proporciona un extracto. Consulta la publicaci\xF3n original.")}</p>${articleOriginal(n)}<div class="news-footer"><span class="muted">${escape([n.entidad, ...n.segmentos || []].filter(Boolean).join(" \xB7 "))}</span><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">Abrir noticia \u2197</a></div></div></article>`).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>', $("result-count").textContent = data.total + " publicaciones", $("page-label").textContent = data.total ? t("P\xE1gina {page} de {pages}", { page: data.page + 1, pages: Math.ceil(data.total / data.pageSize) }) : "Sin resultados", $("previous").disabled = data.page === 0, $("next").disabled = (data.page + 1) * data.pageSize >= data.total;
   }
 
   // src/client/features/shell.js
@@ -2300,7 +2303,7 @@
     state.data && (state.data.collection = status), state.data?.admin && renderCollectionJobs(status);
   } });
   function renderSelection(data, view = navigation.current) {
-    reading.render(data, view), renderNews(data), view === "news" && newsTabs.render(data.newsGeographies || [], data.newsGeography || ""), view === "radar" && (radar.render(data), heatmap.render(data)), view === "briefing" && briefing.render(data);
+    reading.render(data, view), view === "news" && (renderNews(data), newsTabs.render(data.newsGeographies || [], data.newsGeography || "")), view === "radar" && (radar.render(data), heatmap.render(data)), view === "briefing" && briefing.render(data);
   }
   async function load() {
     let request3 = ++state.request, started = performance.now();

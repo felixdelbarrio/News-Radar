@@ -1,4 +1,4 @@
-import {geographyOrder} from './selection-policy.js';
+import {geographyOrder,entityOrder} from './selection-policy.js';
 export function noveltyOverview(items,signalNames=[]){
   const signals=new Map(signalNames.map(name=>[name,0])),geographies=new Map(),entities=new Set();
   for(const row of items){
@@ -21,6 +21,6 @@ export function noveltyGroups(items){
     if(!group.segments.has(segment))group.segments.set(segment,{name:segment,items:[]});
     group.segments.get(segment).items.push(row);
   }
-  return [...geographies.values()].map(row=>({...row,entities:[...row.entities.values()].map(entity=>({...entity,segments:[...entity.segments.values()]})).sort((a,b)=>Number(b.name==='BBVA')-Number(a.name==='BBVA')||b.items.length-a.items.length||a.name.localeCompare(b.name,'es'))})).sort(geographyOrder);
+  return [...geographies.values()].map(row=>({...row,entities:[...row.entities.values()].map(entity=>({...entity,total:entity.items.length,segments:[...entity.segments.values()]})).sort(entityOrder)})).sort(geographyOrder);
 }
 export function noveltyCount(count,singular,plural,translate=value=>value){return count+' '+translate(count===1?singular:plural);}

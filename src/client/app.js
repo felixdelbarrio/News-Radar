@@ -47,7 +47,7 @@ const sources = createSources({ getData: () => state.data, run: action });
 const recoveryControls=createRecoveryControls({getData:()=>state.data,run:action});
 const collectionProgress=createCollectionProgress({reload:load,isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
 function renderSelection(data,view=navigation.current){
-  reading.render(data,view);renderNews(data);if(view==='news')newsTabs.render(data.newsGeographies||[],data.newsGeography||'');
+  reading.render(data,view);if(view==='news'){renderNews(data);newsTabs.render(data.newsGeographies||[],data.newsGeography||'');}
   if(view==='radar'){radar.render(data);heatmap.render(data);}
   if(view==='briefing')briefing.render(data);
 }

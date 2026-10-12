@@ -54,4 +54,4 @@ function enableDaily() {
   properties_().setProperty('DAILY_ENABLED','true');
   return 'Recopilación diaria activada a partir de las '+settings_().dailyHour+':00 ('+settings_().timezone+').';
 }
-function disableDaily() {authorize_(true);ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='dailyRadar_').forEach(t=>ScriptApp.deleteTrigger(t));properties_().setProperty('DAILY_ENABLED','false');}
+function disableDaily() {authorize_(true);ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='dailyRadar_').forEach(t=>ScriptApp.deleteTrigger(t));properties_().setProperty('DAILY_ENABLED','false');CacheService.getScriptCache().remove('daily-schedule');}

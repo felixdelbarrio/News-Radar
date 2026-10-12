@@ -1,7 +1,13 @@
 function scheduledTriggers_(handler){return ScriptApp.getProjectTriggers().filter(trigger=>trigger.getHandlerFunction()===handler);}
+function dailyScheduleStatus_(){
+  const cache=CacheService.getScriptCache(),key='daily-schedule',cached=cache.get(key);
+  if(cached!==null&&cached!==undefined)return cached==='true';
+  const enabled=scheduledTriggers_('dailyRadar_').length>0;cache.put(key,String(enabled),300);return enabled;
+}
 function replaceDailySchedule_(handler,hour,minute=0){
   scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   ScriptApp.newTrigger(handler).timeBased().atHour(hour).nearMinute(minute).everyDays(1).inTimezone(settings_().timezone).create();
+  if(handler==='dailyRadar_')CacheService.getScriptCache().remove('daily-schedule');
 }
 function ensureBackgroundWorker_(delay=60000){
   const triggers=scheduledTriggers_('backgroundTick_'),next=Date.now()+Math.max(60000,delay);
@@ -61,6 +67,7 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
   }
 }
 function initializeBackgroundSchedules_(){
+  CacheService.getScriptCache().remove('daily-schedule');
   for(const handler of ['collectionTick_','collectionWake_','translationTick_','backgroundTick_'])scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   properties_().deleteProperty('BACKGROUND_NEXT');
   if(properties_().getProperty('DAILY_ENABLED')==='true')replaceDailySchedule_('dailyRadar_',settings_().dailyHour);else scheduledTriggers_('dailyRadar_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));

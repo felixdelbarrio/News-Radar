@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.20.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.21.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -382,3 +382,13 @@ Radar utiliza columnas que pueden reducirse al ancho disponible. En móvil, el m
 Para publicar, copiar todos los archivos de `dist/` a Apps Script, incluidos `IdentityAssets.gs` y `VisualIdentity.gs`, y actualizar el despliegue de la WebApp. No requiere permisos, activadores ni cambios de datos adicionales.
 
 Validación de 1.20.0: 276 pruebas superadas; cobertura de líneas 96,83 %. Sintaxis, diseño y distribución reproducible verificados. Chrome comprueba Radar entre 320 y 1.440 píxeles con diez categorías y nombres largos, el mapa de calor vertical, tarjetas móviles y las tres newsletters entre 320 y 800 píxeles, sin desbordamiento. El contenido y las capturas de `output/identity-newsletter-*.html` y `output/radar-identity-mobile.png` son datos de demostración. Las pruebas de MIME verifican que todos los CID tienen exactamente un adjunto, sin envíos de correo reales.
+
+## 1.21.0 — Noticias por entidad y prioridad visual del Radar
+
+Noticias mantiene las pestañas por país y presenta las entidades en bloques identificados por su nombre y logo. BBVA aparece primero; el resto se ordena por número de noticias de la selección y, en caso de empate, alfabéticamente. Dentro de cada entidad las fechas van de más reciente a más antigua. El orden se calcula antes de paginar, compartiendo el criterio con Novedades. Transversal conserva la última posición.
+
+El mapa de calor de canales digitales ocupa la primera sección después de los KPI, antes de Presencia geográfica. Se evita construir tarjetas de Noticias ocultas en otras vistas y se reutiliza el estado de programación diaria con invalidación inmediata desde los controles de administración. El trabajador compartido conserva sus consultas directas y la prioridad de recuperación diaria.
+
+El [análisis de telemetría](docs/telemetry-1.21.0.md) documenta la línea base, los cambios y los límites de la muestra. La mejora de latencia real deberá contrastarse con nueva telemetría tras publicar.
+
+Validación de 1.21.0: 282 pruebas superadas; cobertura de líneas 96,86 %. Chrome verifica el orden visual del Radar y ausencia de desplazamiento horizontal entre 320 y 1.440 píxeles. Distribución reproducible y controles de sintaxis y diseño verificados. Versión preparada para publicación.

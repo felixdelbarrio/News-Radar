@@ -5,7 +5,7 @@ function getDashboard(query) {
   const preparationMs=Date.now()-started,content=dashboardContent_(query||{},feeds,view,language,edition),metadataStarted=Date.now(),runs=dashboardRuns_();
   const response={...content.data,
     context:edition?{mode:'edition',id:edition.id,title:edition.title,from:edition.query.from,to:edition.query.to,count:edition.items.length,language:edition.language}:personal.selected?{mode:'personal',title:personal.selected.nombre}:{mode:'current'},personalization:{options:personal.options,active:personal.active},taxonomyTranslations:edition?edition.names:taxonomyTranslations_(),initial,selection:query||{},defaults:dashboardQuery_({view:'news',initial:true}),preferences:{timezone:config.settings.timezone,retentionDays:config.settings.retentionDays,eventLimit:config.settings.eventLimit,unknownCountry:config.settings.unknownCountry,dailyLabel:config.settings.dailyHour+':00 · '+config.settings.timezone},geographies:config.geographies,
-    lastRun:runs.at(-1)?.inicio||'',collection:collectionStatus_(),newsRevision:properties_().getProperty('NEWS_REVISION')||'0',sourceCount:feeds.length,daily:scheduledTriggers_('dailyRadar_').length>0,admin:session.admin,
+    lastRun:runs.at(-1)?.inicio||'',collection:collectionStatus_(),newsRevision:properties_().getProperty('NEWS_REVISION')||'0',sourceCount:feeds.length,daily:dailyScheduleStatus_(),admin:session.admin,
     ...(session.admin?dashboardAdministration_():{})};
   return {...response,performance:{version:RADAR.version,serverMs:Date.now()-started,preparationMs,metadataMs:Date.now()-metadataStarted,newsMs:content.duration,cacheHit:content.cacheHit}};
 }

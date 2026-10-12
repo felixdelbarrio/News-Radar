@@ -35,16 +35,16 @@ const dashboard=title=>({items:[{titular:title,fecha:'2026-10-08',pais:'México'
 const settle=async()=>{await Promise.resolve();await Promise.resolve();await Promise.resolve();};
 
 test('cambios de desplegable combinan los filtros y conservan sus selecciones',async()=>{
-  const c=client();c.requests[0].resolve(dashboard('Inicial'));await settle();
-  c.change('country','México');c.change('entity','Santander');c.change('source','El País');
+  const c=client();c.requests[0].resolve(dashboard('Inicial'));await settle();await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'news'}})}});c.requests.at(-1).resolve(dashboard('Inicial'));await settle();
+  c.change('country','México');const stale=c.requests.at(-1);c.change('entity','Santander');c.change('source','El País');
   const latest=c.requests.at(-1);assert.equal(latest.query.country,'México');assert.equal(latest.query.entity,'Santander');assert.equal(latest.query.source,'El País');
   latest.resolve(dashboard('Santander en México'));await settle();
   assert.match(c.element('news-list').innerHTML,/Santander en México/);assert.equal(c.form.elements.entity.value,'Santander');assert.equal(c.form.elements.source.value,'El País');
-  c.requests[1].resolve(dashboard('Respuesta antigua'));await settle();assert.doesNotMatch(c.element('news-list').innerHTML,/Respuesta antigua/);
+  stale.resolve(dashboard('Respuesta antigua'));await settle();assert.doesNotMatch(c.element('news-list').innerHTML,/Respuesta antigua/);
 });
 test('editar un filtro invalida la respuesta anterior antes de vencer el debounce',async()=>{
-  const c=client();c.change('search','tesoreria','input');
-  c.requests[0].resolve(dashboard('Obsoleta'));await settle();assert.equal(c.element('news-list').innerHTML,'');
+  const c=client();c.requests[0].resolve(dashboard('Inicial'));await settle();await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'news'}})}});const pending=c.requests.at(-1);c.change('search','tesoreria','input');
+  pending.resolve(dashboard('Obsoleta'));await settle();assert.equal(c.element('news-list').innerHTML,'');
   c.debounce();assert.equal(c.requests.at(-1).query.search,'tesoreria');c.requests.at(-1).resolve(dashboard('Actual'));await settle();assert.match(c.element('news-list').innerHTML,/Actual/);
 });
 test('fechas invertidas impiden la consulta y limpiar filtros elimina la validación',async()=>{
