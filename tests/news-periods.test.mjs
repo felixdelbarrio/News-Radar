@@ -36,9 +36,9 @@ test('el lote prepara una sola vez los períodos completos necesarios y excluye 
  const result=c.deliverNewsletters_();assert.equal(result.accepted,2);assert.equal(classified,2);assert.equal(sent.find(row=>row.email==='week@bbva.com').content.count,1);assert.equal(sent.find(row=>row.email==='year@bbva.com').content.count,1);
  const log=c.rows_('NewsletterEnvios');assert.equal(log[0].desde,week.from);assert.equal(log[1].desde,year.from);
 });
-for(const count of [0,1,2])test('Mi selección en el panel lateral: '+count+' newsletters activas',async t=>{
+for(const count of [0,1,2])test('No hay selector de newsletters en el panel lateral: '+count+' newsletters activas',async t=>{
  const a=await app(t,{configure({data}){data.personalization={active:'default',options:Array.from({length:count},(_,i)=>({id:'channel-'+i,name:'Canal '+i}))};}});
- assert.equal(a.find('#reading-context').closest('#desktop-filters')!==null,true);assert.equal(a.find('#reading-context').hidden,count<=1);assert.equal(a.find('#reading-choice').hidden,count<=1);
- for(const view of ['news','radar','briefing']){await a.click('[data-view="'+view+'"]');assert.equal(a.find('#reading-context').hidden,count<=1);}
+ assert.equal(a.find('#reading-context').closest('#desktop-filters')!==null,true);assert.equal(a.find('#reading-context').hidden,true);assert.equal(a.w.document.querySelector('#reading-choice'),null);
+ for(const view of ['news','radar','briefing']){await a.click('[data-view="'+view+'"]');assert.equal(a.find('#reading-context').hidden,true);}
  await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);assert.equal(a.w.document.querySelector('#personal-editor [name="range"]'),null);assert.equal(a.find('#personal-editor [name="periodicity"]').value,'monthly');assert.equal(a.find('#filters-section').hidden,true);
 });

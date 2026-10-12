@@ -90,13 +90,9 @@
     "\u2190": ["\u2190", "\u2190"],
     "\u2192": ["\u2192", "\u2192"],
     "Contexto de lectura": ["Reading context", "Okuma ba\u011Flam\u0131"],
-    "Mi selecci\xF3n": ["My selection", "Se\xE7imim"],
-    "Selecci\xF3n predeterminada": ["Default selection", "Varsay\u0131lan se\xE7im"],
     "Volver a la actualidad": ["Back to current news", "G\xFCncel haberlere d\xF6n"],
+    "Ya existe una suscripci\xF3n con el mismo destinatario, periodicidad, idioma y filtros. Edita la existente.": ["A subscription with the same recipient, frequency, language and filters already exists. Edit the existing one.", "Ayn\u0131 al\u0131c\u0131, s\u0131kl\u0131k, dil ve filtrelere sahip bir abonelik zaten var. Mevcut aboneli\u011Fi d\xFCzenleyin."],
     "Contin\xFAa tu newsletter": ["Continue your newsletter", "B\xFClteninize devam edin"],
-    "Tu selecci\xF3n personal": ["Your personal selection", "Ki\u015Fisel se\xE7iminiz"],
-    "Actualidad del sector": ["Current industry news", "G\xFCncel sekt\xF6r haberleri"],
-    "Personaliza tu seguimiento con tus suscripciones.": ["Personalize your news with your subscriptions.", "Aboneliklerinizle haber takibinizi ki\u015Fiselle\u015Ftirin."],
     "{name} \xB7 {from} / {to} \xB7 {count} noticias en esta edici\xF3n": ["{name} \xB7 {from} / {to} \xB7 {count} articles in this edition", "{name} \xB7 {from} / {to} \xB7 {count} haber bu say\u0131da"],
     "Selecci\xF3n personal no disponible.": ["Personal selection unavailable.", "Ki\u015Fisel se\xE7im kullan\u0131lam\u0131yor."],
     "Edici\xF3n de newsletter no disponible.": ["Newsletter edition unavailable.", "B\xFClten say\u0131s\u0131 kullan\u0131lam\u0131yor."],
@@ -1053,12 +1049,10 @@
   }
 
   // src/client/features/reading-context.js
-  function createReadingContext({ onPreference, onCurrent }) {
-    return $("reading-preference").addEventListener("change", (event) => onPreference(event.target.value)), $("reading-current").addEventListener("click", onCurrent), { render(data, view) {
-      let context = data.context || { mode: "current" }, personal = data.personalization || { options: [], active: "default" }, available = context.mode === "edition" || personal.options.length > 1;
-      $("reading-context").dataset.available = String(available), $("reading-context").hidden = !available || !["news", "briefing", "radar"].includes(view), $("reading-choice").hidden = personal.options.length <= 1;
-      let select = $("reading-preference"), signature = JSON.stringify(personal.options);
-      select.dataset.options !== signature && (select.dataset.options = signature, select.innerHTML = '<option value="default">' + t("Selecci\xF3n predeterminada") + "</option>" + personal.options.map((row) => '<option value="' + escape(row.id) + '">' + escape(row.name) + "</option>").join("")), select.value = personal.active, select.disabled = context.mode === "edition", $("reading-title").textContent = context.mode === "edition" ? t("Contin\xFAa tu newsletter") : context.mode === "personal" ? t("Tu selecci\xF3n personal") : t("Actualidad del sector"), $("reading-detail").textContent = context.mode === "edition" ? t("{name} \xB7 {from} / {to} \xB7 {count} noticias en esta edici\xF3n", { name: context.title, from: context.from, to: context.to, count: context.count }) : context.mode === "personal" ? context.title : t("Personaliza tu seguimiento con tus suscripciones."), $("reading-current").hidden = context.mode !== "edition";
+  function createReadingContext({ onCurrent }) {
+    return $("reading-current").addEventListener("click", onCurrent), { render(data, view) {
+      let context = data.context || { mode: "current" }, available = context.mode === "edition";
+      $("reading-context").dataset.available = String(available), $("reading-context").hidden = !available || !["news", "briefing", "radar"].includes(view), $("reading-detail").textContent = available ? t("{name} \xB7 {from} / {to} \xB7 {count} noticias en esta edici\xF3n", { name: context.title, from: context.from, to: context.to, count: context.count }) : "", $("reading-current").hidden = !available;
     } };
   }
 
@@ -1992,15 +1986,16 @@
 
   // src/client/features/filters.js
   function createFilters({ onInvalidate, onChange }) {
-    let form = $("filters"), page = 0, view = defaultView, defaults = {}, edition = "", preference = "", savePreference = !1, newsGeography = "", editionSelection = {}, taxonomy2 = [], selections = /* @__PURE__ */ new Map(), initialized = /* @__PURE__ */ new Set();
+    let form = $("filters"), page = 0, view = defaultView, defaults = {}, edition = "", newsGeography = "", editionSelection = {}, taxonomy2 = [], selections = /* @__PURE__ */ new Map(), initialized = /* @__PURE__ */ new Set();
     function options(name, values) {
+      name === "coverage" && (values = Object.keys(coverageOptions));
       let el = form.elements[name], current2 = el.value;
       current2 && !values.includes(current2) && (values = [...values, current2]);
       let signature = JSON.stringify(values);
-      el.dataset.options !== signature && (el.dataset.options = signature, el.innerHTML = '<option value="">Todos</option>' + values.map((x) => '<option value="' + escape(x) + '">' + escape(name === "subpalanca" ? taxonomySubLabel(x) : x) + "</option>").join(""), el.value = current2 || "");
+      el.dataset.options !== signature && (el.dataset.options = signature, el.innerHTML = '<option value="">Todos</option>' + values.map((x) => '<option value="' + escape(x) + '">' + escape(name === "subpalanca" ? taxonomySubLabel(x) : name === "coverage" ? coverageOptions[x] : x) + "</option>").join(""), el.value = current2 || "");
     }
     function layout() {
-      $(view + "-filter-chips").appendChild($("active-filters")), $("geography-filter").hidden = !1, $("advanced-filters").hidden = !1;
+      $(view + "-filter-chips").appendChild($("active-filters")), $("geography-filter").hidden = !1, $("advanced-filters").hidden = view !== "news", view !== "news" && ($("advanced-filters").open = !1);
       for (let id of ["from-filter", "to-filter"]) $(id).hidden = !1;
       $("filter-description").textContent = "Selecci\xF3n de noticias y per\xEDodo de consulta.";
     }
@@ -2046,23 +2041,22 @@
     }), form.addEventListener("submit", (event) => {
       event.preventDefault(), filterChanged({ type: "submit" });
     });
-    function resetContext(nextEdition, nextPreference) {
-      edition = nextEdition, preference = nextPreference, newsGeography = "", savePreference = !!nextPreference, clearTimeout(timer), page = 0;
+    function resetContext(nextEdition) {
+      edition = nextEdition, newsGeography = "", clearTimeout(timer), page = 0;
       for (let name of ["news", "briefing", "radar"])
         initialized.delete(name), selections.delete(name);
       for (let input of form.elements) input.name && (input.value = "");
       form.elements.to.setCustomValidity(""), onInvalidate(), onChange();
     }
     function current() {
-      resetContext("", "");
+      resetContext("");
     }
     return {
       useEdition: (id, selection = {}) => {
-        editionSelection = selection, resetContext(id, "");
+        editionSelection = selection, resetContext(id);
       },
-      usePreference: (id) => resetContext("", id),
       current,
-      query: () => ({ ...Object.fromEntries(new FormData(form)), page, view, language, ...edition ? { edition, ...initialized.has(view) ? {} : editionSelection } : {}, ...view === "news" && newsGeography ? { newsGeography } : {}, ...preference ? { preference } : {}, ...savePreference ? { savePreference: !0 } : {}, initial: !initialized.has(view) }),
+      query: () => ({ ...Object.fromEntries(new FormData(form)), page, view, language, ...edition ? { edition, ...initialized.has(view) ? {} : editionSelection } : {}, ...view === "news" && newsGeography ? { newsGeography } : {}, initial: !initialized.has(view) }),
       show: (next) => {
         if (next === view) return !1;
         clearTimeout(timer), onInvalidate();
@@ -2088,7 +2082,7 @@
       },
       setPage: (value) => page = value,
       render: (data) => {
-        taxonomy2 = data.subpalanca || [], page = data.page, newsGeography = data.newsGeography || "", savePreference = !1, preference = data.personalization?.active || preference, defaults = data.defaults || defaults, initialized.add(view);
+        taxonomy2 = data.subpalanca || [], page = data.page, newsGeography = data.newsGeography || "", defaults = data.defaults || defaults, initialized.add(view);
         for (let [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type", "types"], ["segment", "segments"], ["signal", "signals"], ["palanca", "palanca"], ["subpalanca", "subpalanca"]]) options(name, data[key] || []);
         if (data.selection) for (let input of form.elements) input.name && (input.value = data.selection[input.name] || "");
         syncTaxonomyControls(form, taxonomy2), renderChips();
@@ -2316,7 +2310,7 @@
     configuration.close(), taxonomy.close(), filters4.show(view) || state.contentStale ? load() : state.data && renderSelection(state.data, view);
   }, onSubscriptions: () => (configuration.close(), taxonomy.close(), subscriptions.open()), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
-  } }), reading = createReadingContext({ onPreference: (id) => filters4.usePreference(id), onCurrent: () => filters4.current() }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => {
+  } }), reading = createReadingContext({ onCurrent: () => filters4.current() }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => {
     filters4.show("news"), filters4.apply(query), navigation.show("news");
   } }), briefing = createBriefing(), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters4.setGeography(name));
   $("briefing-signals").addEventListener("click", (event) => {
@@ -2341,7 +2335,7 @@
       return;
     }
     try {
-      let query = filters4.query(), data = await call(query.savePreference ? "saveNewsPreference" : "getDashboard", query);
+      let query = filters4.query(), data = await call("getDashboard", query);
       if (request3 === state.request) {
         let first = !state.data;
         state.data = data, state.contentStale = !1, setTimezone(data.preferences?.timezone), window.RADAR_PREVIEW && data.admin && ($("preview-banner").textContent = "Administraci\xF3n local \xB7 cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.");

@@ -7,21 +7,23 @@ import {formatCalendarDay} from '../../shared/locales.js';
 import { $, escape } from "../core/dom.js";
 function createFilters({ onInvalidate, onChange }) {
   const form = $("filters");
-  let page = 0, view=defaultView, defaults={},edition='',preference='',savePreference=false,newsGeography='',editionSelection={},taxonomy=[];
+  let page = 0, view=defaultView, defaults={},edition='',newsGeography='',editionSelection={},taxonomy=[];
   const selections=new Map(),initialized=new Set();
   function options(name, values) {
+    if(name==='coverage')values=Object.keys(coverageOptions);
     const el = form.elements[name], current = el.value;
     if(current&&!values.includes(current))values=[...values,current];
     const signature = JSON.stringify(values);
     if (el.dataset.options === signature) return;
     el.dataset.options = signature;
-    el.innerHTML = '<option value="">Todos</option>' + values.map((x) => '<option value="'+escape(x)+'">' + escape(name==='subpalanca'?taxonomySubLabel(x):x) + "</option>").join("");
+    el.innerHTML = '<option value="">Todos</option>' + values.map((x) => '<option value="'+escape(x)+'">' + escape(name==='subpalanca'?taxonomySubLabel(x):name==='coverage'?coverageOptions[x]:x) + "</option>").join("");
     el.value = current || "";
   }
   function layout(){
       $(view+'-filter-chips').appendChild($('active-filters'));
       $('geography-filter').hidden=false;
-      $('advanced-filters').hidden=false;
+      $('advanced-filters').hidden=view!=='news';
+      if(view!=='news')$('advanced-filters').open=false;
       for(const id of ['from-filter','to-filter'])$(id).hidden=false;
       $('filter-description').textContent='Selección de noticias y período de consulta.';
   }
@@ -73,16 +75,16 @@ function createFilters({ onInvalidate, onChange }) {
     event.preventDefault();
     filterChanged({ type: "submit" });
   });
-  function resetContext(nextEdition,nextPreference){
-    edition=nextEdition;preference=nextPreference;newsGeography='';savePreference=Boolean(nextPreference);clearTimeout(timer);page=0;
+  function resetContext(nextEdition){
+    edition=nextEdition;newsGeography='';clearTimeout(timer);page=0;
     for(const name of ['news','briefing','radar']){initialized.delete(name);selections.delete(name);}
     for(const input of form.elements)if(input.name)input.value='';
     form.elements.to.setCustomValidity('');onInvalidate();onChange();
   }
-  function current(){resetContext('','');}
+  function current(){resetContext('');}
   return {
-    useEdition:(id,selection={})=>{editionSelection=selection;resetContext(id,'');},usePreference:id=>resetContext('',id),current,
-    query: () => ({ ...Object.fromEntries(new FormData(form)), page,view,language,...(edition?{edition,...(!initialized.has(view)?editionSelection:{})}:{}),...(view==='news'&&newsGeography?{newsGeography}:{}),...(preference?{preference}:{}),...(savePreference?{savePreference:true}:{}),initial:!initialized.has(view) }),
+    useEdition:(id,selection={})=>{editionSelection=selection;resetContext(id);},current,
+    query: () => ({ ...Object.fromEntries(new FormData(form)), page,view,language,...(edition?{edition,...(!initialized.has(view)?editionSelection:{})}:{}),...(view==='news'&&newsGeography?{newsGeography}:{}),initial:!initialized.has(view) }),
     show: next => {
       if(next===view)return false;
       clearTimeout(timer);onInvalidate();
@@ -102,7 +104,7 @@ function createFilters({ onInvalidate, onChange }) {
     setGeography:name=>{newsGeography=name;page=0;onInvalidate();onChange();},
     setPage: (value) => page = value,
     render: (data) => {
-      taxonomy=data.subpalanca||[];page = data.page;newsGeography=data.newsGeography||'';savePreference=false;preference=data.personalization?.active||preference;
+      taxonomy=data.subpalanca||[];page = data.page;newsGeography=data.newsGeography||'';
       defaults=data.defaults||defaults;
       initialized.add(view);
       for (const [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type","types"], ["segment","segments"], ["signal","signals"], ["palanca","palanca"], ["subpalanca","subpalanca"]]) options(name, data[key]||[]);

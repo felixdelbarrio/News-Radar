@@ -1,16 +1,8 @@
-function newsPreferences_(email,requested,first=false){
-  const revision=properties_().getProperty('SUBSCRIPTIONS_REVISION')||'0',key='preferences:'+RADAR.version+':'+sha256_(email+'|'+revision),cached=CacheService.getScriptCache().get(key);
-  const rows=cached?JSON.parse(cached):subscriptionRows_(email).filter(row=>row.activa);
-  if(!cached)cacheJson_(key,rows,300);
-  let choice=requested|| (first?(rows[0]?.id||'default'):'');
-  if(!choice){
-    const profileKey='news-preference:'+sha256_(email),profileCache=CacheService.getScriptCache().get(profileKey);
-    choice=profileCache?JSON.parse(profileCache):rows_('Preferencias').find(row=>row.correo===email)?.suscripcion||'';
-    if(!profileCache)cacheJson_(profileKey,choice,300);
-  }
-  const selected=choice==='default'?null:(rows.find(row=>row.id===choice)||null);
-  if(requested&&requested!=='default'&&!selected)throw Error('Selección personal no disponible.');
-  return {selected,options:rows.map(row=>({id:row.id,name:row.nombre})),active:selected?.id||'default'};
+function firstNewsSubscription_(email){
+  const revision=properties_().getProperty('SUBSCRIPTIONS_REVISION')||'0',key='first-subscription:'+RADAR.version+':'+sha256_(email+'|'+revision),cached=CacheService.getScriptCache().get(key);
+  if(cached)return JSON.parse(cached);
+  const row=rows_('Suscripciones').find(row=>row.correo===email&&String(row.activa)==='true'),selected=row?{periodicidad:row.periodicidad,filtros:subscriptionFilters_(JSON.parse(row.filtros))}:null;
+  cacheJson_(key,selected,300);return selected;
 }
 function saveNewsletterEdition_(id,delivery,email,name,query,language,items){
   const sheet=book_().getSheetByName('NewsletterContenido'),start=sheet.getLastRow()+1,allNames=taxonomyTranslations_(),names={};
@@ -42,15 +34,5 @@ function newsletterEdition_(id,email){
   cacheJson_(key,{...edition,items:items.map(packNews_)},21600);return edition;
 }
 
-function saveNewsPreference(query){
-  const session=authorize_(),id=String(query.preference||'');if(!id)throw Error('Selección personal no disponible.');newsPreferences_(session.email,id);
-  const lock=LockService.getScriptLock();lock.waitLock(10000);
-  try{
-    const sheet=book_().getSheetByName('Preferencias'),rows=rows_('Preferencias'),index=rows.findIndex(row=>row.correo===session.email),value=[session.email,id,new Date().toISOString()];
-    if(index<0)append_('Preferencias',[value]);else sheet.getRange(index+2,1,1,3).setValues([value]);
-    cacheJson_('news-preference:'+sha256_(session.email),id,300);
-  }finally{lock.releaseLock();}
-  return getDashboard({...query,initial:true});
-}
 function newsletterCollectionPriority_(){return collectionRequests_().some(request=>request.kind==='daily')||collectionJobs_().some(job=>job.tipo==='daily'&&Number(job.pendientes)>0&&Number(job.pausa||0)<=Date.now());}
 function ensureNewsletterContinuation_(){if(!scheduledTriggers_('newsletterTick_').length)ScriptApp.newTrigger('newsletterTick_').timeBased().after(settings_().pauseMinutes*60000).create();}

@@ -38,7 +38,7 @@ const filters = createFilters({ onInvalidate: () => ++state.request, onChange: (
   track("filtro");
   load();
 } });
-const reading=createReadingContext({onPreference:id=>filters.usePreference(id),onCurrent:()=>filters.current()});
+const reading=createReadingContext({onCurrent:()=>filters.current()});
 const heatmap=createTaxonomyHeatmap({onExplore:query=>{filters.show('news');filters.apply(query);navigation.show('news');}});
 const briefing=createBriefing();
 const newsTabs=createGeographyTabs('news-geographies','news-list',name=>filters.setGeography(name));
@@ -60,7 +60,7 @@ async function load() {
     return;
   }
   try {
-    const query=filters.query(),data=await call(query.savePreference?"saveNewsPreference":"getDashboard",query);
+    const query=filters.query(),data=await call("getDashboard",query);
     if (request === state.request) {
       const first = !state.data;
       state.data = data;state.contentStale=false;

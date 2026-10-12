@@ -119,7 +119,7 @@ test('la activación de fuentes persiste al buscar y paginar antes de guardar',a
 
 test('Radar permite explorar los filtros de la matriz y cambiar de vista conserva cada selección sin consultas duplicadas',async()=>{
   const c=client();await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'radar'}})}});c.requests.at(-1).resolve({...dashboard('Inicial'),initial:true,selection:{entity:'',segment:'Empresas e instituciones'}});await settle();
-  assert.equal(c.element('geography-filter').hidden,false);assert.equal(c.element('advanced-filters').hidden,false);assert.equal(c.form.elements.segment.value,'Empresas e instituciones');
+  assert.equal(c.element('geography-filter').hidden,false);assert.equal(c.element('advanced-filters').hidden,true);assert.equal(c.form.elements.segment.value,'Empresas e instituciones');
   c.change('entity','Santander');c.requests.at(-1).resolve({...dashboard('Radar'),selection:{entity:'Santander',segment:'Empresas e instituciones'}});await settle();
   await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'news'}})}});await settle();
   assert.equal(c.element('geography-filter').hidden,false);assert.equal(c.element('advanced-filters').hidden,false);

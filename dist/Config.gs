@@ -1,9 +1,8 @@
 const RADAR = Object.freeze({
-  version:'2.1.0',
+  version:'2.2.0',
   sheets:{
     Configuracion:['clave','valor'],
     Suscripciones:['id','correo','nombre','filtros','periodicidad','activa','actualizada','idioma'],
-    Preferencias:['correo','suscripcion','actualizada'],
     NewsletterEdiciones:['id','envio','correo','nombre','filtros','idioma','fecha','inicio','cantidad','estado','traducciones'],
     NewsletterContenido:['edicion','noticia'],
     NewsletterEnvios:['id','suscripcion','correo','desde','hasta','estado','fecha','detalle','contenido'],
