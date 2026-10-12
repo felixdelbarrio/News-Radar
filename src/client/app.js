@@ -39,7 +39,7 @@ const filters = createFilters({ onInvalidate: () => ++state.request, onChange: (
 const reading=createReadingContext({onPreference:id=>filters.usePreference(id),onCurrent:()=>filters.current()});
 const heatmap=createTaxonomyHeatmap({onExplore:query=>{filters.show('news');filters.apply(query);navigation.show('news');}});
 const briefing=createBriefing();
-$('briefing-signals').addEventListener('click',event=>{const button=event.target.closest('[data-signal]');if(button)filters.set('signal',button.dataset.signal);});
+$('briefing-signals').addEventListener('click',event=>{const button=event.target.closest('[data-signal]');if(button)filters.apply({...filters.query(),country:briefing.geography,signal:button.dataset.signal});});
 const radar = createRadar({ onCountry: (country) => {filters.show("news");filters.apply({...state.data.selection,country});navigation.show("news");}, onEntity: (entity) => filters.set("entity", entity), onNews: () => {const selection=state.data.selection;filters.show("news");filters.apply(selection);navigation.show("news");} });
 const sources = createSources({ getData: () => state.data, run: action });
 const recoveryControls=createRecoveryControls({getData:()=>state.data,run:action});

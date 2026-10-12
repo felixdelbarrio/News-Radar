@@ -1,5 +1,21 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "novedad": ["update", "yenilik"],
+  "entidad": ["entity", "kuruluş"],
+  "geografía": ["geography", "coğrafya"],
+  "{geography} · {updates} · {entities}": ["{geography} · {updates} · {entities}", "{geography} · {updates} · {entities}"],
+
+  "entidades": ["entities", "kuruluş"],
+  "geografías": ["geographies", "coğrafya"],
+
+  "Novedades por geografía": ["News by geography", "Coğrafyaya göre haberler"],
+  "Novedades de la geografía seleccionada": ["News from the selected geography", "Seçilen coğrafyanın haberleri"],
+  "La geografía supera el límite del briefing. Reduce los filtros para incluir todas las novedades.": ["This geography exceeds the briefing limit. Narrow your filters to include all updates.", "Bu coğrafya özet sınırını aşıyor. Tüm gelişmeleri dahil etmek için filtreleri daraltın."],
+  "Tu radar de novedades": ["Your news radar", "Haber radarınız"],
+  "Tu selección por geografía": ["Your selection by geography", "Coğrafyaya göre seçiminiz"],
+  "Novedades incluidas": ["Updates included", "Dahil edilen gelişmeler"],
+  "Entidad no identificada": ["Unidentified entity", "Tanımlanmayan kuruluş"],
+
   "Últimos 7 días": ["Last 7 days", "Son 7 gün"],
   "Mes en curso": ["Current month", "İçinde bulunulan ay"],
   "Año en curso": ["Current year", "İçinde bulunulan yıl"],
@@ -351,7 +367,6 @@ const translations = Object.freeze({
   "La geografía identifica el seguimiento de la fuente; no atribuye cada operación a ese país.": ["Geography identifies the source being tracked; it does not assign each transaction to that country.", "Coğrafya kaynak takibini belirtir; her işlemi o ülkeye atfetmez."],
   "Novedades del sector": ["Sector updates", "Sektör yenilikleri"],
   "Anuncios de productos y cambios de oferta detectados en las fuentes de tu selección.": ["Product announcements and offer changes detected in your selected sources.", "Seçtiğiniz kaynaklarda tespit edilen ürün duyuruları ve teklif değişiklikleri."],
-  "La selección supera el límite del briefing. Reduce los filtros para incluir todas las novedades.": ["The selection exceeds the briefing limit. Narrow the filters to include all updates.", "Seçim bülten sınırını aşıyor. Tüm yenilikleri dahil etmek için filtreleri daraltın."],
   "Las señales proceden de términos configurables en el titular y extracto. Pueden contener falsos positivos o no detectar un lanzamiento. Consulta la fuente para confirmar oferta, disponibilidad y condiciones.": ["Signals come from configurable terms in headlines and excerpts. They may produce false positives or miss a launch. Check the source to confirm the offer, availability and terms.", "Sinyaller başlık ve özetlerdeki yapılandırılabilir terimlerden gelir. Yanlış eşleşmeler olabilir veya bir lansman tespit edilmeyebilir. Teklifi, kullanılabilirliği ve koşulları kaynaktan doğrulayın."],
   "Recibe tu selección": ["Receive your selection", "Seçiminizi alın"],
   "Recibe lanzamientos, mejoras de productos y alianzas de las entidades que sigues. Elige el contenido y la periodicidad.": ["Receive launches, product improvements and partnerships from the entities you follow. Choose the content and frequency.", "Takip ettiğiniz kurumların lansmanlarını, ürün iyileştirmelerini ve iş birliklerini alın. İçerik ve sıklığı seçin."],

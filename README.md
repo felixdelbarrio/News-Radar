@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.16.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.17.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -333,3 +333,13 @@ El asunto se genera exclusivamente con los filtros aplicados y el prefijo `[bIA]
 Los envíos preparan una única vez el corpus del intervalo necesario para las suscripciones pendientes, reutilizan las selecciones iguales y mantienen la prioridad de recuperación diaria y el control de duplicados.
 
 Validación de 1.16.0: 251 pruebas superadas, cobertura de líneas del 96,55 %, comprobaciones de sintaxis y distribución reproducible. Chrome verifica rangos por vista, asuntos derivados de filtros, selector lateral y diálogo móvil sin desbordamiento.
+
+## Novedades por geografía y newsletter editorial · 1.17.0
+
+Novedades presenta una pestaña por geografía con resultados y conserva la selección mientras siga disponible. Las pestañas cambian tarjetas, recuentos y señales en memoria, sin RPC. Los filtros efectivos se aplican antes de agrupar y deduplicar. El límite del briefing se aplica por geografía en esta vista para que un mercado mayoritario no oculte otros; los indicadores muestran la población completa de la geografía y avisan cuando las tarjetas están limitadas. Seleccionar una señal aplica también la geografía activa. Las pestañas admiten flechas, Inicio y Fin y anuncian el panel seleccionado.
+
+La newsletter mantiene su límite total y muestra KPIs calculados exclusivamente sobre las noticias incluidas en el correo. Su maquetación incorpora cabecera con período, tarjetas de indicadores, resumen de geografías y capítulos por geografía, entidad y combinación de segmentos. Cada noticia aparece una vez, incluso con varios segmentos. BBVA encabeza cada geografía y las demás entidades se ordenan por volumen y nombre. Las palancas y subpalancas se muestran en las noticias. El correo conserva los enlaces a su edición, gestión y baja, y dispone de texto plano con la misma estructura.
+
+Los cálculos y agrupaciones se comparten entre Apps Script y cliente. El CSS utiliza los tokens existentes; tarjetas, tablas, etiquetas y jerarquías llevan estilos inline para correo. No se añaden jobs ni consultas al cambiar de pestaña.
+
+Validación de 1.17.0: 257 pruebas superadas, cobertura de líneas del 96,48 %, sintaxis y distribución reproducible verificadas. Chrome valida pestañas y teclado, indicadores por mercado y maquetación de newsletter en escritorio y móvil sin desbordamiento. Vista previa local en `output/newsletter-preview.html` y `output/newsletter-preview.png`, con contenido de la instantánea RSS.

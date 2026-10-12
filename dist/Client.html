@@ -7,6 +7,19 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    novedad: ["update", "yenilik"],
+    entidad: ["entity", "kurulu\u015F"],
+    geograf\u00EDa: ["geography", "co\u011Frafya"],
+    "{geography} \xB7 {updates} \xB7 {entities}": ["{geography} \xB7 {updates} \xB7 {entities}", "{geography} \xB7 {updates} \xB7 {entities}"],
+    entidades: ["entities", "kurulu\u015F"],
+    geograf\u00EDas: ["geographies", "co\u011Frafya"],
+    "Novedades por geograf\xEDa": ["News by geography", "Co\u011Frafyaya g\xF6re haberler"],
+    "Novedades de la geograf\xEDa seleccionada": ["News from the selected geography", "Se\xE7ilen co\u011Frafyan\u0131n haberleri"],
+    "La geograf\xEDa supera el l\xEDmite del briefing. Reduce los filtros para incluir todas las novedades.": ["This geography exceeds the briefing limit. Narrow your filters to include all updates.", "Bu co\u011Frafya \xF6zet s\u0131n\u0131r\u0131n\u0131 a\u015F\u0131yor. T\xFCm geli\u015Fmeleri dahil etmek i\xE7in filtreleri daralt\u0131n."],
+    "Tu radar de novedades": ["Your news radar", "Haber radar\u0131n\u0131z"],
+    "Tu selecci\xF3n por geograf\xEDa": ["Your selection by geography", "Co\u011Frafyaya g\xF6re se\xE7iminiz"],
+    "Novedades incluidas": ["Updates included", "Dahil edilen geli\u015Fmeler"],
+    "Entidad no identificada": ["Unidentified entity", "Tan\u0131mlanmayan kurulu\u015F"],
     "\xDAltimos 7 d\xEDas": ["Last 7 days", "Son 7 g\xFCn"],
     "Mes en curso": ["Current month", "\u0130\xE7inde bulunulan ay"],
     "A\xF1o en curso": ["Current year", "\u0130\xE7inde bulunulan y\u0131l"],
@@ -354,7 +367,6 @@
     "La geograf\xEDa identifica el seguimiento de la fuente; no atribuye cada operaci\xF3n a ese pa\xEDs.": ["Geography identifies the source being tracked; it does not assign each transaction to that country.", "Co\u011Frafya kaynak takibini belirtir; her i\u015Flemi o \xFClkeye atfetmez."],
     "Novedades del sector": ["Sector updates", "Sekt\xF6r yenilikleri"],
     "Anuncios de productos y cambios de oferta detectados en las fuentes de tu selecci\xF3n.": ["Product announcements and offer changes detected in your selected sources.", "Se\xE7ti\u011Finiz kaynaklarda tespit edilen \xFCr\xFCn duyurular\u0131 ve teklif de\u011Fi\u015Fiklikleri."],
-    "La selecci\xF3n supera el l\xEDmite del briefing. Reduce los filtros para incluir todas las novedades.": ["The selection exceeds the briefing limit. Narrow the filters to include all updates.", "Se\xE7im b\xFClten s\u0131n\u0131r\u0131n\u0131 a\u015F\u0131yor. T\xFCm yenilikleri dahil etmek i\xE7in filtreleri daralt\u0131n."],
     "Las se\xF1ales proceden de t\xE9rminos configurables en el titular y extracto. Pueden contener falsos positivos o no detectar un lanzamiento. Consulta la fuente para confirmar oferta, disponibilidad y condiciones.": ["Signals come from configurable terms in headlines and excerpts. They may produce false positives or miss a launch. Check the source to confirm the offer, availability and terms.", "Sinyaller ba\u015Fl\u0131k ve \xF6zetlerdeki yap\u0131land\u0131r\u0131labilir terimlerden gelir. Yanl\u0131\u015F e\u015Fle\u015Fmeler olabilir veya bir lansman tespit edilmeyebilir. Teklifi, kullan\u0131labilirli\u011Fi ve ko\u015Fullar\u0131 kaynaktan do\u011Frulay\u0131n."],
     "Recibe tu selecci\xF3n": ["Receive your selection", "Se\xE7iminizi al\u0131n"],
     "Recibe lanzamientos, mejoras de productos y alianzas de las entidades que sigues. Elige el contenido y la periodicidad.": ["Receive launches, product improvements and partnerships from the entities you follow. Choose the content and frequency.", "Takip etti\u011Finiz kurumlar\u0131n lansmanlar\u0131n\u0131, \xFCr\xFCn iyile\u015Ftirmelerini ve i\u015F birliklerini al\u0131n. \u0130\xE7erik ve s\u0131kl\u0131\u011F\u0131 se\xE7in."],
@@ -1717,6 +1729,23 @@
     }, close: monitor.close };
   }
 
+  // src/shared/novelty-groups.js
+  function noveltyGroups(items) {
+    let geographies = /* @__PURE__ */ new Map();
+    for (let row of items) {
+      let name = row.pais || "Sin determinar", entity = row.entidad || "Entidad no identificada", segment = [...new Set(row.segmentos || [])].sort((a, b) => a.localeCompare(b, "es")).join(" \xB7 ") || "Segmento no identificado";
+      geographies.has(name) || geographies.set(name, { name, items: [], entities: /* @__PURE__ */ new Map() });
+      let geography = geographies.get(name);
+      geography.items.push(row), geography.entities.has(entity) || geography.entities.set(entity, { name: entity, items: [], segments: /* @__PURE__ */ new Map() });
+      let group = geography.entities.get(entity);
+      group.items.push(row), group.segments.has(segment) || group.segments.set(segment, { name: segment, items: [] }), group.segments.get(segment).items.push(row);
+    }
+    return [...geographies.values()].map((row) => ({ ...row, entities: [...row.entities.values()].map((entity) => ({ ...entity, segments: [...entity.segments.values()] })).sort((a, b) => +(b.name === "BBVA") - +(a.name === "BBVA") || b.items.length - a.items.length || a.name.localeCompare(b.name, "es")) })).sort((a, b) => b.items.length - a.items.length || a.name.localeCompare(b.name, "es"));
+  }
+  function noveltyCount(count, singular, plural, translate = (value) => value) {
+    return count + " " + translate(count === 1 ? singular : plural);
+  }
+
   // src/client/features/article-text.js
   function articleTranslationNote(row) {
     let state2 = row.translation?.state;
@@ -1728,9 +1757,31 @@
 
   // src/client/features/briefing.js
   function createBriefing() {
-    return { render(data) {
-      let briefing2 = data.briefing || { total: 0, bySignal: [], items: [] };
-      $("briefing-count").textContent = "Novedades detectadas: " + briefing2.total, $("briefing-signals").innerHTML = briefing2.bySignal.map((row) => `<button type="button" class="signal-card" data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(row.name)}</span></button>`).join(""), $("briefing-list").innerHTML = briefing2.items.map((row) => `<article class="panel novelty-card"><div class="news-meta">${newsCoverage(row)}${newsTaxonomy(row)}${row.senales.map((signal) => `<span class="badge">${escape(signal)}</span>`).join("")}<time datetime="${escape(row.fecha)}">${escape(formatCalendarDay(row.fecha, language))}</time>${newsPublisher(row)}</div>${articleTranslationNote(row)}<h3 data-original><a href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">${escape(row.titular)}</a></h3><p class="novelty-context">${escape(row.entidad)} \xB7 ${escape(row.tipo)} \xB7 ${escape(row.pais)}</p><p ${row.extracto ? "data-original" : ""}>${escape(row.extracto || "Consulta la fuente original para conocer la oferta y sus condiciones.")}</p>${articleOriginal(row)}<div class="novelty-use"><span class="eyebrow">SEGMENTO Y TEMA</span><p>${escape(row.segmentos.length ? row.segmentos.join(" \xB7 ") : "Segmento no identificado")} \xB7 ${escape(row.tema)}</p></div><a class="button" href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">Consultar anuncio \u2197</a></article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.</p></div>', $("briefing-limit").hidden = !briefing2.limited;
+    let briefing2, groups = [], active = "", tabs = $("briefing-geographies");
+    function select(name, focus = !1) {
+      active = name, paint(), focus && tabs.querySelector('[aria-selected="true"]').focus();
+    }
+    tabs.addEventListener("click", (event) => {
+      let button = event.target.closest("[data-geography]");
+      button && select(button.dataset.geography, !0);
+    }), tabs.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key) || !event.target.closest('[role="tab"]')) return;
+      event.preventDefault();
+      let index = groups.findIndex((row) => row.name === active), next = event.key === "Home" ? 0 : event.key === "End" ? groups.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + groups.length) % groups.length;
+      select(groups[next].name, !0);
+    });
+    function paint() {
+      let group = groups.find((row) => row.name === active), stats = group || briefing2;
+      tabs.hidden = !groups.length, tabs.innerHTML = groups.map((row, index) => `<button type="button" class="button" role="tab" id="briefing-geography-${index}" aria-controls="briefing-list" aria-selected="${row.name === active}" tabindex="${row.name === active ? 0 : -1}" data-geography="${escape(row.name)}">${escape(t(row.name))}<span class="geography-count">${row.total}</span></button>`).join("");
+      let panel = $("briefing-list");
+      group ? panel.setAttribute("aria-labelledby", "briefing-geography-" + groups.indexOf(group)) : panel.removeAttribute("aria-labelledby"), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(group.name), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = "Novedades detectadas: " + stats.total, $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(row.name)}</span></button>`).join(""), $("briefing-list").innerHTML = (group?.entities.flatMap((entity) => entity.items) || []).map((row) => `<article class="panel novelty-card"><div class="news-meta">${newsCoverage(row)}${newsTaxonomy(row)}${row.senales.map((signal) => `<span class="badge">${escape(signal)}</span>`).join("")}<time datetime="${escape(row.fecha)}">${escape(formatCalendarDay(row.fecha, language))}</time>${newsPublisher(row)}</div>${articleTranslationNote(row)}<h3 data-original><a href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">${escape(row.titular)}</a></h3><p class="novelty-context">${escape(row.entidad)} \xB7 ${escape(row.tipo)} \xB7 ${escape(row.pais)}</p><p ${row.extracto ? "data-original" : ""}>${escape(row.extracto || "Consulta la fuente original para conocer la oferta y sus condiciones.")}</p>${articleOriginal(row)}<div class="novelty-use"><span class="eyebrow">SEGMENTO Y TEMA</span><p>${escape(row.segmentos.length ? row.segmentos.join(" \xB7 ") : "Segmento no identificado")} \xB7 ${escape(row.tema)}</p></div><a class="button" href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">Consultar anuncio \u2197</a></article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.</p></div>', $("briefing-limit").hidden = !group || stats.total <= group.items.length;
+    }
+    return { get geography() {
+      return active;
+    }, render(data) {
+      briefing2 = data.briefing || { total: 0, bySignal: [], geographies: [], items: [] };
+      let stats = new Map(briefing2.geographies.map((row) => [row.name, row]));
+      groups = noveltyGroups(briefing2.items).map((group) => ({ ...group, ...stats.get(group.name) })).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, "es")), groups.some((row) => row.name === active) || (active = groups[0]?.name || ""), paint();
     } };
   }
 
@@ -2175,7 +2226,7 @@
   } }), briefing = createBriefing();
   $("briefing-signals").addEventListener("click", (event) => {
     let button = event.target.closest("[data-signal]");
-    button && filters4.set("signal", button.dataset.signal);
+    button && filters4.apply({ ...filters4.query(), country: briefing.geography, signal: button.dataset.signal });
   });
   var radar = createRadar({ onCountry: (country) => {
     filters4.show("news"), filters4.apply({ ...state.data.selection, country }), navigation.show("news");
