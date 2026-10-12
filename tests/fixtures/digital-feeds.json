@@ -1,0 +1,69 @@
+{
+  "verifiedAt": "2026-10-12",
+  "now": "2026-10-12T10:00:00Z",
+  "range": {
+    "from": "2026-09-01",
+    "to": "2026-10-12"
+  },
+  "feeds": [
+    {
+      "id": "finextra-mobile",
+      "items": [
+        {
+          "title": "Nubank rejects Monzo takeover talk",
+          "url": "https://www.finextra.com/newsarticle/48520/nubank-rejects-monzo-takeover-talk?utm_medium=rssfinextra&utm_source=finextrafeed",
+          "date": "Thu, 01 Oct 2026 15:46:00 GMT",
+          "excerpt": "Brazilian digital banking giant Nubank has denied that it is pursuing a $10 billion takeover of Britain's Monzo.",
+          "useful": false
+        },
+        {
+          "title": "Revolut gets green light to buy Argentinian bank",
+          "url": "https://www.finextra.com/newsarticle/48479/revolut-gets-green-light-to-buy-argentinian-bank?utm_medium=rssfinextra&utm_source=finextrafeed",
+          "date": "Mon, 28 Sep 2026 00:01:00 GMT",
+          "excerpt": "Revolut has received the regulatory go-ahead to acquire small Argentinian lender Banco Cetelem from BNP Paribas.",
+          "useful": false
+        },
+        {
+          "title": "Nubank launches deposit account in the US",
+          "url": "https://www.finextra.com/newsarticle/48397/nubank-launches-deposit-account-in-the-us?utm_medium=rssfinextra&utm_source=finextrafeed",
+          "date": "Tue, 15 Sep 2026 00:01:00 GMT",
+          "excerpt": "Brazilian digital giant Nubank has launched in the US, rolling out a suite of products through a partnership with a sponsor bank.",
+          "useful": true
+        },
+        {
+          "title": "Nubank appoints Circle's  Sarah Wilson chief legal officer",
+          "url": "https://www.finextra.com/pressarticle/110952/nubank-appoints-circles--sarah-wilson-chief-legal-officer?utm_medium=rssfinextra&utm_source=finextrafeed",
+          "date": "Fri, 18 Sep 2026 15:53:00 GMT",
+          "excerpt": "Nubank, the largest digital bank in Latin America, today announced the appointment of Sarah Wilson as Chief Legal Officer (CLO), effective September 28th.",
+          "useful": false
+        },
+        {
+          "title": "N26 expands Flexible Cash Fund access to all membership tiers",
+          "url": "https://www.finextra.com/pressarticle/111199/n26-expands-flexible-cash-fund-access-to-all-membership-tiers?utm_medium=rssfinextra&utm_source=finextrafeed",
+          "date": "Thu, 08 Oct 2026 14:22:00 GMT",
+          "excerpt": "N26 today announced the expansion of its Flexible Cash Fund, making the investment product available across all N26 membership tiers.",
+          "useful": true
+        }
+      ]
+    },
+    {
+      "id": "finextra-payments",
+      "items": [
+        {
+          "title": "Wise to pay clients' tax bills after third-party software error",
+          "url": "https://www.finextra.com/newsarticle/48554/wise-to-pay-clients-tax-bills-after-third-party-software-error?utm_medium=rssfinextra&utm_source=finextrafeed",
+          "date": "Thu, 08 Oct 2026 10:01:00 GMT",
+          "excerpt": "Money transfer app Wise has contacted the UK's tax authorities over technical errors that led thousands of clients to pay the wrong amount of tax on their investments.",
+          "useful": true
+        },
+        {
+          "title": "Revolut eyes Philippines bank licence",
+          "url": "https://www.finextra.com/newsarticle/48540/revolut-eyes-philippines-bank-licence?utm_medium=rssfinextra&utm_source=finextrafeed",
+          "date": "Tue, 06 Oct 2026 12:38:00 GMT",
+          "excerpt": "Digital bank Revolut is considering the Philippines as the next market in its global expansion plans",
+          "useful": false
+        }
+      ]
+    }
+  ]
+}

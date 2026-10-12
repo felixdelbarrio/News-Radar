@@ -1,6 +1,11 @@
-function briefing_(rows){
+function briefing_(rows,groupByEntity=false){
   const counts=new Map(configuration_().signals.filter(row=>row.enabled).map(row=>[row.name,0])),items=[];let total=0;
-  for(const row of rows){if(!row.senales.length)continue;total++;if(items.length<settings_().briefingLimit)items.push(row);for(const signal of row.senales)counts.set(signal,(counts.get(signal)||0)+1);}
+  const entities=new Map(),ranked=rows.filter(row=>row.senales.length).map(row=>{
+    const entity=entityKey_(row.entidad);entities.set(entity,(entities.get(entity)||0)+1);
+    return {row,entity,score:newsRelevanceMemory_.get(row)??digitalAssessment_(searchText_(row.titular),searchText_(row.titular+' '+row.extracto)).score};
+  });
+  ranked.sort((a,b)=>(groupByEntity?Number(b.entity==='BBVA')-Number(a.entity==='BBVA')||entities.get(b.entity)-entities.get(a.entity)||a.entity.localeCompare(b.entity,'es'):0)||b.score-a.score||b.row.fecha.localeCompare(a.row.fecha));
+  for(const {row} of ranked){total++;if(items.length<settings_().briefingLimit)items.push(row);for(const signal of row.senales)counts.set(signal,(counts.get(signal)||0)+1);}
   return {total,bySignal:[...counts].map(([name,total])=>({name,total})),items,limited:total>items.length};
 }
 function newsletter_(rows,query,title,now,subscriptionId,language='es'){

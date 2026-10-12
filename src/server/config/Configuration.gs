@@ -11,7 +11,7 @@ function configuration_(){
   return configurationMemory_=config;
 }
 function invalidateConfiguration_(){configurationMemory_=undefined;configurationVersionMemory_=undefined;properties_().setProperty('CONFIG_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));}
-function configurationEdited_(event){const sheet=event?.range?.getSheet().getName();if(sheet==='Configuracion')invalidateConfiguration_();else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
+function configurationEdited_(event){const sheet=event?.range?.getSheet().getName();if(sheet==='Configuracion'){invalidateConfiguration_();requestNewsClassification_(true);}else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
 function initializeConfiguration(){
   authorize_(true);const lock=LockService.getScriptLock();lock.waitLock(10000);
   try{
@@ -20,6 +20,24 @@ function initializeConfiguration(){
       const sheet=book_().insertSheet(name);sheet.getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]).setFontWeight('bold').setBackground(SHEET_THEME.background).setFontColor(SHEET_THEME.foreground);sheet.setFrozenRows(1);
     }
     const sheet=book_().getSheetByName('Configuracion'),count=sheet.getLastRow()-1,keys=new Set(count?sheet.getRange(2,1,count,1).getValues().flat():[]);
+    // Add only absent defaults once per release; preserve existing edits and activations.
+    if(properties_().getProperty('CATALOG_VERSION')!==RADAR.version){
+      const data=count?sheet.getRange(2,1,count,2).getValues():[];
+      for(const key of ['feeds','entities','capabilities']){
+        const index=data.findIndex(row=>row[0]===key);if(index<0)continue;
+        const value=JSON.parse(data[index][1]),defaults=CONFIGURATION_DEFAULTS[key];
+        if(key==='capabilities'){
+          for(const segment of Object.keys(defaults)){
+            const names=new Set(value[segment].map(row=>searchText_(row.name)));
+            value[segment].push(...defaults[segment].filter(row=>!names.has(searchText_(row.name))).slice(0,Math.max(0,60-value[segment].length)));
+          }
+        }else{
+          const names=new Set(value.map(row=>key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))),ids=new Set(value.map(row=>row.id));
+          value.push(...defaults.filter(row=>!names.has(key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))&&(key!=='feeds'||!ids.has(row.id))));
+        }
+        sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(value)]]);
+      }
+    }
     append_('Configuracion',Object.entries(CONFIGURATION_DEFAULTS).filter(([key])=>!keys.has(key)).map(([key,value])=>[key,JSON.stringify(value)]));
     const settingsRow=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues().findIndex(row=>row[0]==='settings')+2,stored=JSON.parse(sheet.getRange(settingsRow,2,1,1).getValues()[0][0]);
     const settings=Object.fromEntries(Object.entries(CONFIGURATION_DEFAULTS.settings).map(([key,value])=>[key,key in stored?stored[key]:value]));
@@ -27,9 +45,12 @@ function initializeConfiguration(){
     if(!ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='configurationEdited_'))ScriptApp.newTrigger('configurationEdited_').forSpreadsheet(book_()).onEdit().create();
     const subscriptions=book_().getSheetByName('Suscripciones'),countSubscriptions=subscriptions.getLastRow()-1;
     if(countSubscriptions>0){const range=subscriptions.getRange(2,8,countSubscriptions,1);range.setValues(range.getValues().map(([value])=>[value||'es']));}
+    invalidateConfiguration_();
+    if(properties_().getProperty('CATALOG_VERSION')!==RADAR.version){upgradeCollectionQueries_();properties_().setProperty('CATALOG_VERSION',RADAR.version);}
+    requestNewsClassification_();
     initializeCollectionQueue_();
     initializeBackgroundSchedules_();
-    invalidateConfiguration_();return 'Configuración inicializada en Sheets. Los valores existentes se han conservado.';
+    return 'Configuración inicializada en Sheets. Los valores existentes se han conservado.';
   }finally{lock.releaseLock();}
 }
 function validateConfiguration_(config){
@@ -58,7 +79,8 @@ function validateConfiguration_(config){
     }
     if(JSON.stringify(list).length>40000)throw Error('El catálogo excede el tamaño de una celda: '+key);
   }
-  if(Object.keys(config).sort().join(',')!=='entities,feeds,geographies,segments,settings,signals,topics')throw Error('Claves de configuración no reconocidas.');
+  validateCapabilities_(config.capabilities);
+  if(Object.keys(config).sort().join(',')!=='capabilities,entities,feeds,geographies,segments,settings,signals,topics')throw Error('Claves de configuración no reconocidas.');
   for(const key of ['searchTerms','disabledSources'])if(!Array.isArray(config.settings[key])||config.settings[key].length>1000||config.settings[key].some(value=>typeof value!=='string'||value.length>160))throw Error('Lista operativa no válida: '+key);
   if(!config.settings.searchTerms.length||config.settings.searchTerms.length>80)throw Error('Define entre 1 y 80 términos de búsqueda.');
   if(encodeURIComponent(JSON.stringify(config)).replace(/%[A-F\d]{2}/gi,'x').length>90000)throw Error('Configuración demasiado grande para la caché.');
@@ -77,14 +99,15 @@ function validateConfiguration_(config){
   return config;
 }
 function configurationRevision_(){configuration_();return configurationVersionMemory_;}
-function getConfiguration(){authorize_(true);return {config:configuration_(),revision:configurationRevision_()};}
+function getConfiguration(){authorize_(true);return {config:configuration_(),revision:configurationRevision_(),capabilityDefaults:CONFIGURATION_DEFAULTS.capabilities};}
 function saveConfiguration(payload){authorize_(true);return writeConfiguration_(payload.config,payload.revision);}
 function writeConfiguration_(config,revision){
   validateConfiguration_(config);const lock=LockService.getScriptLock();lock.waitLock(10000);
   try{
     if(revision!==String(properties_().getProperty('CONFIG_REVISION')||'0'))throw Error('La configuración ha cambiado en otra sesión. Recarga los catálogos antes de guardar.');
+    const reclassify=JSON.stringify(configuration_().capabilities)!==JSON.stringify(config.capabilities)||JSON.stringify(configuration_().topics)!==JSON.stringify(config.topics);
     const sheet=book_().getSheetByName('Configuracion'),rows=Object.entries(config).map(([key,value])=>[key,JSON.stringify(value)]);
-    sheet.getRange(2,1,Math.max(rows.length,sheet.getLastRow()-1),2).clearContent();append_('Configuracion',rows);invalidateConfiguration_();initializeBackgroundSchedules_();
+    sheet.getRange(2,1,Math.max(rows.length,sheet.getLastRow()-1),2).clearContent();append_('Configuracion',rows);invalidateConfiguration_();if(reclassify)requestNewsClassification_(true);initializeBackgroundSchedules_();
     return 'Configuración guardada. Se aplicará a filtros, clasificación y próximas recopilaciones.';
   }finally{lock.releaseLock();}
 }
@@ -106,4 +129,19 @@ function testGmailAuthorization() {
 
   Logger.log('HTTP: ' + response.getResponseCode());
   Logger.log(response.getContentText());
+}
+
+function validateCapabilities_(capabilities){
+  if(!capabilities||Object.keys(capabilities).sort().join(',')!=='Empresas,Retail')throw Error('Define capacidades digitales para Empresas y Retail.');
+  for(const [segment,rows] of Object.entries(capabilities)){
+    if(!Array.isArray(rows)||rows.length>60)throw Error('Máximo 60 capacidades por segmento: '+segment);
+    const names=new Set();
+    for(const row of rows){
+      const name=searchText_(row?.name);
+      if(!row||typeof row.name!=='string'||!name||row.name.length>100||names.has(name)||typeof row.enabled!=='boolean'||Object.keys(row).sort().join(',')!=='enabled,name,terms')throw Error('Capacidad vacía, duplicada o no válida: '+segment);
+      names.add(name);
+      if(!Array.isArray(row.terms)||!row.terms.length||row.terms.length>12||row.terms.some(term=>typeof term!=='string'||!term.trim()||term.length>80||/[";\r\n]/.test(term)))throw Error('Define entre 1 y 12 términos de hasta 80 caracteres: '+row.name);
+    }
+  }
+  if(JSON.stringify(capabilities).length>40000)throw Error('El catálogo de capacidades excede el tamaño de una celda.');
 }

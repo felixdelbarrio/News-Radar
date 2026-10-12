@@ -40,22 +40,22 @@ test('dashboard de lector no expone fuentes configurables, hoja ni datos de otro
   for(const key of ['sheetUrl','runs','feeds','configuredFeeds','email'])assert.equal(key in result,false);assert.equal(result.sourceCount,c.feeds_().length);assert.equal(result.admin,false);
 });
 test('las entidades, alias, países y términos configurados generan fuentes sin consultas redundantes por alias',()=>{
-  const c=context(),feeds=c.defaultFeeds_(),config=c.configuration_();assert.equal(new Set(feeds.map(feed=>feed.url)).size,feeds.length);assert.equal(feeds.filter(feed=>feed.kind==='rss').length,3);
+  const c=context(),feeds=c.defaultFeeds_(),config=c.configuration_();assert.equal(new Set(feeds.map(feed=>feed.url)).size,feeds.length);assert.equal(feeds.filter(feed=>feed.kind==='rss').length,7);
   for(const entity of config.entities)for(const country of entity.countries){
-    const geo=config.geographies.find(row=>row.name===country),feed=feeds.find(feed=>feed.country===country&&feed.entity===entity.name);assert.ok(feed);
-    const query=new URL(feed.url).searchParams.get('q');for(const alias of [entity.name,...entity.aliases])assert.ok(query.includes(alias));for(const term of config.settings.searchTerms)assert.ok(query.includes(term));assert.equal(new URL(feed.url).searchParams.get('gl'),geo.code);
+    const geo=config.geographies.find(row=>row.name===country),feed=feeds.find(feed=>feed.kind==='profile'&&feed.country===country&&feed.entity===entity.name);assert.ok(feed);
+    const query=new URL(feed.url).searchParams.get('q');for(const alias of [entity.name,...entity.aliases])assert.ok(query.includes(alias));for(const term of c.collectionSearchTerms_())assert.ok(query.includes(term));assert.equal(new URL(feed.url).searchParams.get('gl'),geo.code==='UY'?'US':geo.code);
   }
   assert.ok(feeds.some(feed=>feed.entity==='Revolut'));assert.ok(feeds.some(feed=>feed.entity==='Qonto'));
 });
 test('todas las fuentes RSS son editables y rechazan duplicados o dominios falsos',()=>{
-  const c=context(),count=c.feeds_().length;c.saveFeeds([{...feed,url:'https://bbva.com/extra'}]);assert.equal(c.feeds_().length,count-2);c.saveFeeds([]);assert.equal(c.feeds_().length,count-3);
+  const c=context(),count=c.feeds_().length;c.saveFeeds([{...feed,url:'https://bbva.com/extra'}]);assert.equal(c.feeds_().length,count-6);c.saveFeeds([]);assert.equal(c.feeds_().length,count-7);
   assert.throws(()=>c.saveFeeds([{...feed,url:'https://evilbbva.com/a'}]));assert.throws(()=>c.saveFeeds([{...feed,url:'https://bbva.com/a'},{...feed,url:'https://bbva.com/a'}]));
 });
 test('noticias agregadas se integran sin intervención y mantienen medio y enlace de Google News',()=>{
   const c=context(),profile=c.defaultFeeds_().find(feed=>feed.entity==='Santander'&&feed.country==='España');
   const raw={title:'Santander financia empresas - Diario',source:'Diario',excerpt:'Santander financia empresas Diario',date:'2026-10-08',url:'https://news.google.com/rss/articles/123'};
   const result=c.evaluate_(raw,profile,now);assert.equal(result.item.title,'Santander financia empresas');assert.equal(result.item.publisher,'Diario');assert.equal(result.item.excerpt,'');assert.equal(result.item.url,raw.url);
-  const record=c.newsRecord_(result.item,profile,now);assert.equal(record.length,12);assert.equal(record[3],'Diario');assert.equal(record[10],profile.name);
+  const record=c.newsRecord_(result.item,profile,now);assert.equal(record.length,13);assert.equal(record[3],'Diario');assert.equal(record[10],profile.name);
 });
 test('recopila por lotes, integra automáticamente, deduplica y conserva reintentos parciales',()=>{
   const c=context(),saved={},writes=[];let released=false;
@@ -66,7 +66,7 @@ test('recopila por lotes, integra automáticamente, deduplica y conserva reinten
   c.UrlFetchApp={fetchAll:requests=>requests.map(({url})=>url==='good'?{getResponseCode:()=>200,getContentText:()=>'<rss/>'}:{getResponseCode:()=>503})};
   c.parseFeed_=()=>[{...item,date:new Date(Date.now()-86400000).toISOString()},{...item,date:new Date(Date.now()-86400000).toISOString()}];c.append_=(name,rows)=>saved[name]=rows;c.telemetry_=()=>{};
   let flushed=false;c.SpreadsheetApp.flush=()=>flushed=true;c.invalidateNews_=()=>assert.equal(flushed,true);
-  const result=c.collectionBatch_(c.collectionWork_(Date.now()));assert.equal(result.added,1);assert.equal(result.errors.length,1);assert.equal(saved.Noticias[0].length,12);assert.equal(writes.length,1);assert.equal(writes[0][1][0],'Reintento programado');assert.equal(saved.Ejecuciones[0][3],'Parcial');assert.ok(saved.Auditoria.some(row=>row[4]==='Duplicada'));assert.equal(released,false);
+  const result=c.collectionBatch_(c.collectionWork_(Date.now()));assert.equal(result.added,1);assert.equal(result.errors.length,1);assert.equal(saved.Noticias[0].length,13);assert.equal(writes.length,1);assert.equal(writes[0][1][0],'Reintento programado');assert.equal(saved.Ejecuciones[0][3],'Parcial');assert.ok(saved.Auditoria.some(row=>row[4]==='Duplicada'));assert.equal(released,false);
 });
 test('agotados tres intentos registra error y la recuperación escribe un único lote',()=>{
   const c=context(),tasks=[{ciclo:'cycle',fuente:'Error',url:'bad',estado:'Pendiente',intentos:'2',actualizada:'2026-10-09',evaluadas:'0',nuevas:'0',error:''}];let rows,writes=0;
@@ -128,11 +128,11 @@ test('la evolución mantiene todas las publicaciones agrupando entidades y limit
   assert.ok(result.trend.buckets.length<=60);assert.equal(result.trend.series.length,6);assert.equal(result.trend.series.at(-1).entity,'Otras entidades');assert.equal(result.trend.series.flatMap(row=>row.values).reduce((a,b)=>a+b,0),10);
 });
 
-test('recuperación manual predetermina Hoy, respeta la zona y consulta el año por intervalos semanales',()=>{
+test('recuperación manual predetermina Hoy, respeta la zona y consulta el año por intervalos de 28 días',()=>{
  const c=context(),today=c.collectionRange_('today',new Date('2026-10-09T22:30:00Z'));assert.equal(today.from,'2026-10-10');assert.equal(today.to,'2026-10-10');
- const year=c.collectionRange_('year',now),windows=c.collectionWindows_(year);assert.equal(year.from,'2025-10-09');assert.equal(year.to,'2026-10-09');assert.equal(windows.length,53);assert.equal(windows.at(-1).from,year.from);assert.equal(windows[0].to,year.to);
+ const year=c.collectionRange_('year',now),windows=c.collectionWindows_(year);assert.equal(year.from,'2025-10-09');assert.equal(year.to,'2026-10-09');assert.equal(windows.length,14);assert.equal(windows.at(-1).from,year.from);assert.equal(windows[0].to,year.to);
  for(let i=1;i<windows.length;i++)assert.equal(Date.parse(windows[i-1].from)-Date.parse(windows[i].to),86400000);
- const feeds=c.collectionFeeds_(year);assert.equal(new Set(feeds.map(f=>f.url)).size,feeds.length);assert.equal(feeds.filter(f=>f.kind==='rss').length,3);
+ const feeds=c.collectionFeeds_(year);assert.equal(new Set(feeds.map(f=>f.url)).size,feeds.length);assert.equal(feeds.filter(f=>f.kind==='rss').length,7);
  const historic=feeds.find(f=>f.kind==='profile'&&f.range.from===year.from),query=new URL(historic.url).searchParams.get('q');assert.ok(query.includes('after:2025-10-08 before:'+new Date(Date.parse(historic.range.to)+86400000).toISOString().slice(0,10)));assert.doesNotMatch(query,/when:/);
  const old={...item,date:'2025-10-12'};assert.ok(c.evaluate_(old,{...feed,range:year},now).item);assert.match(c.evaluate_(old,{...feed,range:today},now).reason,/período/);
  const leap=c.collectionRange_('year',new Date('2024-02-29T12:00:00Z'));assert.equal(leap.from,'2023-02-28');
@@ -261,8 +261,8 @@ test('las ejecuciones se comparten entre cargas y una nueva escritura invalida l
 
 test('la telemetría identifica la versión que produjo cada operación y la exportación',()=>{
  const c=context();let rows;c.append_=(name,value)=>rows=value;c.trim_=()=>{};
- c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v1\.9\.4;/);
- c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'1.9.4');
+ c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v1\.11\.0;/);
+ c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'1.11.0');
 });
 
 test('cada vista calcula solo su visualización y conserva el medio de las noticias',()=>{

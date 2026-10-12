@@ -21,15 +21,15 @@ function collectNow(mode='today'){
 }
 function requestDailyCollection_(now=new Date()){requestCollection_('daily',collectionRecentRange_(now));}
 function dailyRadar_(){requestDailyCollection_();backgroundTick_();}
-function collectionBatch_({tasks,pending,jobs}){
-  const started=Date.now(),news=[],audit=[],errors=[],newTasks=[];let evaluated=0;
+function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
+  const started=Date.now(),news=[],audit=[],errors=[],newTasks=[];let evaluated=0,relevant=0,digital=0,duplicated=0,excluded=0,saturated=0,queued;
   try{
     if(!pending.length){
       const previous=new Map(jobs.map(job=>[job.id,JSON.stringify(job)]));collectionSnapshots_(tasks,jobs);
       const changed=jobs.filter(job=>previous.get(job.id)!==JSON.stringify(job));for(const job of changed)writeCollectionJob_(job);if(changed.length)SpreadsheetApp.flush();
       return {...collectionStatus_(tasks,jobs),added:0,evaluated:0,errors:[]};
     }
-    const feeds=collectionFeedIndex_(),known=knownUrls_(),now=new Date(),updates=tasks.map(task=>[task.estado,task.intentos,task.actualizada,task.evaluadas,task.nuevas,task.error]);
+    const feeds=collectionFeedIndex_(),known=knownIndex||knownUrls_(),now=new Date(),updates=tasks.map(task=>[task.estado,task.intentos,task.actualizada,task.evaluadas,task.nuevas,task.error]);
     const jobIndex=new Map(jobs.map(job=>[job.id,job]));
     const affected=new Set(pending.map(task=>task.ciclo));for(const job of jobs)if(affected.has(job.id)){job.estado='En curso';writeCollectionJob_(job);}
     CacheService.getScriptCache().remove('collection-status');SpreadsheetApp.flush();
@@ -42,9 +42,10 @@ function collectionBatch_({tasks,pending,jobs}){
         if(!feed){status='Omitida';audit.push([task.ciclo,now.toISOString(),task.fuente,task.url,status,'Fuente desactivada o eliminada']);}
         else{const response=responses[responseIndex++];if(response.error)throw response.error;
           const result=ingestFeed_(feed,known,task.ciclo,now,response.response);news.push(...result.news);audit.push(...result.audit);count=result.evaluated;added=result.news.length;evaluated+=count;
-          if(result.saturated){
-            const split=splitCollectionFeed_(feed);
-            for(const child of split)newTasks.push([task.ciclo,child.name,child.url,'Pendiente',0,'',0,0,'',child.range.to]);
+          relevant+=result.relevant||0;digital+=result.digital||0;duplicated+=result.duplicated||0;excluded+=result.excluded||0;
+          if(result.saturated){saturated++;
+            const split=splitCollectionFeed_(feed);queued=queued||new Set(rows_('Recopilacion',undefined,3).map(row=>row.ciclo+'|'+row.url));
+            for(const child of split)if(!queued.has(task.ciclo+'|'+child.url)&&!newTasks.some(row=>row[0]===task.ciclo&&row[2]===child.url))newTasks.push([task.ciclo,child.name,child.url,'Pendiente',0,'',0,0,'',child.range.to]);
             audit.push([task.ciclo,now.toISOString(),feed.name,feed.url,'Cobertura parcial',split.length?'Consulta saturada; dividida en dos períodos menores':'Consulta diaria saturada; el proveedor puede omitir publicaciones']);
           }}
       }catch(e){error=String(e.message).slice(0,180);status=(e.retryable||/HTTP (429|5\d\d)/.test(error))&&attempts<3?'Reintento programado':'Error';errors.push(task.fuente+': '+error);audit.push([task.ciclo,now.toISOString(),task.fuente,task.url,status,error]);}
@@ -55,14 +56,14 @@ function collectionBatch_({tasks,pending,jobs}){
     append_('Noticias',news);let sorted=false;
     append_('Auditoria',audit);append_('Recopilacion',newTasks);
     writeCollectionTasks_(pending,updates);
-    if(!newTasks.length&&updates.every(row=>!['Pendiente','Reintento programado'].includes(row[0]))){const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1;if(count>1){sheet.getRange(2,1,count,RADAR.sheets.Noticias.length).sort({column:2,ascending:true});sorted=true;}}
+    if((news.length||tasks.some(task=>Number(task.nuevas)>0))&&!newTasks.length&&updates.every(row=>!['Pendiente','Reintento programado'].includes(row[0]))){const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1;if(count>1){if(properties_().getProperty('CLASSIFICATION_JOB'))requestNewsClassification_(true);sheet.getRange(2,1,count,RADAR.sheets.Noticias.length).sort({column:2,ascending:true});sorted=true;}}
     SpreadsheetApp.flush();if(news.length||sorted)invalidateNews_();
     append_('Ejecuciones',[...affected].map(id=>{const batch=pending.filter(task=>task.ciclo===id),rows=batch.map(task=>updates[task.row-2]),failures=rows.map(row=>row[5]).filter(Boolean);return [id,now.toISOString(),new Date().toISOString(),failures.length?'Parcial':'Completada',batch.length,rows.reduce((sum,row)=>sum+Number(row[3]),0),rows.reduce((sum,row)=>sum+Number(row[4]),0),failures.join(' | ')];}));
     for(const job of jobs)if(pending.filter(task=>task.ciclo===job.id&&updates[task.row-2][5]).length>=2)job.pausa=String(Date.now()+settings_().pauseMinutes*60000);
     tasks.push(...newTasks.map(row=>({ciclo:row[0],estado:row[3],nuevas:row[7]})));
     collectionSnapshots_(tasks,jobs);for(const job of jobs)if(affected.has(job.id))writeCollectionJob_(job);
     SpreadsheetApp.flush();const collection=collectionStatus_(null,jobs);
-    telemetry_('recopilacion',Date.now()-started,errors.length?'Parcial':'OK',pending.length+' fuentes; '+news.length+' nuevas; preparación '+(fetchStart-started)+' ms; red '+fetchMs+' ms; proceso '+processingMs+' ms; escritura '+(Date.now()-writeStarted)+' ms');
+    telemetry_('recopilacion',Date.now()-started,errors.length?'Parcial':'OK',pending.length+' fuentes; '+news.length+' nuevas; '+evaluated+' recuperadas; '+relevant+' relevantes; '+news.length+' clasificadas; '+digital+' digitales; '+duplicated+' duplicadas; '+excluded+' excluidas; '+saturated+' saturadas; '+errors.length+' fallidas; preparación '+(fetchStart-started)+' ms; red '+fetchMs+' ms; proceso '+processingMs+' ms; escritura '+(Date.now()-writeStarted)+' ms');
     return {...collection,added:news.length,evaluated,errors};
   }catch(error){telemetry_('recopilacion',Date.now()-started,'Error',error.message);throw error;}
 }

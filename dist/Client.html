@@ -26,6 +26,25 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    Cobertura: ["Coverage", "Kapsam"],
+    Generalista: ["General banking", "Genel bankac\u0131l\u0131k"],
+    "Canal digital": ["Digital channel", "Dijital kanal"],
+    "Filtro de cobertura no v\xE1lido.": ["Invalid coverage filter.", "Ge\xE7ersiz kapsam filtresi."],
+    "Restaurar capacidades predeterminadas": ["Restore default capabilities", "Varsay\u0131lan yetenekleri geri y\xFCkle"],
+    "Capacidades digitales": ["Digital capabilities", "Dijital yetenekler"],
+    "T\xE9rminos de b\xFAsqueda": ["Search terms", "Arama terimleri"],
+    "Capacidades independientes para Empresas y Retail. T\xE9rminos separados por punto y coma; solo las activas participan en b\xFAsquedas y relevancia.": ["Independent capabilities for Business and Retail. Separate terms with semicolons; only active capabilities influence searches and relevance.", "\u0130\u015Fletme ve Bireysel i\xE7in ba\u011F\u0131ms\u0131z yetenekler. Terimleri noktal\u0131 virg\xFClle ay\u0131r\u0131n; yaln\u0131zca etkin yetenekler aramalar\u0131 ve uygunlu\u011Fu etkiler."],
+    "Define capacidades digitales para Empresas y Retail.": ["Define digital capabilities for Business and Retail.", "\u0130\u015Fletme ve Bireysel i\xE7in dijital yetenekleri tan\u0131mlay\u0131n."],
+    "El cat\xE1logo de capacidades excede el tama\xF1o de una celda.": ["The capability catalog exceeds the size of a cell.", "Yetenek katalo\u011Fu bir h\xFCcrenin boyutunu a\u015F\u0131yor."],
+    "M\xE1ximo 60 capacidades por segmento": ["Maximum 60 capabilities per segment", "Segment ba\u015F\u0131na en fazla 60 yetenek"],
+    "Capacidad vac\xEDa, duplicada o no v\xE1lida": ["Empty, duplicate or invalid capability", "Bo\u015F, yinelenen veya ge\xE7ersiz yetenek"],
+    "Define entre 1 y 12 t\xE9rminos de hasta 80 caracteres": ["Define 1 to 12 terms of up to 80 characters", "En fazla 80 karakterlik 1 ile 12 aras\u0131nda terim tan\u0131mlay\u0131n"],
+    "Sin entidad de seguimiento en el titular": ["No tracked entity in the headline", "Ba\u015Fl\u0131kta takip edilen kurum yok"],
+    "Sin evidencia de la entidad buscada": ["No evidence of the searched entity", "Aranan kurum i\xE7in kan\u0131t yok"],
+    "Geograf\xEDa distinta de la b\xFAsqueda": ["Different geography from the search", "Aramadan farkl\u0131 co\u011Frafya"],
+    "Informaci\xF3n corporativa sin novedad de canal digital": ["Corporate information without a digital channel update", "Dijital kanal yenili\u011Fi i\xE7ermeyen kurumsal bilgi"],
+    "Sin capacidad digital activa en contexto de canal": ["No active digital capability in channel context", "Kanal ba\u011Flam\u0131nda etkin dijital yetenek yok"],
+    "Titular equivalente de la misma entidad en fecha pr\xF3xima": ["Equivalent headline for the same entity on a nearby date", "Yak\u0131n tarihte ayn\u0131 kurum i\xE7in e\u015Fde\u011Fer ba\u015Fl\u0131k"],
     "Respuesta de traducci\xF3n incompleta.": ["Incomplete translation response.", "\xC7eviri yan\u0131t\u0131 eksik."],
     Versi\u00F3n: ["Version", "S\xFCr\xFCm"],
     "Suscripci\xF3n guardada. La entrega est\xE1 pendiente de activaci\xF3n por el administrador.": ["Subscription saved. Delivery is awaiting activation by the administrator.", "Abonelik kaydedildi. Teslimat y\xF6neticinin etkinle\u015Ftirmesini bekliyor."],
@@ -866,6 +885,9 @@
   function newsPublisher(row) {
     return "<span>Medio: " + (row.medio ? "<span data-original>" + escape(row.medio) + "</span>" : "No indicado") + "</span>";
   }
+  function newsCoverage(row) {
+    return [["generalista", "Generalista"], ["digital", "Canal digital"]].filter(([key]) => row.etiquetas?.[key]).map(([, label]) => '<span class="badge">' + label + "</span>").join("");
+  }
   function metricCards(values) {
     return values.map(([label, value, note]) => `<article class="metric"><p class="eyebrow">${escape(label)}</p><strong>${escape(value ?? "\u2014")}</strong><span class="small muted">${escape(note)}</span></article>`).join("");
   }
@@ -1424,31 +1446,54 @@
           ]
         }
       ]
+    },
+    capabilities: {
+      label: "Capacidades digitales",
+      help: "Capacidades independientes para Empresas y Retail. T\xE9rminos separados por punto y coma; solo las activas participan en b\xFAsquedas y relevancia.",
+      fields: [
+        [
+          "name",
+          "Nombre",
+          "text"
+        ],
+        [
+          "terms",
+          "T\xE9rminos de b\xFAsqueda",
+          "list"
+        ],
+        [
+          "enabled",
+          "Activa",
+          "boolean"
+        ]
+      ]
     }
   };
 
   // src/client/features/configuration.js
   function createConfiguration({ run }) {
-    let config, revision, category = "entities";
+    let config, revision, category = "entities", segment = "Empresas", capabilityDefaults, entries = () => category === "capabilities" ? config.capabilities[segment] : config[category], setEntries = (rows) => {
+      category === "capabilities" ? config.capabilities[segment] = rows : config[category] = rows;
+    };
     async function fetchConfig() {
       let snapshot = await call("getConfiguration");
-      config = snapshot.config, revision = snapshot.revision;
+      config = snapshot.config, revision = snapshot.revision, capabilityDefaults = snapshot.capabilityDefaults;
     }
     function readFields() {
       if (config)
         if (category === "settings")
           for (let input of $("catalog-fields").querySelectorAll("[data-key]")) config.settings[input.dataset.key] = input.type === "checkbox" ? input.checked : input.type === "number" ? Number(input.value) : input.dataset.list === "true" ? input.value.split(";").map((value) => value.trim()).filter(Boolean) : input.value;
-        else config[category] = [...$("catalog-fields").children].map((row) => Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input) => [input.dataset.key, input.type === "checkbox" ? input.checked : input.dataset.list === "true" ? input.value.split(";").map((value) => value.trim()).filter(Boolean) : input.value])));
+        else setEntries([...$("catalog-fields").children].map((row) => Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input) => [input.dataset.key, input.type === "checkbox" ? input.checked : input.dataset.list === "true" ? input.value.split(";").map((value) => value.trim()).filter(Boolean) : input.value]))));
     }
     function fields(fields2, row) {
       return fields2.map(([key, label, type]) => `<label>${escape(label)}${type === "boolean" ? `<input type="checkbox" data-key="${key}" ${row[key] ? "checked" : ""}>` : `<input data-key="${key}" ${type === "list" ? 'data-list="true"' : ""} type="${type === "number" ? "number" : "text"}" value="${escape(type === "list" ? (row[key] || []).join("; ") : row[key] ?? "")}">`}</label>`).join("");
     }
     function render() {
       let meta = admin_schema_default[category];
-      $("catalog-help").textContent = meta.help, $("catalog-add").hidden = category === "settings", $("catalog-fields").innerHTML = category === "settings" ? admin_schema_default.settings.groups.map((group) => `<fieldset class="catalog-group"><legend>${escape(group.label)}</legend><div class="catalog-settings">${group.keys.map((key) => {
+      $("capability-toolbar").hidden = category !== "capabilities", $("capability-segment").value = segment, $("catalog-help").textContent = meta.help, $("catalog-add").hidden = category === "settings", $("catalog-fields").innerHTML = category === "settings" ? admin_schema_default.settings.groups.map((group) => `<fieldset class="catalog-group"><legend>${escape(group.label)}</legend><div class="catalog-settings">${group.keys.map((key) => {
         let value = config.settings[key];
         return fields([[key, admin_schema_default.settings.labels[key], Array.isArray(value) ? "list" : typeof value == "number" ? "number" : typeof value == "boolean" ? "boolean" : "text"]], config.settings);
-      }).join("")}</div></fieldset>`).join("") : config[category].map((row) => `<details class="catalog-row" ${row.name ? "" : "open"}><summary><strong>${escape(row.name || "Nueva entrada")}</strong><span>${escape(row.type || "")} \xB7 ${row.enabled ? "Activa" : "Inactiva"}</span></summary><div class="catalog-grid">${fields(meta.fields, row)}</div><div class="actions"><button type="button" class="button" data-move="-1">Subir</button><button type="button" class="button" data-move="1">Bajar</button><button type="button" class="button" data-remove>Eliminar</button></div></details>`).join("");
+      }).join("")}</div></fieldset>`).join("") : entries().map((row) => `<details class="catalog-row" ${row.name ? "" : "open"}><summary><strong>${escape(row.name || "Nueva entrada")}</strong><span>${escape(row.type || "")} \xB7 ${row.enabled ? "Activa" : "Inactiva"}</span></summary><div class="catalog-grid">${fields(meta.fields, row)}</div><div class="actions"><button type="button" class="button" data-move="-1">Subir</button><button type="button" class="button" data-move="1">Bajar</button><button type="button" class="button" data-remove>Eliminar</button></div></details>`).join("");
     }
     return $("catalog-category").innerHTML = Object.entries(admin_schema_default).map(([key, meta]) => `<option value="${key}">${escape(meta.label)}</option>`).join(""), $("catalog-category").addEventListener("change", () => {
       readFields(), category = $("catalog-category").value, render();
@@ -1458,10 +1503,14 @@
       let move = event.target.closest("[data-move]");
       if (move) {
         let row = move.closest(".catalog-row"), index = [...$("catalog-fields").children].indexOf(row), target = index + Number(move.dataset.move);
-        readFields(), target >= 0 && target < config[category].length && ([config[category][index], config[category][target]] = [config[category][target], config[category][index]], render());
+        readFields(), target >= 0 && target < entries().length && ([entries()[index], entries()[target]] = [entries()[target], entries()[index]], render());
       }
+    }), $("capability-segment").addEventListener("change", () => {
+      readFields(), segment = $("capability-segment").value, render();
+    }), $("capability-restore").addEventListener("click", () => {
+      readFields(), config.capabilities[segment] = JSON.parse(JSON.stringify(capabilityDefaults[segment])), render();
     }), $("catalog-add").addEventListener("click", () => {
-      readFields(), config[category].push(Object.fromEntries(admin_schema_default[category].fields.map(([key, , type]) => [key, type === "list" ? [] : type === "boolean" ? !0 : ""]))), render();
+      readFields(), entries().push(Object.fromEntries(admin_schema_default[category].fields.map(([key, , type]) => [key, type === "list" ? [] : type === "boolean" ? !0 : ""]))), render();
     }), $("catalog-form").addEventListener("submit", (event) => {
       event.preventDefault(), readFields(), run(async () => {
         message(await call("saveConfiguration", { config, revision })), await fetchConfig(), render();
@@ -1486,7 +1535,7 @@
   function createBriefing() {
     return { render(data) {
       let briefing2 = data.briefing || { total: 0, bySignal: [], items: [] };
-      $("briefing-count").textContent = "Novedades detectadas: " + briefing2.total, $("briefing-signals").innerHTML = briefing2.bySignal.map((row) => `<button type="button" class="signal-card" data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(row.name)}</span></button>`).join(""), $("briefing-list").innerHTML = briefing2.items.map((row) => `<article class="panel novelty-card"><div class="news-meta">${row.senales.map((signal) => `<span class="badge">${escape(signal)}</span>`).join("")}<time datetime="${escape(row.fecha)}">${escape(formatCalendarDay(row.fecha, language))}</time>${newsPublisher(row)}</div>${articleTranslationNote(row)}<h3 data-original><a href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">${escape(row.titular)}</a></h3><p class="novelty-context">${escape(row.entidad)} \xB7 ${escape(row.tipo)} \xB7 ${escape(row.pais)}</p><p ${row.extracto ? "data-original" : ""}>${escape(row.extracto || "Consulta la fuente original para conocer la oferta y sus condiciones.")}</p>${articleOriginal(row)}<div class="novelty-use"><span class="eyebrow">SEGMENTO Y TEMA</span><p>${escape(row.segmentos.length ? row.segmentos.join(" \xB7 ") : "Segmento no identificado")} \xB7 ${escape(row.tema)}</p></div><a class="button" href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">Consultar anuncio \u2197</a></article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.</p></div>', $("briefing-limit").hidden = !briefing2.limited;
+      $("briefing-count").textContent = "Novedades detectadas: " + briefing2.total, $("briefing-signals").innerHTML = briefing2.bySignal.map((row) => `<button type="button" class="signal-card" data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(row.name)}</span></button>`).join(""), $("briefing-list").innerHTML = briefing2.items.map((row) => `<article class="panel novelty-card"><div class="news-meta">${newsCoverage(row)}${row.senales.map((signal) => `<span class="badge">${escape(signal)}</span>`).join("")}<time datetime="${escape(row.fecha)}">${escape(formatCalendarDay(row.fecha, language))}</time>${newsPublisher(row)}</div>${articleTranslationNote(row)}<h3 data-original><a href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">${escape(row.titular)}</a></h3><p class="novelty-context">${escape(row.entidad)} \xB7 ${escape(row.tipo)} \xB7 ${escape(row.pais)}</p><p ${row.extracto ? "data-original" : ""}>${escape(row.extracto || "Consulta la fuente original para conocer la oferta y sus condiciones.")}</p>${articleOriginal(row)}<div class="novelty-use"><span class="eyebrow">SEGMENTO Y TEMA</span><p>${escape(row.segmentos.length ? row.segmentos.join(" \xB7 ") : "Segmento no identificado")} \xB7 ${escape(row.tema)}</p></div><a class="button" href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">Consultar anuncio \u2197</a></article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.</p></div>', $("briefing-limit").hidden = !briefing2.limited;
     } };
   }
 
@@ -1629,16 +1678,16 @@
       el.dataset.options !== signature && (el.dataset.options = signature, el.innerHTML = '<option value="">Todos</option>' + values.map((x) => '<option value="' + escape(x) + '">' + escape(x) + "</option>").join(""), el.value = current || "");
     }
     function layout() {
-      $(view + "-filter-chips").appendChild($("active-filters")), $("geography-filter").hidden = view === "radar", $("advanced-filters").hidden = view === "radar";
+      $(view + "-filter-chips").appendChild($("active-filters")), $("geography-filter").hidden = view === "radar", $("coverage-filter").hidden = !["news", "briefing"].includes(view), $("advanced-filters").hidden = view === "radar";
       for (let id of ["from-filter", "to-filter"]) $(id).hidden = view === "briefing";
       $("filter-description").textContent = view === "radar" ? "Entidad y segmento del Radar." : view === "briefing" ? "Novedades de los \xFAltimos 7 d\xEDas." : "Selecci\xF3n de noticias y per\xEDodo de consulta.";
     }
     layout();
-    let chipLabels = { search: "B\xFAsqueda", country: "Geograf\xEDa", entity: "Entidad", source: "Medio", topic: "Tema", type: "Tipo de entidad", segment: "Segmento", signal: "Novedad", from: "Fecha desde", to: "Fecha hasta" };
+    let chipLabels = { coverage: "Cobertura", search: "B\xFAsqueda", country: "Geograf\xEDa", entity: "Entidad", source: "Medio", topic: "Tema", type: "Tipo de entidad", segment: "Segmento", signal: "Novedad", from: "Fecha desde", to: "Fecha hasta" };
     function renderChips() {
       let target = $("active-filters"), allowed = (name) => view === "radar" ? ["entity", "segment"].includes(name) : view === "briefing" ? !["from", "to"].includes(name) : !0, values = Object.entries(chipLabels).filter(([name]) => allowed(name) && form.elements[name].value);
       target.hidden = !values.length, target.innerHTML = values.map(([name, label]) => {
-        let raw = form.elements[name].value, value = ["from", "to"].includes(name) ? formatCalendarDay(raw, language) : raw, original = ["search", "entity", "source"].includes(name), text = t(label) + ": " + (original ? value : t(value));
+        let raw = form.elements[name].value, value = name === "coverage" ? { digital: "Canal digital", generalista: "Generalista" }[raw] : ["from", "to"].includes(name) ? formatCalendarDay(raw, language) : raw, original = ["search", "entity", "source"].includes(name), text = t(label) + ": " + (original ? value : t(value));
         return '<button type="button" class="filter-chip" data-original data-remove-filter="' + name + '" aria-label="' + escape(t("Quitar")) + " " + escape(text) + '"><span>' + escape(text) + '</span><span aria-hidden="true">\xD7</span></button>';
       }).join("");
     }
@@ -1692,7 +1741,7 @@
 
   // src/client/features/news.js
   function renderNews(data) {
-    $("news-list").innerHTML = data.items.length ? data.items.map((n, index) => `<article class="news-item"><span class="news-index" aria-hidden="true">${String(data.page * data.pageSize + index + 1).padStart(2, "0")}</span><div><div class="news-meta"><span class="badge">${escape(n.tema)}</span><time datetime="${escape(n.fecha)}">${escape(formatCalendarDay(n.fecha, language))}</time><span>${escape(n.pais)}</span>${newsPublisher(n)}<span>${escape(n.tipo || "")}</span></div>${articleTranslationNote(n)}<h3 data-original><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">${escape(n.titular)}</a></h3><p ${n.extracto ? "data-original" : ""}>${escape(n.extracto || "El feed no proporciona un extracto. Consulta la publicaci\xF3n original.")}</p>${articleOriginal(n)}<div class="news-footer"><span class="muted">${escape([n.entidad, ...n.segmentos || []].filter(Boolean).join(" \xB7 "))}</span><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">Abrir noticia \u2197</a></div></div></article>`).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>', $("result-count").textContent = data.total + " publicaciones", $("page-label").textContent = data.total ? t("P\xE1gina {page} de {pages}", { page: data.page + 1, pages: Math.ceil(data.total / data.pageSize) }) : "Sin resultados", $("previous").disabled = data.page === 0, $("next").disabled = (data.page + 1) * data.pageSize >= data.total;
+    $("news-list").innerHTML = data.items.length ? data.items.map((n, index) => `<article class="news-item"><span class="news-index" aria-hidden="true">${String(data.page * data.pageSize + index + 1).padStart(2, "0")}</span><div><div class="news-meta"><span class="badge">${escape(n.tema)}</span>${newsCoverage(n)}<time datetime="${escape(n.fecha)}">${escape(formatCalendarDay(n.fecha, language))}</time><span>${escape(n.pais)}</span>${newsPublisher(n)}<span>${escape(n.tipo || "")}</span></div>${articleTranslationNote(n)}<h3 data-original><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">${escape(n.titular)}</a></h3><p ${n.extracto ? "data-original" : ""}>${escape(n.extracto || "El feed no proporciona un extracto. Consulta la publicaci\xF3n original.")}</p>${articleOriginal(n)}<div class="news-footer"><span class="muted">${escape([n.entidad, ...n.segmentos || []].filter(Boolean).join(" \xB7 "))}</span><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">Abrir noticia \u2197</a></div></div></article>`).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>', $("result-count").textContent = data.total + " publicaciones", $("page-label").textContent = data.total ? t("P\xE1gina {page} de {pages}", { page: data.page + 1, pages: Math.ceil(data.total / data.pageSize) }) : "Sin resultados", $("previous").disabled = data.page === 0, $("next").disabled = (data.page + 1) * data.pageSize >= data.total;
   }
 
   // src/client/features/shell.js

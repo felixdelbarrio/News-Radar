@@ -10,7 +10,7 @@ function client(responses={}){
       addEventListener(type,fn){this.listeners[type]=fn;},setCustomValidity(value){this.validation=value;},reportValidity(){return !this.elements?.to.validation;}});
     return elements.get(id);
   };
-  const form=element('filters');form.elements=Object.fromEntries(['search','country','entity','source','topic','from','to','type','segment','signal'].map(name=>[name,Object.assign(element(name),{name})]));
+  const form=element('filters');form.elements=Object.fromEntries(['search','country','entity','source','topic','from','to','type','segment','signal','coverage'].map(name=>[name,Object.assign(element(name),{name})]));
   Object.defineProperty(form.elements,Symbol.iterator,{value:function*(){yield* Object.values(this);}});
   for(const name of ['country','entity','source','topic']){
     const select=form.elements[name];let html='';

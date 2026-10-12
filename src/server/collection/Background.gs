@@ -28,15 +28,17 @@ function backgroundTick_(){return processBackground_();}
 function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
   scheduledTriggers_('backgroundTick_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));properties_().deleteProperty('BACKGROUND_NEXT');
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000)){ensureBackgroundWorker_();return {added:0,errors:[],busy:true};}
-  const started=Date.now(),errors=[];let work,completed=false,added=0;
+  const started=Date.now(),errors=[];let classifiedHistory=false,work,known,completed=false,added=0;
   try{
     for(let batch=0;batch<batchLimit&&Date.now()-started<BACKGROUND_WORK.maxMs;batch++){
+      if(!classifiedHistory&&properties_().getProperty('CLASSIFICATION_JOB')){newsClassificationBatch_();classifiedHistory=true;}
       drainCollectionRequests_();work=collectionWork_(Date.now());
       const daily=work.pending.length&&work.jobs.some(job=>job.id===work.pending[0].ciclo&&job.tipo==='daily'),translation=translationReadyAt_()<=Date.now();
       if(!daily&&translation&&(!work.pending.length||properties_().getProperty('BACKGROUND_LAST')==='collection')){
         translationBatch_(Math.min(TRANSLATION_WORK.maxMs,BACKGROUND_WORK.maxMs-(Date.now()-started)));properties_().setProperty('BACKGROUND_LAST','translation');continue;
       }
-      const result=collectionBatch_(work),day=recordDay(new Date(),settings_().timezone);added+=result.added;errors.push(...result.errors);
+      if(work.pending.length)known=known||knownUrls_();
+      const result=collectionBatch_({...work,known}),day=recordDay(new Date(),settings_().timezone);added+=result.added;errors.push(...result.errors);
       if(!work.pending.length)break;
       if(daily&&work.jobs.some(job=>job.id===work.pending[0].ciclo&&job.estado==='Completada')&&properties_().getProperty('MAINTENANCE_DAY')!==day){maintenance_();properties_().setProperty('MAINTENANCE_DAY',day);}
       properties_().setProperty('BACKGROUND_LAST','collection');
@@ -44,7 +46,7 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
     completed=true;return {...collectionStatus_(null,work?.jobs),added,errors};
   }finally{
     try{
-      const queued=collectionRequests_().length,next=queued||!completed?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_());
+      const queued=collectionRequests_().length||properties_().getProperty('CLASSIFICATION_JOB'),next=queued||!completed?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_());
       if(Number.isFinite(next))ensureBackgroundWorker_(next-Date.now());
     }finally{lock.releaseLock();}
   }
@@ -55,5 +57,5 @@ function initializeBackgroundSchedules_(){
   if(properties_().getProperty('DAILY_ENABLED')==='true')replaceDailySchedule_('dailyRadar_',settings_().dailyHour);else scheduledTriggers_('dailyRadar_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   if(properties_().getProperty('TRANSLATION_ENABLED')!=='false'){replaceDailySchedule_('nightlyTranslations_',TRANSLATION_WORK.hour);properties_().setProperty('TRANSLATION_ENABLED','true');}
   else scheduledTriggers_('nightlyTranslations_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
-  if(collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_()))ensureBackgroundWorker_();
+  if(properties_().getProperty('CLASSIFICATION_JOB')||collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_()))ensureBackgroundWorker_();
 }

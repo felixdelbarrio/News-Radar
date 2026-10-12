@@ -16,7 +16,9 @@
     "codeql:prepare": "node scripts/codeql-prepare.mjs",
     "verify": "npm run check && npm run test:coverage",
     "pretest:coverage": "npm run build",
-    "test:coverage": "node scripts/coverage.mjs"
+    "test:coverage": "node scripts/coverage.mjs",
+    "compare:collection": "node scripts/compare-collection.mjs",
+    "compare:digital": "node scripts/compare-digital.mjs"
   },
   "devDependencies": {
     "acorn": "^8.19.0",
