@@ -44,7 +44,7 @@ test('un RSS con idioma explícito evita traducir ese idioma y una respuesta inc
 });
 test('seleccionar noticias para traducción lee IDs y solo los textos solicitados',()=>{
  const s=server(),c=s.c,keys=vm.runInContext('RADAR.sheets.Noticias',c),sheet=s.sheets.get('Noticias');for(let i=0;i<2000;i++)sheet.grid.push(keys.map(key=>key==='id'?String(i):key==='titular'?'Título '+i:key==='extracto'?'Texto extenso'.repeat(100):''));
- const reads=[],get=sheet.getRange.bind(sheet);sheet.getRange=(...args)=>{reads.push(args);return get(...args);};const selected=c.rowsById_('Noticias',new Set(['2','3','1500']),2000);assert.equal(selected.length,3);assert.deepEqual(reads,[[2,1,2000,1],[4,1,2,12],[1502,1,1,12]]);assert.equal(c.rowsById_('Noticias',new Set(),2000).length,0);
+ const reads=[],get=sheet.getRange.bind(sheet);sheet.getRange=(...args)=>{reads.push(args);return get(...args);};const selected=c.rowsById_('Noticias',new Set(['2','3','1500']),2000);assert.equal(selected.length,3);assert.deepEqual(reads,[[2,1,2000,1],[4,1,2,14],[1502,1,1,14]]);assert.equal(c.rowsById_('Noticias',new Set(),2000).length,0);
 });
 test('el dashboard usa variantes guardadas sin traductor y conserva la clasificación y filtros originales',()=>{
  const s=server(),c=s.c;add(s,[{...article,entidad:'BBVA'}]);assert.equal(c.getDashboard({view:'news',entity:'BBVA',segment:'Empresas e instituciones',language:'tr'}).items[0].translation.state,'pending');provider(c);c.storeArticleTranslation_(article,'tr');c.LanguageApp={translate:()=>{throw Error('No se traduce al abrir una pantalla');}};

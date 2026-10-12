@@ -1,3 +1,4 @@
+import {createTaxonomy} from './features/taxonomy.js';
 import {defaultView} from './config.js';
 import {createLanguageSettings} from './features/language-settings.js';
 import {createRecoveryControls,renderCollectionJobs} from './features/runs.js';
@@ -19,14 +20,16 @@ import { createUsage } from "./features/usage.js";
 import { createNavigation } from "./features/navigation.js";
 import {initializeLocalization,flushLocalization} from './core/localization.js';
 initializeLocalization();
-const state = { data: null, request: 0, busy: false };
+const state = { data: null, request: 0, busy: false,contentStale:false };
 const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => Boolean(state.data) }), { track, flush } = usage;
-const configuration = createConfiguration({run:action});
+const noteNewsRevision=revision=>{if(revision&&state.data&&revision!==state.data.newsRevision)state.contentStale=true;};
+const configuration = createConfiguration({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='configuration'});
+const taxonomy=createTaxonomy({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='taxonomy'});
 const subscriptions = createSubscriptions({run:action,onApply:query=>{filters.show('news');filters.apply(query);navigation.show('news');}});
 const newsletterDelivery=createNewsletterDelivery({run:action});
-const languageSettings=createLanguageSettings({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='language'});
-const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onLanguage:()=>languageSettings.open(),onLeaveLanguage:()=>languageSettings.close() });
-const navigation = createNavigation({ onSelection:view=>{if(filters.show(view))load();else if(state.data)renderSelection(state.data,view);}, onSubscriptions:()=>subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
+const languageSettings=createLanguageSettings({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='language'});
+const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onLanguage:()=>languageSettings.open(),onLeaveLanguage:()=>languageSettings.close(),onLeaveConfiguration:()=>configuration.close(),onTaxonomy:()=>taxonomy.open(),onLeaveTaxonomy:()=>taxonomy.close() });
+const navigation = createNavigation({ onSelection:view=>{configuration.close();taxonomy.close();if(filters.show(view)||state.contentStale)load();else if(state.data)renderSelection(state.data,view);}, onSubscriptions:()=>{configuration.close();taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
 const filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
   track("filtro");
   load();
@@ -53,7 +56,7 @@ async function load() {
     const data = await call("getDashboard", filters.query());
     if (request === state.request) {
       const first = !state.data;
-      state.data = data;
+      state.data = data;state.contentStale=false;
       setTimezone(data.preferences?.timezone);
       if(window.RADAR_PREVIEW&&data.admin)$("preview-banner").textContent="Administración local · cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.";
       const renderStarted=performance.now();
@@ -93,7 +96,7 @@ async function action(fn, refresh = true) {
     message(e.message || String(e), true);
   } finally {
     state.busy = false;
-    document.querySelectorAll(actionControls).forEach(el=>el.disabled=false);
+    document.querySelectorAll(actionControls).forEach(el=>el.disabled=el.dataset.jobActive==='true');
     sources.setBusy(false);recoveryControls.setBusy(false);
     if (state.data) {
       $("previous").disabled = state.data.page === 0;
@@ -139,4 +142,4 @@ if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocat
 });
 load();
 
-window.addEventListener('news-radar-language-change',async()=>{await load();if(navigation.current==='administration'&&administration.current==='language')await languageSettings.open();});
+window.addEventListener('news-radar-language-change',async()=>{await load();if(navigation.current==='administration'&&administration.current==='language')await languageSettings.open();if(navigation.current==='administration'&&administration.current==='taxonomy')await taxonomy.open();});

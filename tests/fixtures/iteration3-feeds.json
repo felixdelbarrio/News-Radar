@@ -1,0 +1,379 @@
+{
+  "capturedAt": "2026-10-12T08:46:10.623670+00:00",
+  "feeds": [
+    {
+      "id": "bankinter-blog",
+      "url": "https://www.bankinter.com/blog/rss",
+      "status": 200,
+      "items": [
+        {
+          "title": " Fórum Bolsa Bankinter online: inscríbete al evento ",
+          "url": "https://www.bankinter.com/blog/noticias-bankinter/forum-bolsa-online-bankinter-2026",
+          "date": "Sun, 11 Oct 2026 09:30:00 GMT",
+          "excerpt": " Inscr&iacute;bete al F&oacute;rum Bolsa online de Bankinter y descubre las claves de la econom&iacute;a, la geopol&iacute;tica y los mercados de la mano de expertos. "
+        },
+        {
+          "title": " Claves bursátiles: ¿Qué pasará la próxima semana en los mercados? ",
+          "url": "https://www.bankinter.com/blog/mercados/claves-bursatiles-proxima-semana",
+          "date": "Sun, 11 Oct 2026 09:00:00 GMT",
+          "excerpt": " Los compa&ntilde;eros del equipo de An&aacute;lisis y Mercados de Bankinter explican las claves burs&aacute;tiles de la pr&oacute;xima semana. "
+        },
+        {
+          "title": " Amazon prepara gafas inteligentes con IA para sus repartidores: así funcionarán ",
+          "url": "https://www.bankinter.com/blog/economia/amazon-gafas-inteligentes-repartidores-ia",
+          "date": "Fri, 09 Oct 2026 12:15:00 GMT",
+          "excerpt": " Amazon avanza en el uso de inteligencia artificial en su red log&iacute;stica con unas gafas inteligentes que ayudar&aacute;n a sus repartidores a realizar las entregas de forma m&aacute;s r&aacute;pida y precisa. "
+        },
+        {
+          "title": " Observatorio de Startups: La inversión en España supera los 3.500 millones de euros en el tercer trimestre de 2026 ",
+          "url": "https://www.bankinter.com/blog/noticias-bankinter/bankinter-inversion-startups-q3-2026-fundacion-innovacion",
+          "date": "Fri, 09 Oct 2026 11:30:00 GMT",
+          "excerpt": " La inversi&oacute;n en startups en Espa&ntilde;a cierra en septiembre un 49% m&aacute;s que el mismo periodo del a&ntilde;o anterior. "
+        },
+        {
+          "title": " La historia de Bankinter en Madrid Este, dos décadas de crecimiento y especialización ",
+          "url": "https://www.bankinter.com/blog/noticias-bankinter/historia-bankinter-madrid-este",
+          "date": "Fri, 09 Oct 2026 09:00:00 GMT",
+          "excerpt": " Desde 2005, Madrid Este ha crecido junto a sus clientes, adapt&aacute;ndose a los cambios y reforzando su presencia en el territorio. "
+        },
+        {
+          "title": " SpaceX se convertirá en operador de telefonía móvil en EE.UU. ",
+          "url": "https://www.bankinter.com/blog/economia/noticias-spacex-analisis-acciones",
+          "date": "Fri, 09 Oct 2026 08:15:00 GMT",
+          "excerpt": " <span>Consulta las &uacute;ltimas noticias de SpaceX y la opini&oacute;n del equipo de An&aacute;lisis y Mercados de Bankinter</span> "
+        },
+        {
+          "title": " Cómo analizar un ETF antes de invertir: métricas y claves para elegir ",
+          "url": "https://www.bankinter.com/blog/economia/como-analizar-etf-antes-invertir",
+          "date": "Fri, 09 Oct 2026 08:03:00 GMT",
+          "excerpt": ""
+        },
+        {
+          "title": " BCE: Sube los tipos por el repunte de la inflación ",
+          "url": "https://www.bankinter.com/blog/economia/ultimas-actas-bce",
+          "date": "Fri, 09 Oct 2026 07:15:00 GMT",
+          "excerpt": " Consulta el acta de la &uacute;ltima reuni&oacute;n del BCE y el an&aacute;lisis de las principales conclusiones "
+        },
+        {
+          "title": " Agenda económica | Ligeros rebotes en la antesala de una semana clave ",
+          "url": "https://www.bankinter.com/blog/mercados/agenda-economica-diaria",
+          "date": "Fri, 09 Oct 2026 07:00:00 GMT",
+          "excerpt": " Consulta en nuestra agenda econ&oacute;mica cu&aacute;les son las claves m&aacute;s importantes del d&iacute;a y de la semana. "
+        },
+        {
+          "title": " OpenAI anunció unos ingresos anualizados de en torno a 50.000 millones de dólares ",
+          "url": "https://www.bankinter.com/blog/empresas/noticias-openai-analisis-acciones",
+          "date": "Fri, 09 Oct 2026 07:00:00 GMT",
+          "excerpt": " <span>Consulta las &uacute;ltimas noticias de OpenAI y la opini&oacute;n del equipo de an&aacute;lisis de Bankinter</span> "
+        },
+        {
+          "title": " PepsiCo: Los resultados del tercer trimestre baten las expectativas ",
+          "url": "https://www.bankinter.com/blog/empresas/resultados-pepsico",
+          "date": "Fri, 09 Oct 2026 07:00:00 GMT",
+          "excerpt": " Consulta los &uacute;ltimos resultados publicados por PepsiCo y la opini&oacute;n del equipo de An&aacute;lisis y Mercados de Bankinter. "
+        },
+        {
+          "title": " Renta 2026: principales novedades fiscales  ",
+          "url": "https://www.bankinter.com/blog/finanzas-personales/novedades-renta-personas-fisicas",
+          "date": "Thu, 08 Oct 2026 12:30:00 GMT",
+          "excerpt": " Descubre la gu&iacute;a de las principales novedades de la declaraci&oacute;n de la renta 2026, a realizar en 2027 para las personas f&iacute;sicas. "
+        },
+        {
+          "title": " Inscriu-te a la trobada «Com afecten els conflictes globals l'economia i el teixit empresarial de Girona» ",
+          "url": "https://www.bankinter.com/blog/noticias-bankinter/trobada-conflictes-globals-empreses-girona",
+          "date": "Thu, 08 Oct 2026 12:01:00 GMT",
+          "excerpt": " Bankinter i el Diari de Girona organitzen una trobada empresarial a Girona per analitzar com afecten els conflictes globals l'economia, la competitivitat i el futur de les empreses de la prov&iacute;ncia "
+        },
+        {
+          "title": " Renta 2026 para autónomos: ¿qué novedades fiscales hay? ",
+          "url": "https://www.bankinter.com/blog/finanzas-personales/novedades-renta-autonomos",
+          "date": "Thu, 08 Oct 2026 11:00:00 GMT",
+          "excerpt": " Descubre las principales novedades de la declaraci&oacute;n de la Renta 2026 para aut&oacute;nomos, a realizar en 2027. "
+        },
+        {
+          "title": " Novedades fiscales para empresas en 2026: ¿qué cambia en el Impuesto sobre Sociedades? ",
+          "url": "https://www.bankinter.com/blog/finanzas-personales/novedades-renta-empresas",
+          "date": "Thu, 08 Oct 2026 10:30:00 GMT",
+          "excerpt": " Descubre las principales novedades de la declaraci&oacute;n de la Renta 2026 para empresas, a realizar en 2027. "
+        },
+        {
+          "title": " Samsung anuncia cifras preliminares ligeramente por debajo de lo esperado  ",
+          "url": "https://www.bankinter.com/blog/empresas/resultados-samsung",
+          "date": "Thu, 08 Oct 2026 07:56:00 GMT",
+          "excerpt": " <span>Consulta los &uacute;ltimos resultados de Samsung y la opini&oacute;n de nuestro equipo de An&aacute;lisis y Mercados de Bankinter.</span> "
+        },
+        {
+          "title": " Las Actas de la Fed de la última reunión muestran un tono hawkish/duro ",
+          "url": "https://www.bankinter.com/blog/mercados/analisis-actas-fed",
+          "date": "Thu, 08 Oct 2026 07:05:00 GMT",
+          "excerpt": " &iquest;Qu&eacute; muestran las actas de la Reserva Federal? Descubre las principales conclusiones y la opini&oacute;n del equipo de An&aacute;lisis y Mercados de Bankinter. "
+        },
+        {
+          "title": " AENA: Fitch eleva el rating desde A hasta A+ con perspectiva estable ",
+          "url": "https://www.bankinter.com/blog/empresas/noticias-aena-analisis-acciones",
+          "date": "Thu, 08 Oct 2026 06:30:00 GMT",
+          "excerpt": " Consulta las &uacute;ltimas noticias de inter&eacute;s sobre Aena y la opini&oacute;n de nuestro equipo de An&aacute;lisis y Mercados de Bankinter. "
+        },
+        {
+          "title": " ¿Quieres invertir en empresas que reparten dividendos? Consulta esta selección ",
+          "url": "https://www.bankinter.com/blog/mercados/rentabilidad-por-dividendo-acciones",
+          "date": "Wed, 07 Oct 2026 13:00:00 GMT",
+          "excerpt": " El equipo de An&aacute;lisis y Mercados de Bankinter trae la mejor selecci&oacute;n de empresas con alta rentabilidad por dividendo. "
+        },
+        {
+          "title": " Nuevos decretos de vivienda: medidas y aprobación por la Diputación Permanente ",
+          "url": "https://www.bankinter.com/blog/finanzas-personales/decreto-vivienda-2026-medidas",
+          "date": "Wed, 07 Oct 2026 09:30:00 GMT",
+          "excerpt": " El Gobierno aprueba nuevos decretos de vivienda con medidas sobre alquileres, desahucios, fiscalidad y pr&eacute;stamos para comprar la primera vivienda. "
+        },
+        {
+          "title": " Bankinter celebra el 40º aniversario de Bankinter Gestión de Activos con una campaña temporal por traspasar fondos ",
+          "url": "https://www.bankinter.com/blog/noticias-bankinter/bankinter-gestion-activos-campana-traspaso-fondos",
+          "date": "Wed, 07 Oct 2026 08:36:00 GMT",
+          "excerpt": " Bankinter ofrece una bonificaci&oacute;n del 1% por traspasar fondos de inversi&oacute;n desde otras entidades a fondos de Bankinter Gesti&oacute;n de Activos. "
+        },
+        {
+          "title": " Previsiones de Bankinter para la bolsa americana 2026 y 2027 (actualizado) ",
+          "url": "https://www.bankinter.com/blog/mercados/prevision-sp500",
+          "date": "Wed, 07 Oct 2026 08:00:00 GMT",
+          "excerpt": " Descubre las previsiones de nuestro equipo de An&aacute;lisis y Mercados de Bankinter de la bolsa americana para 2026 y 2027. "
+        },
+        {
+          "title": " ¿Qué empresas forman el Ibex 35? Lista actualizada ",
+          "url": "https://www.bankinter.com/blog/empresas/empresas-ibex35",
+          "date": "Wed, 07 Oct 2026 08:00:00 GMT",
+          "excerpt": " Descubre cu&aacute;les son las empresas que componen actualmente el Ibex 35 y accede&nbsp;a sus cotizaciones, an&aacute;lisis y recomendaciones. "
+        },
+        {
+          "title": " Bolsa española: Revisamos al alza gracias a la valoración de las empresas ",
+          "url": "https://www.bankinter.com/blog/mercados/prevision-ibex",
+          "date": "Wed, 07 Oct 2026 07:50:00 GMT",
+          "excerpt": " Nuestro equipo de An&aacute;lisis y Mercados de Bankinter pone a tu disposici&oacute;n las previsiones de la bolsa espa&ntilde;ola para 2026 y 2027. "
+        },
+        {
+          "title": " Bolsa de Portugal: Beneficios empresariales revisados a mejor ",
+          "url": "https://www.bankinter.com/blog/mercados/prevision-psi-actualizado",
+          "date": "Wed, 07 Oct 2026 07:45:00 GMT",
+          "excerpt": " Nuestro equipo de An&aacute;lisis y Mercados pone a tu disposici&oacute;n las previsiones de la bolsa portuguesa para 2026 y 2027. "
+        },
+        {
+          "title": " ¿Quieres invertir en fondos de autor? Cambios en los fondos seleccionados ",
+          "url": "https://www.bankinter.com/blog/mercados/invertir-fondos-autor",
+          "date": "Wed, 07 Oct 2026 07:10:00 GMT",
+          "excerpt": " Descubre cu&aacute;les son los fondos de autor seleccionados por nuestros analistas para este mes, divididos por categor&iacute;as. "
+        },
+        {
+          "title": " El Royal Bank of India (RBI) sube sus tipos +25pb hasta 5,50% como esperado ",
+          "url": "https://www.bankinter.com/blog/economia/analisis-reunion-banco-india",
+          "date": "Wed, 07 Oct 2026 06:53:00 GMT",
+          "excerpt": " Consulta las &uacute;ltimas medidas tomadas por el Banco de India y la opini&oacute;n del equipo de An&aacute;lisis y Mercados de Bankinter. "
+        },
+        {
+          "title": " ¿Qué fondo de inversión me conviene en función de mi perfil? ",
+          "url": "https://www.bankinter.com/blog/finanzas-personales/fondos-inversion-perfil-riesgo",
+          "date": "Wed, 07 Oct 2026 06:40:00 GMT",
+          "excerpt": " <span>Descubre en este listado de fondos del equipo de an&aacute;lisis de Bankinter qu&eacute; fondos de inversi&oacute;n destacan para tu perfil.</span> "
+        },
+        {
+          "title": " ¿Quieres invertir en fondos de inversión? Cambios en los fondos seleccionados ",
+          "url": "https://www.bankinter.com/blog/mercados/invertir-fondos-inversion",
+          "date": "Wed, 07 Oct 2026 06:35:00 GMT",
+          "excerpt": " Descubre cu&aacute;les son los fondos de inversi&oacute;n seleccionados por nuestros analistas para&nbsp;este mes, divididos por categor&iacute;as. "
+        },
+        {
+          "title": " ¿Cuánto cuestan las entradas para el Open de España de Madrid? ¿Cuál es su aporte económico a la Comunidad? ",
+          "url": "https://www.bankinter.com/blog/finanzas-personales/entradas-torneo-golf-madrid",
+          "date": "Tue, 06 Oct 2026 10:30:00 GMT",
+          "excerpt": " Conoce los precios de las entradas para el torneo Open de Espa&ntilde;a de Madrid 2026 y su aporte econ&oacute;mico a la Comunidad de Madrid. "
+        },
+        {
+          "title": " Novedades del nuevo reglamento de circulación para conductores, motoristas, ciclistas y patinetes  ",
+          "url": "https://www.bankinter.com/blog/finanzas-personales/dgt-nuevo-reglamento-circulacion",
+          "date": "Tue, 06 Oct 2026 09:00:00 GMT",
+          "excerpt": " Descubre en este art&iacute;culo el nuevo reglamento de la DGT, sus principales novedades y c&oacute;mo afectar&aacute;n a los conductores. "
+        },
+        {
+          "title": " ¡Apúntate a la próxima jornada de Análisis y Mercados en A Coruña! ",
+          "url": "https://www.bankinter.com/blog/noticias-bankinter/jornada-analisis-mercados-bankinter-acoruna-2026",
+          "date": "Tue, 06 Oct 2026 08:00:00 GMT",
+          "excerpt": " Conoce las claves que definir&aacute;n el rumbo de los pr&oacute;ximos meses en el pr&oacute;ximo evento en A Coru&ntilde;a "
+        },
+        {
+          "title": " Apúntate al encuentro “Pasando el testigo: el relevo generacional como oportunidad de futuro\" ",
+          "url": "https://www.bankinter.com/blog/noticias-bankinter/jornada-relevo-generacional-empresa-familiar-malaga",
+          "date": "Tue, 06 Oct 2026 07:30:00 GMT",
+          "excerpt": " Bankinter y Diario SUR re&uacute;nen en M&aacute;laga a expertos para analizar el relevo generacional en la empresa familiar y sus oportunidades de futuro. "
+        },
+        {
+          "title": " Estrategia en Bonos: ¿Dónde están las oportunidades? ",
+          "url": "https://www.bankinter.com/blog/mercados/invertir-bonos",
+          "date": "Mon, 05 Oct 2026 14:20:00 GMT",
+          "excerpt": " Descubre el an&aacute;lisis y la estrategia de inversi&oacute;n trimestral del equipo de an&aacute;lisis de Bankinter para la inversi&oacute;n en bonos. "
+        },
+        {
+          "title": " Cartera para medio y largo plazo: Innovación, crecimiento estructural y rentabilidad ",
+          "url": "https://www.bankinter.com/blog/mercados/invertir-innovacion",
+          "date": "Mon, 05 Oct 2026 14:10:00 GMT",
+          "excerpt": " Descubre la selecci&oacute;n de compa&ntilde;&iacute;as de innovaci&oacute;n para invertir de nuestro equipo de An&aacute;lisis y Mercados de Bankinter. "
+        },
+        {
+          "title": " ¿Dónde invertir en la bolsa europea? Nuevos cambios en las acciones seleccionadas ",
+          "url": "https://www.bankinter.com/blog/mercados/invertir-bolsa-europea",
+          "date": "Mon, 05 Oct 2026 14:00:00 GMT",
+          "excerpt": " Descubre cu&aacute;les son las acciones seleccionadas por el equipo de An&aacute;lisis y Mercados en sus carteras modelo europeas. "
+        },
+        {
+          "title": " Invertir en sostenibilidad: Selección de fondos de inversión sostenibles ",
+          "url": "https://www.bankinter.com/blog/mercados/seleccion-de-fondos-de-inversion-sostenible",
+          "date": "Mon, 05 Oct 2026 13:45:00 GMT",
+          "excerpt": " Descubre la selecci&oacute;n de fondos de inversi&oacute;n sostenibles de nuestro equipo de An&aacute;lisis y Mercados de Bankinter. "
+        },
+        {
+          "title": " ¿Dónde invertir en la bolsa americana? Nuevos cambios en las acciones seleccionadas ",
+          "url": "https://www.bankinter.com/blog/mercados/invertir-bolsa-americana",
+          "date": "Mon, 05 Oct 2026 13:00:00 GMT",
+          "excerpt": " Te ofrecemos nuestra selecci&oacute;n de empresas americanas para invertir y los cambios en la estrategia este mes.<br /> "
+        },
+        {
+          "title": " ¿Quieres invertir en ETFs? Listado completo actualizado ",
+          "url": "https://www.bankinter.com/blog/mercados/invertir-etf",
+          "date": "Mon, 05 Oct 2026 12:00:00 GMT",
+          "excerpt": " Descubre la lista de&nbsp;ETFs seleccionados por nuestros analistas para&nbsp;este mes, divididos por categor&iacute;as. "
+        },
+        {
+          "title": " El precio de la vivienda seguirá subiendo de manera sostenida en 2026, 2027 y 2028 ",
+          "url": "https://www.bankinter.com/blog/finanzas-personales/prevision-precio-vivienda",
+          "date": "Mon, 05 Oct 2026 10:30:00 GMT",
+          "excerpt": " &iquest;Qu&eacute; pasar&aacute; con el precio de la vivienda en 2026, 2027 y 2028? Descubre las previsiones del equipo de An&aacute;lisis y Mercados de Bankinter. "
+        },
+        {
+          "title": " Previsión euro yen para 2026 y 2027 (actualizado) ",
+          "url": "https://www.bankinter.com/blog/mercados/prevision-euro-yen-actualizado",
+          "date": "Mon, 05 Oct 2026 10:15:00 GMT",
+          "excerpt": " Descubre cu&aacute;les son las previsiones del euro yen para 2026 y 2027, la opini&oacute;n de nuestro equipo de An&aacute;lisis y Mercados de Bankinter. "
+        },
+        {
+          "title": " Previsión euro franco suizo para 2026 y 2027 (actualizado) ",
+          "url": "https://www.bankinter.com/blog/mercados/prevision-euro-franco-suizo",
+          "date": "Mon, 05 Oct 2026 10:01:00 GMT",
+          "excerpt": " Descubre las previsiones del euro franco suizo para 2026 y 2027 junto con la opini&oacute;n de nuestro equipo de An&aacute;lisis y Mercados de Bankinter. "
+        },
+        {
+          "title": " Día de la educación financiera: descubre las principales iniciativas de Bankinter ",
+          "url": "https://www.bankinter.com/blog/noticias-bankinter/dia-educacion-financiera-ninos-adultos",
+          "date": "Mon, 05 Oct 2026 09:30:00 GMT",
+          "excerpt": " Con motivo del D&iacute;a de la educaci&oacute;n financiera, repasamos algunas de las iniciativas en marcha. "
+        },
+        {
+          "title": " ¿Dónde invertir en la bolsa española? Nuevos cambios en las acciones seleccionadas ",
+          "url": "https://www.bankinter.com/blog/mercados/invertir-bolsa-espanola",
+          "date": "Mon, 05 Oct 2026 09:20:00 GMT",
+          "excerpt": " Descubre cu&aacute;les son las acciones seleccionadas por el equipo de An&aacute;lisis y Mercados en sus carteras modelo espa&ntilde;olas "
+        },
+        {
+          "title": " Renta Fija | Las expectativas de endurecimiento monetario podrían suavizarse, pero el riesgo fiscal continuará ",
+          "url": "https://www.bankinter.com/blog/economia/invertir-renta-fija",
+          "date": "Mon, 05 Oct 2026 08:30:00 GMT",
+          "excerpt": " Descubre cu&aacute;l es la situaci&oacute;n actual de la renta fija y las perspectivas para las pr&oacute;ximas semanas "
+        },
+        {
+          "title": " Previsión euro libra esterlina para 2026 y 2027 (actualizado) ",
+          "url": "https://www.bankinter.com/blog/mercados/prevision-euro-libra",
+          "date": "Mon, 05 Oct 2026 08:30:00 GMT",
+          "excerpt": " Descubre las previsiones del cambio euro libra para 2026 y 2027, junto con la opini&oacute;n de nuestro equipo de An&aacute;lisis y Mercados "
+        },
+        {
+          "title": " Previsión del precio del petróleo para 2026 y 2027 ",
+          "url": "https://www.bankinter.com/blog/mercados/prevision-precio-petroleo",
+          "date": "Mon, 05 Oct 2026 08:15:00 GMT",
+          "excerpt": " Nuestro equipo de an&aacute;lisis y mercados pone a tu disposici&oacute;n las previsiones del precio del petr&oacute;leo para 2026 y 2027. "
+        },
+        {
+          "title": " Bankinter celebra nueve encuentros de Análisis y Mercados en San Sebastián, Bilbao y Santander ",
+          "url": "https://www.bankinter.com/blog/noticias-bankinter/eventos-analisis-mercados-santader-bilbao-sansebastian-2026",
+          "date": "Mon, 05 Oct 2026 08:00:00 GMT",
+          "excerpt": " Bankinter celebra nueve encuentros de An&aacute;lisis y Mercados en San Sebasti&aacute;n, Bilbao y Santander sobre econom&iacute;a, geopol&iacute;tica, IA e inversi&oacute;n. "
+        },
+        {
+          "title": " Calendario de dividendos del Ibex 35 en 2026 ",
+          "url": "https://www.bankinter.com/blog/mercados/calendario-dividendos",
+          "date": "Mon, 05 Oct 2026 08:00:00 GMT",
+          "excerpt": " Descubre cu&aacute;ndo reparten dividendos en 2026 las principales empresas del Ibex 35 y del mercado continuo. "
+        },
+        {
+          "title": " Frutas y verduras para comprar en octubre ",
+          "url": "https://www.bankinter.com/blog/finanzas-personales/frutas-verduras-temporada-octubre",
+          "date": "Mon, 05 Oct 2026 07:15:00 GMT",
+          "excerpt": " Consumir&nbsp;alimentos de temporada ayuda a la sostenibilidad&nbsp;y al ahorro. Descubre cu&aacute;les son las frutas y verduras de temporada en octubre. "
+        }
+      ]
+    },
+    {
+      "id": "stripe-blog",
+      "url": "https://stripe.com/blog/feed.rss",
+      "status": 200,
+      "items": [
+        {
+          "title": "Why I tried to kill token billing (and why we kept it)",
+          "url": "https://stripe.com/blog/where-pricing-is-headed",
+          "date": "Thu, 01 Oct 2026 00:00:00 +0000",
+          "excerpt": "Token billing is useful infrastructure, but usually a bad customer-facing pricing model. Your invoice should define the value your product delivers, not break down what it cost you to create it."
+        },
+        {
+          "title": "OUSD is now the default stablecoin on Stripe",
+          "url": "https://stripe.com/blog/ousd-now-live-on-stripe",
+          "date": "Wed, 30 Sep 2026 00:00:00 +0000",
+          "excerpt": "Open USD (OUSD), a stablecoin built for global money movement, is now available across Stripe. Businesses can use OUSD to manage funds, make payments, and offer new financial services."
+        },
+        {
+          "title": "Helping personal agents shop more intelligently and reliably with Link ",
+          "url": "https://stripe.com/blog/helping-personal-agents-shop-more-intelligently-and-reliably-with-link",
+          "date": "Tue, 29 Sep 2026 00:00:00 +0000",
+          "excerpt": "As agents take on more purchases, agent builders have increasingly asked us to help agents navigate checkout and earn consumer trust. Today, we’re sharing three major improvements to support this broader set of needs."
+        },
+        {
+          "title": "Travel’s AI dilemma at Skift Global Forum",
+          "url": "https://stripe.com/blog/travels-ai-dilemma-at-skift-global-forum",
+          "date": "Mon, 28 Sep 2026 00:00:00 +0000",
+          "excerpt": "At the “great recalibration”-themed travel conference, Airbnb CEO Brian Chesky called AI “an existential risk” to his company and “literally the best thing to ever happen” to it in the same discussion. That sums up many travel leaders’ push-and-pull relationship with AI. "
+        },
+        {
+          "title": "New trends in global card fraud: How 3D Secure and regional mandates are affecting risk ",
+          "url": "https://stripe.com/blog/new-trends-in-global-card-fraud-how-3d-secure-and-regional-mandates-are-affecting-risk",
+          "date": "Tue, 22 Sep 2026 00:00:00 +0000",
+          "excerpt": "We analyzed billions of transactions on Stripe from January 2022 to March 2026 to understand how card fraud patterns differ by region and country, what's driving those differences, and how businesses can respond. "
+        },
+        {
+          "title": "Analyzing rising fraud attempts among travel and leisure businesses on Stripe",
+          "url": "https://stripe.com/blog/analyzing-rising-fraud-attempts-among-travel-and-leisure-businesses-on-stripe",
+          "date": "Fri, 18 Sep 2026 00:00:00 +0000",
+          "excerpt": "Last year, Stripe data shows fraud attempts against travel and leisure businesses hit a four-year high. We analyzed payment activity from more than 200,000 active travel and leisure businesses on Stripe to understand where fraud is rising, how effectively it’s being blocked, and what businesses can do in response."
+        },
+        {
+          "title": "SaaS platforms are surging despite the SaaSpocalypse",
+          "url": "https://stripe.com/blog/saas-platforms-are-surging-despite-the-saaspocalypse",
+          "date": "Thu, 17 Sep 2026 00:00:00 +0000",
+          "excerpt": "The SaaSpocalypse was a useful warning for the software industry, but SaaS platforms that help businesses run core operations are more deeply embedded. New platform businesses on Stripe are up 182% year over year."
+        },
+        {
+          "title": "What Stripe data shows about fraud at AI startups",
+          "url": "https://stripe.com/blog/what-stripe-data-shows-about-fraud-at-ai-startups",
+          "date": "Tue, 15 Sep 2026 00:00:00 +0000",
+          "excerpt": "We analyzed attempted fraud rates and customer abuse patterns on Stripe over the past year and found that AI companies faced 4.3x more fraud attempts than startups overall in Q3 2025. "
+        },
+        {
+          "title": "Five monetization trends from global pricing leaders ",
+          "url": "https://stripe.com/blog/five-monetization-trends-from-global-pricing-leaders",
+          "date": "Thu, 20 Aug 2026 00:00:00 +0000",
+          "excerpt": "As AI transforms software economics, the standard revenue playbook is breaking down. Learn how leaders around the world are preparing for agent buyers, updating processes for faster pricing iteration, and building more flexible infrastructure."
+        },
+        {
+          "title": "Why global workers are driving demand for stablecoin payouts",
+          "url": "https://stripe.com/blog/why-global-workers-are-driving-demand-for-stablecoin-payouts",
+          "date": "Wed, 19 Aug 2026 00:00:00 +0000",
+          "excerpt": "Platforms like DoorDash, Meta, and Deel already enable stablecoin payouts for global workers. We surveyed 2,300 workers in 20 countries to see what's driving stablecoin demand, where the opportunity is highest, and how other platforms can adapt.\n"
+        }
+      ]
+    }
+  ]
+}

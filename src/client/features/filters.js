@@ -18,19 +18,20 @@ function createFilters({ onInvalidate, onChange }) {
   function layout(){
       $(view+'-filter-chips').appendChild($('active-filters'));
       $('geography-filter').hidden=view==='radar';
+      $('coverage-filter').hidden=!['news','briefing'].includes(view);
       $('advanced-filters').hidden=view==='radar';
       for(const id of ['from-filter','to-filter'])$(id).hidden=view==='briefing';
       $('filter-description').textContent=view==='radar'?'Entidad y segmento del Radar.':view==='briefing'?'Novedades de los últimos 7 días.':'Selección de noticias y período de consulta.';
   }
   layout();
-  const chipLabels={search:'Búsqueda',country:'Geografía',entity:'Entidad',source:'Medio',topic:'Tema',type:'Tipo de entidad',segment:'Segmento',signal:'Novedad',from:'Fecha desde',to:'Fecha hasta'};
+  const chipLabels={coverage:'Cobertura',search:'Búsqueda',country:'Geografía',entity:'Entidad',source:'Medio',topic:'Tema',type:'Tipo de entidad',segment:'Segmento',signal:'Novedad',palanca:'Palanca',subpalanca:'Subpalanca',from:'Fecha desde',to:'Fecha hasta'};
   function renderChips(){
     const target=$('active-filters');
     const allowed=name=>view==='radar'?['entity','segment'].includes(name):view==='briefing'?!['from','to'].includes(name):true;
     const values=Object.entries(chipLabels).filter(([name])=>allowed(name)&&form.elements[name].value);
     target.hidden=!values.length;
     target.innerHTML=values.map(([name,label])=>{
-      const raw=form.elements[name].value,value=['from','to'].includes(name)?formatCalendarDay(raw,language):raw;
+      const raw=form.elements[name].value,value=name==='coverage'?{digital:'Canal digital',generalista:'Generalista'}[raw]:['from','to'].includes(name)?formatCalendarDay(raw,language):raw;
       const original=['search','entity','source'].includes(name),text=t(label)+': '+(original?value:t(value));
       return '<button type="button" class="filter-chip" data-original data-remove-filter="'+name+'" aria-label="'+escape(t('Quitar'))+' '+escape(text)+'"><span>'+escape(text)+'</span><span aria-hidden="true">×</span></button>';
     }).join('');
@@ -90,7 +91,7 @@ function createFilters({ onInvalidate, onChange }) {
       page = data.page;
       defaults=data.defaults||defaults;
       initialized.add(view);
-      for (const [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["topic", "topics"], ["type","types"], ["segment","segments"], ["signal","signals"]]) options(name, data[key]||[]);
+      for (const [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["topic", "topics"], ["type","types"], ["segment","segments"], ["signal","signals"], ["palanca","palanca"], ["subpalanca","subpalanca"]]) options(name, data[key]||[]);
       if(data.selection)for(const input of form.elements)if(input.name)input.value=data.selection[input.name]||'';
       renderChips();
     }

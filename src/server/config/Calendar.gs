@@ -11,6 +11,10 @@ function currentMonth_(now=new Date()){
 function dashboardQuery_(query={},now=new Date()){
   const {view,initial,language,...filters}=query;
   if(view==='radar')return {entity:initial?'':filters.entity||'',segment:initial?'Empresas e instituciones':filters.segment||''};
+  if(['news','briefing'].includes(view)&&filters.coverage&&!['generalista','digital'].includes(filters.coverage))throw Error('Filtro de cobertura no válido.');
+  if(view==='briefing')return {...(initial?{segment:'Empresas e instituciones',coverage:'digital'}:filters),...recentNewsRange_(now)};
   const selection=initial?{entity:settings_().defaultEntity,segment:settings_().defaultSegment,topic:settings_().defaultTopic,country:settings_().defaultCountry,...currentMonth_(now)}:filters;
-  return view==='briefing'?{...selection,...recentNewsRange_(now)}:selection;
+  if(view==='news'){selection.coverage=initial?'digital':selection.coverage||'';}
+  else delete selection.coverage;
+  return selection;
 }

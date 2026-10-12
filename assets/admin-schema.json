@@ -244,5 +244,26 @@
         ]
       }
     ]
+  },
+  "capabilities": {
+    "label": "Capacidades digitales",
+    "help": "Capacidades independientes para Empresas y Retail. Términos separados por punto y coma; solo las activas participan en búsquedas y relevancia.",
+    "fields": [
+      [
+        "name",
+        "Nombre",
+        "text"
+      ],
+      [
+        "terms",
+        "Términos de búsqueda",
+        "list"
+      ],
+      [
+        "enabled",
+        "Activa",
+        "boolean"
+      ]
+    ]
   }
 }

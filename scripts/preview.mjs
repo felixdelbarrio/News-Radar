@@ -12,17 +12,23 @@ const feeds=seed.feeds,now=new Date('2026-10-09T10:00:00+02:00');
 const raw=JSON.parse(fs.readFileSync(path.join(root,'assets/feed-snapshot.json'),'utf8'));
 const rows=raw.flatMap((item,i)=>{
   const feed=feeds[i<10?0:1],result=context.evaluate_(item,feed,now);if(!result.item)return [];
-  const n=result.item;return [{id:String(i),fecha:n.date.toISOString().slice(0,10),pais:feed.country,medio:feed.name,entidad:feed.entity,titular:n.title,extracto:n.excerpt,tema:n.topic,url:n.url,fuente:feed.name,idioma:n.language||feed.language||''}];
+  const n=result.item;return [{id:String(i),fecha:n.date.toISOString().slice(0,10),pais:feed.country,medio:feed.name,entidad:feed.entity,titular:n.title,extracto:n.excerpt,tema:n.topic,url:n.url,fuente:feed.name,idioma:n.language||feed.language||'',clasificacion:JSON.stringify(n.labels)}];
 });
-const names=['settings_','searchText_','businessIndex_','termsMatch_','classify_','annotateNews_','entityKey_','selectNews_','selectAnnotatedNews_','newsScope_','radarMetrics_','briefing_','newsDashboard_','safeCell_','newsCsv_','canonicalUrl_','domainMatches_','plainText_','validateConfiguration_','profileFeed_','defaultFeeds_','customFeeds_','configuredFeeds_','feeds_','saveFeeds','saveSourceSettings','subscriptionRecord_','subscriptionQuery_','subscriptionDefaults_','calendarDate_','recentNewsRange_','newsletterDeliveryId_','currentMonth_','dashboardQuery_','collectionRange_','newsletterPeriod_','newsletterEmail_','newsletterNextDate_','eventDuration_','metrics_','recordText','recordQuery','filterRecords','recordOptions','recordPage','recordDay','supportedLanguage','feedLanguage'];
+const names=['settings_','searchText_','businessIndex_','phraseMatch_','phrasePosition_','headlineEntity_','digitalAssessment_','newsLabels_','taxonomySaved_','taxonomyOptions_','taxonomyLanguage_','taxonomyPath','savedNewsLabels_','classification_','capabilitySearchTerms_','collectionSearchTerms_','validateCapabilities_','termsMatch_','classify_','annotateNews_','entityKey_','selectNews_','selectAnnotatedNews_','newsScope_','radarMetrics_','briefing_','newsDashboard_','safeCell_','newsCsv_','canonicalUrl_','domainMatches_','plainText_','validateConfiguration_','profileFeed_','defaultFeeds_','customFeeds_','configuredFeeds_','feeds_','saveFeeds','saveSourceSettings','subscriptionRecord_','subscriptionQuery_','subscriptionDefaults_','calendarDate_','recentNewsRange_','newsletterDeliveryId_','currentMonth_','dashboardQuery_','collectionRange_','newsletterPeriod_','newsletterEmail_','newsletterNextDate_','eventDuration_','metrics_','recordText','recordQuery','filterRecords','recordOptions','recordPage','recordDay','supportedLanguage','feedLanguage'];
 const shared=names.map(name=>context[name].toString()).join('\n'),serialize=value=>JSON.stringify(value).replace(/</g,'\\u003c');
 const preview=`<script>(()=>{
 const languageNames=${serialize(vm.runInContext('languageNames',context))};
+const COLLECTION_POLICY=${serialize(vm.runInContext('COLLECTION_POLICY',context))};
+const CLASSIFICATION_WORK=${serialize(vm.runInContext('CLASSIFICATION_WORK',context))};
+const DIGITAL_RULES=${serialize(vm.runInContext('DIGITAL_RULES',context))};
+const capabilityDefaults=${serialize(seed.capabilities)};
+const newsRelevanceMemory_=new WeakMap();
 const RADAR=${serialize(vm.runInContext('RADAR',context))};
 let configuration=${serialize(seed)},businessIndexMemory_,configuredFeedMemory_,revision='0',recordDateFormatter;const selections=[],usage=[];
 const configuration_=()=>configuration,rows=${serialize(rows)},admin=${process.env.PREVIEW_ADMIN==='1'};
 const authorize_=()=>{if(!admin)throw Error('Acción de administrador.');};
 const configurationRevision_=()=>revision;
+const taxonomyCatalog_=()=>[],taxonomyTranslations_=()=>({});
 function writeConfiguration_(config,version){authorize_();if(version!==revision)throw Error('La configuración ha cambiado. Recarga los catálogos.');validateConfiguration_(config);configuration=JSON.parse(JSON.stringify(config));revision=String(Number(revision)+1);return 'Configuración local guardada en memoria. No se ha escrito en Google.';}
 ${shared}
 window.RADAR_PREVIEW={async call(method,q={}){
@@ -31,6 +37,10 @@ window.RADAR_PREVIEW={async call(method,q={}){
  if(method==='recordEvents'){usage.push(...q.map(event=>({fecha:new Date().toISOString(),correo:'usuario@bbva.com',sesion:event.session,evento:event.event,vista:event.view,duracion_ms:eventDuration_(event.duration)})));if(usage.length>settings_().eventLimit)usage.splice(0,usage.length-settings_().eventLimit);return {saved:true};}
  if(method==='getNewsletterHistory'){authorize_();return {...recordPage([],q),options:{},limit:settings_().eventLimit,limited:false};}
  if(method==='getRuns') {authorize_();return {...recordPage([],q),options:{},collection:{jobs:[]},limit:settings_().eventLimit,limited:false};}
+ if(method==='getTaxonomyStatus'){authorize_();return {scheduled:false,hour:settings_().dailyHour,minute:45,timezone:settings_().timezone,job:null,items:[]};}
+ if(method==='startTaxonomy'){authorize_();throw Error('La taxonomía se ejecuta en Google Apps Script.');}
+ if(method==='getClassificationStatus') {authorize_();return {scheduled:false,hour:settings_().dailyHour,minute:CLASSIFICATION_WORK.dailyMinute,timezone:settings_().timezone,job:null};}
+ if(method==='startClassification'){authorize_();throw Error('La clasificación se ejecuta en Google Apps Script.');}
  if(method==='getTranslationStatus'){authorize_();return {scheduled:false,hour:2,timezone:settings_().timezone,job:null,queued:false};}
  if(['installTranslationSchedule','disableTranslationSchedule','startTranslations'].includes(method)){authorize_();throw Error('La traducción nocturna se ejecuta en Google Apps Script.');}
  if(method==='getCollectionProgress')return {newsRevision:revision,collection:{total:0,pending:0}};
@@ -38,12 +48,14 @@ window.RADAR_PREVIEW={async call(method,q={}){
  if(method==='getAdoption'){authorize_();const selected=filterRecords(usage,q,['correo','vista','evento'],['correo','vista','evento','sesion'],'fecha',settings_().timezone),metrics=metrics_(selected,Date.now()),page=recordPage(metrics.users,q,settings_().pageSize);return {...metrics,users:page.items,total:page.total,page:page.page,pageSize:page.pageSize,options:recordOptions(usage,['correo','vista','evento']),retentionDays:settings_().retentionDays,limited:usage.length===settings_().eventLimit};}
  if(method==='exportTelemetry'){authorize_();return {schemaVersion:1,exportedAt:new Date().toISOString(),preview:true,telemetry:[],runs:[],audit:[],collection:{tasks:[]},usage:metrics_(usage,Date.now())};}
  if(method==='getTelemetry'){authorize_();const metrics=metrics_(usage,Date.now());return {...recordPage([],q),options:{},limit:settings_().eventLimit,limited:false,rows:[],latencyP95:metrics.latencyP95,clientErrors:metrics.failures,collection:{processed:0,pending:0}};}
- if(method==='getConfiguration'){authorize_();return {config:JSON.parse(JSON.stringify(configuration)),revision};}
+ if(method==='getConfiguration'){authorize_();return {config:JSON.parse(JSON.stringify(configuration)),revision,capabilityDefaults};}
  if(method==='saveConfiguration')return writeConfiguration_(q.config,q.revision);
  if(method==='saveSourceSettings')return saveSourceSettings(q);
  if(method==='saveFeeds')return saveFeeds(q);
  if(method==='exportNews')return newsCsv_(rows,dashboardQuery_(q));
- if(method==='getNewsletterOptions')return {email:'usuario@bbva.com',defaults:subscriptionDefaults_(),enabled:settings_().newsletterEnabled,catalogs:{type:[...new Set(configuration.entities.filter(r=>r.enabled).map(r=>r.type))],entity:configuration.entities.filter(r=>r.enabled).map(r=>r.name),segment:configuration.segments.filter(r=>r.enabled).map(r=>r.name),country:configuration.geographies.filter(r=>r.enabled).map(r=>r.name),topic:configuration.topics.filter(r=>r.enabled).map(r=>r.name),signal:configuration.signals.filter(r=>r.enabled).map(r=>r.name),source:[...new Set([...rows.map(r=>r.medio),...feeds_().map(r=>r.name)])].filter(Boolean).sort()}};
+ if(method==='getTaxonomyTranslationStatus')return {job:null,queued:false,taxonomyTranslations:{}};
+ if(method==='startTaxonomyTranslations')throw Error('La taxonomía se ejecuta en Google Apps Script.');
+ if(method==='getNewsletterOptions')return {email:'usuario@bbva.com',defaults:subscriptionDefaults_(),enabled:settings_().newsletterEnabled,catalogs:{...taxonomyOptions_(),type:[...new Set(configuration.entities.filter(r=>r.enabled).map(r=>r.type))],entity:configuration.entities.filter(r=>r.enabled).map(r=>r.name),segment:configuration.segments.filter(r=>r.enabled).map(r=>r.name),country:configuration.geographies.filter(r=>r.enabled).map(r=>r.name),topic:configuration.topics.filter(r=>r.enabled).map(r=>r.name),signal:configuration.signals.filter(r=>r.enabled).map(r=>r.name),source:[...new Set([...rows.map(r=>r.medio),...feeds_().map(r=>r.name)])].filter(Boolean).sort()}};
  if(method==='sendSubscriptionTest')throw Error('La prueba de correo se envía desde la WebApp de Google Apps Script.');
  if(['sendNewsletterTest','sendPendingNewsletters','installNewsletterSchedule'].includes(method)){authorize_();throw Error('Estás en la vista local. No se envían correos ni se instalan activadores: utiliza estas acciones en la WebApp de Google Apps Script.');}
  if(method==='getNewsletterDeliveryStatus'){authorize_();return {address:settings_().newsletterSender,name:settings_().newsletterSenderName,available:false,enabled:settings_().newsletterEnabled,scheduled:false,remaining:settings_().newsletterDailyLimit,error:'Vista local: verifica el remitente y los permisos en la instalación de Apps Script.'};}

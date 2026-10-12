@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.9.4`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.14.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -119,7 +119,27 @@ Cada ciclo conserva su período y progreso en Recargas. Las solicitudes se regis
 
 En local, la acción muestra cuántas noticias de la instantánea corresponden al período. No consulta fuentes remotas ni simula noticias nuevas. No requiere permisos nuevos.
 
+## Taxonomía dinámica de canales digitales
+
+Administración > Taxonomía muestra palancas, subpalancas, segmentos, términos, origen y noticias que sustentan cada categoría, con búsqueda y paginación. El administrador puede actualizarla manualmente y consultar una sola barra de progreso. Ejecutar `initializeConfiguration` tras desplegar 1.13.0 crea las hojas Taxonomia y TaxonomiaTrabajo, añade la columna taxonomia a Noticias y programa el job diario en la hora de recuperación configurada, cerca del minuto 45. No requiere permisos nuevos.
+
+El trabajador compartido mantiene el bloqueo de script y da prioridad absoluta a los lotes de recuperación diaria disponibles. Los demás procesos se alternan; la taxonomía también cede cuando hay lotes anuales de recuperación listos. Trabaja en lotes de hasta 100 noticias y 10 segundos dentro del presupuesto común. La petición diaria persiste aunque el trabajador esté ocupado; los errores conservan el cursor y aplican la espera de reintento configurada. Un cambio del contenido o las reglas durante el job reinicia su análisis para evitar mezclar corpus y posiciones de filas.
+
+El análisis recorre todas las noticias almacenadas, sin limitarse a la ventana del dashboard. Las capacidades habilitadas de Empresas y Retail y las reglas de API, IA, banca online y experiencia móvil definen las categorías iniciales. Se excluyen noticias corporativas negativas y contenido editorial según las reglas digitales existentes. Las expresiones de dos palabras con vocabulario digital generan subpalancas al aparecer en al menos dos noticias; se omiten palabras vacías y nombres de entidades. Se conservan hasta tres subpalancas emergentes por palanca, con un vocabulario acotado que prioriza las expresiones de las noticias más recientes y estadísticas dispersas en Sheets, sin guardar una matriz de documentos en RAM.
+
+La puntuación utiliza TF sublineal `1 + log(frecuencia)` e IDF suavizado `log((1 + documentos)/(1 + documentos_con_término)) + 1`, conforme a la [definición de TF-IDF documentada por scikit-learn](https://scikit-learn.org/stable/modules/feature_extraction.html#tfidf-term-weighting). No instala scikit-learn ni utiliza APIs externas. La ordenación de candidatos usa el TF-IDF medio del corpus; las reglas agrupan las palancas. Es una clasificación por evidencia textual: las expresiones emergentes reproducen el contenido de las noticias y no cuentan con revisión editorial manual.
+
+Los identificadores dependen de la palanca y subpalanca, no de sus frecuencias o pesos. El job compara el modelo semántico y la huella del texto; solo escribe etiquetas diferentes. Una ejecución idéntica no reescribe noticias ni el catálogo. Las noticias nuevas reciben etiquetas de la taxonomía vigente al incorporarse. Noticias, Novedades, exportación CSV y newsletters comparten los filtros de Palanca y Subpalanca y los nombres de las etiquetas. Una subpalanca que desaparece deja de ofrecerse como filtro; las suscripciones existentes no amplían su alcance automáticamente.
+
+El área de progreso de recuperación muestra una sola línea por tipología, con el ciclo activo o más reciente. La tabla de Ejecuciones conserva el histórico completo.
+
+Al finalizar el análisis y etiquetado se encola la traducción de los nombres a español, inglés y turco. Administración > Idiomas muestra su progreso y permite traducir pendientes o reanudar un proceso en pausa. Cada nombre se guarda por contenido e idioma: los nombres compartidos se traducen una sola vez, las traducciones vigentes se reutilizan y se retiran las que ya no pertenecen al catálogo. Los nombres del catálogo estático aprovechan el diccionario incluido; los nombres dinámicos utilizan LanguageApp con detección automática del idioma de origen. Las pantallas y newsletters leen únicamente traducciones guardadas y mantienen los valores canónicos de los filtros y los IDs de las etiquetas.
+
+La traducción de taxonomía utiliza el mismo trabajador y bloqueo que los otros jobs, con lotes de hasta 20 llamadas y 10 segundos. Cede a cualquier recuperación preparada y se detiene entre llamadas si llega una petición diaria. Comparte el presupuesto de 3.000 llamadas diarias con la traducción de noticias y reanuda tras errores sin repetir resultados guardados. Tras desplegar **1.14.0**, ejecutar `initializeConfiguration` para crear **TaxonomiaTraducciones**; no añade permisos ni un cron independiente.
+
 ## Fuentes y recopilación automática
+
+Administración > Fuentes organiza el catálogo en las pestañas Todas, Google News RSS y RSS del editor. Comparten búsqueda, filtros y paginación; las activaciones se conservan entre pestañas y se guardan para todo el catálogo. La edición y alta de feeds está en RSS del editor y conserva los cambios al cambiar de pestaña. La agrupación se calcula al cargar la configuración, sin consultas adicionales al navegar.
 
 La configuración inicial genera 50 fuentes: dos RSS oficiales de BBVA y 48 búsquedas de Google News por entidad y país. Los alias se combinan en una consulta para evitar feeds redundantes. El número cambia al editar catálogos. Todas las URLs RSS son configurables; las búsquedas utilizan nombres, alias, países, idioma y términos de sector guardados en Sheets. No requieren claves API.
 

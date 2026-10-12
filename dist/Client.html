@@ -1,31 +1,43 @@
 <script id="radar-client">
 (() => {
-  // assets/app-config.json
-  var app_config_default = {
-    views: {
-      briefing: "Novedades",
-      news: "Noticias",
-      radar: "Radar",
-      subscriptions: "Newsletter",
-      administration: "Administraci\xF3n"
-    },
-    adminViews: {
-      configuration: "Configuraci\xF3n de negocio",
-      sources: "Fuentes",
-      audit: "Auditor\xEDa",
-      telemetry: "Telemetr\xEDa",
-      adoption: "Adopci\xF3n",
-      subscribers: "Suscripciones",
-      runs: "Ejecuciones",
-      language: "Idioma"
-    }
-  };
-
-  // src/client/config.js
-  var defaultView = Object.keys(app_config_default.views)[0], config_default = app_config_default;
+  // src/shared/taxonomy-path.js
+  function taxonomyPath(row) {
+    return row.palanca + " \u203A " + row.subpalanca;
+  }
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Traducci\xF3n de taxonom\xEDa": ["Taxonomy translation", "Taksonomi \xE7evirisi"],
+    "Las palancas y subpalancas se traducen autom\xE1ticamente al finalizar la actualizaci\xF3n de la taxonom\xEDa. Se reutilizan los nombres ya traducidos. La recuperaci\xF3n diaria tiene prioridad.": ["Levers and sublevers are translated automatically after the taxonomy update finishes. Existing name translations are reused. Daily collection has priority.", "Taksonomi g\xFCncellemesi tamamland\u0131\u011F\u0131nda ana ve alt ba\u015Fl\u0131klar otomatik \xE7evrilir. Mevcut ad \xE7evirileri yeniden kullan\u0131l\u0131r. G\xFCnl\xFCk toplama \xF6nceliklidir."],
+    "Traducir taxonom\xEDa pendiente": ["Translate pending taxonomy", "Bekleyen taksonomiyi \xE7evir"],
+    "Progreso de traducci\xF3n de taxonom\xEDa": ["Taxonomy translation progress", "Taksonomi \xE7eviri ilerlemesi"],
+    "{done}/{total} nombres revisados; {translated} traducciones guardadas.": ["{done}/{total} names reviewed; {translated} translations saved.", "{done}/{total} ad incelendi; {translated} \xE7eviri kaydedildi."],
+    "Sin traducciones de taxonom\xEDa ejecutadas.": ["No taxonomy translations have run.", "Hen\xFCz taksonomi \xE7evirisi yap\u0131lmad\u0131."],
+    "Clasificaci\xF3n de noticias": ["News classification", "Haber s\u0131n\u0131fland\u0131rmas\u0131"],
+    "Clasificar noticias": ["Classify news", "Haberleri s\u0131n\u0131fland\u0131r"],
+    "Progreso de clasificaci\xF3n": ["Classification progress", "S\u0131n\u0131fland\u0131rma ilerlemesi"],
+    "Sin clasificaciones ejecutadas.": ["No classifications have run.", "Hen\xFCz s\u0131n\u0131fland\u0131rma yap\u0131lmad\u0131."],
+    "Clasificaci\xF3n diaria: {hour} \xB7 {timezone} \xB7 {state}. La recuperaci\xF3n diaria tiene prioridad.": ["Daily classification: {hour} \xB7 {timezone} \xB7 {state}. Daily collection has priority.", "G\xFCnl\xFCk s\u0131n\u0131fland\u0131rma: {hour} \xB7 {timezone} \xB7 {state}. G\xFCnl\xFCk toplama \xF6nceliklidir."],
+    "{done}/{total} noticias revisadas; {classified} etiquetas actualizadas; {digital} digitales.": ["{done}/{total} articles reviewed; {classified} labels updated; {digital} digital.", "{done}/{total} haber incelendi; {classified} etiket g\xFCncellendi; {digital} dijital."],
+    Cobertura: ["Coverage", "Kapsam"],
+    Generalista: ["General banking", "Genel bankac\u0131l\u0131k"],
+    "Canal digital": ["Digital channel", "Dijital kanal"],
+    "Filtro de cobertura no v\xE1lido.": ["Invalid coverage filter.", "Ge\xE7ersiz kapsam filtresi."],
+    "Restaurar capacidades predeterminadas": ["Restore default capabilities", "Varsay\u0131lan yetenekleri geri y\xFCkle"],
+    "Capacidades digitales": ["Digital capabilities", "Dijital yetenekler"],
+    "T\xE9rminos de b\xFAsqueda": ["Search terms", "Arama terimleri"],
+    "Capacidades independientes para Empresas y Retail. T\xE9rminos separados por punto y coma; solo las activas participan en b\xFAsquedas y relevancia.": ["Independent capabilities for Business and Retail. Separate terms with semicolons; only active capabilities influence searches and relevance.", "\u0130\u015Fletme ve Bireysel i\xE7in ba\u011F\u0131ms\u0131z yetenekler. Terimleri noktal\u0131 virg\xFClle ay\u0131r\u0131n; yaln\u0131zca etkin yetenekler aramalar\u0131 ve uygunlu\u011Fu etkiler."],
+    "Define capacidades digitales para Empresas y Retail.": ["Define digital capabilities for Business and Retail.", "\u0130\u015Fletme ve Bireysel i\xE7in dijital yetenekleri tan\u0131mlay\u0131n."],
+    "El cat\xE1logo de capacidades excede el tama\xF1o de una celda.": ["The capability catalog exceeds the size of a cell.", "Yetenek katalo\u011Fu bir h\xFCcrenin boyutunu a\u015F\u0131yor."],
+    "M\xE1ximo 60 capacidades por segmento": ["Maximum 60 capabilities per segment", "Segment ba\u015F\u0131na en fazla 60 yetenek"],
+    "Capacidad vac\xEDa, duplicada o no v\xE1lida": ["Empty, duplicate or invalid capability", "Bo\u015F, yinelenen veya ge\xE7ersiz yetenek"],
+    "Define entre 1 y 12 t\xE9rminos de hasta 80 caracteres": ["Define 1 to 12 terms of up to 80 characters", "En fazla 80 karakterlik 1 ile 12 aras\u0131nda terim tan\u0131mlay\u0131n"],
+    "Sin entidad de seguimiento en el titular": ["No tracked entity in the headline", "Ba\u015Fl\u0131kta takip edilen kurum yok"],
+    "Sin evidencia de la entidad buscada": ["No evidence of the searched entity", "Aranan kurum i\xE7in kan\u0131t yok"],
+    "Geograf\xEDa distinta de la b\xFAsqueda": ["Different geography from the search", "Aramadan farkl\u0131 co\u011Frafya"],
+    "Informaci\xF3n corporativa sin novedad de canal digital": ["Corporate information without a digital channel update", "Dijital kanal yenili\u011Fi i\xE7ermeyen kurumsal bilgi"],
+    "Sin capacidad digital activa en contexto de canal": ["No active digital capability in channel context", "Kanal ba\u011Flam\u0131nda etkin dijital yetenek yok"],
+    "Titular equivalente de la misma entidad en fecha pr\xF3xima": ["Equivalent headline for the same entity on a nearby date", "Yak\u0131n tarihte ayn\u0131 kurum i\xE7in e\u015Fde\u011Fer ba\u015Fl\u0131k"],
     "Respuesta de traducci\xF3n incompleta.": ["Incomplete translation response.", "\xC7eviri yan\u0131t\u0131 eksik."],
     Versi\u00F3n: ["Version", "S\xFCr\xFCm"],
     "Suscripci\xF3n guardada. La entrega est\xE1 pendiente de activaci\xF3n por el administrador.": ["Subscription saved. Delivery is awaiting activation by the administrator.", "Abonelik kaydedildi. Teslimat y\xF6neticinin etkinle\u015Ftirmesini bekliyor."],
@@ -322,6 +334,32 @@
     "Recuperar noticias": ["Recover news", "Ge\xE7mi\u015F haberleri tara"],
     "Cobertura del hist\xF3rico": ["Historical coverage", "Ge\xE7mi\u015F kapsam\u0131"],
     "El \xFAltimo a\xF1o se consulta por semanas; las consultas saturadas se dividen autom\xE1ticamente hasta llegar a un d\xEDa. Los RSS de editores aportan solo el hist\xF3rico que mantengan disponible; la recuperaci\xF3n no garantiza cobertura completa.": ["The last year is queried by week; saturated queries are split automatically down to a day. Publishers' RSS feeds provide only the history they retain; recovery does not guarantee complete coverage.", "Son y\u0131l haftal\u0131k olarak taran\u0131r; dolan sorgular otomatik olarak bir g\xFCne kadar b\xF6l\xFCn\xFCr. Yay\u0131nc\u0131lar\u0131n RSS ak\u0131\u015Flar\u0131 yaln\u0131zca saklad\u0131klar\u0131 ge\xE7mi\u015Fi sa\u011Flar; tarama tam kapsam\u0131 garanti etmez."],
+    "Google News RSS": ["Google News RSS", "Google News RSS"],
+    Taxonom\u00EDa: ["Taxonomy", "Taksonomi"],
+    Palanca: ["Lever", "Ana kategori"],
+    Subpalanca: ["Sublever", "Alt kategori"],
+    "Actualizar taxonom\xEDa": ["Update taxonomy", "Taksonomiyi g\xFCncelle"],
+    "Palancas y subpalancas de canales digitales de Empresas y Retail, generadas con TF-IDF y reglas de negocio sobre las noticias disponibles.": ["Levers and sublevers for business and retail digital channels, generated with TF-IDF and business rules from available articles.", "Mevcut haberlerden TF-IDF ve i\u015F kurallar\u0131yla olu\u015Fturulan kurumsal ve bireysel dijital kanal kategorileri."],
+    T\u00E9rminos: ["Terms", "Terimler"],
+    Origen: ["Origin", "Kaynak"],
+    "Reglas de negocio": ["Business rules", "\u0130\u015F kurallar\u0131"],
+    "Palanca, subpalanca o t\xE9rmino": ["Lever, sublever or term", "Ana kategori, alt kategori veya terim"],
+    "Sin taxonom\xEDa disponible. Ejecuta el job para generarla.": ["No taxonomy available. Run the job to generate it.", "Taksonomi mevcut de\u011Fil. Olu\u015Fturmak i\xE7in g\xF6revi \xE7al\u0131\u015Ft\u0131r\u0131n."],
+    "{palancas} palancas \xB7 {subpalancas} subpalancas": ["{palancas} levers \xB7 {subpalancas} sublevers", "{palancas} ana kategori \xB7 {subpalancas} alt kategori"],
+    "Taxonom\xEDa diaria: {hour} \xB7 {timezone} \xB7 {state}. La recuperaci\xF3n diaria tiene prioridad.": ["Daily taxonomy: {hour} \xB7 {timezone} \xB7 {state}. Daily collection takes priority.", "G\xFCnl\xFCk taksonomi: {hour} \xB7 {timezone} \xB7 {state}. G\xFCnl\xFCk haber toplama \xF6nceliklidir."],
+    "Progreso de taxonom\xEDa": ["Taxonomy progress", "Taksonomi ilerlemesi"],
+    "{done}/{total} pasos de an\xE1lisis y etiquetado; {tagged} etiquetas actualizadas.": ["{done}/{total} analysis and tagging steps; {tagged} labels updated.", "{done}/{total} analiz ve etiketleme ad\u0131m\u0131; {tagged} etiket g\xFCncellendi."],
+    "Sin taxonom\xEDas ejecutadas.": ["No taxonomy jobs run.", "\xC7al\u0131\u015Ft\u0131r\u0131lan taksonomi g\xF6revi yok."],
+    "Filtro de taxonom\xEDa no disponible.": ["Taxonomy filter unavailable.", "Taksonomi filtresi kullan\u0131lam\u0131yor."],
+    "La taxonom\xEDa se ejecuta en Google Apps Script.": ["Taxonomy runs in Google Apps Script.", "Taksonomi Google Apps Script \xFCzerinde \xE7al\u0131\u015F\u0131r."],
+    "Seguridad e identidad": ["Security and identity", "G\xFCvenlik ve kimlik"],
+    "Integraci\xF3n y automatizaci\xF3n": ["Integration and automation", "Entegrasyon ve otomasyon"],
+    "Pagos y cobros": ["Payments and collections", "\xD6demeler ve tahsilatlar"],
+    "Financiaci\xF3n digital": ["Digital financing", "Dijital finansman"],
+    "Tesorer\xEDa y gesti\xF3n financiera": ["Treasury and financial management", "Hazine ve finans y\xF6netimi"],
+    "Inversi\xF3n y ahorro": ["Investment and savings", "Yat\u0131r\u0131m ve tasarruf"],
+    "Acceso y experiencia digital": ["Access and digital experience", "Eri\u015Fim ve dijital deneyim"],
+    "Tipos de fuente": ["Source types", "Kaynak t\xFCrleri"],
     "Herramientas de administraci\xF3n": ["Administration tools", "Y\xF6netim ara\xE7lar\u0131"],
     "CAT\xC1LOGOS Y OPERACI\xD3N": ["CATALOGS AND OPERATION", "KATALOGLAR VE \u0130\u015ELEY\u0130\u015E"],
     Cat\u00E1logo: ["Catalog", "Katalog"],
@@ -841,7 +879,15 @@
   function getLanguageOverride() {
     return Object.hasOwn(languageNames, override) ? override : "";
   }
-  var t = (value, values) => values ? formatText(value, values, language) : translateText(value, language);
+  var taxonomyNames = {};
+  function setTaxonomyTranslations(value) {
+    JSON.stringify(value) !== JSON.stringify(taxonomyNames) && (taxonomyNames = value, window.dispatchEvent(new Event("news-radar-taxonomy-translations")));
+  }
+  function t(value, values) {
+    if (values) return formatText(value, values, language);
+    let names = taxonomyNames[language];
+    return names && Object.hasOwn(names, value) ? names[value] : translateText(value, language);
+  }
   function setLanguage(value) {
     if (value && !Object.hasOwn(languageNames, value)) throw Error(t("Idioma no admitido."));
     try {
@@ -866,51 +912,14 @@
   function newsPublisher(row) {
     return "<span>Medio: " + (row.medio ? "<span data-original>" + escape(row.medio) + "</span>" : "No indicado") + "</span>";
   }
+  function newsTaxonomy(row) {
+    return (row.taxonomia || []).map((item) => '<span class="badge" data-original>' + escape(t(taxonomyPath(item))) + "</span>").join("");
+  }
+  function newsCoverage(row) {
+    return [["generalista", "Generalista"], ["digital", "Canal digital"]].filter(([key]) => row.etiquetas?.[key]).map(([, label]) => '<span class="badge">' + label + "</span>").join("");
+  }
   function metricCards(values) {
     return values.map(([label, value, note]) => `<article class="metric"><p class="eyebrow">${escape(label)}</p><strong>${escape(value ?? "\u2014")}</strong><span class="small muted">${escape(note)}</span></article>`).join("");
-  }
-
-  // src/client/core/api.js
-  function call(method, ...args) {
-    return window.RADAR_PREVIEW ? window.RADAR_PREVIEW.call(method, ...args) : new Promise((resolve, reject) => google.script.run.withSuccessHandler(resolve).withFailureHandler((error) => reject(Error(t(error.message || String(error)))))[method](...args));
-  }
-
-  // src/client/features/language-settings.js
-  function createLanguageSettings({ run, isActive }) {
-    let timer, scheduled = !1, request3 = 0;
-    function close() {
-      request3++, clearTimeout(timer);
-    }
-    function render(data) {
-      scheduled = data.scheduled, $("translation-toggle").textContent = scheduled ? "Desactivar traducci\xF3n nocturna" : "Activar traducci\xF3n nocturna", $("translation-schedule").textContent = t("Traducci\xF3n nocturna: {hour} \xB7 {timezone} \xB7 {state}", { hour: String(data.hour).padStart(2, "0") + ":00", timezone: data.timezone, state: t(scheduled ? "Activada" : "Desactivada") });
-      let job = data.job || (data.queued ? { state: "En cola", total: 0, processed: 0, translated: 0, updated: "" } : null), total = Number(job?.total || 0), done = Number(job?.processed || 0);
-      $("translation-progress").innerHTML = job ? `<div class="panel-header"><h3>${escape(t("Progreso de traducci\xF3n"))}</h3><span>${escape(t(data.queued ? "En cola" : job.state))}</span></div><progress max="${Math.max(1, total)}" value="${done}" aria-label="${escape(t("Progreso de traducci\xF3n"))}"></progress><p>${escape(t("{done}/{total} noticias revisadas; {translated} traducciones guardadas.", { done, total, translated: job.translated }))}</p><p class="small muted">${escape(t("\xDAltima actividad"))}: ${escape(date(job.updated))}</p>${job.error ? '<p class="small">' + escape(t(job.error)) + "</p>" : ""}` : '<p class="muted">Sin traducciones programadas ejecutadas.</p>';
-    }
-    async function open() {
-      close();
-      let current = request3;
-      try {
-        let data = await call("getTranslationStatus");
-        if (current !== request3) return;
-        render(data), (data.queued || data.job && ["Pendiente", "En curso", "En pausa"].includes(data.job.state)) && isActive() && (timer = setTimeout(poll, 3e4));
-      } catch (error) {
-        current === request3 && (message(error.message, !0), isActive() && (timer = setTimeout(poll, 6e4)));
-      }
-    }
-    async function poll() {
-      if (isActive()) {
-        if (document.hidden) {
-          timer = setTimeout(poll, 3e4);
-          return;
-        }
-        await open();
-      }
-    }
-    return $("translation-toggle").addEventListener("click", () => run(async () => {
-      await call(scheduled ? "disableTranslationSchedule" : "installTranslationSchedule"), await open();
-    }, !1)), $("translation-start").addEventListener("click", () => run(async () => {
-      await call("startTranslations"), await open();
-    }, !1)), { open, close };
   }
 
   // src/shared/record-filters.js
@@ -982,7 +991,9 @@
     }), $(id + "-pagination").addEventListener("click", (event) => {
       let button = event.target.closest("[data-page]");
       !button || button.disabled || (page += Number(button.dataset.page), Promise.resolve(onChange()).catch((error) => message(error.message, !0)));
-    }), { query, options(values) {
+    }), { query, reset() {
+      clearTimeout(timer), page = 0;
+    }, options(values) {
       for (let [key, list] of Object.entries(values)) {
         if (!fields.some(([field]) => field === key)) continue;
         let input = $(id + "-" + key), value = input.value;
@@ -992,6 +1003,115 @@
       page = data.page;
       let pages = Math.max(1, Math.ceil(data.total / data.pageSize));
       $(id + "-pagination").innerHTML = '<button class="button" type="button" data-page="-1" ' + (page === 0 ? "disabled" : "") + '>Anterior</button><span class="small muted" role="status">' + t("{total} resultados \xB7 p\xE1gina {page} de {pages}", { total: data.total, page: page + 1, pages }) + '</span><button class="button" type="button" data-page="1" ' + (page >= pages - 1 ? "disabled" : "") + ">Siguiente</button>";
+    } };
+  }
+
+  // src/client/core/api.js
+  function receive(data) {
+    return data?.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), data;
+  }
+  function call(method, ...args) {
+    if (window.RADAR_PREVIEW) {
+      let response = window.RADAR_PREVIEW.call(method, ...args);
+      return response.then(receive, () => {
+      }), response;
+    }
+    return new Promise((resolve, reject) => google.script.run.withSuccessHandler((data) => resolve(receive(data))).withFailureHandler((error) => reject(Error(t(error.message || String(error)))))[method](...args));
+  }
+
+  // src/client/features/job-monitor.js
+  function jobProgressHtml(job, { total, done, label, summary, queued = !1 }) {
+    return `<div class="panel-header"><span>${escape(t(queued ? "En cola" : job.state))}</span><span>${done}/${total}</span></div><progress max="${Math.max(1, total)}" value="${done}" aria-label="${escape(t(label))}"></progress><p>${escape(summary)}</p><p class="small muted">${escape(t("\xDAltima actividad"))}: ${escape(date(job.updated))}</p>${job.error ? "<p>" + escape(t(job.error)) + "</p>" : ""}`;
+  }
+  function createJobMonitor({ id, get, start, run, isActive, render, onRevision }) {
+    let timer, request3 = 0;
+    function close() {
+      request3++, clearTimeout(timer);
+    }
+    async function refresh() {
+      close();
+      let current = request3;
+      try {
+        let data = await call(get);
+        if (current !== request3) return;
+        let active = !!(data.queued || data.job && data.job.state !== "Completada");
+        onRevision(data.newsRevision);
+        let button = $(id + "-start");
+        button.dataset.jobActive = String(active && data.job?.state !== "En pausa"), button.disabled = button.dataset.jobActive === "true", render(data), active && isActive() && (timer = setTimeout(poll, 3e4));
+      } catch (error) {
+        current === request3 && (message(error.message, !0), isActive() && (timer = setTimeout(poll, 6e4)));
+      }
+    }
+    async function poll() {
+      if (isActive()) {
+        if (document.hidden) {
+          timer = setTimeout(poll, 3e4);
+          return;
+        }
+        await refresh();
+      }
+    }
+    return $(id + "-start").addEventListener("click", () => run(async () => {
+      await call(start), await refresh();
+    }, !1)), { open: refresh, close };
+  }
+
+  // src/client/features/taxonomy.js
+  function createTaxonomy({ run, isActive, onRevision }) {
+    let items = [], pageSize, signature = "", filters5 = createRecordFilters("taxonomy", [["palanca", "Palanca"]], render, { placeholder: "Palanca, subpalanca o t\xE9rmino" });
+    function render() {
+      let query = filters5.query(), page = recordPage(filterRecords(items, query, ["palanca"], ["palanca", "subpalanca", "terminos", "segmentos"]), query, pageSize);
+      $("taxonomy-body").innerHTML = page.items.map((row) => `<tr><td data-original>${escape(t(row.palanca))}</td><td><strong data-original>${escape(t(row.subpalanca))}</strong></td><td>${escape(row.segmentos.join(" \xB7 "))}</td><td>${row.noticias}</td><td data-original>${escape(row.terminos.join(" \xB7 "))}</td><td>${escape(row.origen === "tf-idf" ? "TF-IDF" : t("Reglas de negocio"))}</td></tr>`).join("") || '<tr><td colspan="6">' + t("Sin taxonom\xEDa disponible. Ejecuta el job para generarla.") + "</td></tr>", filters5.page(page), $("taxonomy-count").textContent = t("{palancas} palancas \xB7 {subpalancas} subpalancas", { palancas: new Set(items.map((row) => row.palanca)).size, subpalancas: items.length });
+    }
+    return createJobMonitor({ id: "taxonomy", get: "getTaxonomyStatus", start: "startTaxonomy", run, isActive, onRevision, render(data) {
+      let job = data.job, total = Number(job?.total || 0) * 2, done = Number(job?.processed || 0);
+      $("taxonomy-schedule").textContent = t("Taxonom\xEDa diaria: {hour} \xB7 {timezone} \xB7 {state}. La recuperaci\xF3n diaria tiene prioridad.", { hour: String(data.hour).padStart(2, "0") + ":" + String(data.minute).padStart(2, "0"), timezone: data.timezone, state: t(data.scheduled ? "Activada" : "Desactivada") }), $("taxonomy-progress").innerHTML = job ? jobProgressHtml(job, { total, done, label: "Progreso de taxonom\xEDa", queued: data.queued, summary: t("{done}/{total} pasos de an\xE1lisis y etiquetado; {tagged} etiquetas actualizadas.", { done, total, tagged: job.tagged }) }) : '<p class="muted">' + t(data.queued ? "En cola" : "Sin taxonom\xEDas ejecutadas.") + "</p>";
+      let next = JSON.stringify([data.items, data.pageSize, data.taxonomyTranslations, language]);
+      next !== signature && (signature = next, items = data.items, pageSize = data.pageSize, filters5.options(recordOptions(items, ["palanca"])), render());
+    } });
+  }
+
+  // assets/app-config.json
+  var app_config_default = {
+    views: {
+      briefing: "Novedades",
+      news: "Noticias",
+      radar: "Radar",
+      subscriptions: "Newsletter",
+      administration: "Administraci\xF3n"
+    },
+    adminViews: {
+      configuration: "Configuraci\xF3n de negocio",
+      taxonomy: "Taxonom\xEDa",
+      sources: "Fuentes",
+      audit: "Auditor\xEDa",
+      telemetry: "Telemetr\xEDa",
+      adoption: "Adopci\xF3n",
+      subscribers: "Suscripciones",
+      runs: "Ejecuciones",
+      language: "Idioma"
+    }
+  };
+
+  // src/client/config.js
+  var defaultView = Object.keys(app_config_default.views)[0], config_default = app_config_default;
+
+  // src/client/features/language-settings.js
+  function createLanguageSettings({ run, isActive, onRevision }) {
+    let scheduled = !1;
+    function progress(id, data, label, summary, empty) {
+      let job = data.job || (data.queued ? { state: "En cola", total: 0, processed: 0, translated: 0 } : null), total = Number(job?.total || 0), done = Number(job?.processed || 0);
+      $(id + "-progress").innerHTML = job ? jobProgressHtml(job, { total, done, label, queued: data.queued, summary: t(summary, { done, total, translated: job.translated }) }) : '<p class="muted">' + t(empty) + "</p>";
+    }
+    let articles = createJobMonitor({ id: "translation", get: "getTranslationStatus", start: "startTranslations", run, isActive, onRevision, render(data) {
+      scheduled = data.scheduled, $("translation-toggle").textContent = t(scheduled ? "Desactivar traducci\xF3n nocturna" : "Activar traducci\xF3n nocturna"), $("translation-schedule").textContent = t("Traducci\xF3n nocturna: {hour} \xB7 {timezone} \xB7 {state}", { hour: String(data.hour).padStart(2, "0") + ":00", timezone: data.timezone, state: t(scheduled ? "Activada" : "Desactivada") }), progress("translation", data, "Progreso de traducci\xF3n", "{done}/{total} noticias revisadas; {translated} traducciones guardadas.", "Sin traducciones programadas ejecutadas.");
+    } }), taxonomy2 = createJobMonitor({ id: "taxonomy-translation", get: "getTaxonomyTranslationStatus", start: "startTaxonomyTranslations", run, isActive, onRevision, render(data) {
+      progress("taxonomy-translation", data, "Progreso de traducci\xF3n de taxonom\xEDa", "{done}/{total} nombres revisados; {translated} traducciones guardadas.", "Sin traducciones de taxonom\xEDa ejecutadas.");
+    } });
+    return $("translation-toggle").addEventListener("click", () => run(async () => {
+      await call(scheduled ? "disableTranslationSchedule" : "installTranslationSchedule"), await articles.open();
+    }, !1)), { open: () => Promise.all([articles.open(), taxonomy2.open()]), close() {
+      articles.close(), taxonomy2.close();
     } };
   }
 
@@ -1079,9 +1199,9 @@
   }
 
   // src/client/features/subscription-templates.js
-  var periods = { monthly: "Mensual", weekly: "Semanal", daily: "Diaria" }, labels = { type: "Tipo de entidad", entity: "Entidad", segment: "Segmento", country: "Geograf\xEDa", topic: "Tema", signal: "Novedad", source: "Fuente" }, selected = (value, current) => value === current ? " selected" : "";
+  var periods = { monthly: "Mensual", weekly: "Semanal", daily: "Diaria" }, labels = { type: "Tipo de entidad", entity: "Entidad", segment: "Segmento", country: "Geograf\xEDa", topic: "Tema", signal: "Novedad", source: "Fuente", palanca: "Palanca", subpalanca: "Subpalanca" }, selected = (value, current) => value === current ? " selected" : "";
   function filterFields(catalogs, filters5) {
-    return Object.entries(catalogs).map(([key, values]) => `<label>${labels[key]}<select name="${key}"><option value="">Todos</option>${values.map((value) => `<option${selected(value, filters5[key])}>${escape(value)}</option>`).join("")}</select></label>`).join("");
+    return Object.entries(catalogs).map(([key, values]) => `<label>${labels[key]}<select name="${key}"><option value="">Todos</option>${(filters5[key] && !values.includes(filters5[key]) ? [...values, filters5[key]] : values).map((value) => `<option value="${escape(value)}"${selected(value, filters5[key])}>${escape(value)}</option>`).join("")}</select></label>`).join("");
   }
   function subscriptionForm(options, admin, row) {
     let newsletterLanguage = row?.idioma || (admin ? "es" : language), defaults = options.defaults, filters5 = row?.filtros || defaults.filters, primary = (key) => ["entity", "segment", "country"].includes(key);
@@ -1424,31 +1544,57 @@
           ]
         }
       ]
+    },
+    capabilities: {
+      label: "Capacidades digitales",
+      help: "Capacidades independientes para Empresas y Retail. T\xE9rminos separados por punto y coma; solo las activas participan en b\xFAsquedas y relevancia.",
+      fields: [
+        [
+          "name",
+          "Nombre",
+          "text"
+        ],
+        [
+          "terms",
+          "T\xE9rminos de b\xFAsqueda",
+          "list"
+        ],
+        [
+          "enabled",
+          "Activa",
+          "boolean"
+        ]
+      ]
     }
   };
 
   // src/client/features/configuration.js
-  function createConfiguration({ run }) {
-    let config, revision, category = "entities";
+  function createConfiguration({ run, isActive, onRevision }) {
+    let config, revision, category = "entities", segment = "Empresas", capabilityDefaults, monitor = createJobMonitor({ id: "classification", get: "getClassificationStatus", start: "startClassification", run, isActive, onRevision, render(data) {
+      let job = data.job, total = Number(job?.total || 0), done = Number(job?.processed || 0);
+      $("classification-schedule").textContent = t("Clasificaci\xF3n diaria: {hour} \xB7 {timezone} \xB7 {state}. La recuperaci\xF3n diaria tiene prioridad.", { hour: String(data.hour).padStart(2, "0") + ":" + String(data.minute).padStart(2, "0"), timezone: data.timezone, state: t(data.scheduled ? "Activada" : "Desactivada") }), $("classification-progress").innerHTML = job ? jobProgressHtml(job, { total, done, label: "Progreso de clasificaci\xF3n", queued: data.queued, summary: t("{done}/{total} noticias revisadas; {classified} etiquetas actualizadas; {digital} digitales.", { done, total, classified: job.classified, digital: job.digital }) }) : '<p class="muted">' + t(data.queued ? "En cola" : "Sin clasificaciones ejecutadas.") + "</p>";
+    } }), entries = () => category === "capabilities" ? config.capabilities[segment] : config[category], setEntries = (rows) => {
+      category === "capabilities" ? config.capabilities[segment] = rows : config[category] = rows;
+    };
     async function fetchConfig() {
       let snapshot = await call("getConfiguration");
-      config = snapshot.config, revision = snapshot.revision;
+      config = snapshot.config, revision = snapshot.revision, capabilityDefaults = snapshot.capabilityDefaults;
     }
     function readFields() {
       if (config)
         if (category === "settings")
           for (let input of $("catalog-fields").querySelectorAll("[data-key]")) config.settings[input.dataset.key] = input.type === "checkbox" ? input.checked : input.type === "number" ? Number(input.value) : input.dataset.list === "true" ? input.value.split(";").map((value) => value.trim()).filter(Boolean) : input.value;
-        else config[category] = [...$("catalog-fields").children].map((row) => Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input) => [input.dataset.key, input.type === "checkbox" ? input.checked : input.dataset.list === "true" ? input.value.split(";").map((value) => value.trim()).filter(Boolean) : input.value])));
+        else setEntries([...$("catalog-fields").children].map((row) => Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input) => [input.dataset.key, input.type === "checkbox" ? input.checked : input.dataset.list === "true" ? input.value.split(";").map((value) => value.trim()).filter(Boolean) : input.value]))));
     }
     function fields(fields2, row) {
       return fields2.map(([key, label, type]) => `<label>${escape(label)}${type === "boolean" ? `<input type="checkbox" data-key="${key}" ${row[key] ? "checked" : ""}>` : `<input data-key="${key}" ${type === "list" ? 'data-list="true"' : ""} type="${type === "number" ? "number" : "text"}" value="${escape(type === "list" ? (row[key] || []).join("; ") : row[key] ?? "")}">`}</label>`).join("");
     }
     function render() {
       let meta = admin_schema_default[category];
-      $("catalog-help").textContent = meta.help, $("catalog-add").hidden = category === "settings", $("catalog-fields").innerHTML = category === "settings" ? admin_schema_default.settings.groups.map((group) => `<fieldset class="catalog-group"><legend>${escape(group.label)}</legend><div class="catalog-settings">${group.keys.map((key) => {
+      $("capability-toolbar").hidden = category !== "capabilities", $("capability-segment").value = segment, $("catalog-help").textContent = meta.help, $("catalog-add").hidden = category === "settings", $("catalog-fields").innerHTML = category === "settings" ? admin_schema_default.settings.groups.map((group) => `<fieldset class="catalog-group"><legend>${escape(group.label)}</legend><div class="catalog-settings">${group.keys.map((key) => {
         let value = config.settings[key];
         return fields([[key, admin_schema_default.settings.labels[key], Array.isArray(value) ? "list" : typeof value == "number" ? "number" : typeof value == "boolean" ? "boolean" : "text"]], config.settings);
-      }).join("")}</div></fieldset>`).join("") : config[category].map((row) => `<details class="catalog-row" ${row.name ? "" : "open"}><summary><strong>${escape(row.name || "Nueva entrada")}</strong><span>${escape(row.type || "")} \xB7 ${row.enabled ? "Activa" : "Inactiva"}</span></summary><div class="catalog-grid">${fields(meta.fields, row)}</div><div class="actions"><button type="button" class="button" data-move="-1">Subir</button><button type="button" class="button" data-move="1">Bajar</button><button type="button" class="button" data-remove>Eliminar</button></div></details>`).join("");
+      }).join("")}</div></fieldset>`).join("") : entries().map((row) => `<details class="catalog-row" ${row.name ? "" : "open"}><summary><strong>${escape(row.name || "Nueva entrada")}</strong><span>${escape(row.type || "")} \xB7 ${row.enabled ? "Activa" : "Inactiva"}</span></summary><div class="catalog-grid">${fields(meta.fields, row)}</div><div class="actions"><button type="button" class="button" data-move="-1">Subir</button><button type="button" class="button" data-move="1">Bajar</button><button type="button" class="button" data-remove>Eliminar</button></div></details>`).join("");
     }
     return $("catalog-category").innerHTML = Object.entries(admin_schema_default).map(([key, meta]) => `<option value="${key}">${escape(meta.label)}</option>`).join(""), $("catalog-category").addEventListener("change", () => {
       readFields(), category = $("catalog-category").value, render();
@@ -1458,19 +1604,23 @@
       let move = event.target.closest("[data-move]");
       if (move) {
         let row = move.closest(".catalog-row"), index = [...$("catalog-fields").children].indexOf(row), target = index + Number(move.dataset.move);
-        readFields(), target >= 0 && target < config[category].length && ([config[category][index], config[category][target]] = [config[category][target], config[category][index]], render());
+        readFields(), target >= 0 && target < entries().length && ([entries()[index], entries()[target]] = [entries()[target], entries()[index]], render());
       }
+    }), $("capability-segment").addEventListener("change", () => {
+      readFields(), segment = $("capability-segment").value, render();
+    }), $("capability-restore").addEventListener("click", () => {
+      readFields(), config.capabilities[segment] = JSON.parse(JSON.stringify(capabilityDefaults[segment])), render();
     }), $("catalog-add").addEventListener("click", () => {
-      readFields(), config[category].push(Object.fromEntries(admin_schema_default[category].fields.map(([key, , type]) => [key, type === "list" ? [] : type === "boolean" ? !0 : ""]))), render();
+      readFields(), entries().push(Object.fromEntries(admin_schema_default[category].fields.map(([key, , type]) => [key, type === "list" ? [] : type === "boolean" ? !0 : ""]))), render();
     }), $("catalog-form").addEventListener("submit", (event) => {
       event.preventDefault(), readFields(), run(async () => {
-        message(await call("saveConfiguration", { config, revision })), await fetchConfig(), render();
+        message(await call("saveConfiguration", { config, revision })), await fetchConfig(), render(), await monitor.open();
       });
     }), $("catalog-reload").addEventListener("click", () => run(async () => {
       await fetchConfig(), render();
     }, !1)), { async open() {
-      config || (await fetchConfig(), render());
-    } };
+      config || (await fetchConfig(), render()), await monitor.open();
+    }, close: monitor.close };
   }
 
   // src/client/features/article-text.js
@@ -1486,7 +1636,7 @@
   function createBriefing() {
     return { render(data) {
       let briefing2 = data.briefing || { total: 0, bySignal: [], items: [] };
-      $("briefing-count").textContent = "Novedades detectadas: " + briefing2.total, $("briefing-signals").innerHTML = briefing2.bySignal.map((row) => `<button type="button" class="signal-card" data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(row.name)}</span></button>`).join(""), $("briefing-list").innerHTML = briefing2.items.map((row) => `<article class="panel novelty-card"><div class="news-meta">${row.senales.map((signal) => `<span class="badge">${escape(signal)}</span>`).join("")}<time datetime="${escape(row.fecha)}">${escape(formatCalendarDay(row.fecha, language))}</time>${newsPublisher(row)}</div>${articleTranslationNote(row)}<h3 data-original><a href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">${escape(row.titular)}</a></h3><p class="novelty-context">${escape(row.entidad)} \xB7 ${escape(row.tipo)} \xB7 ${escape(row.pais)}</p><p ${row.extracto ? "data-original" : ""}>${escape(row.extracto || "Consulta la fuente original para conocer la oferta y sus condiciones.")}</p>${articleOriginal(row)}<div class="novelty-use"><span class="eyebrow">SEGMENTO Y TEMA</span><p>${escape(row.segmentos.length ? row.segmentos.join(" \xB7 ") : "Segmento no identificado")} \xB7 ${escape(row.tema)}</p></div><a class="button" href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">Consultar anuncio \u2197</a></article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.</p></div>', $("briefing-limit").hidden = !briefing2.limited;
+      $("briefing-count").textContent = "Novedades detectadas: " + briefing2.total, $("briefing-signals").innerHTML = briefing2.bySignal.map((row) => `<button type="button" class="signal-card" data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(row.name)}</span></button>`).join(""), $("briefing-list").innerHTML = briefing2.items.map((row) => `<article class="panel novelty-card"><div class="news-meta">${newsCoverage(row)}${newsTaxonomy(row)}${row.senales.map((signal) => `<span class="badge">${escape(signal)}</span>`).join("")}<time datetime="${escape(row.fecha)}">${escape(formatCalendarDay(row.fecha, language))}</time>${newsPublisher(row)}</div>${articleTranslationNote(row)}<h3 data-original><a href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">${escape(row.titular)}</a></h3><p class="novelty-context">${escape(row.entidad)} \xB7 ${escape(row.tipo)} \xB7 ${escape(row.pais)}</p><p ${row.extracto ? "data-original" : ""}>${escape(row.extracto || "Consulta la fuente original para conocer la oferta y sus condiciones.")}</p>${articleOriginal(row)}<div class="novelty-use"><span class="eyebrow">SEGMENTO Y TEMA</span><p>${escape(row.segmentos.length ? row.segmentos.join(" \xB7 ") : "Segmento no identificado")} \xB7 ${escape(row.tema)}</p></div><a class="button" href="${escape(validUrl(row.url))}" target="_blank" rel="noopener noreferrer">Consultar anuncio \u2197</a></article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.</p></div>', $("briefing-limit").hidden = !briefing2.limited;
     } };
   }
 
@@ -1589,11 +1739,11 @@
   }
 
   // src/client/features/administration.js
-  function createAdministration({ isAdmin, track: track2, onConfiguration, onSubscribers, onLanguage, onLeaveLanguage }) {
+  function createAdministration({ isAdmin, track: track2, onConfiguration, onSubscribers, onLanguage, onLeaveLanguage, onLeaveConfiguration, onTaxonomy, onLeaveTaxonomy }) {
     let current = "configuration";
     async function open(view = current) {
       if (!(!isAdmin() || !(view in config_default.adminViews))) {
-        current === "language" && view !== current && onLeaveLanguage(), current = view, track2("vista");
+        current === "language" && view !== current && onLeaveLanguage(), current === "configuration" && view !== current && onLeaveConfiguration(), current === "taxonomy" && view !== current && onLeaveTaxonomy(), current = view, track2("vista");
         for (let name of Object.keys(config_default.adminViews)) $(name + "-section").hidden = name !== view;
         if ($("admin-tabs").querySelectorAll("[data-admin-view]").forEach((button) => {
           button.setAttribute("aria-selected", String(button.dataset.adminView === view)), button.tabIndex = button.dataset.adminView === view ? 0 : -1;
@@ -1602,7 +1752,7 @@
         } catch (error) {
           message(error.message || String(error), !0);
         }
-        view === "language" && await onLanguage(), view === "runs" && await loadRuns(), view === "audit" && await loadAudit(), (view === "telemetry" || view === "adoption") && await loadMetrics(view, () => current === view && !$("administration-section").hidden);
+        view === "taxonomy" && await onTaxonomy(), view === "language" && await onLanguage(), view === "runs" && await loadRuns(), view === "audit" && await loadAudit(), (view === "telemetry" || view === "adoption") && await loadMetrics(view, () => current === view && !$("administration-section").hidden);
       }
     }
     return $("admin-tabs").addEventListener("click", (event) => {
@@ -1629,16 +1779,16 @@
       el.dataset.options !== signature && (el.dataset.options = signature, el.innerHTML = '<option value="">Todos</option>' + values.map((x) => '<option value="' + escape(x) + '">' + escape(x) + "</option>").join(""), el.value = current || "");
     }
     function layout() {
-      $(view + "-filter-chips").appendChild($("active-filters")), $("geography-filter").hidden = view === "radar", $("advanced-filters").hidden = view === "radar";
+      $(view + "-filter-chips").appendChild($("active-filters")), $("geography-filter").hidden = view === "radar", $("coverage-filter").hidden = !["news", "briefing"].includes(view), $("advanced-filters").hidden = view === "radar";
       for (let id of ["from-filter", "to-filter"]) $(id).hidden = view === "briefing";
       $("filter-description").textContent = view === "radar" ? "Entidad y segmento del Radar." : view === "briefing" ? "Novedades de los \xFAltimos 7 d\xEDas." : "Selecci\xF3n de noticias y per\xEDodo de consulta.";
     }
     layout();
-    let chipLabels = { search: "B\xFAsqueda", country: "Geograf\xEDa", entity: "Entidad", source: "Medio", topic: "Tema", type: "Tipo de entidad", segment: "Segmento", signal: "Novedad", from: "Fecha desde", to: "Fecha hasta" };
+    let chipLabels = { coverage: "Cobertura", search: "B\xFAsqueda", country: "Geograf\xEDa", entity: "Entidad", source: "Medio", topic: "Tema", type: "Tipo de entidad", segment: "Segmento", signal: "Novedad", palanca: "Palanca", subpalanca: "Subpalanca", from: "Fecha desde", to: "Fecha hasta" };
     function renderChips() {
       let target = $("active-filters"), allowed = (name) => view === "radar" ? ["entity", "segment"].includes(name) : view === "briefing" ? !["from", "to"].includes(name) : !0, values = Object.entries(chipLabels).filter(([name]) => allowed(name) && form.elements[name].value);
       target.hidden = !values.length, target.innerHTML = values.map(([name, label]) => {
-        let raw = form.elements[name].value, value = ["from", "to"].includes(name) ? formatCalendarDay(raw, language) : raw, original = ["search", "entity", "source"].includes(name), text = t(label) + ": " + (original ? value : t(value));
+        let raw = form.elements[name].value, value = name === "coverage" ? { digital: "Canal digital", generalista: "Generalista" }[raw] : ["from", "to"].includes(name) ? formatCalendarDay(raw, language) : raw, original = ["search", "entity", "source"].includes(name), text = t(label) + ": " + (original ? value : t(value));
         return '<button type="button" class="filter-chip" data-original data-remove-filter="' + name + '" aria-label="' + escape(t("Quitar")) + " " + escape(text) + '"><span>' + escape(text) + '</span><span aria-hidden="true">\xD7</span></button>';
       }).join("");
     }
@@ -1683,7 +1833,7 @@
       setPage: (value) => page = value,
       render: (data) => {
         page = data.page, defaults = data.defaults || defaults, initialized.add(view);
-        for (let [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["topic", "topics"], ["type", "types"], ["segment", "segments"], ["signal", "signals"]]) options(name, data[key] || []);
+        for (let [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["topic", "topics"], ["type", "types"], ["segment", "segments"], ["signal", "signals"], ["palanca", "palanca"], ["subpalanca", "subpalanca"]]) options(name, data[key] || []);
         if (data.selection) for (let input of form.elements) input.name && (input.value = data.selection[input.name] || "");
         renderChips();
       }
@@ -1692,7 +1842,7 @@
 
   // src/client/features/news.js
   function renderNews(data) {
-    $("news-list").innerHTML = data.items.length ? data.items.map((n, index) => `<article class="news-item"><span class="news-index" aria-hidden="true">${String(data.page * data.pageSize + index + 1).padStart(2, "0")}</span><div><div class="news-meta"><span class="badge">${escape(n.tema)}</span><time datetime="${escape(n.fecha)}">${escape(formatCalendarDay(n.fecha, language))}</time><span>${escape(n.pais)}</span>${newsPublisher(n)}<span>${escape(n.tipo || "")}</span></div>${articleTranslationNote(n)}<h3 data-original><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">${escape(n.titular)}</a></h3><p ${n.extracto ? "data-original" : ""}>${escape(n.extracto || "El feed no proporciona un extracto. Consulta la publicaci\xF3n original.")}</p>${articleOriginal(n)}<div class="news-footer"><span class="muted">${escape([n.entidad, ...n.segmentos || []].filter(Boolean).join(" \xB7 "))}</span><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">Abrir noticia \u2197</a></div></div></article>`).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>', $("result-count").textContent = data.total + " publicaciones", $("page-label").textContent = data.total ? t("P\xE1gina {page} de {pages}", { page: data.page + 1, pages: Math.ceil(data.total / data.pageSize) }) : "Sin resultados", $("previous").disabled = data.page === 0, $("next").disabled = (data.page + 1) * data.pageSize >= data.total;
+    $("news-list").innerHTML = data.items.length ? data.items.map((n, index) => `<article class="news-item"><span class="news-index" aria-hidden="true">${String(data.page * data.pageSize + index + 1).padStart(2, "0")}</span><div><div class="news-meta"><span class="badge">${escape(n.tema)}</span>${newsCoverage(n)}${newsTaxonomy(n)}<time datetime="${escape(n.fecha)}">${escape(formatCalendarDay(n.fecha, language))}</time><span>${escape(n.pais)}</span>${newsPublisher(n)}<span>${escape(n.tipo || "")}</span></div>${articleTranslationNote(n)}<h3 data-original><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">${escape(n.titular)}</a></h3><p ${n.extracto ? "data-original" : ""}>${escape(n.extracto || "El feed no proporciona un extracto. Consulta la publicaci\xF3n original.")}</p>${articleOriginal(n)}<div class="news-footer"><span class="muted">${escape([n.entidad, ...n.segmentos || []].filter(Boolean).join(" \xB7 "))}</span><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">Abrir noticia \u2197</a></div></div></article>`).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>', $("result-count").textContent = data.total + " publicaciones", $("page-label").textContent = data.total ? t("P\xE1gina {page} de {pages}", { page: data.page + 1, pages: Math.ceil(data.total / data.pageSize) }) : "Sin resultados", $("previous").disabled = data.page === 0, $("next").disabled = (data.page + 1) * data.pageSize >= data.total;
   }
 
   // src/client/features/shell.js
@@ -1703,18 +1853,43 @@
   }
 
   // src/client/features/source-catalog.js
+  var sourceTypes = { profile: "Google News RSS", rss: "RSS del editor" };
   function createSourceCatalog() {
-    let feeds = [], enabled = /* @__PURE__ */ new Set(), pageSize = 30, filters5 = createRecordFilters("source", [["entity", "Entidad"], ["country", "Geograf\xEDa"], ["kind", "Tipo", [["profile", "Google News RSS"], ["rss", "RSS del editor"]]], ["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]], render, { placeholder: "Entidad, geograf\xEDa o editor" });
+    let groups = { all: [], profile: [], rss: [] }, byId = /* @__PURE__ */ new Map(), enabled = /* @__PURE__ */ new Set(), pageSize = 30, kind = "all", filters5 = createRecordFilters("source", [
+      ["entity", "Entidad"],
+      ["country", "Geograf\xEDa"],
+      ["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]
+    ], render, { placeholder: "Entidad, geograf\xEDa o editor" });
     function render() {
-      let query = filters5.query(), rows = filterRecords(feeds.map((feed) => ({ ...feed, enabled: enabled.has(feed.id) })), query, ["entity", "country", "kind", "enabled"], ["name", "entity", "country", "url"]), page = recordPage(rows, query, pageSize);
-      $("configured-sources-body").innerHTML = page.items.map((feed) => `<tr><td><input type="checkbox" class="source-enabled" data-id="${escape(feed.id)}" aria-label="Activar ${escape(feed.name)}" ${enabled.has(feed.id) ? "checked" : ""}></td><td>${escape(feed.name)}</td><td>${escape(feed.country)}</td><td>${feed.kind === "profile" ? "Google News RSS" : "RSS del editor"}</td><td><a href="${escape(validUrl(feed.url))}" target="_blank" rel="noopener noreferrer">Abrir feed \u2197</a></td></tr>`).join("") || '<tr><td colspan="5">No hay fuentes con este criterio.</td></tr>', filters5.page(page), $("configured-source-count").textContent = feeds.length + " fuentes configuradas \xB7 " + enabled.size + " activas";
+      let query = filters5.query(), rows = filterRecords(groups[kind], query, ["entity", "country", "enabled"], ["name", "entity", "country", "url"]), page = recordPage(rows, query, pageSize);
+      $("configured-sources-body").innerHTML = page.items.map((feed) => `<tr><td><input type="checkbox" class="source-enabled" data-id="${escape(feed.id)}" aria-label="Activar ${escape(feed.name)}" ${feed.enabled ? "checked" : ""}></td><td>${escape(feed.name)}</td><td>${escape(feed.country)}</td><td>${sourceTypes[feed.kind]}</td><td><a href="${escape(validUrl(feed.url))}" target="_blank" rel="noopener noreferrer">Abrir feed \u2197</a></td></tr>`).join("") || '<tr><td colspan="5">No hay fuentes con este criterio.</td></tr>', filters5.page(page), $("configured-source-count").textContent = groups.all.length + " fuentes configuradas \xB7 " + enabled.size + " activas";
     }
-    return $("configured-sources-body").addEventListener("change", (event) => {
+    function select(next) {
+      !Object.hasOwn(groups, next) || next === kind || (kind = next, $("source-tabs").querySelectorAll("[data-source-kind]").forEach((button) => {
+        let active = button.dataset.sourceKind === kind;
+        button.setAttribute("aria-selected", String(active)), button.tabIndex = active ? 0 : -1;
+      }), $("source-panel").setAttribute("aria-labelledby", "source-tab-" + kind), $("source-rss-editor").hidden = kind !== "rss", filters5.reset(), filters5.options(recordOptions(groups[kind], ["entity", "country"])), render());
+    }
+    return $("source-tabs").addEventListener("click", (event) => {
+      let button = event.target.closest("[data-source-kind]");
+      button && select(button.dataset.sourceKind);
+    }), $("source-tabs").addEventListener("keydown", (event) => {
+      if (!event.target.closest("[data-source-kind]") || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      let kinds = Object.keys(groups), index = kinds.indexOf(kind), next = event.key === "Home" ? 0 : event.key === "End" ? kinds.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + kinds.length) % kinds.length;
+      select(kinds[next]), $("source-tab-" + kind).focus();
+    }), $("configured-sources-body").addEventListener("change", (event) => {
       let input = event.target;
-      input.matches(".source-enabled") && (input.checked ? enabled.add(input.dataset.id) : enabled.delete(input.dataset.id), render());
-    }), { update(rows, size) {
-      feeds = rows, pageSize = size, enabled = new Set(rows.filter((row) => row.enabled).map((row) => row.id)), filters5.options(recordOptions(rows, ["entity", "country"])), render();
-    }, selected: () => [...enabled] };
+      input.matches(".source-enabled") && (byId.get(input.dataset.id).enabled = input.checked, input.checked ? enabled.add(input.dataset.id) : enabled.delete(input.dataset.id), render());
+    }), {
+      update(rows, size) {
+        let feeds = rows.map((row) => ({ ...row }));
+        groups = { all: feeds, profile: [], rss: [] };
+        for (let feed of feeds) groups[feed.kind].push(feed);
+        byId = new Map(feeds.map((feed) => [feed.id, feed])), pageSize = size, enabled = new Set(feeds.filter((feed) => feed.enabled).map((feed) => feed.id)), filters5.options(recordOptions(groups[kind], ["entity", "country"])), render();
+      },
+      selected: () => [...enabled]
+    };
   }
 
   // src/client/features/sources.js
@@ -1841,6 +2016,8 @@
       invalid.has(input) && (input.setCustomValidity(""), invalid.delete(input));
     }, !0), window.addEventListener("news-radar-language-change", () => {
       flushLocalization(), observer.disconnect(), document.documentElement.lang = language, document.title = t(title), localize(document.body), observer.observe(document.body, options);
+    }), window.addEventListener("news-radar-taxonomy-translations", () => {
+      flushLocalization(), observer.disconnect(), localize(document.body), observer.observe(document.body, options);
     }), localize(document.body);
     let options = { subtree: !0, childList: !0, characterData: !0, attributes: !0, attributeFilter: attributes };
     translateChanges = (records) => {
@@ -1861,11 +2038,13 @@
 
   // src/client/app.js
   initializeLocalization();
-  var state = { data: null, request: 0, busy: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data }), { track, flush } = usage, configuration = createConfiguration({ run: action }), subscriptions = createSubscriptions({ run: action, onApply: (query) => {
+  var state = { data: null, request: 0, busy: !1, contentStale: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data }), { track, flush } = usage, noteNewsRevision = (revision) => {
+    revision && state.data && revision !== state.data.newsRevision && (state.contentStale = !0);
+  }, configuration = createConfiguration({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "configuration" }), taxonomy = createTaxonomy({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "taxonomy" }), subscriptions = createSubscriptions({ run: action, onApply: (query) => {
     filters4.show("news"), filters4.apply(query), navigation.show("news");
-  } }), newsletterDelivery = createNewsletterDelivery({ run: action }), languageSettings = createLanguageSettings({ run: action, isActive: () => navigation.current === "administration" && administration.current === "language" }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]), onLanguage: () => languageSettings.open(), onLeaveLanguage: () => languageSettings.close() }), navigation = createNavigation({ onSelection: (view) => {
-    filters4.show(view) ? load() : state.data && renderSelection(state.data, view);
-  }, onSubscriptions: () => subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
+  } }), newsletterDelivery = createNewsletterDelivery({ run: action }), languageSettings = createLanguageSettings({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "language" }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]), onLanguage: () => languageSettings.open(), onLeaveLanguage: () => languageSettings.close(), onLeaveConfiguration: () => configuration.close(), onTaxonomy: () => taxonomy.open(), onLeaveTaxonomy: () => taxonomy.close() }), navigation = createNavigation({ onSelection: (view) => {
+    configuration.close(), taxonomy.close(), filters4.show(view) || state.contentStale ? load() : state.data && renderSelection(state.data, view);
+  }, onSubscriptions: () => (configuration.close(), taxonomy.close(), subscriptions.open()), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
   } }), briefing = createBriefing();
   $("briefing-signals").addEventListener("click", (event) => {
@@ -1893,7 +2072,7 @@
       let data = await call("getDashboard", filters4.query());
       if (request3 === state.request) {
         let first = !state.data;
-        state.data = data, setTimezone(data.preferences?.timezone), window.RADAR_PREVIEW && data.admin && ($("preview-banner").textContent = "Administraci\xF3n local \xB7 cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.");
+        state.data = data, state.contentStale = !1, setTimezone(data.preferences?.timezone), window.RADAR_PREVIEW && data.admin && ($("preview-banner").textContent = "Administraci\xF3n local \xB7 cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.");
         let renderStarted = performance.now();
         filters4.render(data), renderSelection(data), data.preferences && ($("retention-days").textContent = data.preferences.retentionDays, $("event-limit").textContent = data.preferences.eventLimit), renderShell(data), data.admin && sources.render(data), collectionProgress.update(data), flushLocalization(), track("rendimiento", performance.now() - started, { ...data.performance, rpcMs: Math.round(renderStarted - started), renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
       }
@@ -1912,7 +2091,7 @@
       } catch (e) {
         message(e.message || String(e), !0);
       } finally {
-        state.busy = !1, document.querySelectorAll(actionControls).forEach((el) => el.disabled = !1), sources.setBusy(!1), recoveryControls.setBusy(!1), state.data && ($("previous").disabled = state.data.page === 0, $("next").disabled = (state.data.page + 1) * state.data.pageSize >= state.data.total);
+        state.busy = !1, document.querySelectorAll(actionControls).forEach((el) => el.disabled = el.dataset.jobActive === "true"), sources.setBusy(!1), recoveryControls.setBusy(!1), state.data && ($("previous").disabled = state.data.page === 0, $("next").disabled = (state.data.page + 1) * state.data.pageSize >= state.data.total);
       }
     }
   }
@@ -1950,7 +2129,7 @@
   });
   load();
   window.addEventListener("news-radar-language-change", async () => {
-    await load(), navigation.current === "administration" && administration.current === "language" && await languageSettings.open();
+    await load(), navigation.current === "administration" && administration.current === "language" && await languageSettings.open(), navigation.current === "administration" && administration.current === "taxonomy" && await taxonomy.open();
   });
 })();
 </script>
