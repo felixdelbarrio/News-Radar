@@ -9,10 +9,10 @@ function currentMonth_(now=new Date()){
   return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10)};
 }
 function dashboardQuery_(query={},now=new Date()){
-  const {view,initial,language,...filters}=query;
-  if(view==='radar')return {entity:initial?'':filters.entity||'',segment:initial?'Empresas e instituciones':filters.segment||''};
+  const {view,initial,...filters}=query;delete filters.language;delete filters.edition;delete filters.preference;delete filters.savePreference;
+  if(view==='radar')return initial?{entity:'',segment:'Empresas e instituciones'}:filters;
   if(['news','briefing'].includes(view)&&filters.coverage&&!['generalista','digital'].includes(filters.coverage))throw Error('Filtro de cobertura no válido.');
-  if(view==='briefing')return {...(initial?{segment:'Empresas e instituciones',coverage:'digital'}:filters),...recentNewsRange_(now)};
+  if(view==='briefing')return {...(initial?{segment:'Empresas e instituciones',coverage:'digital',...recentNewsRange_(now)}:filters),...(!initial&&!filters.from&&!filters.to?recentNewsRange_(now):{})};
   const selection=initial?{entity:settings_().defaultEntity,segment:settings_().defaultSegment,topic:settings_().defaultTopic,country:settings_().defaultCountry,...currentMonth_(now)}:filters;
   if(view==='news'){selection.coverage=initial?'digital':selection.coverage||'';}
   else delete selection.coverage;

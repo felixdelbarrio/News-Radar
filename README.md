@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.14.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.15.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -287,3 +287,13 @@ Las pruebas exigen entradas completas para los textos estáticos, las frases del
 ## Navegación inicial · 1.9.4
 
 El orden es Novedades, Noticias, Radar, Newsletter y Administración. Novedades se abre por defecto y la consulta inicial solicita únicamente esa vista. Administración permanece visible solo para administradores. El orden y la vista inicial del cliente se obtienen del catálogo de navegación compartido.
+
+## Lectura coherente e inteligencia de taxonomía · 1.15.0
+
+Los nuevos correos enlazan su edición privada: Novedades y Noticias mantienen exactamente las noticias enviadas, las etiquetas y el período, aunque luego cambien las preferencias, la taxonomía o el inventario de Noticias. Los filtros refinan esa edición; Volver a la actualidad, limpiar filtros o quitar el período abandona su contexto. El botón no modifica las suscripciones. La misma agrupación BBVA primero y resto por cantidad de novedades se aplica al correo y a Novedades.
+
+Mi selección permite elegir una suscripción activa o el ámbito predeterminado. La elección se guarda por usuario en un único RPC que también devuelve el dashboard. Sin elección explícita se usa la suscripción activa editada más recientemente; sin suscripciones se conservan los valores predeterminados. Cambiar temporalmente los filtros no cambia preferencias ni los correos recibidos.
+
+Radar muestra un mapa de calor interactivo por entidad o geografía, palanca o subpalanca, con números absolutos o porcentaje de noticias del grupo. Cada celda abre Noticias con la selección y fechas conservadas; el mapa informa también de las noticias sin catalogar. Agrupación, medida y paginación se resuelven en el cliente, sin nuevas consultas. La escala usa los tokens comunes y el DOM se mantiene acotado.
+
+Tras desplegar, ejecutar `initializeConfiguration` para crear **Preferencias**, **NewsletterEdiciones** y **NewsletterContenido**. Los enlaces genéricos de correos enviados antes de esta versión no identifican una edición; la continuidad archivada se aplica a los nuevos envíos. Véase [el análisis de telemetría y validación](docs/telemetry-1.15.0.md).

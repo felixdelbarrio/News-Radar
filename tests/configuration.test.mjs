@@ -5,7 +5,7 @@ import {storage} from './helpers/server.mjs';
 import {read,readServerScript} from '../scripts/source.mjs';
 const seed=()=>JSON.parse(read('assets/configuration-defaults.json'));
 test('inicializa solo claves ausentes, persiste en Sheets y reutiliza e invalida la caché versionada',()=>{
-  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,10);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
+  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,13);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
   config.settings.defaultEntity='Qonto';config.topics.push({name:'Prueba editorial',terms:['innovación verificable'],enabled:true});c.saveConfiguration({config,revision:c.getConfiguration().revision});assert.equal(c.getConfiguration().config.settings.defaultEntity,'Qonto');
   c.initializeConfiguration();assert.equal(c.getConfiguration().config.settings.defaultEntity,'Qonto');assert.ok(c.getConfiguration().config.topics.some(row=>row.name==='Prueba editorial'));
   const sheet=s.sheets.get('Configuracion'),index=sheet.grid.findIndex(row=>row[0]==='settings'),settings=JSON.parse(sheet.grid[index][1]);settings.defaultEntity='Revolut';sheet.grid[index][1]=JSON.stringify(settings);
@@ -17,8 +17,8 @@ test('configuración deniega lectores y rechaza catálogos incoherentes antes de
 });
 test('cambiar catálogos modifica clasificación, tipos, segmentos y filtros del histórico sin recompilar',()=>{
   const s=storage(),{c}=s;c.initializeConfiguration();const rows=[{fecha:'2026-10-09',pais:'España',entidad:'Qonto',medio:'Editor',titular:'Qonto lanza una nueva cuenta para autónomos',extracto:'',url:'https://example.com/q'}, {fecha:'2026-10-09',pais:'España',entidad:'N26',medio:'Editor',titular:'N26 lanza tarjeta para particulares',extracto:'',url:'https://example.com/n'},{fecha:'2026-10-09',pais:'España',entidad:'Revolut',medio:'Editor',titular:'Nuevo director de Revolut',extracto:'',url:'https://example.com/r'}];
-  assert.equal(c.selectNews_(rows,{type:'Fintech',segment:'Empresas e instituciones',signal:'Lanzamiento de producto'}).length,1);assert.equal(c.selectNews_(rows,{type:'Neobanco',segment:'Retail',signal:'Lanzamiento de producto'}).length,1);assert.equal(c.newsDashboard_(rows,{},c.feeds_(),'briefing').briefing.total,2);
-  const config=c.getConfiguration().config;config.signals[0].terms=['comunicado inexistente'];c.saveConfiguration({config,revision:c.getConfiguration().revision});assert.equal(c.newsDashboard_(rows,{},c.feeds_(),'briefing').briefing.total,0);
+  assert.equal(c.selectNews_(rows,{type:'Fintech',segment:'Empresas e instituciones',signal:'Lanzamiento de producto'}).length,1);assert.equal(c.selectNews_(rows,{type:'Neobanco',segment:'Retail',signal:'Lanzamiento de producto'}).length,1);assert.equal(c.newsDashboard_(c.annotateNews_(rows),{},c.feeds_(),'briefing').briefing.total,2);
+  const config=c.getConfiguration().config;config.signals[0].terms=['comunicado inexistente'];c.saveConfiguration({config,revision:c.getConfiguration().revision});assert.equal(c.newsDashboard_(c.annotateNews_(rows),{},c.feeds_(),'briefing').briefing.total,0);
   config.entities.find(row=>row.name==='Qonto').type='Categoría propia';c.saveConfiguration({config,revision:c.getConfiguration().revision});assert.equal(c.selectNews_(rows,{type:'Categoría propia'}).length,1);
 });
 test('desactivar entidades o países elimina consultas futuras sin borrar noticias históricas',()=>{

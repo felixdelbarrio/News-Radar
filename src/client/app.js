@@ -1,3 +1,5 @@
+import {createReadingContext} from './features/reading-context.js';
+import {createTaxonomyHeatmap} from './features/taxonomy-heatmap.js';
 import {createTaxonomy} from './features/taxonomy.js';
 import {defaultView} from './config.js';
 import {createLanguageSettings} from './features/language-settings.js';
@@ -34,6 +36,8 @@ const filters = createFilters({ onInvalidate: () => ++state.request, onChange: (
   track("filtro");
   load();
 } });
+const reading=createReadingContext({onPreference:id=>filters.usePreference(id),onCurrent:()=>filters.current()});
+const heatmap=createTaxonomyHeatmap({onExplore:query=>{filters.show('news');filters.apply(query);navigation.show('news');}});
 const briefing=createBriefing();
 $('briefing-signals').addEventListener('click',event=>{const button=event.target.closest('[data-signal]');if(button)filters.set('signal',button.dataset.signal);});
 const radar = createRadar({ onCountry: (country) => {filters.show("news");filters.apply({...state.data.selection,country});navigation.show("news");}, onEntity: (entity) => filters.set("entity", entity), onNews: () => {const selection=state.data.selection;filters.show("news");filters.apply(selection);navigation.show("news");} });
@@ -41,8 +45,8 @@ const sources = createSources({ getData: () => state.data, run: action });
 const recoveryControls=createRecoveryControls({getData:()=>state.data,run:action});
 const collectionProgress=createCollectionProgress({reload:load,isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
 function renderSelection(data,view=navigation.current){
-  renderNews(data);
-  if(view==='radar')radar.render(data);
+  reading.render(data,view);renderNews(data);
+  if(view==='radar'){radar.render(data);heatmap.render(data);}
   if(view==='briefing')briefing.render(data);
 }
 async function load() {
@@ -53,7 +57,7 @@ async function load() {
     return;
   }
   try {
-    const data = await call("getDashboard", filters.query());
+    const query=filters.query(),data=await call(query.savePreference?"saveNewsPreference":"getDashboard",query);
     if (request === state.request) {
       const first = !state.data;
       state.data = data;state.contentStale=false;
@@ -133,13 +137,14 @@ createFilterPanel();
 if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
 navigation.show(defaultView);
 if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocation(async location=>{
+  if(location.parameter.edition){filters.useEdition(location.parameter.edition);return;}
+  load();
   if(location.parameter.view!=='subscriptions')return;
   await navigation.show('subscriptions');
   const id=location.parameter.unsubscribe;if(!id)return;
   const target=$('message');message('Confirma la baja de esta suscripción.');
   const button=document.createElement('button');button.type='button';button.className='button';button.textContent='Confirmar baja';
   button.addEventListener('click',()=>action(async()=>{message(await call('deleteSubscription',id));await subscriptions.open();},false));target.appendChild(button);
-});
-load();
+});else load();
 
 window.addEventListener('news-radar-language-change',async()=>{await load();if(navigation.current==='administration'&&administration.current==='language')await languageSettings.open();if(navigation.current==='administration'&&administration.current==='taxonomy')await taxonomy.open();});

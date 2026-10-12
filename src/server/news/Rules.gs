@@ -27,6 +27,8 @@ function domainMatches_(url, domain) {
 }
 let businessIndexMemory_;
 const newsRelevanceMemory_=new WeakMap();
+function packNews_(row){return [row,newsRelevanceMemory_.get(row)??0];}
+function unpackNews_(record){newsRelevanceMemory_.set(record[0],record[1]);return record[0];}
 function businessIndex_(){
   const config=configuration_();if(businessIndexMemory_?.config===config)return businessIndexMemory_;
   const entities=new Map(),entityTerms=new Map();for(const row of config.entities){const terms=[row.name,...row.aliases].map(searchText_);entityTerms.set(row.name,terms);for(const term of terms)entities.set(term,row);}

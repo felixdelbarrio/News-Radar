@@ -45,6 +45,7 @@ function writeSubscription_(input,admin){
     if(input.id&&index<0)throw Error('Suscripción no encontrada.');
     const record=subscriptionRecord_(input,email,input.id||Utilities.getUuid(),new Date(),rows.filter(r=>r.correo===email&&r.id!==input.id).length),values=RADAR.sheets.Suscripciones.map(key=>key==='filtros'?JSON.stringify(record[key]):record[key]);
     if(index<0)append_('Suscripciones',[values]);else book_().getSheetByName('Suscripciones').getRange(index+2,1,1,values.length).setValues([values]);
+    properties_().setProperty('SUBSCRIPTIONS_REVISION',Utilities.getUuid());
     return 'Suscripción guardada'+(newsletterEnabled_()?'. Recibirás las novedades de los últimos 7 días.':'. La entrega está pendiente de activación por el administrador.');
   }finally{lock.releaseLock();}
 }
@@ -52,5 +53,5 @@ function saveSubscription(input){return writeSubscription_(input,false);}
 function saveAdminSubscription(input){return writeSubscription_(input,true);}
 function deleteSubscription(id){
   const session=authorize_(),lock=LockService.getScriptLock();lock.waitLock(10000);
-  try{const index=rows_('Suscripciones').findIndex(row=>row.id===id&&row.correo===session.email);if(index<0)throw Error('Suscripción no encontrada.');book_().getSheetByName('Suscripciones').deleteRow(index+2);return 'Suscripción eliminada.';}finally{lock.releaseLock();}
+  try{const index=rows_('Suscripciones').findIndex(row=>row.id===id&&row.correo===session.email);if(index<0)throw Error('Suscripción no encontrada.');book_().getSheetByName('Suscripciones').deleteRow(index+2);properties_().setProperty('SUBSCRIPTIONS_REVISION',Utilities.getUuid());return 'Suscripción eliminada.';}finally{lock.releaseLock();}
 }

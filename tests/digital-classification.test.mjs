@@ -49,7 +49,7 @@ test('histórico acotado, reanudable e idempotente sin volver a consultar fuente
 });
 test('filtros independientes se combinan y el predeterminado digital solo afecta a Noticias y Novedades',()=>{
  const {c}=server(),now=new Date('2026-10-12T12:00:00Z');assert.equal(c.dashboardQuery_({view:'news',initial:true},now).coverage,'digital');const briefing=c.dashboardQuery_({view:'briefing',initial:true},now);assert.equal(briefing.segment,'Empresas e instituciones');assert.equal(briefing.coverage,'digital');assert.equal(briefing.entity,undefined);
- assert.equal(c.dashboardQuery_({view:'news',coverage:''},now).coverage,'');assert.equal(c.dashboardQuery_({view:'radar',coverage:'digital'},now).coverage,undefined);assert.equal(c.dashboardQuery_({coverage:'digital'},now).coverage,undefined);assert.throws(()=>c.dashboardQuery_({view:'news',coverage:'mobile'}),/cobertura/);
+ assert.equal(c.dashboardQuery_({view:'news',coverage:''},now).coverage,'');assert.equal(c.dashboardQuery_({view:'radar',coverage:'digital'},now).coverage,'digital');assert.equal(c.dashboardQuery_({coverage:'digital'},now).coverage,undefined);assert.throws(()=>c.dashboardQuery_({view:'news',coverage:'mobile'}),/cobertura/);
  const rows=positive.slice(0,2).map((title,i)=>({id:String(i),fecha:'2026-10-10',entidad:'BBVA',pais:i?'México':'España',titular:title,extracto:'',clasificacion:JSON.stringify({generalista:true,digital:true,capacidades:[]})}));rows.push({...rows[0],id:'general',clasificacion:JSON.stringify({generalista:true,digital:false,capacidades:[]})});
  assert.equal(c.selectNews_(rows,{}).length,3);assert.equal(c.selectNews_(rows,{coverage:'generalista'}).length,3);assert.equal(c.selectNews_(rows,{coverage:'digital'}).length,2);assert.equal(c.selectNews_(rows,{coverage:'digital',country:'España',entity:'BBVA',from:'2026-10-09',to:'2026-10-11'}).length,1);
 });
@@ -67,8 +67,8 @@ test('migración conserva noticias y ediciones; incorpora valores nuevos una sol
  assert.equal(upgraded.feeds.length,7);assert.equal(upgraded.entities.length,config.entities.length);assert.equal(upgraded.capabilities.Empresas[0].enabled,false);assert.deepEqual(JSON.parse(JSON.stringify(upgraded.capabilities.Empresas[0].terms)),['termino propio']);assert.equal(news.grid[1][0],'original');assert.equal(news.grid[0].length,14);assert.ok(properties.CLASSIFICATION_JOB);
  const stored=JSON.stringify(sheet.grid);c.initializeConfiguration();assert.equal(JSON.stringify(sheet.grid),stored);
 });
-test('Novedades agrupa BBVA primero y entidades por cantidad; newsletter conserva su orden por relevancia',()=>{
+test('Novedades agrupa BBVA primero y entidades por cantidad; newsletter mantiene la misma agrupación',()=>{
  const {c}=server(),rows=[];for(const [entity,total,date] of [['BBVA',1,'2026-10-08'],['Qonto',3,'2026-10-11'],['N26',2,'2026-10-10'],['Santander',1,'2026-10-09']])for(let i=0;i<total;i++)rows.push({entidad:entity,fecha:date,titular:entity+' lanza una nueva cuenta para empresas '+i,extracto:'',url:'https://example.com/'+entity+i,pais:'España',medio:'Editor'});
- const selected=c.annotateNews_(rows),grouped=c.newsDashboard_(rows,{},c.feeds_(),'briefing').briefing.items;assert.deepEqual(JSON.parse(JSON.stringify(grouped.map(row=>row.entidad))),['BBVA','Qonto','Qonto','Qonto','N26','N26','Santander']);
- const newsletter=c.newsletter_(rows,{},'Canal',new Date('2026-10-12T12:00:00Z'),'sub');assert.equal(newsletter.items[0].entidad,'Qonto');assert.equal(c.briefing_(selected).items[0].entidad,'Qonto');
+ const selected=c.annotateNews_(rows),grouped=c.newsDashboard_(c.annotateNews_(rows),{},c.feeds_(),'briefing').briefing.items;assert.deepEqual(JSON.parse(JSON.stringify(grouped.map(row=>row.entidad))),['BBVA','Qonto','Qonto','Qonto','N26','N26','Santander']);
+ const newsletter=c.newsletter_(rows,{},'Canal',new Date('2026-10-12T12:00:00Z'),'sub');assert.equal(newsletter.items[0].entidad,'BBVA');assert.equal(c.briefing_(selected).items[0].entidad,'BBVA');
 });
