@@ -25,7 +25,10 @@
     return +(a.name === "Sin determinar") - +(b.name === "Sin determinar") || a.name.localeCompare(b.name, "es");
   }
   function entityOrder(a, b) {
-    return +(b.name === "BBVA") - +(a.name === "BBVA") || b.total - a.total || a.name.localeCompare(b.name, "es");
+    return +(b.name === "BBVA") - +(a.name === "BBVA") || a.name.localeCompare(b.name, "es");
+  }
+  function entityVolumeOrder(a, b) {
+    return +(b.name === "BBVA") - +(a.name === "BBVA") || b.total - a.total || entityOrder(a, b);
   }
 
   // src/shared/taxonomy-path.js
@@ -48,9 +51,10 @@
     "Palancas activas": ["Active themes", "Etkin temalar"],
     "Palancas que marcan el a\xF1o": ["Themes shaping the year", "Y\u0131la y\xF6n veren temalar"],
     "Presencia en noticias por categor\xEDa. Una noticia puede pertenecer a varias palancas.": ["News presence by category. An article may belong to several themes.", "Kategoriye g\xF6re haber say\u0131s\u0131. Bir haber birden fazla temaya ait olabilir."],
-    "Dos noticias por entidad y geograf\xEDa de categor\xEDas distintas, priorizadas por su presencia en el per\xEDodo.": ["Two stories per entity and geography from distinct categories, prioritised by their presence during the period.", "Her kurulu\u015F ve co\u011Frafya i\xE7in d\xF6nemdeki s\u0131kl\u0131\u011F\u0131na g\xF6re \xF6nceliklendirilen farkl\u0131 kategorilerden iki haber."],
-    "m\xE1s\u2026": ["more\u2026", "daha\u2026"],
-    "en esta categor\xEDa": ["in this category", "bu kategoride"],
+    "Ver m\xE1s": ["See more", "Daha fazlas\u0131"],
+    "Palanca destacada": ["Leading theme", "\xD6ne \xE7\u0131kan tema"],
+    "en esta palanca": ["in this theme", "bu temada"],
+    "Una noticia por geograf\xEDa, de la palanca con m\xE1s presencia en el per\xEDodo.": ["One story per geography from the most covered theme in the period.", "Her co\u011Frafya i\xE7in d\xF6nemde en \xE7ok yer alan temadan bir haber."],
     "Entidad con mayor presencia": ["Entity with the most coverage", "En \xE7ok haber yap\u0131lan kurulu\u015F"],
     "Evoluci\xF3n trimestral": ["Quarterly activity", "\xC7eyreklik geli\u015Fim"],
     Trimestre: ["Quarter", "\xC7eyrek"],
@@ -65,7 +69,6 @@
     "La geograf\xEDa supera el l\xEDmite del briefing. Reduce los filtros para incluir todas las novedades.": ["This geography exceeds the briefing limit. Narrow your filters to include all updates.", "Bu co\u011Frafya \xF6zet s\u0131n\u0131r\u0131n\u0131 a\u015F\u0131yor. T\xFCm geli\u015Fmeleri dahil etmek i\xE7in filtreleri daralt\u0131n."],
     "Tu radar de novedades": ["Your news radar", "Haber radar\u0131n\u0131z"],
     "Tu selecci\xF3n por geograf\xEDa": ["Your selection by geography", "Co\u011Frafyaya g\xF6re se\xE7iminiz"],
-    "Novedades incluidas": ["Updates included", "Dahil edilen geli\u015Fmeler"],
     "Entidad no identificada": ["Unidentified entity", "Tan\u0131mlanmayan kurulu\u015F"],
     "\xDAltimos 7 d\xEDas": ["Last 7 days", "Son 7 g\xFCn"],
     "Mes en curso": ["Current month", "\u0130\xE7inde bulunulan ay"],
@@ -1809,7 +1812,7 @@
       let group = geography.entities.get(entity);
       group.items.push(row), group.segments.has(segment) || group.segments.set(segment, { name: segment, items: [] }), group.segments.get(segment).items.push(row);
     }
-    return [...geographies.values()].map((row) => ({ ...row, entities: [...row.entities.values()].map((entity) => ({ ...entity, total: entity.items.length, segments: [...entity.segments.values()] })).sort(entityOrder) })).sort(geographyOrder);
+    return [...geographies.values()].map((row) => ({ ...row, entities: [...row.entities.values()].map((entity) => ({ ...entity, total: entity.items.length, segments: [...entity.segments.values()] })).sort(entityVolumeOrder) })).sort(geographyOrder);
   }
   function noveltyCount(count, singular, plural, translate = (value) => value) {
     return count + " " + translate(count === 1 ? singular : plural);
@@ -2080,9 +2083,22 @@
     };
   }
 
+  // src/shared/news-groups.js
+  function newsEntityGroups(items) {
+    let entities = /* @__PURE__ */ new Map();
+    for (let row of items) {
+      let name = row.entidad || "Entidad no identificada";
+      entities.has(name) || entities.set(name, { name, total: 0, items: [] });
+      let group = entities.get(name);
+      group.total++, group.items.push(row);
+    }
+    return [...entities.values()].sort(entityOrder);
+  }
+
   // src/client/features/news.js
   function renderNews(data) {
-    $("news-list").innerHTML = data.items.length ? data.items.map((n, index) => `${index === 0 || n.entidad !== data.items[index - 1].entidad ? '<h2 class="news-entity-heading" data-original>' + identityMark("entities", n.entidad, escape) + escape(n.entidad || "Entidad no identificada") + "</h2>" : ""}<article class="news-item"><span class="news-index" aria-hidden="true">${String(data.page * data.pageSize + index + 1).padStart(2, "0")}</span><div>${articleHeader(n, `<span class="badge">${escape(n.tema)}</span>${newsCoverage(n)}${newsTaxonomy(n)}<time datetime="${escape(n.fecha)}">${escape(formatCalendarDay(n.fecha, language))}</time><span>${escape(n.pais)}</span>${newsPublisher(n)}<span>${escape(n.tipo || "")}</span>`)}${articleTranslationNote(n)}<h3 data-original><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">${escape(n.titular)}</a></h3><p ${n.extracto ? "data-original" : ""}>${escape(n.extracto || "El feed no proporciona un extracto. Consulta la publicaci\xF3n original.")}</p>${articleOriginal(n)}<div class="news-footer"><span class="muted">${escape([n.entidad, ...n.segmentos || []].filter(Boolean).join(" \xB7 "))}</span><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">Abrir noticia \u2197</a></div></div></article>`).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>', $("result-count").textContent = data.total + " publicaciones", $("page-label").textContent = data.total ? t("P\xE1gina {page} de {pages}", { page: data.page + 1, pages: Math.ceil(data.total / data.pageSize) }) : "Sin resultados", $("previous").disabled = data.page === 0, $("next").disabled = (data.page + 1) * data.pageSize >= data.total;
+    let index = 0;
+    $("news-list").innerHTML = data.items.length ? newsEntityGroups(data.items).map((group) => `<section class="news-entity-group" aria-label="${escape(group.name)}"><h2 class="news-entity-heading" data-original>${identityMark("entities", group.name, escape)}${escape(group.name)}</h2>${group.items.map((n) => `<article class="news-item"><span class="news-index" aria-hidden="true">${String(data.page * data.pageSize + ++index).padStart(2, "0")}</span><div>${articleHeader(n, `<span class="badge">${escape(n.tema)}</span>${newsCoverage(n)}${newsTaxonomy(n)}<time datetime="${escape(n.fecha)}">${escape(formatCalendarDay(n.fecha, language))}</time><span>${escape(n.pais)}</span>${newsPublisher(n)}<span>${escape(n.tipo || "")}</span>`)}${articleTranslationNote(n)}<h3 data-original><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">${escape(n.titular)}</a></h3><p ${n.extracto ? "data-original" : ""}>${escape(n.extracto || "El feed no proporciona un extracto. Consulta la publicaci\xF3n original.")}</p>${articleOriginal(n)}<div class="news-footer"><span class="muted">${escape([n.entidad, ...n.segmentos || []].filter(Boolean).join(" \xB7 "))}</span><a href="${escape(validUrl(n.url))}" target="_blank" rel="noopener noreferrer">Abrir noticia \u2197</a></div></div></article>`).join("")}</section>`).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>', $("result-count").textContent = data.total + " publicaciones", $("page-label").textContent = data.total ? t("P\xE1gina {page} de {pages}", { page: data.page + 1, pages: Math.ceil(data.total / data.pageSize) }) : "Sin resultados", $("previous").disabled = data.page === 0, $("next").disabled = (data.page + 1) * data.pageSize >= data.total;
   }
 
   // src/client/features/shell.js

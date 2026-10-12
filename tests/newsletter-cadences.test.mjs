@@ -9,20 +9,20 @@ const path=(palanca='Pagos',subpalanca='Cobros')=>({palanca,subpalanca});
 function news(id,pais='España',entidad='BBVA',taxonomy=[path()]){return {id,pais,entidad,fecha:'2026-09-12',medio:'Editor',titular:entidad+' presenta servicio '+id,extracto:'Información del servicio '+id,tipo:'Banco tradicional',segmentos:['Empresas e instituciones'],senales:[],tema:'Financiación',taxonomia:taxonomy,url:'https://example.com/'+id};}
 const rows=()=>[news('a'),news('b'),news('c'),news('d','España','BBVA',[path('Seguridad','Identidad')]),news('e','España','BBVA',[path('Seguridad','Identidad')]),news('f','México','Santander'),news('g','México','Santander',[path('Financiación','Crédito')])];
 const clean=value=>JSON.parse(JSON.stringify(value));
-test('el resumen mensual selecciona dos categorías distintas por entidad y geografía según su ocurrencia, sin duplicar artículos',()=>{
+test('el resumen elige una noticia de la palanca más frecuente por país, sin duplicar etiquetas ni alterar los registros',()=>{
  const {c}=server(),input=rows(),before=JSON.stringify(input),digest=c.newsletterDigest_(input);
- assert.equal(digest.groups.length,2);assert.equal(digest.featured.length,4);assert.deepEqual(Array.from(digest.featured,row=>row.id),['a','d','g','f']);
- const entity=digest.groups[0].entities[0],summary=digest.selections.get(entity);assert.deepEqual(Array.from(summary.chosen,row=>row.occurrences),[3,2]);assert.equal(summary.remaining,3);assert.equal(JSON.stringify(input),before);
- const multi=news('multi','España','BBVA',[path(),path(),path('Seguridad','Identidad')]),one=c.newsletterDigest_([multi]);assert.equal(one.featured.length,1);assert.equal(one.selections.get(one.groups[0].entities[0]).categories[0].items.length,1);
- const untagged=c.newsletterDigest_([news('x','España','BBVA',[]),news('y','España','BBVA',[])]);assert.equal(untagged.featured.length,1);assert.equal(untagged.selections.get(untagged.groups[0].entities[0]).remaining,1);
+ assert.equal(digest.groups.length,2);assert.deepEqual(Array.from(digest.featured,row=>row.id),['a','g']);
+ const summary=digest.selections.get(digest.groups[0]);assert.equal(summary.occurrences,3);assert.equal(summary.remaining,4);assert.equal(JSON.stringify(input),before);
+ const multi=news('multi','España','BBVA',[path(),path(),path('Pagos','Transferencias')]),one=c.newsletterDigest_([multi]);assert.equal(one.featured.length,1);assert.equal(one.selections.get(one.groups[0]).occurrences,1);
+ const untagged=c.newsletterDigest_([news('x','España','BBVA',[]),news('y','España','BBVA',[])]);assert.equal(untagged.featured.length,1);assert.equal(untagged.selections.get(untagged.groups[0]).remaining,1);
 });
-test('newsletter mensual muestra KPIs del corpus completo, cuatro tarjetas y más noticias con filtros y edición privados',()=>{
+test('newsletter mensual muestra KPIs del corpus completo, una tarjeta por país y más noticias con filtros y edición privados',()=>{
  const {c}=server(),input=rows();
  for(const language of ['es','en','tr']){
   const content=c.newsletterContent_(input,{view:'news',segment:'Empresas e instituciones',from:'2026-09-01',to:'2026-09-30'},'Selección',new Date(),'sub',language,'edition'),dom=new JSDOM(content.html),d=dom.window.document;
-  assert.equal(content.count,4);assert.equal(content.total,7);assert.equal(content.evidence.length,7);assert.equal(d.querySelectorAll('.newsletter-article').length,4);assert.equal(d.querySelectorAll('.newsletter-geography').length,2);
-  assert.deepEqual([...d.querySelectorAll('.newsletter-kpi-value')].map(row=>row.textContent),['7','2','2','3']);assert.equal(d.querySelectorAll('.newsletter-insight').length,4);
-  const link=new URL(d.querySelector('.newsletter-more').href);assert.equal(link.searchParams.get('edition'),'edition');assert.equal(link.searchParams.get('view'),'news');assert.equal(link.searchParams.get('country'),'España');assert.equal(link.searchParams.get('entity'),'BBVA');assert.equal(link.searchParams.getAll('view').length,1);assert.match(d.querySelector('.newsletter-more').textContent,/\[3\]/);assert.match(content.text,/\[3\]/);dom.window.close();
+  assert.equal(content.count,2);assert.equal(content.total,7);assert.equal(content.evidence.length,7);assert.equal(d.querySelectorAll('.newsletter-article').length,2);assert.equal(d.querySelectorAll('.newsletter-geography').length,2);
+  assert.deepEqual([...d.querySelectorAll('.newsletter-kpi-value')].map(row=>row.textContent),['7','2','2','3']);assert.equal(d.querySelectorAll('.newsletter-insight').length,2);
+  const link=new URL(d.querySelector('.newsletter-more').href);assert.equal(link.searchParams.get('edition'),'edition');assert.equal(link.searchParams.get('view'),'news');assert.equal(link.searchParams.get('country'),'España');assert.equal(link.searchParams.has('entity'),false);assert.equal(link.searchParams.getAll('view').length,1);assert.match(d.querySelector('.newsletter-more').textContent,/4/);assert.match(content.text,/4/);dom.window.close();
  }
 });
 test('newsletter anual usa un Radar compacto con cobertura, evolución trimestral y categorías predominantes',()=>{
@@ -34,7 +34,7 @@ test('newsletter anual usa un Radar compacto con cobertura, evolución trimestra
 test('los análisis mensuales incluyen noticias ya enviadas semanalmente y guardan toda la evidencia de sus KPIs',()=>{
  const s=server(),{c}=s;c.settings_().newsletterEnabled=true;const period=c.newsletterPeriod_('monthly',new Date()),input=rows().map(row=>({...row,fecha:period.from}));
  c.subscriptionRows_=()=>[{id:'monthly',correo:'owner@bbva.com',nombre:'Mes',periodicidad:'monthly',activa:true,actualizada:'2000-01-01',filtros:{coverage:''}}];c.annotateNews_=rows=>rows;c.rows_=(name)=>name==='Noticias'?input:name==='NewsletterEnvios'?[{id:'weekly:weekly:'+period.from,suscripcion:'weekly',correo:'owner@bbva.com',estado:'Enviada',contenido:JSON.stringify(input.flatMap(c.newsletterItemKeys_))}]:[];
- c.newsletterSender_=()=>({});let sent;c.sendNewsletterMail_=(_sender,_email,content)=>{sent=content;return 'accepted';};assert.equal(c.deliverNewsletters_().accepted,1);assert.equal(sent.total,7);assert.equal(sent.count,4);
+ c.newsletterSender_=()=>({});let sent;c.sendNewsletterMail_=(_sender,_email,content)=>{sent=content;return 'accepted';};assert.equal(c.deliverNewsletters_().accepted,1);assert.equal(sent.total,7);assert.equal(sent.count,2);
  const archived=c.newsletterEdition_(sent.editionId,'owner@bbva.com');assert.equal(archived.items.length,7);assert.equal(archived.query.view,'news');
  const dashboard=c.getDashboard({view:'news',initial:true,edition:sent.editionId,country:'España',entity:'BBVA'});assert.equal(dashboard.total,5);assert.equal(dashboard.context.count,7);assert.equal(dashboard.selection.from,period.from);assert.equal(dashboard.selection.to,period.to);
 });
@@ -68,6 +68,28 @@ for(const [periodicity,view] of [['weekly','briefing'],['monthly','news'],['year
  assert.equal(a.find('#filters [name="from"]').value,from);assert.equal(a.find('#filters [name="to"]').value,to);assert.equal(a.find('#filters [name="segment"]').value,'Empresas e instituciones');assert.match(a.find('#reading-context').textContent,/Resumen/);
  const alternate=view==='news'?'briefing':'news';await a.click('[data-view="'+alternate+'"]');assert.equal(a.find('#filters [name="from"]').value,from);assert.equal(a.find('#filters [name="to"]').value,to);
  await a.click('#reading-current');assert.equal(a.find('#filters [name="from"]').value,alternate==='briefing'?c.recentNewsRange_().from:c.currentMonth_().from);
- if(view!=='briefing')for(const more of dom.window.document.querySelectorAll('.newsletter-more')){const url=new URL(more.href),params=Object.fromEntries(url.searchParams);assert.equal(params.view,view);assert.equal(params.edition,editionId);const target=c.getDashboard({...params,initial:true});assert.equal(target.selection.from,from);assert.equal(target.selection.to,to);assert.equal(target.selection.country,params.country);assert.equal(target.selection.entity,params.entity);}
+ if(view!=='briefing')for(const more of dom.window.document.querySelectorAll('.newsletter-more')){const url=new URL(more.href),params=Object.fromEntries(url.searchParams);assert.equal(params.view,view);assert.equal(params.edition,editionId);const target=c.getDashboard({...params,initial:true});assert.equal(target.selection.from,from);assert.equal(target.selection.to,to);assert.equal(target.selection.country,params.country);assert.equal(target.selection.entity,params.entity||query.entity||undefined);}
  dom.window.close();
+});
+test('la palanca se acumula entre entidades y subpalancas; el destacado es el más reciente de la palanca ganadora',()=>{
+ const {c}=server(),input=[news('b','España','BBVA',[path('Seguridad','Identidad')]),news('s1','España','Santander',[path('Pagos','Cobros')]),news('s2','España','Santander',[path('Pagos','Transferencias')]),news('q','España','Qonto',[path('Pagos','Cobros')])];
+ input[3].fecha='2026-09-20';
+ const digest=c.newsletterDigest_(input),summary=digest.selections.get(digest.groups[0]);assert.equal(summary.item.id,'q');assert.equal(summary.category,'Pagos');assert.equal(summary.occurrences,3);assert.equal(digest.featured.length,1);
+});
+test('ambas newsletters respetan un destacado por país, resumen breve, evidencia completa y enlaces de país sin imponer entidad',()=>{
+ const {c}=server(),input=rows().map(row=>({...row,senales:['Lanzamiento de producto'],extracto:'Detalle del servicio y sus condiciones. '.repeat(30)}));
+ for(const view of ['briefing','news']){
+  const content=c.newsletterContent_(input,{view,from:'2026-09-01',to:'2026-09-30'},'Compacta',new Date(),'sub','es','edition'),dom=new JSDOM(content.html),d=dom.window.document;
+  for(const section of d.querySelectorAll('.newsletter-geography'))assert.equal(section.querySelectorAll('.newsletter-article').length,1);
+  assert.equal(content.evidence.length,7);assert.equal(content.count,2);assert.equal(content.total,7);assert.equal(d.querySelector('.newsletter-index'),null);
+  for(const excerpt of d.querySelectorAll('.newsletter-excerpt')){assert.ok(excerpt.textContent.length<=241);assert.ok(excerpt.textContent.endsWith('…'));}
+  for(const more of d.querySelectorAll('.newsletter-more')){const url=new URL(more.href);assert.equal(url.searchParams.get('view'),view);assert.equal(url.searchParams.get('edition'),'edition');assert.equal(url.searchParams.has('entity'),false);assert.ok(url.searchParams.get('country'));}
+  assert.match(content.text,/Ver más/);dom.window.close();
+ }
+});
+test('una geografía con una noticia y un corpus vacío no generan enlaces sobrantes',()=>{
+ const {c}=server();for(const items of [[],[news('single')]]){
+  const content=c.newsletterContent_(items,{view:'news'},'Compacta',new Date(),'sub'),dom=new JSDOM(content.html);assert.equal(dom.window.document.querySelectorAll('.newsletter-more').length,0);assert.equal(content.count,items.length);dom.window.close();
+ }
+ assert.equal(c.newsletterExcerpt_('Texto corto'),'Texto corto');assert.ok(c.newsletterExcerpt_('x'.repeat(500)).length<=241);
 });

@@ -5,11 +5,11 @@ import {newsEntityGroups,newsEntityPage} from '../src/shared/news-groups.js';
 import {storage} from './helpers/server.mjs';
 const clean=value=>JSON.parse(JSON.stringify(value));
 const row=(id,entidad,pais='España',fecha='2026-10-10')=>({id,entidad,pais,fecha,titular:'Titular único '+id,url:'https://example.com/'+id,medio:'Editor',tema:'Canales digitales',senales:[],segmentos:[],etiquetas:{digital:true},taxonomia:[]});
-test('ordena por BBVA, volumen y alfabeto, conservando fechas y paginando sobre los grupos completos',()=>{
+test('ordena por BBVA y alfabeto, conservando fechas y paginando sobre los grupos completos',()=>{
  const rows=[row('z1','Zeta'),row('a1','Alfa'),row('b1','BBVA'),row('z2','Zeta','España','2026-10-09'),row('a2','Alfa','España','2026-10-08'),row('g1','Gamma')];
- assert.deepEqual(newsEntityGroups(rows).map(group=>[group.name,group.total]),[['BBVA',1],['Alfa',2],['Zeta',2],['Gamma',1]]);
+ assert.deepEqual(newsEntityGroups(rows).map(group=>[group.name,group.total]),[['BBVA',1],['Alfa',2],['Gamma',1],['Zeta',2]]);
  assert.deepEqual(newsEntityPage(rows,0,3).map(row=>row.id),['b1','a1','a2']);
- assert.deepEqual(newsEntityPage(rows,2,3).map(row=>row.id),['a2','z1','z2']);
+ assert.deepEqual(newsEntityPage(rows,2,3).map(row=>row.id),['a2','g1','z1']);
  assert.deepEqual(newsEntityPage(rows,6,3),[]);
 });
 test('Noticias calcula la prioridad por país antes de paginar y mantiene Transversal al final',()=>{
@@ -50,6 +50,13 @@ test('la interfaz presenta encabezados por entidad y evita crear tarjetas oculta
  await a.click('[data-view="radar"]');assert.equal(a.w.document.querySelectorAll('#news-list article').length,0);
  await a.click('[data-view="news"]');
  assert.deepEqual([...a.w.document.querySelectorAll('.news-entity-heading')].map(el=>el.textContent),['BBVA','Santander']);
- assert.equal(a.w.document.querySelectorAll('#news-list article').length,3);
+ assert.equal(a.w.document.querySelectorAll('#news-list article').length,3);assert.equal(a.w.document.querySelectorAll('.news-entity-group').length,2);assert.deepEqual([...a.w.document.querySelectorAll('.news-entity-group')].map(group=>[group.getAttribute('aria-label'),group.querySelectorAll('article').length]),[['BBVA',1],['Santander',2]]);
  assert.equal(a.w.document.querySelectorAll('.news-entity-heading .entity-logo').length,2);
+});
+
+test('el orden alfabético ignora el volumen y cada entidad conserva las fechas descendentes al paginar',()=>{
+ const {c}=storage();c.initializeConfiguration();c.taxonomyOptions_=()=>({});c.settings_().pageSize=3;
+ const input=[row('z1','Zeta','España','2026-10-12'),row('a-old','Alfa','España','2026-10-08'),row('z2','Zeta','España','2026-10-11'),row('b','BBVA','España','2026-10-06'),row('a-new','Alfa','España','2026-10-10'),row('z3','Zeta','España','2026-10-09')];
+ const first=c.newsDashboard_(input,{},[],'news'),next=c.newsDashboard_(input,{page:1},[],'news');
+ assert.deepEqual(clean(first.items).map(row=>row.id),['b','a-new','a-old']);assert.deepEqual(clean(next.items).map(row=>row.id),['z1','z2','z3']);
 });

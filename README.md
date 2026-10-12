@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.21.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `1.22.1`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -349,7 +349,7 @@ Validación de 1.17.0: 257 pruebas superadas, cobertura de líneas del 96,48 %, 
 
 Se elimina Período del contenido. Periodicidad determina conjuntamente el ámbito y las fechas: semanal presenta Novedades, mensual presenta Noticias y anual presenta Radar. El asunto `[bIA]` continúa generándose con los filtros y fechas de la selección, sin campo editable. Los cierres reales usan períodos completos; las pruebas usan el período actual.
 
-La mensual muestra dos noticias por entidad y geografía, elegidas entre categorías distintas de mayor ocurrencia. Cuenta cada noticia una vez por palanca/subpalanca y no repite el mismo artículo. Si solo hay una categoría, muestra un destacado; la información sin taxonomía se identifica como Sin clasificar. Los KPIs reflejan todo el corpus seleccionado. `[n] más…` abre la evidencia de esa entidad y geografía en Noticias, manteniendo la edición y su período. La edición persiste todo el corpus resumido, aunque solo se representen unas pocas noticias; el registro de entrega conserva el inventario de lo incluido.
+Las newsletters semanal y mensual muestran una noticia por geografía, elegida de la palanca con más noticias en ese país y período. Cada noticia cuenta una vez por palanca, sumando entidades y subpalancas. Los empates de palanca se resuelven alfabéticamente y el destacado es el más reciente; a igual fecha se prioriza BBVA, después el nombre de entidad y el ID. Si no hay taxonomía se muestra Sin clasificar. Los KPI y la edición guardada conservan toda la evidencia; el registro de entrega identifica los destacados comunicados. «Ver más · N noticias» abre la selección de ese país en Novedades o Noticias, según la periodicidad, conservando edición y período y sin restringirla a la entidad destacada.
 
 La anual presenta cobertura, entidad con mayor presencia, evolución trimestral y hasta cinco categorías dominantes por entidad/geografía, con enlaces a Radar que conservan la entidad, geografía y edición. HTML y texto plano se generan en español, inglés y turco a partir del mismo modelo. Los resúmenes analíticos incluyen noticias de sus períodos ya enviadas semanalmente, para evitar sesgos en sus KPIs.
 
@@ -392,3 +392,21 @@ El mapa de calor de canales digitales ocupa la primera sección después de los 
 El [análisis de telemetría](docs/telemetry-1.21.0.md) documenta la línea base, los cambios y los límites de la muestra. La mejora de latencia real deberá contrastarse con nueva telemetría tras publicar.
 
 Validación de 1.21.0: 282 pruebas superadas; cobertura de líneas 96,86 %. Chrome verifica el orden visual del Radar y ausencia de desplazamiento horizontal entre 320 y 1.440 píxeles. Distribución reproducible y controles de sintaxis y diseño verificados. Versión preparada para publicación.
+
+
+## 1.22.0 — Newsletters de lectura breve
+
+Novedades y Noticias incluyen como máximo una tarjeta por país, representativa de la palanca más frecuente en la selección. El diseño elimina el índice repetido y los bloques por entidad; muestra la palanca, el titular, identidad visual, extracto de hasta 240 caracteres y un botón «Ver más» con el volumen restante. Las geografías con un único artículo no generan un enlace sobrante. Los KPI siguen midiendo toda la evidencia, que se guarda para mantener el contexto de lectura de la edición.
+
+El ranking se calcula una vez y la selección y el recorte del extracto están centralizados para HTML y texto plano. Las categorías acumulan contadores y un único representante en lugar de listas repetidas de artículos. La newsletter anual conserva el resumen de Radar.
+
+Validación de 1.22.0: 285 pruebas superadas; cobertura de líneas 96,87 %. Chrome verifica una tarjeta por geografía en las dos newsletters, el diseño de las tres periodicidades entre 320 y 800 píxeles y ausencia de desplazamiento horizontal en Radar entre 320 y 1.440 píxeles. Vista de demostración en `output/identity-newsletter-news.html` y captura del bloque en `output/newsletter-compact-country.png`. Sin envíos reales ni publicación del despliegue.
+
+
+## 1.22.1 — Bloques de entidad en Noticias
+
+Noticias presenta cada entidad en una sección identificada por su nombre y logo. Dentro del país activo, BBVA aparece primero y el resto de entidades sigue el orden alfabético, sin usar el número de noticias como prioridad. Cada grupo conserva las fechas descendentes y la paginación se aplica después del agrupado. Novedades mantiene su criterio de volumen previamente configurado; los dos comparadores comparten la prioridad de BBVA y el desempate alfabético.
+
+La telemetría `news-radar-telemetria (2).json`, exportada el 12 de octubre, corresponde a 1.22.0 e incluye siete cargas de esa versión. La mediana de RPC es de 6.325 ms, servidor 2.078 ms y renderizado 13 ms. Ninguno de esos dashboards reutiliza la caché de contenido. Los tiempos no permiten deducir el orden de los titulares ni atribuir un error de presentación al transporte. El cambio corrige el criterio por volumen que seguía vigente y hace explícitos los bloques en el DOM. La nueva versión renueva las claves de caché existentes.
+
+Validación de 1.22.1: 286 pruebas superadas y cobertura de líneas del 96,87 %. Se comprueban entidades con volúmenes diferentes, fechas mezcladas, continuidad de paginación y bloques visibles. Chrome verifica BBVA → Qonto → Santander con más noticias de Santander, el agrupado móvil y ausencia de desbordamiento horizontal. Sintaxis, diseño y distribución reproducible comprobados.

@@ -21,6 +21,6 @@ function noveltyGroups(items){
     if(!group.segments.has(segment))group.segments.set(segment,{name:segment,items:[]});
     group.segments.get(segment).items.push(row);
   }
-  return [...geographies.values()].map(row=>({...row,entities:[...row.entities.values()].map(entity=>({...entity,total:entity.items.length,segments:[...entity.segments.values()]})).sort(entityOrder)})).sort(geographyOrder);
+  return [...geographies.values()].map(row=>({...row,entities:[...row.entities.values()].map(entity=>({...entity,total:entity.items.length,segments:[...entity.segments.values()]})).sort(entityVolumeOrder)})).sort(geographyOrder);
 }
 function noveltyCount(count,singular,plural,translate=value=>value){return count+' '+translate(count===1?singular:plural);}

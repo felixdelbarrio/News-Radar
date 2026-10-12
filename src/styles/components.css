@@ -22,3 +22,5 @@ label{display:grid;gap:var(--space-1);font-weight:500;font-size:var(--text-s);li
 .news-item,.novelty-card{min-width:0;overflow-wrap:anywhere}.news-meta>*{min-width:0;max-width:100%;overflow-wrap:anywhere}
 
 .news-entity-heading{display:flex;align-items:center;gap:var(--space-2);margin:var(--space-2) 0 0;font:700 var(--text-l)/var(--line-l) var(--font-body);overflow-wrap:anywhere;min-width:0}
+
+.news-entity-group{display:grid;gap:var(--space-2);min-width:0}
