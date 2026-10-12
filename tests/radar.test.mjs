@@ -21,9 +21,9 @@ test('extrae texto sin scripts, estilos ni comentarios y no recompone etiquetas'
   assert.equal(c.plainText_('Visible<script>sin cierre'),'Visible');assert.equal(c.plainText_('<scr<script>ipt>oculto</scr</script>ipt>'),'ipt>oculto ipt>');assert.equal(c.plainText_('A<br>B &amp; &#243;'),'A B & ó');
 });
 test('clasifica fecha y dominio, rechaza ruido y no genera estados ni puntuaciones',()=>{
-  const c=context(),result=c.evaluate_(item,feed,now);assert.equal(result.item.topic,'Financiación');assert.equal(result.item.url,'https://www.bbva.com/es/noticia/');
+  const c=context(),result=c.evaluate_(item,feed,now);assert.equal(result.item.topic,undefined);assert.equal(result.item.url,'https://www.bbva.com/es/noticia/');
   for(const change of [{date:''},{url:'https://bbva.com.evil.net/a'},{date:'2026-10-10'},{date:'2026-09-01'}])assert.ok(c.evaluate_({...item,...change},feed,now).reason);
-  assert.equal(c.classify_('Cómo ahorrar en vacaciones',''),'');assert.equal(c.classify_('Incidencia en BBVA Net Cash para empresas',''),'Continuidad de servicio');assert.equal(c.classify_('Akbank KOBİ finansman',''),'Financiación');
+  assert.equal(c.evaluate_({...item,title:'BBVA publica una noticia fuera del catálogo temático'},feed,now).item.labels.generalista,true);
   assert.equal(result.item.impacto,undefined);assert.equal(result.item.estado,undefined);
 });
 test('canonicalización y exportación protegen URLs y fórmulas',()=>{
@@ -55,7 +55,7 @@ test('noticias agregadas se integran sin intervención y mantienen medio y enlac
   const c=context(),profile=c.defaultFeeds_().find(feed=>feed.entity==='Santander'&&feed.country==='España');
   const raw={title:'Santander financia empresas - Diario',source:'Diario',excerpt:'Santander financia empresas Diario',date:'2026-10-08',url:'https://news.google.com/rss/articles/123'};
   const result=c.evaluate_(raw,profile,now);assert.equal(result.item.title,'Santander financia empresas');assert.equal(result.item.publisher,'Diario');assert.equal(result.item.excerpt,'');assert.equal(result.item.url,raw.url);
-  const record=c.newsRecord_(result.item,profile,now);assert.equal(record.length,14);assert.equal(record[3],'Diario');assert.equal(record[10],profile.name);
+  const record=c.newsRecord_(result.item,profile,now);assert.equal(record.length,13);assert.equal(record[3],'Diario');assert.equal(record[9],profile.name);
 });
 test('recopila por lotes, integra automáticamente, deduplica y conserva reintentos parciales',()=>{
   const c=context(),saved={},writes=[];let released=false;
@@ -66,7 +66,7 @@ test('recopila por lotes, integra automáticamente, deduplica y conserva reinten
   c.UrlFetchApp={fetchAll:requests=>requests.map(({url})=>url==='good'?{getResponseCode:()=>200,getContentText:()=>'<rss/>'}:{getResponseCode:()=>503})};
   c.parseFeed_=()=>[{...item,date:new Date(Date.now()-86400000).toISOString()},{...item,date:new Date(Date.now()-86400000).toISOString()}];c.append_=(name,rows)=>saved[name]=rows;c.telemetry_=()=>{};
   let flushed=false;c.SpreadsheetApp.flush=()=>flushed=true;c.invalidateNews_=()=>assert.equal(flushed,true);
-  const result=c.collectionBatch_(c.collectionWork_(Date.now()));assert.equal(result.added,1);assert.equal(result.errors.length,1);assert.equal(saved.Noticias[0].length,14);assert.equal(writes.length,1);assert.equal(writes[0][1][0],'Reintento programado');assert.equal(saved.Ejecuciones[0][3],'Parcial');assert.ok(saved.Auditoria.some(row=>row[4]==='Duplicada'));assert.equal(released,false);
+  const result=c.collectionBatch_(c.collectionWork_(Date.now()));assert.equal(result.added,1);assert.equal(result.errors.length,1);assert.equal(saved.Noticias[0].length,13);assert.equal(writes.length,1);assert.equal(writes[0][1][0],'Reintento programado');assert.equal(saved.Ejecuciones[0][3],'Parcial');assert.ok(saved.Auditoria.some(row=>row[4]==='Duplicada'));assert.equal(released,false);
 });
 test('agotados tres intentos registra error y la recuperación escribe un único lote',()=>{
   const c=context(),tasks=[{ciclo:'cycle',fuente:'Error',url:'bad',estado:'Pendiente',intentos:'2',actualizada:'2026-10-09',evaluadas:'0',nuevas:'0',error:''}];let rows,writes=0;
@@ -149,7 +149,7 @@ test('Radar respeta los filtros visibles y usa Empresas e instituciones por defe
   const initial=c.dashboardQuery_({view:'radar',initial:true,country:'México',topic:'Financiación',segment:'Retail',from:'2026-01-01'},now);
   assert.deepEqual(JSON.parse(JSON.stringify(initial)),{entity:'',segment:'Empresas e instituciones',coverage:'digital',from:'2026-01-01',to:'2026-12-31'});
   const selected=c.dashboardQuery_({view:'radar',entity:'BBVA',segment:'Retail',country:'México',source:'Editor',search:'cuenta'},now);
-  assert.deepEqual(JSON.parse(JSON.stringify(selected)),{entity:'BBVA',segment:'Retail',country:'México',source:'Editor',search:'cuenta'});
+  assert.deepEqual(JSON.parse(JSON.stringify(selected)),{entity:'BBVA',segment:'Retail',country:'México',source:'Editor',search:'cuenta',from:'2026-01-01',to:'2026-12-31'});
 });
 test('Novedades respeta un período explícito y Noticias lo utiliza solo al abrir por primera vez',()=>{
   const c=context(),now=new Date('2026-10-31T23:30:00Z');
@@ -174,7 +174,7 @@ test('consultas saturadas se dividen sin huecos y las tareas derivadas mantienen
 test('el extracto agregado se clasifica antes de ocultar el titular repetido',()=>{
  const c=context(),profile=c.defaultFeeds_().find(row=>row.kind==='profile');
  const result=c.evaluate_({title:'Resultados de BBVA - Diario',source:'Diario',excerpt:'Resultados de BBVA: financiación para empresas',url:'https://news.google.com/rss/articles/test',date:now.toISOString()},profile,now);
- assert.ok(result.item);assert.equal(result.item.excerpt,'');assert.equal(result.item.topic,'Financiación');
+ assert.ok(result.item);assert.equal(result.item.excerpt,'');assert.equal(result.item.topic,undefined);
 });
 
 test('exportación de telemetría incluye exclusiones, límites y cola; exige administración',()=>{
@@ -261,8 +261,8 @@ test('las ejecuciones se comparten entre cargas y una nueva escritura invalida l
 
 test('la telemetría identifica la versión que produjo cada operación y la exportación',()=>{
  const c=context();let rows;c.append_=(name,value)=>rows=value;c.trim_=()=>{};
- c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v1\.22\.1;/);
- c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'1.22.1');
+ c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v2\.1\.0;/);
+ c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'2.1.0');
 });
 
 test('cada vista calcula solo su visualización y conserva el medio de las noticias',()=>{

@@ -66,27 +66,6 @@
       ]
     ]
   },
-  "topics": {
-    "label": "Temas",
-    "help": "La primera coincidencia determina el tema. Los términos admiten raíces de palabras y se separan por punto y coma. Se ignoran mayúsculas y acentos.",
-    "fields": [
-      [
-        "name",
-        "Tema",
-        "text"
-      ],
-      [
-        "terms",
-        "Términos o raíces",
-        "list"
-      ],
-      [
-        "enabled",
-        "Activo",
-        "boolean"
-      ]
-    ]
-  },
   "segments": {
     "label": "Segmentos",
     "help": "Una noticia puede pertenecer a varios segmentos. Sin coincidencia se mantiene sin segmento; no se atribuye por el nombre del banco.",
@@ -152,13 +131,11 @@
       "windowDays": "Ventana de recopilación (días)",
       "pageSize": "Noticias por página",
       "defaultEntity": "Entidad inicial (vacío: todas)",
-      "defaultTopic": "Tema inicial (vacío: todos)",
       "defaultCountry": "País inicial (vacío: todos)",
       "dailyHour": "Hora de recopilación (0–23)",
       "searchTerms": "Términos de búsqueda de sector",
       "disabledSources": "IDs de fuentes de perfil desactivadas",
       "briefingLimit": "Máximo de novedades por newsletter",
-      "unclassifiedTopic": "Etiqueta sin tema",
       "maxCustomFeeds": "Máximo de fuentes RSS",
       "maxFeedBytes": "Máximo de caracteres de feed",
       "maxItems": "Máximo de entradas por feed",
@@ -200,7 +177,6 @@
         "label": "Selección inicial",
         "keys": [
           "defaultEntity",
-          "defaultTopic",
           "defaultCountry"
         ]
       },
@@ -223,8 +199,7 @@
           "pageSize",
           "trendPoints",
           "trendSeries",
-          "unknownCountry",
-          "unclassifiedTopic"
+          "unknownCountry"
         ]
       },
       {

@@ -325,5 +325,49 @@
       "height": 32,
       "source": "https://flagcdn.com/w80/uy.png"
     }
+  },
+  "publishers": {
+    "El Economista": {
+      "id": "publisher-0",
+      "file": "publisher-0.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.eleconomista.es/favicon.ico"
+    },
+    "Infobae": {
+      "id": "publisher-1",
+      "file": "publisher-1.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.infobae.com/favicon.ico"
+    },
+    "Pulzo": {
+      "id": "publisher-3",
+      "file": "publisher-3.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.pulzo.com/favicon.ico"
+    },
+    "El Tiempo": {
+      "id": "publisher-4",
+      "file": "publisher-4.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.eltiempo.com/favicon.ico"
+    },
+    "BBVA": {
+      "id": "entity-0",
+      "file": "entity-0.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.bbva.com/wp-content/themes/coronita-bbvacom/assets/images/comun/favicon.ico"
+    },
+    "BBVA · Empresas": {
+      "id": "entity-0",
+      "file": "entity-0.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.bbva.com/wp-content/themes/coronita-bbvacom/assets/images/comun/favicon.ico"
+    }
   }
 }

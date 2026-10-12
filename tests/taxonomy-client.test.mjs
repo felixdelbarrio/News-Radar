@@ -32,7 +32,7 @@ test('los filtros de Noticias y las suscripciones personales y administrativas e
 
 test('volver a Noticias después de etiquetar refresca una sola vez el contenido y los filtros vigentes',async t=>{
  const a=await app(t,{configure({data,replies}){data.newsRevision='old';replies.getTaxonomyStatus.newsRevision='old';}});await a.click('[data-view="news"]');
- await a.click('[data-view="administration"]');a.data.newsRevision='new';a.data.palanca=['Pagos y cobros'];a.replies.getTaxonomyStatus.newsRevision='new';await a.click('[data-admin-view="taxonomy"]');const calls=a.calls.filter(row=>row.method==='getDashboard').length;
+ await a.click('[data-view="administration"]');a.data.newsRevision='new';a.data.palanca=['Pagos y cobros'];a.data.subpalanca=['Pagos y cobros › Pagos'];a.replies.getTaxonomyStatus.newsRevision='new';await a.click('[data-admin-view="taxonomy"]');const calls=a.calls.filter(row=>row.method==='getDashboard').length;
  await a.click('[data-view="news"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,calls+1);assert.match(a.find('#filters [name="palanca"]').textContent,/Pagos y cobros/);
  await a.click('[data-view="administration"]');await a.click('[data-view="news"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,calls+1);
 });
@@ -43,10 +43,10 @@ test('nombres multilingües visibles conservan valores canónicos de filtros y s
   data.taxonomyTranslations=taxonomyTranslations;data.palanca=['Pagos y cobros'];data.subpalanca=[path];data.items=[{titular:'News',fecha:'2026-10-11',url:'https://example.com',taxonomia:[items[0]]}];
   replies.getNewsletterOptions.taxonomyTranslations=taxonomyTranslations;Object.assign(replies.getNewsletterOptions.catalogs,{palanca:data.palanca,subpalanca:data.subpalanca});replies.getTaxonomyStatus.items=items;replies.getTaxonomyStatus.taxonomyTranslations=taxonomyTranslations;
  }});
- await a.click('[data-view="news"]');assert.match(a.find('#news-list').textContent,/Payments and collections › Biometric payments/);
- const option=a.find('#filters [name="subpalanca"] option:nth-child(2)');assert.equal(option.value,path);assert.equal(option.textContent,taxonomyTranslations.en[path]);
+ await a.click('[data-view="news"]');assert.match(a.find('#news-list').textContent,/Sublever: Biometric payments/);
+ const option=a.find('#filters [name="subpalanca"] option:nth-child(2)');assert.equal(option.value,path);assert.equal(option.textContent,taxonomyTranslations.en['Pagos biométricos']);
  await a.change('#filters [name="subpalanca"]',path);assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.subpalanca,path);assert.match(a.find('#active-filters').textContent,/Biometric payments/);
- await a.click('[data-view="subscriptions"]');await a.click('#new-subscription');const sub=a.find('#personal-editor [name="subpalanca"] option:nth-child(2)');assert.equal(sub.value,path);assert.equal(sub.textContent,taxonomyTranslations.en[path]);
+ await a.click('[data-view="subscriptions"]');await a.click('#new-subscription');const sub=a.find('#personal-editor [name="subpalanca"] option:nth-child(2)');assert.equal(sub.value,path);assert.equal(sub.textContent,taxonomyTranslations.en['Pagos biométricos']);
  await a.change('#personal-editor [name="subpalanca"]',path);await a.submit('#personal-editor form');assert.equal(a.calls.find(row=>row.method==='saveSubscription').query.filters.subpalanca,path);
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="taxonomy"]');assert.match(a.find('#taxonomy-body').textContent,/Biometric payments/);await a.change('#preview-language','tr');assert.match(a.find('#taxonomy-body').textContent,/Biyometrik ödemeler/);
 });

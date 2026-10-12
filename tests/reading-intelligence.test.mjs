@@ -75,7 +75,7 @@ test('la entrada directa usa la primera newsletter activa por orden de creación
  s.setEmail('other@bbva.com');assert.equal(c.getDashboard({view:'briefing',initial:true}).personalization.options.length,0);
 });
 
-test('la primera newsletter empresarial no impone el tema Empresas y pymes; persiste la regla y conserva otros temas y ediciones enviadas',()=>{
+test('la primera newsletter empresarial no impone el tema Empresas y pymes; ignora todos los temas obsoletos y conserva las ediciones enviadas',()=>{
  const s=server(),c=s.c,range=c.recentNewsRange_(),filters={segment:'Empresas e instituciones',topic:'Empresas y pymes'};
  const first=own(s,'empresas',filters);assert.equal(first.filtros.topic,undefined);
  s.sheets.get('Suscripciones').grid[1][3]=JSON.stringify(filters);
@@ -83,6 +83,6 @@ test('la primera newsletter empresarial no impone el tema Empresas y pymes; pers
  const dashboard=c.getDashboard({view:'briefing',initial:true});assert.equal(dashboard.selection.segment,'Empresas e instituciones');assert.equal(dashboard.selection.topic,undefined);assert.equal(dashboard.selection.from,range.from);assert.deepEqual(Array.from(dashboard.briefing.items,row=>row.id),['financiacion']);
  assert.equal(c.subscriptionQuery_(c.subscriptionRows_('owner@bbva.com')[0],new Date()).topic,undefined);assert.equal(JSON.parse(s.sheets.get('Suscripciones').grid[1][3]).topic,'Empresas y pymes');
  c.saveSubscription({id:first.id,name:'Empresas guardada',periodicity:'weekly',filters});assert.equal(JSON.parse(s.sheets.get('Suscripciones').grid[1][3]).topic,undefined);
- c.saveSubscription({id:first.id,name:'Financiación',periodicity:'weekly',filters:{...filters,topic:'Financiación'}});assert.equal(c.getDashboard({view:'briefing',initial:true}).selection.topic,'Financiación');
- const rows=c.annotateNews_([news]);rows[0].tema='Empresas y pymes';c.saveNewsletterEdition_('edition-business','delivery-business','owner@bbva.com','Empresas archivadas',{...filters,...range},'es',rows);c.completeNewsletterEdition_('edition-business','Enviada');const archived=c.getDashboard({view:'briefing',initial:true,edition:'edition-business'});assert.equal(archived.selection.topic,'Empresas y pymes');assert.equal(archived.briefing.total,1);
+ c.saveSubscription({id:first.id,name:'Financiación',periodicity:'weekly',filters:{...filters,topic:'Financiación'}});assert.equal(c.getDashboard({view:'briefing',initial:true}).selection.topic,undefined);
+ const rows=c.annotateNews_([news]);rows[0].tema='Empresas y pymes';c.saveNewsletterEdition_('edition-business','delivery-business','owner@bbva.com','Empresas archivadas',{...filters,...range},'es',rows);c.completeNewsletterEdition_('edition-business','Enviada');const archived=c.getDashboard({view:'briefing',initial:true,edition:'edition-business'});assert.equal(archived.selection.topic,undefined);assert.equal(archived.briefing.total,1);
 });

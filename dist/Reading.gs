@@ -32,13 +32,13 @@ function completeNewsletterEdition_(id,state){
 }
 function newsletterEdition_(id,email){
   if(!/^[a-zA-Z0-9-]{1,80}$/.test(id))throw Error('Edición de newsletter no disponible.');
-  const key='edition:'+sha256_(id+'|'+email),cached=CacheService.getScriptCache().get(key);if(cached){const edition=JSON.parse(cached);edition.items=edition.items.map(unpackNews_);return edition;}
+  const key='edition:'+RADAR.version+':'+sha256_(id+'|'+email),cached=CacheService.getScriptCache().get(key);if(cached){const edition=JSON.parse(cached);edition.items=edition.items.map(unpackNews_);return edition;}
   const sheet=book_().getSheetByName('NewsletterEdiciones'),count=sheet.getLastRow()-1,ids=count?sheet.getRange(2,1,count,1).getDisplayValues():[],position=ids.findIndex(([value])=>value===id);
   if(position<0)throw Error('Edición de newsletter no disponible.');
   const keys=RADAR.sheets.NewsletterEdiciones,values=sheet.getRange(position+2,1,1,keys.length).getDisplayValues()[0],row=Object.fromEntries(keys.map((key,index)=>[key,values[index]]));
   if(row.correo!==email||row.estado!=='Enviada')throw Error('Edición de newsletter no disponible.');
   const size=Number(row.cantidad),start=Number(row.inicio),items=size?book_().getSheetByName('NewsletterContenido').getRange(start,1,size,2).getDisplayValues().map(([edition,value])=>{if(edition!==id)throw Error('Edición de newsletter no disponible.');return unpackNews_(JSON.parse(value));}):[];
-  const edition={id:row.id,title:row.nombre,query:JSON.parse(row.filtros),language:row.idioma,created:row.fecha,items,names:JSON.parse(row.traducciones)};
+  const edition={id:row.id,title:row.nombre,query:Object.fromEntries(Object.entries(JSON.parse(row.filtros)).filter(([key])=>[...subscriptionFilterKeys,'from','to','view'].includes(key))),language:row.idioma,created:row.fecha,items,names:JSON.parse(row.traducciones)};
   cacheJson_(key,{...edition,items:items.map(packNews_)},21600);return edition;
 }
 

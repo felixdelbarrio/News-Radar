@@ -78,9 +78,9 @@ test('las tarjetas presentan traducciones guardadas y no llaman al traductor al 
  const a=await app(t,{language:'en-US',configure({data}){
   data.items=[{id:'one',titular:'Translated headline',extracto:'Translated summary',original:{titular:'Titular original',extracto:'Extracto original'},translation:{language:'en',state:'translated'},url:'https://example.com',fecha:'2026-10-11',medio:'Diario'}];
  }});
- await a.click('[data-view="news"]');assert.match(a.find('#news-list h3').textContent,/Translated headline/);assert.match(a.find('.article-original').textContent,/Titular original/);assert.match(a.find('#news-list').textContent,/Automatic translation/);
+ await a.click('[data-view="news"]');assert.match(a.find('#news-list h3').textContent,/Translated headline/);assert.match(a.find('.article-original').textContent,/Titular original/);assert.doesNotMatch(a.find('#news-list').textContent,/Automatic translation/);
  await a.click('[data-view="administration"]');await a.click('[data-view="news"]');assert.ok(!a.calls.some(call=>call.method==='translateNews'));
- a.data.items[0].translation.state='pending';await a.click('[data-view="briefing"]');await a.click('[data-view="news"]');assert.match(a.find('#news-list').textContent,/Awaiting overnight translation/);
+ a.data.items[0].translation.state='pending';await a.click('[data-view="briefing"]');await a.click('[data-view="news"]');assert.doesNotMatch(a.find('#news-list').textContent,/Awaiting overnight translation/);
  assert.equal(a.calls.filter(call=>call.method==='getDashboard').at(-1).query.language,'en');
 });
 test('Idioma tiene sección propia, programación nocturna y progreso con controles administrativos',async t=>{

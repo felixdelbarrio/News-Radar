@@ -23,7 +23,7 @@ function dashboardContent_(query,feeds,view='radar',language='es',edition=null){
   const data=newsDashboard_(edition?edition.items:cachedNewsRecords_(),query,feeds,view);
   if(edition){data.palanca=[...new Set(edition.items.flatMap(row=>row.taxonomia.map(item=>item.palanca)))];data.subpalanca=[...new Set(edition.items.flatMap(row=>row.taxonomia.map(taxonomyPath)))];}
   if(localized&&!edition){data.items=savedArticleTranslations_(data.items,language);if(data.briefing)data.briefing.items=savedArticleTranslations_(data.briefing.items,language);}
-  cacheJson_(key,data,60);
+  cacheJson_(key,data,300);
   return {data,duration:Date.now()-started,cacheHit:false};
 }
 function invalidateNews_(content=true,records=true){const revision=Date.now()+'-'+Math.random().toString(36).slice(2);properties_().setProperty('NEWS_REVISION',revision);if(content)properties_().setProperty('NEWS_CONTENT_REVISION',revision);if(records)properties_().setProperty('NEWS_RECORDS_REVISION',revision);}

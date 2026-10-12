@@ -7,10 +7,10 @@ function subscriptionRows_(email){
     return {...row,filtros:filters,nombre:newsletterSubject_(filters,language,translators.get(language)),activa:String(row.activa)==='true'};
   });
 }
-function subscriptionFilters_(input){return sectorNewsFilters_({coverage:sectorNewsDefaults.coverage,...Object.fromEntries(subscriptionFilterKeys.filter(key=>Object.hasOwn(input,key)).map(key=>[key,input[key]]))});}
-function subscriptionDefaults_(){return {periodicity:settings_().defaultPeriodicity,active:true,filters:sectorNewsFilters_()};}
+function subscriptionFilters_(input){return {coverage:sectorNewsDefaults.coverage,...Object.fromEntries(subscriptionFilterKeys.filter(key=>Object.hasOwn(input,key)).map(key=>[key,input[key]]))};}
+function subscriptionDefaults_(){return {periodicity:settings_().defaultPeriodicity,active:true,filters:{...sectorNewsDefaults}};}
 function getSubscriptions(){const email=authorize_().email,deliveries=new Map(rows_('NewsletterEnvios',undefined,8).filter(row=>row.correo===email).map(row=>[row.suscripcion,row]));return subscriptionRows_(email).map(row=>({...row,query:subscriptionQuery_(row,new Date()),nextDelivery:newsletterNextDate_(row,new Date(),deliveries.get(row.id)),ultimaEntrega:deliveries.get(row.id)||null}));}
-function getNewsletterOptions(){const session=authorize_(),c=configuration_();return {taxonomyTranslations:taxonomyTranslations_(),email:session.email,defaults:subscriptionDefaults_(),enabled:newsletterEnabled_(),catalogs:{...taxonomyOptions_(),coverage:Object.keys(coverageOptions),type:[...new Set(c.entities.filter(r=>r.enabled).map(r=>r.type))],entity:c.entities.filter(r=>r.enabled).map(r=>r.name),segment:c.segments.filter(r=>r.enabled).map(r=>r.name),country:c.geographies.filter(r=>r.enabled).map(r=>r.name),topic:c.topics.filter(r=>r.enabled).map(r=>r.name),signal:c.signals.filter(r=>r.enabled).map(r=>r.name),source:[...new Set([...rows_('Noticias',settings_().newsReadLimit).map(r=>r.medio),...feeds_().map(r=>r.name)])].filter(Boolean).sort()}};}
+function getNewsletterOptions(){const session=authorize_(),c=configuration_();return {taxonomyTranslations:taxonomyTranslations_(),email:session.email,defaults:subscriptionDefaults_(),enabled:newsletterEnabled_(),catalogs:{...taxonomyOptions_(),coverage:Object.keys(coverageOptions),type:[...new Set(c.entities.filter(r=>r.enabled).map(r=>r.type))],entity:c.entities.filter(r=>r.enabled).map(r=>r.name),segment:c.segments.filter(r=>r.enabled).map(r=>r.name),country:c.geographies.filter(r=>r.enabled).map(r=>r.name),signal:c.signals.filter(r=>r.enabled).map(r=>r.name),source:[...new Set([...rows_('Noticias',settings_().newsReadLimit).map(r=>r.medio),...feeds_().map(r=>r.name)])].filter(Boolean).sort()}};}
 function getAdminSubscriptions(){authorize_(true);const deliveries=new Map();for(const row of rows_('NewsletterEnvios',undefined,8))deliveries.set(row.suscripcion,row);return subscriptionRows_().map(row=>({...row,nextDelivery:newsletterNextDate_(row,new Date(),deliveries.get(row.id)),ultimaEntrega:deliveries.get(row.id)||null}));}
 function subscriptionRecord_(input,email,id,now,count){
   const language=input.language||'es';if(!supportedLanguage(language))throw Error('Idioma no admitido.');
@@ -19,11 +19,11 @@ function subscriptionRecord_(input,email,id,now,count){
   if(count>=settings_().maxSubscriptions)throw Error('Máximo '+settings_().maxSubscriptions+' suscripciones por usuario.');
   const filters={...sectorNewsDefaults};for(const key of subscriptionFilterKeys){if(!Object.hasOwn(input.filters||{},key))continue;const value=String(input.filters[key]||'');if(value.length>160)throw Error('Filtro demasiado largo.');filters[key]=value;}
   if(filters.coverage&&!Object.hasOwn(coverageOptions,filters.coverage))throw Error('Filtro de cobertura no válido.');
-  const catalogs={entity:'entities',country:'geographies',topic:'topics',segment:'segments',signal:'signals'};
+  const catalogs={entity:'entities',country:'geographies',segment:'segments',signal:'signals'};
   for(const [key,catalog] of Object.entries(catalogs))if(filters[key]&&!configuration_()[catalog].some(r=>r.enabled&&r.name===filters[key]))throw Error('Filtro no disponible: '+key);
   const taxonomy=taxonomyCatalog_();
   if(filters.palanca&&!taxonomy.some(row=>row.palanca===filters.palanca)||filters.subpalanca&&!taxonomy.some(row=>taxonomyPath(row)===filters.subpalanca&&(!filters.palanca||row.palanca===filters.palanca)))throw Error('Filtro de taxonomía no disponible.');
-  const selection=sectorNewsFilters_(filters);
+  const selection=filters;
   return {id,correo:email,nombre:newsletterSubject_(selection,language),filtros:selection,periodicidad:periodicity,activa:input.active!==false,actualizada:now.toISOString(),idioma:language};
 }
 function newsletterPeriod_(periodicity,now){

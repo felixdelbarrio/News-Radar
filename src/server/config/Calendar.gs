@@ -3,11 +3,6 @@ function recentNewsRange_(now=new Date()){
   const end=calendarDate_(now),start=new Date(end);start.setUTCDate(start.getUTCDate()-6);
   return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10)};
 }
-function sectorNewsFilters_(filters=sectorNewsDefaults){
-  const selection={...filters};
-  if(selection.segment==='Empresas e instituciones'&&selection.topic==='Empresas y pymes')delete selection.topic;
-  return selection;
-}
 function currentMonth_(now=new Date()){
   const start=calendarDate_(now);start.setUTCDate(1);
   const end=new Date(start);end.setUTCMonth(end.getUTCMonth()+1);end.setUTCDate(0);
@@ -24,10 +19,10 @@ function personalDashboardQuery_(subscription,view,now=new Date()){
   return {...filters,...newsRange_(view==='briefing'?'week':view==='news'?'month':'year',now),view,initial:false};
 }
 function dashboardQuery_(query={},now=new Date()){
-  const {view,initial,...filters}=query;delete filters.language;delete filters.edition;delete filters.preference;delete filters.savePreference;
+  const {view,initial}=query,filters=Object.fromEntries([...subscriptionFilterKeys,'from','to','page','newsGeography'].filter(key=>Object.hasOwn(query,key)).map(key=>[key,query[key]]));
   if(filters.coverage&&!Object.hasOwn(coverageOptions,filters.coverage))throw Error('Filtro de cobertura no válido.');
-  if(view==='radar')return initial?{entity:'',...sectorNewsFilters_(),...newsRange_('year',now)}:filters;
-  if(view==='briefing')return {...(initial?{...sectorNewsFilters_(),...recentNewsRange_(now)}:filters),...(!initial&&!filters.from&&!filters.to?recentNewsRange_(now):{})};
-  const selection=initial?{entity:settings_().defaultEntity,...sectorNewsDefaults,topic:settings_().defaultTopic,country:settings_().defaultCountry,...currentMonth_(now)}:filters;
+  if(view==='radar')return initial?{entity:'',...sectorNewsDefaults,...newsRange_('year',now)}:{...filters,...(!filters.from&&!filters.to?newsRange_('year',now):{})};
+  if(view==='briefing')return {...(initial?{...sectorNewsDefaults,...recentNewsRange_(now)}:filters),...(!initial&&!filters.from&&!filters.to?recentNewsRange_(now):{})};
+  const selection=initial?{entity:settings_().defaultEntity,...sectorNewsDefaults,country:settings_().defaultCountry,...currentMonth_(now)}:filters;
   return selection;
 }

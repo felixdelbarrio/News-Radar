@@ -31,7 +31,7 @@ test('canal digital contempla móvil, web, API e IA en contexto bancario; etique
 test('etiquetas se persisten durante la ingesta y no se recalculan al consultar, exportar o generar newsletters',()=>{
  const {c}=server(),feed=c.feeds_().find(row=>row.entity==='BBVA'&&row.kind==='rss'),now=new Date('2026-10-12T12:00:00Z');
  const item=c.evaluate_({title:positive[1],excerpt:'Una mejora para clientes de empresas',url:'https://www.bbva.com/es/ia/',date:'2026-10-11'},feed,now).item;assert.ok(item);
- const values=c.newsRecord_(item,feed,now);assert.equal(JSON.parse(values[12]).digital,true);c.append_('Noticias',[values]);
+ const values=c.newsRecord_(item,feed,now);assert.equal(JSON.parse(values[11]).digital,true);c.append_('Noticias',[values]);
  c.newsLabels_=()=>{throw Error('Las consultas deben leer las etiquetas persistidas');};
  const rows=c.rows_('Noticias');assert.equal(c.selectNews_(rows,{coverage:'digital'}).length,1);assert.equal(c.selectNews_(rows,{coverage:'generalista'}).length,1);assert.equal(c.selectNews_(rows,{coverage:'digital',country:'México'}).length,0);
  assert.equal(c.newsCsv_(rows,{}).count,1);assert.doesNotMatch(c.newsCsv_(rows,{}).csv.split('\r\n')[0],/clasificacion/);
@@ -39,13 +39,13 @@ test('etiquetas se persisten durante la ingesta y no se recalculan al consultar,
 });
 test('histórico acotado, reanudable e idempotente sin volver a consultar fuentes; cambios se aplican sin desplegar',()=>{
  const {c,sheets,properties}=server(),sheet=sheets.get('Noticias');
- for(let i=0;i<205;i++)sheet.grid.push([String(i),'2026-10-10','España','Editor','BBVA',positive[1],'','','https://example.com/'+i,'','Editor','es','']);
+ for(let i=0;i<205;i++)sheet.grid.push([String(i),'2026-10-10','España','Editor','BBVA',positive[1],'','https://example.com/'+i,'','Editor','es','']);
  c.requestNewsClassification_(true);c.UrlFetchApp={fetchAll:()=>{throw Error('No se consultan fuentes al clasificar');}};
  const reads=[],writes=[],range=sheet.getRange.bind(sheet);sheet.getRange=(...args)=>{reads.push(args);const r=range(...args),set=r.setValues.bind(r);r.setValues=values=>{writes.push(args);return set(values);};return r;};
- c.newsClassificationBatch_();assert.equal(JSON.parse(properties.CLASSIFICATION_JOB).next,102);assert.equal(sheet.grid[100][12].includes('"digital":true'),true);assert.equal(sheet.grid[101][12],'');
- c.newsClassificationBatch_();assert.equal(JSON.parse(properties.CLASSIFICATION_JOB).next,202);c.newsClassificationBatch_();assert.equal(c.classificationJob_().state,'Completada');assert.ok(reads.every(row=>row[2]<=100));assert.equal(c.rows_('Noticias').filter(row=>JSON.parse(row.clasificacion).digital).length,205);assert.equal(writes.filter(row=>row[1]===13).length,3);
- c.initializeConfiguration();assert.equal(c.classificationJob_().state,'Completada');c.requestNewsClassification_(true);while(c.classificationPending_())c.newsClassificationBatch_();assert.equal(writes.filter(row=>row[1]===13).length,3);
- const snapshot=JSON.parse(JSON.stringify(c.getConfiguration()));snapshot.config.capabilities={Empresas:[],Retail:[]};c.saveConfiguration(snapshot);assert.ok(properties.CLASSIFICATION_JOB);while(c.classificationPending_())c.newsClassificationBatch_();assert.equal(JSON.parse(sheet.grid[1][12]).digital,false);assert.equal(JSON.parse(sheet.grid[1][12]).generalista,true);
+ c.newsClassificationBatch_();assert.equal(JSON.parse(properties.CLASSIFICATION_JOB).next,102);assert.equal(sheet.grid[100][11].includes('"digital":true'),true);assert.equal(sheet.grid[101][11],'');
+ c.newsClassificationBatch_();assert.equal(JSON.parse(properties.CLASSIFICATION_JOB).next,202);c.newsClassificationBatch_();assert.equal(c.classificationJob_().state,'Completada');assert.ok(reads.every(row=>row[2]<=100));assert.equal(c.rows_('Noticias').filter(row=>JSON.parse(row.clasificacion).digital).length,205);assert.equal(writes.filter(row=>row[1]===12).length,3);
+ c.initializeConfiguration();assert.equal(c.classificationJob_().state,'Completada');c.requestNewsClassification_(true);while(c.classificationPending_())c.newsClassificationBatch_();assert.equal(writes.filter(row=>row[1]===12).length,3);
+ const snapshot=JSON.parse(JSON.stringify(c.getConfiguration()));snapshot.config.capabilities={Empresas:[],Retail:[]};c.saveConfiguration(snapshot);assert.ok(properties.CLASSIFICATION_JOB);while(c.classificationPending_())c.newsClassificationBatch_();assert.equal(JSON.parse(sheet.grid[1][11]).digital,false);assert.equal(JSON.parse(sheet.grid[1][11]).generalista,true);
 });
 test('filtros independientes se combinan y todas las vistas incluyen cobertura digital por defecto',()=>{
  const {c}=server(),now=new Date('2026-10-12T12:00:00Z');assert.equal(c.dashboardQuery_({view:'news',initial:true},now).coverage,'digital');const briefing=c.dashboardQuery_({view:'briefing',initial:true},now);assert.equal(briefing.segment,'Empresas e instituciones');assert.equal(briefing.coverage,'digital');assert.equal(briefing.entity,undefined);
@@ -63,8 +63,8 @@ test('el selector real conserva elecciones por vista, permite Todos y aparece en
 test('migración conserva noticias y ediciones; incorpora valores nuevos una sola vez',()=>{
  const {c,sheets,properties}=server(),sheet=sheets.get('Configuracion'),caps=sheet.grid.find(row=>row[0]==='capabilities'),feeds=sheet.grid.find(row=>row[0]==='feeds'),entities=sheet.grid.find(row=>row[0]==='entities');
  const config=c.getConfiguration().config,old=JSON.parse(caps[1]);old.Empresas=old.Empresas.slice(0,35);old.Empresas[0].enabled=false;old.Empresas[0].terms=['termino propio'];old.Retail=old.Retail.slice(0,35);caps[1]=JSON.stringify(old);feeds[1]=JSON.stringify(config.feeds.slice(0,5).map(row=>({...row,enabled:false})));entities[1]=JSON.stringify(config.entities.slice(0,-4));properties.CATALOG_VERSION='1.10.0';properties.CLASSIFICATION_VERSION='1.10.0';delete properties.CLASSIFICATION_JOB;c.invalidateConfiguration_();
- const news=sheets.get('Noticias');news.grid[0]=news.grid[0].slice(0,12);news.grid.push(['original','2026-10-10','España','Editor','BBVA',positive[1],'','','https://www.bbva.com/original','capturada','Editor','es']);c.initializeConfiguration();const upgraded=c.getConfiguration().config;
- assert.equal(upgraded.feeds.length,7);assert.equal(upgraded.entities.length,config.entities.length);assert.equal(upgraded.capabilities.Empresas[0].enabled,false);assert.deepEqual(JSON.parse(JSON.stringify(upgraded.capabilities.Empresas[0].terms)),['termino propio']);assert.equal(news.grid[1][0],'original');assert.equal(news.grid[0].length,14);assert.ok(properties.CLASSIFICATION_JOB);
+ const news=sheets.get('Noticias');news.grid[0]=['id','fecha','pais','medio','entidad','titular','extracto','tema','url','capturada','fuente','idioma'];news.grid.push(['original','2026-10-10','España','Editor','BBVA',positive[1],'','','https://www.bbva.com/original','capturada','Editor','es']);c.initializeConfiguration();const upgraded=c.getConfiguration().config;
+ assert.equal(upgraded.feeds.length,7);assert.equal(upgraded.entities.length,config.entities.length);assert.equal(upgraded.capabilities.Empresas[0].enabled,false);assert.deepEqual(JSON.parse(JSON.stringify(upgraded.capabilities.Empresas[0].terms)),['termino propio']);assert.equal(news.grid[1][0],'original');assert.equal(news.grid[0].length,13);assert.ok(properties.CLASSIFICATION_JOB);
  const stored=JSON.stringify(sheet.grid);c.initializeConfiguration();assert.equal(JSON.stringify(sheet.grid),stored);
 });
 test('Novedades agrupa BBVA primero; newsletter escoge un único destacado reciente por país',()=>{

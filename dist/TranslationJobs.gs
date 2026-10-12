@@ -12,7 +12,7 @@ function nightlyTranslations_(){requestTranslations_();backgroundTick_();}
 function getTranslationStatus(){authorize_(true);return {scheduled:scheduledTriggers_('nightlyTranslations_').length>0,hour:TRANSLATION_WORK.hour,timezone:settings_().timezone,job:translationJob_(),queued:Boolean(properties_().getProperty('TRANSLATION_REQUEST'))};}
 function translationCandidates_(job){
   const sheet=book_().getSheetByName('Noticias'),count=Math.min(Math.max(0,sheet.getLastRow()-1),settings_().newsReadLimit);if(!count)return [];
-  const first=sheet.getLastRow()-count+1,dates=sheet.getRange(first,1,count,2).getDisplayValues(),captured=sheet.getRange(first,10,count,1).getDisplayValues();
+  const first=sheet.getLastRow()-count+1,dates=sheet.getRange(first,1,count,2).getDisplayValues(),captured=sheet.getRange(first,RADAR.sheets.Noticias.indexOf('capturada')+1,count,1).getDisplayValues();
   return dates.map(([id,fecha],index)=>({id,fecha,captured:captured[index][0]}))
     .filter(row=>row.id&&row.captured<=job.started&&(!job.cursor||row.fecha<job.cursor.fecha||(row.fecha===job.cursor.fecha&&row.id<job.cursor.id)))
     .sort((a,b)=>a.fecha===b.fecha?(a.id===b.id?0:a.id>b.id?-1:1):a.fecha>b.fecha?-1:1);

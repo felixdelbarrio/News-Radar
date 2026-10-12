@@ -35,7 +35,7 @@ function businessIndex_(){
   const rules=rows=>rows.filter(row=>row.enabled).map(row=>({...row,terms:[...new Set(row.terms.map(searchText_))],context:(row.context||[]).map(searchText_),exclude:(row.exclude||[]).map(searchText_)}));
   const capabilities=Object.entries(config.capabilities).flatMap(([segment,rows])=>rules(rows).map(row=>({...row,segment}))),aliases=[...entities].filter(([,row])=>row.enabled).sort((a,b)=>b[0].length-a[0].length);
   const capabilitySegments=new Map();for(const row of capabilities)for(const term of row.terms){const segments=capabilitySegments.get(term)||new Set();segments.add(row.segment);capabilitySegments.set(term,segments);}
-  return businessIndexMemory_={config,capabilitySegments,entities,entityTerms,aliases,capabilities,topics:rules(config.topics),segments:rules(config.segments),signals:rules(config.signals),geographies:config.geographies.filter(row=>row.enabled).map(row=>({...row,terms:[...new Set([row.name,row.searchName].map(searchText_))]}))};
+  return businessIndexMemory_={config,capabilitySegments,entities,entityTerms,aliases,capabilities,segments:rules(config.segments),signals:rules(config.signals),geographies:config.geographies.filter(row=>row.enabled).map(row=>({...row,terms:[...new Set([row.name,row.searchName].map(searchText_))]}))};
 }
 function termsMatch_(text,terms){return terms.some(term=>text.includes(term));}
 function phrasePosition_(text,term){
@@ -52,7 +52,7 @@ function digitalAssessment_(title,text,index=businessIndex_()){
   return {capabilities,score,channel,change,editorial,excluded:negative&&!(capabilities.length&&channel&&change&&!editorial)};
 }
 function classification_(title,text,includeLabels=true){
-  const index=businessIndex_(),assessment=digitalAssessment_(title,text,index),topic=index.topics.find(row=>termsMatch_(text,row.terms))?.name||(assessment.capabilities.length?index.config.settings.unclassifiedTopic:'');
+  const index=businessIndex_(),assessment=digitalAssessment_(title,text,index);
   const signals=index.signals.filter(row=>termsMatch_(row.scope==='headline'?title:text,row.terms)&&!termsMatch_(title,row.exclude)&&(!row.context.length||termsMatch_(text,row.context))).map(row=>row.name);
   if(assessment.capabilities.length&&assessment.channel&&assessment.change&&assessment.score>0&&!signals.length){const launch=index.signals[0];if(launch&&!termsMatch_(title,launch.exclude))signals.push(launch.name);}
   const segments=index.segments.filter(row=>termsMatch_(text,row.terms)).map(row=>row.name);
@@ -60,15 +60,14 @@ function classification_(title,text,includeLabels=true){
     const exclusive=capability.terms.some(term=>phraseMatch_(text,term)&&index.capabilitySegments.get(term).size===1);
     const segment=index.segments.find(row=>row.name===(capability.segment==='Empresas'?'Empresas e instituciones':'Retail'));if(exclusive&&segment&&!segments.includes(segment.name))segments.push(segment.name);
   }
-  const labels=includeLabels?newsLabels_(topic,assessment,title):undefined;
-  return {topic,signals,assessment,segments,labels};
+  const labels=includeLabels?newsLabels_(assessment,title):undefined;
+  return {signals,assessment,segments,labels};
 }
-function classify_(title,excerpt){return classification_(searchText_(title),searchText_(title+' '+excerpt),false).topic;}
 function annotateNews_(rows){
   const index=businessIndex_(),taxonomy=new Map(taxonomyCatalog_().map(({id,palanca,subpalanca})=>[id,{id,palanca,subpalanca}]));
   return rows.map(row=>{
     const catalog=index.entities.get(searchText_(row.entidad)),classification=classification_(searchText_(row.titular),searchText_(row.titular+' '+row.extracto),false);
-    const annotated={...row,taxonomia:taxonomySaved_(row.taxonomia).ids.map(id=>taxonomy.get(id)).filter(Boolean),etiquetas:savedNewsLabels_(row.clasificacion),entidad:catalog?.name||row.entidad,tipo:catalog?.type||'',tema:classification.topic||index.config.settings.unclassifiedTopic,segmentos:classification.segments,senales:classification.assessment.excluded?[]:classification.signals};newsRelevanceMemory_.set(annotated,classification.assessment.score);return annotated;
+    const annotated={...row,taxonomia:taxonomySaved_(row.taxonomia).ids.map(id=>taxonomy.get(id)).filter(Boolean),etiquetas:savedNewsLabels_(row.clasificacion),entidad:catalog?.name||row.entidad,tipo:catalog?.type||'',segmentos:classification.segments,senales:classification.assessment.excluded?[]:classification.signals};newsRelevanceMemory_.set(annotated,classification.assessment.score);return annotated;
   });
 }
 function evaluate_(item, feed, now) {
@@ -89,8 +88,7 @@ function evaluate_(item, feed, now) {
   const classification=classification_(headline,text);
   if(feed.capabilitySearch&&classification.assessment.excluded)return {inRange:true,reason:'Información corporativa sin novedad de canal digital'};
   if(feed.capabilitySearch&&(!classification.assessment.capabilities.length||!classification.assessment.channel))return {inRange:true,reason:'Sin capacidad digital activa en contexto de canal'};
-  if (!classification.labels.generalista&&!classification.labels.digital) return {inRange:true,reason:'Sin coincidencia con los temas configurados'};
-  return {inRange:true,relevant:classification.labels.digital||(!classification.assessment.excluded&&classification.assessment.score>0),item:{date,title,excerpt:feed.kind==='profile'&&excerpt.startsWith(title)?'':excerpt,url,topic:classification.topic||settings_().unclassifiedTopic,labels:classification.labels,entity:entity?.name||feed.entity,country,language:item.language||feed.language||'',publisher:feed.kind==='profile'?publisher:''}};
+  return {inRange:true,relevant:classification.labels.digital||(!classification.assessment.excluded&&classification.assessment.score>0),item:{date,title,excerpt:feed.kind==='profile'&&excerpt.startsWith(title)?'':excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country,language:item.language||feed.language||'',publisher:feed.kind==='profile'?publisher:''}};
 }
 function safeCell_(value) {
   return typeof value==='string' && /^[=+@-]/.test(value) ? "'"+value : value;

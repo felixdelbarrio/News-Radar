@@ -1,14 +1,13 @@
-function newsLabels_(topic,assessment,title){
-  const generalista=Boolean(topic||assessment.capabilities.length||assessment.excluded);
+function newsLabels_(assessment,title){
   const digital=Boolean(assessment.capabilities.length&&assessment.channel&&assessment.score>0&&!assessment.excluded&&!assessment.editorial&&(assessment.change||assessment.capabilities.some(row=>row.terms.some(term=>phraseMatch_(title,term)))));
-  return {generalista,digital,capacidades:[...new Set(assessment.capabilities.map(row=>row.segment+': '+row.name))]};
+  return {generalista:true,digital,capacidades:[...new Set(assessment.capabilities.map(row=>row.segment+': '+row.name))]};
 }
 function savedNewsLabels_(value){
   if(!value)return {generalista:false,digital:false,capacidades:[]};
   try{const labels=JSON.parse(value);return {generalista:labels.generalista===true,digital:labels.digital===true,capacidades:Array.isArray(labels.capacidades)?labels.capacidades:[]};}
   catch(_){return {generalista:false,digital:false,capacidades:[]};}
 }
-function classificationRulesRevision_(config=configuration_()){return sha256_(JSON.stringify([RADAR.version,config.capabilities,config.topics,config.entities]));}
+function classificationRulesRevision_(config=configuration_()){return sha256_(JSON.stringify([RADAR.version,config.capabilities,config.entities]));}
 function classificationJob_(){const raw=properties_().getProperty('CLASSIFICATION_JOB');return raw?JSON.parse(raw):null;}
 function classificationPending_(){const job=classificationJob_();return Boolean(job&&job.state!=='Completada');}
 function classificationReadyAt_(){const job=classificationJob_();return job&&job.state!=='Completada'?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
