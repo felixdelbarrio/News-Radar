@@ -1,5 +1,5 @@
 const RADAR = Object.freeze({
-  version:'2.6.0',
+  version:'2.7.0',
   sheets:{
     Configuracion:['clave','valor'],
     Suscripciones:['id','correo','nombre','filtros','periodicidad','activa','actualizada','idioma'],
@@ -21,7 +21,7 @@ const RADAR = Object.freeze({
     Recopilacion:['ciclo','fuente','url','estado','intentos','actualizada','evaluadas','nuevas','error','prioridad']
   }
 });
-const NEWSLETTER_EDITORIAL=Object.freeze({cards:3,supportItems:30,titleWords:18,factWords:18,relevanceWords:12,introWords:10,headingWords:6,commentChars:1000});
+const NEWSLETTER_EDITORIAL=Object.freeze({cards:3,groupEntity:'BBVA',entityThemes:2,supportItems:30,titleWords:18,factWords:18,relevanceWords:12,introWords:16,headingWords:6,commentChars:1000});
 const TRANSLATION_WORK=Object.freeze({hour:2,dailyCalls:3000,batchCalls:20,batchRows:100,readRows:20,maxMs:45000,retryMs:900000});
 
 const BACKGROUND_WORK=Object.freeze({maxBatches:3,maxMs:45000});

@@ -3,9 +3,10 @@ import assert from 'node:assert/strict';
 import {app} from './helpers/app.mjs';
 test('suscripciones personales y administrativas guardan, editan, prueban y eliminan sin alterar filtros',async t=>{
  const a=await app(t);await a.click('[data-view="subscriptions"]');assert.match(a.find('#subscriptions-list').textContent,/Mi canal/);
- await a.click('#subscriptions-list [data-action="edit"]');assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);assert.equal(a.find('#personal-editor [name="periodicity"]').value,'weekly');
- await a.change('#personal-editor [name="periodicity"]','monthly');await a.submit('#personal-editor form');assert.equal(a.calls.find(r=>r.method==='saveSubscription').query.periodicity,'monthly');assert.equal(a.calls.find(r=>r.method==='saveSubscription').query.name,undefined);
+ await a.click('#subscriptions-list [data-action="edit"]');assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);assert.equal(a.find('#personal-editor [name="periodicity"]').value,'fortnightly');
+ await a.change('#personal-editor [name="periodicity"]','quarterly');await a.submit('#personal-editor form');assert.equal(a.calls.find(r=>r.method==='saveSubscription').query.periodicity,'quarterly');assert.equal(a.calls.find(r=>r.method==='saveSubscription').query.name,undefined);
  await a.click('#subscriptions-list [data-action="test"]');assert.match(a.find('#message').textContent,/aceptado/);
+ a.replies.sendSubscriptionTest={accepted:false,count:0};await a.click('#subscriptions-list [data-action="test"]');assert.match(a.find('#message').textContent,/No se ha enviado la prueba/);
  await a.click('#subscriptions-list [data-action="apply"]');assert.equal(a.find('#page-title').textContent,'Novedades');
  await a.click('[data-view="subscriptions"]');await a.click('#subscriptions-list [data-action="delete"]');assert.ok(a.calls.some(r=>r.method==='deleteSubscription'));
  await a.click('#new-subscription');await a.click('[data-view="administration"]');await a.click('[data-admin-view="subscribers"]');
@@ -16,7 +17,8 @@ test('suscripciones personales y administrativas guardan, editan, prueban y elim
 test('newsletter informa de vacíos, duplicados, cuotas, bloqueos y errores de pruebas',async t=>{
  const a=await app(t);await a.click('[data-view="administration"]');await a.click('[data-admin-view="subscribers"]');
  assert.match(a.find('#newsletter-content-note').textContent,/1 envíos anteriores/);assert.match(a.find('#delivery-history-body').textContent,/Gmail ID/);
- await a.click('#test-newsletter');assert.match(a.find('#newsletter-test-result').textContent,/Incluye 0 novedades/);
+ await a.click('#test-newsletter');assert.match(a.find('#newsletter-test-result').textContent,/Incluye 1 novedades/);
+ a.replies.sendNewsletterTest={accepted:false,count:0};await a.click('#test-newsletter');assert.match(a.find('#newsletter-test-result').textContent,/No se ha enviado la prueba/);
  await a.click('#install-newsletter');assert.match(a.find('#newsletter-test-result').textContent,/Instalada/);
  for(const [state,text] of [['no_due','No hay entregas'],['busy','otro envío'],['limit','límite'],['processed','repetidas omitidas'],['error','Fallo Gmail']]){a.replies.sendPendingNewsletters={state,accepted:1,empty:2,duplicates:3,pending:0,error:state==='error'?'Fallo Gmail':''};await a.click('#send-pending-newsletters');assert.match(a.find('#newsletter-test-result').textContent,new RegExp(text));}
  a.replies.sendNewsletterTest=Error('Alias pendiente');await a.click('#test-newsletter');assert.match(a.find('#newsletter-test-result').textContent,/Alias pendiente/);

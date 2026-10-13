@@ -1,3 +1,4 @@
+import {initializeSearchableSelects} from './features/searchable-selects.js';
 import {createGeographyTabs} from './features/geography-tabs.js';
 import {createReadingContext} from './features/reading-context.js';
 import {createTaxonomyHeatmap} from './features/taxonomy-heatmap.js';
@@ -23,6 +24,7 @@ import { createUsage } from "./features/usage.js";
 import { createNavigation } from "./features/navigation.js";
 import {initializeLocalization,flushLocalization} from './core/localization.js';
 initializeLocalization();
+initializeSearchableSelects();
 const state = { data: null, request: 0, busy: false,contentStale:false,attribution:'' };
 const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady:()=>Boolean(state.data),getAttribution:()=>state.attribution&&state.data?.context?.id===state.attribution?state.attribution:'' }), { track, flush } = usage;
 const noteNewsRevision=revision=>{if(revision&&state.data&&revision!==state.data.newsRevision)state.contentStale=true;};
@@ -54,9 +56,7 @@ function renderSelection(data,view=navigation.current){
 }
 async function load() {
   const request = ++state.request, started = performance.now();
-  $("loading").hidden = false;
   if (!filters.isValid()) {
-    $("loading").hidden = true;
     return;
   }
   try {
@@ -91,8 +91,6 @@ async function load() {
       track("error");
       message(error.message || String(error), true);
     }
-  } finally {
-    if (request === state.request) $("loading").hidden = true;
   }
 }
 const actionControls="#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
@@ -144,7 +142,7 @@ $('download-telemetry').addEventListener('click',()=>action(async()=>{
 if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
 navigation.show(defaultView);
 if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocation(async location=>{
-  if(location.parameter.edition){const params=location.parameter;state.attribution=params.edition;const view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;filters.show(view);navigation.show(view);filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca});return;}
+  if(location.parameter.edition){const params=location.parameter;state.attribution=params.edition;const view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;filters.show(view);navigation.show(view);filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca,subpalanca:params.subpalanca,benchmark:params.benchmark});return;}
   load();
   if(location.parameter.view!=='subscriptions')return;
   await navigation.show('subscriptions');

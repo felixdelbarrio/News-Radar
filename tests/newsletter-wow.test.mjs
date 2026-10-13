@@ -13,20 +13,20 @@ function edition(s,id='edition',items=[news(s)],view='news'){
  c.saveNewsletterEdition_(id,'delivery','owner@bbva.com','Selección',query,'es',content.evidence,content.editorial);c.completeNewsletterEdition_(id,'Enviada');return content;
 }
 function add(s,name,row){const keys=vm.runInContext('RADAR.sheets.'+name,s.c);s.sheets.get(name).grid.push(keys.map(key=>row[key]??''));}
-test('semanal lunes, mensual primer miércoles y anual primer viernes mantienen sus ventanas cerradas',()=>{
+test('quincenal lunes tras el cierre, trimestral primer miércoles y anual primer viernes mantienen sus ventanas cerradas',()=>{
  const {c}=server();
  for(const [cadence,now,available,from,to] of [
-  ['weekly','2026-10-13','2026-10-12','2026-10-05','2026-10-11'],
-  ['monthly','2026-11-01','2026-11-04','2026-10-01','2026-10-31'],
+  ['fortnightly','2026-10-13','2026-10-05','2026-09-16','2026-09-30'],
+  ['quarterly','2026-10-01','2026-10-07','2026-07-01','2026-09-30'],
   ['yearly','2026-01-01','2026-01-02','2025-01-01','2025-12-31'],
-  ['monthly','2026-04-01','2026-04-01','2026-03-01','2026-03-31']]){
+  ['quarterly','2026-04-01','2026-04-01','2026-01-01','2026-03-31']]){
    const period=c.newsletterPeriod_(cadence,new Date(now+'T12:00:00Z'));assert.deepEqual([period.available,period.from,period.to],[available,from,to]);
  }
- const row={activa:true,periodicidad:'monthly',actualizada:'2026-09-01'};assert.equal(c.newsletterNextDate_(row,new Date('2026-11-02T12:00:00Z')),'2026-11-04');
+ const row={activa:true,periodicidad:'quarterly',actualizada:'2026-09-01'};assert.equal(c.newsletterNextDate_(row,new Date('2026-10-02T12:00:00Z')),'2026-10-07');
 });
-test('no prepara ni envía una mensual antes del miércoles; reintentar no duplica la edición',()=>{
- const s=server(),c=s.c;c.Date=class extends Date{constructor(value='2026-11-02T12:00:00Z'){super(value);}static now(){return new Date('2026-11-02T12:00:00Z').getTime();}};
- c.settings_().newsletterEnabled=true;c.subscriptionRows_=()=>[{id:'sub',correo:'owner@bbva.com',periodicidad:'monthly',nombre:'Mes',filtros:{coverage:''},activa:true,actualizada:'2026-09-01'}];
+test('no prepara ni envía una trimestral antes del miércoles; reintentar no duplica la edición',()=>{
+ const s=server(),c=s.c;c.Date=class extends Date{constructor(value='2026-10-02T12:00:00Z'){super(value);}static now(){return new Date('2026-10-02T12:00:00Z').getTime();}};
+ c.settings_().newsletterEnabled=true;c.subscriptionRows_=()=>[{id:'sub',correo:'owner@bbva.com',periodicidad:'quarterly',nombre:'Mes',filtros:{coverage:''},activa:true,actualizada:'2026-09-01'}];
  c.sendNewsletterMail_=()=>{throw Error('No debe enviar todavía');};assert.equal(c.deliverNewsletters_().pending,0);assert.equal(c.rows_('NewsletterEdiciones').length,0);
 });
 test('narrativa, ámbito, mapa y evidencias históricas permanecen al cambiar las noticias y configuración',()=>{

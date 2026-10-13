@@ -38,6 +38,7 @@ function mailHeader_(value){
   return words.join('\r\n ');
 }
 function sendNewsletterMail_(sender,recipient,content){
+  if(!content.count)throw Error('No se puede enviar una newsletter sin novedades.');
   const boundary='news_radar_'+Utilities.getUuid().replace(/-/g,''),body=value=>Utilities.base64Encode(value,Utilities.Charset.UTF_8).match(/.{1,76}/g)?.join('\r\n')||'';
   const mime=['From: '+mailHeader_(sender.name)+' <'+newsletterEmail_(sender.address)+'>','Reply-To: '+newsletterEmail_(sender.address),'To: '+newsletterEmail_(recipient),'Subject: '+mailHeader_(content.subject),'Date: '+new Date().toUTCString(),'MIME-Version: 1.0','Content-Type: multipart/alternative; boundary="'+boundary+'"','','--'+boundary,'Content-Type: text/plain; charset=UTF-8','Content-Transfer-Encoding: base64','',body(content.text),'--'+boundary,'Content-Type: text/html; charset=UTF-8','Content-Transfer-Encoding: base64','',body(content.html),'--'+boundary+'--',''].join('\r\n');
   const related=boundary+'_related';
@@ -57,21 +58,23 @@ function newsletterTest_(session,subscription){
   const lock=LockService.getScriptLock();lock.waitLock(10000);
   let claimed=false;
   try{
-    const now=new Date();if(!newsletterBudget_(rows_('NewsletterEnvios'),now))throw Error('Se ha alcanzado el límite configurado de newsletters en 24 horas.');
-    const sender=newsletterSender_(),defaults=subscription?{filters:subscription.filtros}:subscriptionDefaults_();
+    const now=new Date(),deliveries=rows_('NewsletterEnvios');if(!newsletterBudget_(deliveries,now))throw Error('Se ha alcanzado el límite configurado de newsletters en 24 horas.');
+    const defaults=subscription?{filters:subscription.filtros}:subscriptionDefaults_();
     const edition=Utilities.getUuid(),delivery='prueba:'+Utilities.getUuid();
-    const query=subscriptionQuery_(subscription||{filtros:defaults.filters,periodicidad:defaults.periodicity},now),title=newsletterSubject_(query,subscription?.idioma||'es'),content=newsletter_(rows_('Noticias',settings_().newsReadLimit),query,title,now,subscription?.id,subscription?.idioma||'es',edition);
+    const query=subscriptionQuery_(subscription||{filtros:defaults.filters,periodicidad:defaults.periodicity},now),title=newsletterSubject_(query,subscription?.idioma||'es'),content=newsletter_(rows_('Noticias',settings_().newsReadLimit),query,title,now,subscription?.id,subscription?.idioma||'es',edition,newsletterSentContent_(deliveries).get(session.email)||new Set());
+    if(!content.count){append_('NewsletterEnvios',[[delivery,'',session.email,query.from,query.to,'Sin novedades',now.toISOString(),newsletterContentDetail_(content)]]);return {accepted:false,recipient:session.email,count:0,from:query.from,to:query.to};}
+    const sender=newsletterSender_();
     saveNewsletterEdition_(edition,delivery,session.email,title,query,subscription?.idioma||'es',content.evidence,content.editorial);
     append_('NewsletterEnvios',[[delivery,'',session.email,query.from,query.to,'Enviando',now.toISOString(),subscription?'Prueba de suscripción':'Prueba del administrador']]);
     claimed=true;
-    const sheet=book_().getSheetByName('NewsletterEnvios'),id=completeNewsletterDelivery_(sheet,sheet.getLastRow(),sender,session.email,content,true);
+    const sheet=book_().getSheetByName('NewsletterEnvios'),id=completeNewsletterDelivery_(sheet,sheet.getLastRow(),sender,session.email,content);
     return {accepted:true,recipient:session.email,sender:sender.address,messageId:id,count:content.count,from:query.from,to:query.to};
   }catch(error){if(!claimed)recordNewsletterBlock_(error,session.email);throw error;
   }finally{lock.releaseLock();}
 }
 function recordNewsletterBlock_(error,email){append_('NewsletterEnvios',[['diagnostico:'+Utilities.getUuid(),'',email,'','','Bloqueada',new Date().toISOString(),String(error.message).slice(0,500)]]);}
-function completeNewsletterDelivery_(sheet,index,sender,recipient,content,test=false){
-  if(!test&&!content.count)throw Error('No se puede enviar una newsletter sin novedades.');
+function completeNewsletterDelivery_(sheet,index,sender,recipient,content){
+  if(!content.count)throw Error('No se puede enviar una newsletter sin novedades.');
   try{
     SpreadsheetApp.flush();
     const id=sendNewsletterMail_(sender,recipient,content);

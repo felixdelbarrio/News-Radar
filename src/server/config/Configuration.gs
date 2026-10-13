@@ -54,12 +54,14 @@ function initializeConfiguration(){
     const settingsRow=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues().findIndex(row=>row[0]==='settings')+2,stored=JSON.parse(sheet.getRange(settingsRow,2,1,1).getValues()[0][0]);
     const settings=Object.fromEntries(Object.entries(CONFIGURATION_DEFAULTS.settings).map(([key,value])=>[key,key in stored?stored[key]:value]));
     if(refreshCatalog)settings.searchTerms=[...new Set([...settings.searchTerms,...CONFIGURATION_DEFAULTS.settings.searchTerms])];
-    if(!Object.hasOwn(newsletterCadences,settings.defaultPeriodicity))settings.defaultPeriodicity='weekly';
+    const cadenceChanges={weekly:'fortnightly',monthly:'quarterly'};
+    settings.defaultPeriodicity=cadenceChanges[settings.defaultPeriodicity]||settings.defaultPeriodicity;
+    if(!Object.hasOwn(newsletterCadences,settings.defaultPeriodicity))settings.defaultPeriodicity='quarterly';
     sheet.getRange(settingsRow,2,1,1).setValues([[JSON.stringify(settings)]]);
     if(!ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='configurationEdited_'))ScriptApp.newTrigger('configurationEdited_').forSpreadsheet(book_()).onEdit().create();
     const subscriptions=book_().getSheetByName('Suscripciones'),countSubscriptions=subscriptions.getLastRow()-1;
     if(countSubscriptions>0){const range=subscriptions.getRange(2,8,countSubscriptions,1);range.setValues(range.getValues().map(([value])=>[value||'es']));}
-    initializeNewsletterCadences_(subscriptions);
+    initializeNewsletterCadences_(subscriptions,cadenceChanges);
     invalidateConfiguration_();
     if(refreshCatalog){upgradeCollectionQueries_();if(translationJob_())requestTranslations_(true);properties_().setProperty('CATALOG_VERSION',CONFIGURATION_CATALOG_VERSION);}
     properties_().deleteProperty('CLASSIFICATION_VERSION');

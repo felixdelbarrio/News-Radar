@@ -32,10 +32,10 @@ function deliverNewsletters_(){
     for(const {row,id,query} of due){
       if(!remaining||!quota)break;
       if(businessPipelinePending_()){result.state='collection_priority';break;}
-      const key=JSON.stringify(query);
-      if(!prepared.has(key))prepared.set(key,selectAnnotatedNews_(news,query));
+      const selection=newsletterSelectionQuery_(query),key=JSON.stringify(selection);
+      if(!prepared.has(key))prepared.set(key,selectAnnotatedNews_(news,selection));
       const email=newsletterEmail_(row.correo);if(!history.has(email))history.set(email,new Set());
-      const known=history.get(email),selected=prepared.get(key),unseen=query.view==='briefing'?newsletterUnseen_(selected,known):selected,edition=Utilities.getUuid(),content=newsletterContent_(unseen,query,row.nombre,now,row.id,row.idioma,edition),keys=content.items.flatMap(newsletterItemKeys_);
+      const known=history.get(email),selected=prepared.get(key),unseen=query.view==='briefing'?newsletterUnseen_(selected,known):selected,edition=Utilities.getUuid(),content=newsletterContent_(unseen,query,row.nombre,now,row.id,row.idioma,edition,known),keys=content.items.flatMap(newsletterItemKeys_);
       const skipped=selected.length-unseen.length;content.omitted=skipped;result.duplicates+=skipped;
       if(content.count&&!sender)try{sender=newsletterSender_();}catch(error){recordNewsletterBlock_(error,properties_().getProperty('OWNER_EMAIL'));throw error;}
       if(content.count)saveNewsletterEdition_(edition,id,row.correo,row.nombre,query,row.idioma,content.evidence,content.editorial);

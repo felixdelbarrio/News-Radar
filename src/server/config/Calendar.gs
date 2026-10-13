@@ -15,11 +15,11 @@ function newsRange_(range='week',now=new Date()){
   throw Error('Período de contenido no válido.');
 }
 function personalDashboardQuery_(subscription,view,now=new Date()){
-  const filters=subscriptionFilters_(subscription.filtros);
-  return {...filters,...newsRange_(view==='briefing'?'week':view==='news'?'month':'year',now),view,initial:false};
+  const periodicity=Object.keys(newsletterCadences).find(key=>newsletterCadences[key].view===view),{from,to}=newsletterWindow(periodicity,recordDay(now,settings_().timezone));
+  return {...subscriptionFilters_(subscription.filtros),from,to,view,initial:false};
 }
 function dashboardQuery_(query={},now=new Date()){
-  const {view,initial}=query,filters=Object.fromEntries([...subscriptionFilterKeys,'from','to','page','newsGeography'].filter(key=>Object.hasOwn(query,key)).map(key=>[key,query[key]]));
+  const {view,initial}=query,filters=Object.fromEntries([...subscriptionFilterKeys,'from','to','page','newsGeography','benchmark'].filter(key=>Object.hasOwn(query,key)).map(key=>[key,query[key]]));
   if(filters.coverage&&!Object.hasOwn(coverageOptions,filters.coverage))throw Error('Filtro de cobertura no válido.');
   if(view==='radar')return initial?{entity:'',...sectorNewsDefaults,...newsRange_('year',now)}:{...filters,...(!filters.from&&!filters.to?newsRange_('year',now):{})};
   if(view==='briefing')return {...(initial?{...sectorNewsDefaults,...recentNewsRange_(now)}:filters),...(!initial&&!filters.from&&!filters.to?recentNewsRange_(now):{})};
