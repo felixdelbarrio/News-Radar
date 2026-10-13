@@ -73,9 +73,9 @@ test('prueba personal usa filtros propios, destinatario autenticado y mantiene e
 
 test('newsletter usa prefijo bIA, imagen MIME inline y enlaces distintos para gestión y baja',()=>{
   const m=mail(),{c}=m;m.settings.newsletterAppUrl='https://script.google.com/macros/s/deployment/exec';
-  c.taxonomyCatalog_=()=>[];c.configuration_=()=>JSON.parse(read('assets/configuration-defaults.json'));
+  c.taxonomyCatalog_=()=>[];c.savedArticleTranslations_=rows=>rows;c.configuration_=()=>JSON.parse(read('assets/configuration-defaults.json'));
   const content=c.newsletter_([],{},'Mi selección',new Date(), 'subscription-123');
-  assert.match(content.html,/Ir a Newsradar/);assert.match(content.html,/view=subscriptions&amp;unsubscribe=subscription-123/);assert.match(content.html,/cid:bia-logo/);assert.match(content.text,/view=subscriptions&unsubscribe=subscription-123/);assert.match(content.html,/Banca Inteligente y Autónoma/);
+  assert.doesNotMatch(content.html,/Ir a Newsradar/);assert.match(content.html,/view=subscriptions&amp;unsubscribe=subscription-123/);assert.match(content.html,/cid:bia-logo/);assert.match(content.text,/view=subscriptions&unsubscribe=subscription-123/);assert.match(content.html,/Banca Inteligente y Autónoma/);
   m.setResponse({id:'test'});c.sendNewsletterMail_({address:m.settings.newsletterSender,name:'News Radar'},'owner@bbva.com',content);
   const mime=Buffer.from(JSON.parse(m.calls[0].options.payload).raw,'base64url').toString();
   const subject=mime.match(/Subject: ([\s\S]*?)\r\nDate:/)[1].replace(/=\?UTF-8\?B\?([^?]+)\?=/g,(_,value)=>Buffer.from(value,'base64').toString()).replace(/\r\n /g,'');

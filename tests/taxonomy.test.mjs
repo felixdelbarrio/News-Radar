@@ -31,7 +31,7 @@ test('el modelo cambia con contenido nuevo sin reescribir etiquetas intactas; fi
   const {c,sheets}=server();c.startTaxonomy();finish(c);const prior=sheets.get('Noticias').grid[1][12],items=c.taxonomyCatalog_(),payment=items.find(row=>row.subpalanca==='Pagos biometricos'),query={palanca:payment.palanca,subpalanca:taxonomyPath(payment)};
   assert.equal(c.selectNews_(c.rows_('Noticias'),query).length,2);assert.deepEqual(Object.keys(c.selectNews_(c.rows_('Noticias'),query)[0].taxonomia[0]).sort(),['id','palanca','subpalanca']);assert.equal(c.newsDashboard_(c.annotateNews_(c.rows_('Noticias')),{},[],'news').subpalanca.includes(query.subpalanca),true);
   const subscription=c.subscriptionRecord_({name:'Pagos',filters:query},'user@bbva.com','id',new Date(),0);assert.equal(subscription.filtros.subpalanca,query.subpalanca);assert.throws(()=>c.subscriptionRecord_({name:'Inválida',filters:{palanca:'Inventada'}},'user@bbva.com','id',new Date(),0),/taxonomía/);
-  c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';const newsletter=c.newsletter_(c.rows_('Noticias'),query,'Pagos digitales',new Date(),'id');assert.equal(newsletter.count,1);assert.equal(newsletter.total,2);assert.ok(newsletter.html.includes(payment.subpalanca));assert.ok(newsletter.text.includes(payment.subpalanca));
+  c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';const newsletter=c.newsletter_(c.rows_('Noticias'),query,'Pagos digitales',new Date(),'id');assert.equal(newsletter.count,2);assert.equal(newsletter.total,2);assert.ok(newsletter.html.includes(payment.subpalanca));assert.ok(newsletter.text.includes(payment.subpalanca));
   sheets.get('Noticias').grid.push(['new','2026-10-11','España','Editor','BBVA','BBVA lanza API avanzada','','https://example.com/new','','Editor','es','', '']);c.invalidateNews_();c.startTaxonomy();finish(c);assert.equal(sheets.get('Noticias').grid[1][12],prior);assert.ok(c.taxonomySaved_(sheets.get('Noticias').grid.at(-1)[12]).ids.length);
   sheets.get('Noticias').grid[1][5]='BBVA lanza IA generativa';c.invalidateNews_();c.startTaxonomy();finish(c);assert.notEqual(sheets.get('Noticias').grid[1][12],prior);
 });
@@ -59,10 +59,10 @@ test('las noticias nuevas se etiquetan con el modelo vigente durante la incorpor
  for(let i=0;i<260;i++)sheets.get('Noticias').grid.push([...row.slice(0,12),'']);c.invalidateNews_();const reads=[],sheet=sheets.get('Noticias'),get=sheet.getRange;sheet.getRange=(...args)=>{reads.push(args);return get(...args);};c.startTaxonomy();finish(c);assert.ok(reads.every(args=>args[2]<=100));assert.equal(c.taxonomyJob_().processed,528);
 });
 
-test('la taxonomía cede también a recuperación anual disponible y los fallos parciales no pierden contadores ni etiquetas',()=>{
+test('la taxonomía tiene prioridad sobre recuperación anual disponible y los fallos parciales no pierden contadores ni etiquetas',()=>{
  const {c,sheets,properties}=server(Array.from({length:5},(_,i)=> 'BBVA lanza una API para empresas '+i));c.startTaxonomy();finish(c);
  for(const index of [1,3,5])sheets.get('Noticias').grid[index][5]='BBVA lanza IA generativa';c.invalidateNews_();c.startTaxonomy();c.taxonomyBatch_();c.taxonomyBatch_();
- properties.BACKGROUND_LAST='classification';assert.equal(c.backgroundTask_({pending:[{ciclo:'annual'}]},false),'collection');
+ properties.BACKGROUND_LAST='classification';assert.equal(c.backgroundTask_({pending:[{ciclo:'annual'}]},false),'taxonomy');
  const sheet=sheets.get('Noticias'),range=sheet.getRange;sheet.getRange=(...args)=>{const result=range(...args);if(args[1]===13&&args[0]===4)result.setValues=()=>{throw Error('Segundo bloque temporal');};return result;};
  c.taxonomyBatch_();assert.equal(c.taxonomyJob_().next,2);assert.equal(c.taxonomyJob_().tagged,1);assert.equal(c.taxonomyJob_().state,'En pausa');const first=sheet.grid[1][12];sheet.getRange=range;c.startTaxonomy();finish(c);assert.equal(c.taxonomyJob_().tagged,3);assert.equal(sheet.grid[1][12],first);
 });

@@ -140,7 +140,7 @@
       "dailyHour": "Hora de banca digital (0–23)",
       "searchTerms": "Términos de búsqueda de sector",
       "disabledSources": "IDs de fuentes de perfil desactivadas",
-      "briefingLimit": "Máximo de novedades por newsletter",
+      "briefingLimit": "Máximo de novedades por geografía",
       "maxCustomFeeds": "Máximo de fuentes RSS",
       "maxFeedBytes": "Máximo de caracteres de feed",
       "maxItems": "Máximo de entradas por feed",

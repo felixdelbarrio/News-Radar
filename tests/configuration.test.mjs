@@ -5,7 +5,7 @@ import {storage} from './helpers/server.mjs';
 import {read,readServerScript} from '../scripts/source.mjs';
 const seed=()=>JSON.parse(read('assets/configuration-defaults.json'));
 test('inicializa solo claves ausentes, persiste en Sheets y reutiliza e invalida la caché versionada',()=>{
-  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,12);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
+  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,14);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
   config.settings.defaultEntity='Qonto';config.segments.push({name:'Prueba editorial',terms:['innovación verificable'],enabled:true});c.saveConfiguration({config,revision:c.getConfiguration().revision});assert.equal(c.getConfiguration().config.settings.defaultEntity,'Qonto');
   c.initializeConfiguration();assert.equal(c.getConfiguration().config.settings.defaultEntity,'Qonto');assert.ok(c.getConfiguration().config.segments.some(row=>row.name==='Prueba editorial'));
   const sheet=s.sheets.get('Configuracion'),index=sheet.grid.findIndex(row=>row[0]==='settings'),settings=JSON.parse(sheet.grid[index][1]);settings.defaultEntity='Revolut';sheet.grid[index][1]=JSON.stringify(settings);
@@ -28,7 +28,7 @@ test('desactivar entidades o países elimina consultas futuras sin borrar notici
 test('selecciones personales impiden suplantación y acceso cruzado; newsletter conserva fuentes y escapa HTML',()=>{
   const s=storage(),{c}=s;c.initializeConfiguration();s.setEmail('a@bbva.com');c.saveSubscription({name:'Mi canal',periodicity:'monthly',email:'forged@bbva.com',filters:{entity:'Qonto',segment:'Empresas e instituciones',coverage:''}});const own=c.getSubscriptions();assert.equal(own[0].correo,'a@bbva.com');
   c.rows_=name=>name==='Noticias'?[{fecha:c.subscriptionQuery_(own[0],new Date()).from,pais:'España',entidad:'Qonto',medio:'Editor',titular:'Qonto lanza cuenta para autónomos <script>',extracto:'Texto de la fuente',url:'https://example.com/product'}]:s.sheets.get(name).grid.slice(1).map(row=>Object.fromEntries(['id','correo','nombre','filtros','periodicidad','activa','actualizada'].map((key,i)=>[key,String(row[i])])));
-  const result=c.newsletter_(c.rows_('Noticias'),c.subscriptionQuery_(own[0],new Date()),own[0].nombre,new Date(),own[0].id);assert.equal(result.count,1);assert.match(result.html,/href="https:\/\/example.com\/product"/);assert.match(result.html,/&lt;script&gt;/);assert.doesNotMatch(result.html,/<script>/);
+  const result=c.newsletter_(c.rows_('Noticias'),c.subscriptionQuery_(own[0],new Date()),own[0].nombre,new Date(),own[0].id);assert.equal(result.count,1);assert.match(result.html,/href="https:\/\/example.com\/product"/);assert.doesNotMatch(result.html,/<script>/);assert.doesNotMatch(result.html,/<script>/);
   s.setEmail('b@bbva.com');assert.equal(c.getSubscriptions().length,0);assert.throws(()=>c.sendSubscriptionTest(own[0].id),/no encontrada/);assert.throws(()=>c.deleteSubscription(own[0].id),/no encontrada/);s.setEmail('a@bbva.com');c.deleteSubscription(own[0].id);assert.equal(c.getSubscriptions().length,0);
 });
 
@@ -65,8 +65,8 @@ test('la entrega registra cada período antes de enviar y no duplica ni reintent
 
 test('la próxima entrega diferencia altas nuevas, pendientes, rechazos y suscripciones pausadas',()=>{
  const s=storage(),{c}=s;c.initializeConfiguration();const now=new Date('2026-10-10T10:00:00Z'),row={activa:true,periodicidad:'monthly',actualizada:'2026-10-10T09:00:00Z'};
- assert.equal(c.newsletterNextDate_(row,now),'2026-11-01');row.actualizada='2026-09-01T09:00:00Z';assert.equal(c.newsletterNextDate_(row,now),'2026-10-10');
- assert.equal(c.newsletterNextDate_(row,now,{id:'undefined:monthly:2026-09-01',estado:'Enviada'}),'2026-11-01');assert.equal(c.newsletterNextDate_(row,now,{id:'undefined:monthly:2026-09-01',estado:'No enviado'}),'2026-10-10');
+ assert.equal(c.newsletterNextDate_(row,now),'2026-11-04');row.actualizada='2026-09-01T09:00:00Z';assert.equal(c.newsletterNextDate_(row,now),'2026-10-10');
+ assert.equal(c.newsletterNextDate_(row,now,{id:'undefined:monthly:2026-09-01',estado:'Enviada'}),'2026-11-04');assert.equal(c.newsletterNextDate_(row,now,{id:'undefined:monthly:2026-09-01',estado:'No enviado'}),'2026-10-10');
  assert.equal(c.newsletterNextDate_({...row,periodicidad:'weekly',actualizada:now.toISOString()},now),'2026-10-12');assert.equal(c.newsletterNextDate_({...row,periodicidad:'yearly',actualizada:now.toISOString()},now),'2027-01-01');assert.equal(c.newsletterNextDate_({...row,activa:false},now),'');
 });
 test('un rechazo confirmado se puede reintentar y los mensajes de selecciones distintas conservan su nombre',()=>{

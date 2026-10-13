@@ -6,6 +6,7 @@ import {identityAssets} from './identity.mjs';
 import {worldMap} from './world-map.mjs';
 import {designOutputs} from './design.mjs';
 import {checkAppsScriptSyntax} from './apps-script-syntax.mjs';
+import {newsletterInlineStyles} from './newsletter-inline.mjs';
 
 const dist=path.join(root,'dist');
 const version=vm.runInNewContext(read('src/server/config/Config.gs')+';RADAR.version');
@@ -17,7 +18,7 @@ for(const file of views)parts[path.basename(file,'.html')]=read(file);
 function template(html){return html.replace(/\{\{(\w+)\}\}/g,(_,name)=>{if(!(name in parts))throw Error('Bloque desconocido: '+name);return template(String(parts[name]));});}
 const design=designOutputs(),tokens=JSON.parse(read('src/design/tokens.json')).css;
 const newsletterStyle=(read('src/styles/identity.css')+'\n'+read('src/styles/newsletter.css')).replace(/var\(--([\w-]+)\)/g,(_,key)=>tokens[key]);
-const newsletterInline={};for(const [,selectors,rule] of newsletterStyle.matchAll(/([^{}]+)\{([^{}]*)\}/g))for(const selector of selectors.split(','))newsletterInline[selector.trim()]=(newsletterInline[selector.trim()]||'')+rule+';';
+const newsletterInline=newsletterInlineStyles(newsletterStyle);
 const output={
   'Defaults.gs':'const CONFIGURATION_DEFAULTS = Object.freeze('+read('assets/configuration-defaults.json').trim()+');\n',
   'Design.gs':design.sheet,

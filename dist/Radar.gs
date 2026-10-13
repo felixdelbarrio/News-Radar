@@ -1,9 +1,9 @@
-function radarMetrics_(rows, query) {
+function radarMetrics_(rows,query,countries=configuration_().geographies,entityName=entityKey_) {
   const entities=new Map(),geographies=new Map(),publishers=new Map(),dates=new Map();
-  const knownCountries=new Set(configuration_().geographies.map(row=>row.name));
+  const knownCountries=new Set(countries.map(row=>row.name));
   let unlocated=0;
   for(const row of rows){
-    const entity=entityKey_(row.entidad),country=row.pais;
+    const entity=entityName(row.entidad),country=row.pais;
     entities.set(entity,(entities.get(entity)||0)+1);
     if(row.medio)publishers.set(row.medio,(publishers.get(row.medio)||0)+1);
     if(knownCountries.has(country)){
