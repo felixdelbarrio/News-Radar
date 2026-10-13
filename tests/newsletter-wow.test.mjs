@@ -52,8 +52,8 @@ test('las visitas de newsletter usan identidad autenticada, IDs estables y dedup
 test('el feedback actualizado conserva su retención mientras elimina otro registro antiguo',()=>{
  const s=server(),c=s.c;edition(s);c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:''});const sheet=s.sheets.get('NewsletterFeedback');sheet.grid.push(['old','edition','owner@bbva.com','negative','Antiguo','2000-01-01','pendiente']);s.properties.RETENTION_DATE='';c.pruneEvents_();assert.equal(c.rows_('NewsletterFeedback').length,1);assert.notEqual(c.rows_('NewsletterFeedback')[0].id,'old');
 });
-test('traducción y categorización de Empresas preceden a Project Finance; los demás trabajos ceden entre lotes',()=>{
- const s=server(),c=s.c,work={pending:[{ciclo:'pf'}],jobs:[{id:'pf',tipo:'projectFinance'}]};c.classificationReadyAt_=()=>0;assert.equal(c.backgroundTask_(work,false),'classification');c.classificationReadyAt_=()=>Infinity;
+test('traducción y categorización de Empresas preceden a la recuperación anual; los demás trabajos ceden entre lotes',()=>{
+ const s=server(),c=s.c,work={pending:[{ciclo:'annual'}],jobs:[{id:'annual',tipo:'annual'}]};c.classificationReadyAt_=()=>0;assert.equal(c.backgroundTask_(work,false),'classification');c.classificationReadyAt_=()=>Infinity;
  c.requestTranslations_(true);assert.equal(c.backgroundTask_(work,false),'translation');s.properties.TRANSLATION_PRIORITY_REQUEST='';c.taxonomyReadyAt_=()=>0;assert.equal(c.backgroundTask_(work,false),'taxonomy');assert.equal(c.backgroundTask_(work,true),'collection');
 });
 test('la traducción prioriza Empresas digital antes de Retail más reciente sin repetir variantes guardadas',()=>{

@@ -9,13 +9,8 @@ function replaceDailySchedule_(handler,hour,minute=0){
   scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   ScriptApp.newTrigger(handler).timeBased().atHour(hour).nearMinute(minute).everyDays(1).inTimezone(settings_().timezone).create();
 }
-function collectionScheduleLabel_(){const config=settings_();return 'Banca digital: diaria · '+config.dailyHour+':00 · Project Finance: cada '+config.projectFinanceIntervalHours+' horas · desde '+config.projectFinanceHour+':00 · '+config.timezone;}
-function replaceCollectionSchedule_(){
-  const config=settings_();replaceDailySchedule_('dailyRadar_',config.dailyHour);
-  scheduledTriggers_('projectFinanceRadar_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
-  for(let offset=0;offset<24;offset+=config.projectFinanceIntervalHours)ScriptApp.newTrigger('projectFinanceRadar_').timeBased().atHour((config.projectFinanceHour+offset)%24).nearMinute(0).everyDays(1).inTimezone(config.timezone).create();
-  CacheService.getScriptCache().remove('daily-schedule');
-}
+function collectionScheduleLabel_(){const config=settings_();return 'Banca digital: diaria · '+config.dailyHour+':00 · '+config.timezone;}
+function replaceCollectionSchedule_(){replaceDailySchedule_('dailyRadar_',settings_().dailyHour);CacheService.getScriptCache().remove('daily-schedule');}
 function ensureBackgroundWorker_(delay=60000){
   if(backgroundPaused_()){deferBackgroundWork_('background');return;}
   const triggers=scheduledTriggers_('backgroundTick_'),next=Date.now()+Math.max(60000,delay);
@@ -31,13 +26,13 @@ function translationReadyAt_(){
   return job&&job.state!=='Completada'?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;
 }
 function collectionReadyAt_(work){
-  const jobs=new Map(work.jobs.map(job=>[job.id,job])),represented=new Set();let next=Infinity;
+  const jobs=new Map(work.jobs.map(job=>[job.id,job])),represented=new Set(),now=Date.now(),retryMs=settings_().retryMinutes*60000,fetchPausedUntil=Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0);let next=Infinity;
   for(const task of work.tasks){
     if(!['Pendiente','Reintento programado'].includes(task.estado)||!jobs.has(task.ciclo))continue;
-    represented.add(task.ciclo);const retry=task.estado==='Reintento programado'?Date.parse(task.actualizada)+settings_().retryMinutes*60000:0;
-    next=Math.min(next,Math.max(Date.now(),Number(jobs.get(task.ciclo).pausa||0),Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0),retry));
+    represented.add(task.ciclo);const retry=task.estado==='Reintento programado'?Date.parse(task.actualizada)+retryMs:0;
+    next=Math.min(next,Math.max(now,Number(jobs.get(task.ciclo).pausa||0),fetchPausedUntil,retry));
   }
-  for(const job of work.jobs)if(Number(job.pendientes)>0&&!represented.has(job.id))next=Math.min(next,Math.max(Date.now(),Number(job.pausa||0),Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0)));
+  for(const job of work.jobs)if(Number(job.pendientes)>0&&!represented.has(job.id))next=Math.min(next,Math.max(now,Number(job.pausa||0),fetchPausedUntil));
   return next;
 }
 function backgroundTick_(){return processBackground_();}
@@ -88,7 +83,7 @@ function initializeBackgroundSchedules_(){
   CacheService.getScriptCache().remove('daily-schedule');
   for(const handler of ['collectionTick_','collectionWake_','translationTick_','backgroundTick_'])scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   properties_().deleteProperty('BACKGROUND_NEXT');
-  if(properties_().getProperty('DAILY_ENABLED')==='true')replaceCollectionSchedule_();else for(const handler of ['dailyRadar_','projectFinanceRadar_'])scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
+  if(properties_().getProperty('DAILY_ENABLED')==='true')replaceCollectionSchedule_();else scheduledTriggers_('dailyRadar_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   if(properties_().getProperty('TRANSLATION_ENABLED')!=='false'){replaceDailySchedule_('nightlyTranslations_',TRANSLATION_WORK.hour);properties_().setProperty('TRANSLATION_ENABLED','true');}
   else scheduledTriggers_('nightlyTranslations_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   replaceDailySchedule_('dailyClassification_',settings_().dailyHour,CLASSIFICATION_WORK.dailyMinute);

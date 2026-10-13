@@ -13,16 +13,12 @@ const stopwords=new Set(('de la el los las un una unos unas y o en con por para 
 const digitalWords=new Set(('digital online movil mobile app api ia ai generativa generative biometrico biometric biometrica biometricos biometrics token tokenizacion tokenization blockchain pago pagos payment payments wallet wallets onboarding identidad identity seguridad security fraude fraud instantaneo instantaneos instant instantanea instantaneas tesoreria treasury automatizacion automation embedded financiero financial finanzas finance credito credit lending ciberseguridad cybersecurity erp cloud nube open').split(' '));
 function taxonomyText(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ı/g,'i');}
 function taxonomyLever(value){const text=taxonomyText(value);return leverRules.find(([,terms])=>terms.some(term=>text.includes(term)))?.[0]||'Acceso y experiencia digital';}
-function taxonomyDefinitions(capabilities,segments=[]){
+function taxonomyDefinitions(capabilities){
   const definitions=new Map();
   for(const [segment,rows] of Object.entries(capabilities))for(const row of rows){
     if(!row.enabled)continue;
     const palanca=taxonomyLever(row.name),key=palanca+'|'+taxonomyText(row.name),entry=definitions.get(key)||{key,palanca,subpalanca:row.name,segments:[],terms:[]};
     entry.segments.push(segment);entry.terms.push(...row.terms.map(taxonomyText));definitions.set(key,entry);
-  }
-  for(const row of segments.filter(row=>row.enabled&&row.name==='Project Finance')){
-    const palanca=row.name,subpalanca='Financiación de proyectos',key=palanca+'|'+taxonomyText(subpalanca);
-    definitions.set(key,{key,palanca,subpalanca,segments:[row.name],terms:row.terms.map(taxonomyText)});
   }
   for(const [subpalanca,terms] of [['APIs e integración',['api','apis']],['Inteligencia artificial',['ia','ai','inteligencia artificial','artificial intelligence']],['Banca online',['banca online','online banking','internet banking']],['Experiencia móvil',['app','aplicacion movil','mobile banking']]]){
     const palanca=taxonomyLever(subpalanca),key=palanca+'|'+taxonomyText(subpalanca);

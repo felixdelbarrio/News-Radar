@@ -120,3 +120,10 @@ test('la configuración detiene al trabajador entre lotes y conserva las tareas 
  delete s.properties['WORK_INTENT:test'];c.collectionBatch_=collect;c.workWake_();c.processBackground_();
  assert.equal(c.collectionJobs_()[0].pendientes,'2');assert.equal(c.collectionJobs_()[0].procesadas,'48');
 });
+
+test('diez mil tareas usan una sola lectura de pausa por cálculo y refrescan su valor en el siguiente lote',()=>{
+ const s=server(),c=s.c;addJob(s,'annual','annual',10000);const original=c.properties_,now=Date.now();let pauseReads=0;
+ c.properties_=()=>{const properties=original();return {...properties,getProperty(key){if(key==='FETCH_PAUSED_UNTIL')pauseReads++;return properties.getProperty(key);}};};
+ s.properties.FETCH_PAUSED_UNTIL=String(now+60000);const paused=c.collectionWork_(now);assert.equal(paused.tasks.length,10000);assert.equal(paused.pending.length,0);assert.equal(pauseReads,1);assert.equal(c.collectionReadyAt_(paused),now+60000);assert.equal(pauseReads,2);
+ delete s.properties.FETCH_PAUSED_UNTIL;const active=c.collectionWork_(now);assert.equal(active.pending.length,12);assert.equal(pauseReads,3);assert.ok(c.collectionReadyAt_(active)>=now);assert.equal(pauseReads,4);
+});
