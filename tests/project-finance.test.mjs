@@ -102,7 +102,7 @@ test('Project Finance utiliza pestañas de países con totales propios y conserv
  const result=c.newsDashboard_(rows,{segment:'Project Finance',coverage:'generalista',newsGeography:'India'},[],'news');assert.equal(result.newsGeographies.length,3);assert.equal(result.total,1);assert.equal(result.items[0].id,'in');assert.ok(result.newsGeographies.some(row=>row.name==='Sin determinar'));
 });
 test('las vistas administrativas evitan leer y clasificar el corpus de noticias',()=>{
- const {c}=server();c.cachedNewsRecords_=()=>{throw Error('Lectura innecesaria del corpus');};for(const view of ['runs','sources','configuration','telemetry']){const result=c.getDashboard({view});assert.equal('items' in result,false);assert.equal(result.performance.newsMs,0);assert.equal(result.performance.version,'2.5.0');}
+ const {c}=server();c.cachedNewsRecords_=()=>{throw Error('Lectura innecesaria del corpus');};for(const view of ['runs','sources','configuration','telemetry']){const result=c.getDashboard({view});assert.equal('items' in result,false);assert.equal(result.performance.newsMs,0);assert.equal(result.performance.version,'2.5.1');}
 });
 
 test('recuperar desde Ejecuciones pide solo metadatos administrativos y actualiza la lectura al cambiar su revisión',async t=>{
