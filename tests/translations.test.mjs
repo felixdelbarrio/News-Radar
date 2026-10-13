@@ -82,8 +82,8 @@ test('la limpieza de variantes invalida posiciones de filas antes de otro lote d
 
 test('una pausa de configuración entre idiomas conserva la traducción y no repite la llamada al reanudar',()=>{
  const s=server(),c=s.c;add(s,[article]);const log=[];
- c.LanguageApp={translate:input=>{log.push(input);s.properties.CONFIGURATION_PAUSED_UNTIL=String(Date.now()+600000);return input;}};
+ c.LanguageApp={translate:input=>{log.push(input);s.properties['WORK_INTENT:test']=String(Date.now()+600000);return input;}};
  c.nightlyTranslations_();assert.equal(log.length,1);assert.equal(c.rows_('Traducciones').length,1);assert.equal(c.translationJob_().processed,0);assert.equal(c.translationJob_().state,'Pendiente');
- delete s.properties.CONFIGURATION_PAUSED_UNTIL;const remaining=provider(c);c.configurationWake_();c.backgroundTick_();
+ delete s.properties['WORK_INTENT:test'];const remaining=provider(c);c.workWake_();c.backgroundTick_();
  assert.equal(remaining.length,2);assert.equal(c.rows_('Traducciones').length,3);assert.equal(c.translationJob_().state,'Completada');
 });

@@ -5,6 +5,12 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Productos nuevos, mejoras de oferta y alianzas para comparar c\xF3mo evoluciona el servicio de las entidades que sigues.": ["New products, improved offers and partnerships to compare how the banks you follow are evolving their services.", "Takip etti\u011Finiz bankalar\u0131n hizmetlerini nas\u0131l geli\u015Ftirdi\u011Fini kar\u015F\u0131la\u015Ft\u0131rmak i\xE7in yeni \xFCr\xFCnler, iyile\u015Ftirilmi\u015F teklifler ve ortakl\u0131klar."],
+    "Cargar m\xE1s noticias": ["Load more news", "Daha fazla haber y\xFCkle"],
+    "Cargar m\xE1s grupos": ["Load more groups", "Daha fazla grup y\xFCkle"],
+    "{visible} de {total} publicaciones": ["{visible} of {total} publications", "{total} yay\u0131ndan {visible} tanesi"],
+    "{visible} de {total} grupos": ["{visible} of {total} groups", "{total} gruptan {visible} tanesi"],
+    "El trabajo activo a\xFAn no ha liberado el bloqueo. Vuelve a intentarlo cuando termine su llamada en curso.": ["The active job has not released the lock yet. Try again after its current call finishes.", "Etkin i\u015F kilidi hen\xFCz b\u0131rakmad\u0131. Mevcut \xE7a\u011Fr\u0131 tamamland\u0131ktan sonra tekrar deneyin."],
     "No se ha enviado la prueba: no hay noticias disponibles con estos filtros en el per\xEDodo.": ["The test was not sent: no stories are available with these filters in the period.", "Test g\xF6nderilmedi: bu filtrelerle d\xF6nem i\xE7inde haber bulunmuyor."],
     "Las palancas con m\xE1s cobertura fueron {themes}: {count} noticias cada una ({share}% del corpus).": ["The most covered themes were {themes}: {count} stories each ({share}% of the corpus).", "En \xE7ok haber yap\u0131lan temalar {themes}: her biri {count} haber (derlemin %{share} kadar\u0131)."],
     "La mayor concentraci\xF3n de cobertura est\xE1 en {themes}. \xBFC\xF3mo se refleja en las prioridades de tu canal?": ["Coverage is most concentrated in {themes}. How does this reflect in your channel priorities?", "Haberler en \xE7ok {themes} temalar\u0131nda yo\u011Funla\u015F\u0131yor. Bu, kanal\u0131n\u0131z\u0131n \xF6nceliklerine nas\u0131l yans\u0131yor?"],
@@ -1263,22 +1269,24 @@
   function receive(data) {
     return data?.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), data;
   }
-  var pending = 0;
-  function loading(delta) {
-    pending += delta;
+  var pending = 0, replacing = 0;
+  function loading(delta, append) {
+    pending += delta, append || (replacing += delta);
     let indicator = document.getElementById("loading");
-    indicator.hidden = pending === 0, document.getElementById("loading-label").textContent = t("Cargando contenido\u2026"), document.querySelector(".content").setAttribute("aria-busy", String(pending > 0));
+    indicator.hidden = pending === 0, document.getElementById("loading-label").textContent = t("Cargando contenido\u2026");
+    let content = document.querySelector(".content");
+    content.setAttribute("aria-busy", String(pending > 0)), content.setAttribute("data-loading", replacing ? "replace" : pending ? "append" : "");
   }
   function call(method, ...args) {
-    let visible = !["recordEvents", "getCollectionProgress"].includes(method);
-    visible && loading(1);
+    let visible = !["recordEvents", "getCollectionProgress"].includes(method), append = method === "getDashboard" && args[0]?.view === "news" && args[0]?.page > 0;
+    visible && loading(1, append);
     let response;
     try {
       response = send(method, ...args);
     } catch (error) {
-      throw visible && loading(-1), error;
+      throw visible && loading(-1, append), error;
     }
-    return visible && response.then(() => loading(-1), () => loading(-1)), response;
+    return visible && response.then(() => loading(-1, append), () => loading(-1, append)), response;
   }
   function send(method, ...args) {
     if (window.RADAR_PREVIEW) {
@@ -1317,7 +1325,7 @@
     let columns = data.nodes.map((node, index) => ({ ...node, index })).filter((node) => node.level === level).sort((a, b) => b.count - a.count || a.palanca.localeCompare(b.palanca) || a.subpalanca.localeCompare(b.subpalanca)), rows = data[axis] || [], indices = new Set(columns.map((node) => node.index)), max = 1;
     for (let row of rows) for (let [index, count] of row.counts) indices.has(index) && (max = Math.max(max, count));
     let pages = { rows: Math.ceil(rows.length / HEATMAP_PAGE.rows), columns: Math.ceil(columns.length / HEATMAP_PAGE.columns) };
-    return rowPage = Math.min(Math.max(0, rowPage), Math.max(0, pages.rows - 1)), columnPage = Math.min(Math.max(0, columnPage), Math.max(0, pages.columns - 1)), { rows: rows.slice(rowPage * HEATMAP_PAGE.rows, (rowPage + 1) * HEATMAP_PAGE.rows).map((row) => ({ ...row, counts: new Map(row.counts) })), columns: columns.slice(columnPage * HEATMAP_PAGE.columns, (columnPage + 1) * HEATMAP_PAGE.columns), pages, rowPage, columnPage, max };
+    return rowPage = Math.min(Math.max(0, rowPage), Math.max(0, pages.rows - 1)), columnPage = Math.min(Math.max(0, columnPage), Math.max(0, pages.columns - 1)), { rows: rows.slice(0, (rowPage + 1) * HEATMAP_PAGE.rows).map((row) => ({ ...row, counts: new Map(row.counts) })), columns: columns.slice(columnPage * HEATMAP_PAGE.columns, (columnPage + 1) * HEATMAP_PAGE.columns), pages, rowPage, columnPage, max };
   }
   function heatmapValue(count, total, mode, max) {
     let share = total ? Math.round(count / total * 100) : 0;
@@ -1335,8 +1343,8 @@
       $("heatmap-summary").textContent = t("{tagged}/{total} noticias con taxonom\xEDa; {missing} sin catalogar.", { tagged: data.tagged, total: data.total, missing: data.total - data.tagged }), $("heatmap-table").innerHTML = page.columns.length ? "<table><caption>" + t("Palancas y subpalancas por entidad y geograf\xEDa") + '</caption><thead><tr><th scope="col">' + t(axis === "entities" ? "Entidad" : "Geograf\xEDa") + "</th>" + page.columns.map((node) => '<th scope="col" data-original>' + escape(label(node)) + "</th>").join("") + "</tr></thead><tbody>" + page.rows.map((row, index) => '<tr><th scope="row" data-original>' + identityMark(axis, row.name, escape) + escape(t(row.name)) + "<small>" + escape(t("{count} noticias", { count: row.total })) + "</small></th>" + page.columns.map((node) => {
         let count = row.counts.get(node.index) || 0, value = heatmapValue(count, row.total, mode, page.max), text = t("{group} \xB7 {topic}: {count} noticias ({share} %). Ver noticias.", { group: t(row.name), topic: label(node), count, share: value.share });
         return '<td><button type="button" class="heat-cell heat-' + value.level + '" data-row="' + index + '" data-node="' + node.index + '" aria-label="' + escape(text) + '" title="' + escape(text) + '"' + (count ? "" : " disabled") + '><span class="heat-cell-topic" aria-hidden="true">' + escape(label(node)) + "</span><span>" + escape(mode === "share" ? value.share + " %" : number.format(count)) + "</span></button></td>";
-      }).join("") + "</tr>").join("") + "</tbody></table>" : '<p class="muted">' + t("No hay noticias catalogadas en esta selecci\xF3n.") + "</p>", $("heatmap-rows-label").textContent = t("Grupos {page}/{pages}", { page: page.pages.rows ? rowPage + 1 : 0, pages: page.pages.rows }), $("heatmap-columns-label").textContent = t("Categor\xEDas {page}/{pages}", { page: page.pages.columns ? columnPage + 1 : 0, pages: page.pages.columns });
-      for (let [id, value, max] of [["rows", rowPage, page.pages.rows], ["columns", columnPage, page.pages.columns]])
+      }).join("") + "</tr>").join("") + "</tbody></table>" : '<p class="muted">' + t("No hay noticias catalogadas en esta selecci\xF3n.") + "</p>", $("heatmap-rows-label").textContent = t("{visible} de {total} grupos", { visible: page.rows.length, total: data[axis].length }), $("heatmap-columns-label").textContent = t("Categor\xEDas {page}/{pages}", { page: page.pages.columns ? columnPage + 1 : 0, pages: page.pages.columns }), $("heatmap-rows-next").disabled = rowPage + 1 >= page.pages.rows;
+      for (let [id, value, max] of [["columns", columnPage, page.pages.columns]])
         $("heatmap-" + id + "-previous").disabled = !value, $("heatmap-" + id + "-next").disabled = value + 1 >= max;
       let top = data.nodes.filter((node) => node.level === level).sort((a, b) => b.count - a.count)[0];
       $("heatmap-focus").textContent = top ? t("La categor\xEDa m\xE1s presente es {topic}, en {count} noticias.", { topic: label(top), count: top.count }) : "";
@@ -1344,7 +1352,10 @@
     for (let id of ["axis", "level", "measure"]) $("heatmap-" + id).addEventListener("change", () => {
       rowPage = 0, columnPage = 0, render();
     });
-    for (let id of ["rows", "columns"]) for (let direction of ["previous", "next"]) $("heatmap-" + id + "-" + direction).addEventListener("click", () => {
+    $("heatmap-rows-next").addEventListener("click", () => {
+      rowPage++, render();
+    });
+    for (let id of ["columns"]) for (let direction of ["previous", "next"]) $("heatmap-" + id + "-" + direction).addEventListener("click", () => {
       let step = direction === "next" ? 1 : -1;
       id === "rows" ? rowPage += step : columnPage += step, render();
     });
@@ -1677,7 +1688,7 @@
 
   // src/client/features/subscriptions.js
   function createSubscriptions({ run, onApply }) {
-    let options, own = [], all = [], filters5 = {};
+    let options, own = [], all = [], request3 = 0, filters5 = {};
     function render(admin) {
       let id = admin ? "subscribers" : "subscriptions", rows = admin ? all : own;
       filters5[id] ||= createRecordFilters(id, [...admin ? [["correo", "Suscriptor"]] : [], ["activa", "Estado", [["true", "Activa"], ["false", "Pausada"]]], ["periodicidad", "Periodicidad", Object.entries(periods)]], () => render(admin), { placeholder: "Correo, nombre o selecci\xF3n" }), filters5[id].options(recordOptions(rows, admin ? ["correo"] : []));
@@ -1690,8 +1701,8 @@
       target.hidden = !1, target.innerHTML = subscriptionForm(options, admin, row);
     }
     async function open(admin = !1) {
-      let [settings, rows] = await Promise.all([call("getNewsletterOptions"), call(admin ? "getAdminSubscriptions" : "getSubscriptions")]);
-      options = settings, admin ? (all = rows, $("subscribers-count").textContent = t("{subscribers} suscriptores \xB7 {subscriptions} suscripciones", { subscribers: new Set(rows.map((r) => r.correo)).size, subscriptions: rows.length }), render(!0)) : (own = rows, $("subscriptions-count").textContent = t("{subscriptions} suscripciones \xB7 {active} activas", { subscriptions: rows.length, active: rows.filter((row) => row.activa).length }), render(!1), $("newsletter-delivery-status").textContent = options.enabled ? "Entrega peri\xF3dica activa. Recibir\xE1s el contenido de tu selecci\xF3n seg\xFAn su periodicidad." : "Puedes guardar tu suscripci\xF3n. El administrador todav\xEDa debe activar la entrega."), edit(admin), admin && ($(editorId(admin)).hidden = !0), admin || ($("newsletter-default-period").textContent = periods[options.defaults.periodicity] + " por defecto");
+      let current = ++request3, [settings, rows] = await Promise.all([call("getNewsletterOptions"), call(admin ? "getAdminSubscriptions" : "getSubscriptions")]);
+      current === request3 && (options = settings, admin ? (all = rows, $("subscribers-count").textContent = t("{subscribers} suscriptores \xB7 {subscriptions} suscripciones", { subscribers: new Set(rows.map((r) => r.correo)).size, subscriptions: rows.length }), render(!0)) : (own = rows, $("subscriptions-count").textContent = t("{subscriptions} suscripciones \xB7 {active} activas", { subscriptions: rows.length, active: rows.filter((row) => row.activa).length }), render(!1), $("newsletter-delivery-status").textContent = options.enabled ? "Entrega peri\xF3dica activa. Recibir\xE1s el contenido de tu selecci\xF3n seg\xFAn su periodicidad." : "Puedes guardar tu suscripci\xF3n. El administrador todav\xEDa debe activar la entrega."), edit(admin), admin && ($(editorId(admin)).hidden = !0), admin || ($("newsletter-default-period").textContent = periods[options.defaults.periodicity] + " por defecto"));
     }
     for (let admin of [!1, !0]) {
       let target = $(editorId(admin));
@@ -2093,7 +2104,7 @@
   }
   function articleContent(row, selection = {}, novelty = !1) {
     let badge = (value) => '<span class="badge" data-original>' + escape(t(value)) + "</span>", values = [...!selection.type && row.tipo ? [row.tipo] : [], ...(row.segmentos || []).filter((value) => value !== selection.segment), ...(novelty ? row.senales || [] : []).filter((value) => value !== selection.signal)];
-    return articleHeader(row, '<h3 data-original><a href="' + escape(validUrl(row.url)) + '" target="_blank" rel="noopener noreferrer">' + escape(row.titular) + "</a></h3>") + "<p " + (row.extracto ? "data-original" : "") + ">" + escape(row.extracto || "Consulta la fuente original para conocer la oferta y sus condiciones.") + "</p>" + articleOriginal(row) + '<div class="article-metadata"><div class="news-meta">' + newsCoverage(row, selection) + newsTaxonomy(row, selection) + [...new Set(values)].map(badge).join("") + '</div><div class="news-meta"><time datetime="' + escape(row.fecha) + '">' + escape(formatCalendarDay(row.fecha, language)) + "</time>" + newsPublisher(row) + (!selection.country && row.pais && row.pais !== "Sin determinar" ? "<span>" + escape(row.pais) + "</span>" : "") + '</div></div><a class="button" href="' + escape(validUrl(row.url)) + '" target="_blank" rel="noopener noreferrer">Consultar \u2197</a>';
+    return articleHeader(row, '<h3 data-original><a class="story-link" href="' + escape(validUrl(row.url)) + '" target="_blank" rel="noopener noreferrer">' + escape(row.titular) + "</a></h3>") + "<p " + (row.extracto ? "data-original" : "") + ">" + escape(row.extracto || "Consulta la fuente original para conocer la oferta y sus condiciones.") + "</p>" + articleOriginal(row) + '<div class="article-metadata"><div class="news-meta">' + newsCoverage(row, selection) + newsTaxonomy(row, selection) + [...new Set(values)].map(badge).join("") + '</div><div class="news-meta"><time datetime="' + escape(row.fecha) + '">' + escape(formatCalendarDay(row.fecha, language)) + "</time>" + newsPublisher(row) + (!selection.country && row.pais && row.pais !== "Sin determinar" ? "<span>" + escape(row.pais) + "</span>" : "") + "</div></div>";
   }
 
   // src/client/features/briefing.js
@@ -2103,7 +2114,7 @@
     });
     function paint() {
       let group = groups.find((row) => row.name === active), stats = group || briefing2;
-      tabs.render(groups, active), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-period").textContent = selection.from && selection.to ? t("Per\xEDodo consultado: {from} a {to}", { from: selection.from, to: selection.to }) : t("Per\xEDodo inicial: \xFAltimos 7 d\xEDas. Puedes cambiar las fechas en Filtros."), $("briefing-count").textContent = "Novedades detectadas: " + briefing2.total, $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(row.name)}</span></button>`).join(""), $("briefing-list").innerHTML = (group?.entities.flatMap((entity) => entity.items) || []).map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.</p></div>', $("briefing-limit").hidden = !group || stats.total <= group.items.length;
+      tabs.render(groups, active), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = "Novedades detectadas: " + briefing2.total, $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" data-signal="${escape(row.name)}" ${row.total ? "" : "disabled"}><strong>${row.total}</strong><span>${escape(row.name)}</span></button>`).join(""), $("briefing-list").innerHTML = (group?.entities.flatMap((entity) => entity.items) || []).map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa entidades o segmentos. Una noticia sin se\xF1ales de producto permanece disponible en Noticias.</p></div>', $("briefing-limit").hidden = !group || stats.total <= group.items.length;
     }
     return { get geography() {
       return active;
@@ -2121,19 +2132,19 @@
       let value = ceiling * i / 4;
       return `<line x1="${left}" x2="${width - right}" y1="${y(value)}" y2="${y(value)}" class="chart-grid"/><text x="${left - 12}" y="${y(value) + 4}" text-anchor="end">${value}</text>`;
     }).join(""), labels2 = [.../* @__PURE__ */ new Set([0, Math.floor((buckets.length - 1) / 2), buckets.length - 1])].map((i) => `<text x="${x(i)}" y="${height - 12}" text-anchor="${i === 0 ? "start" : i === buckets.length - 1 ? "end" : "middle"}">${formatTrendDay(buckets[i], language)}</text>`).join(""), lines = series.map((row, i) => {
-      let points = row.values.map((value, index) => [x(index), y(value)]), path = points.map(([px, py], index) => (index ? "L" : "M") + px.toFixed(1) + "," + py.toFixed(1)).join(" "), color = "var(--chart-series-" + (i + 1) + ")";
-      return (series.length === 1 ? `<path d="${path} L${x(buckets.length - 1)},${y(0)} L${x(0)},${y(0)} Z" class="chart-area"/>` : "") + `<path d="${path}" stroke="${color}" class="chart-line"><title>${escape(row.entity)} \xB7 ${row.total} publicaciones</title></path>` + points.map(([px, py], j) => `<circle cx="${px}" cy="${py}" r="${buckets.length > 30 ? 2 : 4}" fill="${color}"><title>${escape(row.entity)} \xB7 ${buckets[j]} \xB7 ${row.values[j]} publicaciones</title></circle>`).join("");
+      let points = row.values.map((value, index) => [x(index), y(value)]), path = points.map(([px, py], index) => (index ? "L" : "M") + px.toFixed(1) + "," + py.toFixed(1)).join(" "), color = "var(--chart-series-" + (i + 1) + ")", area = series.length === 1 ? `<path d="${path} L${x(buckets.length - 1)},${y(0)} L${x(0)},${y(0)} Z" class="chart-area"/>` : "";
+      return `<g data-series="${i}">` + area + `<path d="${path}" stroke="${color}" class="chart-line"><title>${escape(row.entity)} \xB7 ${row.total} publicaciones</title></path>` + points.map(([px, py], j) => `<circle class="chart-point" data-point="${j}" tabindex="0" aria-label="${escape(row.entity)} \xB7 ${buckets[j]} \xB7 ${row.values[j]} publicaciones" cx="${px}" cy="${py}" r="4" fill="${color}"><title>${escape(row.entity)} \xB7 ${buckets[j]} \xB7 ${row.values[j]} publicaciones</title></circle>`).join("") + "</g>";
     }).join(""), legend = series.map((row, i) => `<span><i style="background:var(--chart-series-${i + 1})"></i>${escape(row.entity)}<strong>${row.total}</strong></span>`).join("");
-    return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Evoluci\xF3n del n\xFAmero de publicaciones por entidad"><title>Evoluci\xF3n de publicaciones por entidad</title>${ticks}${labels2}${lines}</svg><div class="chart-legend">${legend}</div>`;
+    return `<svg viewBox="0 0 ${width} ${height}" role="group" aria-label="Evoluci\xF3n del n\xFAmero de publicaciones por entidad"><title>Evoluci\xF3n de publicaciones por entidad</title>${ticks}${labels2}${lines}</svg><div class="chart-legend">${legend}</div>`;
   }
 
   // src/client/features/radar.js
-  function createRadar({ onCountry, onEntity, onNews }) {
+  function createRadar({ onCountry, onEntity, onSource, onNews }) {
     let signature = "", geographySignature = "", trend, chartWidth = 0;
     function renderTrend(width) {
       !trend || !width || (chartWidth = width, $("trend-chart").innerHTML = trendChart(trend, width));
     }
-    return new ResizeObserver((entries) => {
+    new ResizeObserver((entries) => {
       let width = entries[0].contentRect.width;
       width && Math.abs(width - chartWidth) > 1 && renderTrend(width);
     }).observe($("trend-chart")), $("map-panel").addEventListener("click", (event) => {
@@ -2147,7 +2158,26 @@
     }), $("entity-ranking").addEventListener("click", (event) => {
       let target = event.target.closest("[data-entity]");
       target && onEntity(target.dataset.entity);
-    }), $("radar-open-news").addEventListener("click", onNews), { render(data) {
+    }), $("publisher-chart").addEventListener("click", (event) => {
+      let button = event.target.closest("[data-source]");
+      button && onSource(button.dataset.source);
+    });
+    function highlightCountry(event) {
+      let target = event.target.closest("[data-country]"), country = target?.dataset.country;
+      $("map-panel").querySelectorAll("[data-country]").forEach((node) => node.classList.toggle("is-highlighted", !!(country && node.dataset.country === country)));
+    }
+    for (let name of ["pointerover", "focusin"]) $("map-panel").addEventListener(name, highlightCountry);
+    for (let name of ["pointerout", "focusout"]) $("map-panel").addEventListener(name, (event) => {
+      !event.relatedTarget || !$("map-panel").contains(event.relatedTarget) ? highlightCountry({ target: $("map-panel") }) : highlightCountry({ target: event.relatedTarget });
+    });
+    let tooltip = $("trend-tooltip");
+    function highlightPoint(event) {
+      let point = event.target.closest("[data-point]");
+      $("trend-chart").querySelectorAll("[data-series]").forEach((node) => node.classList.toggle("is-dimmed", !!(point && node.dataset.series !== point.closest("[data-series]").dataset.series))), tooltip.hidden = !point, point && (tooltip.textContent = point.getAttribute("aria-label"));
+    }
+    for (let name of ["pointerover", "focusin"]) $("trend-chart").addEventListener(name, highlightPoint);
+    for (let name of ["pointerout", "focusout"]) $("trend-chart").addEventListener(name, (event) => highlightPoint({ target: event.relatedTarget && $("trend-chart").contains(event.relatedTarget) ? event.relatedTarget : $("trend-chart") }));
+    return $("radar-open-news").addEventListener("click", onNews), { render(data) {
       let geography = JSON.stringify(data.geographies || []);
       if (geography !== geographySignature) {
         geographySignature = geography;
@@ -2173,7 +2203,7 @@
         return `<button type="button" class="geo-row" data-country="${escape(country)}"><span class="identity-label">${identityMark("countries", country, escape)}${escape(country)}</span><span class="geo-count">${count}</span><span class="geo-track"><span style="width:${count / max * 100}%"></span></span></button>`;
       }).join(""), $("map-note").textContent = radar2.unlocated ? t("{count} publicaciones sin geograf\xEDa conocida, excluidas del mapa.", { count: radar2.unlocated }) : "Todas las publicaciones de la selecci\xF3n tienen una geograf\xEDa conocida.", trend = radar2.trend, renderTrend($("trend-chart").clientWidth || 900), $("trend-period").textContent = radar2.trend.buckets.length ? radar2.trend.from + " \u2014 " + radar2.trend.to : "Sin publicaciones", $("trend-note").textContent = radar2.trend.intervalDays > 1 ? t("Volumen agrupado en intervalos de {days} d\xEDas.", { days: radar2.trend.intervalDays }) : "N\xFAmero de publicaciones por d\xEDa, incluidos los d\xEDas sin noticias.", $("entity-ranking").innerHTML = radar2.ranking.length ? radar2.ranking.slice(0, 6).map((row, i) => `<button type="button" class="ranking-row" data-entity="${escape(row.entity)}"><span class="ranking-index">${String(i + 1).padStart(2, "0")}</span>${identityMark("entities", row.entity, escape)}<span class="ranking-name">${escape(row.entity)}<span class="ranking-track"><span style="width:${row.total / Math.max(1, radar2.summary.news) * 100}%"></span></span></span><strong>${row.total}</strong></button>`).join("") : '<p class="muted">Las entidades aparecer\xE1n al ampliar tu selecci\xF3n.</p>', $("ranking-note").textContent = radar2.ranking.length > 6 ? "Se muestran las seis entidades con m\xE1s publicaciones." : "Selecciona una entidad para explorar su actualidad.";
       let publishers = radar2.publishers || [], publisherMax = Math.max(1, ...publishers.map((row) => row.total)), available = radar2.available;
-      $("publisher-evidence").textContent = t("Se muestran los seis medios con m\xE1s publicaciones.") + " " + (available ? t("Per\xEDodo") + ": " + radar2.trend.from + " \u2014 " + radar2.trend.to + ". " + t("Noticias recuperadas") + ": " + available.total + "; " + t("Noticias de la selecci\xF3n") + ": " + radar2.summary.news + ". " + t("Los recuentos reflejan la recuperaci\xF3n disponible y los filtros, no toda la producci\xF3n del medio.") : ""), $("publisher-chart").innerHTML = publishers.length ? publishers.map((row) => `<div class="ranking-row"><span class="ranking-name" data-original>${identityMark("publishers", row.publisher, escape)}${escape(row.publisher)}<span class="ranking-track"><span style="width:${row.total / publisherMax * 100}%"></span></span></span><strong>${row.total}</strong></div>`).join("") : '<p class="muted">Sin publicaciones</p>', $("radar-publisher").textContent = radar2.topPublisher || "Sin publicaciones";
+      $("publisher-evidence").textContent = t("Se muestran los seis medios con m\xE1s publicaciones.") + " " + (available ? t("Per\xEDodo") + ": " + radar2.trend.from + " \u2014 " + radar2.trend.to + ". " + t("Noticias recuperadas") + ": " + available.total + "; " + t("Noticias de la selecci\xF3n") + ": " + radar2.summary.news + ". " + t("Los recuentos reflejan la recuperaci\xF3n disponible y los filtros, no toda la producci\xF3n del medio.") : ""), $("publisher-chart").innerHTML = publishers.length ? publishers.map((row) => `<button type="button" class="ranking-row" data-source="${escape(row.publisher)}"><span class="ranking-name" data-original>${identityMark("publishers", row.publisher, escape)}${escape(row.publisher)}<span class="ranking-track"><span style="width:${row.total / publisherMax * 100}%"></span></span></span><strong>${row.total}</strong></button>`).join("") : '<p class="muted">Sin publicaciones</p>', $("radar-publisher").textContent = radar2.topPublisher || "Sin publicaciones";
     } };
   }
 
@@ -2259,15 +2289,15 @@
   // src/client/features/filters.js
   function createFilters({ onInvalidate, onChange }) {
     let form = $("filters"), page = 0, view = defaultView, defaults = {}, edition = "", newsGeography = "", editionSelection = {}, taxonomy2 = [], applied = {}, dirty = !1, selections = /* @__PURE__ */ new Map(), initialized = /* @__PURE__ */ new Set();
-    function options(name, values) {
+    function options(name, values, selected2) {
       name === "coverage" && (values = Object.keys(coverageOptions));
-      let el = form.elements[name], current2 = el.value;
+      let el = form.elements[name], current2 = selected2 ?? el.value;
       current2 && !values.includes(current2) && (values = [...values, current2]);
       let signature = JSON.stringify(values);
       el.dataset.options !== signature && (el.dataset.options = signature, el.innerHTML = '<option value="">Todos</option>' + values.map((x) => '<option value="' + escape(x) + '">' + escape(name === "subpalanca" ? taxonomySubLabel(x) : name === "coverage" ? coverageOptions[x] : x) + "</option>").join(""), el.value = current2 || "");
     }
     function layout() {
-      $(view + "-filter-chips").appendChild($("active-filters")), $("geography-filter").hidden = !1, $("advanced-filters").hidden = !1, view !== "news" && ($("advanced-filters").open = !1);
+      $("geography-filter").hidden = !1, $("advanced-filters").hidden = !1, view !== "news" && ($("advanced-filters").open = !1);
       for (let id of ["from-filter", "to-filter"]) $(id).hidden = !1;
       $("filter-description").textContent = "Edita los criterios y pulsa Aplicar filtros para actualizar los resultados.";
     }
@@ -2377,7 +2407,7 @@
       render: (data) => {
         let draft = dirty ? Object.fromEntries(new FormData(form)) : null;
         taxonomy2 = data.subpalanca || [], page = data.page, newsGeography = data.newsGeography || "", defaults = data.defaults || defaults, initialized.add(view);
-        for (let [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type", "types"], ["segment", "segments"], ["signal", "signals"], ["palanca", "palanca"], ["subpalanca", "subpalanca"]]) options(name, data[key] || []);
+        for (let [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type", "types"], ["segment", "segments"], ["signal", "signals"], ["palanca", "palanca"], ["subpalanca", "subpalanca"]]) options(name, data[key] || [], data.selection?.[name]);
         if (data.selection) for (let input of form.elements) input.name && (input.value = data.selection[input.name] || "");
         if (syncTaxonomyControls(form, taxonomy2), applied = data.selection ? { ...data.selection } : Object.fromEntries(new FormData(form)), renderChips(), draft) {
           for (let input of form.elements) input.name && (input.value = draft[input.name] || "");
@@ -2400,16 +2430,24 @@
   }
 
   // src/client/features/news.js
-  function renderNews(data) {
-    let index = 0;
-    $("news-list").innerHTML = data.items.length ? newsEntityGroups(data.items).map((group) => `<section class="news-entity-group" aria-label="${escape(group.name)}"><h2 class="news-entity-heading" data-original>${identityMark("entities", group.name, escape)}${escape(group.name)}</h2>${group.items.map((n) => `<article class="news-item"><span class="news-index" aria-hidden="true">${String(data.page * data.pageSize + ++index).padStart(2, "0")}</span><div>${articleContent(n, data.selection)}</div></article>`).join("")}</section>`).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>', $("result-count").textContent = data.total + " publicaciones", $("page-label").textContent = data.total ? t("P\xE1gina {page} de {pages}", { page: data.page + 1, pages: Math.ceil(data.total / data.pageSize) }) : "Sin resultados", $("previous").disabled = data.page === 0, $("next").disabled = (data.page + 1) * data.pageSize >= data.total;
+  function renderNews(data, appended = null) {
+    let list = $("news-list"), index = appended ? data.items.length - appended.length : 0, articles = (items) => items.map((n) => `<article class="news-item"><span class="news-index" aria-hidden="true">${String(++index).padStart(2, "0")}</span><div>${articleContent(n, data.selection)}</div></article>`).join(""), groupHtml = (group) => `<section class="news-entity-group" aria-label="${escape(group.name)}"><h2 class="news-entity-heading" data-original>${identityMark("entities", group.name, escape)}${escape(group.name)}</h2>${articles(group.items)}</section>`;
+    if (appended)
+      for (let group of newsEntityGroups(appended)) {
+        let last = list.lastElementChild;
+        last?.getAttribute("aria-label") === group.name ? last.insertAdjacentHTML("beforeend", articles(group.items)) : list.insertAdjacentHTML("beforeend", groupHtml(group));
+      }
+    else list.innerHTML = data.items.length ? newsEntityGroups(data.items).map(groupHtml).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>';
+    $("result-count").textContent = data.total + " publicaciones", $("page-label").textContent = data.total ? t("{visible} de {total} publicaciones", { visible: data.items.length, total: data.total }) : "Sin resultados", $("next").disabled = (data.page + 1) * data.pageSize >= data.total;
   }
 
   // src/client/features/shell.js
   function renderShell(data) {
     $("last-run").textContent = date(data.lastRun);
-    let daily = data.daily ? "Diaria \xB7 " + data.preferences.dailyLabel : "Recopilaci\xF3n diaria desactivada";
-    $("daily-status").textContent = daily, $("daily-sidebar").textContent = daily, document.querySelectorAll("[data-admin]").forEach((el) => el.hidden = !data.admin), $("sheet-link").hidden = !0, data.admin && validUrl(data.sheetUrl) && ($("sheet-link").href = data.sheetUrl, $("sheet-link").hidden = !1);
+    let selection = data.selection || {};
+    $("selection-freshness").textContent = [selection.from && selection.to ? t("Per\xEDodo") + ": " + formatCalendarDay(selection.from, language) + " \u2014 " + formatCalendarDay(selection.to, language) : "", t("\xDAltima recopilaci\xF3n") + ": " + date(data.lastRun)].filter(Boolean).join(" \xB7 ");
+    let daily = data.daily ? data.preferences.dailyLabel : "Recopilaci\xF3n diaria desactivada";
+    $("daily-sidebar").textContent = daily, document.querySelectorAll("[data-admin]").forEach((el) => el.hidden = !data.admin), $("sheet-link").hidden = !0, data.admin && validUrl(data.sheetUrl) && ($("sheet-link").href = data.sheetUrl, $("sheet-link").hidden = !1);
   }
 
   // src/client/features/source-catalog.js
@@ -2505,7 +2543,7 @@
       if (!(!(view in config_default.views) || view === "administration" && !isAdmin())) {
         current = view, $("reading-context").hidden = $("reading-context").dataset.available !== "true" || !["news", "briefing", "radar"].includes(view), window.scrollTo({ top: 0, behavior: "auto" }), track2("vista");
         for (let name of Object.keys(config_default.views)) $(name + "-section").hidden = name !== view;
-        onPanel(view), $("sidebar-context-title").textContent = view === "administration" ? "Gesti\xF3n de News Radar" : "Seguimiento personalizado", $("sidebar-context-copy").textContent = view === "administration" ? "Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicaci\xF3n." : "Las suscripciones tienen sus propios filtros. Cambiar la selecci\xF3n de noticias no modifica lo que recibes por correo.", $("sidebar-context").hidden = !["administration", "subscriptions"].includes(view), $("export").hidden = view !== "news", $("page-title").textContent = config_default.views[view], document.querySelectorAll("[data-view]").forEach((button) => {
+        onPanel(view), $("active-filters").hidden = !["news", "briefing", "radar"].includes(view), $("selection-freshness").hidden = !["news", "briefing", "radar"].includes(view), $("sidebar-context-title").textContent = view === "administration" ? "Gesti\xF3n de News Radar" : "Seguimiento personalizado", $("sidebar-context-copy").textContent = view === "administration" ? "Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicaci\xF3n." : "Las suscripciones tienen sus propios filtros. Cambiar la selecci\xF3n de noticias no modifica lo que recibes por correo.", $("sidebar-context").hidden = !["administration", "subscriptions"].includes(view), $("export").hidden = view !== "news", $("page-title").textContent = config_default.views[view], document.querySelectorAll("[data-view]").forEach((button) => {
           button.dataset.view === view ? button.setAttribute("aria-current", "page") : button.removeAttribute("aria-current");
         });
         try {
@@ -2613,9 +2651,9 @@
   } }), briefing = createBriefing(), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters4.setGeography(name));
   $("briefing-signals").addEventListener("click", (event) => {
     let button = event.target.closest("[data-signal]");
-    button && filters4.apply({ ...filters4.query(), country: briefing.geography, signal: button.dataset.signal });
+    button && !button.disabled && filters4.apply({ ...filters4.query(), country: filters4.query().country || briefing.geography, signal: button.dataset.signal });
   });
-  var radar = createRadar({ onCountry: (country) => {
+  var radar = createRadar({ onSource: (source) => filters4.set("source", source), onCountry: (country) => {
     filters4.show("news"), filters4.apply({ ...state.data.selection, country }), navigation.show("news");
   }, onEntity: (entity) => filters4.set("entity", entity), onNews: () => {
     let selection = state.data.selection;
@@ -2623,19 +2661,20 @@
   } }), sources = createSources({ getData: () => state.data, run: action }), recoveryControls = createRecoveryControls({ getData: () => state.data, run: action }), collectionProgress = createCollectionProgress({ reload: load, isBusy: () => state.busy || !$("loading").hidden, onStatus: (status) => {
     state.data && (state.data.collection = status), state.data?.admin && renderCollectionJobs(status);
   } });
-  function renderSelection(data, view = navigation.current) {
-    reading.render(data, view), view === "news" && (renderNews(data), newsTabs.render(data.newsGeographies || [], data.newsGeography || "")), view === "radar" && (radar.render(data), heatmap.render(data)), view === "briefing" && briefing.render(data);
+  function renderSelection(data, view = navigation.current, appended = null) {
+    reading.render(data, view), view === "news" && (renderNews(data, appended), newsTabs.render(data.newsGeographies || [], data.newsGeography || "")), view === "radar" && (radar.render(data), heatmap.render(data)), view === "briefing" && briefing.render(data);
   }
   async function load() {
     let request3 = ++state.request, started = performance.now();
     if (filters4.isValid())
       try {
-        let administrative = navigation.current === "administration", query = administrative ? { view: administration.current, language: filters4.query().language } : filters4.query(), data = await call("getDashboard", query);
-        if (request3 === state.request) {
+        let administrative = navigation.current === "administration", query = administrative ? { view: administration.current, language: filters4.query().language } : filters4.query(), data = await call("getDashboard", query), appended = null;
+        if (request3 !== state.request) return;
+        if (query.view === "news" && query.page > 0 && (state.data?.newsRevision === data.newsRevision && data.page === query.page ? (appended = data.items, data = { ...data, items: [...state.data.items, ...appended] }) : data = await call("getDashboard", { ...query, page: 0 })), request3 === state.request) {
           let first = !state.data;
           administrative && state.data ? (state.contentStale ||= data.newsRevision !== state.data.newsRevision || data.configurationRevision !== state.data.configurationRevision, data = { ...state.data, ...data, selection: state.data.selection, context: state.data.context }) : state.contentStale = !1, state.data = data, setTimezone(data.preferences?.timezone), window.RADAR_PREVIEW && data.admin && ($("preview-banner").textContent = "Administraci\xF3n local \xB7 cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.");
           let renderStarted = performance.now();
-          administrative || filters4.render(data), renderSelection(data), data.preferences && ($("retention-days").textContent = data.preferences.retentionDays, $("event-limit").textContent = data.preferences.eventLimit), renderShell(data), data.admin && sources.render(data), collectionProgress.update(data), flushLocalization(), track("rendimiento", performance.now() - started, { ...data.performance, rpcMs: Math.round(renderStarted - started), renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
+          administrative || filters4.render(data), renderSelection(data, navigation.current, appended), data.preferences && ($("retention-days").textContent = data.preferences.retentionDays, $("event-limit").textContent = data.preferences.eventLimit), renderShell(data), data.admin && sources.render(data), collectionProgress.update(data), flushLocalization(), track("rendimiento", performance.now() - started, { ...data.performance, rpcMs: Math.round(renderStarted - started), renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
         }
       } catch (error) {
         request3 === state.request && (track("error"), message(error.message || String(error), !0));
@@ -2650,13 +2689,10 @@
       } catch (e) {
         message(e.message || String(e), !0);
       } finally {
-        state.busy = !1, document.querySelectorAll(actionControls).forEach((el) => el.disabled = el.dataset.jobActive === "true"), sources.setBusy(!1), recoveryControls.setBusy(!1), state.data && ($("previous").disabled = state.data.page === 0, $("next").disabled = (state.data.page + 1) * state.data.pageSize >= state.data.total);
+        state.busy = !1, document.querySelectorAll(actionControls).forEach((el) => el.disabled = el.dataset.jobActive === "true"), sources.setBusy(!1), recoveryControls.setBusy(!1), state.data && ($("next").disabled = (state.data.page + 1) * state.data.pageSize >= state.data.total);
       }
     }
   }
-  $("previous").addEventListener("click", () => {
-    filters4.setPage(state.data.page - 1), load();
-  });
   $("next").addEventListener("click", () => {
     filters4.setPage(state.data.page + 1), load();
   });

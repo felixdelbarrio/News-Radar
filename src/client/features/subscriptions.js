@@ -7,7 +7,7 @@ import {filterRecords,recordOptions,recordPage} from '../../shared/record-filter
 import {createRecordFilters} from './record-filters.js';
 import {periods,subscriptionForm,subscriptionCards} from './subscription-templates.js';
 export function createSubscriptions({run,onApply}){
-  let options,own=[],all=[];
+  let options,own=[],all=[],request=0;
   const filters={};
   function render(admin){
     const id=admin?'subscribers':'subscriptions',rows=admin?all:own;
@@ -19,7 +19,8 @@ export function createSubscriptions({run,onApply}){
   const editorId=admin=>admin?'admin-subscription-editor':'personal-editor';
   function edit(admin,row){const target=$(editorId(admin));target.hidden=false;target.innerHTML=subscriptionForm(options,admin,row);}
   async function open(admin=false){
-    const [settings,rows]=await Promise.all([call('getNewsletterOptions'),call(admin?'getAdminSubscriptions':'getSubscriptions')]);options=settings;
+    const current=++request;
+    const [settings,rows]=await Promise.all([call('getNewsletterOptions'),call(admin?'getAdminSubscriptions':'getSubscriptions')]);if(current!==request)return;options=settings;
     if(admin){all=rows;$('subscribers-count').textContent=t('{subscribers} suscriptores · {subscriptions} suscripciones',{subscribers:new Set(rows.map(r=>r.correo)).size,subscriptions:rows.length});render(true);}
     else{own=rows;$('subscriptions-count').textContent=t('{subscriptions} suscripciones · {active} activas',{subscriptions:rows.length,active:rows.filter(row=>row.activa).length});render(false);$('newsletter-delivery-status').textContent=options.enabled?'Entrega periódica activa. Recibirás el contenido de tu selección según su periodicidad.':'Puedes guardar tu suscripción. El administrador todavía debe activar la entrega.';}
     edit(admin);if(admin)$(editorId(admin)).hidden=true;if(!admin)$('newsletter-default-period').textContent=periods[options.defaults.periodicity]+' por defecto';

@@ -11,9 +11,9 @@ function configuration_(){
   return configurationMemory_=config;
 }
 function invalidateConfiguration_(){configurationMemory_=undefined;configurationVersionMemory_=undefined;properties_().setProperty('CONFIG_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));}
-function configurationEdited_(event){const sheet=event?.range?.getSheet().getName();if(configurationPaused_()&&['Configuracion','Noticias'].includes(sheet)){deferConfigurationWork_(sheet==='Configuracion'?'edited':'news');return;}if(sheet==='Configuracion'){invalidateConfiguration_();requestNewsClassification_(true);}else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
+function configurationEdited_(event){const sheet=event?.range?.getSheet().getName();if(backgroundPaused_()&&['Configuracion','Noticias'].includes(sheet)){deferBackgroundWork_(sheet==='Configuracion'?'edited':'news');return;}if(sheet==='Configuracion'){invalidateConfiguration_();requestNewsClassification_(true);}else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
 function initializeConfiguration(){
-  authorize_(true);return withConfigurationPause_(()=>{
+  authorize_(true);return withForegroundWrite_(()=>{
     const refreshCatalog=properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION;
     const news=book_().getSheetByName('Noticias');
     if(news&&news.getRange(1,8,1,1).getDisplayValues()[0][0]==='tema')news.deleteColumn(8);
@@ -121,7 +121,7 @@ function configurationRevision_(){configuration_();return configurationVersionMe
 function getConfiguration(){authorize_(true);return {config:configuration_(),revision:configurationRevision_(),capabilityDefaults:CONFIGURATION_DEFAULTS.capabilities};}
 function saveConfiguration(payload){authorize_(true);return writeConfiguration_(payload.config,payload.revision);}
 function writeConfiguration_(config,revision){
-  validateConfiguration_(config);return withConfigurationPause_(()=>{
+  validateConfiguration_(config);return withForegroundWrite_(()=>{
     if(revision!==String(properties_().getProperty('CONFIG_REVISION')||'0'))throw Error('La configuración ha cambiado en otra sesión. Recarga los catálogos antes de guardar.');
     const reclassify=classificationRulesRevision_()!==classificationRulesRevision_(config);
     const sheet=book_().getSheetByName('Configuracion'),rows=Object.entries(config).map(([key,value])=>[key,JSON.stringify(value)]);

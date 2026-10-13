@@ -88,7 +88,7 @@ test('un único trabajador serializa diaria, anual y traducción, y alterna los 
  const lock=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};assert.equal(c.backgroundTick_().busy,true);assert.equal(order.length,4);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);c.LockService=lock;
 });
 test('la inicialización elimina trabajadores antiguos, conserva tareas y recrea los horarios desde configuración',()=>{
- const s=server(),c=s.c;addJob(s,'annual','annual',1);c.enableDaily();for(const name of ['collectionTick_','collectionWake_','translationTick_'])c.ScriptApp.newTrigger(name).timeBased().create();c.initializeConfiguration();assert.equal(s.properties['CONFIGURATION_PENDING:background'],'true');c.configurationWake_();
+ const s=server(),c=s.c;addJob(s,'annual','annual',1);c.enableDaily();for(const name of ['collectionTick_','collectionWake_','translationTick_'])c.ScriptApp.newTrigger(name).timeBased().create();c.initializeConfiguration();assert.equal(s.properties['WORK_PENDING:background'],'true');c.workWake_();
  const scheduled=c.ScriptApp.getProjectTriggers();assert.ok(!scheduled.some(t=>['collectionTick_','collectionWake_','translationTick_'].includes(t.handler)));assert.equal(c.rows_('Recopilacion').length,1);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
  const daily=c.scheduledTriggers_('dailyRadar_')[0],translation=c.scheduledTriggers_('nightlyTranslations_')[0];assert.equal(daily.hour,c.settings_().dailyHour);assert.equal(translation.hour,2);assert.equal(translation.minute,0);assert.equal(translation.timezone,c.settings_().timezone);assert.equal(translation.days,1);
  const cfg=JSON.parse(JSON.stringify(c.configuration_()));cfg.settings.dailyHour=8;cfg.settings.timezone='Europe/Istanbul';c.writeConfiguration_(cfg,c.configurationRevision_());assert.equal(c.scheduledTriggers_('dailyRadar_')[0].hour,8);assert.equal(c.scheduledTriggers_('nightlyTranslations_')[0].timezone,'Europe/Istanbul');
@@ -115,8 +115,8 @@ test('relanzar diaria o anual reutiliza una única línea por tipo y conserva el
 
 test('la configuración detiene al trabajador entre lotes y conserva las tareas para reanudar',()=>{
  const s=server(),c=s.c;addJob(s,'maintenance','annual',50);const collect=c.collectionBatch_;let batches=0;
- c.collectionBatch_=work=>{batches++;const result=collect(work);s.properties.CONFIGURATION_PAUSED_UNTIL=String(Date.now()+600000);return result;};
- c.processBackground_();assert.equal(batches,1);assert.equal(c.collectionJobs_()[0].pendientes,'38');assert.equal(s.properties['CONFIGURATION_PENDING:background'],'true');
- delete s.properties.CONFIGURATION_PAUSED_UNTIL;c.collectionBatch_=collect;c.configurationWake_();c.processBackground_();
+ c.collectionBatch_=work=>{batches++;const result=collect(work);s.properties['WORK_INTENT:test']=String(Date.now()+600000);return result;};
+ c.processBackground_();assert.equal(batches,1);assert.equal(c.collectionJobs_()[0].pendientes,'38');assert.equal(s.properties['WORK_PENDING:background'],'true');
+ delete s.properties['WORK_INTENT:test'];c.collectionBatch_=collect;c.workWake_();c.processBackground_();
  assert.equal(c.collectionJobs_()[0].pendientes,'2');assert.equal(c.collectionJobs_()[0].procesadas,'48');
 });

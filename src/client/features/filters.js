@@ -11,9 +11,9 @@ function createFilters({ onInvalidate, onChange }) {
   const form = $("filters");
   let page = 0, view=defaultView, defaults={},edition='',newsGeography='',editionSelection={},taxonomy=[],applied={},dirty=false;
   const selections=new Map(),initialized=new Set();
-  function options(name, values) {
+  function options(name, values, selected) {
     if(name==='coverage')values=Object.keys(coverageOptions);
-    const el = form.elements[name], current = el.value;
+    const el = form.elements[name], current = selected ?? el.value;
     if(current&&!values.includes(current))values=[...values,current];
     const signature = JSON.stringify(values);
     if (el.dataset.options === signature) return;
@@ -22,7 +22,6 @@ function createFilters({ onInvalidate, onChange }) {
     el.value = current || "";
   }
   function layout(){
-      $(view+'-filter-chips').appendChild($('active-filters'));
       $('geography-filter').hidden=false;
       $('advanced-filters').hidden=false;
       if(view!=='news')$('advanced-filters').open=false;
@@ -123,7 +122,7 @@ function createFilters({ onInvalidate, onChange }) {
       taxonomy=data.subpalanca||[];page = data.page;newsGeography=data.newsGeography||'';
       defaults=data.defaults||defaults;
       initialized.add(view);
-      for (const [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type","types"], ["segment","segments"], ["signal","signals"], ["palanca","palanca"], ["subpalanca","subpalanca"]]) options(name, data[key]||[]);
+      for (const [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type","types"], ["segment","segments"], ["signal","signals"], ["palanca","palanca"], ["subpalanca","subpalanca"]]) options(name, data[key]||[],data.selection?.[name]);
       if(data.selection)for(const input of form.elements)if(input.name)input.value=data.selection[input.name]||'';
       syncTaxonomyControls(form,taxonomy);applied=data.selection?{...data.selection}:Object.fromEntries(new FormData(form));renderChips();
       if(draft){for(const input of form.elements)if(input.name)input.value=draft[input.name]||'';syncTaxonomyControls(form,taxonomy);}

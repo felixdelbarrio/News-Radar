@@ -2,7 +2,7 @@ import {identityMark} from '../../shared/visual-identity.js';
 import { $, escape, metricCards } from "../core/dom.js";
 import {language,t} from '../core/language.js';
 import { trendChart } from "./trend-chart.js";
-function createRadar({ onCountry, onEntity, onNews }) {
+function createRadar({ onCountry, onEntity, onSource, onNews }) {
   let signature = "", geographySignature="", trend, chartWidth=0;
   function renderTrend(width){
     if(!trend||!width)return;
@@ -27,6 +27,21 @@ function createRadar({ onCountry, onEntity, onNews }) {
     const target = event.target.closest("[data-entity]");
     if (target) onEntity(target.dataset.entity);
   });
+  $('publisher-chart').addEventListener('click',event=>{const button=event.target.closest('[data-source]');if(button)onSource(button.dataset.source);});
+  function highlightCountry(event){
+    const target=event.target.closest('[data-country]'),country=target?.dataset.country;
+    $('map-panel').querySelectorAll('[data-country]').forEach(node=>node.classList.toggle('is-highlighted',Boolean(country&&node.dataset.country===country)));
+  }
+  for(const name of ['pointerover','focusin'])$('map-panel').addEventListener(name,highlightCountry);
+  for(const name of ['pointerout','focusout'])$('map-panel').addEventListener(name,event=>{if(!event.relatedTarget||!$('map-panel').contains(event.relatedTarget))highlightCountry({target:$('map-panel')});else highlightCountry({target:event.relatedTarget});});
+  const tooltip=$('trend-tooltip');
+  function highlightPoint(event){
+    const point=event.target.closest('[data-point]');
+    $('trend-chart').querySelectorAll('[data-series]').forEach(node=>node.classList.toggle('is-dimmed',Boolean(point&&node.dataset.series!==point.closest('[data-series]').dataset.series)));
+    tooltip.hidden=!point;if(point){tooltip.textContent=point.getAttribute('aria-label');}
+  }
+  for(const name of ['pointerover','focusin'])$('trend-chart').addEventListener(name,highlightPoint);
+  for(const name of ['pointerout','focusout'])$('trend-chart').addEventListener(name,event=>highlightPoint({target:event.relatedTarget&&$('trend-chart').contains(event.relatedTarget)?event.relatedTarget:$('trend-chart')}));
   $("radar-open-news").addEventListener("click", onNews);
   return { render(data) {
     const geography=JSON.stringify(data.geographies||[]);
@@ -73,7 +88,7 @@ function createRadar({ onCountry, onEntity, onNews }) {
     $("ranking-note").textContent = radar.ranking.length > 6 ? "Se muestran las seis entidades con más publicaciones." : "Selecciona una entidad para explorar su actualidad.";
     const publishers=radar.publishers||[],publisherMax=Math.max(1,...publishers.map(row=>row.total));
     const available=radar.available;$('publisher-evidence').textContent=t('Se muestran los seis medios con más publicaciones.')+' '+(available?t('Período')+': '+radar.trend.from+' — '+radar.trend.to+'. '+t('Noticias recuperadas')+': '+available.total+'; '+t('Noticias de la selección')+': '+radar.summary.news+'. '+t('Los recuentos reflejan la recuperación disponible y los filtros, no toda la producción del medio.'):'');
-    $('publisher-chart').innerHTML=publishers.length?publishers.map(row=>`<div class="ranking-row"><span class="ranking-name" data-original>${identityMark('publishers',row.publisher,escape)}${escape(row.publisher)}<span class="ranking-track"><span style="width:${row.total/publisherMax*100}%"></span></span></span><strong>${row.total}</strong></div>`).join(''):'<p class="muted">Sin publicaciones</p>';
+    $('publisher-chart').innerHTML=publishers.length?publishers.map(row=>`<button type="button" class="ranking-row" data-source="${escape(row.publisher)}"><span class="ranking-name" data-original>${identityMark('publishers',row.publisher,escape)}${escape(row.publisher)}<span class="ranking-track"><span style="width:${row.total/publisherMax*100}%"></span></span></span><strong>${row.total}</strong></button>`).join(''):'<p class="muted">Sin publicaciones</p>';
     $("radar-publisher").textContent = radar.topPublisher || "Sin publicaciones";
   } };
 }

@@ -22,7 +22,7 @@ function requestDailyCollection_(now=new Date()){requestCollection_('daily',coll
 function dailyRadar_(){scheduledCollection_('daily');}
 function projectFinanceRadar_(){scheduledCollection_('projectFinance');}
 function scheduledCollection_(kind){
-  if(configurationPaused_()){deferConfigurationWork_(kind);return;}
+  if(backgroundPaused_()){deferBackgroundWork_(kind);return;}
   queueScheduledCollection_(kind);backgroundTick_();
 }
 function queueScheduledCollection_(kind){
@@ -41,7 +41,7 @@ function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
       const changed=jobs.filter(job=>previous.get(job.id)!==JSON.stringify(job));for(const job of changed)writeCollectionJob_(job);if(changed.length)SpreadsheetApp.flush();
       return {...collectionStatus_(tasks,jobs),added:0,evaluated:0,errors:[]};
     }
-    const feeds=collectionFeedIndex_(),known=knownIndex||knownUrls_(),now=new Date(),updates=new Map(tasks.map(task=>[task.row,[task.estado,task.intentos,task.actualizada,task.evaluadas,task.nuevas,task.error]]));
+    const feeds=collectionFeedIndex_(),known=knownIndex||knownUrls_(),now=new Date(),updates=new Map(pending.map(task=>[task.row,[task.estado,task.intentos,task.actualizada,task.evaluadas,task.nuevas,task.error]]));
     const jobIndex=new Map(jobs.map(job=>[job.id,job]));
     const affected=new Set(pending.map(task=>task.ciclo));for(const job of jobs)if(affected.has(job.id)){job.estado='En curso';writeCollectionJob_(job);}
     CacheService.getScriptCache().remove('collection-status');
@@ -68,7 +68,7 @@ function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
     append_('Noticias',news);let sorted=false;
     append_('Auditoria',audit);append_('Recopilacion',newTasks);
     writeCollectionTasks_(pending,updates);
-    if((news.length||tasks.some(task=>Number(task.nuevas)>0))&&!newTasks.length&&[...updates.values()].every(row=>!['Pendiente','Reintento programado'].includes(row[0]))){const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1;if(count>1){if(classificationPending_())requestNewsClassification_(true);sheet.getRange(2,1,count,RADAR.sheets.Noticias.length).sort({column:2,ascending:true});sorted=true;}}
+    if((news.length||tasks.some(task=>Number(task.nuevas)>0))&&!newTasks.length&&tasks.every(task=>!['Pendiente','Reintento programado'].includes(task.estado))){const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1;if(count>1){if(classificationPending_())requestNewsClassification_(true);sheet.getRange(2,1,count,RADAR.sheets.Noticias.length).sort({column:2,ascending:true});sorted=true;}}
     if(news.length||sorted){SpreadsheetApp.flush();invalidateNews_();}
     if(news.some(row=>businessNews_(Object.fromEntries(RADAR.sheets.Noticias.map((key,index)=>[key,row[index]])))))requestTranslations_(true);
     append_('Ejecuciones',[...affected].map(id=>{const batch=pending.filter(task=>task.ciclo===id),rows=batch.map(task=>updates.get(task.row)),failures=rows.map(row=>row[5]).filter(Boolean);return [id,now.toISOString(),new Date().toISOString(),failures.length?'Parcial':'Completada',batch.length,rows.reduce((sum,row)=>sum+Number(row[3]),0),rows.reduce((sum,row)=>sum+Number(row[4]),0),failures.join(' | ')];}));
@@ -81,15 +81,14 @@ function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
   }catch(error){telemetry_('recopilacion',Date.now()-started,'Error',error.message);throw error;}
 }
 function retryCollectionErrors() {
-  authorize_(true);const lock=LockService.getScriptLock();lock.waitLock(10000);
-  try{
+  authorize_(true);return withForegroundWrite_(()=>{
     const tasks=rows_('Recopilacion');let count=0;
     const values=tasks.map(task=>{if(task.estado==='Error'){task.estado='Pendiente';task.intentos=0;task.error='';count++;}return [task.estado,task.intentos,task.actualizada,task.evaluadas,task.nuevas,task.error];});
     if(count){book_().getSheetByName('Recopilacion').getRange(2,4,values.length,6).setNumberFormat('@').setValues(values.map(row=>row.map(safeCell_)));ensureBackgroundWorker_();}
     const jobs=collectionJobs_();for(const job of jobs)job.pausa='';collectionSnapshots_(tasks,jobs);for(const job of jobs)writeCollectionJob_(job);
     CacheService.getScriptCache().remove('collection-status');
     return count+' fuentes preparadas para reintentar.';
-  }finally{lock.releaseLock();}
+  });
 }
 
 function writeCollectionTasks_(pending,updates){
