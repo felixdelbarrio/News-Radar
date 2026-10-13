@@ -1,3 +1,4 @@
+function serviceQuotaPause_(error){return /for one day|daily quota|quota exceeded|limit exceeded/i.test(String(error?.message||error))?86400000:0;}
 function scheduledTriggers_(handler){return ScriptApp.getProjectTriggers().filter(trigger=>trigger.getHandlerFunction()===handler);}
 function dailyScheduleStatus_(){
   const cache=CacheService.getScriptCache(),key='daily-schedule',cached=cache.get(key);
@@ -22,7 +23,9 @@ function ensureBackgroundWorker_(delay=60000){
 }
 function translationReadyAt_(){
   const job=translationJob_(),request=properties_().getProperty('TRANSLATION_REQUEST'),today=recordDay(new Date(),settings_().timezone);
-  if(translationCallsToday_()>=TRANSLATION_WORK.dailyCalls)return Infinity;
+  if(!request&&(!job||job.state==='Completada'))return Infinity;
+  const paused=Number(properties_().getProperty('TRANSLATION_PAUSED_UNTIL')||0);if(paused>Date.now())return paused;
+  if(translationCallsToday_()>=TRANSLATION_WORK.dailyCalls)return Date.now()+86400000;
   if(request&&(!job||job.state==='Completada'||recordDay(job.started,settings_().timezone)<today))return Date.now();
   return job&&job.state!=='Completada'?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;
 }
@@ -31,15 +34,20 @@ function collectionReadyAt_(work){
   for(const task of work.tasks){
     if(!['Pendiente','Reintento programado'].includes(task.estado)||!jobs.has(task.ciclo))continue;
     represented.add(task.ciclo);const retry=task.estado==='Reintento programado'?Date.parse(task.actualizada)+settings_().retryMinutes*60000:0;
-    next=Math.min(next,Math.max(Date.now(),Number(jobs.get(task.ciclo).pausa||0),retry));
+    next=Math.min(next,Math.max(Date.now(),Number(jobs.get(task.ciclo).pausa||0),Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0),retry));
   }
-  for(const job of work.jobs)if(Number(job.pendientes)>0&&!represented.has(job.id))next=Math.min(next,Math.max(Date.now(),Number(job.pausa||0)));
+  for(const job of work.jobs)if(Number(job.pendientes)>0&&!represented.has(job.id))next=Math.min(next,Math.max(Date.now(),Number(job.pausa||0),Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0)));
   return next;
 }
 function backgroundTick_(){return processBackground_();}
+function businessTranslationPending_(){return Boolean(properties_().getProperty('TRANSLATION_PRIORITY_REQUEST')||translationJob_()?.businessPending>0);}
+function businessPipelinePending_(){return newsletterCollectionPriority_()||classificationReadyAt_()<=Date.now()||businessTranslationPending_()&&translationReadyAt_()<=Date.now()||taxonomyReadyAt_()<=Date.now();}
 function backgroundTask_(work,daily){
   if(daily)return 'collection';
-  const available={collection:work.pending.length>0,translation:translationReadyAt_()<=Date.now(),classification:classificationReadyAt_()<=Date.now(),taxonomy:!work.pending.length&&taxonomyReadyAt_()<=Date.now(),taxonomyTranslation:!work.pending.length&&taxonomyTranslationReadyAt_()<=Date.now()},order=['collection','translation','classification','taxonomy','taxonomyTranslation'],last=order.indexOf(properties_().getProperty('BACKGROUND_LAST'));
+  if(classificationReadyAt_()<=Date.now())return 'classification';
+  if(businessTranslationPending_()&&translationReadyAt_()<=Date.now())return 'translation';
+  if(taxonomyReadyAt_()<=Date.now())return 'taxonomy';
+  const available={collection:work.pending.length>0,translation:translationReadyAt_()<=Date.now(),taxonomyTranslation:!work.pending.length&&taxonomyTranslationReadyAt_()<=Date.now()},order=['collection','translation','taxonomyTranslation'],last=order.indexOf(properties_().getProperty('BACKGROUND_LAST'));
   for(let i=1;i<=order.length;i++){const task=order[(last+i)%order.length];if(available[task])return task;}return '';
 }
 function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){

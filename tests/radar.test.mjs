@@ -64,7 +64,7 @@ test('recopila por lotes, integra automáticamente, deduplica y conserva reinten
   c.collectionWork_=()=>({tasks:c.rows_(),pending:c.rows_().map((task,index)=>({...task,row:index+2})),jobs:[{id:c.rows_()[0].ciclo,desde:'2025-01-01',hasta:'2030-01-01',inicio:'2026-10-11'}]});
   c.feeds_=()=>[{...feed,url:'good'},{...feed,url:'bad'}];c.knownUrls_=()=>new Set();c.book_=()=>({getSheetByName:()=>({getLastRow:()=>1,getRange:()=>({setNumberFormat(){return this;},setValues:rows=>writes.push(rows)})})});
   c.UrlFetchApp={fetchAll:requests=>requests.map(({url})=>url==='good'?{getResponseCode:()=>200,getContentText:()=>'<rss/>'}:{getResponseCode:()=>503})};
-  c.parseFeed_=()=>[{...item,date:new Date(Date.now()-86400000).toISOString()},{...item,date:new Date(Date.now()-86400000).toISOString()}];c.append_=(name,rows)=>saved[name]=rows;c.telemetry_=()=>{};
+  c.parseFeed_=()=>[{...item,date:new Date(Date.now()-86400000).toISOString()},{...item,date:new Date(Date.now()-86400000).toISOString()}];c.append_=(name,rows)=>saved[name]=rows;c.telemetry_=()=>{};c.requestTranslations_=()=>{};
   let flushed=false;c.SpreadsheetApp.flush=()=>flushed=true;c.invalidateNews_=()=>assert.equal(flushed,true);
   const result=c.collectionBatch_(c.collectionWork_(Date.now()));assert.equal(result.added,1);assert.equal(result.errors.length,1);assert.equal(saved.Noticias[0].length,13);assert.equal(writes.length,1);assert.equal(writes[0][1][0],'Reintento programado');assert.equal(saved.Ejecuciones[0][3],'Parcial');assert.ok(saved.Auditoria.some(row=>row[4]==='Duplicada'));assert.equal(released,false);
 });
@@ -141,7 +141,7 @@ test('recuperación manual predetermina Hoy, respeta la zona y consulta el año 
 
 test('la recuperación escribe solo los estados cambiados sin reescribir toda la cola anual',()=>{
  const c=context(),writes=[];c.book_=()=>({getSheetByName:()=>({getRange:(row,column,size)=>({setNumberFormat(){return this;},setValues:values=>writes.push({row,size,values})})})});
- const updates=Array.from({length:600},()=>['Pendiente',0,'',0,0,'']);updates[0]=['Completada',1,'',0,0,''];updates[1]=['Completada',1,'',0,0,''];updates[10]=['Error',1,'',0,0,''];c.writeCollectionTasks_([{row:2},{row:3},{row:12}],updates);assert.equal(writes.length,2);assert.equal(writes.reduce((n,w)=>n+w.size,0),3);assert.equal(writes[1].row,12);
+ const updates=new Map([[2,['Completada',1,'',0,0,'']],[3,['Completada',1,'',0,0,'']],[12,['Error',1,'',0,0,'']]]);c.writeCollectionTasks_([{row:2},{row:3},{row:12}],updates);assert.equal(writes.length,2);assert.equal(writes.reduce((n,w)=>n+w.size,0),3);assert.equal(writes[1].row,12);
 });
 
 test('Radar respeta los filtros visibles y usa Empresas e instituciones por defecto',()=>{
@@ -261,8 +261,8 @@ test('las ejecuciones se comparten entre cargas y una nueva escritura invalida l
 
 test('la telemetría identifica la versión que produjo cada operación y la exportación',()=>{
  const c=context();let rows;c.append_=(name,value)=>rows=value;c.trim_=()=>{};
- c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v2\.5\.1;/);
- c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'2.5.1');
+ c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v2\.6\.0;/);
+ c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'2.6.0');
 });
 
 test('cada vista calcula solo su visualización y conserva el medio de las noticias',()=>{

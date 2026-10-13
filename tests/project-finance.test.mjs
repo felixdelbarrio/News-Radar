@@ -84,7 +84,7 @@ test('restaurar y actualizar colas mantiene consultas Project Finance y de capac
 
 test('recuperación manual de Project Finance tiene bloqueo propio, deja disponible banca digital y reutiliza su cola',()=>{
  const {c}=server(),result=c.collectNow('projectFinance');assert.equal(result.blocked.projectFinance,true);assert.equal(result.blocked.today,false);assert.equal(result.jobs[0].tipo,'projectFinance');assert.match(result.notice,/Project Finance/);assert.throws(()=>c.collectNow('projectFinance'),/Project Finance en curso/);
- c.collectNow('today');c.drainCollectionRequests_();const jobs=c.collectionJobs_();assert.equal(jobs.length,2);assert.equal(Number(jobs.find(j=>j.tipo==='projectFinance').total),165);assert.equal(Number(jobs.find(j=>j.tipo==='daily').total),331);
+ c.collectNow('today');c.drainCollectionRequests_();const jobs=c.collectionJobs_();assert.equal(jobs.length,2);assert.equal(Number(jobs.find(j=>j.tipo==='projectFinance').total),140);assert.equal(Number(jobs.find(j=>j.tipo==='daily').total),331);
 });
 test('el botón de Project Finance y su barra funcionan por separado y reflejan la cola sin bloquear la recuperación digital',async t=>{
  const a=await app(t);await a.click('[data-view="administration"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('[data-collection-kind="projectFinance"] progress').value,0);await a.click('#collect-project-finance');assert.equal(a.calls.findLast(call=>call.method==='collectNow').query,'projectFinance');
@@ -102,7 +102,7 @@ test('Project Finance utiliza pestañas de países con totales propios y conserv
  const result=c.newsDashboard_(rows,{segment:'Project Finance',coverage:'generalista',newsGeography:'India'},[],'news');assert.equal(result.newsGeographies.length,3);assert.equal(result.total,1);assert.equal(result.items[0].id,'in');assert.ok(result.newsGeographies.some(row=>row.name==='Sin determinar'));
 });
 test('las vistas administrativas evitan leer y clasificar el corpus de noticias',()=>{
- const {c}=server();c.cachedNewsRecords_=()=>{throw Error('Lectura innecesaria del corpus');};for(const view of ['runs','sources','configuration','telemetry']){const result=c.getDashboard({view});assert.equal('items' in result,false);assert.equal(result.performance.newsMs,0);assert.equal(result.performance.version,'2.5.1');}
+ const {c}=server();c.cachedNewsRecords_=()=>{throw Error('Lectura innecesaria del corpus');};for(const view of ['runs','sources','configuration','telemetry']){const result=c.getDashboard({view});assert.equal('items' in result,false);assert.equal(result.performance.newsMs,0);assert.equal(result.performance.version,'2.6.0');}
 });
 
 test('recuperar desde Ejecuciones pide solo metadatos administrativos y actualiza la lectura al cambiar su revisión',async t=>{

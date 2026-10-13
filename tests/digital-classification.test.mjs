@@ -67,8 +67,8 @@ test('migración conserva noticias y ediciones; incorpora valores nuevos una sol
  assert.equal(upgraded.feeds.length,config.feeds.length);assert.equal(upgraded.entities.length,config.entities.length);assert.equal(upgraded.capabilities.Empresas[0].enabled,false);assert.deepEqual(JSON.parse(JSON.stringify(upgraded.capabilities.Empresas[0].terms)),['termino propio']);assert.equal(news.grid[1][0],'original');assert.equal(news.grid[0].length,13);assert.ok(properties.CLASSIFICATION_JOB);
  const stored=JSON.stringify(sheet.grid);c.initializeConfiguration();assert.equal(JSON.stringify(sheet.grid),stored);
 });
-test('Novedades agrupa BBVA primero; newsletter escoge un único destacado reciente por país',()=>{
- const {c}=server(),rows=[];for(const [entity,total,date] of [['BBVA',1,'2026-10-08'],['Qonto',3,'2026-10-11'],['N26',2,'2026-10-10'],['Santander',1,'2026-10-09']])for(let i=0;i<total;i++)rows.push({entidad:entity,fecha:date,titular:entity+' lanza una nueva cuenta para empresas '+i,extracto:'',url:'https://example.com/'+entity+i,pais:'España',medio:'Editor'});
+test('Novedades agrupa BBVA primero; newsletter limita a tres destacados recientes',()=>{
+ const {c}=server(),rows=[];for(const [entity,total,date] of [['BBVA',1,'2026-10-08'],['Qonto',3,'2026-10-11'],['N26',2,'2026-10-10'],['Santander',1,'2026-10-09']])for(let i=0;i<total;i++)rows.push({id:entity+i,entidad:entity,fecha:date,titular:entity+' lanza una nueva cuenta para empresas '+i,extracto:'',url:'https://example.com/'+entity+i,pais:'España',medio:'Editor'});
  const selected=c.annotateNews_(rows),grouped=c.newsDashboard_(c.annotateNews_(rows),{},c.feeds_(),'briefing').briefing.items;assert.deepEqual(JSON.parse(JSON.stringify(grouped.map(row=>row.entidad))),['BBVA','Qonto','Qonto','Qonto','N26','N26','Santander']);
- const newsletter=c.newsletter_(rows,{},'Canal',new Date('2026-10-12T12:00:00Z'),'sub');assert.equal(newsletter.items[0].entidad,'Qonto');assert.equal(newsletter.count,1);assert.equal(newsletter.evidence.length,7);assert.equal(c.briefing_(selected).items[0].entidad,'BBVA');
+ const newsletter=c.newsletter_(rows,{},'Canal',new Date('2026-10-12T12:00:00Z'),'sub');assert.equal(newsletter.items[0].entidad,'Qonto');assert.equal(newsletter.count,3);assert.equal(newsletter.evidence.length,7);assert.equal(c.briefing_(selected).items[0].entidad,'BBVA');
 });

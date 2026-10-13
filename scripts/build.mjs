@@ -17,7 +17,7 @@ for(const file of views)parts[path.basename(file,'.html')]=read(file);
 function template(html){return html.replace(/\{\{(\w+)\}\}/g,(_,name)=>{if(!(name in parts))throw Error('Bloque desconocido: '+name);return template(String(parts[name]));});}
 const design=designOutputs(),tokens=JSON.parse(read('src/design/tokens.json')).css;
 const newsletterStyle=(read('src/styles/identity.css')+'\n'+read('src/styles/newsletter.css')).replace(/var\(--([\w-]+)\)/g,(_,key)=>tokens[key]);
-const newsletterInline={};for(const [,selectors,rule] of newsletterStyle.matchAll(/([^{}]+)\{([^{}]*)\}/g))for(const selector of selectors.split(','))newsletterInline[selector.trim()]=(newsletterInline[selector.trim()]||'')+rule+';';
+const newsletterInline={};for(const [,selectors,rule] of newsletterStyle.replace(/@media[^{}]+\{(?:[^{}]*\{[^{}]*\}\s*)*\}/g,'').matchAll(/([^{}]+)\{([^{}]*)\}/g))for(const selector of selectors.split(','))newsletterInline[selector.trim()]=(newsletterInline[selector.trim()]||'')+rule+';';
 const output={
   'Defaults.gs':'const CONFIGURATION_DEFAULTS = Object.freeze('+read('assets/configuration-defaults.json').trim()+');\n',
   'Design.gs':design.sheet,

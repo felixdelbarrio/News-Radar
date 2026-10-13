@@ -14,11 +14,13 @@ function collectionFeeds_(range,kind='daily'){
   const enabled=feeds_(),windows=collectionWindows_(range),project=kind==='projectFinance';
   const rss=enabled.filter(feed=>feed.kind==='rss'&&(kind==='annual'||projectFinanceSource_(feed)===project)).flatMap(feed=>domainMatches_(feed.url,'news.google.com')?windows.map(window=>collectionProfile_(feed,window)):[{...feed,range}]);
   const profiles=enabled.filter(feed=>feed.kind==='profile');
-  return rss.concat(windows.flatMap(window=>profiles.flatMap(base=>{
+  const selected=rss.concat(windows.flatMap(window=>profiles.flatMap(base=>{
     const variants=project?[{...base,projectFinance:true}]:[base,{...base,capabilitySearch:true}];
     if(kind==='annual')variants.push({...base,projectFinance:true});
     return variants.map(feed=>collectionProfile_(feed,window)).filter(Boolean);
   })));
+  const primary=new Set(configuration_().applicationScope.find(scope=>scope.name==='Empresas e instituciones').countries),seen=new Set();
+  return selected.filter(feed=>{if(seen.has(feed.url))return false;seen.add(feed.url);return true;}).sort((a,b)=>Number(primary.has(b.country))-Number(primary.has(a.country)));
 }
 
 function splitCollectionFeed_(feed){

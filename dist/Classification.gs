@@ -1,3 +1,7 @@
+function businessNews_(row){
+  const labels=row.etiquetas||savedNewsLabels_(row.clasificacion);
+  return labels.digital&&labels.capacidades.some(name=>name.startsWith('Empresas: '));
+}
 function newsLabels_(assessment,title){
   const digital=Boolean(assessment.capabilities.length&&assessment.channel&&assessment.score>0&&!assessment.excluded&&!assessment.editorial&&(assessment.change||assessment.capabilities.some(row=>row.terms.some(term=>phraseMatch_(title,term)))));
   return {generalista:true,digital,capacidades:[...new Set(assessment.capabilities.map(row=>row.segment+': '+row.name))]};

@@ -23,8 +23,8 @@ import { createUsage } from "./features/usage.js";
 import { createNavigation } from "./features/navigation.js";
 import {initializeLocalization,flushLocalization} from './core/localization.js';
 initializeLocalization();
-const state = { data: null, request: 0, busy: false,contentStale:false };
-const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => Boolean(state.data) }), { track, flush } = usage;
+const state = { data: null, request: 0, busy: false,contentStale:false,attribution:'' };
+const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady:()=>Boolean(state.data),getAttribution:()=>state.attribution&&state.data?.context?.id===state.attribution?state.attribution:'' }), { track, flush } = usage;
 const noteNewsRevision=revision=>{if(revision&&state.data&&revision!==state.data.newsRevision)state.contentStale=true;};
 const configuration = createConfiguration({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='configuration'});
 const taxonomy=createTaxonomy({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='taxonomy'});
@@ -38,7 +38,7 @@ const filters = createFilters({ onInvalidate: () => ++state.request, onChange: (
   track("filtro");
   load();
 } });
-const reading=createReadingContext({onCurrent:()=>filters.current()});
+const reading=createReadingContext({onCurrent:()=>filters.current(),run:action});
 const heatmap=createTaxonomyHeatmap({onExplore:query=>{filters.show('news');filters.apply(query);navigation.show('news');}});
 const briefing=createBriefing();
 const newsTabs=createGeographyTabs('news-geographies','news-list',name=>filters.setGeography(name));
@@ -144,7 +144,7 @@ $('download-telemetry').addEventListener('click',()=>action(async()=>{
 if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
 navigation.show(defaultView);
 if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocation(async location=>{
-  if(location.parameter.edition){const params=location.parameter,view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;filters.show(view);navigation.show(view);filters.useEdition(params.edition,{country:params.country,entity:params.entity});return;}
+  if(location.parameter.edition){const params=location.parameter;state.attribution=params.edition;const view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;filters.show(view);navigation.show(view);filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca});return;}
   load();
   if(location.parameter.view!=='subscriptions')return;
   await navigation.show('subscriptions');

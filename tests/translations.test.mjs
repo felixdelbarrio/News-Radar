@@ -30,7 +30,7 @@ test('un fallo del traductor pausa y conserva las traducciones ya escritas para 
  c.backgroundTick_();assert.equal(calls,2);job.pausedUntil=0;c.writeTranslationJob_(job);const log=provider(c);c.backgroundTick_();assert.equal(log.length,2);assert.equal(c.translationJob_().state,'Completada');
 });
 test('el límite diario conserva el cursor y el día siguiente prioriza nuevas publicaciones',()=>{
- const s=server(),c=s.c;add(s,[article]);provider(c);c.nightlyTranslations_();const job=c.translationJob_();job.state='Pendiente';job.calls=3000;job.processed=0;job.cursor=null;c.writeTranslationJob_(job);c.translationBatch_();c.backgroundTick_();assert.equal(c.translationJob_().state,'En pausa');assert.match(c.translationJob_().error,/Límite diario/);assert.ok(!c.ScriptApp.getProjectTriggers().some(t=>t.getHandlerFunction()==='backgroundTick_'));
+ const s=server(),c=s.c;add(s,[article]);provider(c);c.nightlyTranslations_();const job=c.translationJob_();job.state='Pendiente';job.calls=3000;job.processed=0;job.cursor=null;c.writeTranslationJob_(job);c.translationBatch_();c.backgroundTick_();assert.equal(c.translationJob_().state,'En pausa');assert.match(c.translationJob_().error,/Límite diario/);assert.ok(c.scheduledTriggers_('backgroundTick_')[0].delay>=86400000-1000);
  job.callDay='2026-01-01';job.started='2026-01-01T02:00:00Z';job.cursor={fecha:article.fecha,id:article.id};c.writeTranslationJob_(job);add(s,[{...article,id:'latest',titular:'Newest headline',fecha:'2026-10-12'}]);const log=provider(c);c.nightlyTranslations_();assert.match(log[0].input,/Newest headline/);assert.equal(c.translationJob_().calls,3);
 });
 test('la programación es idempotente, se instala a las dos y solo el administrador puede controlarla',()=>{

@@ -18,11 +18,11 @@ test('programación diaria única, con hora y zona de configuración; solicitud 
  const prior=c.classificationJob_();prior.day='2026-01-01';c.writeClassificationJob_(prior);const locks=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};c.dailyClassification_();assert.ok(properties.CLASSIFICATION_REQUEST);assert.equal(c.processBackground_().busy,true);assert.ok(properties.CLASSIFICATION_REQUEST);c.LockService=locks;c.processBackground_();assert.equal(properties.CLASSIFICATION_REQUEST,undefined);assert.equal(c.getClassificationStatus().job.state,'Completada');assert.equal(c.getClassificationStatus().job.processed,250);
  const started=c.classificationJob_().started;c.dailyClassification_();c.processBackground_();assert.equal(c.classificationJob_().started,started);
 });
-test('diaria consume todos los lotes prioritarios; anual, traducción y clasificación se alternan sin ejecución simultánea',()=>{
+test('diaria y clasificación preceden a anual; los trabajos usan el mismo bloqueo',()=>{
  const s=server(450),c=s.c;c.startClassification();addCollection(s,'annual','annual',50);addCollection(s,'daily','daily',7);c.requestTranslations_();const order=[],collect=c.collectionBatch_,classify=c.newsClassificationBatch_;
  c.collectionBatch_=work=>{if(work.pending.length)order.push(work.pending[0].ciclo);return collect(work);};c.translationBatch_=()=>order.push('translation');c.newsClassificationBatch_=ms=>{order.push('classification');return classify(ms);};
  c.processBackground_();assert.deepEqual(order,['daily','daily','daily']);assert.equal(c.getClassificationStatus().job.processed,0);
- c.processBackground_();assert.deepEqual(order.slice(3),['translation','classification','annual']);assert.equal(c.getClassificationStatus().job.processed,100);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
+ c.processBackground_();assert.deepEqual(order.slice(3),['classification','classification','classification']);assert.equal(c.getClassificationStatus().job.processed,300);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
 });
 test('una diaria llegada durante clasificación se atiende en el siguiente lote, bajo el mismo bloqueo',()=>{
  const s=server(),c=s.c;c.startClassification();const order=[],classify=c.newsClassificationBatch_,collect=c.collectionBatch_;c.newsClassificationBatch_=ms=>{order.push('classification');classify(ms);c.requestDailyCollection_();};c.collectionBatch_=work=>{if(work.pending.length)order.push('daily');return collect(work);};c.processBackground_(2);assert.deepEqual(order,['classification','daily']);assert.equal(c.classificationJob_().next,102);

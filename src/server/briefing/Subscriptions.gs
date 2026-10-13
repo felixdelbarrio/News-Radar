@@ -32,8 +32,8 @@ function newsletterPeriod_(periodicity,now){
   else if(periodicity==='weekly'){end.setUTCDate(end.getUTCDate()-(end.getUTCDay()+6)%7);start.setTime(end.getTime());start.setUTCDate(start.getUTCDate()-7);}
   else if(periodicity==='yearly'){end.setUTCMonth(0,1);start.setUTCFullYear(end.getUTCFullYear()-1,0,1);}
   else throw Error('Periodicidad no válida.');
-  const cutoff=end.toISOString();end.setUTCDate(end.getUTCDate()-1);
-  return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10),cutoff};
+  const cutoff=end.toISOString(),delivery=new Date(end);delivery.setUTCDate(delivery.getUTCDate()+(newsletterCadences[periodicity].weekday-delivery.getUTCDay()+7)%7);end.setUTCDate(end.getUTCDate()-1);
+  return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10),cutoff,available:delivery.toISOString().slice(0,10)};
 }
 function subscriptionQuery_(subscription,now,closed=false){const periodicity=subscription.periodicidad||settings_().defaultPeriodicity;if(!Object.hasOwn(newsletterCadences,periodicity))throw Error('Periodicidad no válida.');const cadence=newsletterCadences[periodicity],period=closed?newsletterPeriod_(periodicity,now):newsRange_(cadence.range,now);return {...subscriptionFilters_(subscription.filtros),from:period.from,to:period.to,view:cadence.view};}
 function newsletterDeliveryId_(subscription,period){return subscription.id+':'+subscription.periodicidad+':'+period.from;}
@@ -45,7 +45,8 @@ function newsletterNextDate_(subscription,now,last){
     else if(subscription.periodicidad==='weekly')date.setUTCDate(date.getUTCDate()+7-(date.getUTCDay()+6)%7);
     else date.setUTCFullYear(date.getUTCFullYear()+1,0,1);
   }
-  return date.toISOString().slice(0,10);
+  if(completed||new Date(subscription.actualizada)>=new Date(period.cutoff))date.setUTCDate(date.getUTCDate()+(newsletterCadences[subscription.periodicidad].weekday-date.getUTCDay()+7)%7);
+  return [date.toISOString().slice(0,10),period.available].sort().at(-1);
 }
 function subscriptionIdentity_(row){
   const filters=subscriptionFilters_(row.filtros);

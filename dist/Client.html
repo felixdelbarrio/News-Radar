@@ -52,6 +52,50 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Accesos desde newsletters": ["Visits from newsletters", "B\xFCltenlerden gelen ziyaretler"],
+    "Usuarios autenticados; no mide aperturas de correo ni lecturas de fuentes externas.": ["Authenticated users; email opens and reads of external sources are not measured.", "Kimli\u011Fi do\u011Frulanm\u0131\u015F kullan\u0131c\u0131lar; e-posta a\xE7\u0131l\u0131\u015Flar\u0131n\u0131 veya d\u0131\u015F kaynak okumalar\u0131n\u0131 \xF6l\xE7mez."],
+    Edici\u00F3n: ["Edition", "Say\u0131"],
+    "Usuarios identificados": ["Identified users", "Tan\u0131mlanan kullan\u0131c\u0131lar"],
+    Destinatarios: ["Recipients", "Al\u0131c\u0131lar"],
+    Entradas: ["Entries", "Giri\u015Fler"],
+    Destinos: ["Destinations", "Hedefler"],
+    "Feedback de newsletters": ["Newsletter feedback", "B\xFClten geri bildirimleri"],
+    Valoraci\u00F3n: ["Rating", "De\u011Ferlendirme"],
+    Observaciones: ["Comments", "Yorumlar"],
+    "S\xEDntesis de esta edici\xF3n": ["This edition\u2019s summary", "Bu say\u0131n\u0131n \xF6zeti"],
+    "Valorar esta edici\xF3n (opcional)": ["Rate this edition (optional)", "Bu say\u0131y\u0131 de\u011Ferlendirin (iste\u011Fe ba\u011Fl\u0131)"],
+    "Valoraci\xF3n opcional": ["Optional rating", "\u0130ste\u011Fe ba\u011Fl\u0131 de\u011Ferlendirme"],
+    "\u{1F44D} \xDAtil": ["\u{1F44D} Useful", "\u{1F44D} Faydal\u0131"],
+    "\u{1F44E} Mejorable": ["\u{1F44E} Needs improvement", "\u{1F44E} Geli\u015Ftirilebilir"],
+    "Sin valoraci\xF3n": ["No rating", "De\u011Ferlendirme yok"],
+    "Observaciones (opcional)": ["Comments (optional)", "Yorumlar (iste\u011Fe ba\u011Fl\u0131)"],
+    "Guardar valoraci\xF3n": ["Save rating", "De\u011Ferlendirmeyi kaydet"],
+    "Sin accesos atribuidos.": ["No attributed visits.", "\u0130li\u015Fkilendirilen ziyaret yok."],
+    "Sin valoraciones.": ["No ratings.", "De\u011Ferlendirme yok."],
+    "Valoraci\xF3n guardada.": ["Rating saved.", "De\u011Ferlendirme kaydedildi."],
+    "Se\xF1al inmediata: {signal}.": ["Immediate signal: {signal}.", "G\xFCncel geli\u015Fme: {signal}."],
+    "Evidencia en {count} trimestres; permite contrastar la continuidad del tema.": ["Evidence across {count} quarters; compare the topic\u2019s continuity.", "{count} \xE7eyrekte kan\u0131t; konunun s\xFCreklili\u011Fini kar\u015F\u0131la\u015Ft\u0131r\u0131n."],
+    "Evidencia puntual; no permite afirmar un cambio estructural.": ["Isolated evidence; insufficient to establish structural change.", "Tekil kan\u0131t; yap\u0131sal de\u011Fi\u015Fim sonucuna varmak i\xE7in yetersiz."],
+    "Tema observado en {count} entidades; comparar sus propuestas y fuentes.": ["Topic observed across {count} entities; compare proposals and sources.", "{count} kurulu\u015Fta g\xF6zlemlenen konu; teklifleri ve kaynaklar\u0131 kar\u015F\u0131la\u015Ft\u0131r\u0131n."],
+    "Novedades concretas para revisar esta semana.": ["Concrete developments to review this week.", "Bu hafta incelenecek somut geli\u015Fmeler."],
+    "Evidencias del per\xEDodo para evaluar continuidades y cambios estructurales.": ["Period evidence to assess continuity and structural changes.", "S\xFCreklili\u011Fi ve yap\u0131sal de\u011Fi\u015Fimleri de\u011Ferlendirmek i\xE7in d\xF6nem kan\u0131tlar\u0131."],
+    "Temas del mes para contrastar propuestas y evoluci\xF3n del sector.": ["Monthly topics to compare proposals and sector developments.", "Teklifleri ve sekt\xF6r geli\u015Fimini kar\u015F\u0131la\u015Ft\u0131rmak i\xE7in ayl\u0131k konular."],
+    "Valoraci\xF3n o comentario no v\xE1lido.": ["Invalid rating or comment.", "Ge\xE7ersiz de\u011Ferlendirme veya yorum."],
+    "Estado de seguimiento no v\xE1lido.": ["Invalid follow-up status.", "Ge\xE7ersiz takip durumu."],
+    "Valoraci\xF3n no disponible.": ["Rating unavailable.", "De\u011Ferlendirme mevcut de\u011Fil."],
+    "Movimientos de la semana": ["This week\u2019s developments", "Haftan\u0131n geli\u015Fmeleri"],
+    "Perspectiva del a\xF1o": ["Annual perspective", "Y\u0131ll\u0131k bak\u0131\u015F"],
+    "Se\xF1ales del mes": ["This month\u2019s signals", "Ay\u0131n geli\u015Fmeleri"],
+    "Consultar fuente": ["Read source", "Kayna\u011F\u0131 oku"],
+    "Noticias relacionadas": ["Related news", "\u0130lgili haberler"],
+    "Ver esta edici\xF3n": ["View this edition", "Bu say\u0131y\u0131 g\xF6r\xFCnt\xFCle"],
+    pendiente: ["Pending", "Bekliyor"],
+    atendido: ["Addressed", "\u0130lgilenildi"],
+    weekly: ["Weekly", "Haftal\u0131k"],
+    monthly: ["Monthly", "Ayl\u0131k"],
+    yearly: ["Yearly", "Y\u0131ll\u0131k"],
+    "Semanal: lunes \xB7 Mensual: mi\xE9rcoles \xB7 Anual: viernes. Se entrega el \xFAltimo per\xEDodo completo.": ["Weekly: Monday \xB7 Monthly: Wednesday \xB7 Yearly: Friday. Delivery covers the last complete period.", "Haftal\u0131k: pazartesi \xB7 Ayl\u0131k: \xE7ar\u015Famba \xB7 Y\u0131ll\u0131k: cuma. Son tamamlanan d\xF6nem g\xF6nderilir."],
+    "M\xE1ximo de novedades por geograf\xEDa": ["Maximum updates per geography", "Co\u011Frafya ba\u015F\u0131na en fazla yenilik"],
     "\xC1mbito de aplicaci\xF3n": ["Application scope", "Uygulama kapsam\u0131"],
     "\xC1mbito de aplicaci\xF3n no v\xE1lido.": ["Invalid application scope.", "Ge\xE7ersiz uygulama kapsam\u0131."],
     "Pa\xEDses con pesta\xF1a propia por segmento en Noticias y Novedades. Los restantes se agrupan en Otras geograf\xEDas; las noticias sin pa\xEDs, en Transversal. Radar conserva todas las geograf\xEDas.": ["Countries with their own tab per segment in News and New releases. Remaining countries appear in Other geographies; news without a country appears in Cross-market. Radar retains all geographies.", "Haberler ve Yenilikler b\xF6l\xFCmlerinde segmente g\xF6re ayr\u0131 sekmesi olan \xFClkeler. Di\u011Fer \xFClkeler Di\u011Fer \xFClkeler alt\u0131nda, \xFClkesi bilinmeyen haberler \xDClkeler aras\u0131 alt\u0131nda g\xF6sterilir. Radar t\xFCm \xFClkeleri korur."],
@@ -1091,11 +1135,38 @@
     } };
   }
 
+  // src/client/core/api.js
+  function receive(data) {
+    return data?.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), data;
+  }
+  function call(method, ...args) {
+    if (window.RADAR_PREVIEW) {
+      let response = window.RADAR_PREVIEW.call(method, ...args);
+      return response.then(receive, () => {
+      }), response;
+    }
+    return new Promise((resolve, reject) => google.script.run.withSuccessHandler((data) => resolve(receive(data))).withFailureHandler((error) => reject(Error(t(error.message || String(error)))))[method](...args));
+  }
+
   // src/client/features/reading-context.js
-  function createReadingContext({ onCurrent }) {
-    return $("reading-current").addEventListener("click", onCurrent), { render(data, view) {
+  function createReadingContext({ onCurrent, run }) {
+    let edition = "", signature = "";
+    $("reading-current").addEventListener("click", onCurrent);
+    let form = $("edition-feedback");
+    form.addEventListener("submit", (event) => {
+      event.preventDefault(), run(async () => {
+        let result = await call("saveNewsletterFeedback", { edition, rating: form.elements.rating.value, comment: form.elements.comment.value });
+        signature = "", paintFeedback(result.feedback), message(t("Valoraci\xF3n guardada."));
+      }, !1);
+    });
+    function paintFeedback(feedback) {
+      form.elements.rating.value = feedback?.valoracion || "", form.elements.comment.value = feedback?.comentario || "";
+    }
+    return { render(data, view) {
       let context = data.context || { mode: "current" }, available = context.mode === "edition";
-      $("reading-context").dataset.available = String(available), $("reading-context").hidden = !available || !["news", "briefing", "radar"].includes(view), $("reading-detail").textContent = available ? t("{name} \xB7 {from} / {to} \xB7 {count} noticias en esta edici\xF3n", { name: context.title, from: context.from, to: context.to, count: context.count }) : "", $("reading-current").hidden = !available;
+      if (edition = available ? context.id : "", $("reading-context").dataset.available = String(available), $("reading-context").hidden = !available || !["news", "briefing", "radar"].includes(view), $("reading-detail").textContent = available ? t("{name} \xB7 {from} / {to} \xB7 {count} noticias en esta edici\xF3n", { name: context.title, from: context.from, to: context.to, count: context.count }) : "", $("reading-current").hidden = !available, !available) return;
+      let next = JSON.stringify([edition, data.feedback]);
+      next !== signature && (signature = next, paintFeedback(data.feedback), form.elements.comment.maxLength = context.commentLimit, $("edition-narrative").hidden = !context.editorial, $("edition-summary").innerHTML = context.editorial ? "<p>" + escape(context.editorial.intro) + "</p>" + context.editorial.cards.map((card) => "<article><strong>" + escape(card.title) + "</strong><p>" + escape(card.fact) + '</p><p class="muted">' + escape(card.relevance) + "</p></article>").join("") : "");
     } };
   }
 
@@ -1229,19 +1300,6 @@
       let pages = Math.max(1, Math.ceil(data.total / data.pageSize));
       $(id + "-pagination").innerHTML = '<button class="button" type="button" data-page="-1" ' + (page === 0 ? "disabled" : "") + '>Anterior</button><span class="small muted" role="status">' + t("{total} resultados \xB7 p\xE1gina {page} de {pages}", { total: data.total, page: page + 1, pages }) + '</span><button class="button" type="button" data-page="1" ' + (page >= pages - 1 ? "disabled" : "") + ">Siguiente</button>";
     } };
-  }
-
-  // src/client/core/api.js
-  function receive(data) {
-    return data?.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), data;
-  }
-  function call(method, ...args) {
-    if (window.RADAR_PREVIEW) {
-      let response = window.RADAR_PREVIEW.call(method, ...args);
-      return response.then(receive, () => {
-      }), response;
-    }
-    return new Promise((resolve, reject) => google.script.run.withSuccessHandler((data) => resolve(receive(data))).withFailureHandler((error) => reject(Error(t(error.message || String(error)))))[method](...args));
   }
 
   // src/client/features/job-monitor.js
@@ -1454,7 +1512,7 @@
   }
 
   // src/shared/newsletter-cadences.js
-  var newsletterCadences = Object.freeze({ weekly: { label: "Semanal", view: "briefing", scope: "Novedades", range: "week" }, monthly: { label: "Mensual", view: "news", scope: "Noticias", range: "month" }, yearly: { label: "Anual", view: "radar", scope: "Radar", range: "year" } });
+  var newsletterCadences = Object.freeze({ weekly: { label: "Semanal", view: "briefing", scope: "Novedades", range: "week", weekday: 1 }, monthly: { label: "Mensual", view: "news", scope: "Noticias", range: "month", weekday: 3 }, yearly: { label: "Anual", view: "radar", scope: "Radar", range: "year", weekday: 5 } });
 
   // src/client/features/subscription-templates.js
   var periods = Object.fromEntries(Object.entries(newsletterCadences).map(([key, value]) => [key, value.label])), labels = { coverage: "Cobertura", type: "Tipo de entidad", entity: "Entidad", segment: "Segmento", country: "Geograf\xEDa", signal: "Novedad", source: "Fuente", palanca: "Palanca", subpalanca: "Subpalanca" }, selected = (value, current) => value === current ? " selected" : "";
@@ -1474,7 +1532,7 @@
     <div class="subscription-fields">${filterFields(Object.fromEntries(Object.entries(options.catalogs).filter(([key]) => primary(key))), filters5)}</div>
     <details class="subscription-more"><summary>M\xE1s preferencias <span>Tipo de entidad, novedad, fuente y palabras clave</span></summary><div class="subscription-fields">${filterFields(Object.fromEntries(Object.entries(options.catalogs).filter(([key]) => !primary(key))), filters5)}</div><label>Palabras clave<input name="search" maxlength="160" value="${escape(filters5.search || "")}" placeholder="Opcional"></label></details>
     <label class="subscription-active"><input name="active" type="checkbox"${row?.activa === !1 ? "" : " checked"}> Suscripci\xF3n activa</label>
-    <p class="small muted">Semanal: Novedades. Mensual: Noticias. Anual: Radar. La entrega resume el \xFAltimo per\xEDodo completo despu\xE9s del alta.</p>
+    <p class="small muted">Semanal: lunes \xB7 Mensual: mi\xE9rcoles \xB7 Anual: viernes. Se entrega el \xFAltimo per\xEDodo completo.</p>
     <div class="actions"><button class="button primary" type="submit">${row ? "Guardar cambios" : admin ? "Crear suscripci\xF3n" : "Suscribirme"}</button>${admin ? '<button class="button" type="button" data-close-editor>Cancelar</button>' : ""}</div>
   </form>`;
   }
@@ -1704,7 +1762,7 @@
         dailyHour: "Hora de banca digital (0\u201323)",
         searchTerms: "T\xE9rminos de b\xFAsqueda de sector",
         disabledSources: "IDs de fuentes de perfil desactivadas",
-        briefingLimit: "M\xE1ximo de novedades por newsletter",
+        briefingLimit: "M\xE1ximo de novedades por geograf\xEDa",
         maxCustomFeeds: "M\xE1ximo de fuentes RSS",
         maxFeedBytes: "M\xE1ximo de caracteres de feed",
         maxItems: "M\xE1ximo de entradas por feed",
@@ -1993,13 +2051,26 @@
 
   // src/client/features/metrics.js
   var filters2 = {}, requests = {};
+  $("newsletter-feedback-body").addEventListener("click", async (event) => {
+    let button = event.target.closest("[data-feedback]");
+    if (button) {
+      button.disabled = !0;
+      try {
+        await call("setNewsletterFeedbackState", { id: button.dataset.feedback, state: button.dataset.state }), await loadMetrics("adoption", () => !$("adoption-section").hidden);
+      } catch (error) {
+        message(error.message, !0);
+      } finally {
+        button.disabled = !1;
+      }
+    }
+  });
   async function loadMetrics(view, isCurrent) {
-    filters2[view] ||= createRecordFilters(view, view === "adoption" ? [["correo", "Usuario"], ["vista", "Vista"], ["evento", "Evento"]] : [["operacion", "Operaci\xF3n"], ["estado", "Estado"]], () => loadMetrics(view, isCurrent), { dates: !0 });
+    filters2[view] ||= createRecordFilters(view, view === "adoption" ? [["correo", "Usuario"], ["vista", "Vista"], ["evento", "Evento"]] : [["operacion", "Operaci\xF3n"], ["estado", "Estado"]], () => loadMetrics(view, isCurrent), { dates: !0 }), view === "adoption" && (filters2["newsletter-adoption"] ||= createRecordFilters("newsletter-adoption", [["edicion", "Edici\xF3n"], ["cadencia", "Periodicidad", [["weekly", "Semanal"], ["monthly", "Mensual"], ["yearly", "Anual"]]]], () => loadMetrics(view, isCurrent), { dates: !0 }), filters2["newsletter-feedback"] ||= createRecordFilters("newsletter-feedback", [["estado", "Estado", [["pendiente", "pendiente"], ["atendido", "atendido"]]]], () => loadMetrics(view, isCurrent), { dates: !0 }));
     let request3 = requests[view] = (requests[view] || 0) + 1;
     try {
-      let data = await call(view === "adoption" ? "getAdoption" : "getTelemetry", filters2[view].query());
+      let [data, insights] = await Promise.all([call(view === "adoption" ? "getAdoption" : "getTelemetry", filters2[view].query()), view === "adoption" ? call("getNewsletterInsights", { adoption: filters2["newsletter-adoption"].query(), feedback: filters2["newsletter-feedback"].query() }) : null]);
       if (!isCurrent() || requests[view] !== request3) return;
-      filters2[view].options(data.options), filters2[view].page(data), view === "adoption" ? ($("adoption-metrics").innerHTML = metricCards([["DAU", data.dau, "Usuarios \xB7 24 horas"], ["WAU", data.wau, "Usuarios \xB7 7 d\xEDas"], ["MAU", data.mau, "Usuarios \xB7 30 d\xEDas"], ["Recurrentes", data.returning, "M\xE1s de una sesi\xF3n \xB7 30 d\xEDas"]]), $("adoption-note").textContent = t("{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.", data) + " " + (data.limited ? "L\xEDmite de eventos alcanzado; m\xE9tricas parciales." : ""), $("adoption-body").innerHTML = data.users.map((u) => `<tr><td>${escape(u.correo)}</td><td>${escape(date(u.first))}</td><td>${escape(date(u.last))}</td><td>${u.sessions}</td><td>${u.actions}</td></tr>`).join("") || '<tr><td colspan="5">Sin actividad registrada.</td></tr>', $("adoption-daily").innerHTML = data.daily.map((d) => `<tr><td>${escape(d.date)}</td><td>${d.users}</td><td>${d.sessions}</td></tr>`).join("") || '<tr><td colspan="3">Sin actividad diaria registrada.</td></tr>', $("adoption-chart").innerHTML = activityChart(data.daily)) : ($("telemetry-note").textContent = data.total + " coincidencias en las \xFAltimas " + data.limit + " operaciones disponibles." + (data.limited ? " Hist\xF3rico limitado." : ""), $("telemetry-metrics").innerHTML = metricCards([["Latencia p95", data.latencyP95 == null ? "\u2014" : data.latencyP95 + " ms", "Cargas \xB7 30 d\xEDas, todos los usuarios"], ["Errores cliente", data.clientErrors, "Eventos \xB7 30 d\xEDas, todos los usuarios"], ["Fuentes consultadas", data.collection.processed, "Recopilaci\xF3n actual"], ["Pendientes", data.collection.pending, "Fuentes por consultar"]]), $("telemetry-body").innerHTML = data.rows.map((r) => `<tr><td>${escape(date(r.fecha))}</td><td>${escape(displayRecord(r.operacion, language))}</td><td>${escape(r.duracion_ms)} ms</td><td>${escape(r.estado)}</td><td>${escape(r.detalle)}</td></tr>`).join("") || '<tr><td colspan="5">Sin telemetr\xEDa de operaci\xF3n.</td></tr>');
+      filters2[view].options(data.options), filters2[view].page(data), view === "adoption" ? ($("adoption-metrics").innerHTML = metricCards([["DAU", data.dau, "Usuarios \xB7 24 horas"], ["WAU", data.wau, "Usuarios \xB7 7 d\xEDas"], ["MAU", data.mau, "Usuarios \xB7 30 d\xEDas"], ["Recurrentes", data.returning, "M\xE1s de una sesi\xF3n \xB7 30 d\xEDas"]]), $("adoption-note").textContent = t("{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.", data) + " " + (data.limited ? "L\xEDmite de eventos alcanzado; m\xE9tricas parciales." : ""), $("adoption-body").innerHTML = data.users.map((u) => `<tr><td>${escape(u.correo)}</td><td>${escape(date(u.first))}</td><td>${escape(date(u.last))}</td><td>${u.sessions}</td><td>${u.actions}</td></tr>`).join("") || '<tr><td colspan="5">Sin actividad registrada.</td></tr>', $("adoption-daily").innerHTML = data.daily.map((d) => `<tr><td>${escape(d.date)}</td><td>${d.users}</td><td>${d.sessions}</td></tr>`).join("") || '<tr><td colspan="3">Sin actividad diaria registrada.</td></tr>', $("adoption-chart").innerHTML = activityChart(data.daily), filters2["newsletter-adoption"].page(insights.adoption), filters2["newsletter-feedback"].page(insights.feedback), $("newsletter-adoption-body").innerHTML = insights.adoption.items.map((row) => "<tr>" + [row.edition, t(row.cadence), row.users, row.recipients, row.sessions, row.entries, row.destinations.join(" \xB7 ")].map((value) => "<td>" + escape(value) + "</td>").join("") + "</tr>").join("") || '<tr><td colspan="7">' + t("Sin accesos atribuidos.") + "</td></tr>", $("newsletter-feedback-body").innerHTML = insights.feedback.items.map((row) => "<tr><td>" + escape(row.edicion) + "</td><td>" + escape(row.valoracion === "positive" ? "\u{1F44D}" : row.valoracion === "negative" ? "\u{1F44E}" : "\u2014") + "</td><td>" + escape(row.comentario) + "</td><td>" + escape(date(row.fecha)) + '</td><td><button type="button" class="button" data-feedback="' + escape(row.id) + '" data-state="' + (row.estado === "pendiente" ? "atendido" : "pendiente") + '">' + escape(t(row.estado)) + "</button></td></tr>").join("") || '<tr><td colspan="5">' + t("Sin valoraciones.") + "</td></tr>") : ($("telemetry-note").textContent = data.total + " coincidencias en las \xFAltimas " + data.limit + " operaciones disponibles." + (data.limited ? " Hist\xF3rico limitado." : ""), $("telemetry-metrics").innerHTML = metricCards([["Latencia p95", data.latencyP95 == null ? "\u2014" : data.latencyP95 + " ms", "Cargas \xB7 30 d\xEDas, todos los usuarios"], ["Errores cliente", data.clientErrors, "Eventos \xB7 30 d\xEDas, todos los usuarios"], ["Fuentes consultadas", data.collection.processed, "Recopilaci\xF3n actual"], ["Pendientes", data.collection.pending, "Fuentes por consultar"]]), $("telemetry-body").innerHTML = data.rows.map((r) => `<tr><td>${escape(date(r.fecha))}</td><td>${escape(displayRecord(r.operacion, language))}</td><td>${escape(r.duracion_ms)} ms</td><td>${escape(r.estado)}</td><td>${escape(r.detalle)}</td></tr>`).join("") || '<tr><td colspan="5">Sin telemetr\xEDa de operaci\xF3n.</td></tr>');
     } catch (e) {
       requests[view] === request3 && isCurrent() && message(e.message, !0);
     }
@@ -2249,10 +2320,10 @@
   }
 
   // src/client/features/usage.js
-  function createUsage({ getView, isReady }) {
+  function createUsage({ getView, isReady, getAttribution }) {
     let session = crypto.randomUUID(), events = [];
     function track2(event, duration = 0, performance2) {
-      events.push({ event, view: getView(), session, duration, ...performance2 ? { performance: performance2 } : {} }), events.length > 20 && events.shift();
+      events.push({ event, view: getView(), session, duration, ...getAttribution() ? { id: crypto.randomUUID(), edition: getAttribution() } : {}, ...performance2 ? { performance: performance2 } : {} }), events.length > 20 && events.shift();
     }
     async function flush2() {
       if (!events.length || !isReady()) return;
@@ -2367,7 +2438,7 @@
 
   // src/client/app.js
   initializeLocalization();
-  var state = { data: null, request: 0, busy: !1, contentStale: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data }), { track, flush } = usage, noteNewsRevision = (revision) => {
+  var state = { data: null, request: 0, busy: !1, contentStale: !1, attribution: "" }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data, getAttribution: () => state.attribution && state.data?.context?.id === state.attribution ? state.attribution : "" }), { track, flush } = usage, noteNewsRevision = (revision) => {
     revision && state.data && revision !== state.data.newsRevision && (state.contentStale = !0);
   }, configuration = createConfiguration({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "configuration" }), taxonomy = createTaxonomy({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "taxonomy" }), subscriptions = createSubscriptions({ run: action, onApply: (query) => {
     let view = query.view;
@@ -2376,7 +2447,7 @@
     configuration.close(), taxonomy.close(), filters4.show(view) || state.contentStale ? load() : state.data && renderSelection(state.data, view);
   }, onSubscriptions: () => (configuration.close(), taxonomy.close(), subscriptions.open()), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
-  } }), reading = createReadingContext({ onCurrent: () => filters4.current() }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => {
+  } }), reading = createReadingContext({ onCurrent: () => filters4.current(), run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => {
     filters4.show("news"), filters4.apply(query), navigation.show("news");
   } }), briefing = createBriefing(), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters4.setGeography(name));
   $("briefing-signals").addEventListener("click", (event) => {
@@ -2448,8 +2519,10 @@
   navigation.show(defaultView);
   !window.RADAR_PREVIEW && typeof google < "u" ? google.script.url.getLocation(async (location) => {
     if (location.parameter.edition) {
-      let params = location.parameter, view = ["news", "briefing", "radar"].includes(params.view) ? params.view : defaultView;
-      filters4.show(view), navigation.show(view), filters4.useEdition(params.edition, { country: params.country, entity: params.entity });
+      let params = location.parameter;
+      state.attribution = params.edition;
+      let view = ["news", "briefing", "radar"].includes(params.view) ? params.view : defaultView;
+      filters4.show(view), navigation.show(view), filters4.useEdition(params.edition, { country: params.country, entity: params.entity, palanca: params.palanca });
       return;
     }
     if (load(), location.parameter.view !== "subscriptions") return;

@@ -13,7 +13,7 @@ function profileFeed_(geo,entity,range,capabilitySearch=false,projectFinance=fal
   for(const term of terms){const value=quote(term),size=value.length+(selected.length?4:0);if(length+size>COLLECTION_POLICY.queryChars)continue;selected.push(value);length+=size;}
   if(!selected.length)return null;const query=prefix+selected.join(' OR ')+')';
   // Google News no publica edición UY; su redirección legítima utiliza US en español latinoamericano.
-  const code=geo.code==='UY'?'US':geo.code;
+  const code=geo.code==='UY'||projectFinance&&geo.language.startsWith('en')?'US':geo.code;
   const url=canonicalUrl_('https://news.google.com/rss/search?q='+encodeURIComponent(query)+'&hl='+geo.language+'&gl='+code+'&ceid='+code+':'+geo.language);
   return {id:'profile/'+geo.code+'/'+entity.name,name:entity.name+' · '+geo.name,url,domain:'news.google.com',entity:entity.name,country:geo.name,kind:'profile',language:geo.language,capabilitySearch,projectFinance,enabled:entity.enabled&&geo.enabled};
 }
