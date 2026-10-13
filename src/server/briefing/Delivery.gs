@@ -11,9 +11,14 @@ function sendPendingNewsletters(){
 }
 function deliverNewsletters_(){
   const result={accepted:0,empty:0,duplicates:0,pending:0,state:'disabled'};
+  if(configurationPaused_()){deferConfigurationWork_('newsletter');return {...result,state:'configuration_pause'};}
   if(!settings_().newsletterEnabled)return result;
-  const now=new Date(),lock=LockService.getScriptLock();if(!lock.tryLock(1000))return {...result,state:'busy'};
+  const now=new Date(),lock=LockService.getScriptLock();if(!lock.tryLock(1000)){
+    if(configurationPaused_()){deferConfigurationWork_('newsletter');return {...result,state:'configuration_pause'};}
+    return {...result,state:'busy'};
+  }
   try{
+    if(configurationPaused_()){deferConfigurationWork_('newsletter');return {...result,state:'configuration_pause'};}
     if(businessPipelinePending_()){ensureNewsletterContinuation_();return {...result,state:'collection_priority'};}
     const deliveries=rows_('NewsletterEnvios'),sent=new Set(deliveries.filter(row=>!['No enviado','Bloqueada'].includes(row.estado)).map(row=>row.id)),periods=new Map();
     const due=subscriptionRows_().filter(row=>row.activa).flatMap(row=>{
@@ -31,6 +36,7 @@ function deliverNewsletters_(){
     result.state='processed';
     for(const {row,id,query} of due){
       if(!remaining||!quota)break;
+      if(configurationPaused_()){deferConfigurationWork_('newsletter');result.state='configuration_pause';break;}
       if(businessPipelinePending_()){result.state='collection_priority';break;}
       const selection=newsletterSelectionQuery_(query),key=JSON.stringify(selection);
       if(!prepared.has(key))prepared.set(key,selectAnnotatedNews_(news,selection));

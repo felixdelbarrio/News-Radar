@@ -32,13 +32,13 @@ function translationBatch_(maxMs=TRANSLATION_WORK.maxMs){
     job.state='En curso';job.error='';writeTranslationJob_(job);
     const feeds=new Set(configuration_().feeds.map(feed=>feed.name)),known=articleTranslationIndex_();let calls=0;
     outer:for(let offset=0;offset<Math.min(candidates.length,TRANSLATION_WORK.batchRows);offset+=TRANSLATION_WORK.readRows){
-      if(Date.now()-started>=maxMs)break;
+      if(configurationPaused_()||Date.now()-started>=maxMs)break;
       const selected=candidates.slice(offset,offset+TRANSLATION_WORK.readRows),articles=new Map(rowsById_('Noticias',new Set(selected.map(row=>row.id)),settings_().newsReadLimit).map(row=>[row.id,row]));
       for(const candidate of selected){
-        if(Date.now()-started>=maxMs||collectionRequests_().some(request=>request.kind==='daily'))break outer;
+        if(configurationPaused_()||Date.now()-started>=maxMs||collectionRequests_().some(request=>request.kind==='daily'))break outer;
         const row=articles.get(candidate.id);
         if(row)for(const language of Object.keys(languageNames)){
-          if(Date.now()-started>=maxMs||collectionRequests_().some(request=>request.kind==='daily'))break outer;
+          if(configurationPaused_()||Date.now()-started>=maxMs||collectionRequests_().some(request=>request.kind==='daily'))break outer;
           if(nativeArticle_(row,language,feeds)||known.has(articleTranslationKey_(row,language)))continue;
           if(calls>=TRANSLATION_WORK.batchCalls||translationCallsToday_()>=TRANSLATION_WORK.dailyCalls)break outer;
           calls++;job.calls++;writeTranslationJob_(job);storeArticleTranslation_(row,language);job.translated++;

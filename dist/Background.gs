@@ -17,6 +17,7 @@ function replaceCollectionSchedule_(){
   CacheService.getScriptCache().remove('daily-schedule');
 }
 function ensureBackgroundWorker_(delay=60000){
+  if(configurationPaused_()){deferConfigurationWork_('background');return;}
   const triggers=scheduledTriggers_('backgroundTick_'),next=Date.now()+Math.max(60000,delay);
   if(triggers.length===1&&Number(properties_().getProperty('BACKGROUND_NEXT'))<=next)return;
   triggers.forEach(trigger=>ScriptApp.deleteTrigger(trigger));ScriptApp.newTrigger('backgroundTick_').timeBased().after(Math.max(60000,delay)).create();properties_().setProperty('BACKGROUND_NEXT',String(next));
@@ -51,11 +52,13 @@ function backgroundTask_(work,daily){
   for(let i=1;i<=order.length;i++){const task=order[(last+i)%order.length];if(available[task])return task;}return '';
 }
 function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
+  if(configurationPaused_()){deferConfigurationWork_('background');return {added:0,errors:[],paused:true};}
   scheduledTriggers_('backgroundTick_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));properties_().deleteProperty('BACKGROUND_NEXT');
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000)){ensureBackgroundWorker_();return {added:0,errors:[],busy:true};}
   const started=Date.now(),errors=[];let work,known,completed=false,added=0;
   try{
     for(let batch=0;batch<batchLimit&&Date.now()-started<BACKGROUND_WORK.maxMs;batch++){
+      if(configurationPaused_()){deferConfigurationWork_('background');break;}
       drainCollectionRequests_();work=collectionWork_(Date.now());
       const daily=Boolean(work.pending.length&&work.jobs.some(job=>job.id===work.pending[0].ciclo&&job.tipo==='daily'));
       if(!work.pending.length&&batch===0)collectionBatch_(work);
