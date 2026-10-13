@@ -55,9 +55,11 @@ function sendSubscriptionTest(id){
   return newsletterTest_(session,subscription);
 }
 function newsletterTest_(session,subscription){
+  if(configurationPaused_())throw Error('La configuración está en curso. Reintenta la prueba cuando termine.');
   const lock=LockService.getScriptLock();lock.waitLock(10000);
   let claimed=false;
   try{
+    if(configurationPaused_())throw Error('La configuración está en curso. Reintenta la prueba cuando termine.');
     const now=new Date(),deliveries=rows_('NewsletterEnvios');if(!newsletterBudget_(deliveries,now))throw Error('Se ha alcanzado el límite configurado de newsletters en 24 horas.');
     const defaults=subscription?{filters:subscription.filtros}:subscriptionDefaults_();
     const edition=Utilities.getUuid(),delivery='prueba:'+Utilities.getUuid();

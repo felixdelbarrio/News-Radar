@@ -22,13 +22,16 @@ function requestDailyCollection_(now=new Date()){requestCollection_('daily',coll
 function dailyRadar_(){scheduledCollection_('daily');}
 function projectFinanceRadar_(){scheduledCollection_('projectFinance');}
 function scheduledCollection_(kind){
+  if(configurationPaused_()){deferConfigurationWork_(kind);return;}
+  queueScheduledCollection_(kind);backgroundTick_();
+}
+function queueScheduledCollection_(kind){
   const active=job=>Number(job.pendientes)>0||['Preparando','En curso','En cola'].includes(job.estado);
   if(!collectionJobs_().some(job=>job.tipo===kind&&active(job))&&!collectionRequests_().some(request=>request.kind===kind)){
     const now=new Date(),range=collectionRecentRange_(now),key='COLLECTION_SCHEDULED_AT:'+kind,last=properties_().getProperty(key);
     if(last){const from=new Date(Date.parse(last)-86400000);if(Number.isFinite(from.getTime()))range.from=[range.from,recordDay(from,settings_().timezone)].sort().at(-1);}
     requestCollection_(kind,range);properties_().setProperty(key,now.toISOString());
   }
-  backgroundTick_();
 }
 function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
   const started=Date.now(),news=[],audit=[],errors=[],newTasks=[];let evaluated=0,relevant=0,digital=0,duplicated=0,excluded=0,saturated=0,queued;

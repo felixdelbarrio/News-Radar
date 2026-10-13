@@ -85,6 +85,8 @@ Sheets es el almacenamiento permanente. La caché de Apps Script dura como máxi
 
 `initializeConfiguration` crea las pestañas nuevas y rellena solo claves inexistentes; no repone filas borradas de un catálogo ni sobrescribe valores guardados. Los cambios de hora o zona se aplican a la programación tras desactivarla y reactivarla desde Fuentes.
 
+La inicialización y el guardado de configuración solicitan una pausa coordinada del trabajo en segundo plano y de las entregas. Los procesos activos completan su unidad de trabajo y ceden el bloqueo; la configuración espera hasta 60 segundos. Los pendientes conservan su progreso y se reprograman al finalizar, incluso ante un error. Un activador de recuperación y una pausa con caducidad de 10 minutos permiten recuperar el trabajo tras una interrupción abrupta. Las llamadas externas que ya están en curso deben terminar antes de poder ceder; los activadores periódicos y las pausas por cuota se conservan.
+
 ## Radar, Noticias y Novedades
 
 La navegación sigue el orden Novedades, Noticias, Radar y Newsletter. Radar contiene KPIs, mapa y evolución; comienza con el año en curso. Las tres vistas parten de Segmento: Empresas e instituciones y Cobertura: Canal digital; el usuario puede cambiarlos o quitarlos. Seleccionar una geografía en el mapa abre Noticias. Novedades muestra lanzamientos de producto, mejoras de oferta y alianzas de los últimos siete días por defecto, o del período de una edición de newsletter. Noticias conserva todos sus filtros y comienza con el primer y último día del mes en curso. Cada vista conserva su selección; las fechas se calculan en la zona configurada. «Ver todo» elimina los filtros editables, manteniendo los últimos 7 días en Novedades.

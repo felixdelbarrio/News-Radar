@@ -23,7 +23,7 @@ function requestTaxonomy_(){
   writeTaxonomyJob_({id:Utilities.getUuid(),state:'Pendiente',phase:'scan',next:2,total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:classificationRulesRevision_()});
   ensureBackgroundWorker_();
 }
-function dailyTaxonomy_(){properties_().setProperty('TAXONOMY_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}
+function dailyTaxonomy_(){if(configurationPaused_()){deferConfigurationWork_('taxonomy');return;}properties_().setProperty('TAXONOMY_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}
 function drainTaxonomyRequest_(){
   const p=properties_(),day=p.getProperty('TAXONOMY_REQUEST');if(!day||taxonomyPending_())return;
   if(taxonomyJob_()?.day!==day)requestTaxonomy_();p.deleteProperty('TAXONOMY_REQUEST');
@@ -86,7 +86,7 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
         const duplicate=identity&&days.some(day=>Math.abs(day-identity.day)<=COLLECTION_POLICY.duplicateDays);
         if(identity&&!duplicate){days.push(identity.day);state.titles[key]=days;}
         if(!duplicate&&taxonomyEligible_(title,text))taxonomyObserve(state,text,definitions,excluded);
-        state.next++;if(Date.now()-started>=maxMs)break;
+        state.next++;if(Date.now()-started>=maxMs||configurationPaused_(true))break;
       }
       writeTaxonomyCheckpoint_(job,state);job.next=state.next;job.documents=state.documents;job.processed=state.next-2;
       if(state.next>job.total+1){job.phase='publish';}
@@ -103,7 +103,7 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
             const ids=taxonomyNewsIds_(row[0],row[1],items);
             if(saved.fingerprint!==fingerprint||JSON.stringify(saved.ids)!==JSON.stringify(ids))updates.push({row:next,value:JSON.stringify({fingerprint,ids})});
           }
-          next++;if(Date.now()-started>=maxMs)break;
+          next++;if(Date.now()-started>=maxMs||configurationPaused_(true))break;
         }
         for(let start=0,end=1;end<=updates.length;end++){
           if(end<updates.length&&updates[end].row===updates[end-1].row+1)continue;
