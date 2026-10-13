@@ -7,7 +7,7 @@ function savedNewsLabels_(value){
   try{const labels=JSON.parse(value);return {generalista:labels.generalista===true,digital:labels.digital===true,capacidades:Array.isArray(labels.capacidades)?labels.capacidades:[]};}
   catch(_){return {generalista:false,digital:false,capacidades:[]};}
 }
-function classificationRulesRevision_(config=configuration_()){return sha256_(JSON.stringify([RADAR.version,config.capabilities,config.entities]));}
+function classificationRulesRevision_(config=configuration_()){return sha256_(JSON.stringify([RADAR.version,config.capabilities,config.entities,config.segments]));}
 function classificationJob_(){const raw=properties_().getProperty('CLASSIFICATION_JOB');return raw?JSON.parse(raw):null;}
 function classificationPending_(){const job=classificationJob_();return Boolean(job&&job.state!=='Completada');}
 function classificationReadyAt_(){const job=classificationJob_();return job&&job.state!=='Completada'?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}

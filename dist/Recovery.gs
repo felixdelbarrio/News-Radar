@@ -8,10 +8,16 @@ function collectionWindows_(range){
   for(let to=cursor;to>=first;to-=COLLECTION_POLICY.windowDays*86400000)windows.push({from:new Date(Math.max(first,to-(COLLECTION_POLICY.windowDays-1)*86400000)).toISOString().slice(0,10),to:new Date(to).toISOString().slice(0,10)});
   return windows;
 }
-function collectionFeeds_(range){
-  const rss=feeds_().filter(feed=>feed.kind==='rss').map(feed=>({...feed,range}));
-  const profiles=feeds_().filter(feed=>feed.kind==='profile');
-  return rss.concat(collectionWindows_(range).flatMap(window=>profiles.flatMap(base=>[collectionProfile_(base,window),collectionProfile_({...base,capabilitySearch:true},window)].filter(Boolean))));
+function collectionFeeds_(range,kind='daily'){
+  if(kind==='projectFinance'&&!configuration_().segments.some(row=>row.name==='Project Finance'&&row.enabled))return [];
+  const enabled=feeds_(),windows=collectionWindows_(range),project=kind==='projectFinance';
+  const rss=enabled.filter(feed=>feed.kind==='rss'&&(kind==='annual'||projectFinanceSource_(feed)===project)).flatMap(feed=>domainMatches_(feed.url,'news.google.com')?windows.map(window=>collectionProfile_(feed,window)):[{...feed,range}]);
+  const profiles=enabled.filter(feed=>feed.kind==='profile');
+  return rss.concat(windows.flatMap(window=>profiles.flatMap(base=>{
+    const variants=project?[{...base,projectFinance:true}]:[base,{...base,capabilitySearch:true}];
+    if(kind==='annual')variants.push({...base,projectFinance:true});
+    return variants.map(feed=>collectionProfile_(feed,window)).filter(Boolean);
+  })));
 }
 
 function splitCollectionFeed_(feed){
@@ -20,11 +26,15 @@ function splitCollectionFeed_(feed){
   const ranges=[{from:feed.range.from,to:new Date(mid).toISOString().slice(0,10)},{from:new Date(mid+86400000).toISOString().slice(0,10),to:feed.range.to}];
   return ranges.reverse().map(range=>collectionProfile_(feed,range)).filter(Boolean);
 }
-function collectionTaskFeed_(task,feeds,range){
+function collectionTaskFeed_(task,feeds,range,kind='annual'){
   if(feeds.has(task.url))return {...feeds.get(task.url),range};
-  const base=feeds.get('source:'+task.fuente);if(!base||base.kind!=='profile')return null;
+  const base=feeds.get('source:'+task.fuente);if(!base||(base.kind!=='profile'&&!domainMatches_(base.url,'news.google.com')))return null;
   const periodRange=collectionQueryRange_(task.url);if(!periodRange)return null;
-  return [collectionProfile_(base,periodRange),collectionProfile_({...base,capabilitySearch:true},periodRange)].find(feed=>feed?.url===task.url)||null;
+  if(base.kind==='rss'){const feed=collectionProfile_(base,periodRange);return feed.url===task.url?feed:null;}
+  const variants=kind==='projectFinance'?[{...base,projectFinance:true}]:[base,{...base,capabilitySearch:true}];
+  if(kind==='annual')variants.push({...base,projectFinance:true});
+  for(const variant of variants){const feed=collectionProfile_(variant,periodRange);if(feed?.url===task.url)return feed;}
+  return null;
 }
 
 function collectionRecentRange_(now){
@@ -33,8 +43,12 @@ function collectionRecentRange_(now){
 }
 
 function collectionProfile_(base,range){
+  if(base.kind==='rss'&&domainMatches_(base.url,'news.google.com')){
+    const query=decodeURIComponent((base.url.match(/[?&]q=([^&]*)/)||[])[1]||'').replace(/\s*when:\d+d\b/g,'').replace(/\s*(?:after|before):\d{4}-\d{2}-\d{2}/g,'').trim();
+    return {...base,range,url:canonicalUrl_(base.url.replace(/([?&]q=)[^&]*/,(_,prefix)=>prefix+encodeURIComponent(collectionPeriod_(range)+' '+query)))};
+  }
   const config=configuration_(),entity=config.entities.find(row=>row.name===base.entity),geo=config.geographies.find(row=>row.name===base.country);
-  const feed=profileFeed_(geo,entity,range,base.capabilitySearch);return feed?{...feed,range}:null;
+  const feed=profileFeed_(geo,entity,range,base.capabilitySearch,base.projectFinance);return feed?{...feed,range}:null;
 }
 function collectionFeedIndex_(){
   const index=new Map();for(const feed of feeds_()){index.set(feed.url,feed);index.set('source:'+feed.name,feed);}return index;
@@ -64,10 +78,12 @@ function collectionQueryRange_(url){
   return {from:new Date(after+86400000).toISOString().slice(0,10),to:new Date(before-86400000).toISOString().slice(0,10)};
 }
 function upgradeCollectionQueries_(){
-  const feeds=collectionFeedIndex_(),tasks=rows_('Recopilacion'),urls=tasks.map(task=>[task.url]);let changed=false;
+  const feeds=collectionFeedIndex_(),jobs=new Map(collectionJobs_().map(job=>[job.id,job])),tasks=rows_('Recopilacion'),urls=tasks.map(task=>[task.url]);let changed=false;
   tasks.forEach((task,index)=>{
     const base=feeds.get('source:'+task.fuente),range=collectionQueryRange_(task.url);if(!base||base.kind!=='profile'||!range||!['Pendiente','Reintento programado'].includes(task.estado))return;
-    urls[index]=[collectionProfile_(base,range).url];changed=true;
+    if(collectionTaskFeed_(task,feeds,range))return;
+    const job=jobs.get(task.ciclo),feed=collectionProfile_({...base,projectFinance:job?.tipo==='projectFinance'},range);if(!feed)return;
+    urls[index]=[feed.url];changed=true;
   });
   if(changed)book_().getSheetByName('Recopilacion').getRange(2,3,urls.length,1).setValues(urls);
 }

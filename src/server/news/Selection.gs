@@ -16,7 +16,7 @@ function selectAnnotatedNews_(rows, query) {
 }
 function newsDashboard_(rows, query, feeds,view='radar') {
   const selected=selectAnnotatedNews_(rows,query),radar=view==='radar'?radarMetrics_(selected,query):null;
-  if(radar){const available={total:0,from:'',to:'',limited:rows.length>=settings_().newsReadLimit};for(const row of rows)if(newsScope_(row,{from:query.from,to:query.to},'')){available.total++;if(!available.from||row.fecha<available.from)available.from=row.fecha;if(row.fecha>available.to)available.to=row.fecha;}radar.available=available;}
+  if(radar){const available={total:0,from:'',to:'',limited:rows.length>=settings_().newsReadLimit};for(const row of uniqueNews_(rows.filter(row=>newsScope_(row,{from:query.from,to:query.to},'')))){available.total++;if(!available.from||row.fecha<available.from)available.from=row.fecha;if(row.fecha>available.to)available.to=row.fecha;}radar.available=available;}
   const newsGeographies=view==='news'?noveltyOverview(selected).geographies.map(({name,total})=>({name,total})):[],newsGeography=newsGeographies.some(row=>row.name===query.newsGeography)?query.newsGeography:newsGeographies[0]?.name||'',visible=view==='news'?selected.filter(row=>(row.pais||'Sin determinar')===newsGeography):selected;
   const page=Math.min(Math.max(0,Math.floor(Number(query.page)||0)),Math.max(0,Math.ceil(visible.length/settings_().pageSize)-1));
   const values=items=>[...new Set(items.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));

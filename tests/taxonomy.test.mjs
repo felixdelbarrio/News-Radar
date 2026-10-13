@@ -60,7 +60,7 @@ test('las noticias nuevas se etiquetan con el modelo vigente durante la incorpor
 });
 
 test('la taxonomía cede también a recuperación anual disponible y los fallos parciales no pierden contadores ni etiquetas',()=>{
- const {c,sheets,properties}=server(Array.from({length:5},()=> 'BBVA lanza una API para empresas'));c.startTaxonomy();finish(c);
+ const {c,sheets,properties}=server(Array.from({length:5},(_,i)=> 'BBVA lanza una API para empresas '+i));c.startTaxonomy();finish(c);
  for(const index of [1,3,5])sheets.get('Noticias').grid[index][5]='BBVA lanza IA generativa';c.invalidateNews_();c.startTaxonomy();c.taxonomyBatch_();c.taxonomyBatch_();
  properties.BACKGROUND_LAST='classification';assert.equal(c.backgroundTask_({pending:[{ciclo:'annual'}]},false),'collection');
  const sheet=sheets.get('Noticias'),range=sheet.getRange;sheet.getRange=(...args)=>{const result=range(...args);if(args[1]===13&&args[0]===4)result.setValues=()=>{throw Error('Segundo bloque temporal');};return result;};

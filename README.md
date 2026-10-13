@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `2.2.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `2.3.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -449,3 +449,9 @@ No se permite guardar dos suscripciones con el mismo destinatario, periodicidad,
 Se retira el selector «Mi selección» y su texto duplicado de Novedades, Noticias y Radar. La entrada directa sigue usando la primera newsletter activa. «Más filtros» aparece exclusivamente en Noticias; en Novedades y Radar los criterios avanzados heredados siguen activos y aparecen como etiquetas con ×. Las ediciones privadas mantienen su contenido, período y botón para volver a la actualidad.
 
 Se eliminan el endpoint de preferencias, su esquema y el catálogo personal del dashboard. La primera suscripción se cachea por usuario y revisión, solo se resuelve al inicializar una vista y no calcula asuntos traducidos. Véase [el análisis de telemetría](docs/telemetry-2.2.0.md). Publicar todos los archivos de `dist/` en una nueva versión aplica el cambio.
+
+## Project Finance y cobertura internacional · 2.3.0
+
+El radar incorpora Project Finance en los segmentos existentes, 31 países y 86 entidades, incluidos bancos APAC y competidores retail de Italia y Alemania. Tres RSS gratuitos de Google News amplían operaciones y medios especializados. La banca digital se recopila una vez al día y tiene prioridad. Project Finance utiliza un job independiente cada seis horas por defecto, configurable, con ventanas incrementales y sin ciclos solapados del mismo tipo. Los titulares sindicados se deduplican entre bancos y países; el mapa, los totales y el corpus de taxonomía cuentan publicaciones únicas.
+
+Para instalar: copiar `dist/`, ejecutar `initializeConfiguration` y publicar una nueva versión de la WebApp. [Cobertura, fuentes verificadas, funcionamiento y límites](docs/project-finance-2.3.0.md).

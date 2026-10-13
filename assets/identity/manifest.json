@@ -324,6 +324,174 @@
       "width": 48,
       "height": 32,
       "source": "https://flagcdn.com/w80/uy.png"
+    },
+    "Italia": {
+      "id": "country-it",
+      "file": "country-it.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/it.png"
+    },
+    "Alemania": {
+      "id": "country-de",
+      "file": "country-de.png",
+      "width": 40,
+      "height": 24,
+      "source": "https://flagcdn.com/w40/de.png"
+    },
+    "Francia": {
+      "id": "country-fr",
+      "file": "country-fr.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/fr.png"
+    },
+    "Portugal": {
+      "id": "country-pt",
+      "file": "country-pt.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/pt.png"
+    },
+    "Reino Unido": {
+      "id": "country-gb",
+      "file": "country-gb.png",
+      "width": 40,
+      "height": 20,
+      "source": "https://flagcdn.com/w40/gb.png"
+    },
+    "Estados Unidos": {
+      "id": "country-us",
+      "file": "country-us.png",
+      "width": 40,
+      "height": 21,
+      "source": "https://flagcdn.com/w40/us.png"
+    },
+    "Suiza": {
+      "id": "country-ch",
+      "file": "country-ch.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://flagcdn.com/w40/ch.png"
+    },
+    "Países Bajos": {
+      "id": "country-nl",
+      "file": "country-nl.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/nl.png"
+    },
+    "Bélgica": {
+      "id": "country-be",
+      "file": "country-be.png",
+      "width": 40,
+      "height": 35,
+      "source": "https://flagcdn.com/w40/be.png"
+    },
+    "Rumanía": {
+      "id": "country-ro",
+      "file": "country-ro.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/ro.png"
+    },
+    "Brasil": {
+      "id": "country-br",
+      "file": "country-br.png",
+      "width": 40,
+      "height": 28,
+      "source": "https://flagcdn.com/w40/br.png"
+    },
+    "Chile": {
+      "id": "country-cl",
+      "file": "country-cl.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/cl.png"
+    },
+    "China": {
+      "id": "country-cn",
+      "file": "country-cn.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/cn.png"
+    },
+    "Hong Kong": {
+      "id": "country-hk",
+      "file": "country-hk.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/hk.png"
+    },
+    "Japón": {
+      "id": "country-jp",
+      "file": "country-jp.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/jp.png"
+    },
+    "Singapur": {
+      "id": "country-sg",
+      "file": "country-sg.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/sg.png"
+    },
+    "India": {
+      "id": "country-in",
+      "file": "country-in.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/in.png"
+    },
+    "Australia": {
+      "id": "country-au",
+      "file": "country-au.png",
+      "width": 40,
+      "height": 20,
+      "source": "https://flagcdn.com/w40/au.png"
+    },
+    "Indonesia": {
+      "id": "country-id",
+      "file": "country-id.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/id.png"
+    },
+    "Corea del Sur": {
+      "id": "country-kr",
+      "file": "country-kr.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/kr.png"
+    },
+    "Vietnam": {
+      "id": "country-vn",
+      "file": "country-vn.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/vn.png"
+    },
+    "Filipinas": {
+      "id": "country-ph",
+      "file": "country-ph.png",
+      "width": 40,
+      "height": 20,
+      "source": "https://flagcdn.com/w40/ph.png"
+    },
+    "Malasia": {
+      "id": "country-my",
+      "file": "country-my.png",
+      "width": 40,
+      "height": 20,
+      "source": "https://flagcdn.com/w40/my.png"
+    },
+    "Tailandia": {
+      "id": "country-th",
+      "file": "country-th.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/th.png"
     }
   },
   "publishers": {

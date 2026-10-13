@@ -40,15 +40,15 @@ test('dashboard de lector no expone fuentes configurables, hoja ni datos de otro
   for(const key of ['sheetUrl','runs','feeds','configuredFeeds','email'])assert.equal(key in result,false);assert.equal(result.sourceCount,c.feeds_().length);assert.equal(result.admin,false);
 });
 test('las entidades, alias, países y términos configurados generan fuentes sin consultas redundantes por alias',()=>{
-  const c=context(),feeds=c.defaultFeeds_(),config=c.configuration_();assert.equal(new Set(feeds.map(feed=>feed.url)).size,feeds.length);assert.equal(feeds.filter(feed=>feed.kind==='rss').length,7);
+  const c=context(),feeds=c.defaultFeeds_(),config=c.configuration_();assert.equal(new Set(feeds.map(feed=>feed.url)).size,feeds.length);assert.equal(feeds.filter(feed=>feed.kind==='rss').length,config.feeds.length);
   for(const entity of config.entities)for(const country of entity.countries){
     const geo=config.geographies.find(row=>row.name===country),feed=feeds.find(feed=>feed.kind==='profile'&&feed.country===country&&feed.entity===entity.name);assert.ok(feed);
-    const query=new URL(feed.url).searchParams.get('q');for(const alias of [entity.name,...entity.aliases])assert.ok(query.includes(alias));for(const term of c.collectionSearchTerms_())assert.ok(query.includes(term));assert.equal(new URL(feed.url).searchParams.get('gl'),geo.code==='UY'?'US':geo.code);
+    const query=new URL(feed.url).searchParams.get('q');for(const alias of [entity.name,...entity.aliases])assert.ok(query.includes(alias));for(const term of c.collectionSearchTerms_(geo))assert.ok(query.includes(term));assert.equal(new URL(feed.url).searchParams.get('gl'),geo.code==='UY'?'US':geo.code);
   }
   assert.ok(feeds.some(feed=>feed.entity==='Revolut'));assert.ok(feeds.some(feed=>feed.entity==='Qonto'));
 });
 test('todas las fuentes RSS son editables y rechazan duplicados o dominios falsos',()=>{
-  const c=context(),count=c.feeds_().length;c.saveFeeds([{...feed,url:'https://bbva.com/extra'}]);assert.equal(c.feeds_().length,count-6);c.saveFeeds([]);assert.equal(c.feeds_().length,count-7);
+  const c=context(),count=c.feeds_().length;c.saveFeeds([{...feed,url:'https://bbva.com/extra'}]);assert.equal(c.feeds_().length,count-9);c.saveFeeds([]);assert.equal(c.feeds_().length,count-10);
   assert.throws(()=>c.saveFeeds([{...feed,url:'https://evilbbva.com/a'}]));assert.throws(()=>c.saveFeeds([{...feed,url:'https://bbva.com/a'},{...feed,url:'https://bbva.com/a'}]));
 });
 test('noticias agregadas se integran sin intervención y mantienen medio y enlace de Google News',()=>{
@@ -132,7 +132,7 @@ test('recuperación manual predetermina Hoy, respeta la zona y consulta el año 
  const c=context(),today=c.collectionRange_('today',new Date('2026-10-09T22:30:00Z'));assert.equal(today.from,'2026-10-10');assert.equal(today.to,'2026-10-10');
  const year=c.collectionRange_('year',now),windows=c.collectionWindows_(year);assert.equal(year.from,'2025-10-09');assert.equal(year.to,'2026-10-09');assert.equal(windows.length,14);assert.equal(windows.at(-1).from,year.from);assert.equal(windows[0].to,year.to);
  for(let i=1;i<windows.length;i++)assert.equal(Date.parse(windows[i-1].from)-Date.parse(windows[i].to),86400000);
- const feeds=c.collectionFeeds_(year);assert.equal(new Set(feeds.map(f=>f.url)).size,feeds.length);assert.equal(feeds.filter(f=>f.kind==='rss').length,7);
+ const feeds=c.collectionFeeds_(year,'annual');assert.equal(new Set(feeds.map(f=>f.url)).size,feeds.length);assert.equal(feeds.filter(f=>f.kind==='rss').length,7+3*windows.length);
  const historic=feeds.find(f=>f.kind==='profile'&&f.range.from===year.from),query=new URL(historic.url).searchParams.get('q');assert.ok(query.includes('after:2025-10-08 before:'+new Date(Date.parse(historic.range.to)+86400000).toISOString().slice(0,10)));assert.doesNotMatch(query,/when:/);
  const old={...item,date:'2025-10-12'};assert.ok(c.evaluate_(old,{...feed,range:year},now).item);assert.match(c.evaluate_(old,{...feed,range:today},now).reason,/período/);
  const leap=c.collectionRange_('year',new Date('2024-02-29T12:00:00Z'));assert.equal(leap.from,'2023-02-28');
@@ -261,8 +261,8 @@ test('las ejecuciones se comparten entre cargas y una nueva escritura invalida l
 
 test('la telemetría identifica la versión que produjo cada operación y la exportación',()=>{
  const c=context();let rows;c.append_=(name,value)=>rows=value;c.trim_=()=>{};
- c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v2\.2\.0;/);
- c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'2.2.0');
+ c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v2\.3\.0;/);
+ c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'2.3.0');
 });
 
 test('cada vista calcula solo su visualización y conserva el medio de las noticias',()=>{

@@ -1,5 +1,33 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Nombres alternativos del país": ["Alternative country names", "Alternatif ülke adları"],
+  "Operación de Project Finance": ["Project Finance transaction", "Proje Finansmanı işlemi"],
+  "Cuentas digitales europeas": ["European digital accounts", "Avrupa dijital hesapları"],
+  "Financiación de proyectos": ["Project financing", "Proje finansmanı"],
+  "Frecuencia de Project Finance: 4, 6, 12 o 24 horas.": ["Project Finance frequency: 4, 6, 12 or 24 hours.", "Proje Finansmanı sıklığı: 4, 6, 12 veya 24 saat."],
+  "Recopilación activada. {schedule}.": ["Collection enabled. {schedule}.", "Toplama etkin. {schedule}."],
+  "Ventana: últimos {days} días. {schedule}.": ["Window: last {days} days. {schedule}.", "Zaman aralığı: son {days} gün. {schedule}."],
+  "Titular sindicado equivalente en fecha próxima": ["Equivalent syndicated headline on a nearby date", "Yakın tarihte eşdeğer sendikasyon başlığı"],
+  "Suiza": ["Switzerland","İsviçre"],
+  "Países Bajos": ["Netherlands","Hollanda"],
+  "Bélgica": ["Belgium","Belçika"],
+  "Rumanía": ["Romania","Romanya"],
+  "Chile": ["Chile","Şili"],
+  "China": ["China","Çin"],
+  "Hong Kong": ["Hong Kong","Hong Kong"],
+  "Japón": ["Japan","Japonya"],
+  "Singapur": ["Singapore","Singapur"],
+  "India": ["India","Hindistan"],
+  "Australia": ["Australia","Avustralya"],
+  "Indonesia": ["Indonesia","Endonezya"],
+  "Corea del Sur": ["South Korea","Güney Kore"],
+  "Vietnam": ["Vietnam","Vietnam"],
+  "Filipinas": ["Philippines","Filipinler"],
+  "Malasia": ["Malaysia","Malezya"],
+  "Tailandia": ["Thailand","Tayland"],
+  "Banca digital: diaria · {digitalHour}:00 · Project Finance: cada {hours} horas · desde {projectHour}:00 · {timezone}": ["Digital banking: daily · {digitalHour}:00 · Project Finance: every {hours} hours · from {projectHour}:00 · {timezone}", "Dijital bankacılık: günlük · {digitalHour}:00 · Proje Finansmanı: her {hours} saatte · {projectHour}:00 itibarıyla · {timezone}"],
+  "Project Finance": ["Project Finance", "Proje Finansmanı"],
+  "Intervalo de Project Finance (4, 6, 12 o 24 horas)": ["Project Finance interval (4, 6, 12 or 24 hours)", "Proje Finansmanı aralığı (4, 6, 12 veya 24 saat)"],
   "Consultar": ["Read", "Oku"],
   "Noticias recuperadas": ["Retrieved news", "Toplanan haberler"],
   "Noticias de la selección": ["News matching the selection", "Seçime uyan haberler"],
@@ -470,7 +498,8 @@ export const translations = Object.freeze({
   "Fuentes por lote": ["Sources per batch", "Grup başına kaynak"],
   "Minutos de reintento": ["Retry minutes", "Yeniden deneme süresi (dakika)"],
   "Minutos de pausa": ["Pause minutes", "Bekleme süresi (dakika)"],
-  "Hora de recopilación (0–23)": ["Collection hour (0–23)", "Toplama saati (0–23)"],
+  "Hora de banca digital (0–23)": ["Digital banking hour (0–23)", "Dijital bankacılık saati (0–23)"],
+  "Hora inicial de Project Finance (0–23)": ["Project Finance starting hour (0–23)", "Proje Finansmanı başlangıç saati (0–23)"],
   "Máximo de novedades por newsletter": ["Maximum updates per newsletter", "Bülten başına azami yenilik"],
   "Entidad inicial (vacío: todas)": ["Default entity (empty: all)", "Varsayılan kurum (boş: tümü)"],
   "Segmento inicial (vacío: todos)": ["Default segment (empty: all)", "Varsayılan segment (boş: tümü)"],
@@ -924,5 +953,5 @@ export function formatCalendarDay(value,language='es'){
 export function formatText(text,values,language='es'){return translateText(text,language).replace(/\{(\w+)\}/g,(_,key)=>String(values[key]??''));}
 
 export function feedLanguage(value){const tag=String(value||'').trim();return /^[a-z]{2}(?:-[A-Za-z0-9]{2,8})?$/.test(tag)?tag:'';}
-const recordLabels={radar:'Radar',news:'Noticias',briefing:'Novedades',subscriptions:'Newsletter',administration:'Administración',configuration:'Configuración de negocio',daily:'Recopilación diaria',annual:'Recuperación anual',sources:'Fuentes',runs:'Ejecuciones',language:'Idioma',audit:'Auditoría',telemetry:'Telemetría',adoption:'Adopción',subscribers:'Suscripciones',acceso:'Acceso',vista:'Vista',filtro:'Filtro',lectura:'Lectura',exportacion:'Exportación',rendimiento:'Rendimiento',error:'Error',dashboard:'Carga de selección',recopilacion:'Recopilación',traduccion:'Traducción de noticias'};
+const recordLabels={radar:'Radar',news:'Noticias',briefing:'Novedades',subscriptions:'Newsletter',administration:'Administración',configuration:'Configuración de negocio',daily:'Recopilación diaria',projectFinance:'Project Finance',annual:'Recuperación anual',sources:'Fuentes',runs:'Ejecuciones',language:'Idioma',audit:'Auditoría',telemetry:'Telemetría',adoption:'Adopción',subscribers:'Suscripciones',acceso:'Acceso',vista:'Vista',filtro:'Filtro',lectura:'Lectura',exportacion:'Exportación',rendimiento:'Rendimiento',error:'Error',dashboard:'Carga de selección',recopilacion:'Recopilación',traduccion:'Traducción de noticias'};
 export function displayRecord(value,language='es'){return translateText(Object.prototype.hasOwnProperty.call(recordLabels,value)?recordLabels[value]:value,language);}

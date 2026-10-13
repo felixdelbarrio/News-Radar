@@ -8,7 +8,7 @@ import {noveltyOverview} from '../src/shared/novelty-groups.js';
 const row=(id,entidad='BBVA',pais='España')=>({id,entidad,pais,fecha:'2026-10-10',titular:entidad+' lanza pagos digitales para empresas '+id,extracto:'Una solución digital para cobros.',url:'https://example.com/'+id,medio:'Editor',tema:'Pagos',tipo:'Banco tradicional',segmentos:['Empresas e instituciones'],senales:['Lanzamiento de producto'],etiquetas:{digital:true},taxonomia:[{palanca:'Pagos y cobros',subpalanca:'Pagos'}]});
 test('el inventario cubre entidades y países, mantiene proporciones y acota el peso total',()=>{
  const assets=identityAssets(),config=JSON.parse(read('assets/configuration-defaults.json'));
- for(const [kind,names] of [['entities',config.entities.map(row=>row.name)],['countries',config.geographies.map(row=>row.name)]])for(const name of names){const image=assets[kind][name];assert.ok(image,name);assert.equal(Buffer.from(image.data,'base64').readUInt32BE(0),0x89504e47);assert.ok(image.width<=48&&image.height<=28);}
+ for(const [kind,names] of [['entities',Object.keys(assets.entities)],['countries',config.geographies.map(row=>row.name)]])for(const name of names){const image=assets[kind][name];assert.ok(image,name);assert.equal(Buffer.from(image.data,'base64').readUInt32BE(0),0x89504e47);assert.ok(image.width<=48&&image.height<=28);}
  assert.ok(Object.values(assets).flatMap(Object.values).reduce((sum,row)=>sum+Buffer.from(row.data,'base64').length,0)<100000);
 });
 test('Novedades y Noticias identifican cada tarjeta sin depender de imágenes externas, y Transversal no recibe una bandera ficticia',async t=>{

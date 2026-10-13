@@ -30,7 +30,7 @@ test('la programación diaria reutiliza la consulta y se invalida al desactivar,
  assert.equal(c.dailyScheduleStatus_(),false);const first=reads;assert.equal(c.dailyScheduleStatus_(),false);assert.equal(reads,first);
  c.enableDaily();assert.equal(c.dailyScheduleStatus_(),true);const active=reads;assert.equal(c.dailyScheduleStatus_(),true);assert.equal(reads,active);
  c.disableDaily();assert.equal(c.dailyScheduleStatus_(),false);
- c.replaceDailySchedule_('dailyRadar_',8);assert.equal(c.dailyScheduleStatus_(),true);
+ c.configuration_().settings.dailyHour=8;c.replaceCollectionSchedule_();assert.equal(c.dailyScheduleStatus_(),true);
  c.properties_().setProperty('DAILY_ENABLED','false');c.initializeBackgroundSchedules_();assert.equal(c.dailyScheduleStatus_(),false);
 });
 

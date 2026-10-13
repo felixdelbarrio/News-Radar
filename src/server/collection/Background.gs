@@ -7,7 +7,13 @@ function dailyScheduleStatus_(){
 function replaceDailySchedule_(handler,hour,minute=0){
   scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   ScriptApp.newTrigger(handler).timeBased().atHour(hour).nearMinute(minute).everyDays(1).inTimezone(settings_().timezone).create();
-  if(handler==='dailyRadar_')CacheService.getScriptCache().remove('daily-schedule');
+}
+function collectionScheduleLabel_(){const config=settings_();return 'Banca digital: diaria · '+config.dailyHour+':00 · Project Finance: cada '+config.projectFinanceIntervalHours+' horas · desde '+config.projectFinanceHour+':00 · '+config.timezone;}
+function replaceCollectionSchedule_(){
+  const config=settings_();replaceDailySchedule_('dailyRadar_',config.dailyHour);
+  scheduledTriggers_('projectFinanceRadar_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
+  for(let offset=0;offset<24;offset+=config.projectFinanceIntervalHours)ScriptApp.newTrigger('projectFinanceRadar_').timeBased().atHour((config.projectFinanceHour+offset)%24).nearMinute(0).everyDays(1).inTimezone(config.timezone).create();
+  CacheService.getScriptCache().remove('daily-schedule');
 }
 function ensureBackgroundWorker_(delay=60000){
   const triggers=scheduledTriggers_('backgroundTick_'),next=Date.now()+Math.max(60000,delay);
@@ -70,7 +76,7 @@ function initializeBackgroundSchedules_(){
   CacheService.getScriptCache().remove('daily-schedule');
   for(const handler of ['collectionTick_','collectionWake_','translationTick_','backgroundTick_'])scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   properties_().deleteProperty('BACKGROUND_NEXT');
-  if(properties_().getProperty('DAILY_ENABLED')==='true')replaceDailySchedule_('dailyRadar_',settings_().dailyHour);else scheduledTriggers_('dailyRadar_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
+  if(properties_().getProperty('DAILY_ENABLED')==='true')replaceCollectionSchedule_();else for(const handler of ['dailyRadar_','projectFinanceRadar_'])scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   if(properties_().getProperty('TRANSLATION_ENABLED')!=='false'){replaceDailySchedule_('nightlyTranslations_',TRANSLATION_WORK.hour);properties_().setProperty('TRANSLATION_ENABLED','true');}
   else scheduledTriggers_('nightlyTranslations_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   replaceDailySchedule_('dailyClassification_',settings_().dailyHour,CLASSIFICATION_WORK.dailyMinute);

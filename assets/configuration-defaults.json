@@ -58,7 +58,9 @@
     "newsletterSender": "news-radar.group@bbva.com",
     "newsletterSenderName": "News Radar · BBVA Empresas",
     "newsletterDailyLimit": 100,
-    "newsletterAppUrl": ""
+    "newsletterAppUrl": "",
+    "projectFinanceHour": 10,
+    "projectFinanceIntervalHours": 6
   },
   "entities": [
     {
@@ -77,7 +79,23 @@
         "Colombia",
         "Argentina",
         "Turquía",
-        "Uruguay"
+        "Uruguay",
+        "Italia",
+        "Alemania",
+        "Francia",
+        "Portugal",
+        "Reino Unido",
+        "Estados Unidos",
+        "Suiza",
+        "Países Bajos",
+        "Bélgica",
+        "Rumanía",
+        "Brasil",
+        "Chile",
+        "China",
+        "Hong Kong",
+        "Japón",
+        "Singapur"
       ],
       "enabled": true
     },
@@ -91,7 +109,14 @@
         "España",
         "México",
         "Argentina",
-        "Uruguay"
+        "Uruguay",
+        "Italia",
+        "Alemania",
+        "Portugal",
+        "Reino Unido",
+        "Estados Unidos",
+        "Brasil",
+        "Chile"
       ],
       "enabled": true
     },
@@ -155,7 +180,13 @@
         "HSBC Empresas"
       ],
       "countries": [
-        "México"
+        "México",
+        "Reino Unido",
+        "Hong Kong",
+        "China",
+        "Singapur",
+        "India",
+        "Australia"
       ],
       "enabled": true
     },
@@ -312,7 +343,9 @@
         "Itaú Empresas"
       ],
       "countries": [
-        "Uruguay"
+        "Uruguay",
+        "Brasil",
+        "Chile"
       ],
       "enabled": true
     },
@@ -321,7 +354,11 @@
       "type": "Neobanco",
       "aliases": [],
       "countries": [
-        "España"
+        "España",
+        "Italia",
+        "Alemania",
+        "Reino Unido",
+        "Francia"
       ],
       "enabled": true
     },
@@ -330,7 +367,10 @@
       "type": "Neobanco",
       "aliases": [],
       "countries": [
-        "España"
+        "España",
+        "Alemania",
+        "Italia",
+        "Francia"
       ],
       "enabled": true
     },
@@ -339,7 +379,10 @@
       "type": "Fintech",
       "aliases": [],
       "countries": [
-        "España"
+        "España",
+        "Italia",
+        "Alemania",
+        "Francia"
       ],
       "enabled": true
     },
@@ -360,7 +403,8 @@
       ],
       "countries": [
         "México",
-        "Colombia"
+        "Colombia",
+        "Brasil"
       ],
       "enabled": true
     },
@@ -428,7 +472,10 @@
       "type": "Neobanco",
       "aliases": [],
       "countries": [
-        "España"
+        "España",
+        "Países Bajos",
+        "Alemania",
+        "Italia"
       ],
       "enabled": true
     },
@@ -453,6 +500,481 @@
         "España"
       ],
       "enabled": true
+    },
+    {
+      "name": "Intesa Sanpaolo",
+      "countries": [
+        "Italia"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "UniCredit",
+      "countries": [
+        "Italia",
+        "Alemania"
+      ],
+      "aliases": [
+        "HypoVereinsbank"
+      ],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Deutsche Bank",
+      "countries": [
+        "Alemania"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Commerzbank",
+      "countries": [
+        "Alemania"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "ING",
+      "countries": [
+        "Países Bajos",
+        "Alemania"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "BNP Paribas",
+      "countries": [
+        "Francia",
+        "Bélgica"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Crédit Agricole",
+      "countries": [
+        "Francia",
+        "Italia"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Société Générale",
+      "countries": [
+        "Francia"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Millennium bcp",
+      "countries": [
+        "Portugal"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Caixa Geral de Depósitos",
+      "countries": [
+        "Portugal"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Barclays",
+      "countries": [
+        "Reino Unido"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "NatWest",
+      "countries": [
+        "Reino Unido"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "JPMorgan Chase",
+      "countries": [
+        "Estados Unidos"
+      ],
+      "aliases": [
+        "JPMorgan"
+      ],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Bank of America",
+      "countries": [
+        "Estados Unidos"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Citi",
+      "countries": [
+        "Estados Unidos",
+        "Singapur",
+        "Hong Kong"
+      ],
+      "aliases": [
+        "Citibank"
+      ],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "UBS",
+      "countries": [
+        "Suiza"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "KBC",
+      "countries": [
+        "Bélgica"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Banca Transilvania",
+      "countries": [
+        "Rumanía"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Bradesco",
+      "countries": [
+        "Brasil"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Banco de Chile",
+      "countries": [
+        "Chile"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "DBS",
+      "countries": [
+        "Singapur",
+        "Hong Kong",
+        "India",
+        "Indonesia"
+      ],
+      "aliases": [
+        "DBS Bank"
+      ],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "OCBC",
+      "countries": [
+        "Singapur",
+        "Malasia"
+      ],
+      "aliases": [
+        "Oversea-Chinese Banking Corporation"
+      ],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "UOB",
+      "countries": [
+        "Singapur",
+        "Tailandia"
+      ],
+      "aliases": [
+        "United Overseas Bank"
+      ],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "MUFG",
+      "countries": [
+        "Japón",
+        "Australia"
+      ],
+      "aliases": [
+        "Mitsubishi UFJ"
+      ],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "SMBC",
+      "countries": [
+        "Japón",
+        "Singapur"
+      ],
+      "aliases": [
+        "Sumitomo Mitsui Banking Corporation"
+      ],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Mizuho",
+      "countries": [
+        "Japón"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Standard Chartered",
+      "countries": [
+        "Reino Unido",
+        "Hong Kong",
+        "Singapur",
+        "India"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "ICBC",
+      "countries": [
+        "China"
+      ],
+      "aliases": [
+        "Industrial and Commercial Bank of China"
+      ],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Bank of China",
+      "countries": [
+        "China",
+        "Hong Kong"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "China Construction Bank",
+      "countries": [
+        "China"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "State Bank of India",
+      "countries": [
+        "India"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "HDFC Bank",
+      "countries": [
+        "India"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "ICICI Bank",
+      "countries": [
+        "India"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "ANZ",
+      "countries": [
+        "Australia"
+      ],
+      "aliases": [
+        "Australia and New Zealand Banking Group"
+      ],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Commonwealth Bank",
+      "countries": [
+        "Australia"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Macquarie",
+      "countries": [
+        "Australia"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "National Australia Bank",
+      "countries": [
+        "Australia"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Westpac",
+      "countries": [
+        "Australia"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Bank Mandiri",
+      "countries": [
+        "Indonesia"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Bank Central Asia",
+      "countries": [
+        "Indonesia"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "KB Kookmin",
+      "countries": [
+        "Corea del Sur"
+      ],
+      "aliases": [
+        "Kookmin Bank"
+      ],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Shinhan Bank",
+      "countries": [
+        "Corea del Sur"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Vietcombank",
+      "countries": [
+        "Vietnam"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "BDO Unibank",
+      "countries": [
+        "Filipinas"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Maybank",
+      "countries": [
+        "Malasia"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Bangkok Bank",
+      "countries": [
+        "Tailandia"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true
+    },
+    {
+      "name": "Asian Development Bank",
+      "countries": [
+        "Filipinas"
+      ],
+      "aliases": [
+        "ADB"
+      ],
+      "type": "Multilateral",
+      "enabled": true
+    },
+    {
+      "name": "Asian Infrastructure Investment Bank",
+      "countries": [
+        "China"
+      ],
+      "aliases": [
+        "AIIB"
+      ],
+      "type": "Multilateral",
+      "enabled": true
     }
   ],
   "geographies": [
@@ -462,7 +984,11 @@
       "language": "es",
       "mapId": "724",
       "enabled": true,
-      "searchName": "España"
+      "searchName": "España",
+      "terms": [
+        "Spain",
+        "Espanha"
+      ]
     },
     {
       "name": "México",
@@ -470,7 +996,8 @@
       "language": "es-419",
       "mapId": "484",
       "enabled": true,
-      "searchName": "México"
+      "searchName": "México",
+      "terms": []
     },
     {
       "name": "Perú",
@@ -478,7 +1005,8 @@
       "language": "es-419",
       "mapId": "604",
       "enabled": true,
-      "searchName": "Perú"
+      "searchName": "Perú",
+      "terms": []
     },
     {
       "name": "Colombia",
@@ -486,7 +1014,8 @@
       "language": "es-419",
       "mapId": "170",
       "enabled": true,
-      "searchName": "Colombia"
+      "searchName": "Colombia",
+      "terms": []
     },
     {
       "name": "Argentina",
@@ -494,7 +1023,8 @@
       "language": "es-419",
       "mapId": "032",
       "enabled": true,
-      "searchName": "Argentina"
+      "searchName": "Argentina",
+      "terms": []
     },
     {
       "name": "Turquía",
@@ -502,7 +1032,10 @@
       "language": "tr",
       "mapId": "792",
       "enabled": true,
-      "searchName": "Türkiye"
+      "searchName": "Türkiye",
+      "terms": [
+        "Turkey"
+      ]
     },
     {
       "name": "Uruguay",
@@ -510,7 +1043,248 @@
       "language": "es-419",
       "mapId": "858",
       "enabled": true,
-      "searchName": "Uruguay"
+      "searchName": "Uruguay",
+      "terms": []
+    },
+    {
+      "name": "Italia",
+      "code": "IT",
+      "language": "it",
+      "mapId": "380",
+      "searchName": "Italy",
+      "enabled": true,
+      "terms": []
+    },
+    {
+      "name": "Alemania",
+      "code": "DE",
+      "language": "de",
+      "mapId": "276",
+      "searchName": "Germany",
+      "enabled": true,
+      "terms": [
+        "Deutschland"
+      ]
+    },
+    {
+      "name": "Francia",
+      "code": "FR",
+      "language": "fr",
+      "mapId": "250",
+      "searchName": "France",
+      "enabled": true,
+      "terms": []
+    },
+    {
+      "name": "Portugal",
+      "code": "PT",
+      "language": "pt-PT",
+      "mapId": "620",
+      "searchName": "Portugal",
+      "enabled": true,
+      "terms": [
+        "Portogallo"
+      ]
+    },
+    {
+      "name": "Reino Unido",
+      "code": "GB",
+      "language": "en",
+      "mapId": "826",
+      "searchName": "United Kingdom",
+      "enabled": true,
+      "terms": [
+        "Britain"
+      ]
+    },
+    {
+      "name": "Estados Unidos",
+      "code": "US",
+      "language": "en",
+      "mapId": "840",
+      "searchName": "United States",
+      "enabled": true,
+      "terms": [
+        "USA",
+        "United States of America"
+      ]
+    },
+    {
+      "name": "Suiza",
+      "code": "CH",
+      "language": "en",
+      "mapId": "756",
+      "searchName": "Switzerland",
+      "enabled": true,
+      "terms": [
+        "Schweiz",
+        "Suisse",
+        "Svizzera"
+      ]
+    },
+    {
+      "name": "Países Bajos",
+      "code": "NL",
+      "language": "nl",
+      "mapId": "528",
+      "searchName": "Netherlands",
+      "enabled": true,
+      "terms": [
+        "Nederland"
+      ]
+    },
+    {
+      "name": "Bélgica",
+      "code": "BE",
+      "language": "fr",
+      "mapId": "056",
+      "searchName": "Belgium",
+      "enabled": true,
+      "terms": [
+        "Belgique",
+        "België"
+      ]
+    },
+    {
+      "name": "Rumanía",
+      "code": "RO",
+      "language": "ro",
+      "mapId": "642",
+      "searchName": "Romania",
+      "enabled": true,
+      "terms": []
+    },
+    {
+      "name": "Brasil",
+      "code": "BR",
+      "language": "pt-BR",
+      "mapId": "076",
+      "searchName": "Brazil",
+      "enabled": true,
+      "terms": [
+        "Brasil"
+      ]
+    },
+    {
+      "name": "Chile",
+      "code": "CL",
+      "language": "es-419",
+      "mapId": "152",
+      "searchName": "Chile",
+      "enabled": true,
+      "terms": []
+    },
+    {
+      "name": "China",
+      "code": "CN",
+      "language": "en",
+      "mapId": "156",
+      "searchName": "China",
+      "enabled": true,
+      "terms": []
+    },
+    {
+      "name": "Hong Kong",
+      "code": "HK",
+      "language": "en",
+      "mapId": "344",
+      "searchName": "Hong Kong",
+      "enabled": true,
+      "terms": []
+    },
+    {
+      "name": "Japón",
+      "code": "JP",
+      "language": "en",
+      "mapId": "392",
+      "searchName": "Japan",
+      "enabled": true,
+      "terms": []
+    },
+    {
+      "name": "Singapur",
+      "code": "SG",
+      "language": "en",
+      "mapId": "702",
+      "searchName": "Singapore",
+      "enabled": true,
+      "terms": []
+    },
+    {
+      "name": "India",
+      "code": "IN",
+      "language": "en",
+      "mapId": "356",
+      "searchName": "India",
+      "enabled": true,
+      "terms": []
+    },
+    {
+      "name": "Australia",
+      "code": "AU",
+      "language": "en",
+      "mapId": "036",
+      "searchName": "Australia",
+      "enabled": true,
+      "terms": []
+    },
+    {
+      "name": "Indonesia",
+      "code": "ID",
+      "language": "en",
+      "mapId": "360",
+      "searchName": "Indonesia",
+      "enabled": true,
+      "terms": []
+    },
+    {
+      "name": "Corea del Sur",
+      "code": "KR",
+      "language": "en",
+      "mapId": "410",
+      "searchName": "South Korea",
+      "enabled": true,
+      "terms": [
+        "Republic of Korea"
+      ]
+    },
+    {
+      "name": "Vietnam",
+      "code": "VN",
+      "language": "en",
+      "mapId": "704",
+      "searchName": "Vietnam",
+      "enabled": true,
+      "terms": [
+        "Viet Nam"
+      ]
+    },
+    {
+      "name": "Filipinas",
+      "code": "PH",
+      "language": "en",
+      "mapId": "608",
+      "searchName": "Philippines",
+      "enabled": true,
+      "terms": []
+    },
+    {
+      "name": "Malasia",
+      "code": "MY",
+      "language": "en",
+      "mapId": "458",
+      "searchName": "Malaysia",
+      "enabled": true,
+      "terms": []
+    },
+    {
+      "name": "Tailandia",
+      "code": "TH",
+      "language": "en",
+      "mapId": "764",
+      "searchName": "Thailand",
+      "enabled": true,
+      "terms": []
     }
   ],
   "segments": [
@@ -542,7 +1316,10 @@
         "independiente",
         "freelanc",
         "self-employed",
-        "smb"
+        "smb",
+        "imprese",
+        "unternehmen",
+        "entreprises"
       ],
       "enabled": true
     },
@@ -561,7 +1338,27 @@
         "consumer",
         "bireysel",
         "tasarruf",
-        "maaş"
+        "maaş",
+        "conto corrente",
+        "girokonto",
+        "privatkunden",
+        "risparmio"
+      ],
+      "enabled": true
+    },
+    {
+      "name": "Project Finance",
+      "terms": [
+        "project finance",
+        "project financing",
+        "financiación de proyectos",
+        "financiamiento de proyectos",
+        "infrastructure finance",
+        "infrastructure financing",
+        "non-recourse",
+        "limited-recourse",
+        "financial close",
+        "cierre financiero"
       ],
       "enabled": true
     }
@@ -766,6 +1563,53 @@
         "rehber",
         "ödül"
       ]
+    },
+    {
+      "name": "Operación de Project Finance",
+      "terms": [
+        "financial close",
+        "cierre financiero",
+        "secures financing",
+        "financing agreement",
+        "project financing",
+        "non-recourse",
+        "limited-recourse",
+        "refinancing",
+        "refinanciación"
+      ],
+      "context": [
+        "project finance",
+        "project financing",
+        "financiación de proyectos",
+        "financiamiento de proyectos",
+        "infrastructure finance",
+        "infrastructure financing",
+        "non-recourse",
+        "limited-recourse",
+        "financial close",
+        "cierre financiero"
+      ],
+      "scope": "fullText",
+      "enabled": true,
+      "exclude": [
+        "qué es",
+        "qué son",
+        "cómo",
+        "guía",
+        "premio",
+        "reskilling",
+        "formación tecnológica",
+        "colaboradores",
+        "what is",
+        "what are",
+        "how to",
+        "guide",
+        "award",
+        "nedir",
+        "nasıl",
+        "rehber",
+        "ödül"
+      ]
     }
   ],
   "feeds": [
@@ -838,6 +1682,36 @@
       "country": "Sin determinar",
       "enabled": true,
       "language": "en"
+    },
+    {
+      "id": "project-finance-apac",
+      "name": "Project Finance · APAC",
+      "url": "https://news.google.com/rss/search?q=(%22project%20finance%22%20OR%20%22project%20financing%22%20OR%20%22infrastructure%20financing%22%20OR%20%22financial%20close%22)%20(Asia%20OR%20APAC%20OR%20Pacific%20OR%20India%20OR%20Australia%20OR%20Japan%20OR%20Singapore%20OR%20China%20OR%20Indonesia%20OR%20Vietnam%20OR%20Philippines%20OR%20Malaysia%20OR%20Thailand%20OR%20Korea)%20when%3A10d&hl=en&gl=SG&ceid=SG:en",
+      "domain": "news.google.com",
+      "entity": "Sector",
+      "country": "Sin determinar",
+      "language": "en",
+      "enabled": true
+    },
+    {
+      "id": "project-finance-global",
+      "name": "Project Finance · Global",
+      "url": "https://news.google.com/rss/search?q=(%22project%20finance%22%20OR%20%22project%20financing%22%20OR%20%22financiaci%C3%B3n%20de%20proyectos%22%20OR%20%22financiamiento%20de%20proyectos%22%20OR%20%22financial%20close%22)%20when%3A10d&hl=en&gl=SG&ceid=SG:en",
+      "domain": "news.google.com",
+      "entity": "Sector",
+      "country": "Sin determinar",
+      "language": "en",
+      "enabled": true
+    },
+    {
+      "id": "project-finance-sector",
+      "name": "Project Finance · Medios especializados",
+      "url": "https://news.google.com/rss/search?q=(%22project%20finance%22%20OR%20%22project%20financing%22%20OR%20%22financial%20close%22)%20(site%3Atheasset.com%20OR%20site%3Aasianbankingandfinance.net%20OR%20site%3Arenewablesnow.com%20OR%20site%3Apv-magazine.com%20OR%20site%3Aadb.org%20OR%20site%3Aaiib.org)%20when%3A10d&hl=en&gl=SG&ceid=SG:en",
+      "domain": "news.google.com",
+      "entity": "Sector",
+      "country": "Sin determinar",
+      "language": "en",
+      "enabled": true
     }
   ],
   "capabilities": {
@@ -1552,6 +2426,16 @@
         "terms": [
           "seguridad",
           "security"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Cuentas digitales europeas",
+        "terms": [
+          "conto corrente",
+          "girokonto",
+          "compte en ligne",
+          "conta digital"
         ],
         "enabled": true
       }

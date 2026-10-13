@@ -14,6 +14,7 @@ function invalidateConfiguration_(){configurationMemory_=undefined;configuration
 function configurationEdited_(event){const sheet=event?.range?.getSheet().getName();if(sheet==='Configuracion'){invalidateConfiguration_();requestNewsClassification_(true);}else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
 function initializeConfiguration(){
   authorize_(true);const lock=LockService.getScriptLock();lock.waitLock(10000);
+  const refreshCatalog=properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION;
   try{
     const news=book_().getSheetByName('Noticias');
     if(news&&news.getRange(1,8,1,1).getDisplayValues()[0][0]==='tema')news.deleteColumn(8);
@@ -28,9 +29,9 @@ function initializeConfiguration(){
     }
     const sheet=book_().getSheetByName('Configuracion'),count=sheet.getLastRow()-1,keys=new Set(count?sheet.getRange(2,1,count,1).getValues().flat():[]);
     // Add only absent defaults when the catalog version changes; preserve existing edits and activations.
-    if(properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION){
+    if(refreshCatalog){
       const data=count?sheet.getRange(2,1,count,2).getValues():[];
-      for(const key of ['feeds','entities','capabilities']){
+      for(const key of ['geographies','segments','signals','feeds','entities','capabilities']){
         const index=data.findIndex(row=>row[0]===key);if(index<0)continue;
         const value=JSON.parse(data[index][1]),defaults=CONFIGURATION_DEFAULTS[key];
         if(key==='capabilities'){
@@ -40,6 +41,9 @@ function initializeConfiguration(){
           }
         }else{
           const names=new Set(value.map(row=>key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))),ids=new Set(value.map(row=>row.id));
+          if(key==='geographies')for(const row of value){const seed=defaults.find(item=>item.code===row.code);if(seed)row.terms=[...new Set([...(row.terms||[]),...seed.terms])];}
+          if(key==='segments')for(const row of value){const seed=defaults.find(item=>item.name===row.name);if(seed)row.terms=[...new Set([...row.terms,...seed.terms])];}
+          if(key==='entities')for(const row of value){const seed=defaults.find(item=>searchText_(item.name)===searchText_(row.name));if(seed)row.countries=[...new Set([...row.countries,...seed.countries])];}
           value.push(...defaults.filter(row=>!names.has(key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))&&(key!=='feeds'||!ids.has(row.id))));
         }
         sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(value)]]);
@@ -48,6 +52,7 @@ function initializeConfiguration(){
     append_('Configuracion',Object.entries(CONFIGURATION_DEFAULTS).filter(([key])=>!keys.has(key)).map(([key,value])=>[key,JSON.stringify(value)]));
     const settingsRow=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues().findIndex(row=>row[0]==='settings')+2,stored=JSON.parse(sheet.getRange(settingsRow,2,1,1).getValues()[0][0]);
     const settings=Object.fromEntries(Object.entries(CONFIGURATION_DEFAULTS.settings).map(([key,value])=>[key,key in stored?stored[key]:value]));
+    if(refreshCatalog)settings.searchTerms=[...new Set([...settings.searchTerms,...CONFIGURATION_DEFAULTS.settings.searchTerms])];
     if(!Object.hasOwn(newsletterCadences,settings.defaultPeriodicity))settings.defaultPeriodicity='weekly';
     sheet.getRange(settingsRow,2,1,1).setValues([[JSON.stringify(settings)]]);
     if(!ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='configurationEdited_'))ScriptApp.newTrigger('configurationEdited_').forSpreadsheet(book_()).onEdit().create();
@@ -55,19 +60,21 @@ function initializeConfiguration(){
     if(countSubscriptions>0){const range=subscriptions.getRange(2,8,countSubscriptions,1);range.setValues(range.getValues().map(([value])=>[value||'es']));}
     initializeNewsletterCadences_(subscriptions);
     invalidateConfiguration_();
-    if(properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION){upgradeCollectionQueries_();properties_().setProperty('CATALOG_VERSION',CONFIGURATION_CATALOG_VERSION);}
+    if(refreshCatalog){upgradeCollectionQueries_();properties_().setProperty('CATALOG_VERSION',CONFIGURATION_CATALOG_VERSION);}
     properties_().deleteProperty('CLASSIFICATION_VERSION');
     requestNewsClassification_();
+    if(refreshCatalog&&book_().getSheetByName('Noticias').getLastRow()>1)requestTaxonomy_();
     initializeCollectionQueue_();
     initializeBackgroundSchedules_();
     return 'Configuración inicializada en Sheets. Los valores existentes se han conservado.';
   }finally{lock.releaseLock();}
 }
 function validateConfiguration_(config){
-  const numeric={windowDays:[1,90],pageSize:[1,100],maxCustomFeeds:[1,100],maxFeedBytes:[10000,2000000],maxItems:[1,1000],exportLimit:[1,10000],newsReadLimit:[1,10000],eventLimit:[100,20000],retentionDays:[1,90],trendPoints:[2,60],trendSeries:[1,6],collectionBatch:[1,5],retryMinutes:[1,60],pauseMinutes:[1,60],dailyHour:[0,23],briefingLimit:[1,100],maxSubscriptions:[1,100],newsletterBatch:[1,100],newsletterDailyLimit:[1,1500]};
+  const numeric={windowDays:[1,90],pageSize:[1,100],maxCustomFeeds:[1,100],maxFeedBytes:[10000,2000000],maxItems:[1,1000],exportLimit:[1,10000],newsReadLimit:[1,10000],eventLimit:[100,20000],retentionDays:[1,90],trendPoints:[2,60],trendSeries:[1,6],collectionBatch:[1,5],retryMinutes:[1,60],pauseMinutes:[1,60],dailyHour:[0,23],projectFinanceHour:[0,23],briefingLimit:[1,100],maxSubscriptions:[1,100],newsletterBatch:[1,100],newsletterDailyLimit:[1,1500]};
   if(!config||typeof config.settings!=='object')throw Error('Falta configuración operativa.');
   for(const [name,[min,max]] of Object.entries(numeric)){const n=config.settings[name];if(!Number.isInteger(n)||n<min||n>max)throw Error(name+': requiere un entero entre '+min+' y '+max+'.');}
   if(!Object.hasOwn(newsletterCadences,config.settings.defaultPeriodicity)||typeof config.settings.newsletterEnabled!=='boolean')throw Error('Configuración de newsletter no válida.');
+  if(![4,6,12,24].includes(config.settings.projectFinanceIntervalHours))throw Error('Frecuencia de Project Finance: 4, 6, 12 o 24 horas.');
   newsletterEmail_(config.settings.newsletterSender);
   if(typeof config.settings.newsletterAppUrl!=='string'||(config.settings.newsletterAppUrl&&!/^https:\/\/script\.google\.com\/(?:a\/macros\/bbva\.com\/|macros\/)s\/[A-Za-z0-9_-]+\/exec$/.test(config.settings.newsletterAppUrl)))throw Error('URL de newsletter no válida: indica la WebApp publicada en Apps Script.');
   if(typeof config.settings.newsletterSenderName!=='string'||!config.settings.newsletterSenderName.trim()||config.settings.newsletterSenderName.length>100||/[\r\n]/.test(config.settings.newsletterSenderName))throw Error('Nombre del remitente no válido.');
