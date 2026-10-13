@@ -81,3 +81,33 @@ test('restaurar y actualizar colas mantiene consultas Project Finance y de capac
  const before=sheets.get('Recopilacion').grid.map(row=>row[2]);c.upgradeCollectionQueries_();assert.deepEqual(sheets.get('Recopilacion').grid.map(row=>row[2]),before);
  const index=c.collectionFeedIndex_(),feed=c.collectionFeeds_(range,'projectFinance').find(feed=>feed.kind==='profile'),task={fuente:feed.name,url:feed.url};assert.equal(c.collectionTaskFeed_(task,index,range,'daily'),null);assert.equal(c.collectionTaskFeed_(task,index,range,'projectFinance').url,feed.url);
 });
+
+test('recuperación manual de Project Finance tiene bloqueo propio, deja disponible banca digital y reutiliza su cola',()=>{
+ const {c}=server(),result=c.collectNow('projectFinance');assert.equal(result.blocked.projectFinance,true);assert.equal(result.blocked.today,false);assert.equal(result.jobs[0].tipo,'projectFinance');assert.match(result.notice,/Project Finance/);assert.throws(()=>c.collectNow('projectFinance'),/Project Finance en curso/);
+ c.collectNow('today');c.drainCollectionRequests_();const jobs=c.collectionJobs_();assert.equal(jobs.length,2);assert.equal(Number(jobs.find(j=>j.tipo==='projectFinance').total),165);assert.equal(Number(jobs.find(j=>j.tipo==='daily').total),331);
+});
+test('el botón de Project Finance y su barra funcionan por separado y reflejan la cola sin bloquear la recuperación digital',async t=>{
+ const a=await app(t);await a.click('[data-view="administration"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('[data-collection-kind="projectFinance"] progress').value,0);await a.click('#collect-project-finance');assert.equal(a.calls.findLast(call=>call.method==='collectNow').query,'projectFinance');
+ const status={total:165,pending:115,processed:48,failed:2,blocked:{today:false,year:false,projectFinance:true},jobs:[{tipo:'projectFinance',desde:'2026-10-03',hasta:'2026-10-13',estado:'Pendiente',total:165,procesadas:48,fallidas:2,pendientes:115,nuevas:9}]};a.data.collection=status;a.replies.getRuns.collection=status;await a.click('[data-admin-view="runs"]');assert.equal(a.find('#collect-project-finance').disabled,true);assert.equal(a.find('#collect').disabled,false);const progress=a.find('[data-collection-kind="projectFinance"] progress');assert.equal(progress.max,165);assert.equal(progress.value,50);assert.match(progress.getAttribute('aria-label'),/Project Finance/);
+});
+test('contratos y licitaciones útiles sin banco pertenecen exclusivamente a Project Finance y conservan el país del proyecto',()=>{
+ const {c}=server(),feed=c.feeds_().find(feed=>feed.id==='project-finance-sector');
+ for(const title of ['Solar developer signs power purchase agreement for project in Australia','Vietnam launches infrastructure tender for a transport concession','Renewable energy auction awarded in India']){
+  const result=c.evaluate_({title,url:'https://news.google.com/rss/articles/useful',date:'2026-10-10',excerpt:'New infrastructure projects for business and retail customers.'},feed,new Date('2026-10-12'));assert.ok(result.item,title);assert.equal(result.item.entity,'Sector');const row=c.annotateNews_([{titular:title,extracto:'infrastructure for empresas, pymes y particulares',entidad:'Sector',pais:result.item.country}])[0];assert.deepEqual(Array.from(row.segmentos),['Project Finance']);assert.equal(c.selectAnnotatedNews_([row],{segment:'Empresas e instituciones'}).length,0);assert.equal(c.selectAnnotatedNews_([row],{segment:'Retail'}).length,0);
+ }
+ const bank=c.feeds_().find(feed=>feed.entity==='DBS'&&feed.country==='Singapur'),result=c.evaluate_({title:'DBS closes project financing for solar park in Australia',excerpt:'The lender is headquartered in Singapore.',url:'https://news.google.com/rss/articles/cross-border',date:'2026-10-10'},bank,new Date('2026-10-12'));assert.equal(result.item.country,'Australia');
+});
+test('Project Finance utiliza pestañas de países con totales propios y conserva Transversal para ubicaciones sin evidencia',()=>{
+ const {c}=server(),rows=c.annotateNews_([story('au'),story('in',{pais:'India',titular:'India awards renewable energy auction'}),story('global',{pais:'Sin determinar',titular:'Project debt markets outlook'})]);
+ const result=c.newsDashboard_(rows,{segment:'Project Finance',coverage:'generalista',newsGeography:'India'},[],'news');assert.equal(result.newsGeographies.length,3);assert.equal(result.total,1);assert.equal(result.items[0].id,'in');assert.ok(result.newsGeographies.some(row=>row.name==='Sin determinar'));
+});
+test('las vistas administrativas evitan leer y clasificar el corpus de noticias',()=>{
+ const {c}=server();c.cachedNewsRecords_=()=>{throw Error('Lectura innecesaria del corpus');};for(const view of ['runs','sources','configuration','telemetry']){const result=c.getDashboard({view});assert.equal('items' in result,false);assert.equal(result.performance.newsMs,0);assert.equal(result.performance.version,'2.5.0');}
+});
+
+test('recuperar desde Ejecuciones pide solo metadatos administrativos y actualiza la lectura al cambiar su revisión',async t=>{
+ const a=await app(t);await a.click('[data-view="news"]');await a.click('[data-view="administration"]');await a.click('[data-admin-view="runs"]');
+ a.replies.getDashboard={preferences:a.data.preferences,configurationRevision:'changed',newsRevision:'new',collection:{total:165,pending:165,jobs:[{tipo:'projectFinance',estado:'Pendiente',total:165,pendientes:165}]},admin:true,context:{mode:'current'}};
+ await a.click('#collect-project-finance');const query=a.calls.findLast(call=>call.method==='getDashboard').query;assert.equal(query.view,'runs');assert.equal(query.edition,undefined);assert.equal(a.find('[data-collection-kind="projectFinance"] progress').max,165);
+ const before=a.calls.filter(call=>call.method==='getDashboard').length;a.replies.getDashboard=a.data;await a.click('[data-view="news"]');assert.equal(a.calls.filter(call=>call.method==='getDashboard').length,before+1);
+});

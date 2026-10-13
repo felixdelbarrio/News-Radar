@@ -1,5 +1,6 @@
 function collectionRange_(mode,now){
-  if(!['today','year'].includes(mode))throw Error('Selecciona Hoy o Último año.');
+  if(!['today','year','projectFinance'].includes(mode))throw Error('Selecciona Hoy o Último año.');
+  if(mode==='projectFinance')return collectionRecentRange_(now);
   const to=calendarDate_(now),from=new Date(to);if(mode==='year'){const month=from.getUTCMonth();from.setUTCFullYear(from.getUTCFullYear()-1);if(from.getUTCMonth()!==month)from.setUTCDate(0);}
   return {from:from.toISOString().slice(0,10),to:to.toISOString().slice(0,10)};
 }
@@ -80,7 +81,7 @@ function collectionQueryRange_(url){
 function upgradeCollectionQueries_(){
   const feeds=collectionFeedIndex_(),jobs=new Map(collectionJobs_().map(job=>[job.id,job])),tasks=rows_('Recopilacion'),urls=tasks.map(task=>[task.url]);let changed=false;
   tasks.forEach((task,index)=>{
-    const base=feeds.get('source:'+task.fuente),range=collectionQueryRange_(task.url);if(!base||base.kind!=='profile'||!range||!['Pendiente','Reintento programado'].includes(task.estado))return;
+    const base=feeds.get('source:'+task.fuente),range=collectionQueryRange_(task.url);if(!base||(base.kind!=='profile'&&!domainMatches_(base.url,'news.google.com'))||!range||!['Pendiente','Reintento programado'].includes(task.estado))return;
     if(collectionTaskFeed_(task,feeds,range))return;
     const job=jobs.get(task.ciclo),feed=collectionProfile_({...base,projectFinance:job?.tipo==='projectFinance'},range);if(!feed)return;
     urls[index]=[feed.url];changed=true;

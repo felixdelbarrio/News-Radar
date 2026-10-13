@@ -60,14 +60,19 @@ async function load() {
     return;
   }
   try {
-    const query=filters.query(),data=await call("getDashboard",query);
+    const administrative=navigation.current==='administration',query=administrative?{view:administration.current,language:filters.query().language}:filters.query();
+    let data=await call("getDashboard",query);
     if (request === state.request) {
       const first = !state.data;
-      state.data = data;state.contentStale=false;
+      if(administrative&&state.data){
+        state.contentStale||=data.newsRevision!==state.data.newsRevision||data.configurationRevision!==state.data.configurationRevision;
+        data={...state.data,...data,selection:state.data.selection,context:state.data.context};
+      }else state.contentStale=false;
+      state.data=data;
       setTimezone(data.preferences?.timezone);
       if(window.RADAR_PREVIEW&&data.admin)$("preview-banner").textContent="Administración local · cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.";
       const renderStarted=performance.now();
-      filters.render(data);
+      if(!administrative)filters.render(data);
       renderSelection(data);
       if(data.preferences){$("retention-days").textContent=data.preferences.retentionDays;$("event-limit").textContent=data.preferences.eventLimit;}
       renderShell(data);

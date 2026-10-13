@@ -72,7 +72,7 @@ test('volver al Radar muestra los datos actualizados durante administración sin
 test('muestra progreso independiente y porcentajes atendidos para anual, diaria y cargas en cola',async t=>{
  const a=await app(t,{language:'tr-TR',configure({data}){data.collection={total:10,processed:3,pending:7,jobs:[{id:'annual',tipo:'annual',desde:'2025-10-11',hasta:'2026-10-11',estado:'En pausa',total:10,procesadas:3,pendientes:5,omitidas:1,fallidas:1,nuevas:2,actualizada:'2026-10-11',pausa:String(Date.now()+60000)},{id:'daily',tipo:'daily',desde:'2026-10-01',hasta:'2026-10-11',estado:'En cola',total:0,pendientes:0,nuevas:0}]};}});
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="runs"]');
- a.replies.getRuns.collection=a.data.collection;await a.click('[data-admin-view="runs"]');assert.equal(a.find('#collection-jobs').children.length,2);assert.match(a.find('#collection-jobs').textContent,/Yıllık kurtarma/);assert.match(a.find('#collection-jobs').textContent,/Günlük toplama/);assert.equal(a.find('#collection-jobs progress').value,5);
+ a.replies.getRuns.collection=a.data.collection;await a.click('[data-admin-view="runs"]');assert.equal(a.find('#collection-jobs').children.length,3);assert.match(a.find('#collection-jobs').textContent,/Yıllık kurtarma/);assert.match(a.find('#collection-jobs').textContent,/Günlük toplama/);assert.equal(a.find('#collection-jobs progress').value,5);
 });
 test('las tarjetas presentan traducciones guardadas y no llaman al traductor al navegar',async t=>{
  const a=await app(t,{language:'en-US',configure({data}){

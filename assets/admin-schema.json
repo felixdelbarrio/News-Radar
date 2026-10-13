@@ -73,7 +73,7 @@
   },
   "segments": {
     "label": "Segmentos",
-    "help": "Una noticia puede pertenecer a varios segmentos. Sin coincidencia se mantiene sin segmento; no se atribuye por el nombre del banco.",
+    "help": "Una noticia puede pertenecer a varios segmentos. Project Finance tiene alcance propio y no se mezcla con Empresas o Retail. Sin coincidencia se mantiene sin segmento.",
     "fields": [
       [
         "name",
@@ -245,5 +245,9 @@
         "boolean"
       ]
     ]
+  },
+  "applicationScope": {
+    "label": "Ámbito de aplicación",
+    "help": "Países con pestaña propia por segmento en Noticias y Novedades. Los restantes se agrupan en Otras geografías; las noticias sin país, en Transversal. Radar conserva todas las geografías."
   }
 }

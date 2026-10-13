@@ -1358,7 +1358,21 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "non-recourse",
         "limited-recourse",
         "financial close",
-        "cierre financiero"
+        "cierre financiero",
+        "project refinancing",
+        "refinanciación de proyectos",
+        "power purchase agreement",
+        "offtake agreement",
+        "contrato de compraventa de energía",
+        "infrastructure concession",
+        "concesión de infraestructura",
+        "renewable energy auction",
+        "subasta de energías renovables",
+        "infrastructure tender",
+        "licitación de infraestructura",
+        "project debt",
+        "EPC contract",
+        "contrato EPC"
       ],
       "enabled": true
     }
@@ -1706,7 +1720,7 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
     {
       "id": "project-finance-sector",
       "name": "Project Finance · Medios especializados",
-      "url": "https://news.google.com/rss/search?q=(%22project%20finance%22%20OR%20%22project%20financing%22%20OR%20%22financial%20close%22)%20(site%3Atheasset.com%20OR%20site%3Aasianbankingandfinance.net%20OR%20site%3Arenewablesnow.com%20OR%20site%3Apv-magazine.com%20OR%20site%3Aadb.org%20OR%20site%3Aaiib.org)%20when%3A10d&hl=en&gl=SG&ceid=SG:en",
+      "url": "https://news.google.com/rss/search?q=%28%22project+finance%22+OR+%22project+financing%22+OR+%22financial+close%22+OR+%22project+refinancing%22+OR+%22power+purchase+agreement%22+OR+%22offtake+agreement%22+OR+%22renewable+energy+auction%22+OR+%22infrastructure+tender%22+OR+%22infrastructure+concession%22+OR+%22EPC+contract%22%29+%28site%3Atheasset.com+OR+site%3Aasianbankingandfinance.net+OR+site%3Arenewablesnow.com+OR+site%3Apv-magazine.com+OR+site%3Aadb.org+OR+site%3Aaiib.org%29+when%3A10d&hl=en&gl=SG&ceid=SG%3Aen",
       "domain": "news.google.com",
       "entity": "Sector",
       "country": "Sin determinar",
@@ -2440,5 +2454,50 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "enabled": true
       }
     ]
-  }
+  },
+  "applicationScope": [
+    {
+      "name": "Empresas e instituciones",
+      "countries": [
+        "España",
+        "México",
+        "Perú",
+        "Colombia",
+        "Argentina",
+        "Turquía",
+        "Uruguay"
+      ]
+    },
+    {
+      "name": "Retail",
+      "countries": [
+        "España",
+        "México",
+        "Perú",
+        "Colombia",
+        "Argentina",
+        "Turquía",
+        "Uruguay",
+        "Italia",
+        "Alemania"
+      ]
+    },
+    {
+      "name": "Project Finance",
+      "countries": [
+        "China",
+        "Hong Kong",
+        "Japón",
+        "Singapur",
+        "India",
+        "Australia",
+        "Indonesia",
+        "Corea del Sur",
+        "Vietnam",
+        "Filipinas",
+        "Malasia",
+        "Tailandia"
+      ]
+    }
+  ]
 });

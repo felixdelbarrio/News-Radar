@@ -24,10 +24,10 @@ test('la newsletter nueva incluye Canal digital; Todos y Generalista se conserva
  const created=c.subscriptionRecord_({filters:{entity:'BBVA'}},'owner@bbva.com','default',new Date(),0);assert.equal(created.filtros.coverage,'digital');assert.equal(created.filtros.segment,sectorNewsDefaults.segment);assert.match(created.nombre,/Cobertura: Canal digital/);
  assert.throws(()=>c.subscriptionRecord_({filters:{coverage:'mobile'}},'owner@bbva.com','bad',new Date(),0),/cobertura/);
 });
-test('las geografías se ordenan alfabéticamente y Transversal queda última aunque acumule más noticias',()=>{
+test('países seguidos se ordenan antes de Transversal y Otras geografías',()=>{
  const input=[row('m','México'),row('z','Zimbabue'),row('a','Alemania'),...Array.from({length:6},(_,i)=>row('u'+i,'Sin determinar'))],names=['Alemania','México','Zimbabue','Sin determinar'];
  assert.deepEqual(noveltyOverview(input).geographies.map(row=>row.name),names);assert.deepEqual(noveltyGroups(input).map(row=>row.name),names);assert.equal(geographyLabel(names.at(-1)),'Transversal');assert.equal(geographyLabel('España'),'España');assert.deepEqual(input.map(row=>({name:row.pais})).sort(geographyOrder).slice(0,3).map(row=>row.name),names.slice(0,3));
- const {c}=server(),data=c.newsDashboard_(input,{},[],'news');assert.deepEqual(Array.from(data.newsGeographies,row=>row.name),names);assert.equal(data.newsGeography,'Alemania');assert.equal(c.newsDashboard_(input,{newsGeography:'Sin determinar'},[],'news').total,6);
+ const {c}=server(),data=c.newsDashboard_(input,{},[],'news');assert.deepEqual(Array.from(data.newsGeographies,row=>row.name),['Alemania','México','Sin determinar','Otras geografías']);assert.equal(data.newsGeography,'Alemania');assert.equal(c.newsDashboard_(input,{newsGeography:'Sin determinar'},[],'news').total,6);
 });
 test('las pestañas muestran Transversal y conservan su clave en Novedades, Noticias y enlaces del correo',async t=>{
  const input=[row('u','Sin determinar'),row('u2','Sin determinar'),row('m','México'),row('e','España')],s=server();

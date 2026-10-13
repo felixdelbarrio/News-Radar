@@ -55,11 +55,12 @@ function classification_(title,text,includeLabels=true){
   const index=businessIndex_(),assessment=digitalAssessment_(title,text,index);
   const signals=index.signals.filter(row=>termsMatch_(row.scope==='headline'?title:text,row.terms)&&!termsMatch_(title,row.exclude)&&(!row.context.length||termsMatch_(text,row.context))).map(row=>row.name);
   if(assessment.capabilities.length&&assessment.channel&&assessment.change&&assessment.score>0&&!signals.length){const launch=index.signals[0];if(launch&&!termsMatch_(title,launch.exclude))signals.push(launch.name);}
-  const segments=index.segments.filter(row=>termsMatch_(text,row.terms)).map(row=>row.name);
+  let segments=index.segments.filter(row=>termsMatch_(text,row.terms)).map(row=>row.name);
   if(assessment.channel)for(const capability of assessment.capabilities){
     const exclusive=capability.terms.some(term=>phraseMatch_(text,term)&&index.capabilitySegments.get(term).size===1);
     const segment=index.segments.find(row=>row.name===(capability.segment==='Empresas'?'Empresas e instituciones':'Retail'));if(exclusive&&segment&&!segments.includes(segment.name))segments.push(segment.name);
   }
+  if(segments.includes('Project Finance'))segments=['Project Finance'];
   const labels=includeLabels?newsLabels_(assessment,title):undefined;
   return {signals,assessment,segments,labels};
 }
@@ -83,8 +84,9 @@ function evaluate_(item, feed, now) {
   const classification=classification_(headline,text),project=classification.segments.includes('Project Finance');
   if(feed.entity==='Sector'&&!entity&&!project)return {inRange:true,reason:'Sin entidad de seguimiento en el titular'};
   if(feed.kind==='profile'&&entity&&!index.entityTerms.get(entity.name).some(alias=>phraseMatch_(text,alias)))return {inRange:true,reason:'Sin evidencia de la entidad buscada'};
-  const countries=index.geographies.filter(geo=>geo.terms.some(term=>phraseMatch_(text,term))).map(geo=>geo.name);
-  if(feed.kind==='profile'&&countries.length&&!countries.includes(feed.country))return {inRange:true,reason:'Geografía distinta de la búsqueda'};
+  const geographyText=project&&index.geographies.some(geo=>geo.terms.some(term=>phraseMatch_(headline,term)))?headline:text;
+  const countries=index.geographies.filter(geo=>geo.terms.some(term=>phraseMatch_(geographyText,term))).map(geo=>geo.name);
+  if(feed.kind==='profile'&&!project&&countries.length&&!countries.includes(feed.country))return {inRange:true,reason:'Geografía distinta de la búsqueda'};
   const country=countries.length===1?countries[0]:settings_().unknownCountry;
   if(feed.capabilitySearch&&classification.assessment.excluded)return {inRange:true,reason:'Información corporativa sin novedad de canal digital'};
   if(feed.capabilitySearch&&(!classification.assessment.capabilities.length||!classification.assessment.channel))return {inRange:true,reason:'Sin capacidad digital activa en contexto de canal'};

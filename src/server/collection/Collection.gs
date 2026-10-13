@@ -14,9 +14,9 @@ function collectionStatus_(tasks,jobs){
 function resumeCollection(){authorize_(true);ensureBackgroundWorker_();return {...collectionStatus_(),added:0,errors:[],notice:'Continuación en cola.'};}
 function collectNow(mode='today'){
   authorize_(true);const now=new Date(),range=collectionRange_(mode,now),blocked=recoveryAvailability(collectionJobs_(),collectionRequests_());
-  if(blocked[mode])throw Error(mode==='year'?'Ya hay una recuperación anual en curso.':'Ya hay una recuperación diaria en curso.');
-  if(mode==='today')requestDailyCollection_(now);else requestCollection_('annual',range);
-  return {...collectionStatus_(),added:0,errors:[],notice:mode==='year'?'Recuperación anual en cola.':'Recuperación diaria en cola.'};
+  if(blocked[mode])throw Error(mode==='projectFinance'?'Ya hay una recuperación de Project Finance en curso.':mode==='year'?'Ya hay una recuperación anual en curso.':'Ya hay una recuperación diaria en curso.');
+  if(mode==='today')requestDailyCollection_(now);else requestCollection_(mode==='projectFinance'?'projectFinance':'annual',range);
+  return {...collectionStatus_(),added:0,errors:[],notice:mode==='projectFinance'?'Recuperación de Project Finance en cola.':mode==='year'?'Recuperación anual en cola.':'Recuperación diaria en cola.'};
 }
 function requestDailyCollection_(now=new Date()){requestCollection_('daily',collectionRecentRange_(now));}
 function dailyRadar_(){scheduledCollection_('daily');}

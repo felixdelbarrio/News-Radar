@@ -29,7 +29,7 @@ function client(responses={}){
 }
 const server=vm.createContext({});vm.runInContext(readServerScript('dist',true),server);server.configuration_=()=>JSON.parse(read("assets/configuration-defaults.json"));
 const radar=server.radarMetrics_([{fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País'}],{});
-const dashboard=title=>({items:[{titular:title,fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País',tema:'Financiación',url:'https://example.com/news'}],
+const dashboard=title=>({applicationScope:JSON.parse(read('assets/configuration-defaults.json')).applicationScope,items:[{titular:title,fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País',tema:'Financiación',url:'https://example.com/news'}],
   page:0,pageSize:30,total:1,countries:['España','México'],entities:['BBVA','Santander'],sources:['El País'],topics:['Financiación'],
   stats:radar.summary,radar,sourceCount:57,daily:false,admin:false});
 const settle=async()=>{await Promise.resolve();await Promise.resolve();await Promise.resolve();};
@@ -94,7 +94,7 @@ test('seleccionar un ámbito en el mapa actualiza los filtros compartidos',async
 });
 
 test('el mapa refleja el volumen filtrado y comunica entidad y ausencia de noticias',async()=>{
-  const c=client(),areas=['México','España'].map(country=>({dataset:{country},style:{setProperty(name,value){this[name]=value;}},setAttribute(name,value){this[name]=value;},title:{},querySelector(){return this.title;}}));
+  const c=client(),areas=['México','España'].map(country=>({dataset:{country},classList:{contains:()=>false},style:{setProperty(name,value){this[name]=value;}},setAttribute(name,value){this[name]=value;},title:{},querySelector(){return this.title;}}));
   c.element('world-map').querySelectorAll=selector=>selector==='[data-code]'?[]:areas;
   await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'radar'}})}});
   c.requests.at(-1).resolve(dashboard('Santander en México'));await settle();

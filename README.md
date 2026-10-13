@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `2.3.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `2.5.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -455,3 +455,13 @@ Se eliminan el endpoint de preferencias, su esquema y el catálogo personal del 
 El radar incorpora Project Finance en los segmentos existentes, 31 países y 86 entidades, incluidos bancos APAC y competidores retail de Italia y Alemania. Tres RSS gratuitos de Google News amplían operaciones y medios especializados. La banca digital se recopila una vez al día y tiene prioridad. Project Finance utiliza un job independiente cada seis horas por defecto, configurable, con ventanas incrementales y sin ciclos solapados del mismo tipo. Los titulares sindicados se deduplican entre bancos y países; el mapa, los totales y el corpus de taxonomía cuentan publicaciones únicas.
 
 Para instalar: copiar `dist/`, ejecutar `initializeConfiguration` y publicar una nueva versión de la WebApp. [Cobertura, fuentes verificadas, funcionamiento y límites](docs/project-finance-2.3.0.md).
+
+## Recuperación y noticias de Project Finance · 2.4.0
+
+Ejecuciones incorpora un botón específico para recuperar Project Finance y una barra independiente, con bloqueo propio y el mismo seguimiento de las demás colas. Las noticias de este alcance se etiquetan exclusivamente como Project Finance, también cuando proceden de promotores o medios especializados sin un banco identificado. Se amplía el seguimiento a contratos de energía, refinanciaciones, concesiones y licitaciones de infraestructura. Las pestañas de países utilizan la ubicación publicada del proyecto; los casos sin evidencia permanecen en Transversal.
+
+Los logotipos de The Asset, Asian Banking & Finance, ADB y AIIB se incluyen como imágenes locales. Las vistas administrativas evitan preparar el corpus de noticias. [Cambios, telemetría y publicación](docs/project-finance-2.4.0.md).
+
+## Ámbito de aplicación y geografías · 2.5.0
+
+Configuración de negocio incorpora países de seguimiento por segmento. Noticias y Novedades agrupan los países restantes en «Otras geografías» y las noticias sin país en «Transversal». Radar conserva su alcance global; mapa y opciones de país omiten geografías sin resultados. Las consultas seleccionan términos por idioma, con vocabulario central y los límites de recuperación existentes. [Detalle y publicación](docs/application-scope-2.5.0.md).

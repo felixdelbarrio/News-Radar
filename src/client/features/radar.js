@@ -12,12 +12,12 @@ function createRadar({ onCountry, onEntity, onNews }) {
   chartObserver.observe($('trend-chart'));
   $("map-panel").addEventListener("click", (event) => {
     const target = event.target.closest("[data-country]");
-    if (target) onCountry(target.dataset.country);
+    if (target&&target.dataset.count!=='0') onCountry(target.dataset.country);
   });
   $("world-map").addEventListener("keydown", (event) => {
     if (["Enter", " "].includes(event.key)) {
       const target = event.target.closest("[data-country]");
-      if (target) {
+      if (target&&target.dataset.count!=='0') {
         event.preventDefault();
         onCountry(target.dataset.country);
       }
@@ -52,12 +52,15 @@ function createRadar({ onCountry, onEntity, onNews }) {
     const max = Math.max(1, ...radar.geographies.map((area) => area.total)), areas = new Map(radar.geographies.map((area) => [area.country, area]));
     $("world-map").querySelectorAll("[data-country]").forEach((node) => {
       const area = areas.get(node.dataset.country), count = area?.total || 0, level = count ? Math.ceil(count / max * 4) : 0;
+      node.dataset.count=String(count);
+      node.setAttribute('aria-disabled',String(!count));node.setAttribute('tabindex',count&&node.classList.contains('map-marker')?'0':'-1');
+      if(node.classList.contains('map-marker'))node.style.display=count?'':'none';
       node.style.setProperty("--map-fill", "var(--heat-" + level + ")");
       node.setAttribute("aria-label", node.dataset.country + ": " + count + " publicaciones. Filtrar por esta geografía.");
       const title = node.querySelector("title");
       if (title) title.textContent = node.dataset.country + " · " + count + " publicaciones" + (area ? " · " + area.entities.map((row) => row.entity + ": " + row.count).join(", ") : "");
     });
-    const countries = (data.geographies||[]).map(row=>row.name);
+    const countries = radar.geographies.filter(row=>row.total>0).map(row=>row.country);
     $("map-countries").innerHTML = countries.map((country) => {
       const count = areas.get(country)?.total || 0;
       return `<button type="button" class="geo-row" data-country="${escape(country)}"><span class="identity-label">${identityMark('countries',country,escape)}${escape(country)}</span><span class="geo-count">${count}</span><span class="geo-track"><span style="width:${count / max * 100}%"></span></span></button>`;

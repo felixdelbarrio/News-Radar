@@ -536,6 +536,55 @@
       "width": 40,
       "height": 40,
       "source": "https://www.bbva.com/wp-content/themes/coronita-bbvacom/assets/images/comun/favicon.ico"
+    },
+    "The Asset": {
+      "id": "publisher-5",
+      "file": "publisher-5.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.theasset.com/favicons/favicon-32x32.png"
+    },
+    "Asian Banking & Finance": {
+      "id": "publisher-6",
+      "file": "publisher-6.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.cmgassets.com/s3fs-public/styles/favicon_57/public/domain_logo/abf-favicon.png.webp?itok=cDyG68ik"
+    },
+    "ADB": {
+      "id": "publisher-7",
+      "file": "publisher-7.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.adb.org/themes/custom/adb_theme/favicon.ico"
+    },
+    "AIIB": {
+      "id": "publisher-8",
+      "file": "publisher-8.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.aiib.org/_common/base/favicon/apple-touch-icon.png"
+    },
+    "Asian Development Bank": {
+      "id": "publisher-7",
+      "file": "publisher-7.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.adb.org/themes/custom/adb_theme/favicon.ico"
+    },
+    "Asian Infrastructure Investment Bank": {
+      "id": "publisher-8",
+      "file": "publisher-8.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.aiib.org/_common/base/favicon/apple-touch-icon.png"
+    },
+    "Asian Banking and Finance": {
+      "id": "publisher-6",
+      "file": "publisher-6.png",
+      "width": 40,
+      "height": 40,
+      "source": "https://www.cmgassets.com/s3fs-public/styles/favicon_57/public/domain_logo/abf-favicon.png.webp?itok=cDyG68ik"
     }
   }
 }

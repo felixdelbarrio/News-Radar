@@ -23,3 +23,8 @@ test('los tres ámbitos del correo comparten identidad y cada CID tiene un únic
   c.sendNewsletterMail_({name:'News Radar',address:'sender@bbva.com'},'user@bbva.com',content);const mime=Buffer.from(calls.at(-1).raw,'base64url').toString('utf8'),ids=[...mime.matchAll(/Content-ID: <([^>]+)>/g)].map(match=>match[1]),used=[...content.html.matchAll(/src="cid:([^" ]+)"/g)].map(match=>match[1]);assert.deepEqual(ids,Array.from(content.images,row=>row.id));for(const id of used)assert.equal(ids.filter(value=>value===id).length,1);assert.match(mime,/multipart\/related/);assert.match(mime,/multipart\/alternative/);assert.ok(content.images.reduce((size,image)=>size+image.data.length,0)<20000);
  }
 });
+
+test('medios especializados y multilaterales usan logotipos locales también con variaciones de mayúsculas',()=>{
+ const assets=identityAssets();for(const name of ['The Asset','Asian Banking & Finance','ADB','AIIB','Asian Development Bank'])assert.ok(assets.publishers[name],name);
+ const c=vm.createContext({});vm.runInContext(readServerScript(),c);assert.match(c.identityMark('publishers','THE ASSET',value=>value),/data:image\/png;base64/);
+});
