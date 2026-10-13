@@ -26,27 +26,14 @@ function subscriptionRecord_(input,email,id,now,count){
   const selection=filters;
   return {id,correo:email,nombre:newsletterSubject_(selection,language),filtros:selection,periodicidad:periodicity,activa:input.active!==false,actualizada:now.toISOString(),idioma:language};
 }
-function newsletterPeriod_(periodicity,now){
-  const end=calendarDate_(now),start=new Date(end);
-  if(periodicity==='monthly'){end.setUTCDate(1);start.setUTCDate(1);start.setUTCMonth(start.getUTCMonth()-1);}
-  else if(periodicity==='weekly'){end.setUTCDate(end.getUTCDate()-(end.getUTCDay()+6)%7);start.setTime(end.getTime());start.setUTCDate(start.getUTCDate()-7);}
-  else if(periodicity==='yearly'){end.setUTCMonth(0,1);start.setUTCFullYear(end.getUTCFullYear()-1,0,1);}
-  else throw Error('Periodicidad no válida.');
-  const cutoff=end.toISOString(),delivery=new Date(end);delivery.setUTCDate(delivery.getUTCDate()+(newsletterCadences[periodicity].weekday-delivery.getUTCDay()+7)%7);end.setUTCDate(end.getUTCDate()-1);
-  return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10),cutoff,available:delivery.toISOString().slice(0,10)};
-}
-function subscriptionQuery_(subscription,now,closed=false){const periodicity=subscription.periodicidad||settings_().defaultPeriodicity;if(!Object.hasOwn(newsletterCadences,periodicity))throw Error('Periodicidad no válida.');const cadence=newsletterCadences[periodicity],period=closed?newsletterPeriod_(periodicity,now):newsRange_(cadence.range,now);return {...subscriptionFilters_(subscription.filtros),from:period.from,to:period.to,view:cadence.view};}
+function newsletterPeriod_(periodicity,now){return newsletterWindow(periodicity,recordDay(now,settings_().timezone),true);}
+function subscriptionQuery_(subscription,now,closed=false){const periodicity=subscription.periodicidad||settings_().defaultPeriodicity,period=newsletterWindow(periodicity,recordDay(now,settings_().timezone),closed);return {...subscriptionFilters_(subscription.filtros),from:period.from,to:period.to,view:newsletterCadences[periodicity].view};}
 function newsletterDeliveryId_(subscription,period){return subscription.id+':'+subscription.periodicidad+':'+period.from;}
 function newsletterNextDate_(subscription,now,last){
   if(!subscription.activa)return '';
-  const period=newsletterPeriod_(subscription.periodicidad,now),date=calendarDate_(now),completed=last?.id===newsletterDeliveryId_(subscription,period)&&!['No enviado','Bloqueada'].includes(last.estado);
-  if(completed||new Date(subscription.actualizada)>=new Date(period.cutoff)){
-    if(subscription.periodicidad==='monthly'){date.setUTCDate(1);date.setUTCMonth(date.getUTCMonth()+1);}
-    else if(subscription.periodicidad==='weekly')date.setUTCDate(date.getUTCDate()+7-(date.getUTCDay()+6)%7);
-    else date.setUTCFullYear(date.getUTCFullYear()+1,0,1);
-  }
-  if(completed||new Date(subscription.actualizada)>=new Date(period.cutoff))date.setUTCDate(date.getUTCDate()+(newsletterCadences[subscription.periodicidad].weekday-date.getUTCDay()+7)%7);
-  return [date.toISOString().slice(0,10),period.available].sort().at(-1);
+  const day=recordDay(now,settings_().timezone),period=newsletterPeriod_(subscription.periodicidad,now),completed=last?.id===newsletterDeliveryId_(subscription,period)&&!['No enviado','Bloqueada'].includes(last.estado);
+  const available=completed||new Date(subscription.actualizada)>=new Date(period.cutoff)?newsletterWindow(subscription.periodicidad,day).available:period.available;
+  return day>available?day:available;
 }
 function subscriptionIdentity_(row){
   const filters=subscriptionFilters_(row.filtros);
@@ -78,8 +65,8 @@ function deleteSubscription(id){
   try{const index=rows_('Suscripciones').findIndex(row=>row.id===id&&row.correo===session.email);if(index<0)throw Error('Suscripción no encontrada.');book_().getSheetByName('Suscripciones').deleteRow(index+2);properties_().setProperty('SUBSCRIPTIONS_REVISION',Utilities.getUuid());return 'Suscripción eliminada.';}finally{lock.releaseLock();}
 }
 
-function initializeNewsletterCadences_(sheet){
+function initializeNewsletterCadences_(sheet,changes={}){
   const count=sheet.getLastRow()-1;if(!count)return;const keys=RADAR.sheets.Suscripciones,rows=sheet.getRange(2,1,count,keys.length).getValues();let changed=false;
-  for(const values of rows){const filters=JSON.stringify(subscriptionFilters_(JSON.parse(values[3]))),cadence=Object.hasOwn(newsletterCadences,values[4])?values[4]:'weekly';if(filters!==values[3]||cadence!==values[4]){values[3]=filters;values[4]=cadence;changed=true;}}
+  for(const values of rows){const filters=JSON.stringify(subscriptionFilters_(JSON.parse(values[3]))),cadence=changes[values[4]]||(Object.hasOwn(newsletterCadences,values[4])?values[4]:'fortnightly');if(filters!==values[3]||cadence!==values[4]){values[3]=filters;values[4]=cadence;changed=true;}}
   if(changed){sheet.getRange(2,1,count,keys.length).setValues(rows);properties_().setProperty('SUBSCRIPTIONS_REVISION',Utilities.getUuid());}
 }

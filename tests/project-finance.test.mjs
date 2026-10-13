@@ -61,7 +61,7 @@ test('Project Finance mantiene formularios existentes y elige cobertura generali
  const a=await app(t,{configure({data,replies}){data.segments=['Empresas e instituciones','Retail','Project Finance'];replies.getNewsletterOptions.catalogs.segment=data.segments;replies.getNewsletterOptions.catalogs.coverage=['digital','generalista'];replies.getNewsletterOptions.defaults.filters={segment:'Empresas e instituciones',coverage:'digital'};}});
  await a.change('#filters [name="coverage"]','digital');await a.change('#filters [name="segment"]','Project Finance');assert.equal(a.find('#filters [name="coverage"]').value,'generalista');assert.equal(a.calls.filter(c=>c.method==='getDashboard').at(-1).query.segment,'Project Finance');
  await a.click('[data-view="subscriptions"]');await a.click('#new-subscription');await a.change('#personal-editor [name="segment"]','Project Finance');assert.equal(a.find('#personal-editor [name="coverage"]').value,'generalista');await a.submit('#personal-editor form');const payload=a.calls.find(c=>c.method==='saveSubscription').query;assert.equal(payload.filters.segment,'Project Finance');assert.equal(payload.filters.coverage,'generalista');
- const {c}=server();c.saveSubscription({periodicity:'monthly',active:true,filters:{segment:'Project Finance'}});assert.equal(c.getSubscriptions()[0].filtros.coverage,'generalista');
+ const {c}=server();c.saveSubscription({periodicity:'quarterly',active:true,filters:{segment:'Project Finance'}});assert.equal(c.getSubscriptions()[0].filtros.coverage,'generalista');
 });
 test('checkpoints de titulares acotan cada celda y conservan corpus grandes sin guardar textos completos',()=>{
  const s=server(),c=s.c,titles=Object.fromEntries(Array.from({length:1500},(_,i)=>[c.sha256_('headline'+i),[20000+i]])),job={id:'chunked'};
@@ -102,7 +102,7 @@ test('Project Finance utiliza pestañas de países con totales propios y conserv
  const result=c.newsDashboard_(rows,{segment:'Project Finance',coverage:'generalista',newsGeography:'India'},[],'news');assert.equal(result.newsGeographies.length,3);assert.equal(result.total,1);assert.equal(result.items[0].id,'in');assert.ok(result.newsGeographies.some(row=>row.name==='Sin determinar'));
 });
 test('las vistas administrativas evitan leer y clasificar el corpus de noticias',()=>{
- const {c}=server();c.cachedNewsRecords_=()=>{throw Error('Lectura innecesaria del corpus');};for(const view of ['runs','sources','configuration','telemetry']){const result=c.getDashboard({view});assert.equal('items' in result,false);assert.equal(result.performance.newsMs,0);assert.equal(result.performance.version,'2.6.0');}
+ const {c}=server();c.cachedNewsRecords_=()=>{throw Error('Lectura innecesaria del corpus');};for(const view of ['runs','sources','configuration','telemetry']){const result=c.getDashboard({view});assert.equal('items' in result,false);assert.equal(result.performance.newsMs,0);assert.equal(result.performance.version,'2.7.0');}
 });
 
 test('recuperar desde Ejecuciones pide solo metadatos administrativos y actualiza la lectura al cambiar su revisión',async t=>{

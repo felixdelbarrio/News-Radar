@@ -3,12 +3,13 @@ import { call } from "../core/api.js";
 import {createRecordFilters} from './record-filters.js';
 import {activityChart} from './activity-chart.js';
 import {t,language} from '../core/language.js';
+import {newsletterCadences} from '../../shared/newsletter-cadences.js';
 import {displayRecord} from '../../shared/locales.js';
 const filters={},requests={};
 $('newsletter-feedback-body').addEventListener('click',async event=>{const button=event.target.closest('[data-feedback]');if(!button)return;button.disabled=true;try{await call('setNewsletterFeedbackState',{id:button.dataset.feedback,state:button.dataset.state});await loadMetrics('adoption',()=>!$('adoption-section').hidden);}catch(error){message(error.message,true);}finally{button.disabled=false;}});
 async function loadMetrics(view, isCurrent) {
   filters[view]||=createRecordFilters(view,view==='adoption'?[['correo','Usuario'],['vista','Vista'],['evento','Evento']]:[['operacion','Operación'],['estado','Estado']],()=>loadMetrics(view,isCurrent),{dates:true});
-  if(view==='adoption'){filters['newsletter-adoption']||=createRecordFilters('newsletter-adoption',[['edicion','Edición'],['cadencia','Periodicidad',[['weekly','Semanal'],['monthly','Mensual'],['yearly','Anual']]]],()=>loadMetrics(view,isCurrent),{dates:true});filters['newsletter-feedback']||=createRecordFilters('newsletter-feedback',[['estado','Estado',[['pendiente','pendiente'],['atendido','atendido']]]],()=>loadMetrics(view,isCurrent),{dates:true});}
+  if(view==='adoption'){filters['newsletter-adoption']||=createRecordFilters('newsletter-adoption',[['edicion','Edición'],['cadencia','Periodicidad',Object.entries(newsletterCadences).map(([key,row])=>[key,row.label])]],()=>loadMetrics(view,isCurrent),{dates:true});filters['newsletter-feedback']||=createRecordFilters('newsletter-feedback',[['estado','Estado',[['pendiente','pendiente'],['atendido','atendido']]]],()=>loadMetrics(view,isCurrent),{dates:true});}
   const request=requests[view]=(requests[view]||0)+1;
   try {
     const [data,insights]=await Promise.all([call(view==='adoption'?'getAdoption':'getTelemetry',filters[view].query()),view==='adoption'?call('getNewsletterInsights',{adoption:filters['newsletter-adoption'].query(),feedback:filters['newsletter-feedback'].query()}):null]);

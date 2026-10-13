@@ -27,6 +27,10 @@ function domainMatches_(url, domain) {
 }
 let businessIndexMemory_;
 const newsRelevanceMemory_=new WeakMap();
+function newsRelevance_(row){
+  if(!newsRelevanceMemory_.has(row))newsRelevanceMemory_.set(row,digitalAssessment_(searchText_(row.titular),searchText_(row.titular+' '+row.extracto)).score);
+  return newsRelevanceMemory_.get(row);
+}
 function packNews_(row){return [row,newsRelevanceMemory_.get(row)??0];}
 function unpackNews_(record){newsRelevanceMemory_.set(record[0],record[1]);return record[0];}
 function businessIndex_(){

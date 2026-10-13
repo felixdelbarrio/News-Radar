@@ -52,7 +52,7 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
     "disabledSources": [],
     "maxSubscriptions": 20,
     "unknownCountry": "Sin determinar",
-    "defaultPeriodicity": "monthly",
+    "defaultPeriodicity": "quarterly",
     "newsletterEnabled": false,
     "newsletterBatch": 20,
     "newsletterSender": "news-radar.group@bbva.com",
