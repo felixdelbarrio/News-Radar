@@ -39,8 +39,8 @@ test('scheduled work defers before reading configuration or acquiring locks',()=
  const s=storage();s.properties['WORK_INTENT:test']=String(Date.now()+600000);
  s.c.settings_=()=>{throw Error('Configuration unavailable');};s.c.LockService.getScriptLock=()=>{throw Error('Must not lock');};
  assert.equal(s.c.processBackground_().paused,true);assert.equal(s.c.deliverNewsletters_().state,'configuration_pause');
- s.c.scheduledCollection_('daily');s.c.scheduledCollection_('projectFinance');s.c.dailyClassification_();s.c.dailyTaxonomy_();
- for(const name of ['background','newsletter','daily','projectFinance','classification','taxonomy'])assert.equal(s.properties['WORK_PENDING:'+name],'true');
+ s.c.scheduledCollection_('daily');s.c.dailyClassification_();s.c.dailyTaxonomy_();
+ for(const name of ['background','newsletter','daily','classification','taxonomy'])assert.equal(s.properties['WORK_PENDING:'+name],'true');
 });
 test('watchdog waits for active configuration and retries a busy lock',()=>{
  const s=fixture();s.c.deferBackgroundWork_('background');s.properties['WORK_INTENT:test']=String(Date.now()+600000);

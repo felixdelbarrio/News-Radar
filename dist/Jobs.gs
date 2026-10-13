@@ -25,7 +25,7 @@ function drainCollectionRequests_(){
       append_('Recargas',[RADAR.sheets.Recargas.map(key=>job[key])]);jobs.push(job);SpreadsheetApp.flush();
     }
     if(job.estado==='Preparando'){
-      const feeds=collectionFeeds_(jobRange_(job),job.tipo),missing=feeds.filter(feed=>!existing.has(job.id+'|'+feed.url));
+      const feeds=collectionFeeds_(jobRange_(job)),missing=feeds.filter(feed=>!existing.has(job.id+'|'+feed.url));
       append_('Recopilacion',missing.map(feed=>[job.id,feed.name,feed.url,'Pendiente',0,'',0,0,'',feed.range.to]));
       Object.assign(job,{estado:feeds.length?'Pendiente':'Completada',total:feeds.length,pendientes:feeds.length,fin:feeds.length?'':new Date().toISOString()});writeCollectionJob_(job);SpreadsheetApp.flush();
     }

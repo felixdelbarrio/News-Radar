@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `2.7.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.0.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -446,17 +446,6 @@ Se retira el selector «Mi selección» y su texto duplicado de Novedades, Notic
 
 Se eliminan el endpoint de preferencias, su esquema y el catálogo personal del dashboard. La primera suscripción se cachea por usuario y revisión, solo se resuelve al inicializar una vista y no calcula asuntos traducidos. Véase [el análisis de telemetría](docs/telemetry-2.2.0.md). Publicar todos los archivos de `dist/` en una nueva versión aplica el cambio.
 
-## Project Finance y cobertura internacional · 2.3.0
-
-El radar incorpora Project Finance en los segmentos existentes, 31 países y 86 entidades, incluidos bancos APAC y competidores retail de Italia y Alemania. Tres RSS gratuitos de Google News amplían operaciones y medios especializados. La banca digital se recopila una vez al día y tiene prioridad. Project Finance utiliza un job independiente cada seis horas por defecto, configurable, con ventanas incrementales y sin ciclos solapados del mismo tipo. Los titulares sindicados se deduplican entre bancos y países; el mapa, los totales y el corpus de taxonomía cuentan publicaciones únicas.
-
-Para instalar: copiar `dist/`, ejecutar `initializeConfiguration` y publicar una nueva versión de la WebApp. [Cobertura, fuentes verificadas, funcionamiento y límites](docs/project-finance-2.3.0.md).
-
-## Recuperación y noticias de Project Finance · 2.4.0
-
-Ejecuciones incorpora un botón específico para recuperar Project Finance y una barra independiente, con bloqueo propio y el mismo seguimiento de las demás colas. Las noticias de este alcance se etiquetan exclusivamente como Project Finance, también cuando proceden de promotores o medios especializados sin un banco identificado. Se amplía el seguimiento a contratos de energía, refinanciaciones, concesiones y licitaciones de infraestructura. Las pestañas de países utilizan la ubicación publicada del proyecto; los casos sin evidencia permanecen en Transversal.
-
-Los logotipos de The Asset, Asian Banking & Finance, ADB y AIIB se incluyen como imágenes locales. Las vistas administrativas evitan preparar el corpus de noticias. [Cambios, telemetría y publicación](docs/project-finance-2.4.0.md).
 
 ## Ámbito de aplicación y geografías · 2.5.0
 
@@ -471,3 +460,9 @@ La cabecera separa BBVA Empresas y News Radar de bIA, con los logotipos alineado
 Las fechas están disponibles en las tres vistas y sus chips abren el calendario. Novedades explica que comienza con los últimos siete días y muestra el período consultado. Los selectores con más de seis opciones incorporan búsqueda por coincidencias, ignorando mayúsculas, acentos y puntuación, conservando el control nativo y su valor. Las lecturas muestran un spinner accesible sin bloquear la navegación; las peticiones simultáneas mantienen el indicador hasta finalizar. Se conservan los tokens BBVA existentes: Benton Sans, Tiempos para titulares, colores semánticos, contenedores de 16 px y componentes de 8 px.
 
 Referencia de implementación: PDF de mejoras de usabilidad del 13 de octubre de 2026 y recursos locales de BBVA Experience. Los documentos se han utilizado como criterios de diseño dentro del alcance solicitado. Para publicar, copiar todos los archivos de `dist/` en Apps Script y crear una nueva versión de la WebApp.
+
+## Separación de la recopilación de infraestructura
+
+News Radar conserva únicamente sus ámbitos de banca digital de Empresas e instituciones y Retail. Se han retirado las fuentes, consultas, controles y trabajos del ámbito de infraestructura.
+
+El planificador lee la pausa global de recuperación una vez al preparar el lote y una vez al calcular su continuación. La cola puede contener miles de tareas sin multiplicar las llamadas a PropertiesService por cada fila. La prioridad de la recuperación diaria, los reintentos y las pausas por cuota se conservan.

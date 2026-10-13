@@ -1,5 +1,6 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "Una noticia puede pertenecer a varios segmentos. Sin coincidencia se mantiene sin segmento.": ["An article can belong to multiple segments. Articles without a match remain unassigned.", "Bir haber birden fazla segmente ait olabilir. Eşleşmeyen haberler segmentsiz kalır."],
   "Productos nuevos, mejoras de oferta y alianzas para comparar cómo evoluciona el servicio de las entidades que sigues.": ["New products, improved offers and partnerships to compare how the banks you follow are evolving their services.", "Takip ettiğiniz bankaların hizmetlerini nasıl geliştirdiğini karşılaştırmak için yeni ürünler, iyileştirilmiş teklifler ve ortaklıklar."],
   "Cargar más noticias": ["Load more news", "Daha fazla haber yükle"],
   "Cargar más grupos": ["Load more groups", "Daha fazla grup yükle"],
@@ -134,10 +135,7 @@ const translations = Object.freeze({
   "Ámbito de aplicación no válido.": ["Invalid application scope.", "Geçersiz uygulama kapsamı."],
   "Países con pestaña propia por segmento en Noticias y Novedades. Los restantes se agrupan en Otras geografías; las noticias sin país, en Transversal. Radar conserva todas las geografías.": ["Countries with their own tab per segment in News and New releases. Remaining countries appear in Other geographies; news without a country appears in Cross-market. Radar retains all geographies.", "Haberler ve Yenilikler bölümlerinde segmente göre ayrı sekmesi olan ülkeler. Diğer ülkeler Diğer ülkeler altında, ülkesi bilinmeyen haberler Ülkeler arası altında gösterilir. Radar tüm ülkeleri korur."],
   "Nombres alternativos del país": ["Alternative country names", "Alternatif ülke adları"],
-  "Operación de Project Finance": ["Project Finance transaction", "Proje Finansmanı işlemi"],
   "Cuentas digitales europeas": ["European digital accounts", "Avrupa dijital hesapları"],
-  "Financiación de proyectos": ["Project financing", "Proje finansmanı"],
-  "Frecuencia de Project Finance: 4, 6, 12 o 24 horas.": ["Project Finance frequency: 4, 6, 12 or 24 hours.", "Proje Finansmanı sıklığı: 4, 6, 12 veya 24 saat."],
   "Recopilación activada. {schedule}.": ["Collection enabled. {schedule}.", "Toplama etkin. {schedule}."],
   "Ventana: últimos {days} días. {schedule}.": ["Window: last {days} days. {schedule}.", "Zaman aralığı: son {days} gün. {schedule}."],
   "Titular sindicado equivalente en fecha próxima": ["Equivalent syndicated headline on a nearby date", "Yakın tarihte eşdeğer sendikasyon başlığı"],
@@ -158,13 +156,6 @@ const translations = Object.freeze({
   "Filipinas": ["Philippines","Filipinler"],
   "Malasia": ["Malaysia","Malezya"],
   "Tailandia": ["Thailand","Tayland"],
-  "Banca digital: diaria · {digitalHour}:00 · Project Finance: cada {hours} horas · desde {projectHour}:00 · {timezone}": ["Digital banking: daily · {digitalHour}:00 · Project Finance: every {hours} hours · from {projectHour}:00 · {timezone}", "Dijital bankacılık: günlük · {digitalHour}:00 · Proje Finansmanı: her {hours} saatte · {projectHour}:00 itibarıyla · {timezone}"],
-  "Recuperar Project Finance": ["Recover Project Finance", "Proje Finansmanı haberlerini getir"],
-  "Ya hay una recuperación de Project Finance en curso.": ["A Project Finance recovery is already in progress.", "Proje Finansmanı haberlerinin getirilmesi devam ediyor."],
-  "Recuperación de Project Finance en cola.": ["Project Finance recovery queued.", "Proje Finansmanı haberlerini getirme sıraya alındı."],
-  "Una noticia puede pertenecer a varios segmentos. Project Finance tiene alcance propio y no se mezcla con Empresas o Retail. Sin coincidencia se mantiene sin segmento.": ["An article can belong to multiple segments. Project Finance has its own scope and is kept separate from Business and Retail. Articles without a match remain unassigned.", "Bir haber birden fazla segmente ait olabilir. Proje Finansmanı kendi kapsamına sahiptir ve Kurumsal veya Bireysel ile karıştırılmaz. Eşleşmeyen haberler segmentsiz kalır."],
-  "Project Finance": ["Project Finance", "Proje Finansmanı"],
-  "Intervalo de Project Finance (4, 6, 12 o 24 horas)": ["Project Finance interval (4, 6, 12 or 24 hours)", "Proje Finansmanı aralığı (4, 6, 12 veya 24 saat)"],
   "Consultar": ["Read", "Oku"],
   "Noticias recuperadas": ["Retrieved news", "Toplanan haberler"],
   "Noticias de la selección": ["News matching the selection", "Seçime uyan haberler"],
@@ -634,7 +625,6 @@ const translations = Object.freeze({
   "Minutos de reintento": ["Retry minutes", "Yeniden deneme süresi (dakika)"],
   "Minutos de pausa": ["Pause minutes", "Bekleme süresi (dakika)"],
   "Hora de banca digital (0–23)": ["Digital banking hour (0–23)", "Dijital bankacılık saati (0–23)"],
-  "Hora inicial de Project Finance (0–23)": ["Project Finance starting hour (0–23)", "Proje Finansmanı başlangıç saati (0–23)"],
   "Máximo de novedades por newsletter": ["Maximum updates per newsletter", "Bülten başına azami yenilik"],
   "Entidad inicial (vacío: todas)": ["Default entity (empty: all)", "Varsayılan kurum (boş: tümü)"],
   "Segmento inicial (vacío: todos)": ["Default segment (empty: all)", "Varsayılan segment (boş: tümü)"],
@@ -1092,5 +1082,5 @@ function formatCalendarDay(value,language='es'){
 function formatText(text,values,language='es'){return translateText(text,language).replace(/\{(\w+)\}/g,(_,key)=>String(values[key]??''));}
 
 function feedLanguage(value){const tag=String(value||'').trim();return /^[a-z]{2}(?:-[A-Za-z0-9]{2,8})?$/.test(tag)?tag:'';}
-const recordLabels={radar:'Radar',news:'Noticias',briefing:'Novedades',subscriptions:'Newsletter',administration:'Administración',configuration:'Configuración de negocio',daily:'Recopilación diaria',projectFinance:'Project Finance',annual:'Recuperación anual',sources:'Fuentes',runs:'Ejecuciones',language:'Idioma',audit:'Auditoría',telemetry:'Telemetría',adoption:'Adopción',subscribers:'Suscripciones',acceso:'Acceso',vista:'Vista',filtro:'Filtro',lectura:'Lectura',exportacion:'Exportación',rendimiento:'Rendimiento',error:'Error',dashboard:'Carga de selección',recopilacion:'Recopilación',traduccion:'Traducción de noticias'};
+const recordLabels={radar:'Radar',news:'Noticias',briefing:'Novedades',subscriptions:'Newsletter',administration:'Administración',configuration:'Configuración de negocio',daily:'Recopilación diaria',annual:'Recuperación anual',sources:'Fuentes',runs:'Ejecuciones',language:'Idioma',audit:'Auditoría',telemetry:'Telemetría',adoption:'Adopción',subscribers:'Suscripciones',acceso:'Acceso',vista:'Vista',filtro:'Filtro',lectura:'Lectura',exportacion:'Exportación',rendimiento:'Rendimiento',error:'Error',dashboard:'Carga de selección',recopilacion:'Recopilación',traduccion:'Traducción de noticias'};
 function displayRecord(value,language='es'){return translateText(Object.prototype.hasOwnProperty.call(recordLabels,value)?recordLabels[value]:value,language);}

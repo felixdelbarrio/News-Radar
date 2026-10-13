@@ -42,7 +42,7 @@ function workWake_(){
     for(const key of pending){
       if(backgroundPaused_()){scheduleWorkWake_(WORK_COORDINATION.resumeMs);return;}
       const name=key.slice('WORK_PENDING:'.length);
-      if(name==='daily'||name==='projectFinance')queueScheduledCollection_(name);
+      if(name==='daily')queueScheduledCollection_(name);
       else if(name==='classification')dailyClassification_();
       else if(name==='taxonomy')dailyTaxonomy_();
       else if(name==='edited'){invalidateConfiguration_();requestNewsClassification_(true);}

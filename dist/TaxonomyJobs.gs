@@ -77,7 +77,7 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
     if(job.corpus!==(properties_().getProperty('NEWS_CONTENT_REVISION')||'0')||job.rules!==classificationRulesRevision_()){requestTaxonomy_();return;}
     const sheet=book_().getSheetByName('Noticias'),keys=RADAR.sheets.Noticias,column=keys.indexOf('taxonomia');
     if(job.phase==='scan'){
-      const state=taxonomyCheckpoint_(job),definitions=taxonomyDefinitions(configuration_().capabilities,configuration_().segments),excluded=new Set(configuration_().entities.flatMap(row=>[row.name,...row.aliases]).flatMap(name=>taxonomyText(name).match(/[a-z][a-z0-9]+/g)||[]));
+      const state=taxonomyCheckpoint_(job),definitions=taxonomyDefinitions(configuration_().capabilities),excluded=new Set(configuration_().entities.flatMap(row=>[row.name,...row.aliases]).flatMap(name=>taxonomyText(name).match(/[a-z][a-z0-9]+/g)||[]));
       const count=Math.min(TAXONOMY_POLICY.batchRows,Math.max(0,job.total-state.next+2));
       state.titles=state.titles||{};
       if(count)for(const row of sheet.getRange(job.total-state.next-count+4,2,count,6).getDisplayValues().reverse()){

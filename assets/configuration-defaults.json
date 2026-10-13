@@ -58,9 +58,7 @@
     "newsletterSender": "news-radar.group@bbva.com",
     "newsletterSenderName": "News Radar · BBVA Empresas",
     "newsletterDailyLimit": 100,
-    "newsletterAppUrl": "",
-    "projectFinanceHour": 10,
-    "projectFinanceIntervalHours": 6
+    "newsletterAppUrl": ""
   },
   "entities": [
     {
@@ -1345,36 +1343,6 @@
         "risparmio"
       ],
       "enabled": true
-    },
-    {
-      "name": "Project Finance",
-      "terms": [
-        "project finance",
-        "project financing",
-        "financiación de proyectos",
-        "financiamiento de proyectos",
-        "infrastructure finance",
-        "infrastructure financing",
-        "non-recourse",
-        "limited-recourse",
-        "financial close",
-        "cierre financiero",
-        "project refinancing",
-        "refinanciación de proyectos",
-        "power purchase agreement",
-        "offtake agreement",
-        "contrato de compraventa de energía",
-        "infrastructure concession",
-        "concesión de infraestructura",
-        "renewable energy auction",
-        "subasta de energías renovables",
-        "infrastructure tender",
-        "licitación de infraestructura",
-        "project debt",
-        "EPC contract",
-        "contrato EPC"
-      ],
-      "enabled": true
     }
   ],
   "signals": [
@@ -1577,53 +1545,6 @@
         "rehber",
         "ödül"
       ]
-    },
-    {
-      "name": "Operación de Project Finance",
-      "terms": [
-        "financial close",
-        "cierre financiero",
-        "secures financing",
-        "financing agreement",
-        "project financing",
-        "non-recourse",
-        "limited-recourse",
-        "refinancing",
-        "refinanciación"
-      ],
-      "context": [
-        "project finance",
-        "project financing",
-        "financiación de proyectos",
-        "financiamiento de proyectos",
-        "infrastructure finance",
-        "infrastructure financing",
-        "non-recourse",
-        "limited-recourse",
-        "financial close",
-        "cierre financiero"
-      ],
-      "scope": "fullText",
-      "enabled": true,
-      "exclude": [
-        "qué es",
-        "qué son",
-        "cómo",
-        "guía",
-        "premio",
-        "reskilling",
-        "formación tecnológica",
-        "colaboradores",
-        "what is",
-        "what are",
-        "how to",
-        "guide",
-        "award",
-        "nedir",
-        "nasıl",
-        "rehber",
-        "ödül"
-      ]
     }
   ],
   "feeds": [
@@ -1696,36 +1617,6 @@
       "country": "Sin determinar",
       "enabled": true,
       "language": "en"
-    },
-    {
-      "id": "project-finance-apac",
-      "name": "Project Finance · APAC",
-      "url": "https://news.google.com/rss/search?q=(%22project%20finance%22%20OR%20%22project%20financing%22%20OR%20%22infrastructure%20financing%22%20OR%20%22financial%20close%22)%20(Asia%20OR%20APAC%20OR%20Pacific%20OR%20India%20OR%20Australia%20OR%20Japan%20OR%20Singapore%20OR%20China%20OR%20Indonesia%20OR%20Vietnam%20OR%20Philippines%20OR%20Malaysia%20OR%20Thailand%20OR%20Korea)%20when%3A10d&hl=en&gl=SG&ceid=SG:en",
-      "domain": "news.google.com",
-      "entity": "Sector",
-      "country": "Sin determinar",
-      "language": "en",
-      "enabled": true
-    },
-    {
-      "id": "project-finance-global",
-      "name": "Project Finance · Global",
-      "url": "https://news.google.com/rss/search?q=(%22project%20finance%22%20OR%20%22project%20financing%22%20OR%20%22financiaci%C3%B3n%20de%20proyectos%22%20OR%20%22financiamiento%20de%20proyectos%22%20OR%20%22financial%20close%22)%20when%3A10d&hl=en&gl=SG&ceid=SG:en",
-      "domain": "news.google.com",
-      "entity": "Sector",
-      "country": "Sin determinar",
-      "language": "en",
-      "enabled": true
-    },
-    {
-      "id": "project-finance-sector",
-      "name": "Project Finance · Medios especializados",
-      "url": "https://news.google.com/rss/search?q=%28%22project+finance%22+OR+%22project+financing%22+OR+%22financial+close%22+OR+%22project+refinancing%22+OR+%22power+purchase+agreement%22+OR+%22offtake+agreement%22+OR+%22renewable+energy+auction%22+OR+%22infrastructure+tender%22+OR+%22infrastructure+concession%22+OR+%22EPC+contract%22%29+%28site%3Atheasset.com+OR+site%3Aasianbankingandfinance.net+OR+site%3Arenewablesnow.com+OR+site%3Apv-magazine.com+OR+site%3Aadb.org+OR+site%3Aaiib.org%29+when%3A10d&hl=en&gl=SG&ceid=SG%3Aen",
-      "domain": "news.google.com",
-      "entity": "Sector",
-      "country": "Sin determinar",
-      "language": "en",
-      "enabled": true
     }
   ],
   "capabilities": {
@@ -2480,23 +2371,6 @@
         "Uruguay",
         "Italia",
         "Alemania"
-      ]
-    },
-    {
-      "name": "Project Finance",
-      "countries": [
-        "China",
-        "Hong Kong",
-        "Japón",
-        "Singapur",
-        "India",
-        "Australia",
-        "Indonesia",
-        "Corea del Sur",
-        "Vietnam",
-        "Filipinas",
-        "Malasia",
-        "Tailandia"
       ]
     }
   ]

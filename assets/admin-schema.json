@@ -73,7 +73,7 @@
   },
   "segments": {
     "label": "Segmentos",
-    "help": "Una noticia puede pertenecer a varios segmentos. Project Finance tiene alcance propio y no se mezcla con Empresas o Retail. Sin coincidencia se mantiene sin segmento.",
+    "help": "Una noticia puede pertenecer a varios segmentos. Sin coincidencia se mantiene sin segmento.",
     "fields": [
       [
         "name",
@@ -161,9 +161,7 @@
       "newsletterSender": "Remitente verificado en Gmail (correo del grupo)",
       "newsletterSenderName": "Nombre visible del remitente",
       "newsletterDailyLimit": "Límite de newsletters en 24 horas",
-      "newsletterAppUrl": "URL publicada de News Radar (gestión de suscripciones)",
-      "projectFinanceHour": "Hora inicial de Project Finance (0–23)",
-      "projectFinanceIntervalHours": "Intervalo de Project Finance (4, 6, 12 o 24 horas)"
+      "newsletterAppUrl": "URL publicada de News Radar (gestión de suscripciones)"
     },
     "groups": [
       {
@@ -192,8 +190,6 @@
         "keys": [
           "timezone",
           "dailyHour",
-          "projectFinanceHour",
-          "projectFinanceIntervalHours",
           "windowDays",
           "searchTerms",
           "disabledSources",

@@ -1,7 +1,6 @@
-const applicationScopeSegments=Object.freeze(['Empresas e instituciones','Retail','Project Finance']);
+const applicationScopeSegments=Object.freeze(['Empresas e instituciones','Retail']);
 const readingViews=Object.freeze(['news','briefing','radar']);
 const sectorNewsDefaults=Object.freeze({segment:'Empresas e instituciones',coverage:'digital'});
-const segmentCoverageDefaults=Object.freeze({'Project Finance':'generalista'});
 const coverageOptions=Object.freeze({digital:'Canal digital',generalista:'Generalista'});
 const subscriptionFilterKeys=Object.freeze(['entity','country','source','type','segment','coverage','signal','search','palanca','subpalanca']);
 function geographyLabel(name){return name==='Sin determinar'?'Transversal':name;}

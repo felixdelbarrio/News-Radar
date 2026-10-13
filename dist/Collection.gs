@@ -14,13 +14,12 @@ function collectionStatus_(tasks,jobs){
 function resumeCollection(){authorize_(true);ensureBackgroundWorker_();return {...collectionStatus_(),added:0,errors:[],notice:'Continuación en cola.'};}
 function collectNow(mode='today'){
   authorize_(true);const now=new Date(),range=collectionRange_(mode,now),blocked=recoveryAvailability(collectionJobs_(),collectionRequests_());
-  if(blocked[mode])throw Error(mode==='projectFinance'?'Ya hay una recuperación de Project Finance en curso.':mode==='year'?'Ya hay una recuperación anual en curso.':'Ya hay una recuperación diaria en curso.');
-  if(mode==='today')requestDailyCollection_(now);else requestCollection_(mode==='projectFinance'?'projectFinance':'annual',range);
-  return {...collectionStatus_(),added:0,errors:[],notice:mode==='projectFinance'?'Recuperación de Project Finance en cola.':mode==='year'?'Recuperación anual en cola.':'Recuperación diaria en cola.'};
+  if(blocked[mode])throw Error(mode==='year'?'Ya hay una recuperación anual en curso.':'Ya hay una recuperación diaria en curso.');
+  if(mode==='today')requestDailyCollection_(now);else requestCollection_('annual',range);
+  return {...collectionStatus_(),added:0,errors:[],notice:mode==='year'?'Recuperación anual en cola.':'Recuperación diaria en cola.'};
 }
 function requestDailyCollection_(now=new Date()){requestCollection_('daily',collectionRecentRange_(now));}
 function dailyRadar_(){scheduledCollection_('daily');}
-function projectFinanceRadar_(){scheduledCollection_('projectFinance');}
 function scheduledCollection_(kind){
   if(backgroundPaused_()){deferBackgroundWork_(kind);return;}
   queueScheduledCollection_(kind);backgroundTick_();
@@ -45,7 +44,7 @@ function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
     const jobIndex=new Map(jobs.map(job=>[job.id,job]));
     const affected=new Set(pending.map(task=>task.ciclo));for(const job of jobs)if(affected.has(job.id)){job.estado='En curso';writeCollectionJob_(job);}
     CacheService.getScriptCache().remove('collection-status');
-    const work=pending.map(task=>({task,feed:collectionTaskFeed_(task,feeds,jobRange_(jobIndex.get(task.ciclo)),jobIndex.get(task.ciclo).tipo)})),fetchStart=Date.now();
+    const work=pending.map(task=>({task,feed:collectionTaskFeed_(task,feeds,jobRange_(jobIndex.get(task.ciclo)))})),fetchStart=Date.now();
     const responses=fetchFeedBatch_(work.filter(item=>item.feed).map(item=>item.feed));
     const fetchMs=Date.now()-fetchStart,processingStarted=Date.now();let responseIndex=0;
     for(const {task,feed} of work){
@@ -108,8 +107,8 @@ function collectionWork_(started){
     const group=positions.slice(start,end);if(!group.length)break;
     sheet.getRange(group[0].row,4,group.length,7).getDisplayValues().forEach((values,index)=>tasks.push({...Object.fromEntries(keys.map((key,i)=>[key,values[i]])),ciclo:group[index].id,row:group[index].row}));start=end;
   }
-  const retryMs=settings_().retryMinutes*60000,batch=settings_().collectionBatch;
-  const eligible=tasks.filter(task=>jobIndex.has(task.ciclo)&&Math.max(Number(jobIndex.get(task.ciclo).pausa||0),Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0))<=started&&(task.estado==='Pendiente'||(task.estado==='Reintento programado'&&started-Date.parse(task.actualizada)>=retryMs)))
+  const retryMs=settings_().retryMinutes*60000,batch=settings_().collectionBatch,fetchPausedUntil=Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0);
+  const eligible=tasks.filter(task=>jobIndex.has(task.ciclo)&&Math.max(Number(jobIndex.get(task.ciclo).pausa||0),fetchPausedUntil)<=started&&(task.estado==='Pendiente'||(task.estado==='Reintento programado'&&started-Date.parse(task.actualizada)>=retryMs)))
     .sort((a,b)=>a.prioridad===b.prioridad?a.row-b.row:a.prioridad>b.prioridad?-1:1);
   const selected=eligible.find(task=>jobIndex.get(task.ciclo).tipo==='daily')||eligible[0],size=selected&&jobIndex.get(selected.ciclo).tipo==='annual'?Math.min(20,batch*4):batch;
   const pending=selected?eligible.filter(task=>task.ciclo===selected.ciclo).slice(0,size).sort((a,b)=>a.row-b.row):[];

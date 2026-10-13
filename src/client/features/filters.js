@@ -1,5 +1,4 @@
 import {newsletterComparisonLabels} from '../../shared/newsletter-cadences.js';
-import {syncSegmentCoverage} from './segment-controls.js';
 import {taxonomySubLabel} from '../../shared/taxonomy-path.js';
 import {syncTaxonomyControls} from './taxonomy-controls.js';
 import {coverageOptions} from '../../shared/selection-policy.js';
@@ -52,7 +51,6 @@ function createFilters({ onInvalidate, onChange }) {
   function filterChanged(event) {
     if(edition&&['from','to'].includes(event.target?.name)&&!event.target.value){current();return;}
     if(event.type==="input"&&event.target?.name!=="search")return;
-    syncSegmentCoverage(form,event.target?.name);
     syncTaxonomyControls(form,taxonomy,event.target?.name);
     clearTimeout(timer);
     page = 0;
@@ -68,7 +66,7 @@ function createFilters({ onInvalidate, onChange }) {
   function draftChanged(event){
     if(!event.target?.name)return;
     dirty=true;
-    syncSegmentCoverage(form,event.target?.name);syncTaxonomyControls(form,taxonomy,event.target?.name);
+    syncTaxonomyControls(form,taxonomy,event.target?.name);
     const {from,to}=form.elements;to.setCustomValidity(from.value&&to.value&&from.value>to.value?t('La fecha hasta debe ser posterior o igual a la fecha desde.'):'');
   }
   form.addEventListener("input", draftChanged);

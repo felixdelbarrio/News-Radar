@@ -5,6 +5,7 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Una noticia puede pertenecer a varios segmentos. Sin coincidencia se mantiene sin segmento.": ["An article can belong to multiple segments. Articles without a match remain unassigned.", "Bir haber birden fazla segmente ait olabilir. E\u015Fle\u015Fmeyen haberler segmentsiz kal\u0131r."],
     "Productos nuevos, mejoras de oferta y alianzas para comparar c\xF3mo evoluciona el servicio de las entidades que sigues.": ["New products, improved offers and partnerships to compare how the banks you follow are evolving their services.", "Takip etti\u011Finiz bankalar\u0131n hizmetlerini nas\u0131l geli\u015Ftirdi\u011Fini kar\u015F\u0131la\u015Ft\u0131rmak i\xE7in yeni \xFCr\xFCnler, iyile\u015Ftirilmi\u015F teklifler ve ortakl\u0131klar."],
     "Cargar m\xE1s noticias": ["Load more news", "Daha fazla haber y\xFCkle"],
     "Cargar m\xE1s grupos": ["Load more groups", "Daha fazla grup y\xFCkle"],
@@ -136,10 +137,7 @@
     "\xC1mbito de aplicaci\xF3n no v\xE1lido.": ["Invalid application scope.", "Ge\xE7ersiz uygulama kapsam\u0131."],
     "Pa\xEDses con pesta\xF1a propia por segmento en Noticias y Novedades. Los restantes se agrupan en Otras geograf\xEDas; las noticias sin pa\xEDs, en Transversal. Radar conserva todas las geograf\xEDas.": ["Countries with their own tab per segment in News and New releases. Remaining countries appear in Other geographies; news without a country appears in Cross-market. Radar retains all geographies.", "Haberler ve Yenilikler b\xF6l\xFCmlerinde segmente g\xF6re ayr\u0131 sekmesi olan \xFClkeler. Di\u011Fer \xFClkeler Di\u011Fer \xFClkeler alt\u0131nda, \xFClkesi bilinmeyen haberler \xDClkeler aras\u0131 alt\u0131nda g\xF6sterilir. Radar t\xFCm \xFClkeleri korur."],
     "Nombres alternativos del pa\xEDs": ["Alternative country names", "Alternatif \xFClke adlar\u0131"],
-    "Operaci\xF3n de Project Finance": ["Project Finance transaction", "Proje Finansman\u0131 i\u015Flemi"],
     "Cuentas digitales europeas": ["European digital accounts", "Avrupa dijital hesaplar\u0131"],
-    "Financiaci\xF3n de proyectos": ["Project financing", "Proje finansman\u0131"],
-    "Frecuencia de Project Finance: 4, 6, 12 o 24 horas.": ["Project Finance frequency: 4, 6, 12 or 24 hours.", "Proje Finansman\u0131 s\u0131kl\u0131\u011F\u0131: 4, 6, 12 veya 24 saat."],
     "Recopilaci\xF3n activada. {schedule}.": ["Collection enabled. {schedule}.", "Toplama etkin. {schedule}."],
     "Ventana: \xFAltimos {days} d\xEDas. {schedule}.": ["Window: last {days} days. {schedule}.", "Zaman aral\u0131\u011F\u0131: son {days} g\xFCn. {schedule}."],
     "Titular sindicado equivalente en fecha pr\xF3xima": ["Equivalent syndicated headline on a nearby date", "Yak\u0131n tarihte e\u015Fde\u011Fer sendikasyon ba\u015Fl\u0131\u011F\u0131"],
@@ -160,13 +158,6 @@
     Filipinas: ["Philippines", "Filipinler"],
     Malasia: ["Malaysia", "Malezya"],
     Tailandia: ["Thailand", "Tayland"],
-    "Banca digital: diaria \xB7 {digitalHour}:00 \xB7 Project Finance: cada {hours} horas \xB7 desde {projectHour}:00 \xB7 {timezone}": ["Digital banking: daily \xB7 {digitalHour}:00 \xB7 Project Finance: every {hours} hours \xB7 from {projectHour}:00 \xB7 {timezone}", "Dijital bankac\u0131l\u0131k: g\xFCnl\xFCk \xB7 {digitalHour}:00 \xB7 Proje Finansman\u0131: her {hours} saatte \xB7 {projectHour}:00 itibar\u0131yla \xB7 {timezone}"],
-    "Recuperar Project Finance": ["Recover Project Finance", "Proje Finansman\u0131 haberlerini getir"],
-    "Ya hay una recuperaci\xF3n de Project Finance en curso.": ["A Project Finance recovery is already in progress.", "Proje Finansman\u0131 haberlerinin getirilmesi devam ediyor."],
-    "Recuperaci\xF3n de Project Finance en cola.": ["Project Finance recovery queued.", "Proje Finansman\u0131 haberlerini getirme s\u0131raya al\u0131nd\u0131."],
-    "Una noticia puede pertenecer a varios segmentos. Project Finance tiene alcance propio y no se mezcla con Empresas o Retail. Sin coincidencia se mantiene sin segmento.": ["An article can belong to multiple segments. Project Finance has its own scope and is kept separate from Business and Retail. Articles without a match remain unassigned.", "Bir haber birden fazla segmente ait olabilir. Proje Finansman\u0131 kendi kapsam\u0131na sahiptir ve Kurumsal veya Bireysel ile kar\u0131\u015Ft\u0131r\u0131lmaz. E\u015Fle\u015Fmeyen haberler segmentsiz kal\u0131r."],
-    "Project Finance": ["Project Finance", "Proje Finansman\u0131"],
-    "Intervalo de Project Finance (4, 6, 12 o 24 horas)": ["Project Finance interval (4, 6, 12 or 24 hours)", "Proje Finansman\u0131 aral\u0131\u011F\u0131 (4, 6, 12 veya 24 saat)"],
     Consultar: ["Read", "Oku"],
     "Noticias recuperadas": ["Retrieved news", "Toplanan haberler"],
     "Noticias de la selecci\xF3n": ["News matching the selection", "Se\xE7ime uyan haberler"],
@@ -628,7 +619,6 @@
     "Minutos de reintento": ["Retry minutes", "Yeniden deneme s\xFCresi (dakika)"],
     "Minutos de pausa": ["Pause minutes", "Bekleme s\xFCresi (dakika)"],
     "Hora de banca digital (0\u201323)": ["Digital banking hour (0\u201323)", "Dijital bankac\u0131l\u0131k saati (0\u201323)"],
-    "Hora inicial de Project Finance (0\u201323)": ["Project Finance starting hour (0\u201323)", "Proje Finansman\u0131 ba\u015Flang\u0131\xE7 saati (0\u201323)"],
     "M\xE1ximo de novedades por newsletter": ["Maximum updates per newsletter", "B\xFClten ba\u015F\u0131na azami yenilik"],
     "Entidad inicial (vac\xEDo: todas)": ["Default entity (empty: all)", "Varsay\u0131lan kurum (bo\u015F: t\xFCm\xFC)"],
     "Segmento inicial (vac\xEDo: todos)": ["Default segment (empty: all)", "Varsay\u0131lan segment (bo\u015F: t\xFCm\xFC)"],
@@ -1083,7 +1073,7 @@
   function formatText(text, values, language2 = "es") {
     return translateText(text, language2).replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ""));
   }
-  var recordLabels = { radar: "Radar", news: "Noticias", briefing: "Novedades", subscriptions: "Newsletter", administration: "Administraci\xF3n", configuration: "Configuraci\xF3n de negocio", daily: "Recopilaci\xF3n diaria", projectFinance: "Project Finance", annual: "Recuperaci\xF3n anual", sources: "Fuentes", runs: "Ejecuciones", language: "Idioma", audit: "Auditor\xEDa", telemetry: "Telemetr\xEDa", adoption: "Adopci\xF3n", subscribers: "Suscripciones", acceso: "Acceso", vista: "Vista", filtro: "Filtro", lectura: "Lectura", exportacion: "Exportaci\xF3n", rendimiento: "Rendimiento", error: "Error", dashboard: "Carga de selecci\xF3n", recopilacion: "Recopilaci\xF3n", traduccion: "Traducci\xF3n de noticias" };
+  var recordLabels = { radar: "Radar", news: "Noticias", briefing: "Novedades", subscriptions: "Newsletter", administration: "Administraci\xF3n", configuration: "Configuraci\xF3n de negocio", daily: "Recopilaci\xF3n diaria", annual: "Recuperaci\xF3n anual", sources: "Fuentes", runs: "Ejecuciones", language: "Idioma", audit: "Auditor\xEDa", telemetry: "Telemetr\xEDa", adoption: "Adopci\xF3n", subscribers: "Suscripciones", acceso: "Acceso", vista: "Vista", filtro: "Filtro", lectura: "Lectura", exportacion: "Exportaci\xF3n", rendimiento: "Rendimiento", error: "Error", dashboard: "Carga de selecci\xF3n", recopilacion: "Recopilaci\xF3n", traduccion: "Traducci\xF3n de noticias" };
   function displayRecord(value, language2 = "es") {
     return translateText(Object.prototype.hasOwnProperty.call(recordLabels, value) ? recordLabels[value] : value, language2);
   }
@@ -1184,7 +1174,7 @@
   }
 
   // src/shared/selection-policy.js
-  var applicationScopeSegments = Object.freeze(["Empresas e instituciones", "Retail", "Project Finance"]), readingViews = Object.freeze(["news", "briefing", "radar"]), sectorNewsDefaults = Object.freeze({ segment: "Empresas e instituciones", coverage: "digital" }), segmentCoverageDefaults = Object.freeze({ "Project Finance": "generalista" }), coverageOptions = Object.freeze({ digital: "Canal digital", generalista: "Generalista" }), subscriptionFilterKeys = Object.freeze(["entity", "country", "source", "type", "segment", "coverage", "signal", "search", "palanca", "subpalanca"]);
+  var applicationScopeSegments = Object.freeze(["Empresas e instituciones", "Retail"]), readingViews = Object.freeze(["news", "briefing", "radar"]), sectorNewsDefaults = Object.freeze({ segment: "Empresas e instituciones", coverage: "digital" }), coverageOptions = Object.freeze({ digital: "Canal digital", generalista: "Generalista" }), subscriptionFilterKeys = Object.freeze(["entity", "country", "source", "type", "segment", "coverage", "signal", "search", "palanca", "subpalanca"]);
   function geographyLabel(name) {
     return name === "Sin determinar" ? "Transversal" : name;
   }
@@ -1569,7 +1559,7 @@
     let total = Number(status?.total || 0), done = Number(status?.processed || 0) + Number(status?.skipped || 0) + Number(status?.failed || 0);
     $("collection-total").hidden = !total, $("collection-total-progress").max = Math.max(1, total), $("collection-total-progress").value = done, $("collection-total-label").textContent = t("{done}/{total} consultas; {added} noticias incorporadas.", { done, total, added: status?.added || 0 });
     let jobs = [...status?.jobs || []];
-    jobs.some((job) => job.tipo === "projectFinance") || jobs.push({ tipo: "projectFinance", estado: "Sin recuperaciones registradas." }), $("collection-jobs").innerHTML = jobs.map((job) => {
+    $("collection-jobs").innerHTML = jobs.map((job) => {
       let done2 = Number(job.procesadas || 0) + Number(job.omitidas || 0) + Number(job.fallidas || 0), total2 = Number(job.total || 0);
       return `<article class="collection-job" data-collection-kind="${escape(job.tipo)}"><div class="panel-header"><h3>${escape(displayRecord(job.tipo, language))}</h3><span>${escape(t(job.estado))}</span></div>${job.desde ? `<p class="small muted">${escape(formatCalendarDay(job.desde, language))} \u2014 ${escape(formatCalendarDay(job.hasta, language))}</p>` : ""}<progress max="${Math.max(1, total2)}" value="${done2}" aria-label="${escape(displayRecord(job.tipo, language))}"></progress><p>${escape(t("{done}/{total} consultas; {added} noticias incorporadas.", { done: done2, total: total2, added: job.nuevas || 0 }))}</p><p class="small muted">${Number(job.pendientes || 0)} ${escape(t("Pendientes"))} \xB7 ${Number(job.fallidas || 0)} ${escape(t("Errores"))}${job.actualizada ? " \xB7 " + escape(t("\xDAltima actividad")) + ": " + escape(date(job.actualizada)) : ""}${Number(job.pausa) > Date.now() ? " \xB7 " + escape(t("Reintento programado")) + ": " + escape(date(new Date(Number(job.pausa)))) : ""}</p></article>`;
     }).join("");
@@ -1580,7 +1570,7 @@
       status = next || {};
       for (let radio of radios) radio.disabled = busy || !!status.blocked?.[radio.value];
       let range = document.querySelector('input[name="recovery-range"]:checked').value, blocked = !!status.blocked?.[range];
-      $("collect").disabled = busy || blocked, $("collect-project-finance").disabled = busy || !!status.blocked?.projectFinance, $("collect-project-finance").title = status.blocked?.projectFinance ? t("Ya hay una recuperaci\xF3n de Project Finance en curso.") : "", $("recovery-status").textContent = blocked ? t(range === "year" ? "Ya hay una recuperaci\xF3n anual en curso." : "Ya hay una recuperaci\xF3n diaria en curso.") : "", $("continue-collection").hidden = !(status.pending || status.queued), $("continue-collection").disabled = busy, $("retry-collection").disabled = busy, $("toggle-daily").disabled = busy, $("toggle-daily").textContent = t(getData()?.daily ? "Desactivar recopilaci\xF3n diaria" : "Activar recopilaci\xF3n diaria"), $("recovery-schedule").textContent = getData()?.schedule || "";
+      $("collect").disabled = busy || blocked, $("recovery-status").textContent = blocked ? t(range === "year" ? "Ya hay una recuperaci\xF3n anual en curso." : "Ya hay una recuperaci\xF3n diaria en curso.") : "", $("continue-collection").hidden = !(status.pending || status.queued), $("continue-collection").disabled = busy, $("retry-collection").disabled = busy, $("toggle-daily").disabled = busy, $("toggle-daily").textContent = t(getData()?.daily ? "Desactivar recopilaci\xF3n diaria" : "Activar recopilaci\xF3n diaria"), $("recovery-schedule").textContent = getData()?.schedule || "";
     }
     async function recover(method, range) {
       return run(async () => {
@@ -1588,7 +1578,7 @@
         message(result.notice, result.errors.length > 0);
       });
     }
-    return $("collect").addEventListener("click", () => recover("collectNow", document.querySelector('input[name="recovery-range"]:checked').value)), $("collect-project-finance").addEventListener("click", () => recover("collectNow", "projectFinance")), $("continue-collection").addEventListener("click", () => recover("resumeCollection")), radios.forEach((radio) => radio.addEventListener("change", () => render())), $("toggle-daily").addEventListener("click", () => run(async () => {
+    return $("collect").addEventListener("click", () => recover("collectNow", document.querySelector('input[name="recovery-range"]:checked').value)), $("continue-collection").addEventListener("click", () => recover("resumeCollection")), radios.forEach((radio) => radio.addEventListener("change", () => render())), $("toggle-daily").addEventListener("click", () => run(async () => {
       let enabled = getData().daily, result = await call(enabled ? "disableDaily" : "enableDaily");
       message(enabled ? "Recopilaci\xF3n diaria desactivada." : result);
     })), $("retry-collection").addEventListener("click", () => run(async () => message(await call("retryCollectionErrors")))), syncRecovery = render, { setBusy(value) {
@@ -1636,12 +1626,6 @@
       for (let panel2 of Object.values(panels)) panel2.hidden = panel2 !== active;
       $("panel-button-label").textContent = admin ? "Men\xFA" : "Filtros", $("panel-dialog-title").textContent = admin ? "Administraci\xF3n" : "Filtros", dialog.setAttribute("aria-label", admin ? "Herramientas de administraci\xF3n" : "Configurar filtros"), $("filter-dialog-actions").hidden = !reading2;
     } };
-  }
-
-  // src/client/features/segment-controls.js
-  function syncSegmentCoverage(form, changed) {
-    let coverage = segmentCoverageDefaults[form.elements.segment?.value];
-    changed === "segment" && coverage && form.elements.coverage && (form.elements.coverage.value = coverage);
   }
 
   // src/client/features/taxonomy-controls.js
@@ -1709,7 +1693,7 @@
       target.addEventListener("click", (event) => {
         event.target.closest("[data-close-editor]") && (target.hidden = !0);
       }), target.addEventListener("change", (event) => {
-        syncSegmentCoverage(event.target.form, event.target.name), ["palanca", "subpalanca"].includes(event.target.name) && syncTaxonomyControls(event.target.form, options.catalogs.subpalanca || [], event.target.name);
+        ["palanca", "subpalanca"].includes(event.target.name) && syncTaxonomyControls(event.target.form, options.catalogs.subpalanca || [], event.target.name);
       }), target.addEventListener("submit", (event) => {
         event.preventDefault();
         let form = event.target, data = new FormData(form), filters6 = {};
@@ -1841,7 +1825,7 @@
     },
     segments: {
       label: "Segmentos",
-      help: "Una noticia puede pertenecer a varios segmentos. Project Finance tiene alcance propio y no se mezcla con Empresas o Retail. Sin coincidencia se mantiene sin segmento.",
+      help: "Una noticia puede pertenecer a varios segmentos. Sin coincidencia se mantiene sin segmento.",
       fields: [
         [
           "name",
@@ -1929,9 +1913,7 @@
         newsletterSender: "Remitente verificado en Gmail (correo del grupo)",
         newsletterSenderName: "Nombre visible del remitente",
         newsletterDailyLimit: "L\xEDmite de newsletters en 24 horas",
-        newsletterAppUrl: "URL publicada de News Radar (gesti\xF3n de suscripciones)",
-        projectFinanceHour: "Hora inicial de Project Finance (0\u201323)",
-        projectFinanceIntervalHours: "Intervalo de Project Finance (4, 6, 12 o 24 horas)"
+        newsletterAppUrl: "URL publicada de News Radar (gesti\xF3n de suscripciones)"
       },
       groups: [
         {
@@ -1960,8 +1942,6 @@
           keys: [
             "timezone",
             "dailyHour",
-            "projectFinanceHour",
-            "projectFinanceIntervalHours",
             "windowDays",
             "searchTerms",
             "disabledSources",
@@ -2333,13 +2313,13 @@
         return;
       }
       if (event.type === "input" && event.target?.name !== "search") return;
-      syncSegmentCoverage(form, event.target?.name), syncTaxonomyControls(form, taxonomy2, event.target?.name), clearTimeout(timer), page = 0, initialized.add(view), onInvalidate();
+      syncTaxonomyControls(form, taxonomy2, event.target?.name), clearTimeout(timer), page = 0, initialized.add(view), onInvalidate();
       let from = form.elements.from.value, to = form.elements.to.value;
       form.elements.to.setCustomValidity(from && to && from > to ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : ""), $("message").hidden = !0, dirty = !1, applied = { ...edition && applied.benchmark ? { benchmark: applied.benchmark } : {}, ...Object.fromEntries(new FormData(form)) }, renderChips(), event.type === "input" ? timer = setTimeout(onChange, 250) : onChange();
     }
     function draftChanged(event) {
       if (!event.target?.name) return;
-      dirty = !0, syncSegmentCoverage(form, event.target?.name), syncTaxonomyControls(form, taxonomy2, event.target?.name);
+      dirty = !0, syncTaxonomyControls(form, taxonomy2, event.target?.name);
       let { from, to } = form.elements;
       to.setCustomValidity(from.value && to.value && from.value > to.value ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : "");
     }
