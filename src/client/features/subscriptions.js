@@ -1,3 +1,4 @@
+import {syncSegmentCoverage} from './segment-controls.js';
 import {syncTaxonomyControls} from './taxonomy-controls.js';
 import {t} from '../core/language.js';
 import {$,message} from '../core/dom.js';
@@ -26,7 +27,7 @@ export function createSubscriptions({run,onApply}){
   for(const admin of [false,true]){
     const target=$(editorId(admin));
     target.addEventListener('click',event=>{if(event.target.closest('[data-close-editor]'))target.hidden=true;});
-    target.addEventListener('change',event=>{if(['palanca','subpalanca'].includes(event.target.name))syncTaxonomyControls(event.target.form,options.catalogs.subpalanca||[],event.target.name);});
+    target.addEventListener('change',event=>{syncSegmentCoverage(event.target.form,event.target.name);if(['palanca','subpalanca'].includes(event.target.name))syncTaxonomyControls(event.target.form,options.catalogs.subpalanca||[],event.target.name);});
     target.addEventListener('submit',event=>{event.preventDefault();const form=event.target,data=new FormData(form),filters={};for(const key of [...Object.keys(options.catalogs),'search'])filters[key]=String(data.get(key)||'');run(async()=>{message(await call(admin?'saveAdminSubscription':'saveSubscription',{id:form.dataset.id||undefined,email:data.get('email'),periodicity:data.get('periodicity'),language:data.get('language'),active:data.has('active'),filters}));await open(admin);},false);});
     $(admin?'new-admin-subscription':'new-subscription').addEventListener('click',()=>edit(admin));
     $(admin?'admin-subscriptions-list':'subscriptions-list').addEventListener('click',event=>{const button=event.target.closest('[data-action]');if(!button)return;const row=(admin?all:own).find(r=>r.id===button.dataset.id);if(!row)return;if(button.dataset.action==='edit')edit(admin,row);if(button.dataset.action==='apply')onApply(row.query);if(button.dataset.action==='test')run(async()=>{const result=await call('sendSubscriptionTest',row.id);message(t('Gmail ha aceptado la prueba para {recipient} · {count} novedades.',result));},false);if(button.dataset.action==='delete')run(async()=>{message(await call('deleteSubscription',row.id));await open();},false);});

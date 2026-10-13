@@ -28,7 +28,7 @@ test('vista autónoma comparte filtros, normalización de entidades y CSV con Ap
   const c=vm.createContext({window:{}});vm.runInContext(adapter,c);const preview=c.window.RADAR_PREVIEW;
   const all=await preview.call('getDashboard'),filtered=await preview.call('getDashboard',{search:'BBVA',entity:'BBVA',source:all.sources[0]});
   assert.ok(filtered.total>0);assert.ok(filtered.total<all.total);assert.equal((await preview.call('exportNews',{search:'BBVA',entity:'BBVA',source:all.sources[0]})).count,filtered.total);
-  const empty=await preview.call('getDashboard',{entity:'Santander',country:'México'});assert.equal(empty.total,0);assert.ok(empty.entities.includes('Santander'));assert.ok(empty.countries.includes('México'));
+  const empty=await preview.call('getDashboard',{entity:'Santander',country:'México'});assert.equal(empty.total,0);assert.ok(empty.entities.includes('Santander'));assert.equal(empty.countries.length,0);
 });
 
 test('vista local registra actividad real de la sesión y bloquea el correo remoto',async()=>{

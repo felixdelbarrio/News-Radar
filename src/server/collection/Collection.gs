@@ -14,12 +14,22 @@ function collectionStatus_(tasks,jobs){
 function resumeCollection(){authorize_(true);ensureBackgroundWorker_();return {...collectionStatus_(),added:0,errors:[],notice:'Continuación en cola.'};}
 function collectNow(mode='today'){
   authorize_(true);const now=new Date(),range=collectionRange_(mode,now),blocked=recoveryAvailability(collectionJobs_(),collectionRequests_());
-  if(blocked[mode])throw Error(mode==='year'?'Ya hay una recuperación anual en curso.':'Ya hay una recuperación diaria en curso.');
-  if(mode==='today')requestDailyCollection_(now);else requestCollection_('annual',range);
-  return {...collectionStatus_(),added:0,errors:[],notice:mode==='year'?'Recuperación anual en cola.':'Recuperación diaria en cola.'};
+  if(blocked[mode])throw Error(mode==='projectFinance'?'Ya hay una recuperación de Project Finance en curso.':mode==='year'?'Ya hay una recuperación anual en curso.':'Ya hay una recuperación diaria en curso.');
+  if(mode==='today')requestDailyCollection_(now);else requestCollection_(mode==='projectFinance'?'projectFinance':'annual',range);
+  return {...collectionStatus_(),added:0,errors:[],notice:mode==='projectFinance'?'Recuperación de Project Finance en cola.':mode==='year'?'Recuperación anual en cola.':'Recuperación diaria en cola.'};
 }
 function requestDailyCollection_(now=new Date()){requestCollection_('daily',collectionRecentRange_(now));}
-function dailyRadar_(){requestDailyCollection_();backgroundTick_();}
+function dailyRadar_(){scheduledCollection_('daily');}
+function projectFinanceRadar_(){scheduledCollection_('projectFinance');}
+function scheduledCollection_(kind){
+  const active=job=>Number(job.pendientes)>0||['Preparando','En curso','En cola'].includes(job.estado);
+  if(!collectionJobs_().some(job=>job.tipo===kind&&active(job))&&!collectionRequests_().some(request=>request.kind===kind)){
+    const now=new Date(),range=collectionRecentRange_(now),key='COLLECTION_SCHEDULED_AT:'+kind,last=properties_().getProperty(key);
+    if(last){const from=new Date(Date.parse(last)-86400000);if(Number.isFinite(from.getTime()))range.from=[range.from,recordDay(from,settings_().timezone)].sort().at(-1);}
+    requestCollection_(kind,range);properties_().setProperty(key,now.toISOString());
+  }
+  backgroundTick_();
+}
 function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
   const started=Date.now(),news=[],audit=[],errors=[],newTasks=[];let evaluated=0,relevant=0,digital=0,duplicated=0,excluded=0,saturated=0,queued;
   try{
@@ -32,7 +42,7 @@ function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
     const jobIndex=new Map(jobs.map(job=>[job.id,job]));
     const affected=new Set(pending.map(task=>task.ciclo));for(const job of jobs)if(affected.has(job.id)){job.estado='En curso';writeCollectionJob_(job);}
     CacheService.getScriptCache().remove('collection-status');SpreadsheetApp.flush();
-    const work=pending.map(task=>({task,feed:collectionTaskFeed_(task,feeds,jobRange_(jobIndex.get(task.ciclo)))})),fetchStart=Date.now();
+    const work=pending.map(task=>({task,feed:collectionTaskFeed_(task,feeds,jobRange_(jobIndex.get(task.ciclo)),jobIndex.get(task.ciclo).tipo)})),fetchStart=Date.now();
     const responses=fetchFeedBatch_(work.filter(item=>item.feed).map(item=>item.feed));
     const fetchMs=Date.now()-fetchStart,processingStarted=Date.now();let responseIndex=0;
     for(const {task,feed} of work){

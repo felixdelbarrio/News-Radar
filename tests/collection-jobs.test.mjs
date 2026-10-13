@@ -36,7 +36,7 @@ test('las pausas de la anual no bloquean la diaria y los reintentos respetan su 
 });
 test('cada lote guarda contadores por ciclo y deduplica noticias compartidas entre diaria y anual',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',1);addJob(s,'daily','daily',1);
- const date=new Date(Date.now()-86400000);c.parseFeed_=()=>[{title:'BBVA lanza financiación para empresas',date:date.toISOString(),url:'https://bbva.com/nueva-noticia',excerpt:'Nueva cuenta para empresas'}];
+ const date=new Date('2026-10-10T12:00:00Z');c.parseFeed_=()=>[{title:'BBVA lanza financiación para empresas',date:date.toISOString(),url:'https://bbva.com/nueva-noticia',excerpt:'Nueva cuenta para empresas'}];
  const result=c.backgroundTick_();assert.equal(result.added,1);c.backgroundTick_();assert.equal(c.rows_('Noticias').length,1);assert.equal(c.rows_('Ejecuciones').length,2);
  const status=c.collectionStatus_();assert.equal(status.jobs.length,2);assert.equal(status.jobs.reduce((n,job)=>n+Number(job.nuevas),0),1);assert.ok(status.jobs.every(job=>job.estado==='Completada'));
  const runs=c.getRuns({id:'daily'});assert.equal(runs.total,1);assert.equal(runs.items[0].tipo,'daily');assert.ok(runs.collection.jobs.length);

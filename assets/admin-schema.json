@@ -45,6 +45,11 @@
         "text"
       ],
       [
+        "terms",
+        "Nombres alternativos del país",
+        "list"
+      ],
+      [
         "code",
         "Código ISO",
         "text"
@@ -68,7 +73,7 @@
   },
   "segments": {
     "label": "Segmentos",
-    "help": "Una noticia puede pertenecer a varios segmentos. Sin coincidencia se mantiene sin segmento; no se atribuye por el nombre del banco.",
+    "help": "Una noticia puede pertenecer a varios segmentos. Project Finance tiene alcance propio y no se mezcla con Empresas o Retail. Sin coincidencia se mantiene sin segmento.",
     "fields": [
       [
         "name",
@@ -132,7 +137,7 @@
       "pageSize": "Noticias por página",
       "defaultEntity": "Entidad inicial (vacío: todas)",
       "defaultCountry": "País inicial (vacío: todos)",
-      "dailyHour": "Hora de recopilación (0–23)",
+      "dailyHour": "Hora de banca digital (0–23)",
       "searchTerms": "Términos de búsqueda de sector",
       "disabledSources": "IDs de fuentes de perfil desactivadas",
       "briefingLimit": "Máximo de novedades por newsletter",
@@ -156,7 +161,9 @@
       "newsletterSender": "Remitente verificado en Gmail (correo del grupo)",
       "newsletterSenderName": "Nombre visible del remitente",
       "newsletterDailyLimit": "Límite de newsletters en 24 horas",
-      "newsletterAppUrl": "URL publicada de News Radar (gestión de suscripciones)"
+      "newsletterAppUrl": "URL publicada de News Radar (gestión de suscripciones)",
+      "projectFinanceHour": "Hora inicial de Project Finance (0–23)",
+      "projectFinanceIntervalHours": "Intervalo de Project Finance (4, 6, 12 o 24 horas)"
     },
     "groups": [
       {
@@ -185,6 +192,8 @@
         "keys": [
           "timezone",
           "dailyHour",
+          "projectFinanceHour",
+          "projectFinanceIntervalHours",
           "windowDays",
           "searchTerms",
           "disabledSources",
@@ -236,5 +245,9 @@
         "boolean"
       ]
     ]
+  },
+  "applicationScope": {
+    "label": "Ámbito de aplicación",
+    "help": "Países con pestaña propia por segmento en Noticias y Novedades. Los restantes se agrupan en Otras geografías; las noticias sin país, en Transversal. Radar conserva todas las geografías."
   }
 }

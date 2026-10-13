@@ -15,6 +15,6 @@ function cachedNewsRecords_(){
 }
 function dashboardAdministration_(){
   const key='dashboard-admin:'+RADAR.version+':'+configurationRevision_(),cached=CacheService.getScriptCache().get(key);if(cached)return JSON.parse(cached);
-  const value={maxFeeds:settings_().maxCustomFeeds,schedule:'Ventana: últimos '+settings_().windowDays+' días. Recopilación diaria a partir de las '+settings_().dailyHour+':00 ('+settings_().timezone+').',feeds:customFeeds_(),configuredFeeds:configuredFeeds_(),sheetUrl:book_().getUrl()};
+  const value={maxFeeds:settings_().maxCustomFeeds,schedule:'Ventana: últimos '+settings_().windowDays+' días. '+collectionScheduleLabel_()+'.',feeds:customFeeds_(),configuredFeeds:configuredFeeds_(),sheetUrl:book_().getUrl()};
   cacheJson_(key,value,300);return value;
 }

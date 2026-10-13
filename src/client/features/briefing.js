@@ -1,4 +1,4 @@
-import {geographyLabel} from '../../shared/selection-policy.js';
+import {geographyLabel,applicationGeography} from '../../shared/selection-policy.js';
 import {createGeographyTabs} from './geography-tabs.js';
 import {noveltyGroups,noveltyCount} from '../../shared/novelty-groups.js';
 import {articleContent} from './article-text.js';
@@ -19,7 +19,7 @@ export function createBriefing(){
   }
   return {get geography(){return active;},render(data){
     selection=data.selection||{};briefing=data.briefing||{total:0,bySignal:[],geographies:[],items:[]};
-    const stats=new Map(briefing.geographies.map(row=>[row.name,row]));groups=noveltyGroups(briefing.items).map(group=>({...group,...stats.get(group.name)}));
+    const stats=new Map(briefing.geographies.map(row=>[row.name,row]));groups=noveltyGroups(briefing.items,applicationGeography(data.applicationScope,data.selection?.segment)).map(group=>({...group,...stats.get(group.name)}));
     if(!groups.some(row=>row.name===active))active=groups[0]?.name||'';
     paint();
   }};

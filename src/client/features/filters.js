@@ -1,3 +1,4 @@
+import {syncSegmentCoverage} from './segment-controls.js';
 import {taxonomySubLabel} from '../../shared/taxonomy-path.js';
 import {syncTaxonomyControls} from './taxonomy-controls.js';
 import {coverageOptions} from '../../shared/selection-policy.js';
@@ -48,6 +49,7 @@ function createFilters({ onInvalidate, onChange }) {
   function filterChanged(event) {
     if(edition&&['from','to'].includes(event.target?.name)&&!event.target.value){current();return;}
     if(event.type==="input"&&event.target?.name!=="search")return;
+    syncSegmentCoverage(form,event.target?.name);
     syncTaxonomyControls(form,taxonomy,event.target?.name);
     clearTimeout(timer);
     page = 0;

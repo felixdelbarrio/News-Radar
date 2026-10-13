@@ -3,14 +3,14 @@ function newsletterSubject_(filters,language='es',t=taxonomyLanguage_(language))
   const values=Object.entries(labels).filter(([key])=>filters[key]).map(([key,label])=>t(label)+': '+(key==='search'||key==='from'||key==='to'?String(filters[key]).replace(/[\r\n]+/g,' '):t(key==='coverage'?coverageOptions[filters[key]]:key==='subpalanca'?taxonomySubLabel(filters[key]):filters[key])));
   return '[bIA] '+(values.join(' · ')||t('Todo el sector'));
 }
-function briefing_(rows,perGeography=false){
+function briefing_(rows,perGeography=false,geography=row=>row.pais||'Sin determinar'){
   const entities=new Map(),ranked=rows.filter(row=>row.senales.length).map(row=>{
     const entity=entityKey_(row.entidad);entities.set(entity,(entities.get(entity)||0)+1);
     return {row,entity,score:newsRelevanceMemory_.get(row)??digitalAssessment_(searchText_(row.titular),searchText_(row.titular+' '+row.extracto)).score};
   });
   ranked.sort((a,b)=>Number(b.entity==='BBVA')-Number(a.entity==='BBVA')||entities.get(b.entity)-entities.get(a.entity)||a.entity.localeCompare(b.entity,'es')||b.score-a.score||b.row.fecha.localeCompare(a.row.fecha));
-  const overview=noveltyOverview(ranked.map(item=>item.row),configuration_().signals.filter(row=>row.enabled).map(row=>row.name)),items=[],counts=new Map(),limit=settings_().briefingLimit;
-  for(const {row} of ranked){const key=perGeography?row.pais||'Sin determinar':'';if((counts.get(key)||0)>=limit)continue;counts.set(key,(counts.get(key)||0)+1);items.push(row);}
+  const overview=noveltyOverview(ranked.map(item=>item.row),configuration_().signals.filter(row=>row.enabled).map(row=>row.name),geography),items=[],counts=new Map(),limit=settings_().briefingLimit;
+  for(const {row} of ranked){const key=perGeography?geography(row):'';if((counts.get(key)||0)>=limit)continue;counts.set(key,(counts.get(key)||0)+1);items.push(row);}
   return {...overview,items,limited:overview.total>items.length};
 }
 function newsletter_(rows,query,title,now,subscriptionId,language='es',editionId=''){
