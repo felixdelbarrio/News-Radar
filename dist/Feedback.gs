@@ -2,19 +2,17 @@ function newsletterFeedback_(id,email){return rows_('NewsletterFeedback',setting
 function saveNewsletterFeedback(input){
   const session=authorize_();newsletterEditionMetadata_(input?.edition,session.email);
   if(!['positive','negative',''].includes(input.rating)||typeof input.comment!=='string'||input.comment.length>NEWSLETTER_EDITORIAL.commentChars)throw Error('Valoración o comentario no válido.');
-  const lock=LockService.getScriptLock();lock.waitLock(10000);
-  try{
+  return withForegroundWrite_(()=>{
     const id=sha256_(input.edition+'|'+session.email),sheet=book_().getSheetByName('NewsletterFeedback'),rows=rows_('NewsletterFeedback'),index=rows.findIndex(row=>row.id===id),comment=plainText_(input.comment).trim();
     if(!input.rating&&!comment){if(index>=0)sheet.deleteRow(index+2);return {feedback:null};}
     const feedback={id,edicion:input.edition,correo:session.email,valoracion:input.rating,comentario:comment,fecha:new Date().toISOString(),estado:'pendiente'},values=RADAR.sheets.NewsletterFeedback.map(key=>safeCell_(feedback[key]));
     if(index>=0)sheet.getRange(index+2,1,1,values.length).setNumberFormat('@').setValues([values]);else append_('NewsletterFeedback',[values]);
     trim_('NewsletterFeedback',settings_().eventLimit);return {feedback};
-  }finally{lock.releaseLock();}
+  });
 }
 function setNewsletterFeedbackState(input){
   authorize_(true);if(!['pendiente','atendido'].includes(input?.state))throw Error('Estado de seguimiento no válido.');
-  const lock=LockService.getScriptLock();lock.waitLock(10000);
-  try{const rows=rows_('NewsletterFeedback'),index=rows.findIndex(row=>row.id===input.id);if(index<0)throw Error('Valoración no disponible.');book_().getSheetByName('NewsletterFeedback').getRange(index+2,7,1,1).setValues([[input.state]]);return {saved:true};}finally{lock.releaseLock();}
+  return withForegroundWrite_(()=>{const rows=rows_('NewsletterFeedback'),index=rows.findIndex(row=>row.id===input.id);if(index<0)throw Error('Valoración no disponible.');book_().getSheetByName('NewsletterFeedback').getRange(index+2,7,1,1).setValues([[input.state]]);return {saved:true};});
 }
 function recordNewsletterEvents_(events,email){
   const attributed=events.filter(event=>event.edition&&['acceso','vista','lectura','exportacion'].includes(event.event));if(!attributed.length)return;

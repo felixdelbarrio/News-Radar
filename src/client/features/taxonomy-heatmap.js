@@ -14,12 +14,14 @@ export function createTaxonomyHeatmap({onExplore}){
       const count=row.counts.get(node.index)||0,value=heatmapValue(count,row.total,mode,page.max),text=t('{group} · {topic}: {count} noticias ({share} %). Ver noticias.',{group:t(row.name),topic:label(node),count,share:value.share});
       return '<td><button type="button" class="heat-cell heat-'+value.level+'" data-row="'+index+'" data-node="'+node.index+'" aria-label="'+escape(text)+'" title="'+escape(text)+'"'+(!count?' disabled':'')+'><span class="heat-cell-topic" aria-hidden="true">'+escape(label(node))+'</span><span>'+escape(mode==='share'?value.share+' %':number.format(count))+'</span></button></td>';
     }).join('')+'</tr>').join('')+'</tbody></table>':'<p class="muted">'+t('No hay noticias catalogadas en esta selección.')+'</p>';
-    $('heatmap-rows-label').textContent=t('Grupos {page}/{pages}',{page:page.pages.rows?rowPage+1:0,pages:page.pages.rows});$('heatmap-columns-label').textContent=t('Categorías {page}/{pages}',{page:page.pages.columns?columnPage+1:0,pages:page.pages.columns});
-    for(const [id,value,max] of [['rows',rowPage,page.pages.rows],['columns',columnPage,page.pages.columns]]){$('heatmap-'+id+'-previous').disabled=!value;$('heatmap-'+id+'-next').disabled=value+1>=max;}
+    $('heatmap-rows-label').textContent=t('{visible} de {total} grupos',{visible:page.rows.length,total:data[axis].length});$('heatmap-columns-label').textContent=t('Categorías {page}/{pages}',{page:page.pages.columns?columnPage+1:0,pages:page.pages.columns});
+    $('heatmap-rows-next').disabled=rowPage+1>=page.pages.rows;
+    for(const [id,value,max] of [['columns',columnPage,page.pages.columns]]){$('heatmap-'+id+'-previous').disabled=!value;$('heatmap-'+id+'-next').disabled=value+1>=max;}
     const top=data.nodes.filter(node=>node.level===level).sort((a,b)=>b.count-a.count)[0];$('heatmap-focus').textContent=top?t('La categoría más presente es {topic}, en {count} noticias.',{topic:label(top),count:top.count}):'';
   }
   for(const id of ['axis','level','measure'])$('heatmap-'+id).addEventListener('change',()=>{rowPage=0;columnPage=0;render();});
-  for(const id of ['rows','columns'])for(const direction of ['previous','next'])$('heatmap-'+id+'-'+direction).addEventListener('click',()=>{const step=direction==='next'?1:-1;if(id==='rows')rowPage+=step;else columnPage+=step;render();});
+  $('heatmap-rows-next').addEventListener('click',()=>{rowPage++;render();});
+  for(const id of ['columns'])for(const direction of ['previous','next'])$('heatmap-'+id+'-'+direction).addEventListener('click',()=>{const step=direction==='next'?1:-1;if(id==='rows')rowPage+=step;else columnPage+=step;render();});
   $('heatmap-table').addEventListener('click',event=>{
     const button=event.target.closest('[data-node]');if(!button)return;
     const axis=$('heatmap-axis').value,page=heatmapPage(data,axis,$('heatmap-level').value,rowPage,columnPage),row=page.rows[Number(button.dataset.row)],node=data.nodes[Number(button.dataset.node)];if(!row||!node)return;

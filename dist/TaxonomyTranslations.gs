@@ -56,7 +56,7 @@ function taxonomyTranslationBatch_(maxMs=TAXONOMY_POLICY.maxMs){
     if(job.pausedUntil>started)return;
     const index=taxonomyTranslationIndex_();let calls=0;
     job.state='En curso';job.error='';writeTaxonomyTranslationJob_(job);
-    while(job.processed<job.total&&Date.now()-started<maxMs&&!configurationPaused_()){
+    while(job.processed<job.total&&Date.now()-started<maxMs&&!backgroundPaused_()){
       if(collectionRequests_().some(request=>request.kind==='daily'))break;
       const name=names[Math.floor(job.processed/languages.length)],language=languages[job.processed%languages.length],key=taxonomyTranslationKey_(name,language);
       if(!index.has(key)){

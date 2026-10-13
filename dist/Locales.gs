@@ -1,5 +1,12 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "Productos nuevos, mejoras de oferta y alianzas para comparar cómo evoluciona el servicio de las entidades que sigues.": ["New products, improved offers and partnerships to compare how the banks you follow are evolving their services.", "Takip ettiğiniz bankaların hizmetlerini nasıl geliştirdiğini karşılaştırmak için yeni ürünler, iyileştirilmiş teklifler ve ortaklıklar."],
+  "Cargar más noticias": ["Load more news", "Daha fazla haber yükle"],
+  "Cargar más grupos": ["Load more groups", "Daha fazla grup yükle"],
+  "{visible} de {total} publicaciones": ["{visible} of {total} publications", "{total} yayından {visible} tanesi"],
+  "{visible} de {total} grupos": ["{visible} of {total} groups", "{total} gruptan {visible} tanesi"],
+  "El trabajo activo aún no ha liberado el bloqueo. Vuelve a intentarlo cuando termine su llamada en curso.": ["The active job has not released the lock yet. Try again after its current call finishes.", "Etkin iş kilidi henüz bırakmadı. Mevcut çağrı tamamlandıktan sonra tekrar deneyin."],
+
   "No se ha enviado la prueba: no hay noticias disponibles con estos filtros en el período.": ["The test was not sent: no stories are available with these filters in the period.", "Test gönderilmedi: bu filtrelerle dönem içinde haber bulunmuyor."],
   "Las palancas con más cobertura fueron {themes}: {count} noticias cada una ({share}% del corpus).": ["The most covered themes were {themes}: {count} stories each ({share}% of the corpus).", "En çok haber yapılan temalar {themes}: her biri {count} haber (derlemin %{share} kadarı)."],
   "La mayor concentración de cobertura está en {themes}. ¿Cómo se refleja en las prioridades de tu canal?": ["Coverage is most concentrated in {themes}. How does this reflect in your channel priorities?", "Haberler en çok {themes} temalarında yoğunlaşıyor. Bu, kanalınızın önceliklerine nasıl yansıyor?"],

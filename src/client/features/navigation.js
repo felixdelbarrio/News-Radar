@@ -10,6 +10,7 @@ function createNavigation({ isAdmin, track, onAdministration, onSubscriptions, o
     track("vista");
     for (const name of Object.keys(config.views)) $(name + "-section").hidden = name !== view;
     onPanel(view);
+    $('active-filters').hidden=!['news','briefing','radar'].includes(view);$('selection-freshness').hidden=!['news','briefing','radar'].includes(view);
     $("sidebar-context-title").textContent=view==="administration"?"Gestión de News Radar":"Seguimiento personalizado";
     $("sidebar-context-copy").textContent=view==="administration"?"Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicación.":"Las suscripciones tienen sus propios filtros. Cambiar la selección de noticias no modifica lo que recibes por correo.";
     $("sidebar-context").hidden=!["administration","subscriptions"].includes(view);

@@ -40,4 +40,4 @@ function newsletterEdition_(id,email){
 }
 
 function newsletterCollectionPriority_(){return collectionRequests_().some(request=>request.kind==='daily')||collectionJobs_().some(job=>job.tipo==='daily'&&Number(job.pendientes)>0&&Number(job.pausa||0)<=Date.now());}
-function ensureNewsletterContinuation_(delay){if(configurationPaused_()){deferConfigurationWork_('newsletter');return;}if(!scheduledTriggers_('newsletterTick_').length)ScriptApp.newTrigger('newsletterTick_').timeBased().after(delay||settings_().pauseMinutes*60000).create();}
+function ensureNewsletterContinuation_(delay){if(backgroundPaused_()){deferBackgroundWork_('newsletter');return;}if(!scheduledTriggers_('newsletterTick_').length)ScriptApp.newTrigger('newsletterTick_').timeBased().after(delay||settings_().pauseMinutes*60000).create();}

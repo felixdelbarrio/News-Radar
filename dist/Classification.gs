@@ -22,7 +22,7 @@ function requestNewsClassification_(force=false){
   writeClassificationJob_({next:2,total,revision:classificationRulesRevision_(),version:RADAR.version,state:total?'Pendiente':'Completada',started:now.toISOString(),updated:now.toISOString(),day:recordDay(now,settings_().timezone),classified:0,digital:0});
   if(total)ensureBackgroundWorker_();
 }
-function dailyClassification_(){if(configurationPaused_()){deferConfigurationWork_('classification');return;}properties_().setProperty('CLASSIFICATION_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}
+function dailyClassification_(){if(backgroundPaused_()){deferBackgroundWork_('classification');return;}properties_().setProperty('CLASSIFICATION_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}
 function drainClassificationRequest_(){
   const p=properties_(),day=p.getProperty('CLASSIFICATION_REQUEST');if(!day)return;
   const job=classificationJob_();if(job?.day===day){p.deleteProperty('CLASSIFICATION_REQUEST');return;}
@@ -33,13 +33,11 @@ function getClassificationStatus(){
   authorize_(true);const job=classificationJob_();return {newsRevision:properties_().getProperty('NEWS_REVISION')||'0',queued:Boolean(properties_().getProperty('CLASSIFICATION_REQUEST')),scheduled:scheduledTriggers_('dailyClassification_').length>0,hour:settings_().dailyHour,minute:CLASSIFICATION_WORK.dailyMinute,timezone:settings_().timezone,job:job?{...job,processed:Math.min(job.total,job.next-2)}:null};
 }
 function startClassification(){
-  authorize_(true);const lock=LockService.getScriptLock();lock.waitLock(10000);
-  try{
+  authorize_(true);return withForegroundWrite_(()=>{
     if(!classificationPending_())requestNewsClassification_(true);
     else{const job=classificationJob_();if(job.state==='En pausa'){job.state='Pendiente';job.pausedUntil=0;writeClassificationJob_(job);}ensureBackgroundWorker_();}
     return getClassificationStatus();
-  }
-  finally{lock.releaseLock();}
+  });
 }
 function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
   const job=classificationJob_();if(!job||job.state==='Completada')return;
@@ -53,7 +51,7 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
       for(const row of rows){
         const title=searchText_(row[5]),text=searchText_(row[5]+' '+row[6]),labels=classification_(title,text).labels,value=JSON.stringify(labels);
         values.push([value]);if(row[column]!==value)classified++;if(labels.digital)digital++;
-        if(Date.now()-started>=maxMs||configurationPaused_(true))break;
+        if(Date.now()-started>=maxMs||backgroundPaused_(true))break;
       }
       if(classified){sheet.getRange(job.next,column+1,values.length,1).setNumberFormat('@').setValues(values);SpreadsheetApp.flush();invalidateNews_();}
       read=values.length;job.next+=read;

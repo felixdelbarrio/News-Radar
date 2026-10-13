@@ -1,17 +1,17 @@
 import {t,setTaxonomyTranslations} from './language.js';
 function receive(data){if(data?.taxonomyTranslations)setTaxonomyTranslations(data.taxonomyTranslations);return data;}
-let pending=0;
-function loading(delta){
-  pending+=delta;
+let pending=0,replacing=0;
+function loading(delta,append){
+  pending+=delta;if(!append)replacing+=delta;
   const indicator=document.getElementById('loading');indicator.hidden=pending===0;
   document.getElementById('loading-label').textContent=t('Cargando contenido…');
-  document.querySelector('.content').setAttribute('aria-busy',String(pending>0));
+  const content=document.querySelector('.content');content.setAttribute('aria-busy',String(pending>0));content.setAttribute('data-loading',replacing?'replace':pending?'append':'');
 }
 function call(method, ...args) {
-  const visible=!['recordEvents','getCollectionProgress'].includes(method);if(visible)loading(1);
+  const visible=!['recordEvents','getCollectionProgress'].includes(method),append=method==='getDashboard'&&args[0]?.view==='news'&&args[0]?.page>0;if(visible)loading(1,append);
   let response;
-  try{response=send(method,...args);}catch(error){if(visible)loading(-1);throw error;}
-  if(visible)response.then(()=>loading(-1),()=>loading(-1));
+  try{response=send(method,...args);}catch(error){if(visible)loading(-1,append);throw error;}
+  if(visible)response.then(()=>loading(-1,append),()=>loading(-1,append));
   return response;
 }
 function send(method, ...args) {

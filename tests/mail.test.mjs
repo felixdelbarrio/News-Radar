@@ -6,7 +6,7 @@ function mail(){
   const calls=[],settings=JSON.parse(read('assets/configuration-defaults.json')).settings;
   let response={sendAsEmail:settings.newsletterSender,verificationStatus:'accepted'},code=200,admin=true;
   const c=vm.createContext({SpreadsheetApp:{flush(){}},Utilities:{Charset:{UTF_8:'UTF-8'},getUuid:()=> 'test-boundary',base64Encode:value=>Buffer.from(value).toString('base64'),base64EncodeWebSafe:value=>Buffer.from(value).toString('base64url')},ScriptApp:{getOAuthToken:()=> 'private-token'},UrlFetchApp:{fetch(url,options){calls.push({url,options});return {getResponseCode:()=>code,getContentText:()=>JSON.stringify(response)};}}});
-  vm.runInContext(readServerScript('dist',true),c);c.PropertiesService={getScriptProperties:()=>({getProperty:()=>null})};c.settings_=()=>settings;c.authorize_=()=>{if(!admin)throw Error('administrador');return {email:'owner@bbva.com'};};
+  vm.runInContext(readServerScript('dist',true),c);c.PropertiesService={getScriptProperties:()=>({getProperty:()=>null,getProperties:()=>({})})};c.settings_=()=>settings;c.authorize_=()=>{if(!admin)throw Error('administrador');return {email:'owner@bbva.com'};};
   c.saveNewsletterEdition_=()=>{};c.taxonomyLanguage_=language=>value=>c.translateText(value,language);
   return {c,calls,settings,setResponse(value,status=200){response=value;code=status;},setAdmin(value){admin=value;}};
 }

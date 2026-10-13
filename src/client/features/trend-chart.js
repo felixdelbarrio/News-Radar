@@ -13,10 +13,10 @@ function trendChart({ buckets, series }, availableWidth = 900) {
   const lines = series.map((row, i) => {
     const points = row.values.map((value, index) => [x(index), y(value)]), path = points.map(([px, py], index) => (index ? "L" : "M") + px.toFixed(1) + "," + py.toFixed(1)).join(" "), color = "var(--chart-series-" + (i + 1) + ")";
     const area = series.length === 1 ? `<path d="${path} L${x(buckets.length - 1)},${y(0)} L${x(0)},${y(0)} Z" class="chart-area"/>` : "";
-    return area + `<path d="${path}" stroke="${color}" class="chart-line"><title>${escape(row.entity)} · ${row.total} publicaciones</title></path>` + points.map(([px, py], j) => `<circle cx="${px}" cy="${py}" r="${buckets.length > 30 ? 2 : 4}" fill="${color}"><title>${escape(row.entity)} · ${buckets[j]} · ${row.values[j]} publicaciones</title></circle>`).join("");
+    return `<g data-series="${i}">` + area + `<path d="${path}" stroke="${color}" class="chart-line"><title>${escape(row.entity)} · ${row.total} publicaciones</title></path>` + points.map(([px, py], j) => `<circle class="chart-point" data-point="${j}" tabindex="0" aria-label="${escape(row.entity)} · ${buckets[j]} · ${row.values[j]} publicaciones" cx="${px}" cy="${py}" r="4" fill="${color}"><title>${escape(row.entity)} · ${buckets[j]} · ${row.values[j]} publicaciones</title></circle>`).join("")+'</g>';
   }).join("");
   const legend = series.map((row, i) => `<span><i style="background:var(--chart-series-${i + 1})"></i>${escape(row.entity)}<strong>${row.total}</strong></span>`).join("");
-  return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Evolución del número de publicaciones por entidad"><title>Evolución de publicaciones por entidad</title>${ticks}${labels}${lines}</svg><div class="chart-legend">${legend}</div>`;
+  return `<svg viewBox="0 0 ${width} ${height}" role="group" aria-label="Evolución del número de publicaciones por entidad"><title>Evolución de publicaciones por entidad</title>${ticks}${labels}${lines}</svg><div class="chart-legend">${legend}</div>`;
 }
 export {
   trendChart

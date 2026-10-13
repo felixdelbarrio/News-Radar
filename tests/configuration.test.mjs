@@ -163,9 +163,9 @@ test('inicializar prioridades conserva íntegra la recuperación anual que ya es
 
 test('la pausa entre destinatarios conserva el envío confirmado y reanuda solo los pendientes',()=>{
  const f=deliveryFixture();f.add('maintenance');f.subscriptions.push({...f.subscriptions[0],id:'b',correo:'otro@bbva.com'});
- const send=f.c.sendNewsletterMail_;f.c.sendNewsletterMail_=(...args)=>{const id=send(...args);f.properties.CONFIGURATION_PAUSED_UNTIL=String(Date.now()+600000);return id;};
+ const send=f.c.sendNewsletterMail_;f.c.sendNewsletterMail_=(...args)=>{const id=send(...args);f.properties['WORK_INTENT:test']=String(Date.now()+600000);return id;};
  const paused=f.c.deliverNewsletters_();assert.equal(paused.accepted,1);assert.equal(paused.pending,1);assert.equal(paused.state,'configuration_pause');
- assert.equal(f.sheets.get('NewsletterEnvios').grid[1][5],'Enviada');assert.equal(f.properties['CONFIGURATION_PENDING:newsletter'],'true');
- delete f.properties.CONFIGURATION_PAUSED_UNTIL;f.c.sendNewsletterMail_=send;f.c.configurationWake_();
+ assert.equal(f.sheets.get('NewsletterEnvios').grid[1][5],'Enviada');assert.equal(f.properties['WORK_PENDING:newsletter'],'true');
+ delete f.properties['WORK_INTENT:test'];f.c.sendNewsletterMail_=send;f.c.workWake_();
  const resumed=f.c.deliverNewsletters_();assert.equal(resumed.accepted,1);assert.equal(resumed.pending,0);assert.equal(f.sent.length,2);assert.equal(f.c.deliverNewsletters_().state,'no_due');
 });
