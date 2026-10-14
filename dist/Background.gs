@@ -88,7 +88,7 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
       if(!daily&&!dailyCollectionPending_(work)){drainClassificationRequest_();drainDailyTranslations_(work);drainTaxonomyRequest_();}
       const task=backgroundTask_(work,daily);if(!task)break;
       const remaining=Math.min(BACKGROUND_WORK.sliceMs,BACKGROUND_WORK.maxMs-(Date.now()-started));if(remaining<=0)break;
-      progressContextMemory_=undefined;properties_().setProperty('BACKGROUND_RUN_ID',runId);const stage=task==='collection'?daily?'daily':'annual':task;properties_().setProperty('BACKGROUND_ACTIVE',stage);properties_().setProperty('BACKGROUND_ACTIVE_UNTIL',String(Date.now()+BACKGROUND_WORK.maxMs+60000));properties_().setProperty('JOB_LAST_EXECUTED:'+stage,new Date().toISOString());
+      progressContextMemory_=undefined;properties_().setProperty('BACKGROUND_RUN_ID',runId);const stage=task==='collection'?daily?'daily':'annual':task;properties_().setProperty('BACKGROUND_ACTIVE',stage);properties_().setProperty('BACKGROUND_ACTIVE_UNTIL',String(Date.now()+BACKGROUND_WORK.maxMs+BACKGROUND_WORK.activeGraceMs));properties_().setProperty('JOB_LAST_EXECUTED:'+stage,new Date().toISOString());
       if(task==='newsletter')deliverNewsletterBatch_(work,remaining);
       else if(task==='taxonomyTranslation')taxonomyTranslationBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
       else if(task==='taxonomy')taxonomyBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
@@ -103,7 +103,7 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
     completed=true;return {...collectionStatus_(null,work?.jobs),added,errors};
   }finally{
     try{
-      const queued=properties_().getProperty('DAILY_PIPELINE_REQUEST')||collectionRequests_().length||(properties_().getProperty('CLASSIFICATION_REQUEST')&&!dailyCollectionPending_(work)&&!classificationPending_())||(properties_().getProperty('TAXONOMY_REQUEST')&&!businessPipelinePending_(work)&&!taxonomyPending_()),next=queued||!completed?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_(),classificationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_(work));
+      const queued=backgroundQueued_(work),next=queued||!completed?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_(),classificationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_(work));
       if(Number.isFinite(next))ensureBackgroundWorker_(next-Date.now());else properties_().deleteProperty('BACKGROUND_PENDING');
     }finally{if(acquired){if(properties_().getProperty('BACKGROUND_RUN_ID')===runId){properties_().deleteProperty('BACKGROUND_RUN_ID');properties_().deleteProperty('BACKGROUND_ACTIVE');properties_().deleteProperty('BACKGROUND_ACTIVE_UNTIL');}lock.releaseLock();}}
   }
@@ -113,7 +113,7 @@ function initializeBackgroundSchedules_(){
   CacheService.getScriptCache().remove('daily-schedule');
   for(const handler of ['collectionTick_','collectionWake_','translationTick_','backgroundTick_','nightlyTranslations_','dailyClassification_','dailyTaxonomy_','newsletterTick_','deliverNewsletters_'])scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   p.deleteProperty('BACKGROUND_NEXT');
-  if(!scheduledTriggers_('backgroundWatchdog_').length)ScriptApp.newTrigger('backgroundWatchdog_').timeBased().everyMinutes(5).create();
+  if(!scheduledTriggers_('backgroundWatchdog_').length)ScriptApp.newTrigger('backgroundWatchdog_').timeBased().everyMinutes(BACKGROUND_WORK.watchdogMinutes).create();
   if(p.getProperty('DAILY_ENABLED')==='true')replaceCollectionSchedule_();else scheduledTriggers_('dailyRadar_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   if(p.getProperty('TRANSLATION_ENABLED')!=='false')p.setProperty('TRANSLATION_ENABLED','true');
   if(newsletter)replaceDailySchedule_('scheduledNewsletters_',settings_().dailyHour);
@@ -122,12 +122,18 @@ function initializeBackgroundSchedules_(){
 function updateOperationalSchedule(){authorize_(true);return withForegroundWrite_(()=>{initializeBackgroundSchedules_();return 'Prioridades y programación actualizadas.';});}
 
 function backgroundWatchdog_(){
-  const p=properties_();if(!p.getProperty('BACKGROUND_PENDING')||backgroundPaused_())return;
+  const p=properties_(),values=p.getProperties();if(backgroundPaused_())return;
+  if(Object.entries(values).some(([key,value])=>key.startsWith('WORK_PENDING:')&&value==='true')){workWake_();return;}
+  if(!values.BACKGROUND_PENDING&&!['DAILY_PIPELINE_REQUEST','CLASSIFICATION_REQUEST','DAILY_TRANSLATION_REQUEST','TRANSLATION_REQUEST','TAXONOMY_REQUEST','TAXONOMY_TRANSLATION_REQUEST'].some(key=>values[key])&&!(values.NEWSLETTER_REQUEST&&settings_().newsletterEnabled))return;
   if(scheduledTriggers_('backgroundTick_').length&&Number(p.getProperty('BACKGROUND_NEXT'))>Date.now()-BACKGROUND_WORK.maxMs*2)return;
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return;
   try{
-    const now=Date.now(),fetchPause=Number(p.getProperty('FETCH_PAUSED_UNTIL')||0),jobs=collectionJobs_(),collection=jobs.filter(job=>Number(job.pendientes)>0||job.estado==='Preparando').map(job=>Math.max(now,fetchPause,Number(job.pausa||0))),queued=p.getProperty('DAILY_PIPELINE_REQUEST')||collectionRequests_().length;
+    const now=Date.now(),fetchPause=Number(p.getProperty('FETCH_PAUSED_UNTIL')||0),jobs=collectionJobs_(),collection=jobs.filter(job=>Number(job.pendientes)>0||job.estado==='Preparando').map(job=>Math.max(now,fetchPause,Number(job.pausa||0))),queued=backgroundQueued_({jobs});
     const next=queued?now:Math.min(...collection,classificationReadyAt_(),translationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_({jobs}));
     if(Number.isFinite(next)){p.deleteProperty('BACKGROUND_NEXT');ensureBackgroundWorker_(next-now);}else p.deleteProperty('BACKGROUND_PENDING');
   }finally{lock.releaseLock();}
+}
+
+function backgroundQueued_(work){
+  const p=properties_();return Boolean(p.getProperty('DAILY_PIPELINE_REQUEST')||collectionRequests_().length||!dailyCollectionPending_(work)&&!classificationPending_()&&(p.getProperty('CLASSIFICATION_REQUEST')||p.getProperty('DAILY_TRANSLATION_REQUEST'))||p.getProperty('TAXONOMY_REQUEST')&&!businessPipelinePending_(work)&&!taxonomyPending_());
 }

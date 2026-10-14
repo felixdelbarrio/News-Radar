@@ -62,7 +62,7 @@ function deliverNewsletterBatch_(work,maxMs=BACKGROUND_WORK.sliceMs){
   if(businessPipelinePending_(work)){ensureNewsletterContinuation_();return {...result,state:'collection_priority'};}
   const quotaPause=Number(properties_().getProperty('NEWSLETTER_QUOTA_UNTIL')||0);if(quotaPause>Date.now()){requestNewsletterDelivery_(quotaPause-Date.now());return {...result,state:'limit'};}
   try{
-    properties_().deleteProperty('NEWSLETTER_LAST_ERROR');properties_().setProperty('JOB_LAST_EXECUTED:newsletter',new Date().toISOString());properties_().setProperty('NEWSLETTER_RUNNING_UNTIL',String(started+maxMs+60000));CacheService.getScriptCache().remove('newsletter-progress');
+    properties_().deleteProperty('NEWSLETTER_LAST_ERROR');properties_().setProperty('JOB_LAST_EXECUTED:newsletter',new Date().toISOString());properties_().setProperty('NEWSLETTER_RUNNING_UNTIL',String(started+maxMs+BACKGROUND_WORK.activeGraceMs));CacheService.getScriptCache().remove('newsletter-progress');
     const deliveries=rows_('NewsletterEnvios'),{due,periods}=newsletterDeliveryPlan_(new Date(),deliveries);
     result.pending=due.length;result.state='no_due';const quarterlyDue=due.filter(item=>item.row.periodicidad==='quarterly').length;let quarterlyPending=quarterlyDue;
     const quarterly=periods.get('quarterly'),quarterlyBlocked=quarterly&&deliveries.some(row=>row.desde===quarterly.from&&row.hasta===quarterly.to&&['Enviando','Revisar'].includes(row.estado)),quarterlyFinished=quarterly&&!quarterlyBlocked&&deliveries.some(row=>row.desde===quarterly.from&&row.hasta===quarterly.to&&['Enviada','Sin novedades'].includes(row.estado));

@@ -41,3 +41,7 @@ test('el progreso de envíos solo se sondea en la vista administrativa activa',a
  const timers=new Map();let id=0;const a=await app(t,{configure({w,replies}){const set=w.setTimeout.bind(w),clear=w.clearTimeout.bind(w);w.setTimeout=(fn,ms)=>{if(ms<30000)return set(fn,ms);timers.set(++id,{fn,ms});return id;};w.clearTimeout=key=>{timers.delete(key);clear(key);};replies.getNewsletterProgress={enabled:true,active:true,queued:true,job:{state:'En cola',total:3,processed:1,pending:2,accepted:1,empty:0,review:0}};}});
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="subscribers"]');assert.equal(a.find('#newsletter-delivery-progress progress').value,1);assert.equal(a.find('#newsletter-delivery-progress progress').max,3);assert.ok([...timers.values()].some(t=>t.ms===30000));await a.click('[data-admin-view="runs"]');assert.equal([...timers.values()].filter(t=>t.ms===30000).length,0);
 });
+test('el supervisor recupera solicitudes de clasificación sin cursor activo y trabajo diferido tras una configuración',()=>{
+ const s=fixture(),c=s.c;s.properties.CLASSIFICATION_REQUEST='2026-01-01';delete s.properties.BACKGROUND_PENDING;c.backgroundWatchdog_();assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);assert.equal(s.properties.CLASSIFICATION_REQUEST,'2026-01-01');
+ c.deferBackgroundWork_('daily');c.backgroundWatchdog_();assert.ok(s.properties.DAILY_PIPELINE_REQUEST);assert.equal(s.properties['WORK_PENDING:daily'],undefined);
+});
