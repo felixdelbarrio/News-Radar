@@ -33,7 +33,7 @@ const selectionKey=query=>JSON.stringify(Object.entries(query).filter(([,value])
 const noteNewsRevision=revision=>{if(revision&&state.data&&revision!==state.data.newsRevision){state.contentStale=true;dashboards.clear();}};
 const configuration = createConfiguration({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='configuration'});
 const taxonomy=createTaxonomy({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='taxonomy'});
-const subscriptions = createSubscriptions({run:action,onApply:query=>{const view=query.view;filters.show(view);filters.apply(query);navigation.show(view);}});
+const subscriptions = createSubscriptions({run:action,onApply:query=>navigateSelection(query.view,query)});
 const newsletterDelivery=createNewsletterDelivery({run:action});
 const languageSettings=createLanguageSettings({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='language'});
 const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onLanguage:()=>languageSettings.open(),onLeaveLanguage:()=>languageSettings.close(),onLeaveConfiguration:()=>configuration.close(),onTaxonomy:()=>taxonomy.open(),onLeaveTaxonomy:()=>taxonomy.close() });
@@ -44,10 +44,12 @@ const filters = createFilters({ onInvalidate: () => ++state.request, onChange: (
   load();
 } });
 const reading=createReadingContext({onCurrent:()=>filters.current(),run:action});
-const heatmap=createTaxonomyHeatmap({onExplore:query=>{filters.show('news');filters.apply(query);navigation.show('news');}});
+const heatmap=createTaxonomyHeatmap({onExplore:query=>navigateSelection('news',query)});
 const briefing=createBriefing();
 const newsTabs=createGeographyTabs('news-geographies','news-list',name=>filters.setGeography(name));
-const radar = createRadar({ onSource:source=>filters.set("source",source), onCountry: (country) => {filters.show("news");filters.apply({...state.data.selection,country});navigation.show("news");}, onEntity: (entity) => filters.set("entity", entity), onNews: () => {const selection=state.data.selection;filters.show("news");filters.apply(selection);navigation.show("news");} });
+function navigateSelection(view,query){filters.show(view);filters.apply(query,false);state.contentStale=true;track('filtro');navigation.show(view);}
+const radar=createRadar({onSource:source=>navigateSelection('news',{...state.data.selection,source}),onCountry:country=>navigateSelection('news',{...state.data.selection,country}),onEntity:entity=>navigateSelection('news',{...state.data.selection,entity}),onNews:()=>navigateSelection('news',state.data.selection)});
+
 const sources = createSources({ getData: () => state.data, run: action });
 const recoveryControls=createRecoveryControls({getData:()=>state.data,run:action});
 const collectionProgress=createCollectionProgress({reload:data=>{noteNewsRevision(data.newsRevision);if(['news','briefing','radar'].includes(navigation.current))return load();},isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
@@ -56,6 +58,16 @@ function renderSelection(data,view=navigation.current,appended=null){
   if(view==='radar'){radar.render(data);heatmap.render(data);}
   if(view==='briefing')briefing.render(data);
 }
+function renderApplicationShell(data){
+      if(data.taxonomyTranslations)setTaxonomyTranslations(data.taxonomyTranslations);
+      setTimezone(data.preferences?.timezone);
+      if(window.RADAR_PREVIEW&&data.admin)$("preview-banner").textContent="Administración local · cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.";
+      if(data.preferences){document.querySelector(".app-footer").hidden=false;$("retention-days").textContent=data.preferences.retentionDays;$("event-limit").textContent=data.preferences.eventLimit;}
+      renderShell(data);
+      if (data.admin) sources.render(data);
+      collectionProgress.update(data);
+      flushLocalization();
+ }
 async function load(reuse=false) {
   const request = ++state.request, started = performance.now();
   if (!filters.isValid()) {
@@ -80,9 +92,6 @@ async function load(reuse=false) {
         data={...state.data,...data,selection:state.data.selection,context:state.data.context};
       }else state.contentStale=false;
       state.data=data;state.view=query.view;
-      if(data.taxonomyTranslations)setTaxonomyTranslations(data.taxonomyTranslations);
-      setTimezone(data.preferences?.timezone);
-      if(window.RADAR_PREVIEW&&data.admin)$("preview-banner").textContent="Administración local · cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.";
       const renderStarted=performance.now();
       if(!administrative){
         filters.render(data);
@@ -91,11 +100,7 @@ async function load(reuse=false) {
         if(dashboards.size>navigationCache.entries)dashboards.delete(dashboards.keys().next().value);
       }
       renderSelection(data,navigation.current,appended);
-      if(data.preferences){document.querySelector(".app-footer").hidden=false;$("retention-days").textContent=data.preferences.retentionDays;$("event-limit").textContent=data.preferences.eventLimit;}
-      renderShell(data);
-      if (data.admin) sources.render(data);
-      collectionProgress.update(data);
-      flushLocalization();
+      renderApplicationShell(data);
       track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true}:{}),clientCacheHit,rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
       if (first) {
         track("acceso");
@@ -152,16 +157,21 @@ $('download-telemetry').addEventListener('click',()=>action(async()=>{
   link.href=url;link.download='news-radar-telemetria.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message('Telemetría descargada.');
 },false));
 if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
-navigation.show(defaultView);
-if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocation(async location=>{
-  if(location.parameter.edition){const params=location.parameter;state.attribution=params.edition;const view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;filters.show(view);navigation.show(view);state.ready=true;filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca,subpalanca:params.subpalanca,benchmark:params.benchmark});return;}
-  state.ready=true;load();
-  if(location.parameter.view!=='subscriptions')return;
-  await navigation.show('subscriptions');
-  const id=location.parameter.unsubscribe;if(!id)return;
-  const target=$('message');message('Confirma la baja de esta suscripción.');
-  const button=document.createElement('button');button.type='button';button.className='button';button.textContent='Confirmar baja';
-  button.addEventListener('click',()=>action(async()=>{message(await call('deleteSubscription',id));await subscriptions.open();},false));target.appendChild(button);
-});else {state.ready=true;load();}
+async function startApplication(params={}){
+  if(params.edition){
+    state.attribution=params.edition;const view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;
+    filters.show(view);navigation.show(view);state.ready=true;filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca,subpalanca:params.subpalanca,benchmark:params.benchmark});return;
+  }
+  if(['news','briefing','radar'].includes(params.view)){navigation.show(params.view);state.ready=true;await load();return;}
+  try{
+    state.data=await call('getBootstrap');renderApplicationShell(state.data);state.ready=true;track('acceso');
+    await navigation.show(params.view==='subscriptions'?'subscriptions':state.data.admin?'administration':defaultView);
+    const id=params.unsubscribe;if(!id||params.view!=='subscriptions')return;
+    message('Confirma la baja de esta suscripción.');const button=document.createElement('button');button.type='button';button.className='button';button.textContent='Confirmar baja';
+    button.addEventListener('click',()=>action(async()=>{message(await call('deleteSubscription',id));await subscriptions.open();},false));$('message').appendChild(button);
+  }catch(error){$('loading').hidden=true;message(error.message||String(error),true);}
+}
+if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocation(location=>startApplication(location.parameter));
+else startApplication(Object.fromEntries(new URLSearchParams(window.location?.search||'')));
 
 window.addEventListener('news-radar-language-change',async()=>{await load();if(navigation.current==='administration'&&administration.current==='language')await languageSettings.open();if(navigation.current==='administration'&&administration.current==='taxonomy')await taxonomy.open();});

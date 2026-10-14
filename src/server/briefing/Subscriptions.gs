@@ -1,4 +1,4 @@
-function newsletterEnabled_(){return settings_().newsletterEnabled&&ScriptApp.getProjectTriggers().some(t=>t.getHandlerFunction()==='deliverNewsletters_');}
+function newsletterEnabled_(){return settings_().newsletterEnabled&&ScriptApp.getProjectTriggers().some(t=>t.getHandlerFunction()==='scheduledNewsletters_');}
 function subscriptionRows_(email){
   const translators=new Map();
   return rows_('Suscripciones').filter(row=>!email||row.correo===email).map(row=>{

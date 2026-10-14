@@ -60,6 +60,7 @@ function createFilters({ onInvalidate, onChange }) {
     form.elements.to.setCustomValidity(from && to && from > to ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : "");
     $("message").hidden = true;
     dirty=false;applied={...(edition&&applied.benchmark?{benchmark:applied.benchmark}:{}),...Object.fromEntries(new FormData(form))};renderChips();
+    if(event.notify===false)return;
     if (event.type === "input") timer = setTimeout(onChange, 250);
     else onChange();
   }
@@ -113,7 +114,7 @@ function createFilters({ onInvalidate, onChange }) {
       form.elements[name].value = value;
       filterChanged({ type: "change" });
     },
-    apply:query=>{initialized.add(view);for(const input of form.elements)if(input.name){const value=query[input.name]||'';if(value&&input.tagName==='SELECT')options(input.name,[value]);input.value=value;}filterChanged({type:'change'});},
+    apply:(query,notify=true)=>{initialized.add(view);for(const input of form.elements)if(input.name){const value=query[input.name]||'';if(value&&input.tagName==='SELECT')options(input.name,[value]);input.value=value;}filterChanged({type:'change',notify});},
     setGeography:name=>{newsGeography=name;page=0;onInvalidate();onChange();},
     setPage: (value) => page = value,
     render: (data) => {

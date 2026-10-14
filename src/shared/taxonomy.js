@@ -1,5 +1,5 @@
 // Sparse corpus statistics: no document matrix or retained article text.
-export const TAXONOMY_POLICY=Object.freeze({batchRows:100,maxMs:10000,dailyMinute:45,maxCandidates:600,maxEmergingPerLever:3,minEmergingDocuments:2,maxTerms:24,checkpointRows:20,checkpointChars:40000});
+export const TAXONOMY_POLICY=Object.freeze({batchRows:100,maxMs:10000,maxCandidates:600,maxEmergingPerLever:3,minEmergingDocuments:2,maxTerms:24,checkpointRows:20,checkpointChars:40000});
 const leverRules=[
   ['Seguridad e identidad',['seguridad','identidad','fraud','biometr','autentic','kyc','ciber','security','identity']],
   ['Integración y automatización',['api','erp','integracion','automat','inteligencia','artificial','asistente','open banking','embedded','integration']],

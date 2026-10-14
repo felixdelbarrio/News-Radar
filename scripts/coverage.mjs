@@ -11,7 +11,7 @@ import {coverageFailures} from './coverage-policy.mjs';
 const root=path.resolve(import.meta.dirname,'..'),output=path.join(root,'output/coverage'),raw=path.join(output,'raw');
 fs.rmSync(output,{recursive:true,force:true});fs.mkdirSync(raw,{recursive:true});
 const tests=fs.readdirSync(path.join(root,'tests')).filter(file=>file.endsWith('.test.mjs')).map(file=>'tests/'+file);
-const result=spawnSync(process.execPath,['--import','./scripts/coverage-hook.mjs','--test',...tests],{cwd:root,stdio:'inherit',env:{...process.env,RADAR_COVERAGE:'1',RADAR_COVERAGE_RAW:raw}});
+const result=spawnSync(process.execPath,['--import','./scripts/coverage-hook.mjs','--test','--test-concurrency=2',...tests],{cwd:root,stdio:'inherit',env:{...process.env,RADAR_COVERAGE:'1',RADAR_COVERAGE_RAW:raw}});
 const coverage=createCoverageMap({});
 for(const file of sourceFiles(path.join(root,'src')))coverage.addFileCoverage(sourceCoverage(fs.readFileSync(file,'utf8'),file));
 for(const file of fs.readdirSync(raw))coverage.merge(JSON.parse(fs.readFileSync(path.join(raw,file),'utf8')));

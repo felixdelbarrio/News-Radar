@@ -1,3 +1,4 @@
+function getBootstrap(){return getDashboard({view:'runs'});}
 function getDashboard(query) {
   const started=Date.now(),session=authorize_(),feeds=feeds_();
   const view=query?.view||'radar',initial=Boolean(query?.initial),language=supportedLanguage(query?.language)?query.language:'es',edition=query?.edition?newsletterEdition_(query.edition,session.email):null,personal=initial&&!edition&&readingViews.includes(view)?firstNewsSubscription_(session.email):null;

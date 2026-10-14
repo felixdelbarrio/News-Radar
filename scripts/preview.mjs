@@ -51,6 +51,7 @@ const taxonomyCatalog_=()=>${serialize(taxonomy)},taxonomyTranslations_=()=>(${s
 function writeConfiguration_(config,version){authorize_();if(version!==revision)throw Error('La configuración ha cambiado. Recarga los catálogos.');validateConfiguration_(config);configuration=JSON.parse(JSON.stringify(config));revision=String(Number(revision)+1);return 'Configuración local guardada en memoria. No se ha escrito en Google.';}
 ${shared}
 window.RADAR_PREVIEW={async call(method,q={}){
+ if(method==='getBootstrap')return this.call('getDashboard',{view:'runs'});
 ${previewDelay?`if(method!=='recordEvents')await new Promise(resolve=>setTimeout(resolve,${previewDelay}));`:''}
  if(method==='resumeCollection'){authorize_();return {added:0,pending:0,errors:[],notice:'Vista local: no hay recuperaciones remotas en curso.'};}
  if(method==='collectNow'){authorize_();const range=(q||'today')!=='year'?collectionRecentRange_(new Date()):collectionRange_(q,new Date()),available=rows.filter(row=>row.fecha>=range.from&&row.fecha<=range.to).length;return {added:0,pending:0,errors:[],notice:'Vista local: '+available+' noticias de la instantánea en el período '+range.from+' / '+range.to+'. La consulta remota se ejecuta únicamente en Apps Script.'};}

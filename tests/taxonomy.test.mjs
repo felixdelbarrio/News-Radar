@@ -36,8 +36,8 @@ test('el modelo cambia con contenido nuevo sin reescribir etiquetas intactas; fi
   sheets.get('Noticias').grid[1][5]='BBVA lanza IA generativa';c.invalidateNews_();c.startTaxonomy();finish(c);assert.notEqual(sheets.get('Noticias').grid[1][12],prior);
 });
 test('programación única, autorización, petición durable y recuperación diaria prioritaria',()=>{
-  const s=server(Array.from({length:250},()=> 'BBVA lanza una API para empresas')),c=s.c;c.initializeConfiguration();assert.equal(c.scheduledTriggers_('dailyTaxonomy_').length,1);assert.equal(c.scheduledTriggers_('dailyTaxonomy_')[0].minute,45);
-  const locks=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};c.dailyTaxonomy_();assert.equal(c.processBackground_().busy,true);assert.ok(s.properties.TAXONOMY_REQUEST);c.LockService=locks;
+  const s=server(Array.from({length:250},()=> 'BBVA lanza una API para empresas')),c=s.c;c.initializeConfiguration();assert.equal(c.scheduledTriggers_('dailyTaxonomy_').length,0);c.writeClassificationJob_({...c.classificationJob_(),state:'Completada'});
+  const locks=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};c.queueQuarterlyTaxonomy_({to:'2026-09-30'});assert.equal(c.processBackground_().busy,true);assert.ok(s.properties.TAXONOMY_REQUEST);c.LockService=locks;
   const feed=c.feeds_()[0],keys=vm.runInContext('RADAR.sheets.Recargas',c),job={id:'daily',tipo:'daily',inicio:new Date().toISOString(),estado:'Pendiente',total:7,pendientes:7};s.sheets.get('Recargas').grid.push(keys.map(key=>job[key]||''));
   for(let i=0;i<7;i++)s.sheets.get('Recopilacion').grid.push(['daily',feed.name,feed.url,'Pendiente',0,'',0,0,'','2026-10-12']);
   c.collectionBatch_=work=>{for(const task of work.pending)s.sheets.get('Recopilacion').grid[task.row-1][3]='Completada';c.collectionSnapshots_(work.tasks,work.jobs);return {added:0,errors:[]};};
@@ -62,7 +62,7 @@ test('las noticias nuevas se etiquetan con el modelo vigente durante la incorpor
 test('la taxonomía tiene prioridad sobre recuperación anual disponible y los fallos parciales no pierden contadores ni etiquetas',()=>{
  const {c,sheets,properties}=server(Array.from({length:5},(_,i)=> 'BBVA lanza una API para empresas '+i));c.startTaxonomy();finish(c);
  for(const index of [1,3,5])sheets.get('Noticias').grid[index][5]='BBVA lanza IA generativa';c.invalidateNews_();c.startTaxonomy();c.taxonomyBatch_();c.taxonomyBatch_();
- properties.BACKGROUND_LAST='classification';assert.equal(c.backgroundTask_({pending:[{ciclo:'annual'}]},false),'taxonomy');
+ c.writeClassificationJob_({...c.classificationJob_(),state:'Completada'});properties.BACKGROUND_LAST='classification';assert.equal(c.backgroundTask_({pending:[{ciclo:'annual'}]},false),'taxonomy');
  const sheet=sheets.get('Noticias'),range=sheet.getRange;sheet.getRange=(...args)=>{const result=range(...args);if(args[1]===13&&args[0]===4)result.setValues=()=>{throw Error('Segundo bloque temporal');};return result;};
  c.taxonomyBatch_();assert.equal(c.taxonomyJob_().next,2);assert.equal(c.taxonomyJob_().tagged,1);assert.equal(c.taxonomyJob_().state,'En pausa');const first=sheet.grid[1][12];sheet.getRange=range;c.startTaxonomy();finish(c);assert.equal(c.taxonomyJob_().tagged,3);assert.equal(sheet.grid[1][12],first);
 });

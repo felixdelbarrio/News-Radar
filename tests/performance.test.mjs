@@ -95,7 +95,7 @@ test('Configuración solicita catálogo y estado en paralelo y la pestaña activ
   const backend=w.RADAR_PREVIEW.call;
   w.RADAR_PREVIEW.call=(method,query)=>['getConfiguration','getClassificationStatus'].includes(method)?new Promise(resolve=>pending.push({method,resolve:()=>resolve(structuredClone(replies[method]))})):backend(method,query);
  }});
- await a.click('[data-view="administration"]');assert.deepEqual(pending.map(row=>row.method).sort(),['getClassificationStatus','getConfiguration']);
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');assert.deepEqual(pending.map(row=>row.method).sort(),['getClassificationStatus','getConfiguration']);
  pending[0].resolve();await tick();assert.equal(a.find('#loading').hidden,false);pending[1].resolve();await tick();assert.equal(a.find('#loading').hidden,true);
  await a.click('[data-admin-view="configuration"]');assert.equal(pending.length,2);
 });

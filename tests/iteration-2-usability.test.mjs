@@ -27,7 +27,7 @@ test('suscripción espera con prioridad, confirma escritura y libera bloqueo inc
  s.c.SpreadsheetApp.flush=()=>{throw Error('Flush failed');};assert.throws(()=>s.c.withForegroundWrite_(()=>{}),/Flush failed/);assert.equal(released,2);assert.equal(s.c.backgroundPaused_(),false);
 });
 test('una petición nueva durante la reanudación conserva el trabajo diferido',()=>{
- const s=storage();s.c.initializeConfiguration();s.c.deferBackgroundWork_('daily');s.c.queueScheduledCollection_=()=>{s.properties['WORK_INTENT:other']=String(Date.now()+600000);};s.c.workWake_();assert.equal(s.properties['WORK_PENDING:daily'],'true');assert.ok(s.c.ScriptApp.getProjectTriggers().some(t=>t.handler==='workWake_'));
+ const s=storage();s.c.initializeConfiguration();s.c.deferBackgroundWork_('daily');s.c.requestDailyPipeline_=()=>{s.properties['WORK_INTENT:other']=String(Date.now()+600000);};s.c.workWake_();assert.equal(s.properties['WORK_PENDING:daily'],'true');assert.ok(s.c.ScriptApp.getProjectTriggers().some(t=>t.handler==='workWake_'));
 });
 test('el worker refresca configuración si otra escritura cambia su revisión entre lotes',()=>{
  const s=storage(),c=s.c;c.initializeConfiguration();const hours=[],lock=c.LockService.getScriptLock();

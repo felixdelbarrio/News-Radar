@@ -15,7 +15,7 @@ function renderNews(data,appended=null) {
       else list.insertAdjacentHTML('beforeend',groupHtml(group));
     }
   }else list.innerHTML=data.items.length?newsEntityGroups(data.items).map(groupHtml).join(''):'<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geografía o pulsa «Ver todo» para ampliar la selección.</p></div>';
-  $('result-count').textContent=data.total+' publicaciones';
+  $('result-count').textContent=t(data.contextTotal===1?'1 publicación':'{count} publicaciones',{count:data.contextTotal});
   $('page-label').textContent=data.total?t('{visible} de {total} publicaciones',{visible:data.items.length,total:data.total}):'Sin resultados';
   const complete=(data.page+1)*data.pageSize>=data.total;
   $('next').hidden=complete;$('next').disabled=complete;

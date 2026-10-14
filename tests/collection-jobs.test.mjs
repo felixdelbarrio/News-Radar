@@ -16,9 +16,9 @@ function addJob(s,id,type,count,priority='2026-10-11'){
 test('la diaria queda registrada con el trabajador ocupado y se procesa junto a la anual sin perder el día',()=>{
  const s=server(),c=s.c,range=c.collectionRange_('year',new Date());c.requestCollection_('annual',range);
  const locks=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};c.dailyRadar_();
- assert.equal(c.collectionRequests_().length,2);assert.equal(c.collectionStatus_().queued,2);
- c.LockService=locks;const result=c.backgroundTick_();c.backgroundTick_();const jobs=c.collectionJobs_();assert.equal(jobs.length,2);assert.equal(result.errors.length,0);assert.ok(jobs.some(job=>job.tipo==='annual'));assert.ok(jobs.some(job=>job.tipo==='daily'));assert.ok(jobs.every(job=>job.estado==='Completada'));assert.equal(c.collectionRequests_().length,0);
- c.dailyRadar_();assert.equal(c.collectionJobs_().length,3);assert.equal(c.collectionRequests_().length,0);
+ assert.equal(c.collectionRequests_().length,1);assert.ok(s.properties.DAILY_PIPELINE_REQUEST);
+ c.LockService=locks;const result=c.backgroundTick_();for(let i=0;i<5;i++)c.backgroundTick_();const jobs=c.collectionJobs_();assert.equal(jobs.length,2);assert.equal(result.errors.length,0);assert.ok(jobs.some(job=>job.tipo==='annual'));assert.ok(jobs.some(job=>job.tipo==='daily'));assert.ok(jobs.every(job=>job.estado==='Completada'));assert.equal(c.collectionRequests_().length,0);
+ c.dailyRadar_();assert.equal(c.collectionJobs_().length,2);assert.equal(c.collectionRequests_().length,0);
 });
 test('el planificador reserva cupo diario, avanza el anual y lee URLs solo del lote seleccionado',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',30,'2025-11-01');addJob(s,'daily','daily',8);
@@ -90,8 +90,8 @@ test('un único trabajador serializa diaria, anual y traducción, y alterna los 
 test('la inicialización elimina trabajadores antiguos, conserva tareas y recrea los horarios desde configuración',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',1);c.enableDaily();for(const name of ['collectionTick_','collectionWake_','translationTick_'])c.ScriptApp.newTrigger(name).timeBased().create();c.initializeConfiguration();assert.equal(s.properties['WORK_PENDING:background'],'true');c.workWake_();
  const scheduled=c.ScriptApp.getProjectTriggers();assert.ok(!scheduled.some(t=>['collectionTick_','collectionWake_','translationTick_'].includes(t.handler)));assert.equal(c.rows_('Recopilacion').length,1);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
- const daily=c.scheduledTriggers_('dailyRadar_')[0],translation=c.scheduledTriggers_('nightlyTranslations_')[0];assert.equal(daily.hour,c.settings_().dailyHour);assert.equal(translation.hour,2);assert.equal(translation.minute,0);assert.equal(translation.timezone,c.settings_().timezone);assert.equal(translation.days,1);
- const cfg=JSON.parse(JSON.stringify(c.configuration_()));cfg.settings.dailyHour=8;cfg.settings.timezone='Europe/Istanbul';c.writeConfiguration_(cfg,c.configurationRevision_());assert.equal(c.scheduledTriggers_('dailyRadar_')[0].hour,8);assert.equal(c.scheduledTriggers_('nightlyTranslations_')[0].timezone,'Europe/Istanbul');
+ const daily=c.scheduledTriggers_('dailyRadar_')[0];assert.equal(daily.hour,c.settings_().dailyHour);assert.equal(daily.timezone,c.settings_().timezone);assert.equal(daily.days,1);assert.equal(c.scheduledTriggers_('nightlyTranslations_').length,0);
+ const cfg=JSON.parse(JSON.stringify(c.configuration_()));cfg.settings.dailyHour=8;cfg.settings.timezone='Europe/Istanbul';c.writeConfiguration_(cfg,c.configurationRevision_());assert.equal(c.scheduledTriggers_('dailyRadar_')[0].hour,8);assert.equal(c.scheduledTriggers_('dailyRadar_')[0].timezone,'Europe/Istanbul');
 });
 test('los reintentos despiertan al vencer la espera y una diaria adelanta ese despertar',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',2);c.UrlFetchApp.fetchAll=requests=>requests.map(()=>({getResponseCode:()=>503}));c.backgroundTick_();assert.ok(c.scheduledTriggers_('backgroundTick_')[0].delay>60000);c.requestDailyCollection_();assert.equal(c.scheduledTriggers_('backgroundTick_')[0].delay,60000);

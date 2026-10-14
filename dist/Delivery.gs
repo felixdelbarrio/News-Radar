@@ -1,8 +1,15 @@
-function installNewsletterSchedule(){
-  authorize_(true);newsletterSender_();
-  for(const trigger of ScriptApp.getProjectTriggers())if(trigger.getHandlerFunction()==='deliverNewsletters_')ScriptApp.deleteTrigger(trigger);
-  ScriptApp.newTrigger('deliverNewsletters_').timeBased().everyDays(1).atHour(settings_().dailyHour).inTimezone(settings_().timezone).create();
-  return 'Programación instalada. Activa la entrega en Configuración de negocio → Newsletter.';
+function installNewsletterSchedule(){authorize_(true);newsletterSender_();replaceDailySchedule_('scheduledNewsletters_',settings_().dailyHour);return 'Programación instalada. Activa la entrega en Configuración de negocio → Newsletter.';}
+function requestNewsletterDelivery_(delay=0){properties_().setProperty('NEWSLETTER_REQUEST','true');properties_().setProperty('NEWSLETTER_NEXT',String(Date.now()+delay));ensureBackgroundWorker_(delay);}
+function scheduledNewsletters_(){
+  if(backgroundPaused_()){deferBackgroundWork_('newsletter');return;}
+  if(dailyScheduleStatus_())requestDailyPipeline_();requestNewsletterDelivery_();
+}
+function newsletterReadyAt_(work){return properties_().getProperty('NEWSLETTER_REQUEST')&&settings_().newsletterEnabled&&!businessPipelinePending_(work)?Math.max(Date.now(),Number(properties_().getProperty('NEWSLETTER_NEXT')||0)):Infinity;}
+function queueQuarterlyTaxonomy_(period){
+  const p=properties_();if(!period||p.getProperty('TAXONOMY_QUARTER')===period.to)return;
+  p.setProperty('TAXONOMY_QUARTER',period.to);
+  if(p.getProperty('TAXONOMY_EVALUATED_CORPUS')===(p.getProperty('NEWS_CONTENT_REVISION')||'0')&&p.getProperty('TAXONOMY_APPLIED_RULES')===classificationRulesRevision_())return;
+  p.setProperty('TAXONOMY_REQUEST',period.to);ensureBackgroundWorker_();
 }
 function sendPendingNewsletters(){
   authorize_(true);
@@ -13,22 +20,33 @@ function deliverNewsletters_(){
   const result={accepted:0,empty:0,duplicates:0,pending:0,state:'disabled'};
   if(backgroundPaused_()){deferBackgroundWork_('newsletter');return {...result,state:'configuration_pause'};}
   if(!settings_().newsletterEnabled)return result;
-  const now=new Date(),lock=LockService.getScriptLock();if(!lock.tryLock(1000)){
+  const lock=LockService.getScriptLock();if(!lock.tryLock(1000)){
     if(backgroundPaused_()){deferBackgroundWork_('newsletter');return {...result,state:'configuration_pause'};}
     ensureNewsletterContinuation_();return {...result,state:'busy'};
   }
   try{
     if(backgroundPaused_()){deferBackgroundWork_('newsletter');return {...result,state:'configuration_pause'};}
     if(businessPipelinePending_()){ensureNewsletterContinuation_();return {...result,state:'collection_priority'};}
+    return deliverNewsletterBatch_();
+  }finally{lock.releaseLock();}
+}
+
+function deliverNewsletterBatch_(work){
+  const now=new Date(),result={accepted:0,empty:0,duplicates:0,pending:0,state:'disabled'};
+  if(!settings_().newsletterEnabled){properties_().deleteProperty('NEWSLETTER_REQUEST');return result;}
+  if(businessPipelinePending_(work)){ensureNewsletterContinuation_();return {...result,state:'collection_priority'};}
+  try{
     const deliveries=rows_('NewsletterEnvios'),sent=new Set(deliveries.filter(row=>!['No enviado','Bloqueada'].includes(row.estado)).map(row=>row.id)),periods=new Map();
     const due=subscriptionRows_().filter(row=>row.activa).flatMap(row=>{
       if(!periods.has(row.periodicidad))periods.set(row.periodicidad,newsletterPeriod_(row.periodicidad,now));
       const period=periods.get(row.periodicidad),id=newsletterDeliveryId_(row,period);
       return recordDay(now,settings_().timezone)<period.available||sent.has(id)||new Date(row.actualizada)>=new Date(period.cutoff)?[]:[{row,id,query:subscriptionQuery_(row,now,true)}];
     });
-    result.pending=due.length;result.state='no_due';if(!due.length)return result;
+    result.pending=due.length;result.state='no_due';const quarterlyDue=due.filter(item=>item.row.periodicidad==='quarterly').length;let quarterlyPending=quarterlyDue;
+    const quarterly=periods.get('quarterly'),quarterlyBlocked=quarterly&&deliveries.some(row=>row.desde===quarterly.from&&row.hasta===quarterly.to&&['Enviando','Revisar'].includes(row.estado)),quarterlyFinished=quarterly&&!quarterlyBlocked&&deliveries.some(row=>row.desde===quarterly.from&&row.hasta===quarterly.to&&['Enviada','Sin novedades'].includes(row.estado));
+    if(!due.length){properties_().deleteProperty('NEWSLETTER_REQUEST');if(quarterlyFinished)queueQuarterlyTaxonomy_(quarterly);return result;}
     let remaining=settings_().newsletterBatch,quota=newsletterBudget_(deliveries,now);
-    if(!quota)return {...result,state:'limit'};
+    if(!quota){requestNewsletterDelivery_(86400000);return {...result,state:'limit'};}
     let sender;
     const history=newsletterSentContent_(deliveries),window={from:due.reduce((start,item)=>item.query.from<start?item.query.from:start,due[0].query.from),to:due.reduce((end,item)=>item.query.to>end?item.query.to:end,due[0].query.to)};
     const news=annotateNews_(rows_('Noticias',settings_().newsReadLimit).filter(row=>newsScope_(row,window,''))),prepared=new Map(),sheet=book_().getSheetByName('NewsletterEnvios');
@@ -37,7 +55,7 @@ function deliverNewsletters_(){
     for(const {row,id,query} of due){
       if(!remaining||!quota)break;
       if(backgroundPaused_()){deferBackgroundWork_('newsletter');result.state='configuration_pause';break;}
-      if(businessPipelinePending_()){result.state='collection_priority';break;}
+      if(businessPipelinePending_(work)){result.state='collection_priority';break;}
       const selection=newsletterSelectionQuery_(query),key=JSON.stringify(selection);
       if(!prepared.has(key))prepared.set(key,selectAnnotatedNews_(news,selection));
       const email=newsletterEmail_(row.correo);if(!history.has(email))history.set(email,new Set());
@@ -46,14 +64,14 @@ function deliverNewsletters_(){
       if(content.count&&!sender)try{sender=newsletterSender_();}catch(error){recordNewsletterBlock_(error,properties_().getProperty('OWNER_EMAIL'));throw error;}
       if(content.count)saveNewsletterEdition_(edition,id,row.correo,row.nombre,query,row.idioma,content.evidence,content.editorial);
       append_('NewsletterEnvios',[[id,row.id,row.correo,query.from,query.to,content.count?'Enviando':'Sin novedades',now.toISOString(),newsletterContentDetail_(content),JSON.stringify(keys)]]);
-      remaining--;result.pending--;
+      remaining--;result.pending--;if(row.periodicidad==='quarterly')quarterlyPending--;
       if(!content.count){result.empty++;continue;}
       for(const key of keys)known.add(key);quota--;
       try{completeNewsletterDelivery_(sheet,sheet.getLastRow(),sender,row.correo,content);result.accepted++;}
-      catch(error){result.state='error';result.error=error.message;if(error.rejected)result.pending++;break;}
+      catch(error){result.state='error';result.error=error.message;if(error.rejected){result.pending++;if(row.periodicidad==='quarterly')quarterlyPending++;}break;}
     }
-    if(result.state!=='error'&&quota&&result.pending)ensureNewsletterContinuation_();
+    if(result.pending||result.state==='error')requestNewsletterDelivery_(quota?settings_().pauseMinutes*60000:86400000);else properties_().deleteProperty('NEWSLETTER_REQUEST');
+    if(quarterly&&!quarterlyBlocked&&(quarterlyFinished||quarterlyDue>0)&&quarterlyPending===0&&result.state!=='error')queueQuarterlyTaxonomy_(quarterly);
     return result;
-  }finally{lock.releaseLock();}
+  }catch(error){ensureNewsletterContinuation_();throw error;}
 }
-function newsletterTick_(){for(const trigger of ScriptApp.getProjectTriggers())if(trigger.getHandlerFunction()==='newsletterTick_')ScriptApp.deleteTrigger(trigger);deliverNewsletters_();}
