@@ -7,14 +7,14 @@
     "administration": "Administración"
   },
   "adminViews": {
-    "configuration": "Configuración de negocio",
+    "runs": "Ejecuciones",
+    "subscribers": "Suscripciones",
+    "adoption": "Adopción",
+    "telemetry": "Telemetría",
     "taxonomy": "Taxonomía",
+    "language": "Idioma",
     "sources": "Fuentes",
     "audit": "Auditoría",
-    "telemetry": "Telemetría",
-    "adoption": "Adopción",
-    "subscribers": "Suscripciones",
-    "runs": "Ejecuciones",
-    "language": "Idioma"
+    "configuration": "Configuración de negocio"
   }
 }

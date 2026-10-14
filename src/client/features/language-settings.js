@@ -10,8 +10,8 @@ export function createLanguageSettings({run,isActive,onRevision}){
   }
   const articles=createJobMonitor({id:'translation',get:'getTranslationStatus',start:'startTranslations',run,isActive,onRevision,render(data){
     scheduled=data.scheduled;
-    $('translation-toggle').textContent=t(scheduled?'Desactivar traducción nocturna':'Activar traducción nocturna');
-    $('translation-schedule').textContent=t('Traducción nocturna: {hour} · {timezone} · {state}',{hour:String(data.hour).padStart(2,'0')+':00',timezone:data.timezone,state:t(scheduled?'Activada':'Desactivada')});
+    $('translation-toggle').textContent=t(scheduled?'Desactivar traducción diaria':'Activar traducción diaria');
+    $('translation-schedule').textContent=t('Traducción diaria tras completar la clasificación · {state}',{state:t(scheduled?'Activada':'Desactivada')});
     progress('translation',data,'Progreso de traducción','{done}/{total} noticias revisadas; {translated} traducciones guardadas.','Sin traducciones programadas ejecutadas.');
   }});
   const taxonomy=createJobMonitor({id:'taxonomy-translation',get:'getTaxonomyTranslationStatus',start:'startTaxonomyTranslations',run,isActive,onRevision,render(data){

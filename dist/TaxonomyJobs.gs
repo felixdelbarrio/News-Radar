@@ -23,13 +23,12 @@ function requestTaxonomy_(){
   writeTaxonomyJob_({id:Utilities.getUuid(),state:'Pendiente',phase:'scan',next:2,total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:classificationRulesRevision_()});
   ensureBackgroundWorker_();
 }
-function dailyTaxonomy_(){if(backgroundPaused_()){deferBackgroundWork_('taxonomy');return;}properties_().setProperty('TAXONOMY_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}
 function drainTaxonomyRequest_(){
   const p=properties_(),day=p.getProperty('TAXONOMY_REQUEST');if(!day||taxonomyPending_())return;
   if(taxonomyJob_()?.day!==day)requestTaxonomy_();p.deleteProperty('TAXONOMY_REQUEST');
 }
 function getTaxonomyStatus(){
-  authorize_(true);return {newsRevision:properties_().getProperty('NEWS_REVISION')||'0',pageSize:settings_().pageSize,job:taxonomyJob_(),items:taxonomyCatalog_(),taxonomyTranslations:taxonomyTranslations_(),queued:Boolean(properties_().getProperty('TAXONOMY_REQUEST')),scheduled:scheduledTriggers_('dailyTaxonomy_').length>0,hour:settings_().dailyHour,minute:TAXONOMY_POLICY.dailyMinute,timezone:settings_().timezone};
+  authorize_(true);return {newsRevision:properties_().getProperty('NEWS_REVISION')||'0',pageSize:settings_().pageSize,job:taxonomyJob_(),items:taxonomyCatalog_(),taxonomyTranslations:taxonomyTranslations_(),queued:Boolean(properties_().getProperty('TAXONOMY_REQUEST')),scheduled:newsletterEnabled_(),timezone:settings_().timezone};
 }
 function startTaxonomy(){
   authorize_(true);return withForegroundWrite_(()=>{
@@ -112,7 +111,7 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
         if(written)SpreadsheetApp.flush();
       }
       job.next=next;job.processed=job.total+Math.min(job.total,job.next-2);
-      if(job.next>job.total+1){job.state='Completada';properties_().setProperty('TAXONOMY_APPLIED_MODEL',job.model);properties_().setProperty('TAXONOMY_APPLIED_RULES',job.rules);}
+      if(job.next>job.total+1){job.state='Completada';properties_().setProperty('TAXONOMY_APPLIED_MODEL',job.model);properties_().setProperty('TAXONOMY_APPLIED_RULES',job.rules);properties_().setProperty('TAXONOMY_EVALUATED_CORPUS',job.corpus);}
     }
     Object.assign(job,{state:job.state==='Completada'?'Completada':'En curso',updated:new Date().toISOString(),error:'',pausedUntil:0});writeTaxonomyJob_(job);
     if(job.state==='Completada')requestTaxonomyTranslations_();

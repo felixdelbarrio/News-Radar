@@ -6,7 +6,7 @@ import {read,readClientScript,readServerScript} from '../scripts/source.mjs';
 function client(responses={}){
   const elements=new Map(),timers=new Map(),requests=[],rpc=[];
   const element=id=>{
-    if(!elements.has(id))elements.set(id,{value:'',dataset:{},listeners:{},hidden:false,disabled:false,textContent:'',innerHTML:'',children:[],prepend(){},appendChild(){},close(){},showModal(){},focus(){},querySelectorAll:()=>[],setAttribute(){},removeAttribute(){},classList:{toggle(){}},
+    if(!elements.has(id))elements.set(id,{value:'',dataset:{},listeners:{},hidden:false,disabled:false,textContent:'',innerHTML:'',children:[],prepend(){},appendChild(){},after(){},close(){},showModal(){},focus(){},querySelectorAll:()=>[],setAttribute(){},removeAttribute(){},classList:{toggle(){},remove(){}},
       addEventListener(type,fn){this.listeners[type]=fn;},setCustomValidity(value){this.validation=value;},reportValidity(){return !this.elements?.to.validation;}});
     return elements.get(id);
   };
@@ -17,8 +17,8 @@ function client(responses={}){
     Object.defineProperty(select,'innerHTML',{get:()=>html,set(value){html=value;select.value='';}});
   }
   const context=vm.createContext({document:{addEventListener(){},documentElement:{},body:{nodeType:0},title:"",getElementById:element,querySelector:element,querySelectorAll:()=>[],createElement:()=>({click(){}})},
-    Blob,URL:{createObjectURL:()=> 'blob:local',revokeObjectURL(){}},
-    window:{addEventListener(){},scrollTo(){},matchMedia:()=>({matches:false,addEventListener(){}}),RADAR_PREVIEW:{call(method,query){rpc.push({method,query});if(method!=='getDashboard')return Promise.resolve(responses[method]||(method==='getNewsletterHistory'?{items:[],total:0,page:0,pageSize:30,options:{},limit:20000}:method==='getSubscriptions'?[]:method==='getNewsletterOptions'?{email:'reader@bbva.com',defaults:{name:'Mi canal',periodicity:'quarterly',filters:{}},catalogs:{}}:method==='getConfiguration'?{config:JSON.parse(read('assets/configuration-defaults.json')),revision:'test'}:{saved:true}));return new Promise(resolve=>requests.push({query,resolve}));}}},
+    URLSearchParams,Blob,URL:{createObjectURL:()=> 'blob:local',revokeObjectURL(){}},
+    window:{location:{search:'?view=briefing'},addEventListener(){},scrollTo(){},matchMedia:()=>({matches:false,addEventListener(){}}),RADAR_PREVIEW:{call(method,query){rpc.push({method,query});if(method!=='getDashboard')return Promise.resolve(responses[method]||(method==='getNewsletterHistory'?{items:[],total:0,page:0,pageSize:30,options:{},limit:20000}:method==='getSubscriptions'?[]:method==='getNewsletterOptions'?{email:'reader@bbva.com',defaults:{name:'Mi canal',periodicity:'quarterly',filters:{}},catalogs:{}}:method==='getConfiguration'?{config:JSON.parse(read('assets/configuration-defaults.json')),revision:'test'}:{saved:true}));return new Promise(resolve=>requests.push({query,resolve}));}}},
     FormData:class {constructor(){return Object.entries(form.elements).map(([name,input])=>[name,input.value]);}},
     MutationObserver:class {observe(){}disconnect(){}takeRecords(){return [];}},
     ResizeObserver:class {observe(){}},crypto:{randomUUID:()=> 'test-session'},performance:{now:()=>0},setInterval(){},queueMicrotask,
@@ -57,7 +57,7 @@ test('fechas invertidas impiden la consulta y limpiar filtros elimina la validac
 
 
 test('módulos administrativos renderizan fuentes y métricas sin depender del radar',async()=>{
-  const c=client({getAdoption:{options:{},page:0,pageSize:30,total:1,dau:1,wau:1,mau:1,returning:0,sessions:1,events:2,users:[{correo:'owner@bbva.com',first:'2026-10-08',last:'2026-10-09',sessions:1,actions:2}],daily:[]}});
+  const c=client({getNewsletterInsights:{adoption:{items:[],total:0,page:0,pageSize:30},feedback:{items:[],total:0,page:0,pageSize:30}},getAdoption:{options:{},page:0,pageSize:30,total:1,dau:1,wau:1,mau:1,returning:0,sessions:1,events:2,users:[{correo:'owner@bbva.com',first:'2026-10-08',last:'2026-10-09',sessions:1,actions:2}],daily:[]}});
   c.requests[0].resolve({...dashboard('Inicial'),admin:true,feeds:[],configuredFeeds:[{id:'a',name:'Fuente activa',country:'México',kind:'profile',url:'https://example.com/rss',enabled:true}],runs:[],collection:{total:1,processed:1,pending:0,failed:0}});await settle();
   assert.match(c.element('configured-sources-body').innerHTML,/Fuente activa/);
   const edited='Edición sin guardar';c.element('source-fields').innerHTML=edited;
@@ -94,7 +94,7 @@ test('seleccionar un ámbito en el mapa actualiza los filtros compartidos',async
 });
 
 test('el mapa refleja el volumen filtrado y comunica entidad y ausencia de noticias',async()=>{
-  const c=client(),areas=['México','España'].map(country=>({dataset:{country},classList:{contains:()=>false},style:{setProperty(name,value){this[name]=value;}},setAttribute(name,value){this[name]=value;},title:{},querySelector(){return this.title;}}));
+  const c=client(),areas=['México','España'].map(country=>({dataset:{country},classList:{remove(){},contains:()=>false},style:{setProperty(name,value){this[name]=value;}},setAttribute(name,value){this[name]=value;},title:{},querySelector(){return this.title;}}));
   c.element('world-map').querySelectorAll=selector=>selector==='[data-code]'?[]:areas;
   await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'radar'}})}});
   c.requests.at(-1).resolve(dashboard('Santander en México'));await settle();

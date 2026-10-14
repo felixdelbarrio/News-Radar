@@ -1,15 +1,10 @@
 function translationJob_(){const value=properties_().getProperty('TRANSLATION_JOB');return value?JSON.parse(value):null;}
 function writeTranslationJob_(job){properties_().setProperty('TRANSLATION_JOB',JSON.stringify(job));}
-function ensureTranslationSchedule_(){
-  if(!scheduledTriggers_('nightlyTranslations_').length)replaceDailySchedule_('nightlyTranslations_',TRANSLATION_WORK.hour);
-  properties_().setProperty('TRANSLATION_ENABLED','true');
-}
-function installTranslationSchedule(){authorize_(true);scheduledTriggers_('nightlyTranslations_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));ensureTranslationSchedule_();return getTranslationStatus();}
-function disableTranslationSchedule(){authorize_(true);scheduledTriggers_('nightlyTranslations_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));properties_().setProperty('TRANSLATION_ENABLED','false');return getTranslationStatus();}
+function installTranslationSchedule(){authorize_(true);properties_().setProperty('TRANSLATION_ENABLED','true');return getTranslationStatus();}
+function disableTranslationSchedule(){authorize_(true);properties_().setProperty('TRANSLATION_ENABLED','false');return getTranslationStatus();}
 function requestTranslations_(priority=false){properties_().setProperty('TRANSLATION_REQUEST',new Date().toISOString());if(priority)properties_().setProperty('TRANSLATION_PRIORITY_REQUEST','true');ensureBackgroundWorker_();}
 function startTranslations(){authorize_(true);requestTranslations_();return getTranslationStatus();}
-function nightlyTranslations_(){requestTranslations_();backgroundTick_();}
-function getTranslationStatus(){authorize_(true);return {scheduled:scheduledTriggers_('nightlyTranslations_').length>0,hour:TRANSLATION_WORK.hour,timezone:settings_().timezone,job:translationJob_(),queued:Boolean(properties_().getProperty('TRANSLATION_REQUEST'))};}
+function getTranslationStatus(){authorize_(true);return {scheduled:properties_().getProperty('TRANSLATION_ENABLED')!=='false',timezone:settings_().timezone,job:translationJob_(),queued:Boolean(properties_().getProperty('TRANSLATION_REQUEST'))};}
 function translationCandidates_(job){
   const sheet=book_().getSheetByName('Noticias'),count=Math.min(Math.max(0,sheet.getLastRow()-1),settings_().newsReadLimit);if(!count)return [];
   const first=sheet.getLastRow()-count+1,labels=sheet.getRange(first,RADAR.sheets.Noticias.indexOf('clasificacion')+1,count,1).getDisplayValues(),dates=sheet.getRange(first,1,count,2).getDisplayValues(),captured=sheet.getRange(first,RADAR.sheets.Noticias.indexOf('capturada')+1,count,1).getDisplayValues();

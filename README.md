@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.0.1`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.0.3`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -238,11 +238,11 @@ Noticias y Novedades traducen titulares y extractos al idioma activo (español, 
 
 Para actualizar una instalación, copiar `dist/`, ejecutar `initializeConfiguration` y publicar la nueva versión de la WebApp. La inicialización conserva la cola anual existente y crea las hojas Recargas y Traducciones. Véase [funcionamiento y validación](docs/collections-and-translations-1.6.0.md).
 
-## Traducción nocturna y coherencia del Radar · 1.7.0
+## Traducción persistida y coherencia del Radar
 
-Administración separa Fuentes, Ejecuciones e Idioma. Esta última sección permite probar un idioma para toda la aplicación durante la sesión de la pestaña, consultar el progreso de traducción, activar o desactivar su programación y solicitar las pendientes. La inicialización instala el horario de las 02:00 en la zona configurada; Apps Script puede ejecutarlo con un margen de quince minutos.
+Administración separa Fuentes, Ejecuciones e Idioma. Esta última sección permite probar un idioma para toda la aplicación durante la sesión de la pestaña, consultar el progreso de traducción, activar o desactivar su programación y solicitar las pendientes. La traducción diaria se coordina después de la recopilación y clasificación; no utiliza un activador independiente.
 
-Las tarjetas de Noticias y Novedades solo consultan traducciones persistidas. El trabajador nocturno barre desde las noticias más recientes, guarda su cursor y continúa por lotes, con pausas ante errores y un presupuesto diario. La recuperación anual y la diaria conservan sus colas. Si falta una traducción, se presenta el original con su indicación.
+Las tarjetas de Noticias y Novedades solo consultan traducciones persistidas. El trabajador compartido barre desde las noticias más recientes, guarda su cursor y continúa por lotes, con pausas ante errores y un presupuesto diario. La recuperación anual y la diaria conservan sus colas. Si falta una traducción, se presenta el original con su indicación.
 
 Todos los gráficos del Radar parten de la misma selección por entidad y segmento. El ranking de entidades cuenta noticias sobre cada entidad; el de medios cuenta publicaciones de cada editor. «Explorar noticias» y el mapa llevan al listado conservando esa selección, sin imponer el período inicial de otra vista.
 
@@ -254,7 +254,7 @@ Para actualizar: copiar `dist/`, ejecutar `initializeConfiguration` y publicar l
 
 Los lanzamientos manuales y programados utilizan las mismas solicitudes y un único trabajador `backgroundTick_`, protegido por ScriptLock. Cada turno procesa un solo ciclo: diaria primero; si no tiene tareas listas, histórico y traducciones alternan. La diaria usa siempre la ventana reciente configurada. Las traducciones ceden entre llamadas cuando llega una solicitud diaria; una petición externa ya iniciada termina antes del siguiente turno. Los reintentos despiertan al vencer su espera, sin consultas periódicas durante la pausa ni activadores permanentes ociosos.
 
-La programación registra `dailyRadar_` a la hora configurada y `nightlyTranslations_` a las 02:00, ambos en la zona horaria de negocio. Cambiar la configuración actualiza los horarios y respeta las programaciones desactivadas. Estos activadores registran solicitudes para el trabajador compartido.
+La programación registra `dailyRadar_` y, cuando está instalada la entrega, `scheduledNewsletters_` a la hora configurada en la zona horaria de negocio. Ambos registran solicitudes durables para un único trabajador. Cambiar la configuración actualiza los horarios y respeta las programaciones desactivadas.
 
 Para actualizar la instalación: copiar `dist/`, ejecutar `initializeConfiguration` y publicar la nueva versión de la WebApp. La inicialización retira los activadores de continuación antiguos, conserva la cola y sus resultados y recompone los horarios habilitados. Véase [validación y funcionamiento](docs/background-priority-1.8.0.md).
 
@@ -474,3 +474,13 @@ Novedades usa la quincena natural, Noticias el trimestre y Radar el año, con el
 La navegación móvil queda fija abajo, las descargas se ocultan y las tablas y pestañas se adaptan sin desplazamiento horizontal en móvil. El transporte comparte lecturas pendientes; la navegación tiene caché acotada y las respuestas grandes usan caché fragmentada en servidor. El seguimiento de recopilación evita recargar contenido durante Administración o Newsletter. Taxonomía deja de bloquear los lotes de eventos y la telemetría distingue aciertos de caché en el navegador.
 
 Véase [auditoría, evidencias y límites de validación](docs/optimization-3.0.1.md). Publicar el paquete completo de `dist/`; no se necesitan nuevos permisos ni inicialización.
+
+### 3.0.2 · Usabilidad y rendimiento de lectura
+
+Contexto y filtros comparten cabecera, altura de controles y estilos. Los KPIs de Novedades son informativos; Noticias agrupa filas con cebreado por entidad. El panel de filtros respeta el ancho móvil, cierra al aplicar/restaurar/ampliar o pulsar fuera y organiza sus acciones en dos columnas. Los desplegables cierran al salir y solo se inspeccionan controles añadidos o modificados. Radar limita el listado de países a la altura del mapa y ofrece detalle por intervalo en toda la franja de la gráfica. Los metadatos compartidos se cachean por revisión y cada idioma invalida exclusivamente su contenido traducido.
+
+Véase [auditoría de Iteración 3, publicación y evidencias](docs/optimization-3.0.2.md).
+
+### 3.0.3 · Jerarquía de filtros y coordinación de trabajos
+
+Los filtros por geografía mantienen el total superior del contexto. Administración comienza en Ejecuciones y centraliza su menú; Suscripciones aparece en segundo lugar. En móvil, las opciones se muestran únicamente al abrir Menú. La recopilación diaria precede a clasificación, traducción de negocio y entrega planificada; la revisión trimestral de taxonomía empieza tras completar las newsletters correspondientes. Los pendientes se reanudan con sus cursores y pausas. Véase [validación y publicación](docs/optimization-3.0.3.md).

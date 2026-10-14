@@ -46,11 +46,11 @@ test('la paginación del servidor conserva las entidades contiguas aunque BBVA t
 test('la interfaz presenta encabezados por entidad y evita crear tarjetas ocultas al cargar otras vistas',async t=>{
  const {app}=await import('./helpers/app.mjs');
  const a=await app(t,{configure({data}){data.items=[row('b1','BBVA'),row('s1','Santander'),row('s2','Santander')];data.total=3;}});
- assert.equal(a.w.document.querySelectorAll('#news-list article').length,0);
- await a.click('[data-view="radar"]');assert.equal(a.w.document.querySelectorAll('#news-list article').length,0);
+ assert.equal(a.w.document.querySelectorAll('#news-list .news-row').length,0);
+ await a.click('[data-view="radar"]');assert.equal(a.w.document.querySelectorAll('#news-list .news-row').length,0);
  await a.click('[data-view="news"]');
- assert.deepEqual([...a.w.document.querySelectorAll('.news-entity-heading')].map(el=>el.textContent),['BBVA','Santander']);
- assert.equal(a.w.document.querySelectorAll('#news-list article').length,3);assert.equal(a.w.document.querySelectorAll('.news-entity-group').length,2);assert.deepEqual([...a.w.document.querySelectorAll('.news-entity-group')].map(group=>[group.getAttribute('aria-label'),group.querySelectorAll('article').length]),[['BBVA',1],['Santander',2]]);
+ assert.deepEqual([...a.w.document.querySelectorAll('.news-entity-heading h2')].map(el=>el.textContent),['BBVA','Santander']);
+ assert.equal(a.w.document.querySelectorAll('#news-list .news-row').length,3);assert.equal(a.w.document.querySelectorAll('.news-entity-group').length,2);assert.deepEqual([...a.w.document.querySelectorAll('.news-entity-group')].map(group=>[group.getAttribute('aria-label'),group.querySelectorAll('.news-row').length]),[['BBVA',1],['Santander',2]]);
  assert.equal(a.w.document.querySelectorAll('.news-entity-heading .entity-logo').length,2);
 });
 
