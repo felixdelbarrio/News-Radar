@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.0.1`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.0.2`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -474,3 +474,9 @@ Novedades usa la quincena natural, Noticias el trimestre y Radar el año, con el
 La navegación móvil queda fija abajo, las descargas se ocultan y las tablas y pestañas se adaptan sin desplazamiento horizontal en móvil. El transporte comparte lecturas pendientes; la navegación tiene caché acotada y las respuestas grandes usan caché fragmentada en servidor. El seguimiento de recopilación evita recargar contenido durante Administración o Newsletter. Taxonomía deja de bloquear los lotes de eventos y la telemetría distingue aciertos de caché en el navegador.
 
 Véase [auditoría, evidencias y límites de validación](docs/optimization-3.0.1.md). Publicar el paquete completo de `dist/`; no se necesitan nuevos permisos ni inicialización.
+
+### 3.0.2 · Usabilidad y rendimiento de lectura
+
+Contexto y filtros comparten cabecera, altura de controles y estilos. Los KPIs de Novedades son informativos; Noticias agrupa filas con cebreado por entidad. El panel de filtros respeta el ancho móvil, cierra al aplicar/restaurar/ampliar o pulsar fuera y organiza sus acciones en dos columnas. Los desplegables cierran al salir y solo se inspeccionan controles añadidos o modificados. Radar limita el listado de países a la altura del mapa y ofrece detalle por intervalo en toda la franja de la gráfica. Los metadatos compartidos se cachean por revisión y cada idioma invalida exclusivamente su contenido traducido.
+
+Véase [auditoría de Iteración 3, publicación y evidencias](docs/optimization-3.0.2.md).

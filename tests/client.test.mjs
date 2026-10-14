@@ -6,7 +6,7 @@ import {read,readClientScript,readServerScript} from '../scripts/source.mjs';
 function client(responses={}){
   const elements=new Map(),timers=new Map(),requests=[],rpc=[];
   const element=id=>{
-    if(!elements.has(id))elements.set(id,{value:'',dataset:{},listeners:{},hidden:false,disabled:false,textContent:'',innerHTML:'',children:[],prepend(){},appendChild(){},close(){},showModal(){},focus(){},querySelectorAll:()=>[],setAttribute(){},removeAttribute(){},classList:{toggle(){}},
+    if(!elements.has(id))elements.set(id,{value:'',dataset:{},listeners:{},hidden:false,disabled:false,textContent:'',innerHTML:'',children:[],prepend(){},appendChild(){},after(){},close(){},showModal(){},focus(){},querySelectorAll:()=>[],setAttribute(){},removeAttribute(){},classList:{toggle(){},remove(){}},
       addEventListener(type,fn){this.listeners[type]=fn;},setCustomValidity(value){this.validation=value;},reportValidity(){return !this.elements?.to.validation;}});
     return elements.get(id);
   };
@@ -94,7 +94,7 @@ test('seleccionar un ámbito en el mapa actualiza los filtros compartidos',async
 });
 
 test('el mapa refleja el volumen filtrado y comunica entidad y ausencia de noticias',async()=>{
-  const c=client(),areas=['México','España'].map(country=>({dataset:{country},classList:{contains:()=>false},style:{setProperty(name,value){this[name]=value;}},setAttribute(name,value){this[name]=value;},title:{},querySelector(){return this.title;}}));
+  const c=client(),areas=['México','España'].map(country=>({dataset:{country},classList:{remove(){},contains:()=>false},style:{setProperty(name,value){this[name]=value;}},setAttribute(name,value){this[name]=value;},title:{},querySelector(){return this.title;}}));
   c.element('world-map').querySelectorAll=selector=>selector==='[data-code]'?[]:areas;
   await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'radar'}})}});
   c.requests.at(-1).resolve(dashboard('Santander en México'));await settle();

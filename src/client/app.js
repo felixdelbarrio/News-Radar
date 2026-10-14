@@ -47,7 +47,6 @@ const reading=createReadingContext({onCurrent:()=>filters.current(),run:action})
 const heatmap=createTaxonomyHeatmap({onExplore:query=>{filters.show('news');filters.apply(query);navigation.show('news');}});
 const briefing=createBriefing();
 const newsTabs=createGeographyTabs('news-geographies','news-list',name=>filters.setGeography(name));
-$('briefing-signals').addEventListener('click',event=>{const button=event.target.closest('[data-signal]');if(button&&!button.disabled)filters.apply({...filters.query(),country:filters.query().country||briefing.geography,signal:button.dataset.signal});});
 const radar = createRadar({ onSource:source=>filters.set("source",source), onCountry: (country) => {filters.show("news");filters.apply({...state.data.selection,country});navigation.show("news");}, onEntity: (entity) => filters.set("entity", entity), onNews: () => {const selection=state.data.selection;filters.show("news");filters.apply(selection);navigation.show("news");} });
 const sources = createSources({ getData: () => state.data, run: action });
 const recoveryControls=createRecoveryControls({getData:()=>state.data,run:action});
@@ -97,7 +96,7 @@ async function load(reuse=false) {
       if (data.admin) sources.render(data);
       collectionProgress.update(data);
       flushLocalization();
-      track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true}:{}),clientCacheHit,rpcMs:clientCacheHit?0:Math.round(renderStarted-started),renderMs:Math.round(performance.now()-renderStarted)});
+      track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true}:{}),clientCacheHit,rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
       if (first) {
         track("acceso");
         track("vista");

@@ -36,7 +36,7 @@ function createFilters({ onInvalidate, onChange }) {
     target.innerHTML=values.map(([name,label])=>{
       const raw=applied[name],value=name==='benchmark'?newsletterComparisonLabels[raw]:name==='coverage'?coverageOptions[raw]:['from','to'].includes(name)?formatCalendarDay(raw,language):name==='subpalanca'?taxonomySubLabel(raw):raw;
       const original=['search','entity','source'].includes(name),text=t(label)+': '+(original?value:t(value));
-      if(['from','to'].includes(name))return '<button type="button" class="filter-chip" data-original data-edit-filter="'+name+'" aria-label="'+escape(t('Editar')+' '+text)+'"><span>'+escape(text)+'</span><span aria-hidden="true">↗</span></button>';
+      if(['from','to'].includes(name))return '<button type="button" class="filter-chip" data-original data-edit-filter="'+name+'" aria-label="'+escape(t('Editar')+' '+text)+'"><span>'+escape(text)+'</span></button>';
       return '<button type="button" class="filter-chip" data-original data-remove-filter="'+name+'" aria-label="'+escape(t('Quitar'))+' '+escape(text)+'"><span>'+escape(text)+'</span><span aria-hidden="true">×</span></button>';
     }).join('');
   }
@@ -71,8 +71,9 @@ function createFilters({ onInvalidate, onChange }) {
   }
   form.addEventListener("input", draftChanged);
   form.addEventListener("change", draftChanged);
-  $('restore-filters').addEventListener('click',()=>{if(edition){current();return;}dirty=false;initialized.delete(view);applied={};for(const input of form.elements)if(input.name)input.value='';page=0;form.elements.to.setCustomValidity('');onInvalidate();onChange();});
+  $('restore-filters').addEventListener('click',()=>{$('filters-dialog').close();if(edition){current();return;}dirty=false;initialized.delete(view);applied={};for(const input of form.elements)if(input.name)input.value='';page=0;form.elements.to.setCustomValidity('');onInvalidate();onChange();});
   form.addEventListener("reset", () => {
+    $("filters-dialog").close();
     if(edition){queueMicrotask(current);return;}
     clearTimeout(timer);
     onInvalidate();
