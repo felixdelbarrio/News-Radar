@@ -21,7 +21,7 @@ export function createCollectionProgress({reload,isBusy,onStatus}){
     try{
       const data=await call('getCollectionProgress');
       const changed=data.newsRevision!==revision;update(data);
-      if(changed)await reload();
+      if(changed)await reload(data);
     }catch{timer=setTimeout(poll,60000);}
     finally{polling=false;}
   }

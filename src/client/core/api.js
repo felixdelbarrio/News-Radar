@@ -1,17 +1,17 @@
+import {beginLoading} from './loading.js';
+export {refreshLoading} from './loading.js';
 import {t,setTaxonomyTranslations} from './language.js';
 function receive(data){if(data?.taxonomyTranslations)setTaxonomyTranslations(data.taxonomyTranslations);return data;}
-let pending=0,replacing=0;
-function loading(delta,append){
-  pending+=delta;if(!append)replacing+=delta;
-  const indicator=document.getElementById('loading');indicator.hidden=pending===0;
-  document.getElementById('loading-label').textContent=t('Cargando contenido…');
-  const content=document.querySelector('.content');content.setAttribute('aria-busy',String(pending>0));content.setAttribute('data-loading',replacing?'replace':pending?'append':'');
-}
+const requests=new Map();
 function call(method, ...args) {
-  const visible=!['recordEvents','getCollectionProgress'].includes(method),append=method==='getDashboard'&&args[0]?.view==='news'&&args[0]?.page>0;if(visible)loading(1,append);
+  const key=method.startsWith('get')?JSON.stringify([method,...args]):null;
+  if(key&&requests.has(key))return requests.get(key);
+  const finishLoading=beginLoading(method,args);
   let response;
-  try{response=send(method,...args);}catch(error){if(visible)loading(-1,append);throw error;}
-  if(visible)response.then(()=>loading(-1,append),()=>loading(-1,append));
+  try{response=send(method,...args);}catch(error){finishLoading();throw error;}
+  if(key)requests.set(key,response);
+  const complete=()=>{if(key)requests.delete(key);finishLoading();};
+  response.then(complete,complete);
   return response;
 }
 function send(method, ...args) {

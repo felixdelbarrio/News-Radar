@@ -52,8 +52,8 @@ test('mapa disperso cuenta una vez por noticia y palanca, incluye todas las geog
  const large={...data,nodes:Array.from({length:80},(_,i)=>({...data.nodes[0],id:String(i)})),entities:Array.from({length:80},()=>data.entities[0])},bounded=heatmapPage(large,'entities','palanca',1,1);assert.equal(bounded.rows.length,HEATMAP_PAGE.rows*2);assert.equal(bounded.columns.length,HEATMAP_PAGE.columns);
 });
 
-test('Novedades y newsletter predeterminadas priorizan canales digitales de todas las entidades de la última semana cuando no hay suscripciones',()=>{
- const s=server(),c=s.c,range=c.recentNewsRange_(),old=new Date(range.from+'T00:00:00Z');old.setUTCDate(old.getUTCDate()-1);
+test('Novedades y newsletter predeterminadas priorizan canales digitales de todas las entidades de la quincena en curso cuando no hay suscripciones',()=>{
+ const s=server(),c=s.c,range=c.dashboardPeriod_('briefing'),old=new Date(range.from+'T00:00:00Z');old.setUTCDate(old.getUTCDate()-1);
  c.configuration_().settings.defaultEntity='BBVA';c.configuration_().settings.defaultCountry='México';c.configuration_().settings.defaultTopic='Financiación';
  const general={...raw('general','Santander',range.from),titular:'Santander lanza financiación para empresas',extracto:'Nueva oferta de crédito para pymes',clasificacion:JSON.stringify({digital:false,generalista:true,capacidades:[]})};
  const digital=raw('digital','BBVA',range.to),expired={...general,id:'old',fecha:old.toISOString().slice(0,10)},retail={...general,id:'retail',titular:'Santander lanza una cuenta para particulares',extracto:'Oferta para particulares'};
@@ -66,7 +66,7 @@ test('Novedades y newsletter predeterminadas priorizan canales digitales de toda
 });
 
 test('la entrada directa usa la primera newsletter activa por orden de creación, incluso después de editarla o elegir otra; sin activas recupera los filtros comunes',()=>{
- const s=server(),c=s.c,first=own(s,'primera',{entity:'Santander',country:'España'}),second=own(s,'segunda',{entity:'BBVA'}),range=c.recentNewsRange_();
+ const s=server(),c=s.c,first=own(s,'primera',{entity:'Santander',country:'España'}),second=own(s,'segunda',{entity:'BBVA'}),range=c.dashboardPeriod_('briefing');
  add(s,[raw('santander','Santander',range.to),raw('bbva','BBVA',range.to)]);
  c.saveSubscription({id:first.id,name:'Primera editada',periodicity:'fortnightly',filters:first.filtros});
  const manual=c.getDashboard({entity:'BBVA',view:'briefing'});assert.equal(manual.selection.entity,'BBVA');
@@ -77,7 +77,7 @@ test('la entrada directa usa la primera newsletter activa por orden de creación
 });
 
 test('la primera newsletter empresarial no impone el tema Empresas y pymes; ignora todos los temas obsoletos y conserva las ediciones enviadas',()=>{
- const s=server(),c=s.c,range=c.recentNewsRange_(),filters={segment:'Empresas e instituciones',topic:'Empresas y pymes'};
+ const s=server(),c=s.c,range=c.dashboardPeriod_('briefing'),filters={segment:'Empresas e instituciones',topic:'Empresas y pymes'};
  const first=own(s,'empresas',filters);assert.equal(first.filtros.topic,undefined);
  s.sheets.get('Suscripciones').grid[1][3]=JSON.stringify(filters);
  const news={...raw('financiacion','Santander',range.to),titular:'Santander lanza financiación para empresas',extracto:'Nueva oferta de crédito para pymes',tema:'Financiación'};add(s,[news]);

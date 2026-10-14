@@ -6,7 +6,7 @@ import {read,readClientScript,readServerScript} from '../scripts/source.mjs';
 function client(responses={}){
   const elements=new Map(),timers=new Map(),requests=[],rpc=[];
   const element=id=>{
-    if(!elements.has(id))elements.set(id,{value:'',dataset:{},listeners:{},hidden:false,disabled:false,textContent:'',innerHTML:'',children:[],appendChild(){},close(){},showModal(){},focus(){},querySelectorAll:()=>[],setAttribute(){},removeAttribute(){},classList:{toggle(){}},
+    if(!elements.has(id))elements.set(id,{value:'',dataset:{},listeners:{},hidden:false,disabled:false,textContent:'',innerHTML:'',children:[],prepend(){},appendChild(){},close(){},showModal(){},focus(){},querySelectorAll:()=>[],setAttribute(){},removeAttribute(){},classList:{toggle(){}},
       addEventListener(type,fn){this.listeners[type]=fn;},setCustomValidity(value){this.validation=value;},reportValidity(){return !this.elements?.to.validation;}});
     return elements.get(id);
   };

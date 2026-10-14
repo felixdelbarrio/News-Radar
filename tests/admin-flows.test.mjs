@@ -48,7 +48,7 @@ test('ejecuciones carga al abrir su pestaña, filtra en el servidor y presenta e
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('#runs-section').hidden,false);assert.match(a.find('#runs-body').textContent,/OK/);
  await a.change('#runs-from','2026-10-01');assert.equal(a.calls.filter(r=>r.method==='getRuns').at(-1).query.from,'2026-10-01');
  a.replies.getRuns={items:[],total:0,page:0,pageSize:30,options:{}};await a.click('#runs-clear');assert.match(a.find('#runs-body').textContent,/Sin ejecuciones/);
- a.replies.getRuns=Error('Error de lectura');await a.click('[data-admin-view="runs"]');assert.match(a.find('#message').textContent,/Error de lectura/);
+ a.replies.getRuns=Error('Error de lectura');await a.click('#runs-clear');assert.match(a.find('#message').textContent,/Error de lectura/);
 });
 test('el seguimiento refresca contenido nuevo, evita llamadas en pestañas ocultas y reintenta errores',async t=>{
  const timers=new Map();let id=100000,hidden=false;
@@ -65,16 +65,16 @@ test('el seguimiento refresca contenido nuevo, evita llamadas en pestañas ocult
  a.replies.getCollectionProgress={newsRevision:'1',collection:{total:10,processed:10,pending:0,added:3}};await next();assert.equal(timers.size,0);assert.match(a.find('#collection-progress').textContent,/0 pendientes/);
 });
 
-test('volver al Radar muestra los datos actualizados durante administración sin repetir el RPC',async t=>{
+test('volver al Radar consulta una vez su contenido después de una acción administrativa',async t=>{
  const a=await app(t);await a.click('[data-view="radar"]');await a.click('[data-view="administration"]');a.data.radar.summary.news=5;a.data.radar.publishers=[{publisher:'Diario vivo',total:5}];
  await a.click('#collect');const calls=a.calls.filter(r=>r.method==='getDashboard').length;
- await a.click('[data-view="radar"]');assert.match(a.find('#radar-headline').textContent,/5 publicaciones/);assert.match(a.find('#publisher-chart').textContent,/Diario vivo/);assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,calls);
+ await a.click('[data-view="radar"]');assert.match(a.find('#radar-headline').textContent,/5 publicaciones/);assert.match(a.find('#publisher-chart').textContent,/Diario vivo/);assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,calls+1);
  await a.click('[data-view="administration"]');a.data.collection.pending=5;await a.click('[data-view="news"]');await a.click('[data-view="administration"]');await a.click('#continue-collection');assert.ok(a.calls.some(r=>r.method==='resumeCollection'));
 });
 test('muestra progreso independiente y porcentajes atendidos para anual, diaria y cargas en cola',async t=>{
  const a=await app(t,{language:'tr-TR',configure({data}){data.collection={total:10,processed:3,pending:7,jobs:[{id:'annual',tipo:'annual',desde:'2025-10-11',hasta:'2026-10-11',estado:'En pausa',total:10,procesadas:3,pendientes:5,omitidas:1,fallidas:1,nuevas:2,actualizada:'2026-10-11',pausa:String(Date.now()+60000)},{id:'daily',tipo:'daily',desde:'2026-10-01',hasta:'2026-10-11',estado:'En cola',total:0,pendientes:0,nuevas:0}]};}});
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="runs"]');
- a.replies.getRuns.collection=a.data.collection;await a.click('[data-admin-view="runs"]');assert.equal(a.find('#collection-jobs').children.length,2);assert.match(a.find('#collection-jobs').textContent,/Yıllık kurtarma/);assert.match(a.find('#collection-jobs').textContent,/Günlük toplama/);assert.equal(a.find('#collection-jobs progress').value,5);
+ a.replies.getRuns.collection=a.data.collection;await a.click('[data-admin-view="configuration"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('#collection-jobs').children.length,2);assert.match(a.find('#collection-jobs').textContent,/Yıllık kurtarma/);assert.match(a.find('#collection-jobs').textContent,/Günlük toplama/);assert.equal(a.find('#collection-jobs progress').value,5);
 });
 test('las tarjetas presentan traducciones guardadas y no llaman al traductor al navegar',async t=>{
  const a=await app(t,{language:'en-US',configure({data}){
@@ -89,7 +89,7 @@ test('Idioma tiene sección propia, programación nocturna y progreso con contro
  const a=await app(t,{language:'tr-TR',configure({replies}){replies.getTranslationStatus={scheduled:true,hour:2,timezone:'Europe/Madrid',queued:false,job:{state:'Completada',total:10,processed:10,translated:30,updated:'2026-10-11',error:''}};}});
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="language"]');assert.equal(a.find('#language-section').hidden,false);assert.ok(a.find('#language-section').contains(a.find('#preview-language')));assert.match(a.find('#translation-schedule').textContent,/02:00/);assert.equal(a.find('#translation-progress progress').value,10);
  await a.click('#translation-toggle');assert.ok(a.calls.some(call=>call.method==='disableTranslationSchedule'));await a.click('#translation-start');assert.ok(a.calls.some(call=>call.method==='startTranslations'));
- a.replies.getTranslationStatus.scheduled=false;await a.click('[data-admin-view="language"]');await a.click('#translation-toggle');assert.ok(a.calls.some(call=>call.method==='installTranslationSchedule'));await a.click('[data-admin-view="runs"]');assert.equal(a.find('#language-section').hidden,true);assert.match(a.find('#runs-section h2').textContent,/Çalıştırmalar/);
+ a.replies.getTranslationStatus.scheduled=false;await a.click('[data-admin-view="configuration"]');await a.click('[data-admin-view="language"]');await a.click('#translation-toggle');assert.ok(a.calls.some(call=>call.method==='installTranslationSchedule'));await a.click('[data-admin-view="runs"]');assert.equal(a.find('#language-section').hidden,true);assert.match(a.find('#runs-section h2').textContent,/Çalıştırmalar/);
 });
 test('Explorar noticias conserva entidad y segmento del Radar para poder contrastar sus cifras',async t=>{
  const a=await app(t,{configure({data}){data.selection={entity:'Santander',segment:'Empresas e instituciones'};}});await a.click('#radar-open-news');

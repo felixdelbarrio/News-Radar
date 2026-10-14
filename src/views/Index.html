@@ -7,9 +7,12 @@
 <main class="main" id="main"><div id="preview-banner" class="preview-banner" hidden>Vista previa local · instantánea de fuentes RSS · automatización disponible al instalar en Google</div>
 <header class="topbar"><div class="topbar-brand"><div class="brand"><div class="bbva-brand"><img class="bbva-logo" src="{{BbvaLogo}}" alt="BBVA"><p class="brand-caption">Banca de Empresas<br>e Instituciones</p></div><p class="product-name">News Radar</p></div><div><p class="eyebrow">BANCA DE EMPRESAS E INSTITUCIONES</p><h1 id="page-title">Novedades</h1></div></div><div class="bia-brand"><img class="bia-logo" src="{{BiaLogo}}" alt="bIA"><span>Banca Inteligente y<br>Autónoma</span></div></header>
 {{Navigation}}
-<div class="content"><div id="message" class="message" role="status" aria-live="polite" hidden></div><div id="loading" class="loading" role="status" aria-live="polite"><span class="loading-spinner" aria-hidden="true"></span><span id="loading-label">Cargando contenido…</span></div>
+<div class="content"><div id="message" class="message" role="status" aria-live="polite" hidden></div>
 
-<div class="selection-toolbar"><button class="button" id="open-filters" type="button">{{IconFilter}} <span id="panel-button-label">Filtros</span></button><div id="active-filters" class="filter-chips" aria-label="Filtros activos" aria-live="polite" hidden></div><button class="button" id="export">Exportar selección ↗</button></div><p id="selection-freshness" class="small muted"></p>
+<div class="selection-toolbar"><button class="button" id="open-filters" type="button">{{IconFilter}} <span id="panel-button-label">Filtros</span></button><div id="active-filters" class="filter-chips" aria-label="Filtros activos" aria-live="polite" hidden></div><button class="button" data-download id="export">Exportar selección ↗</button></div><p id="selection-freshness" class="small muted"></p>
+
+<div id="loading" class="loading" role="status" aria-live="polite"><span class="loading-spinner" aria-hidden="true"></span><span id="loading-label">Cargando contenido…</span></div>
+<div id="loading-skeleton" class="loading-skeleton" aria-hidden="true" hidden><span class="skeleton-heading"></span><div class="skeleton-card"><span></span><span></span><span></span></div><div class="skeleton-card"><span></span><span></span><span></span></div><div class="skeleton-card"><span></span><span></span><span></span></div></div>
 
 {{RadarView}}
 {{NewsView}}
@@ -17,5 +20,5 @@
 {{SubscriptionsView}}
 {{AdministrationView}}
 <p id="collection-progress" class="small muted" role="status" aria-live="polite" hidden></p>
-<p class="small muted app-footer">Se registra tu correo corporativo y eventos de uso para medir adopción. Datos visibles solo al administrador; conservación máxima de <span id="retention-days"></span> días y <span id="event-limit"></span> eventos.</p>
+<p class="small muted app-footer" hidden>Se registra tu correo corporativo y eventos de uso para medir adopción. Datos visibles solo al administrador; conservación máxima de <span id="retention-days"></span> días y <span id="event-limit"></span> eventos.</p>
 </div></main><dialog id="filters-dialog" class="filter-dialog" aria-label="Configurar filtros"><div class="dialog-header"><h2 id="panel-dialog-title">Filtros</h2><button class="button" id="close-filters" type="button" aria-label="Cerrar panel">✕</button></div><div id="mobile-filters"></div><div class="filter-dialog-actions" id="filter-dialog-actions"><button class="button" id="restore-filters" type="button">Restaurar filtros iniciales</button><button class="button primary" id="apply-filters" type="submit" form="filters">Aplicar filtros</button></div></dialog><?!= include_('Client'); ?></body></html>

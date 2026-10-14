@@ -3,7 +3,7 @@ import {createGeographyTabs} from './features/geography-tabs.js';
 import {createReadingContext} from './features/reading-context.js';
 import {createTaxonomyHeatmap} from './features/taxonomy-heatmap.js';
 import {createTaxonomy} from './features/taxonomy.js';
-import {defaultView} from './config.js';
+import {defaultView,navigationCache} from './config.js';
 import {createLanguageSettings} from './features/language-settings.js';
 import {createRecoveryControls,renderCollectionJobs} from './features/runs.js';
 import {createCollectionProgress} from './features/collection-progress.js';
@@ -15,19 +15,22 @@ import {createBriefing} from './features/briefing.js';
 import { createRadar } from "./features/radar.js";
 import { createAdministration } from "./features/administration.js";
 import { $, message, setTimezone } from "./core/dom.js";
-import { call } from "./core/api.js";
+import {setTaxonomyTranslations} from './core/language.js';
+import { call,refreshLoading } from "./core/api.js";
 import { createFilters } from "./features/filters.js";
 import { renderNews } from "./features/news.js";
-import { renderShell } from "./features/shell.js";
+import { renderShell,renderFreshness } from "./features/shell.js";
 import { createSources } from "./features/sources.js";
 import { createUsage } from "./features/usage.js";
 import { createNavigation } from "./features/navigation.js";
 import {initializeLocalization,flushLocalization} from './core/localization.js';
 initializeLocalization();
 initializeSearchableSelects();
-const state = { data: null, request: 0, busy: false,contentStale:false,attribution:'' };
+const state = { data: null, request: 0, busy: false,contentStale:false,attribution:'',view:null,ready:false };
 const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady:()=>Boolean(state.data),getAttribution:()=>state.attribution&&state.data?.context?.id===state.attribution?state.attribution:'' }), { track, flush } = usage;
-const noteNewsRevision=revision=>{if(revision&&state.data&&revision!==state.data.newsRevision)state.contentStale=true;};
+const dashboards=new Map();
+const selectionKey=query=>JSON.stringify(Object.entries(query).filter(([,value])=>value!==''&&value!=null).sort(([a],[b])=>a.localeCompare(b)));
+const noteNewsRevision=revision=>{if(revision&&state.data&&revision!==state.data.newsRevision){state.contentStale=true;dashboards.clear();}};
 const configuration = createConfiguration({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='configuration'});
 const taxonomy=createTaxonomy({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='taxonomy'});
 const subscriptions = createSubscriptions({run:action,onApply:query=>{const view=query.view;filters.show(view);filters.apply(query);navigation.show(view);}});
@@ -35,7 +38,7 @@ const newsletterDelivery=createNewsletterDelivery({run:action});
 const languageSettings=createLanguageSettings({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='language'});
 const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onLanguage:()=>languageSettings.open(),onLeaveLanguage:()=>languageSettings.close(),onLeaveConfiguration:()=>configuration.close(),onTaxonomy:()=>taxonomy.open(),onLeaveTaxonomy:()=>taxonomy.close() });
 const panel=createFilterPanel();
-const navigation = createNavigation({onPanel:panel.show, onSelection:view=>{configuration.close();taxonomy.close();if(filters.show(view)||state.contentStale)load();else if(state.data)renderSelection(state.data,view);}, onSubscriptions:()=>{configuration.close();taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
+const navigation = createNavigation({onPanel:view=>{++state.request;panel.show(view);refreshLoading();}, onSelection:view=>{configuration.close();taxonomy.close();const changed=filters.show(view);if(state.ready&&(changed||state.contentStale||state.view!==view))load(true);}, onSubscriptions:()=>{configuration.close();taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
 const filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
   track("filtro");
   load();
@@ -48,20 +51,23 @@ $('briefing-signals').addEventListener('click',event=>{const button=event.target
 const radar = createRadar({ onSource:source=>filters.set("source",source), onCountry: (country) => {filters.show("news");filters.apply({...state.data.selection,country});navigation.show("news");}, onEntity: (entity) => filters.set("entity", entity), onNews: () => {const selection=state.data.selection;filters.show("news");filters.apply(selection);navigation.show("news");} });
 const sources = createSources({ getData: () => state.data, run: action });
 const recoveryControls=createRecoveryControls({getData:()=>state.data,run:action});
-const collectionProgress=createCollectionProgress({reload:load,isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
+const collectionProgress=createCollectionProgress({reload:data=>{noteNewsRevision(data.newsRevision);if(['news','briefing','radar'].includes(navigation.current))return load();},isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
 function renderSelection(data,view=navigation.current,appended=null){
   reading.render(data,view);if(view==='news'){renderNews(data,appended);newsTabs.render(data.newsGeographies||[],data.newsGeography||'');}
   if(view==='radar'){radar.render(data);heatmap.render(data);}
   if(view==='briefing')briefing.render(data);
 }
-async function load() {
+async function load(reuse=false) {
   const request = ++state.request, started = performance.now();
   if (!filters.isValid()) {
     return;
   }
   try {
     const administrative=navigation.current==='administration',query=administrative?{view:administration.current,language:filters.query().language}:filters.query();
-    let data=await call("getDashboard",query),appended=null;
+    if(!administrative){renderFreshness(query.initial?{}:query,state.data?.lastRun);if(query.initial)$("active-filters").hidden=true;}
+    const key=selectionKey(query),cached=reuse&&!administrative&&!state.contentStale&&dashboards.get(key);
+    const clientCacheHit=Boolean(cached&&performance.now()-cached.time<navigationCache.milliseconds);
+    let data=clientCacheHit?{...cached.data,collection:state.data.collection,lastRun:state.data.lastRun,daily:state.data.daily}:await call("getDashboard",query),appended=null;
     if(request!==state.request)return;
     if(query.view==='news'&&query.page>0){
       if(state.data?.newsRevision===data.newsRevision&&data.page===query.page){appended=data.items;data={...data,items:[...state.data.items,...appended]};}
@@ -69,22 +75,29 @@ async function load() {
     }
     if (request === state.request) {
       const first = !state.data;
+      if(state.data&&(data.newsRevision!==state.data.newsRevision||data.configurationRevision!==state.data.configurationRevision))dashboards.clear();
       if(administrative&&state.data){
         state.contentStale||=data.newsRevision!==state.data.newsRevision||data.configurationRevision!==state.data.configurationRevision;
         data={...state.data,...data,selection:state.data.selection,context:state.data.context};
       }else state.contentStale=false;
-      state.data=data;
+      state.data=data;state.view=query.view;
+      if(data.taxonomyTranslations)setTaxonomyTranslations(data.taxonomyTranslations);
       setTimezone(data.preferences?.timezone);
       if(window.RADAR_PREVIEW&&data.admin)$("preview-banner").textContent="Administración local · cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.";
       const renderStarted=performance.now();
-      if(!administrative)filters.render(data);
+      if(!administrative){
+        filters.render(data);
+        const key=selectionKey({...filters.query(),...(!query.newsGeography?{newsGeography:''}:{})});dashboards.delete(key);
+        if(data.newsRevision&&data.configurationRevision)dashboards.set(key,{data,time:clientCacheHit?cached.time:performance.now()});
+        if(dashboards.size>navigationCache.entries)dashboards.delete(dashboards.keys().next().value);
+      }
       renderSelection(data,navigation.current,appended);
-      if(data.preferences){$("retention-days").textContent=data.preferences.retentionDays;$("event-limit").textContent=data.preferences.eventLimit;}
+      if(data.preferences){document.querySelector(".app-footer").hidden=false;$("retention-days").textContent=data.preferences.retentionDays;$("event-limit").textContent=data.preferences.eventLimit;}
       renderShell(data);
       if (data.admin) sources.render(data);
       collectionProgress.update(data);
       flushLocalization();
-      track("rendimiento", performance.now() - started,{...data.performance,rpcMs:Math.round(renderStarted-started),renderMs:Math.round(performance.now()-renderStarted)});
+      track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true}:{}),clientCacheHit,rpcMs:clientCacheHit?0:Math.round(renderStarted-started),renderMs:Math.round(performance.now()-renderStarted)});
       if (first) {
         track("acceso");
         track("vista");
@@ -142,14 +155,14 @@ $('download-telemetry').addEventListener('click',()=>action(async()=>{
 if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
 navigation.show(defaultView);
 if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocation(async location=>{
-  if(location.parameter.edition){const params=location.parameter;state.attribution=params.edition;const view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;filters.show(view);navigation.show(view);filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca,subpalanca:params.subpalanca,benchmark:params.benchmark});return;}
-  load();
+  if(location.parameter.edition){const params=location.parameter;state.attribution=params.edition;const view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;filters.show(view);navigation.show(view);state.ready=true;filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca,subpalanca:params.subpalanca,benchmark:params.benchmark});return;}
+  state.ready=true;load();
   if(location.parameter.view!=='subscriptions')return;
   await navigation.show('subscriptions');
   const id=location.parameter.unsubscribe;if(!id)return;
   const target=$('message');message('Confirma la baja de esta suscripción.');
   const button=document.createElement('button');button.type='button';button.className='button';button.textContent='Confirmar baja';
   button.addEventListener('click',()=>action(async()=>{message(await call('deleteSubscription',id));await subscriptions.open();},false));target.appendChild(button);
-});else load();
+});else {state.ready=true;load();}
 
 window.addEventListener('news-radar-language-change',async()=>{await load();if(navigation.current==='administration'&&administration.current==='language')await languageSettings.open();if(navigation.current==='administration'&&administration.current==='taxonomy')await taxonomy.open();});
