@@ -11,15 +11,15 @@ function savedNewsLabels_(value){
   try{const labels=JSON.parse(value);return {generalista:labels.generalista===true,digital:labels.digital===true,capacidades:Array.isArray(labels.capacidades)?labels.capacidades:[]};}
   catch(_){return {generalista:false,digital:false,capacidades:[]};}
 }
-function classificationRulesRevision_(config=configuration_()){return sha256_(JSON.stringify([RADAR.version,config.capabilities,config.entities,config.segments,config.geographies,config.feeds.map(({name,country,url})=>({name,country,url}))]));}
+function classificationRulesRevision_(config=configuration_()){return sha256_(JSON.stringify([CLASSIFICATION_WORK.rulesVersion,config.capabilities,config.entities,config.segments,config.geographies,config.feeds.map(({name,country,url})=>({name,country,url}))]));}
 function classificationJob_(){const raw=properties_().getProperty('CLASSIFICATION_JOB');return raw?JSON.parse(raw):null;}
 function classificationPending_(){const job=classificationJob_();return Boolean(job&&job.state!=='Completada');}
 function classificationReadyAt_(){const job=classificationJob_();return job&&job.state!=='Completada'?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
 function writeClassificationJob_(job){progressContextMemory_=undefined;properties_().setProperty('CLASSIFICATION_JOB',JSON.stringify(job));}
 function requestNewsClassification_(force=false){
-  const job=classificationJob_();if(!force&&job?.version===RADAR.version)return;
+  const job=classificationJob_();if(!force&&job?.version===CLASSIFICATION_WORK.rulesVersion)return;
   const now=new Date(),total=Math.max(0,book_().getSheetByName('Noticias').getLastRow()-1);
-  writeClassificationJob_({next:2,total,revision:classificationRulesRevision_(),version:RADAR.version,state:total?'Pendiente':'Completada',started:now.toISOString(),updated:now.toISOString(),day:recordDay(now,settings_().timezone),classified:0,digital:0});
+  writeClassificationJob_({next:2,total,revision:classificationRulesRevision_(),version:CLASSIFICATION_WORK.rulesVersion,state:total?'Pendiente':'Completada',started:now.toISOString(),updated:now.toISOString(),day:recordDay(now,settings_().timezone),classified:0,digital:0});
   if(total)ensureBackgroundWorker_();
 }
 function drainClassificationRequest_(){

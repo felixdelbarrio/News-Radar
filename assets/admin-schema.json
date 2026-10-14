@@ -244,6 +244,6 @@
   },
   "applicationScope": {
     "label": "Ámbito de aplicación",
-    "help": "Países con pestaña propia por segmento en Noticias y Novedades. Los restantes se agrupan en Otras geografías; las noticias sin país, en Transversal. Radar conserva todas las geografías."
+    "help": "Países con pestaña propia por segmento en Noticias y Novedades. Los restantes y las noticias sin país se agrupan en Otras geografías. Radar conserva todas las geografías conocidas."
   }
 }

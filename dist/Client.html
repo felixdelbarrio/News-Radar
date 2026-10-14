@@ -134,7 +134,7 @@
     "M\xE1ximo de novedades por geograf\xEDa": ["Maximum updates per geography", "Co\u011Frafya ba\u015F\u0131na en fazla yenilik"],
     "\xC1mbito de aplicaci\xF3n": ["Application scope", "Uygulama kapsam\u0131"],
     "\xC1mbito de aplicaci\xF3n no v\xE1lido.": ["Invalid application scope.", "Ge\xE7ersiz uygulama kapsam\u0131."],
-    "Pa\xEDses con pesta\xF1a propia por segmento en Noticias y Novedades. Los restantes se agrupan en Otras geograf\xEDas; las noticias sin pa\xEDs, en Transversal. Radar conserva todas las geograf\xEDas.": ["Countries with their own tab per segment in News and New releases. Remaining countries appear in Other geographies; news without a country appears in Cross-market. Radar retains all geographies.", "Haberler ve Yenilikler b\xF6l\xFCmlerinde segmente g\xF6re ayr\u0131 sekmesi olan \xFClkeler. Di\u011Fer \xFClkeler Di\u011Fer \xFClkeler alt\u0131nda, \xFClkesi bilinmeyen haberler \xDClkeler aras\u0131 alt\u0131nda g\xF6sterilir. Radar t\xFCm \xFClkeleri korur."],
+    "Pa\xEDses con pesta\xF1a propia por segmento en Noticias y Novedades. Los restantes y las noticias sin pa\xEDs se agrupan en Otras geograf\xEDas. Radar conserva todas las geograf\xEDas conocidas.": ["Countries with their own tab per segment in News and New releases. Remaining countries and news without a country appear in Other geographies. Radar retains all known geographies.", "Haberler ve Yenilikler b\xF6l\xFCmlerinde segmente g\xF6re ayr\u0131 sekmesi olan \xFClkeler. Di\u011Fer \xFClkeler ve \xFClkesi bilinmeyen haberler Di\u011Fer \xFClkeler alt\u0131nda g\xF6sterilir. Radar bilinen t\xFCm \xFClkeleri korur."],
     "Nombres alternativos del pa\xEDs": ["Alternative country names", "Alternatif \xFClke adlar\u0131"],
     "Cuentas digitales europeas": ["European digital accounts", "Avrupa dijital hesaplar\u0131"],
     "Recopilaci\xF3n activada. {schedule}.": ["Collection enabled. {schedule}.", "Toplama etkin. {schedule}."],
@@ -162,7 +162,6 @@
     "Noticias de la selecci\xF3n": ["News matching the selection", "Se\xE7ime uyan haberler"],
     "Los recuentos reflejan la recuperaci\xF3n disponible y los filtros, no toda la producci\xF3n del medio.": ["Counts reflect retrieved news and filters, not the publisher\u2019s entire output.", "Say\u0131lar, yay\u0131nc\u0131n\u0131n t\xFCm i\xE7eriklerini de\u011Fil, toplanan haberleri ve filtreleri yans\u0131t\u0131r."],
     "Otras geograf\xEDas": ["Other geographies", "Di\u011Fer \xFClkeler"],
-    Transversal: ["Cross-market", "\xDClkeler aras\u0131"],
     "Explorar selecci\xF3n": ["Explore selection", "Se\xE7imi ke\u015Ffet"],
     "Periodicidad de la Newsletter": ["Newsletter frequency", "B\xFClten s\u0131kl\u0131\u011F\u0131"],
     "Quincenal: Novedades. Trimestral: Noticias. Anual: Radar. La entrega resume el \xFAltimo per\xEDodo completo despu\xE9s del alta.": ["Fortnightly: Updates. Quarterly: News. Yearly: Radar. Delivery covers the last complete period after subscription.", "On be\u015F g\xFCnl\xFCk: Yenilikler. \xDC\xE7 ayl\u0131k: Haberler. Y\u0131ll\u0131k: Radar. Teslimat abonelikten sonraki son tamamlanan d\xF6nemi \xF6zetler."],
@@ -1200,17 +1199,19 @@
   }
 
   // src/shared/selection-policy.js
-  var applicationScopeSegments = Object.freeze(["Empresas e instituciones", "Retail"]), readingViews = Object.freeze(["news", "briefing", "radar"]), sectorNewsDefaults = Object.freeze({ segment: "Empresas e instituciones", coverage: "digital" }), coverageOptions = Object.freeze({ digital: "Canal digital", generalista: "Generalista" }), subscriptionFilterKeys = Object.freeze(["entity", "country", "source", "type", "segment", "coverage", "signal", "search", "palanca", "subpalanca"]);
+  var applicationScopeSegments = Object.freeze(["Empresas e instituciones", "Retail"]), readingViews = Object.freeze(["news", "briefing", "radar"]), sectorNewsDefaults = Object.freeze({ segment: "Empresas e instituciones", coverage: "digital" }), coverageOptions = Object.freeze({ digital: "Canal digital", generalista: "Generalista" }), subscriptionFilterKeys = Object.freeze(["entity", "country", "source", "type", "segment", "coverage", "signal", "search", "palanca", "subpalanca"]), otherGeography = "Otras geograf\xEDas";
   function geographyLabel(name) {
-    return name === "Sin determinar" ? "Transversal" : name;
+    return !name || name === "Sin determinar" ? otherGeography : name;
   }
   function applicationGeography(scopes, segment) {
     let countries = new Set(scopes.filter((scope) => !segment || scope.name === segment).flatMap((scope) => scope.countries));
-    return (row) => !row.pais || row.pais === "Sin determinar" ? "Sin determinar" : countries.has(row.pais) ? row.pais : "Otras geograf\xEDas";
+    return (row) => {
+      let name = geographyLabel(row.pais);
+      return countries.has(name) ? name : otherGeography;
+    };
   }
   function geographyOrder(a, b) {
-    let rank = (name) => name === "Otras geograf\xEDas" ? 2 : name === "Sin determinar" ? 1 : 0;
-    return rank(a.name) - rank(b.name) || a.name.localeCompare(b.name, "es");
+    return +(a.name === otherGeography) - +(b.name === otherGeography) || a.name.localeCompare(b.name, "es");
   }
   function entityOrder(a, b) {
     return +(b.name === "BBVA") - +(a.name === "BBVA") || a.name.localeCompare(b.name, "es");
@@ -2081,7 +2082,7 @@
     },
     applicationScope: {
       label: "\xC1mbito de aplicaci\xF3n",
-      help: "Pa\xEDses con pesta\xF1a propia por segmento en Noticias y Novedades. Los restantes se agrupan en Otras geograf\xEDas; las noticias sin pa\xEDs, en Transversal. Radar conserva todas las geograf\xEDas."
+      help: "Pa\xEDses con pesta\xF1a propia por segmento en Noticias y Novedades. Los restantes y las noticias sin pa\xEDs se agrupan en Otras geograf\xEDas. Radar conserva todas las geograf\xEDas conocidas."
     }
   };
 
@@ -2138,7 +2139,7 @@
   }
 
   // src/shared/novelty-groups.js
-  function noveltyGroups(items, country = (row) => row.pais || "Sin determinar") {
+  function noveltyGroups(items, country = (row) => geographyLabel(row.pais)) {
     let geographies = /* @__PURE__ */ new Map();
     for (let row of items) {
       let name = country(row), entity = row.entidad || "Entidad no identificada", segment = [...new Set(row.segmentos || [])].sort((a, b) => a.localeCompare(b, "es")).join(" \xB7 ") || "Segmento no identificado";

@@ -50,3 +50,7 @@ test('el trabajador renueva las identidades tras traducir y el estado avisa al c
  c.collectionBatch_=({known})=>{assert.equal(c.duplicateTitle_(known,{title:english,date:new Date(a.fecha),publisher:'Editor'}),batches++>0);return {added:0,errors:[]};};
  c.processBackground_(3);assert.equal(batches,2);assert.equal(c.getTranslationStatus().newsRevision,s.properties.NEWS_REVISION);assert.notEqual(s.properties.NEWS_REVISION,'0');
 });
+test('una publicación de interfaz conserva la revisión de clasificación y su cursor activo',()=>{
+ const s=server(),c=s.c;add(s,Array.from({length:200},(_,i)=>story(String(i))));c.requestNewsClassification_(true);const job=c.classificationJob_();job.next=52;c.writeClassificationJob_(job);const revision=job.revision;
+ c.requestNewsClassification_();assert.equal(c.classificationJob_().next,52);assert.equal(c.classificationRulesRevision_(),revision);assert.equal(c.classificationJob_().version,vm.runInContext('CLASSIFICATION_WORK.rulesVersion',c));c.newsClassificationBatch_();assert.equal(c.classificationJob_().next,152);
+});

@@ -132,7 +132,7 @@ const translations = Object.freeze({
 
   "Ámbito de aplicación": ["Application scope", "Uygulama kapsamı"],
   "Ámbito de aplicación no válido.": ["Invalid application scope.", "Geçersiz uygulama kapsamı."],
-  "Países con pestaña propia por segmento en Noticias y Novedades. Los restantes se agrupan en Otras geografías; las noticias sin país, en Transversal. Radar conserva todas las geografías.": ["Countries with their own tab per segment in News and New releases. Remaining countries appear in Other geographies; news without a country appears in Cross-market. Radar retains all geographies.", "Haberler ve Yenilikler bölümlerinde segmente göre ayrı sekmesi olan ülkeler. Diğer ülkeler Diğer ülkeler altında, ülkesi bilinmeyen haberler Ülkeler arası altında gösterilir. Radar tüm ülkeleri korur."],
+  "Países con pestaña propia por segmento en Noticias y Novedades. Los restantes y las noticias sin país se agrupan en Otras geografías. Radar conserva todas las geografías conocidas.": ["Countries with their own tab per segment in News and New releases. Remaining countries and news without a country appear in Other geographies. Radar retains all known geographies.", "Haberler ve Yenilikler bölümlerinde segmente göre ayrı sekmesi olan ülkeler. Diğer ülkeler ve ülkesi bilinmeyen haberler Diğer ülkeler altında gösterilir. Radar bilinen tüm ülkeleri korur."],
   "Nombres alternativos del país": ["Alternative country names", "Alternatif ülke adları"],
   "Cuentas digitales europeas": ["European digital accounts", "Avrupa dijital hesapları"],
   "Recopilación activada. {schedule}.": ["Collection enabled. {schedule}.", "Toplama etkin. {schedule}."],
@@ -160,7 +160,6 @@ const translations = Object.freeze({
   "Noticias de la selección": ["News matching the selection", "Seçime uyan haberler"],
   "Los recuentos reflejan la recuperación disponible y los filtros, no toda la producción del medio.": ["Counts reflect retrieved news and filters, not the publisher’s entire output.", "Sayılar, yayıncının tüm içeriklerini değil, toplanan haberleri ve filtreleri yansıtır."],
   "Otras geografías": ["Other geographies", "Diğer ülkeler"],
-  "Transversal": ["Cross-market", "Ülkeler arası"],
   "Explorar selección": ["Explore selection", "Seçimi keşfet"],
   "Periodicidad de la Newsletter": ["Newsletter frequency", "Bülten sıklığı"],
   "Quincenal: Novedades. Trimestral: Noticias. Anual: Radar. La entrega resume el último período completo después del alta.": ["Fortnightly: Updates. Quarterly: News. Yearly: Radar. Delivery covers the last complete period after subscription.", "On beş günlük: Yenilikler. Üç aylık: Haberler. Yıllık: Radar. Teslimat abonelikten sonraki son tamamlanan dönemi özetler."],

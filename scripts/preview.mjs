@@ -24,6 +24,7 @@ const names=['settings_','searchText_','businessIndex_','phraseMatch_','phrasePo
 const shared=names.map(name=>context[name].toString()).join('\n'),serialize=value=>JSON.stringify(value).replace(/</g,'\\u003c');
 const previewDelay=Math.min(5000,Math.max(0,Number(process.env.PREVIEW_LATENCY_MS)||0));
 const preview=`<script>(()=>{
+const otherGeography=${serialize(vm.runInContext('otherGeography',context))};
 const applicationScopeSegments=${serialize(vm.runInContext('applicationScopeSegments',context))};
 const readingViews=${serialize(vm.runInContext('readingViews',context))};
 const sectorNewsDefaults=${serialize(vm.runInContext('sectorNewsDefaults',context))};
