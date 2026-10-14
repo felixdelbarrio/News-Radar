@@ -43,5 +43,5 @@ function storeArticleTranslation_(row,language){
   const key=articleTranslationKey_(row,language),value=translateArticleText_(row,language),index=articleTranslationIndex_(),position=book_().getSheetByName('Traducciones').getLastRow()+1;
   append_('Traducciones',[[key,language,value.titular,value.extracto,new Date().toISOString()]]);index.set(key,position);
   articleTranslationMemory_=articleTranslationMemory_||new Map();articleTranslationMemory_.set(key,value);cacheJson_('article:'+key,value,21600);
-  properties_().setProperty('TRANSLATIONS_REVISION',new Date().toISOString());return value;
+  properties_().setProperty('TRANSLATIONS_REVISION:'+language,new Date().toISOString());return value;
 }

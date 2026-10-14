@@ -4,7 +4,7 @@ import { loadMetrics } from "./metrics.js";
 import {loadRuns} from "./runs.js";
 import { loadAudit } from "./audit.js";
 function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,onLanguage,onLeaveLanguage,onLeaveConfiguration,onTaxonomy,onLeaveTaxonomy }) {
-  let current = "configuration";
+  let current = Object.keys(config.adminViews)[0];
   async function open(view = current) {
     if (!isAdmin() || !(view in config.adminViews)) return;
     if(current==="language"&&view!==current)onLeaveLanguage();

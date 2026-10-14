@@ -22,7 +22,7 @@ function newsletterBudget_(deliveries,now){
   return Math.max(0,settings_().newsletterDailyLimit-deliveries.filter(row=>['Enviando','Enviada','Revisar'].includes(row.estado)&&new Date(row.fecha).getTime()>now.getTime()-86400000).length);
 }
 function getNewsletterDeliveryStatus(){
-  authorize_(true);const settings=settings_(),deliveries=rows_('NewsletterEnvios',undefined,8),status={address:settings.newsletterSender,name:settings.newsletterSenderName,enabled:settings.newsletterEnabled,scheduled:ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='deliverNewsletters_'),remaining:newsletterBudget_(deliveries,new Date()),last:deliveries.at(-1)||null,untracked:deliveries.filter(row=>row.suscripcion&&['Enviada','Enviando','Revisar'].includes(row.estado)&&!/(?:^|; )\d+ noticias incluidas/.test(row.detalle)).length};
+  authorize_(true);const settings=settings_(),deliveries=rows_('NewsletterEnvios',undefined,8),status={address:settings.newsletterSender,name:settings.newsletterSenderName,enabled:settings.newsletterEnabled,scheduled:ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='scheduledNewsletters_'),remaining:newsletterBudget_(deliveries,new Date()),last:deliveries.at(-1)||null,untracked:deliveries.filter(row=>row.suscripcion&&['Enviada','Enviando','Revisar'].includes(row.estado)&&!/(?:^|; )\d+ noticias incluidas/.test(row.detalle)).length};
   try{return {...status,...newsletterSender_(),available:true,error:''};}
   catch(error){return {...status,available:false,error:error.message};}
 }

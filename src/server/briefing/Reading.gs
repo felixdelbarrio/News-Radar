@@ -39,5 +39,4 @@ function newsletterEdition_(id,email){
   cacheJson_(key,{...edition,items:items.map(packNews_)},21600);return edition;
 }
 
-function newsletterCollectionPriority_(){return collectionRequests_().some(request=>request.kind==='daily')||collectionJobs_().some(job=>job.tipo==='daily'&&Number(job.pendientes)>0&&Number(job.pausa||0)<=Date.now());}
-function ensureNewsletterContinuation_(delay){if(backgroundPaused_()){deferBackgroundWork_('newsletter');return;}if(!scheduledTriggers_('newsletterTick_').length)ScriptApp.newTrigger('newsletterTick_').timeBased().after(delay||settings_().pauseMinutes*60000).create();}
+function ensureNewsletterContinuation_(delay=settings_().pauseMinutes*60000){if(backgroundPaused_()){deferBackgroundWork_('newsletter');return;}requestNewsletterDelivery_(delay);}

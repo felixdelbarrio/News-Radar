@@ -7,7 +7,7 @@ export function createConfiguration({run,isActive,onRevision}){
   let config,revision,category='entities',segment='Empresas',capabilityDefaults;
   const monitor=createJobMonitor({id:'classification',get:'getClassificationStatus',start:'startClassification',run,isActive,onRevision,render(data){
     const job=data.job,total=Number(job?.total||0),done=Number(job?.processed||0);
-    $('classification-schedule').textContent=t('Clasificación diaria: {hour} · {timezone} · {state}. La recuperación diaria tiene prioridad.',{hour:String(data.hour).padStart(2,'0')+':'+String(data.minute).padStart(2,'0'),timezone:data.timezone,state:t(data.scheduled?'Activada':'Desactivada')});
+    $('classification-schedule').textContent=t('Clasificación diaria tras completar la recopilación · {state}',{state:t(data.scheduled?'Activada':'Desactivada')});
     $('classification-progress').innerHTML=job?jobProgressHtml(job,{total,done,label:'Progreso de clasificación',queued:data.queued,summary:t('{done}/{total} noticias revisadas; {classified} etiquetas actualizadas; {digital} digitales.',{done,total,classified:job.classified,digital:job.digital})}):'<p class="muted">'+t(data.queued?'En cola':'Sin clasificaciones ejecutadas.')+'</p>';
   }});
   const entries=()=>category==='capabilities'?config.capabilities[segment]:config[category];

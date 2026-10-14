@@ -29,19 +29,23 @@ function createRadar({ onCountry, onEntity, onSource, onNews }) {
   });
   $('publisher-chart').addEventListener('click',event=>{const button=event.target.closest('[data-source]');if(button)onSource(button.dataset.source);});
   function highlightCountry(event){
-    const target=event.target.closest('[data-country]'),country=target?.dataset.country;
+    const target=event.target.closest('[data-country]'),country=target?.dataset.count!=='0'?target?.dataset.country:null;
     $('map-panel').querySelectorAll('[data-country]').forEach(node=>node.classList.toggle('is-highlighted',Boolean(country&&node.dataset.country===country)));
   }
   for(const name of ['pointerover','focusin'])$('map-panel').addEventListener(name,highlightCountry);
   for(const name of ['pointerout','focusout'])$('map-panel').addEventListener(name,event=>{if(!event.relatedTarget||!$('map-panel').contains(event.relatedTarget))highlightCountry({target:$('map-panel')});else highlightCountry({target:event.relatedTarget});});
   const tooltip=$('trend-tooltip');
   function highlightPoint(event){
-    const point=event.target.closest('[data-point]');
-    $('trend-chart').querySelectorAll('[data-series]').forEach(node=>node.classList.toggle('is-dimmed',Boolean(point&&node.dataset.series!==point.closest('[data-series]').dataset.series)));
-    tooltip.hidden=!point;if(point){tooltip.textContent=point.getAttribute('aria-label');}
+    const point=event.target.closest('[data-point],[data-bucket]'),index=point?.dataset.point??point?.dataset.bucket;
+    const band=index!=null?$('trend-chart').querySelector('[data-bucket="'+index+'"]'):null;
+    $('trend-chart').querySelectorAll('.chart-band.is-highlighted').forEach(node=>node.classList.remove('is-highlighted'));
+    if(band)band.classList.add('is-highlighted');
+    tooltip.hidden=!band;if(band)tooltip.textContent=band.getAttribute('aria-label');
   }
   for(const name of ['pointerover','focusin'])$('trend-chart').addEventListener(name,highlightPoint);
   for(const name of ['pointerout','focusout'])$('trend-chart').addEventListener(name,event=>highlightPoint({target:event.relatedTarget&&$('trend-chart').contains(event.relatedTarget)?event.relatedTarget:$('trend-chart')}));
+  const mapObserver=new ResizeObserver(entries=>{const height=entries[0].contentRect.height;if(height)$('map-panel').style.setProperty('--map-height',height+'px');});
+  mapObserver.observe(document.querySelector('.map-canvas'));
   $("radar-open-news").addEventListener("click", onNews);
   return { render(data) {
     const geography=JSON.stringify(data.geographies||[]);
@@ -68,7 +72,7 @@ function createRadar({ onCountry, onEntity, onSource, onNews }) {
     $("world-map").querySelectorAll("[data-country]").forEach((node) => {
       const area = areas.get(node.dataset.country), count = area?.total || 0, level = count ? Math.ceil(count / max * 4) : 0;
       node.dataset.count=String(count);
-      node.setAttribute('aria-disabled',String(!count));node.setAttribute('tabindex',count&&node.classList.contains('map-marker')?'0':'-1');
+      node.setAttribute('aria-disabled',String(!count));if(!count)node.classList.remove('is-highlighted');node.setAttribute('tabindex',count&&node.classList.contains('map-marker')?'0':'-1');
       if(node.classList.contains('map-marker'))node.style.display=count?'':'none';
       node.style.setProperty("--map-fill", "var(--heat-" + level + ")");
       node.setAttribute("aria-label", node.dataset.country + ": " + count + " publicaciones. Filtrar por esta geografía.");

@@ -25,7 +25,7 @@ test('newsletter informa de vacíos, duplicados, cuotas, bloqueos y errores de p
  a.replies.getNewsletterDeliveryStatus={...a.replies.getNewsletterDeliveryStatus,available:false,enabled:false,scheduled:false,untracked:0,last:null,error:'Sin alias'};a.replies.getNewsletterHistory={items:[],options:{},total:0,page:0,pageSize:30};await a.click('#validate-newsletter-sender');assert.match(a.find('#newsletter-sender-status').textContent,/Sin alias/);assert.match(a.find('#delivery-history-body').textContent,/Sin envíos/);
 });
 test('catálogos preservan cambios al cambiar de categoría y permiten ordenar, añadir y guardar',async t=>{
- const a=await app(t);await a.click('[data-view="administration"]');
+ const a=await app(t);await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');
  const first=a.find('#catalog-fields [data-key="name"]');first.value='Entidad editada';
  await a.change('#catalog-category','settings');await a.change('#catalog-fields [data-key="pageSize"]','25');await a.change('#catalog-category','entities');assert.equal(a.find('#catalog-fields [data-key="name"]').value,'Entidad editada');
  await a.click('#catalog-fields [data-move="1"]');await a.click('#catalog-fields .catalog-row:nth-child(2) [data-move="-1"]');await a.click('#catalog-add');assert.ok(a.find('#catalog-fields').textContent.includes('Nueva entrada'));
@@ -33,7 +33,7 @@ test('catálogos preservan cambios al cambiar de categoría y permiten ordenar, 
  await a.click('#catalog-reload');assert.ok(a.calls.filter(r=>r.method==='getConfiguration').length>=3);
 });
 test('fuentes y novedades recorren formularios reales, recuperación y filtros de administración',async t=>{
- const a=await app(t);await a.click('[data-view="briefing"]');assert.match(a.find('#briefing-list').textContent,/BBVA lanza cuenta/);await a.click('[data-signal]');assert.equal(a.calls.filter(r=>r.method==='getDashboard').at(-1).query.signal,'Lanzamiento de producto');
+ const a=await app(t);await a.click('[data-view="briefing"]');assert.match(a.find('#briefing-list').textContent,/BBVA lanza cuenta/);const reads=a.calls.length;await a.click('#briefing-signals .signal-card');assert.equal(a.calls.length,reads);
  a.data.briefing={total:0,bySignal:[],items:[]};await a.click('[data-view="news"]');await a.click('[data-view="briefing"]');assert.match(a.find('#briefing-list').textContent,/No hay novedades/);
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="sources"]');await a.click('#source-tab-rss');await a.click('#add-source');assert.equal(a.find('#source-fields').children.length,2);await a.click('#add-source');assert.match(a.find('#message').textContent,/Máximo/);
  await a.click('#source-fields .source:last-child .remove-source');await a.submit('#sources-form');assert.equal(a.calls.find(r=>r.method==='saveFeeds').query.length,1);
@@ -85,9 +85,9 @@ test('las tarjetas presentan traducciones guardadas y no llaman al traductor al 
  a.data.items[0].translation.state='pending';await a.click('[data-view="briefing"]');await a.click('[data-view="news"]');assert.doesNotMatch(a.find('#news-list').textContent,/Awaiting overnight translation/);
  assert.equal(a.calls.filter(call=>call.method==='getDashboard').at(-1).query.language,'en');
 });
-test('Idioma tiene sección propia, programación nocturna y progreso con controles administrativos',async t=>{
+test('Idioma tiene sección propia, programación diaria y progreso con controles administrativos',async t=>{
  const a=await app(t,{language:'tr-TR',configure({replies}){replies.getTranslationStatus={scheduled:true,hour:2,timezone:'Europe/Madrid',queued:false,job:{state:'Completada',total:10,processed:10,translated:30,updated:'2026-10-11',error:''}};}});
- await a.click('[data-view="administration"]');await a.click('[data-admin-view="language"]');assert.equal(a.find('#language-section').hidden,false);assert.ok(a.find('#language-section').contains(a.find('#preview-language')));assert.match(a.find('#translation-schedule').textContent,/02:00/);assert.equal(a.find('#translation-progress progress').value,10);
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="language"]');assert.equal(a.find('#language-section').hidden,false);assert.ok(a.find('#language-section').contains(a.find('#preview-language')));assert.match(a.find('#translation-schedule').textContent,/Sınıflandırma sonrasında günlük çeviri/);assert.equal(a.find('#translation-progress progress').value,10);
  await a.click('#translation-toggle');assert.ok(a.calls.some(call=>call.method==='disableTranslationSchedule'));await a.click('#translation-start');assert.ok(a.calls.some(call=>call.method==='startTranslations'));
  a.replies.getTranslationStatus.scheduled=false;await a.click('[data-admin-view="configuration"]');await a.click('[data-admin-view="language"]');await a.click('#translation-toggle');assert.ok(a.calls.some(call=>call.method==='installTranslationSchedule'));await a.click('[data-admin-view="runs"]');assert.equal(a.find('#language-section').hidden,true);assert.match(a.find('#runs-section h2').textContent,/Çalıştırmalar/);
 });

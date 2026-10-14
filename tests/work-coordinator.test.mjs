@@ -39,8 +39,8 @@ test('scheduled work defers before reading configuration or acquiring locks',()=
  const s=storage();s.properties['WORK_INTENT:test']=String(Date.now()+600000);
  s.c.settings_=()=>{throw Error('Configuration unavailable');};s.c.LockService.getScriptLock=()=>{throw Error('Must not lock');};
  assert.equal(s.c.processBackground_().paused,true);assert.equal(s.c.deliverNewsletters_().state,'configuration_pause');
- s.c.scheduledCollection_('daily');s.c.dailyClassification_();s.c.dailyTaxonomy_();
- for(const name of ['background','newsletter','daily','classification','taxonomy'])assert.equal(s.properties['WORK_PENDING:'+name],'true');
+ s.c.requestDailyPipeline_();s.c.scheduledNewsletters_();
+ for(const name of ['background','newsletter','daily'])assert.equal(s.properties['WORK_PENDING:'+name],'true');
 });
 test('watchdog waits for active configuration and retries a busy lock',()=>{
  const s=fixture();s.c.deferBackgroundWork_('background');s.properties['WORK_INTENT:test']=String(Date.now()+600000);
@@ -58,7 +58,7 @@ test('expired pause restores a consumed worker trigger and preserves quota pause
  assert.equal(s.c.ScriptApp.getProjectTriggers().filter(t=>t.handler==='workWake_').length,0);
 });
 test('resume failure retains its request for retry',()=>{
- const s=fixture();s.c.deferBackgroundWork_('daily');s.c.queueScheduledCollection_=()=>{throw Error('Unavailable');};
+ const s=fixture();s.c.deferBackgroundWork_('daily');s.c.requestDailyPipeline_=()=>{throw Error('Unavailable');};
  assert.throws(()=>s.c.workWake_(),/Unavailable/);assert.equal(s.properties['WORK_PENDING:daily'],'true');
  assert.ok(s.c.ScriptApp.getProjectTriggers().some(t=>t.handler==='workWake_'));
 });

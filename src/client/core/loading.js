@@ -10,7 +10,9 @@ export function refreshLoading(){
   document.getElementById('loading-label').textContent=t('Cargando contenido…');
   const content=document.querySelector('.content');content.setAttribute('aria-busy',String(Boolean(state?.pending)));content.setAttribute('data-loading',mode);
   if(panel&&(indicator.parentElement!==panel||indicator.dataset.mode!==mode)){
-    panel.prepend(skeleton);if(mode==='append')panel.appendChild(indicator);else panel.prepend(indicator);indicator.dataset.mode=mode;
+    const hero=panel.querySelector?.(':scope > .reading-hero');
+    if(hero){hero.after(indicator,skeleton);if(mode==='append')panel.appendChild(indicator);}else{panel.prepend(skeleton);if(mode==='append')panel.appendChild(indicator);else panel.prepend(indicator);}
+    indicator.dataset.mode=mode;
   }
 }
 export function beginLoading(method,args){

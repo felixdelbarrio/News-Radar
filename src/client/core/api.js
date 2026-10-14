@@ -7,8 +7,8 @@ function call(method, ...args) {
   const key=method.startsWith('get')?JSON.stringify([method,...args]):null;
   if(key&&requests.has(key))return requests.get(key);
   const finishLoading=beginLoading(method,args);
-  let response;
-  try{response=send(method,...args);}catch(error){finishLoading();throw error;}
+  let response;const started=performance.now();
+  try{response=send(method,...args);if(method==='getDashboard')response=response.then(data=>({...data,performance:{...data.performance,transportMs:Math.round(performance.now()-started)}}));}catch(error){finishLoading();throw error;}
   if(key)requests.set(key,response);
   const complete=()=>{if(key)requests.delete(key);finishLoading();};
   response.then(complete,complete);

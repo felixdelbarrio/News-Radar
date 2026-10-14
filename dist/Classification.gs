@@ -22,15 +22,14 @@ function requestNewsClassification_(force=false){
   writeClassificationJob_({next:2,total,revision:classificationRulesRevision_(),version:RADAR.version,state:total?'Pendiente':'Completada',started:now.toISOString(),updated:now.toISOString(),day:recordDay(now,settings_().timezone),classified:0,digital:0});
   if(total)ensureBackgroundWorker_();
 }
-function dailyClassification_(){if(backgroundPaused_()){deferBackgroundWork_('classification');return;}properties_().setProperty('CLASSIFICATION_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}
 function drainClassificationRequest_(){
   const p=properties_(),day=p.getProperty('CLASSIFICATION_REQUEST');if(!day)return;
-  const job=classificationJob_();if(job?.day===day){p.deleteProperty('CLASSIFICATION_REQUEST');return;}
+  const job=classificationJob_();if(job?.day===day&&job.total===Math.max(0,book_().getSheetByName('Noticias').getLastRow()-1)){p.deleteProperty('CLASSIFICATION_REQUEST');return;}
   if(classificationPending_())return;
   requestNewsClassification_(true);p.deleteProperty('CLASSIFICATION_REQUEST');
 }
 function getClassificationStatus(){
-  authorize_(true);const job=classificationJob_();return {newsRevision:properties_().getProperty('NEWS_REVISION')||'0',queued:Boolean(properties_().getProperty('CLASSIFICATION_REQUEST')),scheduled:scheduledTriggers_('dailyClassification_').length>0,hour:settings_().dailyHour,minute:CLASSIFICATION_WORK.dailyMinute,timezone:settings_().timezone,job:job?{...job,processed:Math.min(job.total,job.next-2)}:null};
+  authorize_(true);const job=classificationJob_();return {newsRevision:properties_().getProperty('NEWS_REVISION')||'0',queued:Boolean(properties_().getProperty('CLASSIFICATION_REQUEST')),scheduled:dailyScheduleStatus_(),timezone:settings_().timezone,job:job?{...job,processed:Math.min(job.total,job.next-2)}:null};
 }
 function startClassification(){
   authorize_(true);return withForegroundWrite_(()=>{
