@@ -5,7 +5,7 @@ import {storage} from './helpers/server.mjs';
 import {read,readServerScript} from '../scripts/source.mjs';
 const seed=()=>JSON.parse(read('assets/configuration-defaults.json'));
 test('inicializa solo claves ausentes, persiste en Sheets y reutiliza e invalida la caché versionada',()=>{
-  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,12);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
+  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,14);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
   config.settings.defaultEntity='Qonto';config.segments.push({name:'Prueba editorial',terms:['innovación verificable'],enabled:true});c.saveConfiguration({config,revision:c.getConfiguration().revision});assert.equal(c.getConfiguration().config.settings.defaultEntity,'Qonto');
   c.initializeConfiguration();assert.equal(c.getConfiguration().config.settings.defaultEntity,'Qonto');assert.ok(c.getConfiguration().config.segments.some(row=>row.name==='Prueba editorial'));
   const sheet=s.sheets.get('Configuracion'),index=sheet.grid.findIndex(row=>row[0]==='settings'),settings=JSON.parse(sheet.grid[index][1]);settings.defaultEntity='Revolut';sheet.grid[index][1]=JSON.stringify(settings);
@@ -26,9 +26,9 @@ test('desactivar entidades o países elimina consultas futuras sin borrar notici
   assert.ok(!c.feeds_().some(row=>row.entity==='Qonto'||row.country==='México'));assert.ok(c.configuredFeeds_().some(row=>row.entity==='Qonto'&&!row.enabled));
 });
 test('selecciones personales impiden suplantación y acceso cruzado; newsletter conserva fuentes y escapa HTML',()=>{
-  const s=storage(),{c}=s;c.initializeConfiguration();s.setEmail('a@bbva.com');c.saveSubscription({name:'Mi canal',periodicity:'monthly',email:'forged@bbva.com',filters:{entity:'Qonto',segment:'Empresas e instituciones',coverage:''}});const own=c.getSubscriptions();assert.equal(own[0].correo,'a@bbva.com');
+  const s=storage(),{c}=s;c.initializeConfiguration();s.setEmail('a@bbva.com');c.saveSubscription({name:'Mi canal',periodicity:'quarterly',email:'forged@bbva.com',filters:{entity:'Qonto',segment:'Empresas e instituciones',coverage:''}});const own=c.getSubscriptions();assert.equal(own[0].correo,'a@bbva.com');
   c.rows_=name=>name==='Noticias'?[{fecha:c.subscriptionQuery_(own[0],new Date()).from,pais:'España',entidad:'Qonto',medio:'Editor',titular:'Qonto lanza cuenta para autónomos <script>',extracto:'Texto de la fuente',url:'https://example.com/product'}]:s.sheets.get(name).grid.slice(1).map(row=>Object.fromEntries(['id','correo','nombre','filtros','periodicidad','activa','actualizada'].map((key,i)=>[key,String(row[i])])));
-  const result=c.newsletter_(c.rows_('Noticias'),c.subscriptionQuery_(own[0],new Date()),own[0].nombre,new Date(),own[0].id);assert.equal(result.count,1);assert.match(result.html,/href="https:\/\/example.com\/product"/);assert.match(result.html,/&lt;script&gt;/);assert.doesNotMatch(result.html,/<script>/);
+  const result=c.newsletter_(c.rows_('Noticias'),c.subscriptionQuery_(own[0],new Date()),own[0].nombre,new Date(),own[0].id);assert.equal(result.count,1);assert.match(result.html,/href="https:\/\/example.com\/product"/);assert.doesNotMatch(result.html,/<script>/);assert.doesNotMatch(result.html,/<script>/);
   s.setEmail('b@bbva.com');assert.equal(c.getSubscriptions().length,0);assert.throws(()=>c.sendSubscriptionTest(own[0].id),/no encontrada/);assert.throws(()=>c.deleteSubscription(own[0].id),/no encontrada/);s.setEmail('a@bbva.com');c.deleteSubscription(own[0].id);assert.equal(c.getSubscriptions().length,0);
 });
 
@@ -42,36 +42,36 @@ test('las señales de titular evitan confundir artículos educativos o promesas 
   const config=JSON.parse(JSON.stringify(c.getConfiguration()));config.config.signals[0].scope='fullText';c.saveConfiguration(config);assert.ok(c.annotateNews_(rows)[1].senales.includes('Lanzamiento de producto'));
 });
 
-test('newsletter selecciona siete días y conserva cierres naturales en la zona configurada',()=>{
- const s=storage(),{c}=s;c.initializeConfiguration();const q=c.subscriptionQuery_({periodicidad:'weekly',filtros:{entity:'BBVA',coverage:''}},new Date('2026-10-25T23:30:00Z'));assert.equal(q.to,'2026-10-26');assert.equal(q.from,'2026-10-20');assert.equal(q.entity,'BBVA');
- const leap=c.newsletterPeriod_('monthly',new Date('2024-03-01T10:00:00Z'));assert.equal(leap.from,'2024-02-01');assert.equal(leap.to,'2024-02-29');const week=c.newsletterPeriod_('weekly',new Date('2026-10-12T10:00:00Z'));assert.equal(week.from,'2026-10-05');assert.equal(week.to,'2026-10-11');
+test('newsletter selecciona quincenas y conserva cierres naturales en la zona configurada',()=>{
+ const s=storage(),{c}=s;c.initializeConfiguration();const q=c.subscriptionQuery_({periodicidad:'fortnightly',filtros:{entity:'BBVA',coverage:''}},new Date('2026-10-25T23:30:00Z'));assert.equal(q.to,'2026-10-31');assert.equal(q.from,'2026-10-16');assert.equal(q.entity,'BBVA');
+ const leap=c.newsletterPeriod_('quarterly',new Date('2024-04-01T10:00:00Z'));assert.equal(leap.from,'2024-01-01');assert.equal(leap.to,'2024-03-31');const week=c.newsletterPeriod_('fortnightly',new Date('2026-10-12T10:00:00Z'));assert.equal(week.from,'2026-09-16');assert.equal(week.to,'2026-09-30');
 });
 test('administración da altas y edita suscripciones; lectores no acceden a otros usuarios',()=>{
- const s=storage(),{c}=s;c.initializeConfiguration();s.book.insertSheet('Noticias').grid.push([]);const defaults=c.getNewsletterOptions().defaults;assert.equal(defaults.periodicity,'monthly');assert.equal(defaults.filters.entity,undefined);assert.equal(defaults.filters.segment,'Empresas e instituciones');assert.equal(defaults.filters.country,undefined);
- c.saveAdminSubscription({email:'equipo@bbva.com',name:'Equipo',filters:defaults.filters});let rows=c.getAdminSubscriptions();assert.equal(rows.length,1);c.saveAdminSubscription({id:rows[0].id,email:'equipo@bbva.com',name:'Pausada',active:false,periodicity:'weekly',filters:defaults.filters});rows=c.getAdminSubscriptions();assert.equal(rows[0].activa,false);assert.equal(rows[0].periodicidad,'weekly');
- assert.throws(()=>c.saveAdminSubscription({email:'outside@example.com',name:'Fuera',filters:{}}),/dominio/);s.setEmail('equipo@bbva.com');assert.equal(c.getSubscriptions().length,1);assert.throws(()=>c.getAdminSubscriptions(),/administrador/);assert.throws(()=>c.saveAdminSubscription({}),/administrador/);c.saveSubscription({id:rows[0].id,name:'Mía',periodicity:'monthly',active:true,filters:{}});assert.equal(c.getSubscriptions()[0].nombre,'[bIA] Segmento: Empresas e instituciones · Cobertura: Canal digital');
+ const s=storage(),{c}=s;c.initializeConfiguration();s.book.insertSheet('Noticias').grid.push([]);const defaults=c.getNewsletterOptions().defaults;assert.equal(defaults.periodicity,'quarterly');assert.equal(defaults.filters.entity,undefined);assert.equal(defaults.filters.segment,'Empresas e instituciones');assert.equal(defaults.filters.country,undefined);
+ c.saveAdminSubscription({email:'equipo@bbva.com',name:'Equipo',filters:defaults.filters});let rows=c.getAdminSubscriptions();assert.equal(rows.length,1);c.saveAdminSubscription({id:rows[0].id,email:'equipo@bbva.com',name:'Pausada',active:false,periodicity:'fortnightly',filters:defaults.filters});rows=c.getAdminSubscriptions();assert.equal(rows[0].activa,false);assert.equal(rows[0].periodicidad,'fortnightly');
+ assert.throws(()=>c.saveAdminSubscription({email:'outside@example.com',name:'Fuera',filters:{}}),/dominio/);s.setEmail('equipo@bbva.com');assert.equal(c.getSubscriptions().length,1);assert.throws(()=>c.getAdminSubscriptions(),/administrador/);assert.throws(()=>c.saveAdminSubscription({}),/administrador/);c.saveSubscription({id:rows[0].id,name:'Mía',periodicity:'quarterly',active:true,filters:{}});assert.equal(c.getSubscriptions()[0].nombre,'[bIA] Segmento: Empresas e instituciones · Cobertura: Canal digital');
 });
 
 test('la entrega registra cada período antes de enviar y no duplica ni reintenta envíos inciertos',()=>{
  const s=storage(),{c}=s;c.initializeConfiguration();const defaults=c.getConfiguration();defaults.config.settings.newsletterEnabled=true;c.saveConfiguration(defaults);
- const period=c.newsletterPeriod_('weekly',new Date());let sent=0;c.newsletterSender_=()=>({address:'news-radar.group@bbva.com',name:'News Radar'});c.sendNewsletterMail_=()=>{sent++;return 'gmail-'+sent;};
- c.subscriptionRows_=()=>[{id:'uno',correo:'equipo@bbva.com',nombre:'Canal',periodicidad:'weekly',activa:true,actualizada:'2020-01-01T00:00:00Z',filtros:{entity:'BBVA',coverage:''}},{id:'pausada',activa:false}];
+ const period=c.newsletterPeriod_('fortnightly',new Date());let sent=0;c.newsletterSender_=()=>({address:'news-radar.group@bbva.com',name:'News Radar'});c.sendNewsletterMail_=()=>{sent++;return 'gmail-'+sent;};
+ c.subscriptionRows_=()=>[{id:'uno',correo:'equipo@bbva.com',nombre:'Canal',periodicidad:'fortnightly',activa:true,actualizada:'2020-01-01T00:00:00Z',filtros:{entity:'BBVA',coverage:''}},{id:'pausada',activa:false}];
  s.book.insertSheet('Noticias').grid.push([]);c.rows_=name=>name==='Noticias'?[{fecha:period.from,pais:'España',entidad:'BBVA',medio:'BBVA',titular:'BBVA lanza cuenta para empresas',extracto:'Nueva cuenta',url:'https://example.com/product'}]:s.sheets.get(name).grid.slice(1).map(row=>Object.fromEntries(['id','suscripcion','correo','desde','hasta','estado','fecha','detalle','contenido'].map((key,i)=>[key,row[i]])));
  c.deliverNewsletters_();c.deliverNewsletters_();assert.equal(sent,1);assert.equal(s.sheets.get('NewsletterEnvios').grid[1][5],'Enviada');
  c.rows_=name=>name==='Noticias'?[{fecha:period.from,pais:'España',entidad:'BBVA',medio:'BBVA',titular:'BBVA lanza tarjeta para empresas',extracto:'Nueva tarjeta',url:'https://example.com/card'}]:s.sheets.get(name).grid.slice(1).map(row=>Object.fromEntries(['id','suscripcion','correo','desde','hasta','estado','fecha','detalle','contenido'].map((key,i)=>[key,row[i]])));
- c.subscriptionRows_=()=>[{id:'fallo',correo:'equipo@bbva.com',nombre:'Canal',periodicidad:'weekly',activa:true,actualizada:'2020-01-01T00:00:00Z',filtros:{entity:'BBVA',coverage:''}}];c.sendNewsletterMail_=()=>{sent++;throw Error('Resultado incierto');};c.deliverNewsletters_();c.deliverNewsletters_();assert.equal(sent,2);assert.equal(s.sheets.get('NewsletterEnvios').grid[2][5],'Revisar');
- c.newsletterBudget_=()=>0;c.subscriptionRows_=()=>[{id:'quota',activa:true,periodicidad:'weekly',filtros:{}}];c.deliverNewsletters_();assert.equal(sent,2);
+ c.subscriptionRows_=()=>[{id:'fallo',correo:'equipo@bbva.com',nombre:'Canal',periodicidad:'fortnightly',activa:true,actualizada:'2020-01-01T00:00:00Z',filtros:{entity:'BBVA',coverage:''}}];c.sendNewsletterMail_=()=>{sent++;throw Error('Resultado incierto');};c.deliverNewsletters_();c.deliverNewsletters_();assert.equal(sent,2);assert.equal(s.sheets.get('NewsletterEnvios').grid[2][5],'Revisar');
+ c.newsletterBudget_=()=>0;c.subscriptionRows_=()=>[{id:'quota',activa:true,periodicidad:'fortnightly',filtros:{}}];c.deliverNewsletters_();assert.equal(sent,2);
 });
 
 test('la próxima entrega diferencia altas nuevas, pendientes, rechazos y suscripciones pausadas',()=>{
- const s=storage(),{c}=s;c.initializeConfiguration();const now=new Date('2026-10-10T10:00:00Z'),row={activa:true,periodicidad:'monthly',actualizada:'2026-10-10T09:00:00Z'};
- assert.equal(c.newsletterNextDate_(row,now),'2026-11-01');row.actualizada='2026-09-01T09:00:00Z';assert.equal(c.newsletterNextDate_(row,now),'2026-10-10');
- assert.equal(c.newsletterNextDate_(row,now,{id:'undefined:monthly:2026-09-01',estado:'Enviada'}),'2026-11-01');assert.equal(c.newsletterNextDate_(row,now,{id:'undefined:monthly:2026-09-01',estado:'No enviado'}),'2026-10-10');
- assert.equal(c.newsletterNextDate_({...row,periodicidad:'weekly',actualizada:now.toISOString()},now),'2026-10-12');assert.equal(c.newsletterNextDate_({...row,periodicidad:'yearly',actualizada:now.toISOString()},now),'2027-01-01');assert.equal(c.newsletterNextDate_({...row,activa:false},now),'');
+ const s=storage(),{c}=s;c.initializeConfiguration();const now=new Date('2026-10-10T10:00:00Z'),row={activa:true,periodicidad:'quarterly',actualizada:'2026-10-10T09:00:00Z'};
+ assert.equal(c.newsletterNextDate_(row,now),'2027-01-06');row.actualizada='2026-09-01T09:00:00Z';assert.equal(c.newsletterNextDate_(row,now),'2026-10-10');
+ assert.equal(c.newsletterNextDate_(row,now,{id:'undefined:quarterly:2026-07-01',estado:'Enviada'}),'2027-01-06');assert.equal(c.newsletterNextDate_(row,now,{id:'undefined:quarterly:2026-07-01',estado:'No enviado'}),'2026-10-10');
+ assert.equal(c.newsletterNextDate_({...row,periodicidad:'fortnightly',actualizada:now.toISOString()},now),'2026-10-19');assert.equal(c.newsletterNextDate_({...row,periodicidad:'yearly',actualizada:now.toISOString()},now),'2027-01-01');assert.equal(c.newsletterNextDate_({...row,activa:false},now),'');
 });
 test('un rechazo confirmado se puede reintentar y los mensajes de selecciones distintas conservan su nombre',()=>{
  const s=storage(),{c}=s;c.initializeConfiguration();const cfg=c.getConfiguration();cfg.config.settings.newsletterEnabled=true;c.saveConfiguration(cfg);s.book.insertSheet('Noticias').grid.push([]);
- const names=[],rows=['Canal A','Canal B'].map((nombre,i)=>({id:String(i),nombre,correo:'user'+i+'@bbva.com',periodicidad:'monthly',activa:true,actualizada:'2020-01-01',filtros:{}}));c.subscriptionRows_=()=>rows;c.newsletterSender_=()=>({});
+ const names=[],rows=['Canal A','Canal B'].map((nombre,i)=>({id:String(i),nombre,correo:'user'+i+'@bbva.com',periodicidad:'quarterly',activa:true,actualizada:'2020-01-01',filtros:{}}));c.subscriptionRows_=()=>rows;c.newsletterSender_=()=>({});
  c.newsletterContent_=(_rows,_query,title)=>{names.push(title);return {count:1,html:title,text:title,items:[],evidence:[]};};c.sendNewsletterMail_=()=>{const error=Error('Rechazado');error.rejected=true;throw error;};
  assert.equal(c.deliverNewsletters_().state,'error');assert.equal(s.sheets.get('NewsletterEnvios').grid[1][5],'No enviado');c.sendNewsletterMail_=(_s,_r,content)=>{assert.match(content.html,/Canal [AB]/);return 'accepted';};
  const result=c.deliverNewsletters_();assert.equal(result.accepted,2);assert.deepEqual(names,['Canal A','Canal A','Canal B']);assert.equal(c.deliverNewsletters_().state,'no_due');
@@ -80,8 +80,8 @@ test('un rechazo confirmado se puede reintentar y los mensajes de selecciones di
 function deliveryFixture(){
  const s=storage(),{c}=s;c.initializeConfiguration();const config=c.getConfiguration();config.config.settings.newsletterEnabled=true;c.saveConfiguration(config);
  const news=s.book.insertSheet('Noticias');news.grid.push(c.RADAR?.sheets?.Noticias||['id','fecha','pais','medio','entidad','titular','extracto','url','capturada','fuente']);
- const period=c.newsletterPeriod_('weekly',new Date()),add=(id,title='BBVA lanza cuenta para empresas',url='https://example.com/'+id)=>news.grid.push([id,period.from,'España','BBVA','BBVA',title,'Nueva cuenta',url,'','BBVA']);
- const subscriptions=[{id:'a',correo:'equipo@bbva.com',nombre:'Canal',periodicidad:'weekly',activa:true,actualizada:'2020-01-01',filtros:{entity:'BBVA',coverage:''}}],sent=[];
+ const period=c.newsletterPeriod_('fortnightly',new Date()),add=(id,title='BBVA lanza cuenta para empresas',url='https://example.com/'+id)=>news.grid.push([id,period.from,'España','BBVA','BBVA',title,'Nueva cuenta',url,'','BBVA']);
+ const subscriptions=[{id:'a',correo:'equipo@bbva.com',nombre:'Canal',periodicidad:'fortnightly',activa:true,actualizada:'2020-01-01',filtros:{entity:'BBVA',coverage:''}}],sent=[];
  c.subscriptionRows_=()=>subscriptions;c.newsletterSender_=()=>({});c.sendNewsletterMail_=(_sender,email,content)=>{const record=s.sheets.get('NewsletterEnvios').grid.at(-1);assert.equal(record[5],'Enviando');assert.ok(JSON.parse(record[8]).length);sent.push({email,content});return 'gmail-'+sent.length;};
  return {...s,period,add,subscriptions,sent};
 }
@@ -93,7 +93,7 @@ test('el mismo correo no repite noticias entre suscripciones; otro correo sí pu
 });
 test('cambiar suscripción o periodicidad conserva la memoria del destinatario y envía solo noticias nuevas',()=>{
  const f=deliveryFixture();f.add('first');f.c.deliverNewsletters_();f.add('second','BBVA lanza tarjeta para empresas');
- f.subscriptions[0]={...f.subscriptions[0],id:'replacement',periodicidad:'weekly'};f.c.newsletterPeriod_=()=>f.period;
+ f.subscriptions[0]={...f.subscriptions[0],id:'replacement',periodicidad:'fortnightly'};f.c.newsletterPeriod_=()=>f.period;
  const result=f.c.deliverNewsletters_();assert.equal(result.accepted,1);assert.equal(result.duplicates,1);assert.equal(f.sent[1].content.count,1);assert.match(f.sent[1].content.html,/lanza tarjeta/);assert.doesNotMatch(f.sent[1].content.html,/lanza cuenta/);
 });
 test('las pruebas no consumen contenido, las URLs se normalizan y el texto identifica copias en otro enlace',()=>{
@@ -133,7 +133,7 @@ test('los envíos reales vacíos se omiten sin validar alias ni contactar Gmail'
  const result=f.c.deliverNewsletters_();assert.equal(result.empty,1);assert.equal(result.accepted,0);assert.equal(f.sent.length,0);assert.equal(f.sheets.get('NewsletterEnvios').grid[1][5],'Sin novedades');
 });
 test('newsletter incluye el límite de siete días y excluye noticias anteriores y futuras',()=>{
- const f=deliveryFixture(),sheet=f.sheets.get('Noticias'),range=f.c.newsletterPeriod_('weekly',new Date());f.add('boundary');
+ const f=deliveryFixture(),sheet=f.sheets.get('Noticias'),range=f.c.newsletterPeriod_('fortnightly',new Date());f.add('boundary');
  const date=new Date(range.from+'T00:00:00Z');date.setUTCDate(date.getUTCDate()-1);
  for(const [id,day] of [['old',date.toISOString().slice(0,10)],['future','2099-01-01']])sheet.grid.push([id,day,'España','BBVA','BBVA','BBVA lanza tarjeta para empresas','Nueva tarjeta','https://example.com/'+id,'','BBVA']);
  const result=f.c.deliverNewsletters_();assert.equal(result.accepted,1);assert.equal(f.sent[0].content.count,1);assert.equal(f.sent[0].content.items[0].fecha,range.from);
@@ -159,4 +159,13 @@ test('inicializar prioridades conserva íntegra la recuperación anual que ya es
  const recent=[...old];recent[2]='https://news.google.com/rss/search?q=after%3A2026-10-01%20before%3A2026-10-09';recent[3]='Pendiente';queue.grid.push([...old],[...recent]);
  c.initializeCollectionQueue_();assert.deepEqual(queue.grid[1].slice(0,9),old);assert.equal(queue.grid[1][9],'2025-10-08');assert.equal(queue.grid[2][9],'2026-10-08');
  c.initializeCollectionQueue_();assert.equal(queue.grid.length,3);queue.grid.push(['cycle','RSS','https://bbva.com/rss','Pendiente',0,'',0,0,'']);c.initializeCollectionQueue_();assert.equal(queue.grid[3][9],'2026-10-08');
+});
+
+test('la pausa entre destinatarios conserva el envío confirmado y reanuda solo los pendientes',()=>{
+ const f=deliveryFixture();f.add('maintenance');f.subscriptions.push({...f.subscriptions[0],id:'b',correo:'otro@bbva.com'});
+ const send=f.c.sendNewsletterMail_;f.c.sendNewsletterMail_=(...args)=>{const id=send(...args);f.properties['WORK_INTENT:test']=String(Date.now()+600000);return id;};
+ const paused=f.c.deliverNewsletters_();assert.equal(paused.accepted,1);assert.equal(paused.pending,1);assert.equal(paused.state,'configuration_pause');
+ assert.equal(f.sheets.get('NewsletterEnvios').grid[1][5],'Enviada');assert.equal(f.properties['WORK_PENDING:newsletter'],'true');
+ delete f.properties['WORK_INTENT:test'];f.c.sendNewsletterMail_=send;f.c.workWake_();
+ const resumed=f.c.deliverNewsletters_();assert.equal(resumed.accepted,1);assert.equal(resumed.pending,0);assert.equal(f.sent.length,2);assert.equal(f.c.deliverNewsletters_().state,'no_due');
 });

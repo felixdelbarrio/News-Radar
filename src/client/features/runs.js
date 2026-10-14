@@ -19,10 +19,11 @@ export function renderCollectionJobs(status){
   const total=Number(status?.total||0),done=Number(status?.processed||0)+Number(status?.skipped||0)+Number(status?.failed||0);
   $('collection-total').hidden=!total;$('collection-total-progress').max=Math.max(1,total);$('collection-total-progress').value=done;
   $('collection-total-label').textContent=t('{done}/{total} consultas; {added} noticias incorporadas.',{done,total,added:status?.added||0});
-  $('collection-jobs').innerHTML=(status?.jobs||[]).map(job=>{
+  const jobs=[...(status?.jobs||[])];
+  $('collection-jobs').innerHTML=jobs.map(job=>{
     const done=Number(job.procesadas||0)+Number(job.omitidas||0)+Number(job.fallidas||0),total=Number(job.total||0);
-    return `<article class="collection-job"><div class="panel-header"><h3>${escape(displayRecord(job.tipo,language))}</h3><span>${escape(t(job.estado))}</span></div><p class="small muted">${escape(formatCalendarDay(job.desde,language))} — ${escape(formatCalendarDay(job.hasta,language))}</p><progress max="${Math.max(1,total)}" value="${done}" aria-label="${escape(displayRecord(job.tipo,language))}"></progress><p>${escape(t('{done}/{total} consultas; {added} noticias incorporadas.',{done,total,added:job.nuevas||0}))}</p><p class="small muted">${Number(job.pendientes||0)} ${escape(t('Pendientes'))} · ${Number(job.fallidas||0)} ${escape(t('Errores'))}${job.actualizada?' · '+escape(t('Última actividad'))+': '+escape(date(job.actualizada)):''}${Number(job.pausa)>Date.now()?' · '+escape(t('Reintento programado'))+': '+escape(date(new Date(Number(job.pausa)))):''}</p></article>`;
-  }).join('')||'<p class="muted">Sin recuperaciones registradas.</p>';
+    return `<article class="collection-job" data-collection-kind="${escape(job.tipo)}"><div class="panel-header"><h3>${escape(displayRecord(job.tipo,language))}</h3><span>${escape(t(job.estado))}</span></div>${job.desde?`<p class="small muted">${escape(formatCalendarDay(job.desde,language))} — ${escape(formatCalendarDay(job.hasta,language))}</p>`:''}<progress max="${Math.max(1,total)}" value="${done}" aria-label="${escape(displayRecord(job.tipo,language))}"></progress><p>${escape(t('{done}/{total} consultas; {added} noticias incorporadas.',{done,total,added:job.nuevas||0}))}</p><p class="small muted">${Number(job.pendientes||0)} ${escape(t('Pendientes'))} · ${Number(job.fallidas||0)} ${escape(t('Errores'))}${job.actualizada?' · '+escape(t('Última actividad'))+': '+escape(date(job.actualizada)):''}${Number(job.pausa)>Date.now()?' · '+escape(t('Reintento programado'))+': '+escape(date(new Date(Number(job.pausa)))):''}</p></article>`;
+  }).join('');
 }
 
 export function createRecoveryControls({getData,run}){

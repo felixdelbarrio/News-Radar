@@ -1,8 +1,8 @@
 import { call } from "../core/api.js";
-function createUsage({ getView, isReady }) {
+function createUsage({ getView,isReady,getAttribution }) {
   const session = crypto.randomUUID(), events = [];
   function track(event, duration = 0, performance) {
-    events.push({ event, view: getView(), session, duration, ...(performance?{performance}: {}) });
+    events.push({event,view:getView(),session,duration,...(getAttribution()?{id:crypto.randomUUID(),edition:getAttribution()}:{}), ...(performance?{performance}: {}) });
     if (events.length > 20) events.shift();
   }
   async function flush() {

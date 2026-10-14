@@ -9,9 +9,15 @@ function collectionWindows_(range){
   return windows;
 }
 function collectionFeeds_(range){
-  const rss=feeds_().filter(feed=>feed.kind==='rss').map(feed=>({...feed,range}));
-  const profiles=feeds_().filter(feed=>feed.kind==='profile');
-  return rss.concat(collectionWindows_(range).flatMap(window=>profiles.flatMap(base=>[collectionProfile_(base,window),collectionProfile_({...base,capabilitySearch:true},window)].filter(Boolean))));
+  const enabled=feeds_(),windows=collectionWindows_(range);
+  const rss=enabled.filter(feed=>feed.kind==='rss').flatMap(feed=>domainMatches_(feed.url,'news.google.com')?windows.map(window=>collectionProfile_(feed,window)):[{...feed,range}]);
+  const profiles=enabled.filter(feed=>feed.kind==='profile');
+  const selected=rss.concat(windows.flatMap(window=>profiles.flatMap(base=>{
+    const variants=[base,{...base,capabilitySearch:true}];
+    return variants.map(feed=>collectionProfile_(feed,window)).filter(Boolean);
+  })));
+  const primary=new Set(configuration_().applicationScope.find(scope=>scope.name==='Empresas e instituciones').countries),seen=new Set();
+  return selected.filter(feed=>{if(seen.has(feed.url))return false;seen.add(feed.url);return true;}).sort((a,b)=>Number(primary.has(b.country))-Number(primary.has(a.country)));
 }
 
 function splitCollectionFeed_(feed){
@@ -22,9 +28,12 @@ function splitCollectionFeed_(feed){
 }
 function collectionTaskFeed_(task,feeds,range){
   if(feeds.has(task.url))return {...feeds.get(task.url),range};
-  const base=feeds.get('source:'+task.fuente);if(!base||base.kind!=='profile')return null;
+  const base=feeds.get('source:'+task.fuente);if(!base||(base.kind!=='profile'&&!domainMatches_(base.url,'news.google.com')))return null;
   const periodRange=collectionQueryRange_(task.url);if(!periodRange)return null;
-  return [collectionProfile_(base,periodRange),collectionProfile_({...base,capabilitySearch:true},periodRange)].find(feed=>feed?.url===task.url)||null;
+  if(base.kind==='rss'){const feed=collectionProfile_(base,periodRange);return feed.url===task.url?feed:null;}
+  const variants=[base,{...base,capabilitySearch:true}];
+  for(const variant of variants){const feed=collectionProfile_(variant,periodRange);if(feed?.url===task.url)return feed;}
+  return null;
 }
 
 function collectionRecentRange_(now){
@@ -33,6 +42,10 @@ function collectionRecentRange_(now){
 }
 
 function collectionProfile_(base,range){
+  if(base.kind==='rss'&&domainMatches_(base.url,'news.google.com')){
+    const query=decodeURIComponent((base.url.match(/[?&]q=([^&]*)/)||[])[1]||'').replace(/\s*when:\d+d\b/g,'').replace(/\s*(?:after|before):\d{4}-\d{2}-\d{2}/g,'').trim();
+    return {...base,range,url:canonicalUrl_(base.url.replace(/([?&]q=)[^&]*/,(_,prefix)=>prefix+encodeURIComponent(collectionPeriod_(range)+' '+query)))};
+  }
   const config=configuration_(),entity=config.entities.find(row=>row.name===base.entity),geo=config.geographies.find(row=>row.name===base.country);
   const feed=profileFeed_(geo,entity,range,base.capabilitySearch);return feed?{...feed,range}:null;
 }
@@ -66,8 +79,10 @@ function collectionQueryRange_(url){
 function upgradeCollectionQueries_(){
   const feeds=collectionFeedIndex_(),tasks=rows_('Recopilacion'),urls=tasks.map(task=>[task.url]);let changed=false;
   tasks.forEach((task,index)=>{
-    const base=feeds.get('source:'+task.fuente),range=collectionQueryRange_(task.url);if(!base||base.kind!=='profile'||!range||!['Pendiente','Reintento programado'].includes(task.estado))return;
-    urls[index]=[collectionProfile_(base,range).url];changed=true;
+    const base=feeds.get('source:'+task.fuente),range=collectionQueryRange_(task.url);if(!base||(base.kind!=='profile'&&!domainMatches_(base.url,'news.google.com'))||!range||!['Pendiente','Reintento programado'].includes(task.estado))return;
+    if(collectionTaskFeed_(task,feeds,range))return;
+    const feed=collectionProfile_(base,range);if(!feed)return;
+    urls[index]=[feed.url];changed=true;
   });
   if(changed)book_().getSheetByName('Recopilacion').getRange(2,3,urls.length,1).setValues(urls);
 }

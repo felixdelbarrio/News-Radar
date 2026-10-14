@@ -1,3 +1,5 @@
+// Load jsdom's mixed ESM/CJS dependencies before installing the instrumentation hook.
+import 'jsdom';
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';

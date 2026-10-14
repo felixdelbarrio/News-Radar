@@ -11,10 +11,10 @@ function configuration_(){
   return configurationMemory_=config;
 }
 function invalidateConfiguration_(){configurationMemory_=undefined;configurationVersionMemory_=undefined;properties_().setProperty('CONFIG_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));}
-function configurationEdited_(event){const sheet=event?.range?.getSheet().getName();if(sheet==='Configuracion'){invalidateConfiguration_();requestNewsClassification_(true);}else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
+function configurationEdited_(event){const sheet=event?.range?.getSheet().getName();if(backgroundPaused_()&&['Configuracion','Noticias'].includes(sheet)){deferBackgroundWork_(sheet==='Configuracion'?'edited':'news');return;}if(sheet==='Configuracion'){invalidateConfiguration_();requestNewsClassification_(true);}else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
 function initializeConfiguration(){
-  authorize_(true);const lock=LockService.getScriptLock();lock.waitLock(10000);
-  try{
+  authorize_(true);return withForegroundWrite_(()=>{
+    const refreshCatalog=properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION;
     const news=book_().getSheetByName('Noticias');
     if(news&&news.getRange(1,8,1,1).getDisplayValues()[0][0]==='tema')news.deleteColumn(8);
     const catalog=book_().getSheetByName('Configuracion');
@@ -22,15 +22,15 @@ function initializeConfiguration(){
       const keys=catalog.getRange(2,1,catalog.getLastRow()-1,1).getDisplayValues();
       for(let i=keys.length-1;i>=0;i--)if(keys[i][0]==='topics')catalog.deleteRow(i+2);
     }
-    for(const name of ['Configuracion','Suscripciones','NewsletterEnvios','NewsletterEdiciones','NewsletterContenido','Noticias','Recopilacion','Recargas','Traducciones','Taxonomia','TaxonomiaTrabajo','TaxonomiaTraducciones']){
+    for(const name of ['Configuracion','Suscripciones','NewsletterEnvios','NewsletterEdiciones','NewsletterContenido','NewsletterEventos','NewsletterFeedback','Noticias','Recopilacion','Recargas','Traducciones','Taxonomia','TaxonomiaTrabajo','TaxonomiaTraducciones']){
       if(book_().getSheetByName(name)){if(name!=='Configuracion')book_().getSheetByName(name).getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]);continue;}
       const sheet=book_().insertSheet(name);sheet.getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]).setFontWeight('bold').setBackground(SHEET_THEME.background).setFontColor(SHEET_THEME.foreground);sheet.setFrozenRows(1);
     }
     const sheet=book_().getSheetByName('Configuracion'),count=sheet.getLastRow()-1,keys=new Set(count?sheet.getRange(2,1,count,1).getValues().flat():[]);
     // Add only absent defaults when the catalog version changes; preserve existing edits and activations.
-    if(properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION){
+    if(refreshCatalog){
       const data=count?sheet.getRange(2,1,count,2).getValues():[];
-      for(const key of ['feeds','entities','capabilities']){
+      for(const key of ['geographies','segments','signals','feeds','entities','capabilities']){
         const index=data.findIndex(row=>row[0]===key);if(index<0)continue;
         const value=JSON.parse(data[index][1]),defaults=CONFIGURATION_DEFAULTS[key];
         if(key==='capabilities'){
@@ -40,6 +40,9 @@ function initializeConfiguration(){
           }
         }else{
           const names=new Set(value.map(row=>key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))),ids=new Set(value.map(row=>row.id));
+          if(key==='geographies')for(const row of value){const seed=defaults.find(item=>item.code===row.code);if(seed)row.terms=[...new Set([...(row.terms||[]),...seed.terms])];}
+          if(key==='segments')for(const row of value){const seed=defaults.find(item=>item.name===row.name);if(seed)row.terms=[...new Set([...row.terms,...seed.terms])];}
+          if(key==='entities')for(const row of value){const seed=defaults.find(item=>searchText_(item.name)===searchText_(row.name));if(seed)row.countries=[...new Set([...row.countries,...seed.countries])];}
           value.push(...defaults.filter(row=>!names.has(key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))&&(key!=='feeds'||!ids.has(row.id))));
         }
         sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(value)]]);
@@ -48,20 +51,24 @@ function initializeConfiguration(){
     append_('Configuracion',Object.entries(CONFIGURATION_DEFAULTS).filter(([key])=>!keys.has(key)).map(([key,value])=>[key,JSON.stringify(value)]));
     const settingsRow=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues().findIndex(row=>row[0]==='settings')+2,stored=JSON.parse(sheet.getRange(settingsRow,2,1,1).getValues()[0][0]);
     const settings=Object.fromEntries(Object.entries(CONFIGURATION_DEFAULTS.settings).map(([key,value])=>[key,key in stored?stored[key]:value]));
-    if(!Object.hasOwn(newsletterCadences,settings.defaultPeriodicity))settings.defaultPeriodicity='weekly';
+    if(refreshCatalog)settings.searchTerms=[...new Set([...settings.searchTerms,...CONFIGURATION_DEFAULTS.settings.searchTerms])];
+    const cadenceChanges={weekly:'fortnightly',monthly:'quarterly'};
+    settings.defaultPeriodicity=cadenceChanges[settings.defaultPeriodicity]||settings.defaultPeriodicity;
+    if(!Object.hasOwn(newsletterCadences,settings.defaultPeriodicity))settings.defaultPeriodicity='quarterly';
     sheet.getRange(settingsRow,2,1,1).setValues([[JSON.stringify(settings)]]);
     if(!ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='configurationEdited_'))ScriptApp.newTrigger('configurationEdited_').forSpreadsheet(book_()).onEdit().create();
     const subscriptions=book_().getSheetByName('Suscripciones'),countSubscriptions=subscriptions.getLastRow()-1;
     if(countSubscriptions>0){const range=subscriptions.getRange(2,8,countSubscriptions,1);range.setValues(range.getValues().map(([value])=>[value||'es']));}
-    initializeNewsletterCadences_(subscriptions);
+    initializeNewsletterCadences_(subscriptions,cadenceChanges);
     invalidateConfiguration_();
-    if(properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION){upgradeCollectionQueries_();properties_().setProperty('CATALOG_VERSION',CONFIGURATION_CATALOG_VERSION);}
+    if(refreshCatalog){upgradeCollectionQueries_();if(translationJob_())requestTranslations_(true);properties_().setProperty('CATALOG_VERSION',CONFIGURATION_CATALOG_VERSION);}
     properties_().deleteProperty('CLASSIFICATION_VERSION');
     requestNewsClassification_();
+    if(refreshCatalog&&book_().getSheetByName('Noticias').getLastRow()>1)requestTaxonomy_();
     initializeCollectionQueue_();
     initializeBackgroundSchedules_();
     return 'Configuración inicializada en Sheets. Los valores existentes se han conservado.';
-  }finally{lock.releaseLock();}
+  });
 }
 function validateConfiguration_(config){
   const numeric={windowDays:[1,90],pageSize:[1,100],maxCustomFeeds:[1,100],maxFeedBytes:[10000,2000000],maxItems:[1,1000],exportLimit:[1,10000],newsReadLimit:[1,10000],eventLimit:[100,20000],retentionDays:[1,90],trendPoints:[2,60],trendSeries:[1,6],collectionBatch:[1,5],retryMinutes:[1,60],pauseMinutes:[1,60],dailyHour:[0,23],briefingLimit:[1,100],maxSubscriptions:[1,100],newsletterBatch:[1,100],newsletterDailyLimit:[1,1500]};
@@ -89,11 +96,13 @@ function validateConfiguration_(config){
     if(JSON.stringify(list).length>40000)throw Error('El catálogo excede el tamaño de una celda: '+key);
   }
   validateCapabilities_(config.capabilities);
-  if(Object.keys(config).sort().join(',')!=='capabilities,entities,feeds,geographies,segments,settings,signals')throw Error('Claves de configuración no reconocidas.');
+  if(Object.keys(config).sort().join(',')!=='applicationScope,capabilities,entities,feeds,geographies,segments,settings,signals')throw Error('Claves de configuración no reconocidas.');
   for(const key of ['searchTerms','disabledSources'])if(!Array.isArray(config.settings[key])||config.settings[key].length>1000||config.settings[key].some(value=>typeof value!=='string'||value.length>160))throw Error('Lista operativa no válida: '+key);
   if(!config.settings.searchTerms.length||config.settings.searchTerms.length>80)throw Error('Define entre 1 y 80 términos de búsqueda.');
   if(encodeURIComponent(JSON.stringify(config)).replace(/%[A-F\d]{2}/gi,'x').length>90000)throw Error('Configuración demasiado grande para la caché.');
   const countries=new Set(config.geographies.map(row=>row.name)),aliases=new Set();
+  const scopes=config.applicationScope,scopeNames=applicationScopeSegments;
+  if(!Array.isArray(scopes)||scopes.length!==scopeNames.length||new Set(scopes.map(row=>row?.name)).size!==scopeNames.length||scopes.some(row=>!row||!scopeNames.includes(row.name)||Object.keys(row).sort().join(',')!=='countries,name'||!Array.isArray(row.countries)||row.countries.some(country=>!countries.has(country))||new Set(row.countries).size!==row.countries.length))throw Error('Ámbito de aplicación no válido.');
   for(const row of config.entities){
     if(row.countries.some(country=>!countries.has(country)))throw Error('País desconocido en '+row.name);
     for(const name of [row.name,...row.aliases]){const key=searchText_(name);if(aliases.has(key))throw Error('Alias compartido por varias entidades: '+name);aliases.add(key);}
@@ -110,14 +119,13 @@ function configurationRevision_(){configuration_();return configurationVersionMe
 function getConfiguration(){authorize_(true);return {config:configuration_(),revision:configurationRevision_(),capabilityDefaults:CONFIGURATION_DEFAULTS.capabilities};}
 function saveConfiguration(payload){authorize_(true);return writeConfiguration_(payload.config,payload.revision);}
 function writeConfiguration_(config,revision){
-  validateConfiguration_(config);const lock=LockService.getScriptLock();lock.waitLock(10000);
-  try{
+  validateConfiguration_(config);return withForegroundWrite_(()=>{
     if(revision!==String(properties_().getProperty('CONFIG_REVISION')||'0'))throw Error('La configuración ha cambiado en otra sesión. Recarga los catálogos antes de guardar.');
     const reclassify=classificationRulesRevision_()!==classificationRulesRevision_(config);
     const sheet=book_().getSheetByName('Configuracion'),rows=Object.entries(config).map(([key,value])=>[key,JSON.stringify(value)]);
     sheet.getRange(2,1,Math.max(rows.length,sheet.getLastRow()-1),2).clearContent();append_('Configuracion',rows);invalidateConfiguration_();if(reclassify)requestNewsClassification_(true);initializeBackgroundSchedules_();
     return 'Configuración guardada. Se aplicará a filtros, clasificación y próximas recopilaciones.';
-  }finally{lock.releaseLock();}
+  });
 }
 
 function testGmailAuthorization() {

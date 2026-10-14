@@ -16,7 +16,7 @@ function recordEvents(events) {
   try {
     const cache=CacheService.getScriptCache(),key='events:'+session.email+':'+events[0]?.session;
     if(cache.get(key))return {saved:false};
-    pruneEvents_();append_('Adopcion',cleaned);trim_('Adopcion',settings_().eventLimit);
+    pruneEvents_();recordNewsletterEvents_(events,session.email);append_('Adopcion',cleaned);trim_('Adopcion',settings_().eventLimit);
     const timings=events.filter(event=>event.event==='rendimiento'&&event.performance);
     if(timings.length){
       append_('Telemetria',timings.map(event=>{
@@ -43,12 +43,12 @@ function maintenance_() {
 function pruneEvents_() {
   const p=properties_(),today=new Date().toISOString().slice(0,10);if(p.getProperty('RETENTION_DATE')===today)return;
   const cutoff=new Date(Date.now()-settings_().retentionDays*86400000).toISOString();
-  ['Adopcion','Telemetria'].forEach(name=>{
+  [['Adopcion',1],['Telemetria',1],['NewsletterEventos',8],['NewsletterFeedback',6]].forEach(([name,column])=>{
     const sheet=book_().getSheetByName(name),count=sheet.getLastRow()-1;
     if(!count)return;
-    const dates=sheet.getRange(2,1,count,1).getDisplayValues();let expired=0;
+    const dates=sheet.getRange(2,column,count,1).getDisplayValues();let expired=0;
     while(expired<dates.length&&dates[expired][0]<cutoff)expired++;
-    if(expired)sheet.deleteRows(2,expired);
+    if(name==='NewsletterFeedback'){for(let i=dates.length-1;i>=0;i--)if(dates[i][0]<cutoff)sheet.deleteRow(i+2);}else if(expired)sheet.deleteRows(2,expired);
   });
   p.setProperty('RETENTION_DATE',today);
 }
@@ -57,7 +57,7 @@ function exportTelemetry(){
   authorize_(true);const limit=settings_().eventLimit;
   const telemetry=rows_('Telemetria',limit),runs=rows_('Ejecuciones',limit),audit=rows_('Auditoria',limit),tasks=rows_('Recopilacion');
   const reasons=exclusionReasons_(audit);
-  return {schemaVersion:1,applicationVersion:RADAR.version,exportedAt:new Date().toISOString(),timezone:settings_().timezone,limits:{eventLimit:limit,newsReadLimit:settings_().newsReadLimit,collectionBatch:settings_().collectionBatch},collection:{...collectionStatus_(tasks),tasks},telemetry,runs,audit,exclusionReasons:reasons,auditSampling:{maxExcludedExamplesPerReason:3,totals:'motivos en los resúmenes de Fuente consultada'},limited:{telemetry:telemetry.length===limit,runs:runs.length===limit,audit:audit.length===limit},usage:metrics_(rows_('Adopcion',limit),Date.now())};
+  return {schemaVersion:1,applicationVersion:RADAR.version,exportedAt:new Date().toISOString(),timezone:settings_().timezone,limits:{eventLimit:limit,newsReadLimit:settings_().newsReadLimit,collectionBatch:settings_().collectionBatch},pipeline:{classification:classificationJob_(),translation:translationJob_(),taxonomy:taxonomyJob_(),taxonomyTranslation:taxonomyTranslationJob_(),fetchResumeAt:Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0)},collection:{...collectionStatus_(tasks),tasks},telemetry,runs,audit,exclusionReasons:reasons,auditSampling:{maxExcludedExamplesPerReason:3,totals:'motivos en los resúmenes de Fuente consultada'},limited:{telemetry:telemetry.length===limit,runs:runs.length===limit,audit:audit.length===limit},usage:metrics_(rows_('Adopcion',limit),Date.now())};
 }
 
 function exclusionReasons_(audit){

@@ -36,7 +36,7 @@ test('las pausas de la anual no bloquean la diaria y los reintentos respetan su 
 });
 test('cada lote guarda contadores por ciclo y deduplica noticias compartidas entre diaria y anual',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',1);addJob(s,'daily','daily',1);
- const date=new Date(Date.now()-86400000);c.parseFeed_=()=>[{title:'BBVA lanza financiación para empresas',date:date.toISOString(),url:'https://bbva.com/nueva-noticia',excerpt:'Nueva cuenta para empresas'}];
+ const date=new Date('2026-10-10T12:00:00Z');c.parseFeed_=()=>[{title:'BBVA lanza financiación para empresas',date:date.toISOString(),url:'https://bbva.com/nueva-noticia',excerpt:'Nueva cuenta para empresas'}];
  const result=c.backgroundTick_();assert.equal(result.added,1);c.backgroundTick_();assert.equal(c.rows_('Noticias').length,1);assert.equal(c.rows_('Ejecuciones').length,2);
  const status=c.collectionStatus_();assert.equal(status.jobs.length,2);assert.equal(status.jobs.reduce((n,job)=>n+Number(job.nuevas),0),1);assert.ok(status.jobs.every(job=>job.estado==='Completada'));
  const runs=c.getRuns({id:'daily'});assert.equal(runs.total,1);assert.equal(runs.items[0].tipo,'daily');assert.ok(runs.collection.jobs.length);
@@ -88,7 +88,7 @@ test('un único trabajador serializa diaria, anual y traducción, y alterna los 
  const lock=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};assert.equal(c.backgroundTick_().busy,true);assert.equal(order.length,4);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);c.LockService=lock;
 });
 test('la inicialización elimina trabajadores antiguos, conserva tareas y recrea los horarios desde configuración',()=>{
- const s=server(),c=s.c;addJob(s,'annual','annual',1);c.enableDaily();for(const name of ['collectionTick_','collectionWake_','translationTick_'])c.ScriptApp.newTrigger(name).timeBased().create();c.initializeConfiguration();
+ const s=server(),c=s.c;addJob(s,'annual','annual',1);c.enableDaily();for(const name of ['collectionTick_','collectionWake_','translationTick_'])c.ScriptApp.newTrigger(name).timeBased().create();c.initializeConfiguration();assert.equal(s.properties['WORK_PENDING:background'],'true');c.workWake_();
  const scheduled=c.ScriptApp.getProjectTriggers();assert.ok(!scheduled.some(t=>['collectionTick_','collectionWake_','translationTick_'].includes(t.handler)));assert.equal(c.rows_('Recopilacion').length,1);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
  const daily=c.scheduledTriggers_('dailyRadar_')[0],translation=c.scheduledTriggers_('nightlyTranslations_')[0];assert.equal(daily.hour,c.settings_().dailyHour);assert.equal(translation.hour,2);assert.equal(translation.minute,0);assert.equal(translation.timezone,c.settings_().timezone);assert.equal(translation.days,1);
  const cfg=JSON.parse(JSON.stringify(c.configuration_()));cfg.settings.dailyHour=8;cfg.settings.timezone='Europe/Istanbul';c.writeConfiguration_(cfg,c.configurationRevision_());assert.equal(c.scheduledTriggers_('dailyRadar_')[0].hour,8);assert.equal(c.scheduledTriggers_('nightlyTranslations_')[0].timezone,'Europe/Istanbul');
@@ -111,4 +111,19 @@ test('relanzar diaria o anual reutiliza una única línea por tipo y conserva el
  addJob(s,'new-daily','daily',2);addJob(s,'new-annual','annual',3);
  const status=c.collectionStatus_();assert.equal(status.jobs.length,2);assert.deepEqual([...status.jobs.map(job=>job.id)],['new-daily','new-annual']);assert.equal(c.collectionJobs_().length,4);
  s.properties['COLLECTION_REQUEST:new']=JSON.stringify({id:'queued',kind:'daily',range:{from:'2026-10-01',to:'2026-10-12'},created:'2099-10-12'});s.cache.delete('collection-status');assert.equal(c.collectionStatus_().jobs.length,2);
+});
+
+test('la configuración detiene al trabajador entre lotes y conserva las tareas para reanudar',()=>{
+ const s=server(),c=s.c;addJob(s,'maintenance','annual',50);const collect=c.collectionBatch_;let batches=0;
+ c.collectionBatch_=work=>{batches++;const result=collect(work);s.properties['WORK_INTENT:test']=String(Date.now()+600000);return result;};
+ c.processBackground_();assert.equal(batches,1);assert.equal(c.collectionJobs_()[0].pendientes,'38');assert.equal(s.properties['WORK_PENDING:background'],'true');
+ delete s.properties['WORK_INTENT:test'];c.collectionBatch_=collect;c.workWake_();c.processBackground_();
+ assert.equal(c.collectionJobs_()[0].pendientes,'2');assert.equal(c.collectionJobs_()[0].procesadas,'48');
+});
+
+test('diez mil tareas usan una sola lectura de pausa por cálculo y refrescan su valor en el siguiente lote',()=>{
+ const s=server(),c=s.c;addJob(s,'annual','annual',10000);const original=c.properties_,now=Date.now();let pauseReads=0;
+ c.properties_=()=>{const properties=original();return {...properties,getProperty(key){if(key==='FETCH_PAUSED_UNTIL')pauseReads++;return properties.getProperty(key);}};};
+ s.properties.FETCH_PAUSED_UNTIL=String(now+60000);const paused=c.collectionWork_(now);assert.equal(paused.tasks.length,10000);assert.equal(paused.pending.length,0);assert.equal(pauseReads,1);assert.equal(c.collectionReadyAt_(paused),now+60000);assert.equal(pauseReads,2);
+ delete s.properties.FETCH_PAUSED_UNTIL;const active=c.collectionWork_(now);assert.equal(active.pending.length,12);assert.equal(pauseReads,3);assert.ok(c.collectionReadyAt_(active)>=now);assert.equal(pauseReads,4);
 });

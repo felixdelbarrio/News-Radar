@@ -40,10 +40,10 @@ test('dashboard de lector no expone fuentes configurables, hoja ni datos de otro
   for(const key of ['sheetUrl','runs','feeds','configuredFeeds','email'])assert.equal(key in result,false);assert.equal(result.sourceCount,c.feeds_().length);assert.equal(result.admin,false);
 });
 test('las entidades, alias, países y términos configurados generan fuentes sin consultas redundantes por alias',()=>{
-  const c=context(),feeds=c.defaultFeeds_(),config=c.configuration_();assert.equal(new Set(feeds.map(feed=>feed.url)).size,feeds.length);assert.equal(feeds.filter(feed=>feed.kind==='rss').length,7);
+  const c=context(),feeds=c.defaultFeeds_(),config=c.configuration_();assert.equal(new Set(feeds.map(feed=>feed.url)).size,feeds.length);assert.equal(feeds.filter(feed=>feed.kind==='rss').length,config.feeds.length);
   for(const entity of config.entities)for(const country of entity.countries){
     const geo=config.geographies.find(row=>row.name===country),feed=feeds.find(feed=>feed.kind==='profile'&&feed.country===country&&feed.entity===entity.name);assert.ok(feed);
-    const query=new URL(feed.url).searchParams.get('q');for(const alias of [entity.name,...entity.aliases])assert.ok(query.includes(alias));for(const term of c.collectionSearchTerms_())assert.ok(query.includes(term));assert.equal(new URL(feed.url).searchParams.get('gl'),geo.code==='UY'?'US':geo.code);
+    const query=new URL(feed.url).searchParams.get('q');for(const alias of [entity.name,...entity.aliases])assert.ok(query.includes(alias));for(const term of c.collectionSearchTerms_(geo))assert.ok(query.includes(term));assert.equal(new URL(feed.url).searchParams.get('gl'),geo.code==='UY'?'US':geo.code);
   }
   assert.ok(feeds.some(feed=>feed.entity==='Revolut'));assert.ok(feeds.some(feed=>feed.entity==='Qonto'));
 });
@@ -64,7 +64,7 @@ test('recopila por lotes, integra automáticamente, deduplica y conserva reinten
   c.collectionWork_=()=>({tasks:c.rows_(),pending:c.rows_().map((task,index)=>({...task,row:index+2})),jobs:[{id:c.rows_()[0].ciclo,desde:'2025-01-01',hasta:'2030-01-01',inicio:'2026-10-11'}]});
   c.feeds_=()=>[{...feed,url:'good'},{...feed,url:'bad'}];c.knownUrls_=()=>new Set();c.book_=()=>({getSheetByName:()=>({getLastRow:()=>1,getRange:()=>({setNumberFormat(){return this;},setValues:rows=>writes.push(rows)})})});
   c.UrlFetchApp={fetchAll:requests=>requests.map(({url})=>url==='good'?{getResponseCode:()=>200,getContentText:()=>'<rss/>'}:{getResponseCode:()=>503})};
-  c.parseFeed_=()=>[{...item,date:new Date(Date.now()-86400000).toISOString()},{...item,date:new Date(Date.now()-86400000).toISOString()}];c.append_=(name,rows)=>saved[name]=rows;c.telemetry_=()=>{};
+  c.parseFeed_=()=>[{...item,date:new Date(Date.now()-86400000).toISOString()},{...item,date:new Date(Date.now()-86400000).toISOString()}];c.append_=(name,rows)=>saved[name]=rows;c.telemetry_=()=>{};c.requestTranslations_=()=>{};
   let flushed=false;c.SpreadsheetApp.flush=()=>flushed=true;c.invalidateNews_=()=>assert.equal(flushed,true);
   const result=c.collectionBatch_(c.collectionWork_(Date.now()));assert.equal(result.added,1);assert.equal(result.errors.length,1);assert.equal(saved.Noticias[0].length,13);assert.equal(writes.length,1);assert.equal(writes[0][1][0],'Reintento programado');assert.equal(saved.Ejecuciones[0][3],'Parcial');assert.ok(saved.Auditoria.some(row=>row[4]==='Duplicada'));assert.equal(released,false);
 });
@@ -101,8 +101,8 @@ test('filtros y CSV coinciden para banco, país, medio, tema y fechas inclusivas
   const result=c.newsDashboard_(c.annotateNews_(rows),query,c.defaultFeeds_()),csv=c.newsCsv_(rows,query);assert.equal(result.total,1);assert.equal(csv.count,1);assert.match(csv.csv,/tesorería corporativa/);assert.doesNotMatch(csv.csv,/"España"/);
   assert.throws(()=>c.selectNews_(rows,{from:'2026-10-09',to:'2026-10-01'}),/fecha desde/);
 });
-test('opciones incluyen el perfil sin noticias y la paginación se ajusta al resultado',()=>{
-  const c=context(),empty=c.newsDashboard_([],{page:99},c.defaultFeeds_());assert.equal(empty.page,0);assert.ok(empty.entities.includes('Santander'));assert.ok(empty.countries.includes('México'));
+test('países sin noticias se omiten y la paginación se ajusta al resultado',()=>{
+  const c=context(),empty=c.newsDashboard_([],{page:99},c.defaultFeeds_());assert.equal(empty.page,0);assert.ok(empty.entities.includes('Santander'));assert.equal(empty.countries.length,0);
   const row={fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País',tema:'Financiación',titular:'Santander',extracto:''};
   const result=c.newsDashboard_(c.annotateNews_(Array.from({length:31},()=>row)),{page:99},[]);assert.equal(result.page,1);assert.equal(result.items.length,1);
 });
@@ -141,7 +141,7 @@ test('recuperación manual predetermina Hoy, respeta la zona y consulta el año 
 
 test('la recuperación escribe solo los estados cambiados sin reescribir toda la cola anual',()=>{
  const c=context(),writes=[];c.book_=()=>({getSheetByName:()=>({getRange:(row,column,size)=>({setNumberFormat(){return this;},setValues:values=>writes.push({row,size,values})})})});
- const updates=Array.from({length:600},()=>['Pendiente',0,'',0,0,'']);updates[0]=['Completada',1,'',0,0,''];updates[1]=['Completada',1,'',0,0,''];updates[10]=['Error',1,'',0,0,''];c.writeCollectionTasks_([{row:2},{row:3},{row:12}],updates);assert.equal(writes.length,2);assert.equal(writes.reduce((n,w)=>n+w.size,0),3);assert.equal(writes[1].row,12);
+ const updates=new Map([[2,['Completada',1,'',0,0,'']],[3,['Completada',1,'',0,0,'']],[12,['Error',1,'',0,0,'']]]);c.writeCollectionTasks_([{row:2},{row:3},{row:12}],updates);assert.equal(writes.length,2);assert.equal(writes.reduce((n,w)=>n+w.size,0),3);assert.equal(writes[1].row,12);
 });
 
 test('Radar respeta los filtros visibles y usa Empresas e instituciones por defecto',()=>{
@@ -261,8 +261,8 @@ test('las ejecuciones se comparten entre cargas y una nueva escritura invalida l
 
 test('la telemetría identifica la versión que produjo cada operación y la exportación',()=>{
  const c=context();let rows;c.append_=(name,value)=>rows=value;c.trim_=()=>{};
- c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v2\.2\.0;/);
- c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'2.2.0');
+ c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.match(rows[0][4],/^v3\.0\.0;/);
+ c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'3.0.0');
 });
 
 test('cada vista calcula solo su visualización y conserva el medio de las noticias',()=>{

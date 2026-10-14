@@ -11,15 +11,20 @@ function sendPendingNewsletters(){
 }
 function deliverNewsletters_(){
   const result={accepted:0,empty:0,duplicates:0,pending:0,state:'disabled'};
+  if(backgroundPaused_()){deferBackgroundWork_('newsletter');return {...result,state:'configuration_pause'};}
   if(!settings_().newsletterEnabled)return result;
-  const now=new Date(),lock=LockService.getScriptLock();if(!lock.tryLock(1000))return {...result,state:'busy'};
+  const now=new Date(),lock=LockService.getScriptLock();if(!lock.tryLock(1000)){
+    if(backgroundPaused_()){deferBackgroundWork_('newsletter');return {...result,state:'configuration_pause'};}
+    ensureNewsletterContinuation_();return {...result,state:'busy'};
+  }
   try{
-    if(newsletterCollectionPriority_()){ensureNewsletterContinuation_();return {...result,state:'collection_priority'};}
+    if(backgroundPaused_()){deferBackgroundWork_('newsletter');return {...result,state:'configuration_pause'};}
+    if(businessPipelinePending_()){ensureNewsletterContinuation_();return {...result,state:'collection_priority'};}
     const deliveries=rows_('NewsletterEnvios'),sent=new Set(deliveries.filter(row=>!['No enviado','Bloqueada'].includes(row.estado)).map(row=>row.id)),periods=new Map();
     const due=subscriptionRows_().filter(row=>row.activa).flatMap(row=>{
       if(!periods.has(row.periodicidad))periods.set(row.periodicidad,newsletterPeriod_(row.periodicidad,now));
       const period=periods.get(row.periodicidad),id=newsletterDeliveryId_(row,period);
-      return sent.has(id)||new Date(row.actualizada)>=new Date(period.cutoff)?[]:[{row,id,query:subscriptionQuery_(row,now,true)}];
+      return recordDay(now,settings_().timezone)<period.available||sent.has(id)||new Date(row.actualizada)>=new Date(period.cutoff)?[]:[{row,id,query:subscriptionQuery_(row,now,true)}];
     });
     result.pending=due.length;result.state='no_due';if(!due.length)return result;
     let remaining=settings_().newsletterBatch,quota=newsletterBudget_(deliveries,now);
@@ -31,14 +36,15 @@ function deliverNewsletters_(){
     result.state='processed';
     for(const {row,id,query} of due){
       if(!remaining||!quota)break;
-      if(newsletterCollectionPriority_()){result.state='collection_priority';break;}
-      const key=JSON.stringify(query);
-      if(!prepared.has(key))prepared.set(key,selectAnnotatedNews_(news,query));
+      if(backgroundPaused_()){deferBackgroundWork_('newsletter');result.state='configuration_pause';break;}
+      if(businessPipelinePending_()){result.state='collection_priority';break;}
+      const selection=newsletterSelectionQuery_(query),key=JSON.stringify(selection);
+      if(!prepared.has(key))prepared.set(key,selectAnnotatedNews_(news,selection));
       const email=newsletterEmail_(row.correo);if(!history.has(email))history.set(email,new Set());
-      const known=history.get(email),selected=prepared.get(key),unseen=query.view==='briefing'?newsletterUnseen_(selected,known):selected,edition=Utilities.getUuid(),content=newsletterContent_(unseen,query,row.nombre,now,row.id,row.idioma,edition),keys=content.items.flatMap(newsletterItemKeys_);
+      const known=history.get(email),selected=prepared.get(key),unseen=query.view==='briefing'?newsletterUnseen_(selected,known):selected,edition=Utilities.getUuid(),content=newsletterContent_(unseen,query,row.nombre,now,row.id,row.idioma,edition,known),keys=content.items.flatMap(newsletterItemKeys_);
       const skipped=selected.length-unseen.length;content.omitted=skipped;result.duplicates+=skipped;
       if(content.count&&!sender)try{sender=newsletterSender_();}catch(error){recordNewsletterBlock_(error,properties_().getProperty('OWNER_EMAIL'));throw error;}
-      if(content.count)saveNewsletterEdition_(edition,id,row.correo,row.nombre,query,row.idioma,content.evidence);
+      if(content.count)saveNewsletterEdition_(edition,id,row.correo,row.nombre,query,row.idioma,content.evidence,content.editorial);
       append_('NewsletterEnvios',[[id,row.id,row.correo,query.from,query.to,content.count?'Enviando':'Sin novedades',now.toISOString(),newsletterContentDetail_(content),JSON.stringify(keys)]]);
       remaining--;result.pending--;
       if(!content.count){result.empty++;continue;}

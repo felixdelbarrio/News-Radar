@@ -23,7 +23,7 @@ function requestTaxonomy_(){
   writeTaxonomyJob_({id:Utilities.getUuid(),state:'Pendiente',phase:'scan',next:2,total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:classificationRulesRevision_()});
   ensureBackgroundWorker_();
 }
-function dailyTaxonomy_(){properties_().setProperty('TAXONOMY_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}
+function dailyTaxonomy_(){if(backgroundPaused_()){deferBackgroundWork_('taxonomy');return;}properties_().setProperty('TAXONOMY_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}
 function drainTaxonomyRequest_(){
   const p=properties_(),day=p.getProperty('TAXONOMY_REQUEST');if(!day||taxonomyPending_())return;
   if(taxonomyJob_()?.day!==day)requestTaxonomy_();p.deleteProperty('TAXONOMY_REQUEST');
@@ -32,23 +32,28 @@ function getTaxonomyStatus(){
   authorize_(true);return {newsRevision:properties_().getProperty('NEWS_REVISION')||'0',pageSize:settings_().pageSize,job:taxonomyJob_(),items:taxonomyCatalog_(),taxonomyTranslations:taxonomyTranslations_(),queued:Boolean(properties_().getProperty('TAXONOMY_REQUEST')),scheduled:scheduledTriggers_('dailyTaxonomy_').length>0,hour:settings_().dailyHour,minute:TAXONOMY_POLICY.dailyMinute,timezone:settings_().timezone};
 }
 function startTaxonomy(){
-  authorize_(true);const lock=LockService.getScriptLock();lock.waitLock(10000);
-  try{
+  authorize_(true);return withForegroundWrite_(()=>{
     const job=taxonomyJob_();if(!taxonomyPending_())requestTaxonomy_();else if(job.state==='En pausa'){job.state='Pendiente';job.pausedUntil=0;writeTaxonomyJob_(job);}
     ensureBackgroundWorker_();return getTaxonomyStatus();
-  }finally{lock.releaseLock();}
+  });
 }
 function taxonomyCheckpoint_(job){
   const sheet=book_().getSheetByName('TaxonomiaTrabajo');if(sheet.getLastRow()<2)return {next:2,documents:0,candidates:{}};
   const meta=JSON.parse(sheet.getRange(2,1,1,1).getDisplayValues()[0][0]);if(meta.id!==job.id)return {next:2,documents:0,candidates:{}};
   const candidates={};if(meta.chunks)for(const [value] of sheet.getRange(3,1,meta.chunks,1).getDisplayValues())for(const entry of JSON.parse(value))candidates[entry.key]=entry;
-  return {...meta,candidates};
+  const titles={};
+  for(let offset=0;offset<(meta.titleChunks||0);offset+=100)for(const [value] of sheet.getRange(3+meta.chunks+offset,1,Math.min(100,meta.titleChunks-offset),1).getDisplayValues())Object.assign(titles,Object.fromEntries(JSON.parse(value)));
+  return {...meta,candidates,titles};
 }
 function writeTaxonomyCheckpoint_(job,state){
   const entries=Object.values(state.candidates),chunks=[];
   for(let i=0;i<entries.length;i+=TAXONOMY_POLICY.checkpointRows)chunks.push([JSON.stringify(entries.slice(i,i+TAXONOMY_POLICY.checkpointRows))]);
-  const meta={id:job.id,next:state.next,documents:state.documents,size:state.size,chunks:chunks.length};
-  book_().getSheetByName('TaxonomiaTrabajo').getRange(2,1,chunks.length+1,1).setNumberFormat('@').setValues([[JSON.stringify(meta)],...chunks]);
+  const titles=Object.entries(state.titles||{}),titleChunks=[];
+  let chunk=[],size=2;
+  for(const entry of titles){const value=JSON.stringify(entry);if(size+value.length+1>TAXONOMY_POLICY.checkpointChars&&chunk.length){titleChunks.push(['['+chunk.join(',')+']']);chunk=[];size=2;}chunk.push(value);size+=value.length+1;}
+  if(chunk.length)titleChunks.push(['['+chunk.join(',')+']']);
+  const meta={id:job.id,next:state.next,documents:state.documents,size:state.size,chunks:chunks.length,titleChunks:titleChunks.length};
+  book_().getSheetByName('TaxonomiaTrabajo').getRange(2,1,chunks.length+titleChunks.length+1,1).setNumberFormat('@').setValues([[JSON.stringify(meta)],...chunks,...titleChunks]);
 }
 function taxonomyModelRevision_(items){return sha256_(JSON.stringify(items.map(row=>[row.id,row.palanca,row.subpalanca,row.segmentos,row.terminos])));}
 function publishTaxonomy_(state){
@@ -74,10 +79,13 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
     if(job.phase==='scan'){
       const state=taxonomyCheckpoint_(job),definitions=taxonomyDefinitions(configuration_().capabilities),excluded=new Set(configuration_().entities.flatMap(row=>[row.name,...row.aliases]).flatMap(name=>taxonomyText(name).match(/[a-z][a-z0-9]+/g)||[]));
       const count=Math.min(TAXONOMY_POLICY.batchRows,Math.max(0,job.total-state.next+2));
-      if(count)for(const row of sheet.getRange(job.total-state.next-count+4,6,count,2).getDisplayValues().reverse()){
-        const title=searchText_(row[0]),text=taxonomyText(row.join(' '));
-        if(taxonomyEligible_(title,text))taxonomyObserve(state,text,definitions,excluded);
-        state.next++;if(Date.now()-started>=maxMs)break;
+      state.titles=state.titles||{};
+      if(count)for(const row of sheet.getRange(job.total-state.next-count+4,2,count,6).getDisplayValues().reverse()){
+        const title=searchText_(row[4]),text=taxonomyText(row[4]+' '+row[5]),identity=titleIdentity_({title:row[4],date:row[0],publisher:row[2]}),key=identity?sha256_(identity.key):'',days=state.titles[key]||[];
+        const duplicate=identity&&days.some(day=>Math.abs(day-identity.day)<=COLLECTION_POLICY.duplicateDays);
+        if(identity&&!duplicate){days.push(identity.day);state.titles[key]=days;}
+        if(!duplicate&&taxonomyEligible_(title,text))taxonomyObserve(state,text,definitions,excluded);
+        state.next++;if(Date.now()-started>=maxMs||backgroundPaused_(true))break;
       }
       writeTaxonomyCheckpoint_(job,state);job.next=state.next;job.documents=state.documents;job.processed=state.next-2;
       if(state.next>job.total+1){job.phase='publish';}
@@ -94,7 +102,7 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
             const ids=taxonomyNewsIds_(row[0],row[1],items);
             if(saved.fingerprint!==fingerprint||JSON.stringify(saved.ids)!==JSON.stringify(ids))updates.push({row:next,value:JSON.stringify({fingerprint,ids})});
           }
-          next++;if(Date.now()-started>=maxMs)break;
+          next++;if(Date.now()-started>=maxMs||backgroundPaused_(true))break;
         }
         for(let start=0,end=1;end<=updates.length;end++){
           if(end<updates.length&&updates[end].row===updates[end-1].row+1)continue;

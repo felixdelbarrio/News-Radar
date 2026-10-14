@@ -9,12 +9,12 @@ function cachedNewsRecords_(){
     const value=cacheJsonValue_(items);if(value){chunks.push(value);return true;}
     if(items.length<2)return false;const middle=Math.ceil(items.length/2);return chunk(items.slice(0,middle))&&chunk(items.slice(middle));
   }
-  let complete=true;for(let i=0;i<rows.length;i+=32)if(!chunk(rows.slice(i,i+32).map(packNews_))){complete=false;break;}
-  if(complete){if(chunks.length)cache.putAll(Object.fromEntries(chunks.map((value,index)=>[key+':'+index,value])),300);cache.put(key,String(chunks.length),300);}
+  let complete=true;for(let i=0;i<rows.length;i+=NEWS_CACHE.chunkRows)if(!chunk(rows.slice(i,i+NEWS_CACHE.chunkRows).map(packNews_))){complete=false;break;}
+  if(complete){if(chunks.length)cache.putAll(Object.fromEntries(chunks.map((value,index)=>[key+':'+index,value])),NEWS_CACHE.seconds);cache.put(key,String(chunks.length),NEWS_CACHE.seconds);}
   return rows;
 }
 function dashboardAdministration_(){
   const key='dashboard-admin:'+RADAR.version+':'+configurationRevision_(),cached=CacheService.getScriptCache().get(key);if(cached)return JSON.parse(cached);
-  const value={maxFeeds:settings_().maxCustomFeeds,schedule:'Ventana: últimos '+settings_().windowDays+' días. Recopilación diaria a partir de las '+settings_().dailyHour+':00 ('+settings_().timezone+').',feeds:customFeeds_(),configuredFeeds:configuredFeeds_(),sheetUrl:book_().getUrl()};
+  const value={maxFeeds:settings_().maxCustomFeeds,schedule:'Ventana: últimos '+settings_().windowDays+' días. '+collectionScheduleLabel_()+'.',feeds:customFeeds_(),configuredFeeds:configuredFeeds_(),sheetUrl:book_().getUrl()};
   cacheJson_(key,value,300);return value;
 }

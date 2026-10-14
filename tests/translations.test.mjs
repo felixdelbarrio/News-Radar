@@ -30,7 +30,7 @@ test('un fallo del traductor pausa y conserva las traducciones ya escritas para 
  c.backgroundTick_();assert.equal(calls,2);job.pausedUntil=0;c.writeTranslationJob_(job);const log=provider(c);c.backgroundTick_();assert.equal(log.length,2);assert.equal(c.translationJob_().state,'Completada');
 });
 test('el límite diario conserva el cursor y el día siguiente prioriza nuevas publicaciones',()=>{
- const s=server(),c=s.c;add(s,[article]);provider(c);c.nightlyTranslations_();const job=c.translationJob_();job.state='Pendiente';job.calls=3000;job.processed=0;job.cursor=null;c.writeTranslationJob_(job);c.translationBatch_();c.backgroundTick_();assert.equal(c.translationJob_().state,'En pausa');assert.match(c.translationJob_().error,/Límite diario/);assert.ok(!c.ScriptApp.getProjectTriggers().some(t=>t.getHandlerFunction()==='backgroundTick_'));
+ const s=server(),c=s.c;add(s,[article]);provider(c);c.nightlyTranslations_();const job=c.translationJob_();job.state='Pendiente';job.calls=3000;job.processed=0;job.cursor=null;c.writeTranslationJob_(job);c.translationBatch_();c.backgroundTick_();assert.equal(c.translationJob_().state,'En pausa');assert.match(c.translationJob_().error,/Límite diario/);assert.ok(c.scheduledTriggers_('backgroundTick_')[0].delay>=86400000-1000);
  job.callDay='2026-01-01';job.started='2026-01-01T02:00:00Z';job.cursor={fecha:article.fecha,id:article.id};c.writeTranslationJob_(job);add(s,[{...article,id:'latest',titular:'Newest headline',fecha:'2026-10-12'}]);const log=provider(c);c.nightlyTranslations_();assert.match(log[0].input,/Newest headline/);assert.equal(c.translationJob_().calls,3);
 });
 test('la programación es idempotente, se instala a las dos y solo el administrador puede controlarla',()=>{
@@ -78,4 +78,12 @@ test('la limpieza de variantes invalida posiciones de filas antes de otro lote d
  s.sheets.get('Traducciones').grid.push(...rows.map((row,i)=>[c.articleTranslationKey_(row,'en'),'en','Translated '+i,'Summary','2026-10-11']));
  c.articleTranslationIndex_();c.trim_('Traducciones',2);s.cache.clear();vm.runInContext('articleTranslationMemory_=undefined;',c);
  const result=c.savedArticleTranslations_(rows,'en');assert.equal(result[0].translation.state,'pending');assert.equal(result[1].titular,'Translated 1');assert.equal(result[2].titular,'Translated 2');
+});
+
+test('una pausa de configuración entre idiomas conserva la traducción y no repite la llamada al reanudar',()=>{
+ const s=server(),c=s.c;add(s,[article]);const log=[];
+ c.LanguageApp={translate:input=>{log.push(input);s.properties['WORK_INTENT:test']=String(Date.now()+600000);return input;}};
+ c.nightlyTranslations_();assert.equal(log.length,1);assert.equal(c.rows_('Traducciones').length,1);assert.equal(c.translationJob_().processed,0);assert.equal(c.translationJob_().state,'Pendiente');
+ delete s.properties['WORK_INTENT:test'];const remaining=provider(c);c.workWake_();c.backgroundTick_();
+ assert.equal(remaining.length,2);assert.equal(c.rows_('Traducciones').length,3);assert.equal(c.translationJob_().state,'Completada');
 });

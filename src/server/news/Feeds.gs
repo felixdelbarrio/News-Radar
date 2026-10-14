@@ -21,20 +21,20 @@ function ingestFeed_(feed,known,cycle,now,response) {
     if(item){
       if(result.relevant)relevant++;
       if(known.has(item.url)){state='Duplicada';reason='URL ya recopilada';}
-      else if(duplicateTitle_(known,item,feed)){state='Duplicada';reason='Titular equivalente de la misma entidad en fecha próxima';known.add(item.url);}
-      else{known.add(item.url);rememberTitle_(known,item,feed);state='Incluida';reason=feed.kind==='profile'?'Noticia integrada desde RSS de Google News':'Noticia integrada desde RSS del editor';news.push(newsRecord_(item,feed,now));if(item.labels.digital)digital++;}
+      else if(duplicateTitle_(known,item)){state='Duplicada';reason='Titular sindicado equivalente en fecha próxima';known.add(item.url);}
+      else{known.add(item.url);rememberTitle_(known,item);state='Incluida';reason=feed.kind==='profile'?'Noticia integrada desde RSS de Google News':'Noticia integrada desde RSS del editor';news.push(newsRecord_(item,feed,now));if(item.labels.digital)digital++;}
     }
     if(state==='Excluida'){excluded++;reasons[reason]=(reasons[reason]||0)+1;}else if(state==='Duplicada')duplicated++;
     if(state==='Incluida'||(state==='Duplicada'?duplicated<=3:reasons[reason]<=3))audit.push([cycle,date,feed.name,item?.url||String(raw.url||''),state,reason]);
   }
-  audit.push([cycle,date,feed.name,feed.url,'Fuente consultada',items.length+' evaluadas; '+news.length+' nuevas; '+excluded+' excluidas; '+duplicated+' duplicadas; '+relevant+' relevantes; '+inside+' dentro del período; motivos '+JSON.stringify(reasons)+(feed.kind==='profile'&&items.length>=COLLECTION_POLICY.providerLimit?'; posible límite del proveedor: cobertura parcial':'')]);
-  return {news,audit,evaluated:items.length,relevant,digital,duplicated,excluded,saturated:feed.kind==='profile'&&items.length>=COLLECTION_POLICY.providerLimit&&inside>=COLLECTION_POLICY.providerLimit*COLLECTION_POLICY.saturationRatio};
+  audit.push([cycle,date,feed.name,feed.url,'Fuente consultada',items.length+' evaluadas; '+news.length+' nuevas; '+excluded+' excluidas; '+duplicated+' duplicadas; '+relevant+' relevantes; '+inside+' dentro del período; motivos '+JSON.stringify(reasons)+((feed.kind==='profile'||feed.domain==='news.google.com')&&items.length>=COLLECTION_POLICY.providerLimit?'; posible límite del proveedor: cobertura parcial':'')]);
+  return {news,audit,evaluated:items.length,relevant,digital,duplicated,excluded,saturated:(feed.kind==='profile'||feed.domain==='news.google.com')&&items.length>=COLLECTION_POLICY.providerLimit&&inside>=COLLECTION_POLICY.providerLimit*COLLECTION_POLICY.saturationRatio};
 }
 function knownUrls_() {
   const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1,known=new Set();known.titles=new Map();
-  if(count>0)for(const row of sheet.getRange(2,2,count,8).getDisplayValues()){
-    const url=canonicalUrl_(row[7]);if(url)known.add(url);
-    const date=row[0];if(Number.isFinite(Date.parse(date)))rememberTitle_(known,{date,title:row[4],entity:row[3],country:row[1],publisher:row[2]},{});
+  if(count>0)for(const row of sheet.getRange(2,2,count,7).getDisplayValues()){
+    const url=canonicalUrl_(row[6]);if(url)known.add(url);
+    const date=row[0];if(Number.isFinite(Date.parse(date)))rememberTitle_(known,{date,title:row[4],publisher:row[2]});
   }
   return known;
 }
@@ -45,6 +45,7 @@ function fetchFeedBatch_(feeds){
     let responses;const requests=pending.map(({url})=>({url,muteHttpExceptions:true,followRedirects:false,headers:{Accept:'application/rss+xml, application/xml','User-Agent':'NewsRadar/1.0'}}));
     try{responses=UrlFetchApp.fetchAll(requests);}
     catch(error){
+      const pause=serviceQuotaPause_(error);if(pause){error.quota=true;error.retryable=true;properties_().setProperty('FETCH_PAUSED_UNTIL',String(Date.now()+pause));for(const item of pending)results[item.index]={error};break;}
       if(pending.length===1){error.retryable=true;results[pending[0].index]={error};break;}
       responses=requests.map((request,index)=>{try{return UrlFetchApp.fetchAll([request])[0];}catch(failure){failure.retryable=true;results[pending[index].index]={error:failure};return null;}});
     }

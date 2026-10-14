@@ -17,7 +17,7 @@ function subscriptionRecord_(input,email,id,now,count){
   const periodicity=input.periodicity||settings_().defaultPeriodicity;
   if(!Object.hasOwn(newsletterCadences,periodicity))throw Error('Periodicidad no válida.');
   if(count>=settings_().maxSubscriptions)throw Error('Máximo '+settings_().maxSubscriptions+' suscripciones por usuario.');
-  const filters={...sectorNewsDefaults};for(const key of subscriptionFilterKeys){if(!Object.hasOwn(input.filters||{},key))continue;const value=String(input.filters[key]||'');if(value.length>160)throw Error('Filtro demasiado largo.');filters[key]=value;}
+  const filters={...sectorNewsDefaults,coverage:sectorNewsDefaults.coverage};for(const key of subscriptionFilterKeys){if(!Object.hasOwn(input.filters||{},key))continue;const value=String(input.filters[key]||'');if(value.length>160)throw Error('Filtro demasiado largo.');filters[key]=value;}
   if(filters.coverage&&!Object.hasOwn(coverageOptions,filters.coverage))throw Error('Filtro de cobertura no válido.');
   const catalogs={entity:'entities',country:'geographies',segment:'segments',signal:'signals'};
   for(const [key,catalog] of Object.entries(catalogs))if(filters[key]&&!configuration_()[catalog].some(r=>r.enabled&&r.name===filters[key]))throw Error('Filtro no disponible: '+key);
@@ -26,26 +26,14 @@ function subscriptionRecord_(input,email,id,now,count){
   const selection=filters;
   return {id,correo:email,nombre:newsletterSubject_(selection,language),filtros:selection,periodicidad:periodicity,activa:input.active!==false,actualizada:now.toISOString(),idioma:language};
 }
-function newsletterPeriod_(periodicity,now){
-  const end=calendarDate_(now),start=new Date(end);
-  if(periodicity==='monthly'){end.setUTCDate(1);start.setUTCDate(1);start.setUTCMonth(start.getUTCMonth()-1);}
-  else if(periodicity==='weekly'){end.setUTCDate(end.getUTCDate()-(end.getUTCDay()+6)%7);start.setTime(end.getTime());start.setUTCDate(start.getUTCDate()-7);}
-  else if(periodicity==='yearly'){end.setUTCMonth(0,1);start.setUTCFullYear(end.getUTCFullYear()-1,0,1);}
-  else throw Error('Periodicidad no válida.');
-  const cutoff=end.toISOString();end.setUTCDate(end.getUTCDate()-1);
-  return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10),cutoff};
-}
-function subscriptionQuery_(subscription,now,closed=false){const periodicity=subscription.periodicidad||settings_().defaultPeriodicity;if(!Object.hasOwn(newsletterCadences,periodicity))throw Error('Periodicidad no válida.');const cadence=newsletterCadences[periodicity],period=closed?newsletterPeriod_(periodicity,now):newsRange_(cadence.range,now);return {...subscriptionFilters_(subscription.filtros),from:period.from,to:period.to,view:cadence.view};}
+function newsletterPeriod_(periodicity,now){return newsletterWindow(periodicity,recordDay(now,settings_().timezone),true);}
+function subscriptionQuery_(subscription,now,closed=false){const periodicity=subscription.periodicidad||settings_().defaultPeriodicity,period=newsletterWindow(periodicity,recordDay(now,settings_().timezone),closed);return {...subscriptionFilters_(subscription.filtros),from:period.from,to:period.to,view:newsletterCadences[periodicity].view};}
 function newsletterDeliveryId_(subscription,period){return subscription.id+':'+subscription.periodicidad+':'+period.from;}
 function newsletterNextDate_(subscription,now,last){
   if(!subscription.activa)return '';
-  const period=newsletterPeriod_(subscription.periodicidad,now),date=calendarDate_(now),completed=last?.id===newsletterDeliveryId_(subscription,period)&&!['No enviado','Bloqueada'].includes(last.estado);
-  if(completed||new Date(subscription.actualizada)>=new Date(period.cutoff)){
-    if(subscription.periodicidad==='monthly'){date.setUTCDate(1);date.setUTCMonth(date.getUTCMonth()+1);}
-    else if(subscription.periodicidad==='weekly')date.setUTCDate(date.getUTCDate()+7-(date.getUTCDay()+6)%7);
-    else date.setUTCFullYear(date.getUTCFullYear()+1,0,1);
-  }
-  return date.toISOString().slice(0,10);
+  const day=recordDay(now,settings_().timezone),period=newsletterPeriod_(subscription.periodicidad,now),completed=last?.id===newsletterDeliveryId_(subscription,period)&&!['No enviado','Bloqueada'].includes(last.estado);
+  const available=completed||new Date(subscription.actualizada)>=new Date(period.cutoff)?newsletterWindow(subscription.periodicidad,day).available:period.available;
+  return day>available?day:available;
 }
 function subscriptionIdentity_(row){
   const filters=subscriptionFilters_(row.filtros);
@@ -59,8 +47,7 @@ function assertUniqueSubscription_(record,rows){
 function writeSubscription_(input,admin){
   const session=authorize_(admin),email=admin?String(input.email||'').trim().toLowerCase():session.email;
   newsletterEmail_(email);
-  const lock=LockService.getScriptLock();lock.waitLock(10000);
-  try{
+  return withForegroundWrite_(()=>{
     const rows=subscriptionRows_(),index=input.id?rows.findIndex(r=>r.id===input.id&&(admin||r.correo===email)):-1;
     if(input.id&&index<0)throw Error('Suscripción no encontrada.');
     const record=subscriptionRecord_(input,email,input.id||Utilities.getUuid(),new Date(),rows.filter(r=>r.correo===email&&r.id!==input.id).length),values=RADAR.sheets.Suscripciones.map(key=>key==='filtros'?JSON.stringify(record[key]):record[key]);
@@ -68,17 +55,16 @@ function writeSubscription_(input,admin){
     if(index<0)append_('Suscripciones',[values]);else book_().getSheetByName('Suscripciones').getRange(index+2,1,1,values.length).setValues([values]);
     properties_().setProperty('SUBSCRIPTIONS_REVISION',Utilities.getUuid());
     return 'Suscripción guardada'+(newsletterEnabled_()?'. Recibirás las novedades del período seleccionado.':'. La entrega está pendiente de activación por el administrador.');
-  }finally{lock.releaseLock();}
+  });
 }
 function saveSubscription(input){return writeSubscription_(input,false);}
 function saveAdminSubscription(input){return writeSubscription_(input,true);}
 function deleteSubscription(id){
-  const session=authorize_(),lock=LockService.getScriptLock();lock.waitLock(10000);
-  try{const index=rows_('Suscripciones').findIndex(row=>row.id===id&&row.correo===session.email);if(index<0)throw Error('Suscripción no encontrada.');book_().getSheetByName('Suscripciones').deleteRow(index+2);properties_().setProperty('SUBSCRIPTIONS_REVISION',Utilities.getUuid());return 'Suscripción eliminada.';}finally{lock.releaseLock();}
+  const session=authorize_();return withForegroundWrite_(()=>{const index=rows_('Suscripciones').findIndex(row=>row.id===id&&row.correo===session.email);if(index<0)throw Error('Suscripción no encontrada.');book_().getSheetByName('Suscripciones').deleteRow(index+2);properties_().setProperty('SUBSCRIPTIONS_REVISION',Utilities.getUuid());return 'Suscripción eliminada.';});
 }
 
-function initializeNewsletterCadences_(sheet){
+function initializeNewsletterCadences_(sheet,changes={}){
   const count=sheet.getLastRow()-1;if(!count)return;const keys=RADAR.sheets.Suscripciones,rows=sheet.getRange(2,1,count,keys.length).getValues();let changed=false;
-  for(const values of rows){const filters=JSON.stringify(subscriptionFilters_(JSON.parse(values[3]))),cadence=Object.hasOwn(newsletterCadences,values[4])?values[4]:'weekly';if(filters!==values[3]||cadence!==values[4]){values[3]=filters;values[4]=cadence;changed=true;}}
+  for(const values of rows){const filters=JSON.stringify(subscriptionFilters_(JSON.parse(values[3]))),cadence=changes[values[4]]||(Object.hasOwn(newsletterCadences,values[4])?values[4]:'fortnightly');if(filters!==values[3]||cadence!==values[4]){values[3]=filters;values[4]=cadence;changed=true;}}
   if(changed){sheet.getRange(2,1,count,keys.length).setValues(rows);properties_().setProperty('SUBSCRIPTIONS_REVISION',Utilities.getUuid());}
 }

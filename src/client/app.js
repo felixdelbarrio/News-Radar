@@ -1,3 +1,4 @@
+import {initializeSearchableSelects} from './features/searchable-selects.js';
 import {createGeographyTabs} from './features/geography-tabs.js';
 import {createReadingContext} from './features/reading-context.js';
 import {createTaxonomyHeatmap} from './features/taxonomy-heatmap.js';
@@ -23,8 +24,9 @@ import { createUsage } from "./features/usage.js";
 import { createNavigation } from "./features/navigation.js";
 import {initializeLocalization,flushLocalization} from './core/localization.js';
 initializeLocalization();
-const state = { data: null, request: 0, busy: false,contentStale:false };
-const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => Boolean(state.data) }), { track, flush } = usage;
+initializeSearchableSelects();
+const state = { data: null, request: 0, busy: false,contentStale:false,attribution:'' };
+const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady:()=>Boolean(state.data),getAttribution:()=>state.attribution&&state.data?.context?.id===state.attribution?state.attribution:'' }), { track, flush } = usage;
 const noteNewsRevision=revision=>{if(revision&&state.data&&revision!==state.data.newsRevision)state.contentStale=true;};
 const configuration = createConfiguration({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='configuration'});
 const taxonomy=createTaxonomy({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='taxonomy'});
@@ -38,37 +40,45 @@ const filters = createFilters({ onInvalidate: () => ++state.request, onChange: (
   track("filtro");
   load();
 } });
-const reading=createReadingContext({onCurrent:()=>filters.current()});
+const reading=createReadingContext({onCurrent:()=>filters.current(),run:action});
 const heatmap=createTaxonomyHeatmap({onExplore:query=>{filters.show('news');filters.apply(query);navigation.show('news');}});
 const briefing=createBriefing();
 const newsTabs=createGeographyTabs('news-geographies','news-list',name=>filters.setGeography(name));
-$('briefing-signals').addEventListener('click',event=>{const button=event.target.closest('[data-signal]');if(button)filters.apply({...filters.query(),country:briefing.geography,signal:button.dataset.signal});});
-const radar = createRadar({ onCountry: (country) => {filters.show("news");filters.apply({...state.data.selection,country});navigation.show("news");}, onEntity: (entity) => filters.set("entity", entity), onNews: () => {const selection=state.data.selection;filters.show("news");filters.apply(selection);navigation.show("news");} });
+$('briefing-signals').addEventListener('click',event=>{const button=event.target.closest('[data-signal]');if(button&&!button.disabled)filters.apply({...filters.query(),country:filters.query().country||briefing.geography,signal:button.dataset.signal});});
+const radar = createRadar({ onSource:source=>filters.set("source",source), onCountry: (country) => {filters.show("news");filters.apply({...state.data.selection,country});navigation.show("news");}, onEntity: (entity) => filters.set("entity", entity), onNews: () => {const selection=state.data.selection;filters.show("news");filters.apply(selection);navigation.show("news");} });
 const sources = createSources({ getData: () => state.data, run: action });
 const recoveryControls=createRecoveryControls({getData:()=>state.data,run:action});
 const collectionProgress=createCollectionProgress({reload:load,isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
-function renderSelection(data,view=navigation.current){
-  reading.render(data,view);if(view==='news'){renderNews(data);newsTabs.render(data.newsGeographies||[],data.newsGeography||'');}
+function renderSelection(data,view=navigation.current,appended=null){
+  reading.render(data,view);if(view==='news'){renderNews(data,appended);newsTabs.render(data.newsGeographies||[],data.newsGeography||'');}
   if(view==='radar'){radar.render(data);heatmap.render(data);}
   if(view==='briefing')briefing.render(data);
 }
 async function load() {
   const request = ++state.request, started = performance.now();
-  $("loading").hidden = false;
   if (!filters.isValid()) {
-    $("loading").hidden = true;
     return;
   }
   try {
-    const query=filters.query(),data=await call("getDashboard",query);
+    const administrative=navigation.current==='administration',query=administrative?{view:administration.current,language:filters.query().language}:filters.query();
+    let data=await call("getDashboard",query),appended=null;
+    if(request!==state.request)return;
+    if(query.view==='news'&&query.page>0){
+      if(state.data?.newsRevision===data.newsRevision&&data.page===query.page){appended=data.items;data={...data,items:[...state.data.items,...appended]};}
+      else data=await call('getDashboard',{...query,page:0});
+    }
     if (request === state.request) {
       const first = !state.data;
-      state.data = data;state.contentStale=false;
+      if(administrative&&state.data){
+        state.contentStale||=data.newsRevision!==state.data.newsRevision||data.configurationRevision!==state.data.configurationRevision;
+        data={...state.data,...data,selection:state.data.selection,context:state.data.context};
+      }else state.contentStale=false;
+      state.data=data;
       setTimezone(data.preferences?.timezone);
       if(window.RADAR_PREVIEW&&data.admin)$("preview-banner").textContent="Administración local · cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.";
       const renderStarted=performance.now();
-      filters.render(data);
-      renderSelection(data);
+      if(!administrative)filters.render(data);
+      renderSelection(data,navigation.current,appended);
       if(data.preferences){$("retention-days").textContent=data.preferences.retentionDays;$("event-limit").textContent=data.preferences.eventLimit;}
       renderShell(data);
       if (data.admin) sources.render(data);
@@ -86,8 +96,6 @@ async function load() {
       track("error");
       message(error.message || String(error), true);
     }
-  } finally {
-    if (request === state.request) $("loading").hidden = true;
   }
 }
 const actionControls="#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
@@ -106,15 +114,10 @@ async function action(fn, refresh = true) {
     document.querySelectorAll(actionControls).forEach(el=>el.disabled=el.dataset.jobActive==='true');
     sources.setBusy(false);recoveryControls.setBusy(false);
     if (state.data) {
-      $("previous").disabled = state.data.page === 0;
       $("next").disabled = (state.data.page + 1) * state.data.pageSize >= state.data.total;
     }
   }
 }
-$("previous").addEventListener("click", () => {
-  filters.setPage(state.data.page - 1);
-  load();
-});
 $("next").addEventListener("click", () => {
   filters.setPage(state.data.page + 1);
   load();
@@ -139,7 +142,7 @@ $('download-telemetry').addEventListener('click',()=>action(async()=>{
 if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
 navigation.show(defaultView);
 if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocation(async location=>{
-  if(location.parameter.edition){const params=location.parameter,view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;filters.show(view);navigation.show(view);filters.useEdition(params.edition,{country:params.country,entity:params.entity});return;}
+  if(location.parameter.edition){const params=location.parameter;state.attribution=params.edition;const view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;filters.show(view);navigation.show(view);filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca,subpalanca:params.subpalanca,benchmark:params.benchmark});return;}
   load();
   if(location.parameter.view!=='subscriptions')return;
   await navigation.show('subscriptions');

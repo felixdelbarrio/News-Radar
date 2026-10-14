@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import {storage} from './helpers/server.mjs';
 function server(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
 test('altas personales y administrativas bloquean duplicados efectivos sin escribir ni invalidar la caché',()=>{
- const {c}=server(),input={periodicity:'weekly',language:'es',filters:{entity:'BBVA'}};
+ const {c}=server(),input={periodicity:'fortnightly',language:'es',filters:{entity:'BBVA'}};
  c.saveSubscription(input);const first=c.subscriptionRows_()[0],revision=c.properties_().getProperty('SUBSCRIPTIONS_REVISION');
  for(const candidate of [input,{...input,name:'Otro nombre',active:false,filters:{source:'',coverage:'digital',segment:'Empresas e instituciones',entity:'BBVA'}},{...input,email:' OWNER@BBVA.COM '}]){
   assert.throws(()=>candidate.email?c.saveAdminSubscription(candidate):c.saveSubscription(candidate),/Ya existe una suscripción/);
@@ -15,21 +15,21 @@ test('altas personales y administrativas bloquean duplicados efectivos sin escri
  assert.equal(c.subscriptionRows_().length,1);
 });
 test('se conservan suscripciones con distinto destinatario, periodicidad, idioma o filtros y una edición no puede duplicar otra',()=>{
- const {c}=server(),input={periodicity:'weekly',language:'es',filters:{entity:'BBVA'}};
- for(const candidate of [input,{...input,periodicity:'monthly'},{...input,language:'en'},{...input,filters:{entity:'Santander'}},{...input,filters:{entity:'BBVA',coverage:''}}])c.saveSubscription(candidate);
+ const {c}=server(),input={periodicity:'fortnightly',language:'es',filters:{entity:'BBVA'}};
+ for(const candidate of [input,{...input,periodicity:'quarterly'},{...input,language:'en'},{...input,filters:{entity:'Santander'}},{...input,filters:{entity:'BBVA',coverage:''}}])c.saveSubscription(candidate);
  c.saveAdminSubscription({...input,email:'other@bbva.com'});assert.equal(c.subscriptionRows_().length,6);
  const second=c.subscriptionRows_()[1];assert.throws(()=>c.saveSubscription({...input,id:second.id}),/Ya existe una suscripción/);
- assert.equal(c.subscriptionRows_()[1].periodicidad,'monthly');
+ assert.equal(c.subscriptionRows_()[1].periodicidad,'quarterly');
  c.saveSubscription({...input,id:second.id,periodicity:'yearly'});assert.equal(c.subscriptionRows_()[1].periodicidad,'yearly');
 });
 test('la identidad ignora orden, campos vacíos y normaliza la búsqueda como las noticias',()=>{
- const {c}=server(),input={periodicity:'weekly',filters:{search:'Pagos móviles',entity:'BBVA'}};
+ const {c}=server(),input={periodicity:'fortnightly',filters:{search:'Pagos móviles',entity:'BBVA'}};
  c.saveSubscription(input);assert.throws(()=>c.saveSubscription({...input,filters:{source:'',entity:'BBVA',search:' PAGOS   MOVILES '}}),/Ya existe una suscripción/);
  c.saveSubscription({...input,filters:{entity:'BBVA',search:'Pagos instantáneos'}});assert.equal(c.subscriptionRows_().length,2);
- c.saveSubscription({periodicity:'monthly',filters:{}});assert.throws(()=>c.saveSubscription({periodicity:'monthly',filters:{search:'   '}}),/Ya existe una suscripción/);
+ c.saveSubscription({periodicity:'quarterly',filters:{}});assert.throws(()=>c.saveSubscription({periodicity:'quarterly',filters:{search:'   '}}),/Ya existe una suscripción/);
 });
 test('la inicialización cachea solo la primera activa sin traducir asuntos; refinar filtros no vuelve a consultar suscripciones',()=>{
- const s=server(),{c}=s;c.saveSubscription({periodicity:'weekly',filters:{entity:'BBVA'}});
+ const s=server(),{c}=s;c.saveSubscription({periodicity:'fortnightly',filters:{entity:'BBVA'}});
  c.subscriptionRows_=()=>{throw Error('No debe calcular asuntos ni construir el catálogo');};
  const rows=c.rows_;let reads=0;c.rows_=(name,...args)=>{if(name==='Suscripciones')reads++;return rows(name,...args);};
  for(const view of ['briefing','news','radar'])assert.equal(c.getDashboard({view,initial:true}).selection.entity,'BBVA');

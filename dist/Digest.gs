@@ -1,30 +1,23 @@
-function newsletterCategories_(items,annual=false){
-  const categories=new Map();
-  for(const item of items){
-    const labels=new Set((item.taxonomia||[]).map(annual?taxonomyPath:category=>category.palanca));
-    if(!labels.size)labels.add('Sin clasificar');
-    for(const name of labels){
-      if(!categories.has(name))categories.set(name,{name,total:0,item});
-      const category=categories.get(name);category.total++;
-      const previous=category.item;
-      if(item.fecha>previous.fecha||item.fecha===previous.fecha&&(entityOrder({name:item.entidad,total:0},{name:previous.entidad,total:0})||String(item.id).localeCompare(String(previous.id)))<0)category.item=item;
-    }
+function newsletterWords_(text,limit){const words=plainText_(text).split(/\s+/).filter(Boolean);return words.slice(0,limit).join(' ')+(words.length>limit?'…':'');}
+function newsletterSelectionQuery_(query){return {...query,country:'',...(query.view==='radar'?{entity:''}:{})};}
+function newsletterDigest_(items,query,language,t,known=new Set()){
+  const cadence=Object.entries(newsletterCadences).find(([,value])=>value.view===(query.view||'briefing'))[0],format=(value,params)=>formatText(value,params,language),annual=cadence==='yearly',executive=cadence!=='fortnightly',fortnightly=cadence==='fortnightly';
+  const comparison=annual?newsletterComparison_(items,query):null,focused=Boolean(query.country),categoryOf=row=>row.taxonomia.find(item=>(!query.palanca||item.palanca===query.palanca)&&(!query.subpalanca||taxonomyPath(item)===query.subpalanca))||row.taxonomia[0],categories=new Map(),scopeOf=row=>annual?(newsletterComparisonScope_(row,comparison,query.country)||'global'):focused&&row.pais===query.country?'local':'global';
+  for(const item of items)for(const name of new Set(item.taxonomia.map(row=>fortnightly?taxonomyPath(row):row.palanca)))for(const scope of annual?[scopeOf(item)]:focused&&scopeOf(item)==='local'?['local','global']:['global']){const key=scope+'|'+name;if(!categories.has(key))categories.set(key,[]);categories.get(key).push(item);}
+  const localItems=focused?items.filter(row=>row.pais===query.country):[],ordered=items.map(row=>({row,repeated:newsletterWasSent_(row,known),score:newsRelevance_(row)})).sort((a,b)=>Number(b.row.pais===query.country)-Number(a.row.pais===query.country)||Number(a.repeated)-Number(b.repeated)||b.score-a.score||Number(Boolean(b.row.senales.length))-Number(Boolean(a.row.senales.length))||b.row.fecha.localeCompare(a.row.fecha)||String(a.row.id).localeCompare(String(b.row.id))).map(item=>item.row),cards=[],representatives=new Map(),limit=Math.min(NEWSLETTER_EDITORIAL.cards,settings_().briefingLimit);
+  for(const row of ordered)for(const tag of executive&&row.taxonomia.length?row.taxonomia.filter(tag=>(!query.palanca||tag.palanca===query.palanca)&&(!query.subpalanca||taxonomyPath(tag)===query.subpalanca)):[categoryOf(row)]){const topic=tag?(fortnightly?taxonomyPath(tag):tag.palanca):row.id,key=scopeOf(row)+'|'+topic;if(!representatives.has(key))representatives.set(key,{row,tag});}
+  const candidates=[...representatives.values()];
+  if(executive)candidates.sort((a,b)=>(categories.get(scopeOf(b.row)+'|'+b.tag?.palanca)?.length||1)-(categories.get(scopeOf(a.row)+'|'+a.tag?.palanca)?.length||1));
+  const local=focused?candidates.filter(({row})=>scopeOf(row)==='local'):[],global=focused?candidates.filter(({row})=>scopeOf(row)==='global'):candidates,chosen=[],ids=new Set(),topics=new Set();
+  function choose(entries,budget){for(const entry of entries){if(!budget||chosen.length===limit)break;const key=entry.tag?(fortnightly?taxonomyPath(entry.tag):entry.tag.palanca):'',scope=scopeOf(entry.row),topic=scope+'|'+(key||entry.row.id);if(topics.has(topic))continue;const row=ids.has(entry.row.id)?ordered.find(item=>!ids.has(item.id)&&scopeOf(item)===scope&&item.taxonomia.some(tag=>(fortnightly?taxonomyPath(tag):tag.palanca)===key)):entry.row;if(!row)continue;chosen.push({row,tag:entry.tag});ids.add(row.id);topics.add(topic);budget--;}}
+  if(annual){for(const scope of ['local','group','market'])choose(candidates.filter(entry=>scopeOf(entry.row)===scope),1);choose(candidates,limit-chosen.length);}
+  else{if(focused)choose(local,global.length?Math.max(1,limit-1):limit);choose(global,limit-chosen.length);}
+  for(const {row,tag} of chosen){
+    const category=tag?.palanca||'',subcategory=tag?.subpalanca||'',scope=scopeOf(row),key=tag?(fortnightly?taxonomyPath(tag):tag.palanca):'',related=key?categories.get(scope+'|'+key):[row];
+    const quarters=new Set(related.map(item=>Math.floor((Number(item.fecha.slice(5,7))-1)/3))),entities=new Set(related.map(item=>item.entidad));
+    const relevance=fortnightly?format('Señal inmediata: {signal}.',{signal:t(row.senales[0]||'Noticia') }):annual?quarters.size>1?format('Evidencia en {count} trimestres; permite contrastar la continuidad del tema.',{count:quarters.size}):t('Evidencia puntual; no permite afirmar un cambio estructural.'):format('Tema observado en {count} entidades; comparar sus propuestas y fuentes.',{count:entities.size});
+    const support=new Map();for(const item of related)support.set(fortnightly?row.id:annual?Math.floor((Number(item.fecha.slice(5,7))-1)/3):item.entidad,item.id);
+    cards.push({id:row.id,title:newsletterWords_(row.titular,NEWSLETTER_EDITORIAL.titleWords),fact:newsletterWords_(row.extracto,NEWSLETTER_EDITORIAL.factWords),relevance:newsletterWords_(relevance,NEWSLETTER_EDITORIAL.relevanceWords),evidenceIds:[...new Set([row.id,...[...support.values()].slice(0,NEWSLETTER_EDITORIAL.supportItems)])],relatedCount:related.length,additionalCount:related.length-1,entityCount:entities.size,countryCount:new Set(related.filter(item=>item.pais&&item.pais!=='Sin determinar').map(item=>item.pais)).size,scope,subcategory,subcategoryPath:tag?taxonomyPath(tag):'',subcategories:[...new Set(row.taxonomia.filter(item=>item.palanca===category).map(item=>item.subpalanca))],category,entity:row.entidad,country:row.pais,publisher:row.medio,date:row.fecha,url:canonicalUrl_(row.url)});
   }
-  return [...categories.values()].sort((a,b)=>Number(a.name==='Sin clasificar')-Number(b.name==='Sin clasificar')||b.total-a.total||a.name.localeCompare(b.name,'es'));
-}
-function newsletterDigest_(items,annual=false){
-  const groups=noveltyGroups(items),featured=[],selections=new Map();
-  for(const geography of groups){
-    if(annual){
-      for(const entity of geography.entities)selections.set(entity,{categories:newsletterCategories_(entity.items,true),total:entity.items.length});
-    }else{
-      const category=newsletterCategories_(geography.items)[0];
-      featured.push(category.item);selections.set(geography,{item:category.item,category:category.name,occurrences:category.total,remaining:geography.items.length-1});
-    }
-  }
-  return {groups,featured,selections};
-}
-function newsletterExcerpt_(value){
-  const text=String(value||'').trim();if(text.length<=240)return text;
-  const end=text.lastIndexOf(' ',240);return text.slice(0,end>160?end:240).trimEnd()+'…';
+  return {cadence,heading:newsletterWords_(t(fortnightly?'Movimientos de la quincena':annual?'El año en perspectiva':'Balance del trimestre'),NEWSLETTER_EDITORIAL.headingWords),intro:cards.length?newsletterWords_(t(fortnightly?'Novedades concretas para revisar esta quincena.':annual?'Tu geografía, el grupo y el mercado: decisiones para el próximo año.':'Qué ha marcado tu canal y dónde mirar ahora.'),NEWSLETTER_EDITORIAL.introWords):'',cards,reusedCount:chosen.filter(({row})=>newsletterWasSent_(row,known)).length,comparison,landscapes:cadence==='quarterly'?{local:focused?newsletterLandscape_(localItems):null,global:newsletterLandscape_(items)}:null,focusLabel:fortnightly?'Subpalanca':'Palanca',focused,localCount:localItems.length,globalCount:items.length,context:query,scope:configuration_().applicationScope,geographies:configuration_().geographies};
 }
