@@ -37,5 +37,5 @@ test('una traducción recién guardada invalida el recuento de Radar aunque se r
  const s=server(),c=s.c,a=story('es'),b=story('en',{titular:english,extracto:'New digital payments for businesses'});add(s,[a,b]);assert.equal(c.getDashboard({view:'radar'}).stats.news,2);translate(c,a);assert.equal(c.getDashboard({view:'radar'}).stats.news,1);
 });
 test('las tarjetas muestran el origen RSS escapado con estilos de identidad compartidos',async t=>{
- const a=await app(t,{configure({data}){data.briefing.items[0].fuente='Google News RSS Perú <script>';}});const source=a.find('#briefing-list .story-identity');assert.match(source.textContent,/Origen RSS: Google News RSS Perú <script>/);assert.equal(source.querySelector('script'),null);
+ const a=await app(t,{configure({data}){data.briefing.items[0].fuente='Google News RSS Perú <script>';}});const source=a.find('#briefing-list .article-metadata');assert.match(source.textContent,/Origen RSS: Google News RSS Perú <script>/);assert.equal(source.querySelector('script'),null);
 });

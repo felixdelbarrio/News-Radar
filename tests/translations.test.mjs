@@ -55,8 +55,8 @@ test('el tiempo de lote limita llamadas lentas y conserva la noticia parcialment
  const s=server(),c=s.c;add(s,[article]);let clock=Date.now(),calls=0;c.Date=class extends Date{constructor(value=clock){super(value);}static now(){return clock;}};
  c.LanguageApp={translate:html=>{calls++;clock+=50000;return html;}};c.requestTranslations_();c.backgroundTick_();assert.equal(calls,1);assert.equal(c.translationJob_().processed,0);assert.equal(c.translationJob_().state,'Pendiente');c.backgroundTick_();assert.equal(calls,2);c.backgroundTick_();assert.equal(calls,3);assert.equal(c.translationJob_().state,'Completada');
 });
-test('guardar traducciones invalida las tarjetas pero conserva la caché de gráficos del Radar',()=>{
- const s=server(),c=s.c;add(s,[{...article,entidad:'BBVA'}]);const query={entity:'BBVA',segment:'Empresas e instituciones'},feeds=c.feeds_();assert.equal(c.dashboardContent_(query,feeds,'radar','es').cacheHit,false);provider(c);c.storeArticleTranslation_(article,'tr');assert.equal(c.dashboardContent_(query,feeds,'radar','tr').cacheHit,true);
+test('guardar traducciones invalida las identidades y el Radar, que vuelve a reutilizar su caché entre idiomas',()=>{
+ const s=server(),c=s.c;add(s,[{...article,entidad:'BBVA'}]);const query={entity:'BBVA',segment:'Empresas e instituciones'},feeds=c.feeds_();assert.equal(c.dashboardContent_(query,feeds,'radar','es').cacheHit,false);provider(c);c.storeArticleTranslation_(article,'tr');assert.equal(c.dashboardContent_(query,feeds,'radar','tr').cacheHit,false);assert.equal(c.dashboardContent_(query,feeds,'radar','es').cacheHit,true);
 });
 test('una solicitud diaria llegada durante una traducción cede el siguiente turno sin perder variantes ni cursor',()=>{
  const s=server(),c=s.c;add(s,[article]);let calls=0;c.LanguageApp={translate:html=>{calls++;c.requestDailyCollection_();return html;}};
