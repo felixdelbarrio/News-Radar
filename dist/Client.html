@@ -89,7 +89,6 @@
     "Se\xF1ales del conjunto del sector para ampliar la perspectiva.": ["Signals across the sector to broaden the perspective.", "Bak\u0131\u015F a\xE7\u0131s\u0131n\u0131 geni\u015Fletmek i\xE7in sekt\xF6r genelindeki sinyaller."],
     "Una noticia de ejemplo por palanca; descubre el resto de la actividad.": ["One example story per theme; explore the remaining activity.", "Her tema i\xE7in bir \xF6rnek haber; di\u011Fer faaliyetleri ke\u015Ffedin."],
     "Sin noticias en {country} con estos filtros. La mirada internacional recoge la actividad disponible.": ["No stories in {country} with these filters. The international perspective covers the available activity.", "Bu filtrelerle {country} i\xE7in haber yok. Uluslararas\u0131 bak\u0131\u015F mevcut faaliyetleri kapsar."],
-    "Per\xEDodo inicial: \xFAltimos 7 d\xEDas. Puedes cambiar las fechas en Filtros.": ["Initial period: last 7 days. You can change the dates in Filters.", "Ba\u015Flang\u0131\xE7 d\xF6nemi: son 7 g\xFCn. Filtrelerden tarihleri de\u011Fi\u015Ftirebilirsiniz."],
     "Per\xEDodo consultado: {from} a {to}": ["Selected period: {from} to {to}", "Se\xE7ili d\xF6nem: {from} - {to}"],
     "Las fechas delimitan el per\xEDodo consultado. Puedes editarlas aqu\xED o desde sus etiquetas.": ["Dates define the selected period. Edit them here or from their tags.", "Tarihler se\xE7ili d\xF6nemi belirler. Buradan veya etiketlerinden d\xFCzenleyebilirsiniz."],
     "Restaurar filtros iniciales": ["Restore initial filters", "Ba\u015Flang\u0131\xE7 filtrelerini geri y\xFCkle"],
@@ -263,7 +262,6 @@
     "Respuesta de traducci\xF3n incompleta.": ["Incomplete translation response.", "\xC7eviri yan\u0131t\u0131 eksik."],
     Versi\u00F3n: ["Version", "S\xFCr\xFCm"],
     "Suscripci\xF3n guardada. La entrega est\xE1 pendiente de activaci\xF3n por el administrador.": ["Subscription saved. Delivery is awaiting activation by the administrator.", "Abonelik kaydedildi. Teslimat y\xF6neticinin etkinle\u015Ftirmesini bekliyor."],
-    "Suscripci\xF3n guardada. Recibir\xE1s las novedades de los \xFAltimos 7 d\xEDas.": ["Subscription saved. You will receive updates from the last 7 days.", "Abonelik kaydedildi. Son 7 g\xFCn\xFCn yeniliklerini alacaks\u0131n\u0131z."],
     "Define el contexto de {name} (puede estar vac\xEDo).": ["Define the context for {name} (may be empty).", "{name} i\xE7in ba\u011Flam tan\u0131mlay\u0131n (bo\u015F olabilir)."],
     "{field}: requiere un entero entre {min} y {max}.": ["{field}: requires an integer between {min} and {max}.", "{field}: {min} ile {max} aras\u0131nda bir tam say\u0131 gerektirir."],
     "Registro de contenido no v\xE1lido. Revisa el env\xEDo {id} antes de continuar.": ["Invalid content record. Review delivery {id} before continuing.", "Ge\xE7ersiz i\xE7erik kayd\u0131. Devam etmeden \xF6nce {id} g\xF6nderimini inceleyin."],
@@ -804,7 +802,6 @@
     "Suscripci\xF3n no encontrada.": ["Subscription not found.", "Abonelik bulunamad\u0131."],
     "Suscripci\xF3n guardada": ["Subscription saved", "Abonelik kaydedildi"],
     "Suscripci\xF3n eliminada.": ["Subscription deleted.", "Abonelik silindi."],
-    "Recibir\xE1s las novedades de los \xFAltimos 7 d\xEDas.": ["You will receive updates from the last 7 days.", "Son 7 g\xFCn\xFCn yeniliklerini al\u0131rs\u0131n\u0131z."],
     "La entrega est\xE1 pendiente de activaci\xF3n por el administrador.": ["Delivery is waiting for administrator activation.", "Teslimat y\xF6neticinin etkinle\u015Ftirmesini bekliyor."],
     "Filtro demasiado largo.": ["Filter too long.", "Filtre \xE7ok uzun."],
     "Filtro no disponible": ["Filter unavailable", "Filtre kullan\u0131lam\u0131yor"],
@@ -1255,28 +1252,54 @@
     } };
   }
 
+  // src/client/core/loading.js
+  var activity = /* @__PURE__ */ new Map(), loaded = /* @__PURE__ */ new WeakSet();
+  function activePanel() {
+    return document.querySelector("#administration-section:not([hidden]) .admin-content>section:not([hidden])") || document.querySelector(".content>section:not([hidden])");
+  }
+  function refreshLoading() {
+    let panel2 = activePanel(), state2 = activity.get(panel2), mode = state2?.replace ? "replace" : state2?.append ? "append" : state2?.pending ? "refresh" : "", indicator = document.getElementById("loading"), skeleton = document.getElementById("loading-skeleton");
+    indicator.hidden = !state2?.pending, skeleton.hidden = mode !== "replace", document.getElementById("loading-label").textContent = t("Cargando contenido\u2026");
+    let content = document.querySelector(".content");
+    content.setAttribute("aria-busy", String(!!state2?.pending)), content.setAttribute("data-loading", mode), panel2 && (indicator.parentElement !== panel2 || indicator.dataset.mode !== mode) && (panel2.prepend(skeleton), mode === "append" ? panel2.appendChild(indicator) : panel2.prepend(indicator), indicator.dataset.mode = mode);
+  }
+  function beginLoading(method, args) {
+    if (["recordEvents", "getCollectionProgress"].includes(method)) return () => {
+    };
+    let panel2 = method === "getDashboard" ? document.getElementById(args[0].view + "-section") : activePanel();
+    if (!panel2) return () => {
+    };
+    let append = method === "getDashboard" && args[0]?.view === "news" && args[0]?.page > 0, replace = !append && (method === "getDashboard" || method.startsWith("get") && !loaded.has(panel2)), state2 = activity.get(panel2) || { pending: 0, append: 0, replace: 0 };
+    activity.set(panel2, state2);
+    function update(delta) {
+      state2.pending += delta, append && (state2.append += delta), replace && (state2.replace += delta), panel2.setAttribute("data-loading", state2.replace ? "replace" : state2.append ? "append" : state2.pending ? "refresh" : ""), panel2.setAttribute("aria-busy", String(state2.pending > 0)), refreshLoading();
+    }
+    update(1);
+    let finished = !1;
+    return () => {
+      finished || (finished = !0, loaded.add(panel2), update(-1), state2.pending || activity.delete(panel2));
+    };
+  }
+
   // src/client/core/api.js
   function receive(data) {
     return data?.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), data;
   }
-  var pending = 0, replacing = 0;
-  function loading(delta, append) {
-    pending += delta, append || (replacing += delta);
-    let indicator = document.getElementById("loading");
-    indicator.hidden = pending === 0, document.getElementById("loading-label").textContent = t("Cargando contenido\u2026");
-    let content = document.querySelector(".content");
-    content.setAttribute("aria-busy", String(pending > 0)), content.setAttribute("data-loading", replacing ? "replace" : pending ? "append" : "");
-  }
+  var requests = /* @__PURE__ */ new Map();
   function call(method, ...args) {
-    let visible = !["recordEvents", "getCollectionProgress"].includes(method), append = method === "getDashboard" && args[0]?.view === "news" && args[0]?.page > 0;
-    visible && loading(1, append);
-    let response;
+    let key = method.startsWith("get") ? JSON.stringify([method, ...args]) : null;
+    if (key && requests.has(key)) return requests.get(key);
+    let finishLoading = beginLoading(method, args), response;
     try {
       response = send(method, ...args);
     } catch (error) {
-      throw visible && loading(-1, append), error;
+      throw finishLoading(), error;
     }
-    return visible && response.then(() => loading(-1, append), () => loading(-1, append)), response;
+    key && requests.set(key, response);
+    let complete = () => {
+      key && requests.delete(key), finishLoading();
+    };
+    return response.then(complete, complete), response;
   }
   function send(method, ...args) {
     if (window.RADAR_PREVIEW) {
@@ -1519,7 +1542,7 @@
   };
 
   // src/client/config.js
-  var defaultView = Object.keys(app_config_default.views)[0], config_default = app_config_default;
+  var navigationCache = Object.freeze({ milliseconds: 6e4, entries: 6 }), defaultView = Object.keys(app_config_default.views)[0], config_default = app_config_default;
 
   // src/client/features/language-settings.js
   function createLanguageSettings({ run, isActive, onRevision }) {
@@ -1604,7 +1627,7 @@
       polling = !0;
       try {
         let data = await call("getCollectionProgress"), changed = data.newsRevision !== revision;
-        update(data), changed && await reload();
+        update(data), changed && await reload(data);
       } catch {
         timer = setTimeout(poll, 6e4);
       } finally {
@@ -2195,7 +2218,7 @@
   }
 
   // src/client/features/metrics.js
-  var filters2 = {}, requests = {};
+  var filters2 = {}, requests2 = {};
   $("newsletter-feedback-body").addEventListener("click", async (event) => {
     let button = event.target.closest("[data-feedback]");
     if (button) {
@@ -2211,13 +2234,13 @@
   });
   async function loadMetrics(view, isCurrent) {
     filters2[view] ||= createRecordFilters(view, view === "adoption" ? [["correo", "Usuario"], ["vista", "Vista"], ["evento", "Evento"]] : [["operacion", "Operaci\xF3n"], ["estado", "Estado"]], () => loadMetrics(view, isCurrent), { dates: !0 }), view === "adoption" && (filters2["newsletter-adoption"] ||= createRecordFilters("newsletter-adoption", [["edicion", "Edici\xF3n"], ["cadencia", "Periodicidad", Object.entries(newsletterCadences).map(([key, row]) => [key, row.label])]], () => loadMetrics(view, isCurrent), { dates: !0 }), filters2["newsletter-feedback"] ||= createRecordFilters("newsletter-feedback", [["estado", "Estado", [["pendiente", "pendiente"], ["atendido", "atendido"]]]], () => loadMetrics(view, isCurrent), { dates: !0 }));
-    let request3 = requests[view] = (requests[view] || 0) + 1;
+    let request3 = requests2[view] = (requests2[view] || 0) + 1;
     try {
       let [data, insights] = await Promise.all([call(view === "adoption" ? "getAdoption" : "getTelemetry", filters2[view].query()), view === "adoption" ? call("getNewsletterInsights", { adoption: filters2["newsletter-adoption"].query(), feedback: filters2["newsletter-feedback"].query() }) : null]);
-      if (!isCurrent() || requests[view] !== request3) return;
+      if (!isCurrent() || requests2[view] !== request3) return;
       filters2[view].options(data.options), filters2[view].page(data), view === "adoption" ? ($("adoption-metrics").innerHTML = metricCards([["DAU", data.dau, "Usuarios \xB7 24 horas"], ["WAU", data.wau, "Usuarios \xB7 7 d\xEDas"], ["MAU", data.mau, "Usuarios \xB7 30 d\xEDas"], ["Recurrentes", data.returning, "M\xE1s de una sesi\xF3n \xB7 30 d\xEDas"]]), $("adoption-note").textContent = t("{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.", data) + " " + (data.limited ? "L\xEDmite de eventos alcanzado; m\xE9tricas parciales." : ""), $("adoption-body").innerHTML = data.users.map((u) => `<tr><td>${escape(u.correo)}</td><td>${escape(date(u.first))}</td><td>${escape(date(u.last))}</td><td>${u.sessions}</td><td>${u.actions}</td></tr>`).join("") || '<tr><td colspan="5">Sin actividad registrada.</td></tr>', $("adoption-daily").innerHTML = data.daily.map((d) => `<tr><td>${escape(d.date)}</td><td>${d.users}</td><td>${d.sessions}</td></tr>`).join("") || '<tr><td colspan="3">Sin actividad diaria registrada.</td></tr>', $("adoption-chart").innerHTML = activityChart(data.daily), filters2["newsletter-adoption"].page(insights.adoption), filters2["newsletter-feedback"].page(insights.feedback), $("newsletter-adoption-body").innerHTML = insights.adoption.items.map((row) => "<tr>" + [row.edition, t(row.cadence), row.users, row.recipients, row.sessions, row.entries, row.destinations.join(" \xB7 ")].map((value) => "<td>" + escape(value) + "</td>").join("") + "</tr>").join("") || '<tr><td colspan="7">' + t("Sin accesos atribuidos.") + "</td></tr>", $("newsletter-feedback-body").innerHTML = insights.feedback.items.map((row) => "<tr><td>" + escape(row.edicion) + "</td><td>" + escape(row.valoracion === "positive" ? "\u{1F44D}" : row.valoracion === "negative" ? "\u{1F44E}" : "\u2014") + "</td><td>" + escape(row.comentario) + "</td><td>" + escape(date(row.fecha)) + '</td><td><button type="button" class="button" data-feedback="' + escape(row.id) + '" data-state="' + (row.estado === "pendiente" ? "atendido" : "pendiente") + '">' + escape(t(row.estado)) + "</button></td></tr>").join("") || '<tr><td colspan="5">' + t("Sin valoraciones.") + "</td></tr>") : ($("telemetry-note").textContent = data.total + " coincidencias en las \xFAltimas " + data.limit + " operaciones disponibles." + (data.limited ? " Hist\xF3rico limitado." : ""), $("telemetry-metrics").innerHTML = metricCards([["Latencia p95", data.latencyP95 == null ? "\u2014" : data.latencyP95 + " ms", "Cargas \xB7 30 d\xEDas, todos los usuarios"], ["Errores cliente", data.clientErrors, "Eventos \xB7 30 d\xEDas, todos los usuarios"], ["Fuentes consultadas", data.collection.processed, "Recopilaci\xF3n actual"], ["Pendientes", data.collection.pending, "Fuentes por consultar"]]), $("telemetry-body").innerHTML = data.rows.map((r) => `<tr><td>${escape(date(r.fecha))}</td><td>${escape(displayRecord(r.operacion, language))}</td><td>${escape(r.duracion_ms)} ms</td><td>${escape(r.estado)}</td><td>${escape(r.detalle)}</td></tr>`).join("") || '<tr><td colspan="5">Sin telemetr\xEDa de operaci\xF3n.</td></tr>');
     } catch (e) {
-      requests[view] === request3 && isCurrent() && message(e.message, !0);
+      requests2[view] === request3 && isCurrent() && message(e.message, !0);
     }
   }
 
@@ -2422,10 +2445,11 @@
   }
 
   // src/client/features/shell.js
+  function renderFreshness(selection = {}, lastRun) {
+    $("selection-freshness").textContent = [selection.from && selection.to ? t("Per\xEDodo") + ": " + formatCalendarDay(selection.from, language) + " \u2014 " + formatCalendarDay(selection.to, language) : "", t("\xDAltima recopilaci\xF3n") + ": " + date(lastRun)].filter(Boolean).join(" \xB7 ");
+  }
   function renderShell(data) {
-    $("last-run").textContent = date(data.lastRun);
-    let selection = data.selection || {};
-    $("selection-freshness").textContent = [selection.from && selection.to ? t("Per\xEDodo") + ": " + formatCalendarDay(selection.from, language) + " \u2014 " + formatCalendarDay(selection.to, language) : "", t("\xDAltima recopilaci\xF3n") + ": " + date(data.lastRun)].filter(Boolean).join(" \xB7 ");
+    $("last-run").textContent = date(data.lastRun), renderFreshness(data.selection, data.lastRun);
     let daily = data.daily ? data.preferences.dailyLabel : "Recopilaci\xF3n diaria desactivada";
     $("daily-sidebar").textContent = daily, document.querySelectorAll("[data-admin]").forEach((el) => el.hidden = !data.admin), $("sheet-link").hidden = !0, data.admin && validUrl(data.sheetUrl) && ($("sheet-link").href = data.sheetUrl, $("sheet-link").hidden = !1);
   }
@@ -2518,10 +2542,10 @@
 
   // src/client/features/navigation.js
   function createNavigation({ isAdmin, track: track2, onAdministration, onSubscriptions, onSelection, onPanel }) {
-    let current = defaultView;
+    let current = defaultView, opened = !1;
     async function show(view) {
-      if (!(!(view in config_default.views) || view === "administration" && !isAdmin())) {
-        current = view, $("reading-context").hidden = $("reading-context").dataset.available !== "true" || !["news", "briefing", "radar"].includes(view), window.scrollTo({ top: 0, behavior: "auto" }), track2("vista");
+      if (!(!(view in config_default.views) || view === "administration" && !isAdmin()) && !(opened && view === current)) {
+        opened = !0, current = view, $("reading-context").hidden = $("reading-context").dataset.available !== "true" || !["news", "briefing", "radar"].includes(view), window.scrollTo({ top: 0, behavior: "auto" }), track2("vista");
         for (let name of Object.keys(config_default.views)) $(name + "-section").hidden = name !== view;
         onPanel(view), $("active-filters").hidden = !["news", "briefing", "radar"].includes(view), $("selection-freshness").hidden = !["news", "briefing", "radar"].includes(view), $("sidebar-context-title").textContent = view === "administration" ? "Gesti\xF3n de News Radar" : "Seguimiento personalizado", $("sidebar-context-copy").textContent = view === "administration" ? "Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicaci\xF3n." : "Las suscripciones tienen sus propios filtros. Cambiar la selecci\xF3n de noticias no modifica lo que recibes por correo.", $("sidebar-context").hidden = !["administration", "subscriptions"].includes(view), $("export").hidden = view !== "news", $("page-title").textContent = config_default.views[view], document.querySelectorAll("[data-view]").forEach((button) => {
           button.dataset.view === view ? button.setAttribute("aria-current", "page") : button.removeAttribute("aria-current");
@@ -2563,6 +2587,10 @@
       return;
     }
     if (!(root.nodeType !== 1 || root.matches(excluded))) {
+      if (root.tagName === "TABLE" && root.closest(".table-wrap") && root.setAttribute("role", "table"), root.tagName === "TR" && root.closest(".table-wrap") && root.parentElement.tagName === "TBODY") {
+        let headings = root.closest("table").tHead?.rows[0]?.cells;
+        for (let [index, cell] of [...root.cells].entries()) cell.colSpan === 1 && headings?.[index] && (cell.dataset.label = t(headings[index].textContent));
+      }
       root.tagName === "OPTION" && !root.hasAttribute("value") && root.setAttribute("value", root.value);
       for (let key of attributes) if (root.hasAttribute(key)) {
         let value = root.getAttribute(key), translated = localized(root, key, value);
@@ -2617,13 +2645,17 @@
   // src/client/app.js
   initializeLocalization();
   initializeSearchableSelects();
-  var state = { data: null, request: 0, busy: !1, contentStale: !1, attribution: "" }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data, getAttribution: () => state.attribution && state.data?.context?.id === state.attribution ? state.attribution : "" }), { track, flush } = usage, noteNewsRevision = (revision) => {
-    revision && state.data && revision !== state.data.newsRevision && (state.contentStale = !0);
+  var state = { data: null, request: 0, busy: !1, contentStale: !1, attribution: "", view: null, ready: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data, getAttribution: () => state.attribution && state.data?.context?.id === state.attribution ? state.attribution : "" }), { track, flush } = usage, dashboards = /* @__PURE__ */ new Map(), selectionKey = (query) => JSON.stringify(Object.entries(query).filter(([, value]) => value !== "" && value != null).sort(([a], [b]) => a.localeCompare(b))), noteNewsRevision = (revision) => {
+    revision && state.data && revision !== state.data.newsRevision && (state.contentStale = !0, dashboards.clear());
   }, configuration = createConfiguration({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "configuration" }), taxonomy = createTaxonomy({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "taxonomy" }), subscriptions = createSubscriptions({ run: action, onApply: (query) => {
     let view = query.view;
     filters4.show(view), filters4.apply(query), navigation.show(view);
-  } }), newsletterDelivery = createNewsletterDelivery({ run: action }), languageSettings = createLanguageSettings({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "language" }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]), onLanguage: () => languageSettings.open(), onLeaveLanguage: () => languageSettings.close(), onLeaveConfiguration: () => configuration.close(), onTaxonomy: () => taxonomy.open(), onLeaveTaxonomy: () => taxonomy.close() }), panel = createFilterPanel(), navigation = createNavigation({ onPanel: panel.show, onSelection: (view) => {
-    configuration.close(), taxonomy.close(), filters4.show(view) || state.contentStale ? load() : state.data && renderSelection(state.data, view);
+  } }), newsletterDelivery = createNewsletterDelivery({ run: action }), languageSettings = createLanguageSettings({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "language" }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]), onLanguage: () => languageSettings.open(), onLeaveLanguage: () => languageSettings.close(), onLeaveConfiguration: () => configuration.close(), onTaxonomy: () => taxonomy.open(), onLeaveTaxonomy: () => taxonomy.close() }), panel = createFilterPanel(), navigation = createNavigation({ onPanel: (view) => {
+    ++state.request, panel.show(view), refreshLoading();
+  }, onSelection: (view) => {
+    configuration.close(), taxonomy.close();
+    let changed = filters4.show(view);
+    state.ready && (changed || state.contentStale || state.view !== view) && load(!0);
   }, onSubscriptions: () => (configuration.close(), taxonomy.close(), subscriptions.open()), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
   } }), reading = createReadingContext({ onCurrent: () => filters4.current(), run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => {
@@ -2638,23 +2670,32 @@
   }, onEntity: (entity) => filters4.set("entity", entity), onNews: () => {
     let selection = state.data.selection;
     filters4.show("news"), filters4.apply(selection), navigation.show("news");
-  } }), sources = createSources({ getData: () => state.data, run: action }), recoveryControls = createRecoveryControls({ getData: () => state.data, run: action }), collectionProgress = createCollectionProgress({ reload: load, isBusy: () => state.busy || !$("loading").hidden, onStatus: (status) => {
+  } }), sources = createSources({ getData: () => state.data, run: action }), recoveryControls = createRecoveryControls({ getData: () => state.data, run: action }), collectionProgress = createCollectionProgress({ reload: (data) => {
+    if (noteNewsRevision(data.newsRevision), ["news", "briefing", "radar"].includes(navigation.current)) return load();
+  }, isBusy: () => state.busy || !$("loading").hidden, onStatus: (status) => {
     state.data && (state.data.collection = status), state.data?.admin && renderCollectionJobs(status);
   } });
   function renderSelection(data, view = navigation.current, appended = null) {
     reading.render(data, view), view === "news" && (renderNews(data, appended), newsTabs.render(data.newsGeographies || [], data.newsGeography || "")), view === "radar" && (radar.render(data), heatmap.render(data)), view === "briefing" && briefing.render(data);
   }
-  async function load() {
+  async function load(reuse = !1) {
     let request3 = ++state.request, started = performance.now();
     if (filters4.isValid())
       try {
-        let administrative = navigation.current === "administration", query = administrative ? { view: administration.current, language: filters4.query().language } : filters4.query(), data = await call("getDashboard", query), appended = null;
+        let administrative = navigation.current === "administration", query = administrative ? { view: administration.current, language: filters4.query().language } : filters4.query();
+        administrative || (renderFreshness(query.initial ? {} : query, state.data?.lastRun), query.initial && ($("active-filters").hidden = !0));
+        let key = selectionKey(query), cached = reuse && !administrative && !state.contentStale && dashboards.get(key), clientCacheHit = !!(cached && performance.now() - cached.time < navigationCache.milliseconds), data = clientCacheHit ? { ...cached.data, collection: state.data.collection, lastRun: state.data.lastRun, daily: state.data.daily } : await call("getDashboard", query), appended = null;
         if (request3 !== state.request) return;
         if (query.view === "news" && query.page > 0 && (state.data?.newsRevision === data.newsRevision && data.page === query.page ? (appended = data.items, data = { ...data, items: [...state.data.items, ...appended] }) : data = await call("getDashboard", { ...query, page: 0 })), request3 === state.request) {
           let first = !state.data;
-          administrative && state.data ? (state.contentStale ||= data.newsRevision !== state.data.newsRevision || data.configurationRevision !== state.data.configurationRevision, data = { ...state.data, ...data, selection: state.data.selection, context: state.data.context }) : state.contentStale = !1, state.data = data, setTimezone(data.preferences?.timezone), window.RADAR_PREVIEW && data.admin && ($("preview-banner").textContent = "Administraci\xF3n local \xB7 cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.");
+          state.data && (data.newsRevision !== state.data.newsRevision || data.configurationRevision !== state.data.configurationRevision) && dashboards.clear(), administrative && state.data ? (state.contentStale ||= data.newsRevision !== state.data.newsRevision || data.configurationRevision !== state.data.configurationRevision, data = { ...state.data, ...data, selection: state.data.selection, context: state.data.context }) : state.contentStale = !1, state.data = data, state.view = query.view, data.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), setTimezone(data.preferences?.timezone), window.RADAR_PREVIEW && data.admin && ($("preview-banner").textContent = "Administraci\xF3n local \xB7 cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales.");
           let renderStarted = performance.now();
-          administrative || filters4.render(data), renderSelection(data, navigation.current, appended), data.preferences && ($("retention-days").textContent = data.preferences.retentionDays, $("event-limit").textContent = data.preferences.eventLimit), renderShell(data), data.admin && sources.render(data), collectionProgress.update(data), flushLocalization(), track("rendimiento", performance.now() - started, { ...data.performance, rpcMs: Math.round(renderStarted - started), renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
+          if (!administrative) {
+            filters4.render(data);
+            let key2 = selectionKey({ ...filters4.query(), ...query.newsGeography ? {} : { newsGeography: "" } });
+            dashboards.delete(key2), data.newsRevision && data.configurationRevision && dashboards.set(key2, { data, time: clientCacheHit ? cached.time : performance.now() }), dashboards.size > navigationCache.entries && dashboards.delete(dashboards.keys().next().value);
+          }
+          renderSelection(data, navigation.current, appended), data.preferences && (document.querySelector(".app-footer").hidden = !1, $("retention-days").textContent = data.preferences.retentionDays, $("event-limit").textContent = data.preferences.eventLimit), renderShell(data), data.admin && sources.render(data), collectionProgress.update(data), flushLocalization(), track("rendimiento", performance.now() - started, { ...data.performance, ...clientCacheHit ? { serverMs: 0, newsMs: 0, preparationMs: 0, metadataMs: 0, cacheHit: !0 } : {}, clientCacheHit, rpcMs: clientCacheHit ? 0 : Math.round(renderStarted - started), renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
         }
       } catch (error) {
         request3 === state.request && (track("error"), message(error.message || String(error), !0));
@@ -2694,10 +2735,10 @@
       let params = location.parameter;
       state.attribution = params.edition;
       let view = ["news", "briefing", "radar"].includes(params.view) ? params.view : defaultView;
-      filters4.show(view), navigation.show(view), filters4.useEdition(params.edition, { country: params.country, entity: params.entity, palanca: params.palanca, subpalanca: params.subpalanca, benchmark: params.benchmark });
+      filters4.show(view), navigation.show(view), state.ready = !0, filters4.useEdition(params.edition, { country: params.country, entity: params.entity, palanca: params.palanca, subpalanca: params.subpalanca, benchmark: params.benchmark });
       return;
     }
-    if (load(), location.parameter.view !== "subscriptions") return;
+    if (state.ready = !0, load(), location.parameter.view !== "subscriptions") return;
     await navigation.show("subscriptions");
     let id = location.parameter.unsubscribe;
     if (!id) return;
@@ -2707,7 +2748,7 @@
     button.type = "button", button.className = "button", button.textContent = "Confirmar baja", button.addEventListener("click", () => action(async () => {
       message(await call("deleteSubscription", id)), await subscriptions.open();
     }, !1)), target.appendChild(button);
-  }) : load();
+  }) : (state.ready = !0, load());
   window.addEventListener("news-radar-language-change", async () => {
     await load(), navigation.current === "administration" && administration.current === "language" && await languageSettings.open(), navigation.current === "administration" && administration.current === "taxonomy" && await taxonomy.open();
   });

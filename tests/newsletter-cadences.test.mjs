@@ -43,7 +43,7 @@ test('Noticias pagina cada geografía manteniendo los totales completos, recuper
  const {c}=server();c.settings_().pageSize=2;const input=rows(),first=c.newsDashboard_(input,{},[],'news'),second=c.newsDashboard_(input,{newsGeography:'México',page:10},[],'news');
  assert.equal(first.total,5);assert.equal(first.items.length,2);assert.deepEqual(Array.from(first.newsGeographies,row=>[row.name,row.total]),[['España',5],['México',2]]);assert.equal(second.page,0);assert.equal(second.total,2);assert.ok(second.items.every(row=>row.pais==='México'));
  const page=c.newsDashboard_(input,{newsGeography:'España',page:2},[],'news');assert.equal(page.items.length,1);assert.equal(page.items[0].id,'e');assert.equal(c.newsDashboard_(input,{newsGeography:'México',country:'España'},[],'news').newsGeography,'España');assert.equal(c.newsDashboard_([],{},[],'news').newsGeographies.length,0);
- c.rows_=()=>input;c.selectNews_=(_rows,query)=>c.selectAnnotatedNews_(input,query);const csv=c.exportNews({view:'news',newsGeography:'México'});assert.equal(csv.count,2);assert.doesNotMatch(csv.csv,/España/);
+ c.rows_=()=>input;c.selectNews_=(_rows,query)=>c.selectAnnotatedNews_(input,query);const csv=c.exportNews({view:'news',newsGeography:'México',from:'2026-01-01',to:'2026-12-31'});assert.equal(csv.count,2);assert.doesNotMatch(csv.csv,/España/);
 });
 test('Noticias cambia pestaña mediante un solo RPC y reinicia la página; el teclado conserva el foco',async t=>{
  const s=server(),input=rows();s.c.settings_().pageSize=2;
@@ -68,7 +68,7 @@ for(const [periodicity,view] of [['fortnightly','briefing'],['quarterly','news']
  assert.equal(a.find('.nav [aria-current="page"]').dataset.view,view);assert.equal(a.find('#'+view+'-section').hidden,false);assert.equal(requests.length,1);assert.equal(requests[0].view,view);assert.equal(requests[0].edition,editionId);assert.equal(requests[0].initial,true);
  assert.equal(a.find('#filters [name="from"]').value,from);assert.equal(a.find('#filters [name="to"]').value,to);assert.equal(a.find('#filters [name="segment"]').value,'Empresas e instituciones');assert.match(a.find('#reading-context').textContent,/Resumen/);
  const alternate=view==='news'?'briefing':'news';await a.click('[data-view="'+alternate+'"]');assert.equal(a.find('#filters [name="from"]').value,from);assert.equal(a.find('#filters [name="to"]').value,to);
- await a.click('#reading-current');assert.equal(a.find('#filters [name="from"]').value,alternate==='briefing'?c.recentNewsRange_().from:c.currentMonth_().from);
+ await a.click('#reading-current');assert.equal(a.find('#filters [name="from"]').value,alternate==='briefing'?c.dashboardPeriod_('briefing').from:c.dashboardPeriod_('news').from);
  if(view!=='briefing')for(const more of dom.window.document.querySelectorAll('a.newsletter-cta')){const url=new URL(more.href),params=Object.fromEntries(url.searchParams);assert.equal(params.view,view);assert.equal(params.edition,editionId);const target=c.getDashboard({...params,initial:true});assert.equal(target.selection.from,from);assert.equal(target.selection.to,to);if(params.country)assert.equal(target.selection.country,params.country);assert.equal(target.selection.entity,params.entity??query.entity??undefined);}
  dom.window.close();
 });

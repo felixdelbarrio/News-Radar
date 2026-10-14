@@ -10,9 +10,9 @@ test('cada vista conserva su rango al aplicar la primera newsletter y respeta fe
  for(const [view,from,to] of [['briefing','2026-10-01','2026-10-15'],['news','2026-10-01','2026-12-31'],['radar','2026-01-01','2026-12-31']]){const query=c.personalDashboardQuery_(subscription,view,now);assert.equal(query.from,from);assert.equal(query.to,to);assert.equal(query.entity,'Santander');assert.equal(query.range,undefined);}
  c.saveSubscription({name:'No debe usarse',filters:subscription.filtros});
  const selected=c.getDashboard({view:'news',initial:true});assert.deepEqual({from:selected.selection.from,to:selected.selection.to},{from:c.newsletterWindow('quarterly',c.recordDay(new Date(),'Europe/Madrid')).from,to:c.newsletterWindow('quarterly',c.recordDay(new Date(),'Europe/Madrid')).to});
- const radar=c.getDashboard({view:'radar',initial:true});assert.deepEqual({from:radar.selection.from,to:radar.selection.to},clean(c.newsRange_('year')));
+ const radar=c.getDashboard({view:'radar',initial:true});assert.deepEqual({from:radar.selection.from,to:radar.selection.to},clean(c.dashboardPeriod_('radar')));
  const edited=c.getDashboard({view:'news',from:'2026-02-01',to:'2026-02-28',initial:false});assert.equal(edited.selection.from,'2026-02-01');assert.equal(edited.selection.to,'2026-02-28');
- assert.deepEqual(clean(c.newsRange_('week',new Date('2026-01-01T12:00:00Z'))),{from:'2025-12-26',to:'2026-01-01'});assert.throws(()=>c.newsRange_('unknown'),/Período/);
+ assert.deepEqual(clean(c.dashboardPeriod_('briefing',new Date('2026-01-01T12:00:00Z'))),{from:'2026-01-01',to:'2026-01-15'});assert.throws(()=>c.dashboardPeriod_('unknown'),/Periodicidad/);
 });
 test('la periodicidad define el ámbito, el período y el asunto sin aceptar un período independiente',()=>{
  const {c}=server(),now=new Date('2026-10-12T12:00:00Z');
@@ -41,4 +41,18 @@ for(const count of [0,1,2])test('No hay selector de newsletters en el panel late
  assert.equal(a.find('#reading-context').closest('#mobile-filters')!==null,true);assert.equal(a.find('#reading-context').hidden,true);assert.equal(a.w.document.querySelector('#reading-choice'),null);
  for(const view of ['news','radar','briefing']){await a.click('[data-view="'+view+'"]');assert.equal(a.find('#reading-context').hidden,true);}
  await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);assert.equal(a.w.document.querySelector('#personal-editor [name="range"]'),null);assert.equal(a.find('#personal-editor [name="periodicity"]').value,'quarterly');assert.equal(a.find('#filters-section').hidden,true);
+});
+
+test('los valores iniciales y la restauración de cada vista coinciden con las newsletters en límites de quincena, trimestre y año',()=>{
+ const {c}=server();
+ for(const day of ['2024-02-15','2024-02-16','2024-02-29','2026-03-31','2026-04-01','2026-10-15','2026-10-16','2026-12-31','2027-01-01']){
+  const now=new Date(day+'T12:00:00Z');
+  for(const [view,cadence] of [['briefing','fortnightly'],['news','quarterly'],['radar','yearly']]){
+   const {from,to}=c.newsletterWindow(cadence,day);
+   for(const initial of [true,false]){
+    const selected=c.dashboardQuery_({view,initial},now);assert.equal(selected.from,from);assert.equal(selected.to,to);
+   }
+   const explicit=c.dashboardQuery_({view,from:'2025-01-02',to:'2025-02-03'},now);assert.equal(explicit.from,'2025-01-02');assert.equal(explicit.to,'2025-02-03');
+  }
+ }
 });

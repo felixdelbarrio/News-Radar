@@ -65,10 +65,10 @@ test('el seguimiento refresca contenido nuevo, evita llamadas en pestañas ocult
  a.replies.getCollectionProgress={newsRevision:'1',collection:{total:10,processed:10,pending:0,added:3}};await next();assert.equal(timers.size,0);assert.match(a.find('#collection-progress').textContent,/0 pendientes/);
 });
 
-test('volver al Radar muestra los datos actualizados durante administración sin repetir el RPC',async t=>{
+test('volver al Radar consulta una vez su contenido después de una acción administrativa',async t=>{
  const a=await app(t);await a.click('[data-view="radar"]');await a.click('[data-view="administration"]');a.data.radar.summary.news=5;a.data.radar.publishers=[{publisher:'Diario vivo',total:5}];
  await a.click('#collect');const calls=a.calls.filter(r=>r.method==='getDashboard').length;
- await a.click('[data-view="radar"]');assert.match(a.find('#radar-headline').textContent,/5 publicaciones/);assert.match(a.find('#publisher-chart').textContent,/Diario vivo/);assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,calls);
+ await a.click('[data-view="radar"]');assert.match(a.find('#radar-headline').textContent,/5 publicaciones/);assert.match(a.find('#publisher-chart').textContent,/Diario vivo/);assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,calls+1);
  await a.click('[data-view="administration"]');a.data.collection.pending=5;await a.click('[data-view="news"]');await a.click('[data-view="administration"]');await a.click('#continue-collection');assert.ok(a.calls.some(r=>r.method==='resumeCollection'));
 });
 test('muestra progreso independiente y porcentajes atendidos para anual, diaria y cargas en cola',async t=>{

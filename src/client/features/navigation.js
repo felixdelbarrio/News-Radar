@@ -1,10 +1,11 @@
 import { $, message } from "../core/dom.js";
 import config,{defaultView} from "../config.js";
 function createNavigation({ isAdmin, track, onAdministration, onSubscriptions, onSelection, onPanel }) {
-  let current = defaultView;
+  let current = defaultView, opened=false;
   async function show(view) {
     if (!(view in config.views) || view === "administration" && !isAdmin()) return;
-    current = view;
+    if(opened&&view===current)return;
+    opened=true;current = view;
     $('reading-context').hidden=$('reading-context').dataset.available!=='true'||!['news','briefing','radar'].includes(view);
     window.scrollTo({top:0,behavior:"auto"});
     track("vista");
