@@ -1,5 +1,5 @@
 
-function noveltyOverview(items,signalNames=[],country=row=>row.pais||'Sin determinar'){
+function noveltyOverview(items,signalNames=[],country=row=>geographyLabel(row.pais)){
   const signals=new Map(signalNames.map(name=>[name,0])),geographies=new Map(),entities=new Set();
   for(const row of items){
     const name=country(row);
@@ -10,7 +10,7 @@ function noveltyOverview(items,signalNames=[],country=row=>row.pais||'Sin determ
   const counts=values=>[...values].map(([name,total])=>({name,total}));
   return {total:items.length,entities:entities.size,bySignal:counts(signals),geographies:[...geographies.values()].map(({signals,entities,...row})=>({...row,entityCount:entities.size,bySignal:counts(signals)})).sort(geographyOrder)};
 }
-function noveltyGroups(items,country=row=>row.pais||'Sin determinar'){
+function noveltyGroups(items,country=row=>geographyLabel(row.pais)){
   const geographies=new Map();
   for(const row of items){
     const name=country(row),entity=row.entidad||'Entidad no identificada',segment=[...new Set(row.segmentos||[])].sort((a,b)=>a.localeCompare(b,'es')).join(' · ')||'Segmento no identificado';

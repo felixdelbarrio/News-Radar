@@ -1,14 +1,14 @@
 import { $, message } from "../core/dom.js";
 import config from "../config.js";
 import { loadMetrics } from "./metrics.js";
-import {loadRuns} from "./runs.js";
 import { loadAudit } from "./audit.js";
-function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,onLanguage,onLeaveLanguage,onLeaveConfiguration,onTaxonomy,onLeaveTaxonomy }) {
+function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,onLanguage,onLeaveLanguage,onRuns,onLeaveRuns,onLeaveSubscribers,onTaxonomy,onLeaveTaxonomy }) {
   let current = Object.keys(config.adminViews)[0];
   async function open(view = current) {
     if (!isAdmin() || !(view in config.adminViews)) return;
     if(current==="language"&&view!==current)onLeaveLanguage();
-    if(current==="configuration"&&view!==current)onLeaveConfiguration();
+    if(current==='runs'&&view!==current)onLeaveRuns();
+    if(current==='subscribers'&&view!==current)onLeaveSubscribers();
     if(current==="taxonomy"&&view!==current)onLeaveTaxonomy();
     current = view;
     track("vista");
@@ -21,7 +21,7 @@ function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,o
     if(view === "configuration")try{await onConfiguration();}catch(error){message(error.message||String(error),true);}
     if(view === "taxonomy")await onTaxonomy();
     if(view === "language")await onLanguage();
-    if (view === "runs") await loadRuns();
+    if (view === "runs") await onRuns();
     if (view === "audit") await loadAudit();
     if (view === "telemetry" || view === "adoption") await loadMetrics(view, () => current === view && !$("administration-section").hidden);
   }

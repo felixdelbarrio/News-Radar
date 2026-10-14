@@ -1,6 +1,6 @@
 let taxonomyTranslationMemory_;
 function taxonomyTranslationJob_(){const value=properties_().getProperty('TAXONOMY_TRANSLATION_JOB');return value?JSON.parse(value):null;}
-function writeTaxonomyTranslationJob_(job){properties_().setProperty('TAXONOMY_TRANSLATION_JOB',JSON.stringify(job));}
+function writeTaxonomyTranslationJob_(job){progressContextMemory_=undefined;properties_().setProperty('TAXONOMY_TRANSLATION_JOB',JSON.stringify(job));}
 function taxonomyTranslationNames_(){return [...new Set(taxonomyCatalog_().flatMap(row=>[row.palanca,row.subpalanca]))].sort();}
 function taxonomyTranslationKey_(name,language){return language+':'+sha256_(name);}
 function taxonomyTranslationIndex_(){
@@ -35,12 +35,12 @@ function taxonomyTranslationReadyAt_(){
   if(job?.pausedUntil>Date.now())return job.pausedUntil;
   if(translationCallsToday_()>=TRANSLATION_WORK.dailyCalls){
     // Wake after the daily budget resets, even if article translation is disabled.
-    return Date.now()+86400000;
+    return nextDailyReset(Date.now(),settings_().timezone);
   }
   return Math.max(Date.now(),Number(job.pausedUntil||0));
 }
 function getTaxonomyTranslationStatus(){
-  authorize_(true);return {job:taxonomyTranslationJob_(),queued:Boolean(properties_().getProperty('TAXONOMY_TRANSLATION_REQUEST')),newsRevision:properties_().getProperty('NEWS_REVISION')||'0',taxonomyTranslations:taxonomyTranslations_()};
+  authorize_(true);return {job:withJobProgress_('taxonomyTranslation',taxonomyTranslationJob_(),Boolean(properties_().getProperty('TAXONOMY_TRANSLATION_REQUEST'))),queued:Boolean(properties_().getProperty('TAXONOMY_TRANSLATION_REQUEST')),newsRevision:properties_().getProperty('NEWS_REVISION')||'0',taxonomyTranslations:taxonomyTranslations_()};
 }
 function startTaxonomyTranslations(){authorize_(true);requestTaxonomyTranslations_();return getTaxonomyTranslationStatus();}
 function taxonomyTranslationBatch_(maxMs=TAXONOMY_POLICY.maxMs){

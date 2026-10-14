@@ -1,5 +1,5 @@
 function collectionStatus_(tasks,jobs){
-  const cache=CacheService.getScriptCache();if(!tasks&&!jobs){const cached=cache.get('collection-status');if(cached)return JSON.parse(cached);}
+  const cache=CacheService.getScriptCache();if(!tasks&&!jobs){const cached=cache.get('collection-status');if(cached){const status=JSON.parse(cached);progressContext_(status.jobs);return status;}}
   jobs=jobs||collectionJobs_();if(tasks)collectionSnapshots_(tasks,jobs);
   const requests=collectionRequests_().filter(request=>!jobs.some(job=>job.id===request.id));
   const ordered=jobs.slice().sort((a,b)=>b.inicio.localeCompare(a.inicio)),active=ordered.filter(job=>Number(job.pendientes)>0||job.estado==='Preparando'),selected=active.length?active:ordered.slice(0,1);
@@ -8,10 +8,15 @@ function collectionStatus_(tasks,jobs){
     for(const [key,column] of [['total','total'],['processed','procesadas'],['pending','pendientes'],['skipped','omitidas'],['failed','fallidas'],['added','nuevas']])status[key]+=Number(job[column]||0);
     if(job.actualizada>status.lastActivity)status.lastActivity=job.actualizada;
   }
-  status.jobs=recoveryProgressJobs(jobs.map(({row,...job})=>job).concat(requests.map(request=>({id:request.id,tipo:request.kind,desde:request.range.from,hasta:request.range.to,inicio:request.created,estado:'En cola',total:0,procesadas:0,pendientes:0,omitidas:0,fallidas:0,nuevas:0}))));
+  const fetchPause=Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0);
+  status.jobs=recoveryProgressJobs(jobs.map(({row,...job})=>job).concat(requests.map(request=>({id:request.id,tipo:request.kind,desde:request.range.from,hasta:request.range.to,inicio:request.created,estado:'En cola',total:0,procesadas:0,pendientes:0,omitidas:0,fallidas:0,nuevas:0})))).map(job=>{const pause=Math.max(Number(job.pausa||0),fetchPause),stage=job.tipo==='daily'?'daily':'annual';return {...job,progress:jobProgressState_(stage,{state:job.estado,updated:job.actualizada},{jobs,queued:job.estado==='En cola',pausedUntil:pause})};});
+  status.progress=(status.jobs.find(job=>Number(job.pendientes)>0||job.estado==='Preparando')||status.jobs[0])?.progress;
   cacheJson_('collection-status',status,15);return status;
 }
-function resumeCollection(){authorize_(true);ensureBackgroundWorker_();return {...collectionStatus_(),added:0,errors:[],notice:'Continuación en cola.'};}
+function resumeCollection(mode='today'){
+  authorize_(true);if(!['today','year'].includes(mode))throw Error('Tipo de recuperación no válido.');
+  ensureBackgroundWorker_();return {...collectionStatus_(),added:0,errors:[],notice:'Continuación en cola.'};
+}
 function collectNow(mode='today'){
   authorize_(true);const now=new Date(),range=collectionRange_(mode,now),blocked=recoveryAvailability(collectionJobs_(),collectionRequests_());
   if(blocked[mode])throw Error(mode==='year'?'Ya hay una recuperación anual en curso.':'Ya hay una recuperación diaria en curso.');

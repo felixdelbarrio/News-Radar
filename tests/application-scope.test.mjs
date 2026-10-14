@@ -14,10 +14,10 @@ test('ámbitos de Empresas y Retail conservan sus países y las elecciones edita
 });
 test('Noticias, Novedades y CSV preservan países originales al agrupar geografías fuera del ámbito',()=>{
  const {c}=server(),rows=[row('india','India'),row('spain','España'),row('italy','Italia'),row('unknown','Sin determinar')],query={segment:'Empresas e instituciones',coverage:'digital',newsGeography:'Otras geografías'};
- const news=c.newsDashboard_(rows,query,[],'news');assert.deepEqual(Array.from(news.newsGeographies,r=>r.name),['España','Sin determinar','Otras geografías']);assert.equal(news.total,2);assert.deepEqual(Array.from(news.items,r=>r.pais).sort(),['India','Italia']);
- const brief=c.newsDashboard_(rows,query,[],'briefing').briefing;assert.equal(brief.geographies.find(r=>r.name==='Otras geografías').total,2);
- const csv=c.newsCsv_(c.newsGeographySelection_(rows,query),query,'es',true);assert.equal(csv.count,2);assert.ok(csv.csv.includes('India'));assert.ok(!csv.csv.includes('Nueva app spain'));
- c.cachedNewsRecords_=()=>rows;assert.equal(c.exportNews(query).count,2);assert.equal(c.exportNews({...query,newsGeography:'Sin determinar'}).count,1);
+ const news=c.newsDashboard_(rows,query,[],'news');assert.deepEqual(Array.from(news.newsGeographies,r=>r.name),['España','Otras geografías']);assert.equal(news.total,3);assert.deepEqual(Array.from(news.items,r=>r.pais).sort(),['India','Italia','Sin determinar']);
+ const brief=c.newsDashboard_(rows,query,[],'briefing').briefing;assert.equal(brief.geographies.find(r=>r.name==='Otras geografías').total,3);
+ const csv=c.newsCsv_(c.newsGeographySelection_(rows,query),query,'es',true);assert.equal(csv.count,3);assert.ok(csv.csv.includes('India'));assert.ok(!csv.csv.includes('Nueva app spain'));
+ c.cachedNewsRecords_=()=>rows;assert.equal(c.exportNews(query).count,3);assert.equal(c.exportNews({...query,country:'Sin determinar'}).count,1);
  assert.equal(c.newsDashboard_(rows,query,[],'radar').radar.summary.news,4);const geography=applicationGeography(c.configuration_().applicationScope,'');assert.equal(geography(row('it','Italia')),'Italia');assert.equal(geography(row('in','India')),'Otras geografías');
 });
 test('países disponibles respetan fecha, segmento y búsqueda sin encerrarse en el país elegido',()=>{
@@ -34,7 +34,7 @@ test('el editor de ámbito guarda las dos selecciones completas y no crea un ter
  assert.equal(a.find('#catalog-add').hidden,true);assert.equal(a.w.document.querySelectorAll('[data-scope]').length,2);const group=a.find('[data-scope="Retail"]');group.querySelector('[data-country="India"]').checked=true;group.querySelector('[data-country="Italia"]').checked=false;await a.submit('#catalog-form');
  const saved=a.calls.findLast(r=>r.method==='saveConfiguration').query.config.applicationScope.find(r=>r.name==='Retail');assert.ok(saved.countries.includes('India'));assert.ok(!saved.countries.includes('Italia'));
 });
-test('Novedades renderiza países con resultados y las dos agrupaciones transversales',async t=>{
+test('Novedades renderiza países con resultados y una sola agrupación de Otras geografías',async t=>{
  const {c}=server(),items=[row('india','India'),row('spain','España'),row('unknown','Sin determinar')],geo=applicationGeography(c.configuration_().applicationScope,'Empresas e instituciones');
- const a=await app(t,{configure({data}){data.selection={segment:'Empresas e instituciones',coverage:'digital'};data.briefing={...noveltyOverview(items,[],geo),items};}});assert.deepEqual([...a.w.document.querySelectorAll('#briefing-geographies [data-geography]')].map(r=>r.dataset.geography),['España','Sin determinar','Otras geografías']);
+ const a=await app(t,{configure({data}){data.selection={segment:'Empresas e instituciones',coverage:'digital'};data.briefing={...noveltyOverview(items,[],geo),items};}});assert.deepEqual([...a.w.document.querySelectorAll('#briefing-geographies [data-geography]')].map(r=>r.dataset.geography),['España','Otras geografías']);
 });

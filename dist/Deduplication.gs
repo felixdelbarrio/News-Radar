@@ -30,11 +30,15 @@ function newsRepresentative_(a,b){
   return (origin||richer||direct||String(b.url||'').localeCompare(String(a.url||''))||String(b.id||'').localeCompare(String(a.id||'')))>0?a:b;
 }
 function uniqueNews_(rows){
-  const titles=new Map(),known={titles},urls=new Map(),result=[];
+  const known={titles:new Map()},urls=new Map(),result=[],parents=[];
+  const root=index=>{while(parents[index]!==index){parents[index]=parents[parents[index]];index=parents[index];}return index;};
   for(const row of rows){
-    const item={title:row.titular,date:row.fecha,publisher:row.medio},url=canonicalUrl_(row.url),index=url&&urls.has(url)?urls.get(url):duplicateTitleEntry_(known,item);
-    if(index!==undefined){result[index]=newsRepresentative_(result[index],row);if(url)urls.set(url,index);rememberTitle_(known,item,index);}
-    else{const index=result.length;result.push(row);if(url)urls.set(url,index);rememberTitle_(known,item,index);}
+    const items=[row.titular,row.original?.titular,...(row.identityTitles||[])].filter(Boolean).map(title=>({title,date:row.fecha,publisher:row.medio})),url=canonicalUrl_(row.url);
+    const matches=new Set([url?urls.get(url):undefined,...items.map(item=>duplicateTitleEntry_(known,item))].filter(index=>index!==undefined).map(root));
+    const index=matches.size?Math.min(...matches):result.length;
+    if(!matches.size){parents.push(index);result.push(row);}
+    else{for(const other of matches)if(other!==index){result[index]=newsRepresentative_(result[index],result[other]);parents[other]=index;result[other]=null;}result[index]=newsRepresentative_(result[index],row);}
+    if(url)urls.set(url,index);for(const item of items)rememberTitle_(known,item,index);
   }
-  return result;
+  return result.filter(Boolean);
 }

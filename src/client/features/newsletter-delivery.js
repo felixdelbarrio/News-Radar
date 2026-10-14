@@ -2,8 +2,12 @@ import {$,escape,date} from '../core/dom.js';
 import {call} from '../core/api.js';
 import {createRecordFilters} from './record-filters.js';
 import {t} from '../core/language.js';
-export function createNewsletterDelivery({run}){
+import {createJobMonitor,jobProgressHtml} from './job-monitor.js';
+export function createNewsletterDelivery({run,isActive}){
   function feedback(text,error=false){const target=$('newsletter-test-result');target.hidden=false;target.textContent=text;target.classList.toggle('error',error);}
+  const monitor=createJobMonitor({id:'newsletter-delivery',get:'getNewsletterProgress',isActive,render({job}){
+    $('newsletter-delivery-progress').innerHTML=jobProgressHtml(job,{total:job.total,done:job.processed,label:'Progreso de envíos planificados',summary:t('{done}/{total} entregas; {accepted} aceptadas; {empty} sin novedades; {pending} pendientes; {review} por revisar.',{...job,done:job.processed})});
+  }});
   let historyFilters,historyRequest=0;
   async function history(){
     historyFilters||=createRecordFilters('delivery',[['correo','Suscriptor'],['estado','Estado'],['suscripcion','Suscripción']],history,{dates:true,placeholder:'Gmail ID, correo o motivo'});
@@ -13,7 +17,7 @@ export function createNewsletterDelivery({run}){
     $('delivery-history-note').textContent=data.total+' coincidencias.'+(data.limited?' Histórico visible limitado a '+data.limit+' registros; el control de duplicados conserva el historial completo.':'');
   }
   async function open(){
-    const [status]=await Promise.all([call('getNewsletterDeliveryStatus'),history()]);
+    const [status]=await Promise.all([call('getNewsletterDeliveryStatus'),history(),monitor.open()]);
     $('newsletter-sender').textContent=status.name+' <'+status.address+'>';
     $('newsletter-checks').innerHTML=[['Remitente',status.available?'Verificado':'Pendiente'],['Entrega',status.enabled?'Activada':'Desactivada'],['Programación',status.scheduled?'Instalada':'Sin activador']].map(([name,value])=>`<div class="delivery-check"><strong>${name}</strong><span>${value}</span></div>`).join('');
     $('newsletter-sender-status').textContent=status.available?'Gmail permite usar el remitente configurado.':status.error;
@@ -32,5 +36,5 @@ export function createNewsletterDelivery({run}){
   $('test-newsletter').addEventListener('click',()=>execute('sendNewsletterTest',result=>result.accepted?t('Gmail ha aceptado la prueba para {recipient}. Remitente: {sender}. Gmail ID: {id}. Incluye {count} novedades del {from} al {to}.',{...result,id:result.messageId})+' '+t('Si no aparece en la bandeja de entrada, revisa Spam y la cuarentena de Workspace; la aceptación no confirma la recepción.'):t('No se ha enviado la prueba: no hay noticias disponibles con estos filtros en el período.')));
   $('install-newsletter').addEventListener('click',()=>execute('installNewsletterSchedule',result=>result));
   $('send-pending-newsletters').addEventListener('click',()=>execute('sendPendingNewsletters',result=>result.state==='configuration_pause'?'Entrega en pausa durante la configuración. Se reanudará automáticamente.':result.state==='no_due'?'No hay entregas pendientes. Las suscripciones nuevas comienzan en el siguiente cierre de su período.':result.state==='busy'?'Hay otro envío en ejecución.':result.state==='limit'?'Se ha alcanzado el límite de envíos en 24 horas.':`${result.accepted} correos aceptados por Gmail · ${result.empty} selecciones sin novedades · ${result.duplicates} noticias repetidas omitidas · ${result.pending} pendientes.${result.error?' '+result.error:''}`));
-  return {open};
+  return {open,close:monitor.close};
 }

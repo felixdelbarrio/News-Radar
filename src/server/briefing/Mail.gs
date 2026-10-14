@@ -9,7 +9,7 @@ function gmailRequest_(path,payload){
   let result;try{result=JSON.parse(response.getContentText());}catch(_){result={};}
   if(status<200||status>=300){
     const detail=plainText_(result.error?.message||'').slice(0,300),help=status===404?'Añade y verifica el grupo en Gmail → Cuentas → Enviar como.':status===401||status===403?'Revisa los permisos del propietario y que Gmail API esté habilitada en el proyecto de Google Cloud.':status===429?'Límite de envío alcanzado; revisa las cuotas de Google.':'Revisa el registro antes de reintentar.';
-    const error=Error('Gmail API ('+status+'). '+detail+' '+help);error.rejected=status>=400&&status<500&&status!==408;throw error;
+    const error=Error('Gmail API ('+status+'). '+detail+' '+help);error.quota=status===429||/quota|rateLimitExceeded|dailyLimitExceeded/i.test(detail);error.dailyQuota=/daily|one day/i.test(detail);error.rejected=status>=400&&status<500&&status!==408;throw error;
   }
   return result;
 }

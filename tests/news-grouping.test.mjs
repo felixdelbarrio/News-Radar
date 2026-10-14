@@ -12,12 +12,12 @@ test('ordena por BBVA y alfabeto, conservando fechas y paginando sobre los grupo
  assert.deepEqual(newsEntityPage(rows,2,3).map(row=>row.id),['a2','g1','z1']);
  assert.deepEqual(newsEntityPage(rows,6,3),[]);
 });
-test('Noticias calcula la prioridad por país antes de paginar y mantiene Transversal al final',()=>{
+test('Noticias calcula la prioridad por país antes de paginar y mantiene Otras geografías al final',()=>{
  const {c}=storage();c.initializeConfiguration();c.taxonomyOptions_=()=>({});
  const rows=[row('s1','Santander'),row('b1','BBVA'),row('s2','Santander','España','2026-10-09'),row('b2','BBVA','México'),row('x1','Zeta','Sin determinar')];
  const dashboard=c.newsDashboard_(rows,{newsGeography:'España'},[],'news');
  assert.deepEqual(clean(dashboard.items).map(row=>row.id),['b1','s1','s2']);
- assert.deepEqual(clean(dashboard.newsGeographies).map(row=>row.name),['España','México','Sin determinar']);
+ assert.deepEqual(clean(dashboard.newsGeographies).map(row=>row.name),['España','México','Otras geografías']);
  assert.deepEqual(clean(c.newsDashboard_(rows,{newsGeography:'México'},[],'news').items).map(row=>row.id),['b2']);
 });
 test('Radar sitúa el mapa de calor inmediatamente después de KPI y antes del mapa geográfico',()=>{
