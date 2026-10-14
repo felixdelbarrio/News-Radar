@@ -27,14 +27,14 @@ function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,o
   }
   $("admin-tabs").addEventListener("click", (event) => {
     const button = event.target.closest("[data-admin-view]");
-    if (button) open(button.dataset.adminView).catch(error=>message(error.message,true));
+    if (button&&button.dataset.adminView!==current) open(button.dataset.adminView).catch(error=>message(error.message,true));
   });
   $("admin-tabs").addEventListener("keydown", (event) => {
     const views = Object.keys(config.adminViews), index = views.indexOf(current);
     if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
     event.preventDefault();
     const next = event.key === "Home" ? 0 : event.key === "End" ? views.length - 1 : (index + (["ArrowRight","ArrowDown"].includes(event.key) ? 1 : -1) + views.length) % views.length;
-    open(views[next]).catch(error=>message(error.message,true));
+    if(views[next]!==current)open(views[next]).catch(error=>message(error.message,true));
     $("admin-tabs").querySelector('[data-admin-view="' + views[next] + '"]').focus();
   });
   return { open, get current() {

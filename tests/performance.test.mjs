@@ -88,3 +88,14 @@ test('la telemetría distingue caché de navegador y acepta Taxonomía solo para
  s.c.recordEvents([event]);assert.match(saved.Telemetria[0][4],/RPC 0 ms; servidor 0 ms/);assert.match(saved.Telemetria[0][4],/caché cliente hit/);
  s.setEmail('reader@bbva.com');assert.throws(()=>s.c.recordEvents([event]),/Vista restringida/);
 });
+
+test('Configuración solicita catálogo y estado en paralelo y la pestaña activa no repite las lecturas',async t=>{
+ const pending=[];
+ const a=await app(t,{configure({w,replies}){
+  const backend=w.RADAR_PREVIEW.call;
+  w.RADAR_PREVIEW.call=(method,query)=>['getConfiguration','getClassificationStatus'].includes(method)?new Promise(resolve=>pending.push({method,resolve:()=>resolve(structuredClone(replies[method]))})):backend(method,query);
+ }});
+ await a.click('[data-view="administration"]');assert.deepEqual(pending.map(row=>row.method).sort(),['getClassificationStatus','getConfiguration']);
+ pending[0].resolve();await tick();assert.equal(a.find('#loading').hidden,false);pending[1].resolve();await tick();assert.equal(a.find('#loading').hidden,true);
+ await a.click('[data-admin-view="configuration"]');assert.equal(pending.length,2);
+});

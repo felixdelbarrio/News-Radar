@@ -2075,9 +2075,7 @@
       });
     }), $("catalog-reload").addEventListener("click", () => run(async () => {
       await fetchConfig(), render();
-    }, !1)), { async open() {
-      config || (await fetchConfig(), render()), await monitor.open();
-    }, close: monitor.close };
+    }, !1)), { open: () => Promise.all([config ? null : fetchConfig().then(render), monitor.open()]), close: monitor.close };
   }
 
   // src/shared/novelty-groups.js
@@ -2277,13 +2275,13 @@
     }
     return $("admin-tabs").addEventListener("click", (event) => {
       let button = event.target.closest("[data-admin-view]");
-      button && open(button.dataset.adminView).catch((error) => message(error.message, !0));
+      button && button.dataset.adminView !== current && open(button.dataset.adminView).catch((error) => message(error.message, !0));
     }), $("admin-tabs").addEventListener("keydown", (event) => {
       let views = Object.keys(config_default.adminViews), index = views.indexOf(current);
       if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
       event.preventDefault();
       let next = event.key === "Home" ? 0 : event.key === "End" ? views.length - 1 : (index + (["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : -1) + views.length) % views.length;
-      open(views[next]).catch((error) => message(error.message, !0)), $("admin-tabs").querySelector('[data-admin-view="' + views[next] + '"]').focus();
+      views[next] !== current && open(views[next]).catch((error) => message(error.message, !0)), $("admin-tabs").querySelector('[data-admin-view="' + views[next] + '"]').focus();
     }), { open, get current() {
       return current;
     } };

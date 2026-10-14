@@ -34,5 +34,5 @@ export function createConfiguration({run,isActive,onRevision}){
   $('catalog-add').addEventListener('click',()=>{readFields();entries().push(Object.fromEntries(schema[category].fields.map(([key,,type])=>[key,type==='list'?[]:type==='boolean'?true:''])));render();});
   $('catalog-form').addEventListener('submit',event=>{event.preventDefault();readFields();run(async()=>{message(await call('saveConfiguration',{config,revision}));await fetchConfig();render();await monitor.open();});});
   $('catalog-reload').addEventListener('click',()=>run(async()=>{await fetchConfig();render();},false));
-  return {async open(){if(!config){await fetchConfig();render();}await monitor.open();},close:monitor.close};
+  return {open:()=>Promise.all([config?null:fetchConfig().then(render),monitor.open()]),close:monitor.close};
 }

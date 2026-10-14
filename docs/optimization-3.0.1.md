@@ -57,4 +57,6 @@ La vista previa utiliza la instantánea RSS del repositorio, no una copia de tod
 
 Ejecutar `npm run verify` comprueba sintaxis, permisos y pruebas con cobertura; `npm run check:dist` verifica que la distribución coincide con las fuentes. Las capturas y el paquete se guardan en `output/optimization/`. Para reproducir la carga lenta local: `PREVIEW_ADMIN=1 PREVIEW_LATENCY_MS=5000 npm run preview`. El retardo solo pertenece a la vista previa y no se incluye en Apps Script.
 
-Publicar los 57 archivos de `dist/` como nueva versión de la instalación existente. No se requieren nuevos permisos, hojas ni inicialización. En esta sesión se han editado y verificado las fuentes y la distribución local; no se ha modificado el despliegue remoto.
+Publicar los 57 archivos de `dist/` como nueva versión de la instalación existente. No se requieren nuevos permisos, hojas ni inicialización. Los 57 archivos del proyecto remoto se respaldaron en `output/optimization/remote-before-3.0.1.zip`. Once archivos tenían cambios funcionales; las otras diferencias eran espacios o saltos de línea. Se actualizaron los once y se verificó su contenido después de recargar el editor. La versión 55 se publicó a las 09:24 Europe/Madrid en la implementación existente, conservando URL y permisos. Google confirmó la publicación correcta.
+
+La revisión del código remoto confirmó la causa del desfase de versión: `Config.gs` indicaba 3.0.0 y `Index.html` conservaba una etiqueta 2.7.0. La etiqueta quedó corregida a 3.0.1.
