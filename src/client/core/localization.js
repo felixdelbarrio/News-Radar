@@ -12,6 +12,11 @@ const attributes=['placeholder','title','aria-label','alt'],excluded='[data-orig
 export function localize(root){
   if(root.nodeType===3){if(!root.parentElement?.closest(excluded)){const output=localized(root,'text',root.textContent);if(output!==root.textContent)root.textContent=output;}return;}
   if(root.nodeType!==1||root.matches(excluded))return;
+  if(root.tagName==='TABLE'&&root.closest('.table-wrap'))root.setAttribute('role','table');
+  if(root.tagName==='TR'&&root.closest('.table-wrap')&&root.parentElement.tagName==='TBODY'){
+    const headings=root.closest('table').tHead?.rows[0]?.cells;
+    for(const [index,cell] of [...root.cells].entries())if(cell.colSpan===1&&headings?.[index])cell.dataset.label=t(headings[index].textContent);
+  }
   if(root.tagName==='OPTION'&&!root.hasAttribute('value'))root.setAttribute('value',root.value);
   for(const key of attributes)if(root.hasAttribute(key)){const value=root.getAttribute(key),translated=localized(root,key,value);if(value!==translated)root.setAttribute(key,translated);}
   for(const node of root.childNodes)localize(node);

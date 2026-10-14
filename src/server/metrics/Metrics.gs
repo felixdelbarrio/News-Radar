@@ -6,10 +6,10 @@ function telemetry_(operation,duration,status,detail) {
 function recordEvents(events) {
   const session=authorize_(),now=new Date();
   if(!Array.isArray(events)||!events.length||events.length>20)throw new Error('Lote de eventos no válido.');
-  const allowed=['acceso','vista','filtro','lectura','exportacion','rendimiento','error'],views=['radar','news','audit','sources','telemetry','adoption','administration','configuration','briefing','subscriptions','subscribers','runs','language'];
+  const administrative=['audit','sources','telemetry','adoption','administration','configuration','runs','subscribers','language','taxonomy'],allowed=['acceso','vista','filtro','lectura','exportacion','rendimiento','error'],views=[...readingViews,'subscriptions',...administrative];
   const cleaned=events.map(event=>{
     if(!allowed.includes(event.event)||!views.includes(event.view)||!/^[a-z0-9-]{16,80}$/i.test(event.session))throw new Error('Evento no válido.');
-    if(['audit','sources','telemetry','adoption','administration','configuration','runs','subscribers','language'].includes(event.view)&&!session.admin)throw new Error('Vista restringida.');
+    if(administrative.includes(event.view)&&!session.admin)throw new Error('Vista restringida.');
     return [now.toISOString(),session.email,event.session,event.event,event.view,eventDuration_(event.duration)];
   });
   const lock=LockService.getScriptLock();if(!lock.tryLock(3000))return {saved:false};
@@ -21,7 +21,7 @@ function recordEvents(events) {
     if(timings.length){
       append_('Telemetria',timings.map(event=>{
         const p=event.performance;
-        return [now.toISOString(),'dashboard',eventDuration_(event.duration),'OK',event.view+'; RPC '+eventDuration_(p.rpcMs)+' ms; servidor '+eventDuration_(p.serverMs)+' ms; noticias '+eventDuration_(p.newsMs)+' ms; render '+eventDuration_(p.renderMs)+' ms; caché '+(p.cacheHit===true?'hit':'miss')+'; preparación '+eventDuration_(p.preparationMs)+' ms; metadatos '+eventDuration_(p.metadataMs)+' ms; v'+RADAR.version];
+        return [now.toISOString(),'dashboard',eventDuration_(event.duration),'OK',event.view+'; RPC '+eventDuration_(p.rpcMs)+' ms; servidor '+eventDuration_(p.serverMs)+' ms; noticias '+eventDuration_(p.newsMs)+' ms; render '+eventDuration_(p.renderMs)+' ms; caché '+(p.cacheHit===true?'hit':'miss')+'; preparación '+eventDuration_(p.preparationMs)+' ms; metadatos '+eventDuration_(p.metadataMs)+' ms; caché cliente '+(p.clientCacheHit===true?'hit':'miss')+'; v'+RADAR.version];
       }));trim_('Telemetria',settings_().eventLimit);
     }
     cache.put(key,'1',10);

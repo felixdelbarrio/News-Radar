@@ -18,3 +18,17 @@ function dashboardAdministration_(){
   const value={maxFeeds:settings_().maxCustomFeeds,schedule:'Ventana: últimos '+settings_().windowDays+' días. '+collectionScheduleLabel_()+'.',feeds:customFeeds_(),configuredFeeds:configuredFeeds_(),sheetUrl:book_().getUrl()};
   cacheJson_(key,value,300);return value;
 }
+
+// A manifest is published only after all bounded fragments have been stored.
+function readDashboardCache_(cache,key){
+  const raw=cache.get(key);if(!raw)return null;
+  const manifest=JSON.parse(raw),keys=Array.from({length:manifest.parts},(_,index)=>key+':'+manifest.id+':'+index),parts=cache.getAll(keys);
+  return keys.every(key=>typeof parts[key]==='string')?JSON.parse(keys.map(key=>JSON.parse(parts[key])).join('')):null;
+}
+function writeDashboardCache_(cache,key,data){
+  const encoded=JSON.stringify(data),size=NEWS_CACHE.dashboardChars,count=Math.ceil(encoded.length/size);
+  if(count>NEWS_CACHE.dashboardParts)return;
+  const id=Utilities.getUuid(),parts={};
+  for(let index=0;index<count;index++)parts[key+':'+id+':'+index]=JSON.stringify(encoded.slice(index*size,(index+1)*size));
+  cache.putAll(parts,NEWS_CACHE.seconds);cache.put(key,JSON.stringify({id,parts:count}),NEWS_CACHE.seconds);
+}
