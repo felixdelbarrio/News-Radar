@@ -165,8 +165,8 @@ async function startApplication(params={}){
     filters.show(view);navigation.show(view);state.ready=true;filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca,subpalanca:params.subpalanca,benchmark:params.benchmark});return;
   }
   try{
-    navigation.show(defaultView);state.ready=true;await load();
-    if(params.view==='subscriptions'&&params.unsubscribe)await navigation.show('subscriptions');
+    if(params.view==='subscriptions'){state.data=await call('getDashboard',{view:'subscriptions'});renderApplicationShell(state.data);state.ready=true;await navigation.show('subscriptions');}
+    else{navigation.show(defaultView);state.ready=true;await load();}
     const id=params.unsubscribe;if(!id||params.view!=='subscriptions')return;
     message('Confirma la baja de esta suscripción.');const button=document.createElement('button');button.type='button';button.className='button';button.textContent='Confirmar baja';
     button.addEventListener('click',()=>action(async()=>{message(await call('deleteSubscription',id));await subscriptions.open();},false));$('message').appendChild(button);

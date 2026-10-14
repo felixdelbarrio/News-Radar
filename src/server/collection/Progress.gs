@@ -18,7 +18,7 @@ function progressBlockingJob_(stage,context){
 }
 function jobProgressState_(stage,job={},options={}){
   const c=progressContext_(options.jobs),{p,now}=c,ownPause=Number(options.pausedUntil??job.pausedUntil??0),quotaUntil=['translation','taxonomyTranslation'].includes(stage)?c.translationQuota:stage==='daily'||stage==='annual'?Number(p.FETCH_PAUSED_UNTIL||0):Number(options.quotaUntil||0),effectiveQuota=Math.max(quotaUntil,serviceQuotaPause_(job.error)&&ownPause>now?ownPause:0),running=p.BACKGROUND_ACTIVE===stage&&Number(p.BACKGROUND_ACTIVE_UNTIL)>now||stage==='newsletter'&&Number(p.NEWSLETTER_RUNNING_UNTIL)>now;
-  const blocker=progressBlockingJob_(stage,c);return progressState({state:job.state,queued:options.queued,running,lastExecutedAt:p['JOB_LAST_EXECUTED:'+stage]||job.updated||'',pausedUntil:ownPause,quotaUntil:effectiveQuota,nextAt:Math.max(Number(p.BACKGROUND_NEXT||0),Number(c.resumeAt[blocker]||0)),waitingFor:PROGRESS_JOB_NAMES[blocker]||'',error:job.error||''},now);
+  const blocker=progressBlockingJob_(stage,c),queued=options.queued||job.state==='En curso'&&!running;return progressState({state:job.state==='En curso'&&!running?'Pendiente':job.state,queued,running,lastExecutedAt:p['JOB_LAST_EXECUTED:'+stage]||job.updated||'',pausedUntil:ownPause,quotaUntil:effectiveQuota,nextAt:Math.max(Number(p.BACKGROUND_NEXT||0),Number(c.resumeAt[blocker]||0)),waitingFor:PROGRESS_JOB_NAMES[blocker]||'',error:job.error||''},now);
 }
 
 function withJobProgress_(stage,job,queued=false){if(!job&&!queued)return null;const value=job||{state:'En cola',total:0,processed:0,translated:0,updated:''};return {...value,progress:jobProgressState_(stage,value,{queued})};}

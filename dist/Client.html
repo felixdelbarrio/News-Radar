@@ -2807,7 +2807,7 @@
       return;
     }
     try {
-      navigation.show(defaultView), state.ready = !0, await load(), params.view === "subscriptions" && params.unsubscribe && await navigation.show("subscriptions");
+      params.view === "subscriptions" ? (state.data = await call("getDashboard", { view: "subscriptions" }), renderApplicationShell(state.data), state.ready = !0, await navigation.show("subscriptions")) : (navigation.show(defaultView), state.ready = !0, await load());
       let id = params.unsubscribe;
       if (!id || params.view !== "subscriptions") return;
       message("Confirma la baja de esta suscripci\xF3n.");

@@ -6,7 +6,8 @@ function pauseNewsletterQuota_(error){
   if(error.quota||serviceQuotaPause_(error))properties_().setProperty('NEWSLETTER_QUOTA_UNTIL',String(Date.now()+(error.dailyQuota?86400000:serviceQuotaPause_(error)||settings_().pauseMinutes*60000)));
 }
 function newsletterDeliveryPlan_(now,deliveries){
-  const periods=new Map(),attempts=new Map(deliveries.map(row=>[row.id,row])),planned=[];
+  const periods=new Map(),attempts=new Map(),planned=[];
+  for(const row of deliveries)if(!['Enviada','Sin novedades'].includes(attempts.get(row.id)?.estado))attempts.set(row.id,row);
   for(const row of subscriptionRows_().filter(row=>row.activa)){
     if(!periods.has(row.periodicidad))periods.set(row.periodicidad,newsletterPeriod_(row.periodicidad,now));
     const period=periods.get(row.periodicidad);
