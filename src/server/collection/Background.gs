@@ -93,7 +93,7 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
       else if(task==='taxonomyTranslation')taxonomyTranslationBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
       else if(task==='taxonomy')taxonomyBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
       else if(task==='classification')newsClassificationBatch_(Math.min(CLASSIFICATION_WORK.maxMs,remaining));
-      else if(task==='translation')translationBatch_(Math.min(TRANSLATION_WORK.maxMs,remaining));
+      else if(task==='translation'){translationBatch_(Math.min(TRANSLATION_WORK.maxMs,remaining));known=undefined;}
       else{
         const revision=properties_().getProperty('NEWS_REVISION');if(!known||knownRevision!==revision)known=knownUrls_();const result=collectionBatch_({...work,known}),day=recordDay(new Date(),settings_().timezone);added+=result.added;errors.push(...result.errors);
         if(daily&&work.jobs.some(job=>job.id===work.pending[0].ciclo&&job.estado==='Completada')&&properties_().getProperty('MAINTENANCE_DAY')!==day){maintenance_();properties_().setProperty('MAINTENANCE_DAY',day);}

@@ -1,8 +1,9 @@
 let articleTranslationRows_,articleTranslationMemory_;
-function articleTranslationKey_(row,language){return language+':'+sha256_(String(row.titular||'')+'\n'+String(row.extracto||''));}
+function articleFingerprint_(row){return sha256_(String(row.titular||'')+'\n'+String(row.extracto||''));}
+function articleTranslationKey_(row,language){return language+':'+articleFingerprint_(row);}
 function translationIdentityRows_(rows){
   if(!rows.length||!Object.keys(languageNames).some(language=>properties_().getProperty('TRANSLATIONS_REVISION:'+language)))return rows;
-  const index=articleTranslationIndex_(),keys=rows.map(row=>Object.keys(languageNames).map(language=>articleTranslationKey_(row.original||row,language)).filter(key=>index.has(key))),values=cachedArticleTranslations_(keys.flat());
+  const index=articleTranslationIndex_(),languages=Object.keys(languageNames),keys=rows.map(row=>{const fingerprint=articleFingerprint_(row.original||row);return languages.map(language=>language+':'+fingerprint).filter(key=>index.has(key));}),values=cachedArticleTranslations_(keys.flat());
   rows.forEach((row,i)=>{row.identityTitles=[...new Set(keys[i].map(key=>values.get(key)?.titular).filter(Boolean))];});
   return rows;
 }
@@ -49,5 +50,6 @@ function storeArticleTranslation_(row,language){
   const key=articleTranslationKey_(row,language),value=translateArticleText_(row,language),index=articleTranslationIndex_(),position=book_().getSheetByName('Traducciones').getLastRow()+1;
   append_('Traducciones',[[key,language,value.titular,value.extracto,new Date().toISOString()]]);index.set(key,position);
   articleTranslationMemory_=articleTranslationMemory_||new Map();articleTranslationMemory_.set(key,value);cacheJson_('article:'+key,value,21600);
-  properties_().setProperty('TRANSLATIONS_REVISION:'+language,new Date().toISOString());return value;
+  const revision=Date.now()+'-'+Math.random().toString(36).slice(2);
+  properties_().setProperties({['TRANSLATIONS_REVISION:'+language]:revision,NEWS_REVISION:revision});return value;
 }

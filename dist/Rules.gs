@@ -72,10 +72,10 @@ function sourceCountry_(feed,index=businessIndex_()){
   const country=index.config.geographies.find(geo=>searchText_(geo.name)===searchText_(feed.country));
   if(country)return country.name;
   if(!domainMatches_(feed.url||'','news.google.com'))return '';
-  const code=(String(feed.url).match(/[?&](?:gl|ceid)=([a-z]{2})(?:[&:]|%3A|$)/i)||[])[1];
-  const edition=index.config.geographies.find(geo=>geo.code===code?.toUpperCase());if(edition)return edition.name;
   const text=searchText_(feed.name),matches=index.geographies.filter(geo=>geo.terms.some(term=>phraseMatch_(text,term)));
-  return matches.length===1?matches[0].name:'';
+  if(matches.length===1)return matches[0].name;
+  const code=(String(feed.url).match(/[?&](?:gl|ceid)=([a-z]{2})(?:[&:]|%3A|$)/i)||[])[1];
+  return index.config.geographies.find(geo=>geo.code===code?.toUpperCase())?.name||'';
 }
 function sourceGeographies_(index=businessIndex_()){
   if(sourceGeographyMemory_?.config===index.config)return sourceGeographyMemory_.values;
@@ -87,10 +87,10 @@ function sourceGeographies_(index=businessIndex_()){
 function newsCountry_(row,index=businessIndex_()){return sourceGeographies_(index).get(searchText_(row.fuente))||row.pais||settings_().unknownCountry;}
 function annotateNews_(rows){
   const index=businessIndex_(),taxonomy=new Map(taxonomyCatalog_().map(({id,palanca,subpalanca})=>[id,{id,palanca,subpalanca}]));
-  return translationIdentityRows_(rows.map(row=>{
+  return rows.map(row=>{
     const catalog=index.entities.get(searchText_(row.entidad)),classification=classification_(searchText_(row.titular),searchText_(row.titular+' '+row.extracto),false);
     const annotated={...row,pais:newsCountry_(row,index),taxonomia:taxonomySaved_(row.taxonomia).ids.map(id=>taxonomy.get(id)).filter(Boolean),etiquetas:savedNewsLabels_(row.clasificacion),entidad:catalog?.name||row.entidad,tipo:catalog?.type||'',segmentos:classification.segments,senales:classification.assessment.excluded?[]:classification.signals};newsRelevanceMemory_.set(annotated,classification.assessment.score);return annotated;
-  }));
+  });
 }
 function evaluate_(item, feed, now) {
   const publisher=plainText_(item.source),rawTitle=plainText_(item.title);

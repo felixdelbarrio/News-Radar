@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.0.3`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.0.4`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -71,7 +71,7 @@ Apps Script comparte un espacio global entre sus archivos `.gs`; las funciones i
 
 Los imports ES del cliente se empaquetan con esbuild, usado solo durante el desarrollo. No hay dependencias de ejecución. Exportar no vuelve a cargar el dashboard. Los formularios de fuentes se reconstruyen únicamente cuando cambia su configuración. El empaquetado elimina exports sin uso; el formateador de fechas se reutiliza en vez de crearse para cada fila. CodeQL analiza los módulos originales del cliente y copias `.js` de cada archivo de servidor.
 
-El build conserva los módulos de servidor separados: actualmente genera 31 archivos, incluidos los cuatro HTML y el manifiesto. Las hojas operativas son Noticias, Auditoria, Ejecuciones, Recopilacion, Telemetria, Adopcion, Configuracion, Suscripciones y NewsletterEnvios.
+El build conserva los módulos de servidor separados: actualmente genera 59 archivos, incluidos los cuatro HTML y el manifiesto. Las hojas operativas son Noticias, Auditoria, Ejecuciones, Recopilacion, Telemetria, Adopcion, Configuracion, Suscripciones y NewsletterEnvios.
 
 ## Configuración de negocio en Sheets
 
@@ -484,3 +484,9 @@ Véase [auditoría de Iteración 3, publicación y evidencias](docs/optimization
 ### 3.0.3 · Jerarquía de filtros y coordinación de trabajos
 
 Los filtros por geografía mantienen el total superior del contexto. Administración comienza en Ejecuciones y centraliza su menú; Suscripciones aparece en segundo lugar. En móvil, las opciones se muestran únicamente al abrir Menú. La recopilación diaria precede a clasificación, traducción de negocio y entrega planificada; la revisión trimestral de taxonomía empieza tras completar las newsletters correspondientes. Los pendientes se reanudan con sus cursores y pausas. Véase [validación y publicación](docs/optimization-3.0.3.md).
+
+## Progreso, entrada y procedencia — 3.0.4
+
+La entrada normal abre Novedades; las ediciones de newsletter conservan su destino y sus filtros. Administración abre Ejecuciones. Clasificación dispone de barra y acción manual bajo las recargas; Suscripciones muestra el progreso de entrega. Los procesos comparten estado, última ejecución, motivo de pausa, previsión de reinicio y trabajo prioritario. La continuación anual y el supervisor recuperan los pendientes respetando cursores y cuotas.
+
+El país configurado del RSS se conserva incluso sin una mención local en el titular; la clasificación corrige el histórico y las tarjetas muestran Origen RSS. Las traducciones guardadas aportan identidades exactas para evitar duplicados entre idiomas en los recuentos, listados y nuevas recuperaciones. Véase [validación y publicación](docs/optimization-3.0.4.md).

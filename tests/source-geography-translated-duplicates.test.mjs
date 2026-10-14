@@ -39,3 +39,14 @@ test('una traducción recién guardada invalida el recuento de Radar aunque se r
 test('las tarjetas muestran el origen RSS escapado con estilos de identidad compartidos',async t=>{
  const a=await app(t,{configure({data}){data.briefing.items[0].fuente='Google News RSS Perú <script>';}});const source=a.find('#briefing-list .article-metadata');assert.match(source.textContent,/Origen RSS: Google News RSS Perú <script>/);assert.equal(source.querySelector('script'),null);
 });
+
+test('las ediciones archivadas conservan sus identidades y recuentos cuando después llegan nuevas traducciones',()=>{
+ const {c}=server(),a=story('es'),b=story('en',{titular:english,extracto:'New digital payments for businesses'}),frozen=c.annotateNews_([a,b]);
+ assert.equal(c.newsDashboard_(frozen,{},[],'radar',{}).stats.news,2);translate(c,a);assert.equal(c.newsDashboard_(frozen,{},[],'radar',{}).stats.news,2);assert.equal(c.newsDashboard_(frozen,{},[],'radar').stats.news,1);
+});
+test('el trabajador renueva las identidades tras traducir y el estado avisa al cliente para invalidar su selección almacenada',()=>{
+ const s=server(),c=s.c,a=story('es');add(s,[a]);let batches=0;const stages=['collection','translation','collection'];
+ c.collectionWork_=()=>({jobs:[{id:'annual',tipo:'annual',estado:'Pendiente',pendientes:1}],pending:[{ciclo:'annual'}],tasks:[]});c.backgroundTask_=()=>stages.shift();c.translationBatch_=()=>translate(c,a);c.collectionStatus_=()=>({});
+ c.collectionBatch_=({known})=>{assert.equal(c.duplicateTitle_(known,{title:english,date:new Date(a.fecha),publisher:'Editor'}),batches++>0);return {added:0,errors:[]};};
+ c.processBackground_(3);assert.equal(batches,2);assert.equal(c.getTranslationStatus().newsRevision,s.properties.NEWS_REVISION);assert.notEqual(s.properties.NEWS_REVISION,'0');
+});
