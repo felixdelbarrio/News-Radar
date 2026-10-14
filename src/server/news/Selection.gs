@@ -9,8 +9,7 @@ function newsScope_(row,query,entity,entityName=entityKey_){
   return (!query.country||row.pais===query.country)&&(!entity||entityName(row.entidad)===entity)&&(!query.source||row.medio===query.source||row.fuente===query.source)&&(!query.from||row.fecha>=query.from)&&(!query.to||row.fecha<=query.to);
 }
 function selectNews_(rows,query){
-  const entity=query.entity?entityKey_(query.entity):'';
-  return selectAnnotatedNews_(annotateNews_(rows.filter(row=>newsScope_(row,query,entity))),query);
+  return selectAnnotatedNews_(annotateNews_(rows),query);
 }
 function selectAnnotatedNews_(rows,query,entityName=entityKey_) {
   const q=searchText_(String(query.search||'').slice(0,160));

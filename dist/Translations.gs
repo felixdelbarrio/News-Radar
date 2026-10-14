@@ -1,5 +1,11 @@
 let articleTranslationRows_,articleTranslationMemory_;
 function articleTranslationKey_(row,language){return language+':'+sha256_(String(row.titular||'')+'\n'+String(row.extracto||''));}
+function translationIdentityRows_(rows){
+  if(!rows.length||!Object.keys(languageNames).some(language=>properties_().getProperty('TRANSLATIONS_REVISION:'+language)))return rows;
+  const index=articleTranslationIndex_(),keys=rows.map(row=>Object.keys(languageNames).map(language=>articleTranslationKey_(row.original||row,language)).filter(key=>index.has(key))),values=cachedArticleTranslations_(keys.flat());
+  rows.forEach((row,i)=>{row.identityTitles=[...new Set(keys[i].map(key=>values.get(key)?.titular).filter(Boolean))];});
+  return rows;
+}
 function articleTranslationIndex_(){
   if(articleTranslationRows_)return articleTranslationRows_;
   const sheet=book_().getSheetByName('Traducciones'),count=sheet.getLastRow()-1;

@@ -20,7 +20,7 @@ function dashboardContent_(query,feeds,view='radar',language='es',edition=null){
   const started=Date.now();if(!readingViews.includes(view))return {data:{},duration:0,cacheHit:false};
   const cache=CacheService.getScriptCache(),localized=view==='news'||view==='briefing';
   const selection=Object.fromEntries(Object.keys(query).filter(key=>query[key]!==''&&query[key]!=null&&!(key==='page'&&Number(query[key])===0)).sort().map(key=>[key,query[key]]));
-  const key='dashboard-fragments:'+RADAR.version+':'+sha256_(JSON.stringify([configurationRevision_(),edition?edition.id:properties_().getProperty('NEWS_RECORDS_REVISION')||'0',view,selection,localized?[language,properties_().getProperty('TRANSLATIONS_REVISION:'+language)||'0']:null])),cached=readDashboardCache_(cache,key);
+  const key='dashboard-fragments:'+RADAR.version+':'+sha256_(JSON.stringify([configurationRevision_(),edition?edition.id:properties_().getProperty('NEWS_RECORDS_REVISION')||'0',view,selection,Object.keys(languageNames).map(code=>properties_().getProperty('TRANSLATIONS_REVISION:'+code)||'0'),localized?language:null])),cached=readDashboardCache_(cache,key);
   if(cached)return {data:cached,duration:Date.now()-started,cacheHit:true};
   const data=newsDashboard_(edition&&query.benchmark?newsletterComparisonRows_(edition.items,edition.editorial,query.benchmark):edition?edition.items:cachedNewsRecords_(),query,edition?[]:feeds,view,edition?(edition.editorial||{}):null);
   if(edition){data.palanca=[...new Set(edition.items.flatMap(row=>row.taxonomia.map(item=>item.palanca)))];data.subpalanca=[...new Set(edition.items.flatMap(row=>row.taxonomia.map(taxonomyPath)))];}

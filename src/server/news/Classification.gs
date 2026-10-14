@@ -11,7 +11,7 @@ function savedNewsLabels_(value){
   try{const labels=JSON.parse(value);return {generalista:labels.generalista===true,digital:labels.digital===true,capacidades:Array.isArray(labels.capacidades)?labels.capacidades:[]};}
   catch(_){return {generalista:false,digital:false,capacidades:[]};}
 }
-function classificationRulesRevision_(config=configuration_()){return sha256_(JSON.stringify([RADAR.version,config.capabilities,config.entities,config.segments]));}
+function classificationRulesRevision_(config=configuration_()){return sha256_(JSON.stringify([RADAR.version,config.capabilities,config.entities,config.segments,config.geographies,config.feeds.map(({name,country,url})=>({name,country,url}))]));}
 function classificationJob_(){const raw=properties_().getProperty('CLASSIFICATION_JOB');return raw?JSON.parse(raw):null;}
 function classificationPending_(){const job=classificationJob_();return Boolean(job&&job.state!=='Completada');}
 function classificationReadyAt_(){const job=classificationJob_();return job&&job.state!=='Completada'?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
@@ -47,13 +47,16 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
     if(job.revision!==revision){requestNewsClassification_(true);return;}
     const count=Math.min(CLASSIFICATION_WORK.batchRows,Math.max(0,job.total-job.next+2));
     if(count){
-      const rows=sheet.getRange(job.next,1,count,keys.length).getDisplayValues(),values=[];
+      const rows=sheet.getRange(job.next,1,count,keys.length).getDisplayValues(),values=[],countries=[];let geographyChanges=0;
       for(const row of rows){
         const title=searchText_(row[5]),text=searchText_(row[5]+' '+row[6]),labels=classification_(title,text).labels,value=JSON.stringify(labels);
+        const country=newsCountry_({pais:row[2],fuente:row[9]});countries.push([country]);if(country!==row[2])geographyChanges++;
         values.push([value]);if(row[column]!==value)classified++;if(labels.digital)digital++;
         if(Date.now()-started>=maxMs||backgroundPaused_(true))break;
       }
-      if(classified){sheet.getRange(job.next,column+1,values.length,1).setNumberFormat('@').setValues(values);SpreadsheetApp.flush();invalidateNews_();}
+      if(classified)sheet.getRange(job.next,column+1,values.length,1).setNumberFormat('@').setValues(values);
+      if(geographyChanges)sheet.getRange(job.next,3,countries.length,1).setNumberFormat('@').setValues(countries);
+      if(classified||geographyChanges){SpreadsheetApp.flush();invalidateNews_();}
       read=values.length;job.next+=read;
     }
     Object.assign(job,{state:job.next>job.total+1?'Completada':'En curso',updated:new Date().toISOString(),classified:job.classified+classified,digital:job.digital+digital,error:'',pausedUntil:0});writeClassificationJob_(job);

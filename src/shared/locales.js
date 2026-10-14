@@ -248,6 +248,7 @@ export const translations = Object.freeze({
   "En espera de otro trabajo": ["Waiting for another job", "Başka bir iş bekleniyor"],
   "Cuota agotada": ["Quota exhausted", "Kota tükendi"],
   "Error temporal": ["Temporary error", "Geçici hata"],
+  "Origen RSS": ["RSS origin", "RSS kaynağı"],
   "Última ejecución": ["Last execution", "Son çalıştırma"],
   "Motivo de la pausa": ["Pause reason", "Duraklama nedeni"],
   "Previsión de reinicio": ["Estimated restart", "Tahmini yeniden başlatma"],

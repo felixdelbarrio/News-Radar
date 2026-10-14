@@ -243,6 +243,7 @@
     "En espera de otro trabajo": ["Waiting for another job", "Ba\u015Fka bir i\u015F bekleniyor"],
     "Cuota agotada": ["Quota exhausted", "Kota t\xFCkendi"],
     "Error temporal": ["Temporary error", "Ge\xE7ici hata"],
+    "Origen RSS": ["RSS origin", "RSS kayna\u011F\u0131"],
     "\xDAltima ejecuci\xF3n": ["Last execution", "Son \xE7al\u0131\u015Ft\u0131rma"],
     "Motivo de la pausa": ["Pause reason", "Duraklama nedeni"],
     "Previsi\xF3n de reinicio": ["Estimated restart", "Tahmini yeniden ba\u015Flatma"],
@@ -1240,7 +1241,7 @@
     $("message").textContent = text, $("message").classList.toggle("error", error), $("message").hidden = !1;
   }
   function newsPublisher(row, logo = !0) {
-    return '<span class="identity-label">Medio: ' + (row.medio ? "<span data-original>" + escape(row.medio) + "</span>" : "No indicado") + (logo ? identityMark("publishers", row.medio, escape) : "") + "</span>";
+    return '<span class="identity-label">Medio: ' + (row.medio ? "<span data-original>" + escape(row.medio) + "</span>" : "No indicado") + (logo ? identityMark("publishers", row.medio, escape) : "") + "</span>" + (row.fuente ? '<span class="identity-label">' + t("Origen RSS") + ": <span data-original>" + escape(row.fuente) + "</span></span>" : "");
   }
   function newsTaxonomy(row, selection = {}) {
     let parents = /* @__PURE__ */ new Set(), children = /* @__PURE__ */ new Set();

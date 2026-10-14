@@ -1,8 +1,8 @@
 function cachedNewsRecords_(){
-  const cache=CacheService.getScriptCache(),key='news-records:'+sha256_(configurationRevision_()+'|'+(properties_().getProperty('NEWS_RECORDS_REVISION')||'0')),raw=cache.get(key);
+  const cache=CacheService.getScriptCache(),key='news-records:'+sha256_(RADAR.version+'|'+configurationRevision_()+'|'+(properties_().getProperty('NEWS_RECORDS_REVISION')||'0')),raw=cache.get(key);
   if(raw){
     const keys=Array.from({length:Number(raw)},(_,index)=>key+':'+index),parts=cache.getAll(keys);
-    if(keys.every(key=>parts[key]))return keys.flatMap(key=>JSON.parse(parts[key])).map(unpackNews_);
+    if(keys.every(key=>parts[key]))return translationIdentityRows_(keys.flatMap(key=>JSON.parse(parts[key])).map(unpackNews_));
   }
   const rows=annotateNews_(rows_('Noticias',settings_().newsReadLimit)),chunks=[];
   function chunk(items){

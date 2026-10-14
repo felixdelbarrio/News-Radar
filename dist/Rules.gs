@@ -67,12 +67,30 @@ function classification_(title,text,includeLabels=true){
   const labels=includeLabels?newsLabels_(assessment,title):undefined;
   return {signals,assessment,segments,labels};
 }
+let sourceGeographyMemory_;
+function sourceCountry_(feed,index=businessIndex_()){
+  const country=index.config.geographies.find(geo=>searchText_(geo.name)===searchText_(feed.country));
+  if(country)return country.name;
+  if(!domainMatches_(feed.url||'','news.google.com'))return '';
+  const code=(String(feed.url).match(/[?&](?:gl|ceid)=([a-z]{2})(?:[&:]|%3A|$)/i)||[])[1];
+  const edition=index.config.geographies.find(geo=>geo.code===code?.toUpperCase());if(edition)return edition.name;
+  const text=searchText_(feed.name),matches=index.geographies.filter(geo=>geo.terms.some(term=>phraseMatch_(text,term)));
+  return matches.length===1?matches[0].name:'';
+}
+function sourceGeographies_(index=businessIndex_()){
+  if(sourceGeographyMemory_?.config===index.config)return sourceGeographyMemory_.values;
+  const values=new Map();
+  for(const feed of index.config.feeds){const country=sourceCountry_(feed,index);if(country)values.set(searchText_(feed.name),country);}
+  for(const entity of index.config.entities)for(const geo of index.config.geographies)values.set(searchText_(entity.name+' · '+geo.name),geo.name);
+  sourceGeographyMemory_={config:index.config,values};return values;
+}
+function newsCountry_(row,index=businessIndex_()){return sourceGeographies_(index).get(searchText_(row.fuente))||row.pais||settings_().unknownCountry;}
 function annotateNews_(rows){
   const index=businessIndex_(),taxonomy=new Map(taxonomyCatalog_().map(({id,palanca,subpalanca})=>[id,{id,palanca,subpalanca}]));
-  return rows.map(row=>{
+  return translationIdentityRows_(rows.map(row=>{
     const catalog=index.entities.get(searchText_(row.entidad)),classification=classification_(searchText_(row.titular),searchText_(row.titular+' '+row.extracto),false);
-    const annotated={...row,taxonomia:taxonomySaved_(row.taxonomia).ids.map(id=>taxonomy.get(id)).filter(Boolean),etiquetas:savedNewsLabels_(row.clasificacion),entidad:catalog?.name||row.entidad,tipo:catalog?.type||'',segmentos:classification.segments,senales:classification.assessment.excluded?[]:classification.signals};newsRelevanceMemory_.set(annotated,classification.assessment.score);return annotated;
-  });
+    const annotated={...row,pais:newsCountry_(row,index),taxonomia:taxonomySaved_(row.taxonomia).ids.map(id=>taxonomy.get(id)).filter(Boolean),etiquetas:savedNewsLabels_(row.clasificacion),entidad:catalog?.name||row.entidad,tipo:catalog?.type||'',segmentos:classification.segments,senales:classification.assessment.excluded?[]:classification.signals};newsRelevanceMemory_.set(annotated,classification.assessment.score);return annotated;
+  }));
 }
 function evaluate_(item, feed, now) {
   const publisher=plainText_(item.source),rawTitle=plainText_(item.title);
@@ -90,7 +108,7 @@ function evaluate_(item, feed, now) {
   const geographyText=text;
   const countries=index.geographies.filter(geo=>geo.terms.some(term=>phraseMatch_(geographyText,term))).map(geo=>geo.name);
   if(feed.kind==='profile'&&countries.length&&!countries.includes(feed.country))return {inRange:true,reason:'Geografía distinta de la búsqueda'};
-  const country=countries.length===1?countries[0]:settings_().unknownCountry;
+  const country=sourceCountry_(feed,index)||(countries.length===1?countries[0]:settings_().unknownCountry);
   if(feed.capabilitySearch&&classification.assessment.excluded)return {inRange:true,reason:'Información corporativa sin novedad de canal digital'};
   if(feed.capabilitySearch&&(!classification.assessment.capabilities.length||!classification.assessment.channel))return {inRange:true,reason:'Sin capacidad digital activa en contexto de canal'};
   return {inRange:true,relevant:classification.labels.digital||(!classification.assessment.excluded&&classification.assessment.score>0),item:{date,title,excerpt:feed.kind==='profile'&&excerpt.startsWith(title)?'':excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country,language:item.language||feed.language||'',publisher:publisher||''}};
