@@ -31,7 +31,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.0.3`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.0.5`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -71,7 +71,7 @@ Apps Script comparte un espacio global entre sus archivos `.gs`; las funciones i
 
 Los imports ES del cliente se empaquetan con esbuild, usado solo durante el desarrollo. No hay dependencias de ejecución. Exportar no vuelve a cargar el dashboard. Los formularios de fuentes se reconstruyen únicamente cuando cambia su configuración. El empaquetado elimina exports sin uso; el formateador de fechas se reutiliza en vez de crearse para cada fila. CodeQL analiza los módulos originales del cliente y copias `.js` de cada archivo de servidor.
 
-El build conserva los módulos de servidor separados: actualmente genera 31 archivos, incluidos los cuatro HTML y el manifiesto. Las hojas operativas son Noticias, Auditoria, Ejecuciones, Recopilacion, Telemetria, Adopcion, Configuracion, Suscripciones y NewsletterEnvios.
+El build conserva los módulos de servidor separados: actualmente genera 59 archivos, incluidos los cuatro HTML y el manifiesto. Las hojas operativas son Noticias, Auditoria, Ejecuciones, Recopilacion, Telemetria, Adopcion, Configuracion, Suscripciones y NewsletterEnvios.
 
 ## Configuración de negocio en Sheets
 
@@ -361,7 +361,7 @@ Para actualizar, copiar `dist/`, ejecutar `initializeConfiguration` y publicar l
 
 Novedades, Noticias, Radar y las nuevas newsletters comparten los valores iniciales Empresas e instituciones y Canal digital. Cobertura se puede cambiar a Generalista o Todos; guardar, editar y consultar una newsletter conserva esa elección explícita. El asunto generado incluye la cobertura aplicada.
 
-Las pestañas de Novedades y Noticias se ordenan alfabéticamente y muestran Transversal al final. El correo utiliza el mismo orden y nombre. La clave de datos «Sin determinar» se conserva en las selecciones y enlaces para mantener el contexto de las ediciones enviadas.
+Las pestañas de Novedades y Noticias se ordenan alfabéticamente y agrupan las noticias sin país en Otras geografías, al final. El correo utiliza el mismo orden y nombre. El país original se conserva en los datos y las ediciones enviadas.
 
 Tras copiar `dist/`, ejecutar `initializeConfiguration` y publicar la WebApp. La inicialización incorpora Canal digital a las suscripciones sin cobertura definida y conserva las selecciones explícitas, sin modificar ediciones archivadas.
 
@@ -369,7 +369,7 @@ Validación: 273 pruebas superadas; cobertura de líneas 96,82 %. Sintaxis y dis
 
 ## 1.20.0 — Identidad visual y Radar móvil
 
-Las tarjetas de Noticias y Novedades muestran un logo de entidad y una bandera discretos en la esquina superior derecha. Pestañas geográficas, ranking y mapa de calor, suscripciones y fuentes comparten la misma identidad. Las newsletters utilizan los mismos recursos en tarjetas y encabezados geográficos y de entidad. Transversal conserva su nombre y no recibe una bandera; una entidad añadida sin logo utiliza un monograma accesible.
+Las tarjetas de Noticias y Novedades muestran un logo de entidad y una bandera discretos en la esquina superior derecha. Pestañas geográficas, ranking y mapa de calor, suscripciones y fuentes comparten la misma identidad. Las newsletters utilizan los mismos recursos en tarjetas y encabezados geográficos y de entidad. Las noticias sin país se agrupan en Otras geografías y no reciben una bandera; una entidad añadida sin logo utiliza un monograma accesible.
 
 Los 38 logos y las 7 banderas actuales están en `assets/identity/`, con procedencia en `manifest.json`. El catálogo completo pesa 62.754 bytes en PNG. El build incorpora recursos y dimensiones al cliente y a Apps Script; no hay consultas externas para mostrarlos. Un único renderizador y los tokens de identidad fijan tamaños y proporciones. Las imágenes del cliente usan carga diferida; cada correo integra una sola copia de cada recurso utilizado mediante CID, además de bIA.
 
@@ -381,7 +381,7 @@ Validación de 1.20.0: 276 pruebas superadas; cobertura de líneas 96,83 %. Sint
 
 ## 1.21.0 — Noticias por entidad y prioridad visual del Radar
 
-Noticias mantiene las pestañas por país y presenta las entidades en bloques identificados por su nombre y logo. BBVA aparece primero; el resto se ordena por número de noticias de la selección y, en caso de empate, alfabéticamente. Dentro de cada entidad las fechas van de más reciente a más antigua. El orden se calcula antes de paginar, compartiendo el criterio con Novedades. Transversal conserva la última posición.
+Noticias mantiene las pestañas por país y presenta las entidades en bloques identificados por su nombre y logo. BBVA aparece primero; el resto se ordena por número de noticias de la selección y, en caso de empate, alfabéticamente. Dentro de cada entidad las fechas van de más reciente a más antigua. El orden se calcula antes de paginar, compartiendo el criterio con Novedades. Otras geografías conserva la última posición.
 
 El mapa de calor de canales digitales ocupa la primera sección después de los KPI, antes de Presencia geográfica. Se evita construir tarjetas de Noticias ocultas en otras vistas y se reutiliza el estado de programación diaria con invalidación inmediata desde los controles de administración. El trabajador compartido conserva sus consultas directas y la prioridad de recuperación diaria.
 
@@ -449,7 +449,7 @@ Se eliminan el endpoint de preferencias, su esquema y el catálogo personal del 
 
 ## Ámbito de aplicación y geografías · 2.5.0
 
-Configuración de negocio incorpora países de seguimiento por segmento. Noticias y Novedades agrupan los países restantes en «Otras geografías» y las noticias sin país en «Transversal». Radar conserva su alcance global; mapa y opciones de país omiten geografías sin resultados. Las consultas seleccionan términos por idioma, con vocabulario central y los límites de recuperación existentes. [Detalle y publicación](docs/application-scope-2.5.0.md).
+Configuración de negocio incorpora países de seguimiento por segmento. Noticias y Novedades agrupan los países restantes en «Otras geografías» junto con las noticias sin país. Radar conserva su alcance global; mapa y opciones de país omiten geografías sin resultados. Las consultas seleccionan términos por idioma, con vocabulario central y los límites de recuperación existentes. [Detalle y publicación](docs/application-scope-2.5.0.md).
 
 La corrección **2.5.1** compacta el editor del ámbito con tarjetas de país, casilla junto al nombre y selección resaltada mediante CSS. La cuadrícula se adapta al ancho disponible y utiliza dos columnas en móvil. No cambia la configuración guardada.
 
@@ -484,3 +484,13 @@ Véase [auditoría de Iteración 3, publicación y evidencias](docs/optimization
 ### 3.0.3 · Jerarquía de filtros y coordinación de trabajos
 
 Los filtros por geografía mantienen el total superior del contexto. Administración comienza en Ejecuciones y centraliza su menú; Suscripciones aparece en segundo lugar. En móvil, las opciones se muestran únicamente al abrir Menú. La recopilación diaria precede a clasificación, traducción de negocio y entrega planificada; la revisión trimestral de taxonomía empieza tras completar las newsletters correspondientes. Los pendientes se reanudan con sus cursores y pausas. Véase [validación y publicación](docs/optimization-3.0.3.md).
+
+## Progreso, entrada y procedencia — 3.0.4
+
+La entrada normal abre Novedades; las ediciones de newsletter conservan su destino y sus filtros. Administración abre Ejecuciones. Clasificación dispone de barra y acción manual bajo las recargas; Suscripciones muestra el progreso de entrega. Los procesos comparten estado, última ejecución, motivo de pausa, previsión de reinicio y trabajo prioritario. La continuación anual y el supervisor recuperan los pendientes respetando cursores y cuotas.
+
+El país configurado del RSS se conserva incluso sin una mención local en el titular; la clasificación corrige el histórico y las tarjetas muestran Origen RSS. Las traducciones guardadas aportan identidades exactas para evitar duplicados entre idiomas en los recuentos, listados y nuevas recuperaciones. Véase [validación y publicación](docs/optimization-3.0.4.md).
+
+## Agrupamiento geográfico — 3.0.5
+
+Las noticias sin país se incluyen en Otras geografías, junto con los países fuera del ámbito de seguimiento. Noticias, Novedades y newsletters comparten nombre, agrupamiento y orden. Se conserva el país original para auditoría; la revisión no reinicia la clasificación en curso. Véase [validación y publicación](docs/optimization-3.0.5.md).

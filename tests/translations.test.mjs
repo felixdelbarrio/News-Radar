@@ -30,7 +30,7 @@ test('un fallo del traductor pausa y conserva las traducciones ya escritas para 
  c.backgroundTick_();assert.equal(calls,2);job.pausedUntil=0;c.writeTranslationJob_(job);const log=provider(c);c.backgroundTick_();assert.equal(log.length,2);assert.equal(c.translationJob_().state,'Completada');
 });
 test('el límite diario conserva el cursor y el día siguiente prioriza nuevas publicaciones',()=>{
- const s=server(),c=s.c;add(s,[article]);provider(c);c.requestTranslations_();c.backgroundTick_();const job=c.translationJob_();job.state='Pendiente';job.calls=3000;job.processed=0;job.cursor=null;c.writeTranslationJob_(job);c.translationBatch_();c.backgroundTick_();assert.equal(c.translationJob_().state,'En pausa');assert.match(c.translationJob_().error,/Límite diario/);assert.ok(c.scheduledTriggers_('backgroundTick_')[0].delay>=86400000-1000);
+ const s=server(),c=s.c;add(s,[article]);provider(c);c.requestTranslations_();c.backgroundTick_();const job=c.translationJob_();job.state='Pendiente';job.calls=3000;job.processed=0;job.cursor=null;c.writeTranslationJob_(job);c.translationBatch_();c.backgroundTick_();assert.equal(c.translationJob_().state,'En pausa');assert.match(c.translationJob_().error,/Límite diario/);assert.ok(Math.abs(c.scheduledTriggers_('backgroundTick_')[0].delay-(c.nextDailyReset(Date.now(),c.settings_().timezone)-Date.now()))<1000);
  job.callDay='2026-01-01';job.started='2026-01-01T02:00:00Z';job.cursor={fecha:article.fecha,id:article.id};c.writeTranslationJob_(job);add(s,[{...article,id:'latest',titular:'Newest headline',fecha:'2026-10-12'}]);const log=provider(c);c.requestTranslations_();c.backgroundTick_();assert.match(log[0].input,/Newest headline/);assert.equal(c.translationJob_().calls,3);
 });
 test('la programación es idempotente, se integra en la cola diaria y solo el administrador puede controlarla',()=>{
@@ -55,8 +55,8 @@ test('el tiempo de lote limita llamadas lentas y conserva la noticia parcialment
  const s=server(),c=s.c;add(s,[article]);let clock=Date.now(),calls=0;c.Date=class extends Date{constructor(value=clock){super(value);}static now(){return clock;}};
  c.LanguageApp={translate:html=>{calls++;clock+=50000;return html;}};c.requestTranslations_();c.backgroundTick_();assert.equal(calls,1);assert.equal(c.translationJob_().processed,0);assert.equal(c.translationJob_().state,'Pendiente');c.backgroundTick_();assert.equal(calls,2);c.backgroundTick_();assert.equal(calls,3);assert.equal(c.translationJob_().state,'Completada');
 });
-test('guardar traducciones invalida las tarjetas pero conserva la caché de gráficos del Radar',()=>{
- const s=server(),c=s.c;add(s,[{...article,entidad:'BBVA'}]);const query={entity:'BBVA',segment:'Empresas e instituciones'},feeds=c.feeds_();assert.equal(c.dashboardContent_(query,feeds,'radar','es').cacheHit,false);provider(c);c.storeArticleTranslation_(article,'tr');assert.equal(c.dashboardContent_(query,feeds,'radar','tr').cacheHit,true);
+test('guardar traducciones invalida las identidades y el Radar, que vuelve a reutilizar su caché entre idiomas',()=>{
+ const s=server(),c=s.c;add(s,[{...article,entidad:'BBVA'}]);const query={entity:'BBVA',segment:'Empresas e instituciones'},feeds=c.feeds_();assert.equal(c.dashboardContent_(query,feeds,'radar','es').cacheHit,false);provider(c);c.storeArticleTranslation_(article,'tr');assert.equal(c.dashboardContent_(query,feeds,'radar','tr').cacheHit,false);assert.equal(c.dashboardContent_(query,feeds,'radar','es').cacheHit,true);
 });
 test('una solicitud diaria llegada durante una traducción cede el siguiente turno sin perder variantes ni cursor',()=>{
  const s=server(),c=s.c;add(s,[article]);let calls=0;c.LanguageApp={translate:html=>{calls++;c.requestDailyCollection_();return html;}};

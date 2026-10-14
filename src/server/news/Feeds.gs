@@ -32,9 +32,9 @@ function ingestFeed_(feed,known,cycle,now,response) {
 }
 function knownUrls_() {
   const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1,known=new Set();known.titles=new Map();
-  if(count>0)for(const row of sheet.getRange(2,2,count,7).getDisplayValues()){
-    const url=canonicalUrl_(row[6]);if(url)known.add(url);
-    const date=row[0];if(Number.isFinite(Date.parse(date)))rememberTitle_(known,{date,title:row[4],publisher:row[2]});
+  if(count>0)for(const row of translationIdentityRows_(sheet.getRange(2,2,count,7).getDisplayValues().map(row=>({fecha:row[0],medio:row[2],titular:row[4],extracto:row[5],url:row[6]})))){
+    const url=canonicalUrl_(row.url);if(url)known.add(url);
+    if(Number.isFinite(Date.parse(row.fecha)))for(const title of [row.titular,...(row.identityTitles||[])])rememberTitle_(known,{date:row.fecha,title,publisher:row.medio});
   }
   return known;
 }

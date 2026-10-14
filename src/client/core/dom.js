@@ -12,7 +12,7 @@ function message(text, error = false) {
   $("message").classList.toggle("error", error);
   $("message").hidden = false;
 }
-function newsPublisher(row,logo=true){return '<span class="identity-label">'+'Medio: '+(row.medio?'<span data-original>'+escape(row.medio)+'</span>':'No indicado')+(logo?identityMark('publishers',row.medio,escape):'')+'</span>';}
+function newsPublisher(row,logo=true){return '<span class="identity-label">'+'Medio: '+(row.medio?'<span data-original>'+escape(row.medio)+'</span>':'No indicado')+(logo?identityMark('publishers',row.medio,escape):'')+'</span>'+(row.fuente?'<span class="identity-label">'+t('Origen RSS')+': <span data-original>'+escape(row.fuente)+'</span></span>':'');}
 function newsTaxonomy(row,selection={}){const parents=new Set(),children=new Set();for(const item of row.taxonomia||[]){if(item.palanca!==selection.palanca)parents.add(item.palanca);if(item.subpalanca!==taxonomySubLabel(selection.subpalanca))children.add(item.subpalanca);}return [...parents].map(value=>'<span class="badge" data-original>'+escape(t('Palanca')+': '+t(value))+'</span>').join('')+[...children].map(value=>'<span class="badge" data-original>'+escape(t('Subpalanca')+': '+t(value))+'</span>').join('');}
 function newsCoverage(row,selection={}){return [['generalista','Generalista'],['digital','Canal digital']].filter(([key])=>row.etiquetas?.[key]&&(!selection.coverage||key!==selection.coverage)&&!(selection.coverage==='digital'&&key==='generalista')).map(([,label])=>'<span class="badge">'+label+'</span>').join('');}
 function metricCards(values) {

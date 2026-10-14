@@ -40,14 +40,14 @@ test('la franja de Radar muestra todas las series y el mapa vacío no se destaca
  a.find('#world-map [data-country="España"]').dispatchEvent(new a.w.Event('pointerover',{bubbles:true}));assert.equal(a.find('#world-map [data-country="España"]').classList.contains('is-highlighted'),false);
 });
 
-test('las traducciones y nombres no invalidan contenido ajeno; un cambio de noticias sí',()=>{
+test('nuevas traducciones invalidan recuentos entre idiomas; los nombres conservan el contenido',()=>{
  const s=storage(),c=s.c;c.initializeConfiguration();let reads=0;
  c.cachedNewsRecords_=()=>[];c.newsDashboard_=()=>{reads++;return {items:[]};};c.savedArticleTranslations_=rows=>rows;
  const get=language=>c.dashboardContent_({},[],'news',language);
  assert.equal(get('es').cacheHit,false);assert.equal(get('en').cacheHit,false);
- s.properties['TRANSLATIONS_REVISION:en']='new';assert.equal(get('es').cacheHit,true);assert.equal(get('en').cacheHit,false);
+ s.properties['TRANSLATIONS_REVISION:en']='new';assert.equal(get('es').cacheHit,false);assert.equal(get('en').cacheHit,false);
  c.invalidateNews_(false,false);assert.equal(get('es').cacheHit,true);
- c.invalidateNews_();assert.equal(get('es').cacheHit,false);assert.equal(reads,4);
+ c.invalidateNews_();assert.equal(get('es').cacheHit,false);assert.equal(reads,5);
 });
 
 test('metadatos reutilizados respetan revisiones de configuración y nombres traducidos',()=>{

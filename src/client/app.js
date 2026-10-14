@@ -5,7 +5,8 @@ import {createTaxonomyHeatmap} from './features/taxonomy-heatmap.js';
 import {createTaxonomy} from './features/taxonomy.js';
 import {defaultView,navigationCache} from './config.js';
 import {createLanguageSettings} from './features/language-settings.js';
-import {createRecoveryControls,renderCollectionJobs} from './features/runs.js';
+import {createClassification} from './features/classification.js';
+import {loadRuns,createRecoveryControls,renderCollectionJobs} from './features/runs.js';
 import {createCollectionProgress} from './features/collection-progress.js';
 import {createFilterPanel} from './features/filter-panel.js';
 import {createSubscriptions} from './features/subscriptions.js';
@@ -31,14 +32,15 @@ const usage = createUsage({ getView: () => navigation.current === "administratio
 const dashboards=new Map();
 const selectionKey=query=>JSON.stringify(Object.entries(query).filter(([,value])=>value!==''&&value!=null).sort(([a],[b])=>a.localeCompare(b)));
 const noteNewsRevision=revision=>{if(revision&&state.data&&revision!==state.data.newsRevision){state.contentStale=true;dashboards.clear();}};
-const configuration = createConfiguration({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='configuration'});
+const configuration = createConfiguration({run:action});
 const taxonomy=createTaxonomy({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='taxonomy'});
 const subscriptions = createSubscriptions({run:action,onApply:query=>navigateSelection(query.view,query)});
-const newsletterDelivery=createNewsletterDelivery({run:action});
+const classification=createClassification({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='runs'});
+const newsletterDelivery=createNewsletterDelivery({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='subscribers'});
 const languageSettings=createLanguageSettings({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='language'});
-const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onLanguage:()=>languageSettings.open(),onLeaveLanguage:()=>languageSettings.close(),onLeaveConfiguration:()=>configuration.close(),onTaxonomy:()=>taxonomy.open(),onLeaveTaxonomy:()=>taxonomy.close() });
+const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onLanguage:()=>languageSettings.open(),onLeaveLanguage:()=>languageSettings.close(),onRuns:async()=>{const data=await loadRuns();if(data)await classification.open(data.classification);},onLeaveRuns:()=>classification.close(),onLeaveSubscribers:()=>newsletterDelivery.close(),onTaxonomy:()=>taxonomy.open(),onLeaveTaxonomy:()=>taxonomy.close() });
 const panel=createFilterPanel();
-const navigation = createNavigation({onPanel:view=>{++state.request;panel.show(view);refreshLoading();}, onSelection:view=>{configuration.close();taxonomy.close();const changed=filters.show(view);if(state.ready&&(changed||state.contentStale||state.view!==view))load(true);}, onSubscriptions:()=>{configuration.close();taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
+const navigation = createNavigation({onPanel:view=>{if(view!=='administration'){classification.close();newsletterDelivery.close();}++state.request;panel.show(view);refreshLoading();}, onSelection:view=>{taxonomy.close();const changed=filters.show(view);if(state.ready&&(changed||state.contentStale||state.view!==view))load(true);}, onSubscriptions:()=>{taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
 const filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
   track("filtro");
   load();
@@ -115,7 +117,7 @@ async function load(reuse=false) {
     }
   }
 }
-const actionControls="#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
+const actionControls="#classification-start,#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
 async function action(fn, refresh = true) {
   if (state.busy) return;
   state.busy = true;
@@ -162,10 +164,9 @@ async function startApplication(params={}){
     state.attribution=params.edition;const view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;
     filters.show(view);navigation.show(view);state.ready=true;filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca,subpalanca:params.subpalanca,benchmark:params.benchmark});return;
   }
-  if(['news','briefing','radar'].includes(params.view)){navigation.show(params.view);state.ready=true;await load();return;}
   try{
-    state.data=await call('getBootstrap');renderApplicationShell(state.data);state.ready=true;track('acceso');
-    await navigation.show(params.view==='subscriptions'?'subscriptions':state.data.admin?'administration':defaultView);
+    if(params.view==='subscriptions'){state.data=await call('getDashboard',{view:'subscriptions'});renderApplicationShell(state.data);state.ready=true;await navigation.show('subscriptions');}
+    else{navigation.show(defaultView);state.ready=true;await load();}
     const id=params.unsubscribe;if(!id||params.view!=='subscriptions')return;
     message('Confirma la baja de esta suscripción.');const button=document.createElement('button');button.type='button';button.className='button';button.textContent='Confirmar baja';
     button.addEventListener('click',()=>action(async()=>{message(await call('deleteSubscription',id));await subscriptions.open();},false));$('message').appendChild(button);
