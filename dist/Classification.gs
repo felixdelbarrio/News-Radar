@@ -15,7 +15,7 @@ function classificationRulesRevision_(config=configuration_()){return sha256_(JS
 function classificationJob_(){const raw=properties_().getProperty('CLASSIFICATION_JOB');return raw?JSON.parse(raw):null;}
 function classificationPending_(){const job=classificationJob_();return Boolean(job&&job.state!=='Completada');}
 function classificationReadyAt_(){const job=classificationJob_();return job&&job.state!=='Completada'?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
-function writeClassificationJob_(job){properties_().setProperty('CLASSIFICATION_JOB',JSON.stringify(job));}
+function writeClassificationJob_(job){progressContextMemory_=undefined;properties_().setProperty('CLASSIFICATION_JOB',JSON.stringify(job));}
 function requestNewsClassification_(force=false){
   const job=classificationJob_();if(!force&&job?.version===RADAR.version)return;
   const now=new Date(),total=Math.max(0,book_().getSheetByName('Noticias').getLastRow()-1);
@@ -29,7 +29,7 @@ function drainClassificationRequest_(){
   requestNewsClassification_(true);p.deleteProperty('CLASSIFICATION_REQUEST');
 }
 function getClassificationStatus(){
-  authorize_(true);const job=classificationJob_();return {newsRevision:properties_().getProperty('NEWS_REVISION')||'0',queued:Boolean(properties_().getProperty('CLASSIFICATION_REQUEST')),scheduled:dailyScheduleStatus_(),timezone:settings_().timezone,job:job?{...job,processed:Math.min(job.total,job.next-2)}:null};
+  authorize_(true);const job=classificationJob_();return {newsRevision:properties_().getProperty('NEWS_REVISION')||'0',queued:Boolean(properties_().getProperty('CLASSIFICATION_REQUEST')),scheduled:dailyScheduleStatus_(),timezone:settings_().timezone,job:job?{...job,progress:jobProgressState_('classification',job,{queued:Boolean(properties_().getProperty('CLASSIFICATION_REQUEST'))}),processed:Math.min(job.total,job.next-2)}:null};
 }
 function startClassification(){
   authorize_(true);return withForegroundWrite_(()=>{
@@ -58,6 +58,6 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
     Object.assign(job,{state:job.next>job.total+1?'Completada':'En curso',updated:new Date().toISOString(),classified:job.classified+classified,digital:job.digital+digital,error:'',pausedUntil:0});writeClassificationJob_(job);
     telemetry_('clasificacion',Date.now()-started,'OK',read+' leídas; '+classified+' clasificadas; '+digital+' digitales; '+Math.min(job.total,job.next-2)+'/'+job.total+' revisadas');
   }catch(error){
-    Object.assign(job,{state:'En pausa',error:String(error.message).slice(0,180),updated:new Date().toISOString(),pausedUntil:Date.now()+settings_().retryMinutes*60000});writeClassificationJob_(job);telemetry_('clasificacion',Date.now()-started,'Error',job.error);
+    Object.assign(job,{state:'En pausa',error:String(error.message).slice(0,180),updated:new Date().toISOString(),pausedUntil:Date.now()+(serviceQuotaPause_(error)||settings_().retryMinutes*60000)});writeClassificationJob_(job);telemetry_('clasificacion',Date.now()-started,'Error',job.error);
   }
 }

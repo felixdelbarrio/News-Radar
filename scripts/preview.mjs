@@ -51,16 +51,15 @@ const taxonomyCatalog_=()=>${serialize(taxonomy)},taxonomyTranslations_=()=>(${s
 function writeConfiguration_(config,version){authorize_();if(version!==revision)throw Error('La configuración ha cambiado. Recarga los catálogos.');validateConfiguration_(config);configuration=JSON.parse(JSON.stringify(config));revision=String(Number(revision)+1);return 'Configuración local guardada en memoria. No se ha escrito en Google.';}
 ${shared}
 window.RADAR_PREVIEW={async call(method,q={}){
- if(method==='getBootstrap')return this.call('getDashboard',{view:'runs'});
 ${previewDelay?`if(method!=='recordEvents')await new Promise(resolve=>setTimeout(resolve,${previewDelay}));`:''}
  if(method==='resumeCollection'){authorize_();return {added:0,pending:0,errors:[],notice:'Vista local: no hay recuperaciones remotas en curso.'};}
  if(method==='collectNow'){authorize_();const range=(q||'today')!=='year'?collectionRecentRange_(new Date()):collectionRange_(q,new Date()),available=rows.filter(row=>row.fecha>=range.from&&row.fecha<=range.to).length;return {added:0,pending:0,errors:[],notice:'Vista local: '+available+' noticias de la instantánea en el período '+range.from+' / '+range.to+'. La consulta remota se ejecuta únicamente en Apps Script.'};}
  if(method==='recordEvents'){usage.push(...q.map(event=>({fecha:new Date().toISOString(),correo:'usuario@bbva.com',sesion:event.session,evento:event.event,vista:event.view,duracion_ms:eventDuration_(event.duration)})));if(usage.length>settings_().eventLimit)usage.splice(0,usage.length-settings_().eventLimit);return {saved:true};}
  if(method==='getNewsletterHistory'){authorize_();return {...recordPage([],q),options:{},limit:settings_().eventLimit,limited:false};}
- if(method==='getRuns') {authorize_();return {...recordPage([],q),options:{},collection:{jobs:[]},limit:settings_().eventLimit,limited:false};}
+ if(method==='getRuns') {authorize_();return {...recordPage([],q),options:{},collection:{jobs:[]},classification:{scheduled:false,queued:false,job:null},limit:settings_().eventLimit,limited:false};}
  if(method==='getTaxonomyStatus'){authorize_();return {scheduled:false,hour:settings_().dailyHour,minute:45,timezone:settings_().timezone,job:null,items:taxonomyCatalog_()};}
  if(method==='startTaxonomy'){authorize_();throw Error('La taxonomía se ejecuta en Google Apps Script.');}
- if(method==='getClassificationStatus') {authorize_();return {scheduled:false,hour:settings_().dailyHour,minute:CLASSIFICATION_WORK.dailyMinute,timezone:settings_().timezone,job:null};}
+ if(method==='getClassificationStatus') {authorize_();return {scheduled:false,hour:settings_().dailyHour,timezone:settings_().timezone,job:null};}
  if(method==='startClassification'){authorize_();throw Error('La clasificación se ejecuta en Google Apps Script.');}
  if(method==='getTranslationStatus'){authorize_();return {scheduled:false,hour:2,timezone:settings_().timezone,job:null,queued:false};}
  if(['installTranslationSchedule','disableTranslationSchedule','startTranslations'].includes(method)){authorize_();throw Error('La traducción nocturna se ejecuta en Google Apps Script.');}
@@ -80,6 +79,7 @@ ${previewDelay?`if(method!=='recordEvents')await new Promise(resolve=>setTimeout
  if(method==='getNewsletterOptions')return {email:'usuario@bbva.com',defaults:subscriptionDefaults_(),enabled:settings_().newsletterEnabled,catalogs:{coverage:Object.keys(coverageOptions),...taxonomyOptions_(),type:[...new Set(configuration.entities.filter(r=>r.enabled).map(r=>r.type))],entity:configuration.entities.filter(r=>r.enabled).map(r=>r.name),segment:configuration.segments.filter(r=>r.enabled).map(r=>r.name),country:configuration.geographies.filter(r=>r.enabled).map(r=>r.name),signal:configuration.signals.filter(r=>r.enabled).map(r=>r.name),source:[...new Set([...rows.map(r=>r.medio),...feeds_().map(r=>r.name)])].filter(Boolean).sort()}};
  if(method==='sendSubscriptionTest')throw Error('La prueba de correo se envía desde la WebApp de Google Apps Script.');
  if(['sendNewsletterTest','sendPendingNewsletters','installNewsletterSchedule'].includes(method)){authorize_();throw Error('Estás en la vista local. No se envían correos ni se instalan activadores: utiliza estas acciones en la WebApp de Google Apps Script.');}
+ if(method==='getNewsletterProgress'){authorize_();return {enabled:false,active:false,queued:false,job:{total:0,processed:0,pending:0,accepted:0,empty:0,review:0,updated:new Date().toISOString(),state:'Completada'}};}
  if(method==='getNewsletterDeliveryStatus'){authorize_();return {address:settings_().newsletterSender,name:settings_().newsletterSenderName,available:false,enabled:settings_().newsletterEnabled,scheduled:false,remaining:settings_().newsletterDailyLimit,error:'Vista local: verifica el remitente y los permisos en la instalación de Apps Script.'};}
  if(method==='getAdminSubscriptions'){authorize_();return JSON.parse(JSON.stringify(selections.map(row=>({...row,nextDelivery:newsletterNextDate_(row,new Date())}))));}
  if(method==='getSubscriptions')return JSON.parse(JSON.stringify(selections.filter(row=>row.correo==='usuario@bbva.com').map(row=>({...row,query:subscriptionQuery_(row,new Date()),nextDelivery:newsletterNextDate_(row,new Date())}))));

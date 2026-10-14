@@ -1,5 +1,5 @@
 const RADAR = Object.freeze({
-  version:'3.0.3',
+  version:'3.0.4',
   sheets:{
     Configuracion:['clave','valor'],
     Suscripciones:['id','correo','nombre','filtros','periodicidad','activa','actualizada','idioma'],

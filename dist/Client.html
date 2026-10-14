@@ -236,6 +236,18 @@
     "Sin traducciones de taxonom\xEDa ejecutadas.": ["No taxonomy translations have run.", "Hen\xFCz taksonomi \xE7evirisi yap\u0131lmad\u0131."],
     "Clasificaci\xF3n de noticias": ["News classification", "Haber s\u0131n\u0131fland\u0131rmas\u0131"],
     "Clasificar noticias": ["Classify news", "Haberleri s\u0131n\u0131fland\u0131r"],
+    "Progreso de env\xEDos planificados": ["Scheduled delivery progress", "Planlanan g\xF6nderimlerin ilerlemesi"],
+    "{done}/{total} entregas; {accepted} aceptadas; {empty} sin novedades; {pending} pendientes; {review} por revisar.": ["{done}/{total} deliveries; {accepted} accepted; {empty} without updates; {pending} pending; {review} to review.", "{done}/{total} g\xF6nderim; {accepted} kabul edildi; {empty} yenilik yok; {pending} bekleyen; {review} incelenecek."],
+    "Tipo de recuperaci\xF3n no v\xE1lido.": ["Invalid recovery type.", "Ge\xE7ersiz kurtarma t\xFCr\xFC."],
+    "Detenido por falta de cuota": ["Stopped: quota exhausted", "Kota t\xFCkendi\u011Fi i\xE7in durduruldu"],
+    "En espera de otro trabajo": ["Waiting for another job", "Ba\u015Fka bir i\u015F bekleniyor"],
+    "Cuota agotada": ["Quota exhausted", "Kota t\xFCkendi"],
+    "Error temporal": ["Temporary error", "Ge\xE7ici hata"],
+    "\xDAltima ejecuci\xF3n": ["Last execution", "Son \xE7al\u0131\u015Ft\u0131rma"],
+    "Motivo de la pausa": ["Pause reason", "Duraklama nedeni"],
+    "Previsi\xF3n de reinicio": ["Estimated restart", "Tahmini yeniden ba\u015Flatma"],
+    "Esperando a": ["Waiting for", "Beklenen"],
+    "Env\xEDos de newsletters planificadas": ["Scheduled newsletter delivery", "Planlanan b\xFCltenlerin g\xF6nderimi"],
     "Progreso de clasificaci\xF3n": ["Classification progress", "S\u0131n\u0131fland\u0131rma ilerlemesi"],
     "Sin clasificaciones ejecutadas.": ["No classifications have run.", "Hen\xFCz s\u0131n\u0131fland\u0131rma yap\u0131lmad\u0131."],
     "{done}/{total} noticias revisadas; {classified} etiquetas actualizadas; {digital} digitales.": ["{done}/{total} articles reviewed; {classified} labels updated; {digital} digital.", "{done}/{total} haber incelendi; {classified} etiket g\xFCncellendi; {digital} dijital."],
@@ -1486,25 +1498,38 @@
     } };
   }
 
-  // src/client/features/job-monitor.js
-  function jobProgressHtml(job, { total, done, label, summary, queued = !1 }) {
-    return `<div class="panel-header"><span>${escape(t(queued ? "En cola" : job.state))}</span><span>${done}/${total}</span></div><progress max="${Math.max(1, total)}" value="${done}" aria-label="${escape(t(label))}"></progress><p>${escape(summary)}</p><p class="small muted">${escape(t("\xDAltima actividad"))}: ${escape(date(job.updated))}</p>${job.error ? "<p>" + escape(t(job.error)) + "</p>" : ""}`;
+  // src/shared/progress-state.js
+  function progressState({ state: state2 = "Pendiente", queued = !1, running = !1, lastExecutedAt = "", pausedUntil = 0, quotaUntil = 0, nextAt = 0, waitingFor = "", error = "" }, now = Date.now()) {
+    let active = queued || !["Completada", "Parcial"].includes(state2), pause = active ? Math.max(Number(pausedUntil) || 0, Number(quotaUntil) || 0) : 0;
+    return { state: running ? "En curso" : pause > now ? quotaUntil > now ? "Detenido por falta de cuota" : "En pausa" : active && waitingFor ? "En espera de otro trabajo" : queued ? "En cola" : state2, lastExecutedAt, pauseReason: pause > now ? quotaUntil > now ? "Cuota agotada" : error || "Error temporal" : "", restartAt: active && Math.max(pause, Number(nextAt) || 0) > now ? Math.max(pause, Number(nextAt) || 0) : 0, waitingFor: active && !running ? waitingFor : "" };
   }
-  function createJobMonitor({ id, get, start, run, isActive, render, onRevision }) {
+
+  // src/client/features/job-monitor.js
+  function progressDetailsHtml(status) {
+    return `<div class="small muted"><p>${escape(t("\xDAltima ejecuci\xF3n"))}: ${escape(t(date(status.lastExecutedAt)))}</p>${status.pauseReason ? `<p>${escape(t("Motivo de la pausa"))}: ${escape(t(status.pauseReason))}</p>` : ""}${status.restartAt ? `<p>${escape(t("Previsi\xF3n de reinicio"))}: ${escape(date(status.restartAt))}</p>` : ""}${status.waitingFor ? `<p>${escape(t("Esperando a"))}: ${escape(t(status.waitingFor))}</p>` : ""}</div>`;
+  }
+  function jobProgressHtml(job, { total, done, label, summary, queued = !1 }) {
+    let status = job.progress || progressState({ state: job.state, queued, lastExecutedAt: job.updated, pausedUntil: job.pausedUntil, error: job.error });
+    return `<div class="panel-header"><span>${escape(t(status.state))}</span><span>${done}/${total}</span></div><progress max="${Math.max(1, total)}" value="${done}" aria-label="${escape(t(label))}"></progress><p>${escape(summary)}</p>${progressDetailsHtml(status)}${job.error && job.error !== status.pauseReason ? "<p>" + escape(t(job.error)) + "</p>" : ""}`;
+  }
+  function createJobMonitor({ id, get, start, run, isActive, render, onRevision = () => {
+  } }) {
     let timer, request3 = 0;
     function close() {
       request3++, clearTimeout(timer);
     }
-    async function refresh() {
+    async function refresh(provided) {
       close();
       let current = request3;
       try {
-        let data = await call(get);
+        let data = provided || await call(get);
         if (current !== request3) return;
-        let active = !!(data.queued || data.job && data.job.state !== "Completada");
-        onRevision(data.newsRevision);
-        let button = $(id + "-start");
-        button.dataset.jobActive = String(active && data.job?.state !== "En pausa"), button.disabled = button.dataset.jobActive === "true", render(data), active && isActive() && (timer = setTimeout(poll, 3e4));
+        let active = data.active ?? !!(data.queued || data.job && data.job.state !== "Completada");
+        if (onRevision(data.newsRevision), start) {
+          let button = $(id + "-start");
+          button.dataset.jobActive = String(active && data.job?.state !== "En pausa"), button.disabled = button.dataset.jobActive === "true";
+        }
+        render(data), active && isActive() && (timer = setTimeout(poll, 3e4));
       } catch (error) {
         current === request3 && (message(error.message, !0), isActive() && (timer = setTimeout(poll, 6e4)));
       }
@@ -1518,7 +1543,7 @@
         await refresh();
       }
     }
-    return $(id + "-start").addEventListener("click", () => run(async () => {
+    return start && $(id + "-start").addEventListener("click", () => run(async () => {
       await call(start), await refresh();
     }, !1)), { open: refresh, close };
   }
@@ -1582,6 +1607,14 @@
     } };
   }
 
+  // src/client/features/classification.js
+  function createClassification({ run, isActive, onRevision }) {
+    return createJobMonitor({ id: "classification", get: "getClassificationStatus", start: "startClassification", run, isActive, onRevision, render(data) {
+      let job = data.job, total = Number(job?.total || 0), done = Number(job?.processed || 0);
+      $("classification-schedule").textContent = t("Clasificaci\xF3n diaria tras completar la recopilaci\xF3n \xB7 {state}", { state: t(data.scheduled ? "Activada" : "Desactivada") }), $("classification-progress").innerHTML = jobProgressHtml(job || { state: "Completada", updated: "" }, { total, done, label: "Progreso de clasificaci\xF3n", queued: data.queued, summary: job ? t("{done}/{total} noticias revisadas; {classified} etiquetas actualizadas; {digital} digitales.", { done, total, classified: job.classified, digital: job.digital }) : t("Sin clasificaciones ejecutadas.") });
+    } });
+  }
+
   // src/client/features/runs.js
   var filters, request = 0, syncRecovery = () => {
   };
@@ -1590,8 +1623,7 @@
     let current = ++request;
     try {
       let data = await call("getRuns", filters.query());
-      if (current !== request) return;
-      renderCollectionJobs(data.collection), filters.options(data.options), filters.page(data), $("runs-body").innerHTML = data.items.map((r) => `<tr><td>${escape(displayRecord(r.tipo, language))} ${escape(r.desde)} \u2014 ${escape(r.hasta)}</td><td>${escape(date(r.inicio))}</td><td>${escape(r.estado)}</td><td>${escape(r.evaluadas)}</td><td>${escape(r.nuevas)}</td><td>${escape(r.errores || "\u2014")}</td></tr>`).join("") || '<tr><td colspan="6">Sin ejecuciones con estos filtros.</td></tr>';
+      return current !== request ? void 0 : (renderCollectionJobs(data.collection), filters.options(data.options), filters.page(data), $("runs-body").innerHTML = data.items.map((r) => `<tr><td>${escape(displayRecord(r.tipo, language))} ${escape(r.desde)} \u2014 ${escape(r.hasta)}</td><td>${escape(date(r.inicio))}</td><td>${escape(r.estado)}</td><td>${escape(r.evaluadas)}</td><td>${escape(r.nuevas)}</td><td>${escape(r.errores || "\u2014")}</td></tr>`).join("") || '<tr><td colspan="6">Sin ejecuciones con estos filtros.</td></tr>', data);
     } catch (error) {
       current === request && message(error.message, !0);
     }
@@ -1599,20 +1631,20 @@
   function renderCollectionJobs(status) {
     syncRecovery(status);
     let total = Number(status?.total || 0), done = Number(status?.processed || 0) + Number(status?.skipped || 0) + Number(status?.failed || 0);
-    $("collection-total").hidden = !total, $("collection-total-progress").max = Math.max(1, total), $("collection-total-progress").value = done, $("collection-total-label").textContent = t("{done}/{total} consultas; {added} noticias incorporadas.", { done, total, added: status?.added || 0 });
+    $("collection-total").hidden = !total, $("collection-total-progress").max = Math.max(1, total), $("collection-total-progress").value = done, $("collection-total-label").textContent = t("{done}/{total} consultas; {added} noticias incorporadas.", { done, total, added: status?.added || 0 }), $("collection-total-details").innerHTML = status?.progress ? progressDetailsHtml(status.progress) : "";
     let jobs = [...status?.jobs || []];
     $("collection-jobs").innerHTML = jobs.map((job) => {
-      let done2 = Number(job.procesadas || 0) + Number(job.omitidas || 0) + Number(job.fallidas || 0), total2 = Number(job.total || 0);
-      return `<article class="collection-job" data-collection-kind="${escape(job.tipo)}"><div class="panel-header"><h3>${escape(displayRecord(job.tipo, language))}</h3><span>${escape(t(job.estado))}</span></div>${job.desde ? `<p class="small muted">${escape(formatCalendarDay(job.desde, language))} \u2014 ${escape(formatCalendarDay(job.hasta, language))}</p>` : ""}<progress max="${Math.max(1, total2)}" value="${done2}" aria-label="${escape(displayRecord(job.tipo, language))}"></progress><p>${escape(t("{done}/{total} consultas; {added} noticias incorporadas.", { done: done2, total: total2, added: job.nuevas || 0 }))}</p><p class="small muted">${Number(job.pendientes || 0)} ${escape(t("Pendientes"))} \xB7 ${Number(job.fallidas || 0)} ${escape(t("Errores"))}${job.actualizada ? " \xB7 " + escape(t("\xDAltima actividad")) + ": " + escape(date(job.actualizada)) : ""}${Number(job.pausa) > Date.now() ? " \xB7 " + escape(t("Reintento programado")) + ": " + escape(date(new Date(Number(job.pausa)))) : ""}</p></article>`;
+      let progress = job.progress || progressState({ state: job.estado, lastExecutedAt: job.actualizada, pausedUntil: job.pausa }), done2 = Number(job.procesadas || 0) + Number(job.omitidas || 0) + Number(job.fallidas || 0), total2 = Number(job.total || 0);
+      return `<article class="collection-job" data-collection-kind="${escape(job.tipo)}"><div class="panel-header"><h3>${escape(displayRecord(job.tipo, language))}</h3><span>${escape(t(progress.state))}</span></div>${job.desde ? `<p class="small muted">${escape(formatCalendarDay(job.desde, language))} \u2014 ${escape(formatCalendarDay(job.hasta, language))}</p>` : ""}<progress max="${Math.max(1, total2)}" value="${done2}" aria-label="${escape(displayRecord(job.tipo, language))}"></progress><p>${escape(t("{done}/{total} consultas; {added} noticias incorporadas.", { done: done2, total: total2, added: job.nuevas || 0 }))}</p><p class="small muted">${Number(job.pendientes || 0)} ${escape(t("Pendientes"))} \xB7 ${Number(job.fallidas || 0)} ${escape(t("Errores"))}</p>${progressDetailsHtml(progress)}</article>`;
     }).join("");
   }
   function createRecoveryControls({ getData, run }) {
     let busy = !1, status = {}, radios = [...document.querySelectorAll('input[name="recovery-range"]')];
     function render(next = status) {
       status = next || {};
-      for (let radio of radios) radio.disabled = busy || !!status.blocked?.[radio.value];
+      for (let radio of radios) radio.disabled = busy;
       let range = document.querySelector('input[name="recovery-range"]:checked').value, blocked = !!status.blocked?.[range];
-      $("collect").disabled = busy || blocked, $("recovery-status").textContent = blocked ? t(range === "year" ? "Ya hay una recuperaci\xF3n anual en curso." : "Ya hay una recuperaci\xF3n diaria en curso.") : "", $("continue-collection").hidden = !(status.pending || status.queued), $("continue-collection").disabled = busy, $("retry-collection").disabled = busy, $("toggle-daily").disabled = busy, $("toggle-daily").textContent = t(getData()?.daily ? "Desactivar recopilaci\xF3n diaria" : "Activar recopilaci\xF3n diaria"), $("recovery-schedule").textContent = getData()?.schedule || "";
+      $("collect").disabled = busy || blocked, $("recovery-status").textContent = blocked ? t(range === "year" ? "Ya hay una recuperaci\xF3n anual en curso." : "Ya hay una recuperaci\xF3n diaria en curso.") : "", $("continue-collection").hidden = !blocked, $("continue-collection").disabled = busy, $("retry-collection").disabled = busy, $("toggle-daily").disabled = busy, $("toggle-daily").textContent = t(getData()?.daily ? "Desactivar recopilaci\xF3n diaria" : "Activar recopilaci\xF3n diaria"), $("recovery-schedule").textContent = getData()?.schedule || "";
     }
     async function recover(method, range) {
       return run(async () => {
@@ -1620,7 +1652,7 @@
         message(result.notice, result.errors.length > 0);
       });
     }
-    return $("collect").addEventListener("click", () => recover("collectNow", document.querySelector('input[name="recovery-range"]:checked').value)), $("continue-collection").addEventListener("click", () => recover("resumeCollection")), radios.forEach((radio) => radio.addEventListener("change", () => render())), $("toggle-daily").addEventListener("click", () => run(async () => {
+    return $("collect").addEventListener("click", () => recover("collectNow", document.querySelector('input[name="recovery-range"]:checked').value)), $("continue-collection").addEventListener("click", () => recover("resumeCollection", document.querySelector('input[name="recovery-range"]:checked').value)), radios.forEach((radio) => radio.addEventListener("change", () => render())), $("toggle-daily").addEventListener("click", () => run(async () => {
       let enabled = getData().daily, result = await call(enabled ? "disableDaily" : "enableDaily");
       message(enabled ? "Recopilaci\xF3n diaria desactivada." : result);
     })), $("retry-collection").addEventListener("click", () => run(async () => message(await call("retryCollectionErrors")))), syncRecovery = render, { setBusy(value) {
@@ -1767,19 +1799,21 @@
   }
 
   // src/client/features/newsletter-delivery.js
-  function createNewsletterDelivery({ run }) {
+  function createNewsletterDelivery({ run, isActive }) {
     function feedback(text, error = !1) {
       let target = $("newsletter-test-result");
       target.hidden = !1, target.textContent = text, target.classList.toggle("error", error);
     }
-    let historyFilters, historyRequest = 0;
+    let monitor = createJobMonitor({ id: "newsletter-delivery", get: "getNewsletterProgress", isActive, render({ job }) {
+      $("newsletter-delivery-progress").innerHTML = jobProgressHtml(job, { total: job.total, done: job.processed, label: "Progreso de env\xEDos planificados", summary: t("{done}/{total} entregas; {accepted} aceptadas; {empty} sin novedades; {pending} pendientes; {review} por revisar.", { ...job, done: job.processed }) });
+    } }), historyFilters, historyRequest = 0;
     async function history() {
       historyFilters ||= createRecordFilters("delivery", [["correo", "Suscriptor"], ["estado", "Estado"], ["suscripcion", "Suscripci\xF3n"]], history, { dates: !0, placeholder: "Gmail ID, correo o motivo" });
       let request3 = ++historyRequest, data = await call("getNewsletterHistory", historyFilters.query());
       request3 === historyRequest && (historyFilters.options(data.options), historyFilters.page(data), $("delivery-history-body").innerHTML = data.items.map((row) => `<tr><td>${escape(date(row.fecha))}</td><td>${escape(row.correo)}</td><td>${escape(row.estado)}</td><td>${row.noticias ?? "Sin detalle"}</td><td>${escape(row.detalle)}</td></tr>`).join("") || '<tr><td colspan="5">Sin env\xEDos con estos filtros.</td></tr>', $("delivery-history-note").textContent = data.total + " coincidencias." + (data.limited ? " Hist\xF3rico visible limitado a " + data.limit + " registros; el control de duplicados conserva el historial completo." : ""));
     }
     async function open() {
-      let [status] = await Promise.all([call("getNewsletterDeliveryStatus"), history()]);
+      let [status] = await Promise.all([call("getNewsletterDeliveryStatus"), history(), monitor.open()]);
       $("newsletter-sender").textContent = status.name + " <" + status.address + ">", $("newsletter-checks").innerHTML = [["Remitente", status.available ? "Verificado" : "Pendiente"], ["Entrega", status.enabled ? "Activada" : "Desactivada"], ["Programaci\xF3n", status.scheduled ? "Instalada" : "Sin activador"]].map(([name, value]) => `<div class="delivery-check"><strong>${name}</strong><span>${value}</span></div>`).join(""), $("newsletter-sender-status").textContent = status.available ? "Gmail permite usar el remitente configurado." : status.error, $("newsletter-budget").textContent = status.remaining + " env\xEDos disponibles dentro del l\xEDmite configurado de 24 horas.", $("newsletter-content-note").textContent = status.untracked ? status.untracked + " env\xEDos anteriores no registraron las noticias incluidas. El control de contenido se aplica a los env\xEDos con inventario; los anteriores requieren contrastar los correos originales." : "El contenido de los nuevos env\xEDos queda registrado por suscriptor. Las pruebas se excluyen del control de duplicados.";
       let last = status.last;
       $("newsletter-history").innerHTML = last ? `<strong>\xDAltimo intento \xB7 ${escape(date(last.fecha))}</strong><span>${escape(last.estado)} \xB7 ${escape(last.correo)}</span><span>${escape(last.detalle)}</span>` : "<span>No hay intentos de env\xEDo registrados.</span>";
@@ -1796,7 +1830,7 @@
         await open();
       }, !1);
     }
-    return $("validate-newsletter-sender").addEventListener("click", () => run(open, !1)), $("test-newsletter").addEventListener("click", () => execute("sendNewsletterTest", (result) => result.accepted ? t("Gmail ha aceptado la prueba para {recipient}. Remitente: {sender}. Gmail ID: {id}. Incluye {count} novedades del {from} al {to}.", { ...result, id: result.messageId }) + " " + t("Si no aparece en la bandeja de entrada, revisa Spam y la cuarentena de Workspace; la aceptaci\xF3n no confirma la recepci\xF3n.") : t("No se ha enviado la prueba: no hay noticias disponibles con estos filtros en el per\xEDodo."))), $("install-newsletter").addEventListener("click", () => execute("installNewsletterSchedule", (result) => result)), $("send-pending-newsletters").addEventListener("click", () => execute("sendPendingNewsletters", (result) => result.state === "configuration_pause" ? "Entrega en pausa durante la configuraci\xF3n. Se reanudar\xE1 autom\xE1ticamente." : result.state === "no_due" ? "No hay entregas pendientes. Las suscripciones nuevas comienzan en el siguiente cierre de su per\xEDodo." : result.state === "busy" ? "Hay otro env\xEDo en ejecuci\xF3n." : result.state === "limit" ? "Se ha alcanzado el l\xEDmite de env\xEDos en 24 horas." : `${result.accepted} correos aceptados por Gmail \xB7 ${result.empty} selecciones sin novedades \xB7 ${result.duplicates} noticias repetidas omitidas \xB7 ${result.pending} pendientes.${result.error ? " " + result.error : ""}`)), { open };
+    return $("validate-newsletter-sender").addEventListener("click", () => run(open, !1)), $("test-newsletter").addEventListener("click", () => execute("sendNewsletterTest", (result) => result.accepted ? t("Gmail ha aceptado la prueba para {recipient}. Remitente: {sender}. Gmail ID: {id}. Incluye {count} novedades del {from} al {to}.", { ...result, id: result.messageId }) + " " + t("Si no aparece en la bandeja de entrada, revisa Spam y la cuarentena de Workspace; la aceptaci\xF3n no confirma la recepci\xF3n.") : t("No se ha enviado la prueba: no hay noticias disponibles con estos filtros en el per\xEDodo."))), $("install-newsletter").addEventListener("click", () => execute("installNewsletterSchedule", (result) => result)), $("send-pending-newsletters").addEventListener("click", () => execute("sendPendingNewsletters", (result) => result.state === "configuration_pause" ? "Entrega en pausa durante la configuraci\xF3n. Se reanudar\xE1 autom\xE1ticamente." : result.state === "no_due" ? "No hay entregas pendientes. Las suscripciones nuevas comienzan en el siguiente cierre de su per\xEDodo." : result.state === "busy" ? "Hay otro env\xEDo en ejecuci\xF3n." : result.state === "limit" ? "Se ha alcanzado el l\xEDmite de env\xEDos en 24 horas." : `${result.accepted} correos aceptados por Gmail \xB7 ${result.empty} selecciones sin novedades \xB7 ${result.duplicates} noticias repetidas omitidas \xB7 ${result.pending} pendientes.${result.error ? " " + result.error : ""}`)), { open, close: monitor.close };
   }
 
   // assets/admin-schema.json
@@ -2051,11 +2085,8 @@
   };
 
   // src/client/features/configuration.js
-  function createConfiguration({ run, isActive, onRevision }) {
-    let config, revision, category = "entities", segment = "Empresas", capabilityDefaults, monitor = createJobMonitor({ id: "classification", get: "getClassificationStatus", start: "startClassification", run, isActive, onRevision, render(data) {
-      let job = data.job, total = Number(job?.total || 0), done = Number(job?.processed || 0);
-      $("classification-schedule").textContent = t("Clasificaci\xF3n diaria tras completar la recopilaci\xF3n \xB7 {state}", { state: t(data.scheduled ? "Activada" : "Desactivada") }), $("classification-progress").innerHTML = job ? jobProgressHtml(job, { total, done, label: "Progreso de clasificaci\xF3n", queued: data.queued, summary: t("{done}/{total} noticias revisadas; {classified} etiquetas actualizadas; {digital} digitales.", { done, total, classified: job.classified, digital: job.digital }) }) : '<p class="muted">' + t(data.queued ? "En cola" : "Sin clasificaciones ejecutadas.") + "</p>";
-    } }), entries = () => category === "capabilities" ? config.capabilities[segment] : config[category], setEntries = (rows) => {
+  function createConfiguration({ run }) {
+    let config, revision, category = "entities", segment = "Empresas", capabilityDefaults, entries = () => category === "capabilities" ? config.capabilities[segment] : config[category], setEntries = (rows) => {
       category === "capabilities" ? config.capabilities[segment] = rows : config[category] = rows;
     };
     async function fetchConfig() {
@@ -2098,11 +2129,11 @@
       readFields(), entries().push(Object.fromEntries(admin_schema_default[category].fields.map(([key, , type]) => [key, type === "list" ? [] : type === "boolean" ? !0 : ""]))), render();
     }), $("catalog-form").addEventListener("submit", (event) => {
       event.preventDefault(), readFields(), run(async () => {
-        message(await call("saveConfiguration", { config, revision })), await fetchConfig(), render(), await monitor.open();
+        message(await call("saveConfiguration", { config, revision })), await fetchConfig(), render();
       });
     }), $("catalog-reload").addEventListener("click", () => run(async () => {
       await fetchConfig(), render();
-    }, !1)), { open: () => Promise.all([config ? null : fetchConfig().then(render), monitor.open()]), close: monitor.close };
+    }, !1)), { open: () => config ? Promise.resolve() : fetchConfig().then(render) };
   }
 
   // src/shared/novelty-groups.js
@@ -2301,11 +2332,11 @@
   }
 
   // src/client/features/administration.js
-  function createAdministration({ isAdmin, track: track2, onConfiguration, onSubscribers, onLanguage, onLeaveLanguage, onLeaveConfiguration, onTaxonomy, onLeaveTaxonomy }) {
+  function createAdministration({ isAdmin, track: track2, onConfiguration, onSubscribers, onLanguage, onLeaveLanguage, onRuns, onLeaveRuns, onLeaveSubscribers, onTaxonomy, onLeaveTaxonomy }) {
     let current = Object.keys(config_default.adminViews)[0];
     async function open(view = current) {
       if (!(!isAdmin() || !(view in config_default.adminViews))) {
-        current === "language" && view !== current && onLeaveLanguage(), current === "configuration" && view !== current && onLeaveConfiguration(), current === "taxonomy" && view !== current && onLeaveTaxonomy(), current = view, track2("vista");
+        current === "language" && view !== current && onLeaveLanguage(), current === "runs" && view !== current && onLeaveRuns(), current === "subscribers" && view !== current && onLeaveSubscribers(), current === "taxonomy" && view !== current && onLeaveTaxonomy(), current = view, track2("vista");
         for (let name of Object.keys(config_default.adminViews)) $(name + "-section").hidden = name !== view;
         if ($("admin-tabs").querySelectorAll("[data-admin-view]").forEach((button) => {
           button.setAttribute("aria-selected", String(button.dataset.adminView === view)), button.tabIndex = button.dataset.adminView === view ? 0 : -1;
@@ -2314,7 +2345,7 @@
         } catch (error) {
           message(error.message || String(error), !0);
         }
-        view === "taxonomy" && await onTaxonomy(), view === "language" && await onLanguage(), view === "runs" && await loadRuns(), view === "audit" && await loadAudit(), (view === "telemetry" || view === "adoption") && await loadMetrics(view, () => current === view && !$("administration-section").hidden);
+        view === "taxonomy" && await onTaxonomy(), view === "language" && await onLanguage(), view === "runs" && await onRuns(), view === "audit" && await loadAudit(), (view === "telemetry" || view === "adoption") && await loadMetrics(view, () => current === view && !$("administration-section").hidden);
       }
     }
     return $("admin-tabs").addEventListener("click", (event) => {
@@ -2691,13 +2722,16 @@
   initializeSearchableSelects();
   var state = { data: null, request: 0, busy: !1, contentStale: !1, attribution: "", view: null, ready: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data, getAttribution: () => state.attribution && state.data?.context?.id === state.attribution ? state.attribution : "" }), { track, flush } = usage, dashboards = /* @__PURE__ */ new Map(), selectionKey = (query) => JSON.stringify(Object.entries(query).filter(([, value]) => value !== "" && value != null).sort(([a], [b]) => a.localeCompare(b))), noteNewsRevision = (revision) => {
     revision && state.data && revision !== state.data.newsRevision && (state.contentStale = !0, dashboards.clear());
-  }, configuration = createConfiguration({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "configuration" }), taxonomy = createTaxonomy({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "taxonomy" }), subscriptions = createSubscriptions({ run: action, onApply: (query) => navigateSelection(query.view, query) }), newsletterDelivery = createNewsletterDelivery({ run: action }), languageSettings = createLanguageSettings({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "language" }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]), onLanguage: () => languageSettings.open(), onLeaveLanguage: () => languageSettings.close(), onLeaveConfiguration: () => configuration.close(), onTaxonomy: () => taxonomy.open(), onLeaveTaxonomy: () => taxonomy.close() }), panel = createFilterPanel(), navigation = createNavigation({ onPanel: (view) => {
-    ++state.request, panel.show(view), refreshLoading();
+  }, configuration = createConfiguration({ run: action }), taxonomy = createTaxonomy({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "taxonomy" }), subscriptions = createSubscriptions({ run: action, onApply: (query) => navigateSelection(query.view, query) }), classification = createClassification({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "runs" }), newsletterDelivery = createNewsletterDelivery({ run: action, isActive: () => navigation.current === "administration" && administration.current === "subscribers" }), languageSettings = createLanguageSettings({ run: action, onRevision: noteNewsRevision, isActive: () => navigation.current === "administration" && administration.current === "language" }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]), onLanguage: () => languageSettings.open(), onLeaveLanguage: () => languageSettings.close(), onRuns: async () => {
+    let data = await loadRuns();
+    data && await classification.open(data.classification);
+  }, onLeaveRuns: () => classification.close(), onLeaveSubscribers: () => newsletterDelivery.close(), onTaxonomy: () => taxonomy.open(), onLeaveTaxonomy: () => taxonomy.close() }), panel = createFilterPanel(), navigation = createNavigation({ onPanel: (view) => {
+    view !== "administration" && (classification.close(), newsletterDelivery.close()), ++state.request, panel.show(view), refreshLoading();
   }, onSelection: (view) => {
-    configuration.close(), taxonomy.close();
+    taxonomy.close();
     let changed = filters4.show(view);
     state.ready && (changed || state.contentStale || state.view !== view) && load(!0);
-  }, onSubscriptions: () => (configuration.close(), taxonomy.close(), subscriptions.open()), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
+  }, onSubscriptions: () => (taxonomy.close(), subscriptions.open()), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
   } }), reading = createReadingContext({ onCurrent: () => filters4.current(), run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing(), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters4.setGeography(name));
   function navigateSelection(view, query) {
@@ -2737,7 +2771,7 @@
         request3 === state.request && (track("error"), message(error.message || String(error), !0));
       }
   }
-  var actionControls = "#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
+  var actionControls = "#classification-start,#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
   async function action(fn, refresh = !0) {
     if (!state.busy) {
       state.busy = !0, sources.setBusy(!0), recoveryControls.setBusy(!0), document.querySelectorAll(actionControls).forEach((el) => el.disabled = !0);
@@ -2772,12 +2806,8 @@
       filters4.show(view), navigation.show(view), state.ready = !0, filters4.useEdition(params.edition, { country: params.country, entity: params.entity, palanca: params.palanca, subpalanca: params.subpalanca, benchmark: params.benchmark });
       return;
     }
-    if (["news", "briefing", "radar"].includes(params.view)) {
-      navigation.show(params.view), state.ready = !0, await load();
-      return;
-    }
     try {
-      state.data = await call("getBootstrap"), renderApplicationShell(state.data), state.ready = !0, track("acceso"), await navigation.show(params.view === "subscriptions" ? "subscriptions" : state.data.admin ? "administration" : defaultView);
+      navigation.show(defaultView), state.ready = !0, await load(), params.view === "subscriptions" && params.unsubscribe && await navigation.show("subscriptions");
       let id = params.unsubscribe;
       if (!id || params.view !== "subscriptions") return;
       message("Confirma la baja de esta suscripci\xF3n.");

@@ -1,4 +1,3 @@
-function getBootstrap(){return getDashboard({view:'runs'});}
 function getDashboard(query) {
   const started=Date.now(),session=authorize_(),feeds=feeds_();
   const view=query?.view||'radar',initial=Boolean(query?.initial),language=supportedLanguage(query?.language)?query.language:'es',edition=query?.edition?newsletterEdition_(query.edition,session.email):null,personal=initial&&!edition&&readingViews.includes(view)?firstNewsSubscription_(session.email):null;
@@ -38,7 +37,7 @@ function dashboardRuns_(){
   return runs;
 }
 
-function getRuns(query={}){authorize_(true);const records=administrativeRecords_('Ejecuciones',query,['estado','id'],['estado','errores','id'],'inicio'),jobs=new Map(collectionJobs_().map(job=>[job.id,job]));return {...records,collection:collectionStatus_(),items:records.items.map(row=>({...row,tipo:jobs.get(row.id)?.tipo||'',desde:jobs.get(row.id)?.desde||'',hasta:jobs.get(row.id)?.hasta||''}))};}
+function getRuns(query={}){authorize_(true);const records=administrativeRecords_('Ejecuciones',query,['estado','id'],['estado','errores','id'],'inicio'),jobs=new Map(collectionJobs_().map(job=>[job.id,job]));return {...records,collection:collectionStatus_(),classification:getClassificationStatus(),items:records.items.map(row=>({...row,tipo:jobs.get(row.id)?.tipo||'',desde:jobs.get(row.id)?.desde||'',hasta:jobs.get(row.id)?.hasta||''}))};}
 function getCollectionProgress(){authorize_();return {collection:collectionStatus_(),newsRevision:properties_().getProperty('NEWS_REVISION')||'0'};}
 
 function dashboardMetadata_(){

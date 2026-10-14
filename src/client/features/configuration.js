@@ -1,15 +1,9 @@
 import { $, escape, message } from '../core/dom.js';
 import { call } from '../core/api.js';
 import {t} from '../core/language.js';
-import {createJobMonitor,jobProgressHtml} from './job-monitor.js';
 import schema from '../../../assets/admin-schema.json';
-export function createConfiguration({run,isActive,onRevision}){
+export function createConfiguration({run}){
   let config,revision,category='entities',segment='Empresas',capabilityDefaults;
-  const monitor=createJobMonitor({id:'classification',get:'getClassificationStatus',start:'startClassification',run,isActive,onRevision,render(data){
-    const job=data.job,total=Number(job?.total||0),done=Number(job?.processed||0);
-    $('classification-schedule').textContent=t('Clasificación diaria tras completar la recopilación · {state}',{state:t(data.scheduled?'Activada':'Desactivada')});
-    $('classification-progress').innerHTML=job?jobProgressHtml(job,{total,done,label:'Progreso de clasificación',queued:data.queued,summary:t('{done}/{total} noticias revisadas; {classified} etiquetas actualizadas; {digital} digitales.',{done,total,classified:job.classified,digital:job.digital})}):'<p class="muted">'+t(data.queued?'En cola':'Sin clasificaciones ejecutadas.')+'</p>';
-  }});
   const entries=()=>category==='capabilities'?config.capabilities[segment]:config[category];
   const setEntries=rows=>{if(category==='capabilities')config.capabilities[segment]=rows;else config[category]=rows;};
   async function fetchConfig(){const snapshot=await call('getConfiguration');config=snapshot.config;revision=snapshot.revision;capabilityDefaults=snapshot.capabilityDefaults;}
@@ -32,7 +26,7 @@ export function createConfiguration({run,isActive,onRevision}){
   $('capability-segment').addEventListener('change',()=>{readFields();segment=$('capability-segment').value;render();});
   $('capability-restore').addEventListener('click',()=>{readFields();config.capabilities[segment]=JSON.parse(JSON.stringify(capabilityDefaults[segment]));render();});
   $('catalog-add').addEventListener('click',()=>{readFields();entries().push(Object.fromEntries(schema[category].fields.map(([key,,type])=>[key,type==='list'?[]:type==='boolean'?true:''])));render();});
-  $('catalog-form').addEventListener('submit',event=>{event.preventDefault();readFields();run(async()=>{message(await call('saveConfiguration',{config,revision}));await fetchConfig();render();await monitor.open();});});
+  $('catalog-form').addEventListener('submit',event=>{event.preventDefault();readFields();run(async()=>{message(await call('saveConfiguration',{config,revision}));await fetchConfig();render();});});
   $('catalog-reload').addEventListener('click',()=>run(async()=>{await fetchConfig();render();},false));
-  return {open:()=>Promise.all([config?null:fetchConfig().then(render),monitor.open()]),close:monitor.close};
+  return {open:()=>config?Promise.resolve():fetchConfig().then(render)};
 }
