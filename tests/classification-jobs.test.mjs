@@ -5,7 +5,7 @@ import {storage} from './helpers/server.mjs';
 import {app,tick} from './helpers/app.mjs';
 function server(count=250){
  const s=storage(),c=s.c;c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);
- for(let i=0;i<count;i++)s.sheets.get('Noticias').grid.push([String(i),'2026-10-10','España','Editor','BBVA','BBVA lanza IA en su banca online','','','https://example.com/'+i,'','Editor','es','']);
+ for(let i=0;i<count;i++)s.sheets.get('Noticias').grid.push([String(i),'2026-10-10','España','Editor','BBVA','BBVA lanza IA en su banca online para empresas','','','https://example.com/'+i,'','Editor','es','']);
  const feed=c.feeds_().find(row=>row.kind==='rss');c.collectionFeeds_=range=>[{...feed,range}];c.UrlFetchApp={fetchAll:requests=>requests.map(()=>({getResponseCode:()=>200,getContentText:()=>'<rss/>'}))};c.parseFeed_=()=>[];return {...s,feed};
 }
 function addCollection(s,id,type,count){

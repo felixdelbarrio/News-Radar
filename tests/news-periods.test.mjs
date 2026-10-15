@@ -10,7 +10,7 @@ test('el plan traduce cada cadencia a su vista y a un período cerrado sin filtr
 test('el lote prepara una sola vez los períodos completos necesarios y excluye la semana en curso',()=>{
  const s=server(),{c}=s;c.configuration_().settings.newsletterEnabled=true;
  for(const [email,periodicity] of [['week@bbva.com','fortnightly'],['year@bbva.com','yearly']])c.saveAdminSubscription({email,periodicity,filters:{entity:'BBVA',coverage:''}});
- for(const row of s.sheets.get('Suscripciones').grid.slice(1))row[6]='2000-01-01';
+ for(const row of s.sheets.get('Suscripciones').grid.slice(1)){row[6]='2000-01-01';row[4]=row[1].startsWith('year')?'yearly':'fortnightly';}
  const week=c.newsletterPeriod_('fortnightly',new Date()),year=c.newsletterPeriod_('yearly',new Date()),keys=vm.runInContext('RADAR.sheets.Noticias',c);
  const rows=[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id:'old',fecha:year.from,titular:'BBVA lanza tarjeta para empresas',url:'https://example.com/old'},{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id:'new',fecha:week.from,titular:'BBVA lanza cuenta para empresas',url:'https://example.com/new'},{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id:'future',fecha:'2099-01-01',titular:'BBVA lanza crédito para empresas',url:'https://example.com/future'}].map(row=>({...row,entidad:'BBVA',pais:'España',medio:'Editor',extracto:'Nueva oferta para empresas'}));
  s.sheets.get('Noticias').grid.push(...rows.map(row=>keys.map(key=>row[key]||'')));

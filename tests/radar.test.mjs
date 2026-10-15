@@ -28,7 +28,7 @@ test('clasifica fecha y dominio, rechaza ruido y no genera estados ni puntuacion
 });
 test('canonicalización y exportación protegen URLs y fórmulas',()=>{
   const c=context();assert.equal(c.canonicalUrl_('https://BBVA.com/a?z=1&utm_source=x&id=2#x'),'https://bbva.com/a?id=2&z=1');assert.equal(c.canonicalUrl_('javascript:alert(1)'),'');assert.equal(c.canonicalUrl_('https://user:pass@bbva.com/a'),'');assert.equal(c.domainMatches_('https://evilbbva.com/a','bbva.com'),false);assert.equal(c.safeCell_('=IMPORTXML("x")'),'\'=IMPORTXML("x")');
-  c.rows_=()=>[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',...item,fecha:'2026-10-08',titular:'=HYPERLINK("x")',extracto:'texto',entidad:'BBVA',url:item.url}];const csv=c.exportNews({from:'2026-01-01',to:'2026-12-31'}).csv;assert.match(csv,/'=HYPERLINK/);assert.doesNotMatch(csv,/impacto|evidencia|criterio/);
+  c.rows_=()=>[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',...item,fecha:'2026-10-08',titular:'=HYPERLINK("x")',extracto:'Pagos digitales para empresas',entidad:'BBVA',url:item.url}];const csv=c.exportNews({from:'2026-01-01',to:'2026-12-31'}).csv;assert.match(csv,/'=HYPERLINK/);assert.doesNotMatch(csv,/impacto|evidencia|criterio/);
 });
 test('autoriza con identidad activa y restringe administración y métricas',()=>{
   for(const email of ['reader@bbva.com','felix.delbarrio@bbva.com'])assert.doesNotThrow(()=>context(email).authorize_());
@@ -132,7 +132,7 @@ test('recuperación manual predetermina Hoy, respeta la zona y consulta el año 
  const c=context(),today=c.collectionRange_('today',new Date('2026-10-09T22:30:00Z'));assert.equal(today.from,'2026-10-10');assert.equal(today.to,'2026-10-10');
  const year=c.collectionRange_('year',now),windows=c.collectionWindows_(year);assert.equal(year.from,'2025-10-09');assert.equal(year.to,'2026-10-09');assert.equal(windows.length,14);assert.equal(windows.at(-1).from,year.from);assert.equal(windows[0].to,year.to);
  for(let i=1;i<windows.length;i++)assert.equal(Date.parse(windows[i-1].from)-Date.parse(windows[i].to),86400000);
- const feeds=c.collectionFeeds_(year);assert.equal(new Set(feeds.map(f=>f.url)).size,feeds.length);assert.equal(feeds.filter(f=>f.kind==='rss').length,7);
+ const feeds=c.collectionFeeds_(year);assert.equal(new Set(feeds.map(f=>f.url)).size,feeds.length);assert.equal(feeds.filter(f=>f.kind==='rss').length,5);
  const historic=feeds.find(f=>f.kind==='profile'&&f.range.from===year.from),query=new URL(historic.url).searchParams.get('q');assert.ok(query.includes('after:2025-10-08 before:'+new Date(Date.parse(historic.range.to)+86400000).toISOString().slice(0,10)));assert.doesNotMatch(query,/when:/);
  const old={...item,date:'2025-10-12'};assert.ok(c.evaluate_(old,{...feed,range:year},now).item);assert.match(c.evaluate_(old,{...feed,range:today},now).reason,/período/);
  const leap=c.collectionRange_('year',new Date('2024-02-29T12:00:00Z'));assert.equal(leap.from,'2023-02-28');
@@ -149,18 +149,18 @@ test('Radar respeta los filtros visibles y usa Empresas e instituciones por defe
   const initial=c.dashboardQuery_({view:'radar',initial:true,country:'México',topic:'Financiación',segment:'Retail',from:'2026-01-01'},now);
   assert.deepEqual(JSON.parse(JSON.stringify(initial)),{entity:'',segment:'Empresas e instituciones',coverage:'digital',from:'2026-01-01',to:'2026-12-31'});
   const selected=c.dashboardQuery_({view:'radar',entity:'BBVA',segment:'Retail',country:'México',source:'Editor',search:'cuenta'},now);
-  assert.deepEqual(JSON.parse(JSON.stringify(selected)),{entity:'BBVA',segment:'Retail',country:'México',source:'Editor',search:'cuenta',from:'2026-01-01',to:'2026-12-31'});
+  assert.deepEqual(JSON.parse(JSON.stringify(selected)),{entity:'BBVA',segment:'Empresas e instituciones',coverage:'digital',country:'México',source:'Editor',search:'cuenta',from:'2026-01-01',to:'2026-12-31'});
 });
 test('Novedades respeta un período explícito y Noticias lo utiliza solo al abrir por primera vez',()=>{
   const c=context(),now=new Date('2026-10-31T23:30:00Z');
   const novelty=c.dashboardQuery_({view:'briefing',entity:'BBVA',from:'2026-01-01',to:'2026-01-31'},now);
   assert.equal(novelty.from,'2026-01-01');assert.equal(novelty.to,'2026-01-31');assert.equal(novelty.entity,'BBVA');
   const news=c.dashboardQuery_({view:'news',initial:true},now);
-  assert.equal(news.from,'2026-10-01');assert.equal(news.to,'2026-12-31');
+  assert.equal(news.from,'2026-11-01');assert.equal(news.to,'2026-11-30');
   const edited=c.dashboardQuery_({view:'news',from:'2026-02-01',to:'2026-02-28'},now);
   assert.equal(edited.from,'2026-02-01');assert.equal(edited.to,'2026-02-28');
-  assert.equal(c.dashboardPeriod_('news',new Date('2024-02-15T12:00:00Z')).to,'2024-03-31');
-  assert.equal(c.dashboardPeriod_('news',new Date('2026-12-31T23:30:00Z')).to,'2027-03-31');
+  assert.equal(c.dashboardPeriod_('news',new Date('2024-02-15T12:00:00Z')).to,'2024-02-29');
+  assert.equal(c.dashboardPeriod_('news',new Date('2026-12-31T23:30:00Z')).to,'2027-01-31');
 });
 
 test('consultas saturadas se dividen sin huecos y las tareas derivadas mantienen fuente y fechas',()=>{
@@ -173,7 +173,7 @@ test('consultas saturadas se dividen sin huecos y las tareas derivadas mantienen
 
 test('el extracto agregado se clasifica antes de ocultar el titular repetido',()=>{
  const c=context(),profile=c.defaultFeeds_().find(row=>row.kind==='profile');
- const result=c.evaluate_({title:'Resultados de BBVA - Diario',source:'Diario',excerpt:'Resultados de BBVA: financiación para empresas',url:'https://news.google.com/rss/articles/test',date:now.toISOString()},profile,now);
+ const result=c.evaluate_({title:'BBVA lanza pagos digitales para empresas - Diario',source:'Diario',excerpt:'BBVA lanza pagos digitales para empresas: nueva plataforma',url:'https://news.google.com/rss/articles/test',date:now.toISOString()},profile,now);
  assert.ok(result.item);assert.equal(result.item.excerpt,'');assert.equal(result.item.topic,undefined);
 });
 

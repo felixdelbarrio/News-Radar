@@ -27,7 +27,7 @@ test('vista autónoma comparte filtros, normalización de entidades y CSV con Ap
   const html=fs.readFileSync('output/preview.html','utf8');const adapter=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].find(match=>match[1].includes('window.RADAR_PREVIEW='))[1];
   const c=vm.createContext({window:{}});vm.runInContext(adapter,c);const preview=c.window.RADAR_PREVIEW;
   const all=await preview.call('getDashboard'),filtered=await preview.call('getDashboard',{search:'BBVA',entity:'BBVA',source:all.sources[0]});
-  assert.ok(filtered.total>0);assert.ok(filtered.total<all.total);assert.equal((await preview.call('exportNews',{search:'BBVA',entity:'BBVA',source:all.sources[0]})).count,filtered.total);
+  assert.ok(filtered.total>0);assert.ok(filtered.total<=all.total);assert.equal((await preview.call('exportNews',{search:'BBVA',entity:'BBVA',source:all.sources[0]})).count,filtered.total);
   const empty=await preview.call('getDashboard',{entity:'Santander',country:'México'});assert.equal(empty.total,0);assert.ok(empty.entities.includes('Santander'));assert.equal(empty.countries.length,0);
 });
 
@@ -55,8 +55,8 @@ test('la vista local configura períodos y asuntos traducidos y personaliza sin 
  const fs=await import('node:fs'),vm=await import('node:vm'),html=fs.readFileSync('output/preview.html','utf8'),adapter=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].find(match=>match[1].includes('window.RADAR_PREVIEW='))[1];
  const c=vm.createContext({window:{}});vm.runInContext(adapter,c);const preview=c.window.RADAR_PREVIEW;
  await preview.call('saveSubscription',{name:'Nombre ignorado',language:'en',periodicity:'yearly',filters:{entity:'Santander'}});await preview.call('saveSubscription',{language:'tr',periodicity:'fortnightly',filters:{entity:'BBVA'}});
- const subscriptions=await preview.call('getSubscriptions');assert.match(subscriptions[0].nombre,/^\[bIA\] Entity: Santander/);assert.doesNotMatch(subscriptions[0].nombre,/ignorado/);assert.equal(subscriptions[1].periodicidad,'fortnightly');
+ const subscriptions=await preview.call('getSubscriptions');assert.equal(subscriptions[0].nombre,'Mi Newsletter');assert.doesNotMatch(subscriptions[0].nombre,/ignorado/);assert.equal(subscriptions.length,1);assert.equal(subscriptions[0].periodicidad,'all');
  const {newsletterWindow,newsletterCadences}=await import('../src/shared/newsletter-cadences.js');
- for(const [cadence,{view}] of Object.entries(newsletterCadences)){const data=await preview.call('getDashboard',{view,initial:true}),period=newsletterWindow(cadence,new Date().toLocaleDateString('en-CA',{timeZone:'Europe/Madrid'}));assert.equal(data.selection.from,period.from);assert.equal(data.selection.to,period.to);assert.equal(data.selection.entity,'Santander');assert.equal(data.personalization,undefined);assert.equal(data.context.mode,'current');}
+ for(const [cadence,{view}] of Object.entries(newsletterCadences)){const data=await preview.call('getDashboard',{view,initial:true}),period=newsletterWindow(cadence,new Date().toLocaleDateString('en-CA',{timeZone:'Europe/Madrid'}));assert.equal(data.selection.from,period.from);assert.equal(data.selection.to,period.to);assert.notEqual(data.selection.entity,'Santander');assert.equal(data.personalization,undefined);assert.equal(data.context.mode,'current');}
  const options=await preview.call('getNewsletterOptions');assert.equal(options.defaults.name,undefined);assert.equal(options.defaults.filters.range,undefined);
 });

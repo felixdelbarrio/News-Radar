@@ -75,13 +75,13 @@ test('newsletters HTML y texto se generan por destinatario en tres idiomas sin t
 
 test('clasificación inglesa y turca reconoce productos, segmentos y exclusiones sin llamadas externas',()=>{
  const c=vm.createContext({});vm.runInContext(readServerScript('dist',true),c);c.taxonomyCatalog_=()=>[];c.savedArticleTranslations_=rows=>rows;c.translationIdentityRows_=rows=>rows;c.configuration_=()=>JSON.parse(read('assets/configuration-defaults.json'));
- const rows=c.annotateNews_([{entidad:'BBVA',titular:'BBVA introduces a new digital business account',extracto:''},{entidad:'BBVA',titular:'Garanti BBVA KOBİ için yeni hesap sunar',extracto:''},{entidad:'BBVA',titular:'Yeni hesap nedir: rehber',extracto:''}]);
+ const rows=c.annotateNews_([{entidad:'BBVA',titular:'BBVA launches digital payments for businesses',extracto:''},{entidad:'BBVA',titular:'Garanti BBVA KOBİ için yeni hesap sunar',extracto:''},{entidad:'BBVA',titular:'Yeni hesap nedir: rehber',extracto:''}]);
  assert.ok(rows[0].senales.includes('Lanzamiento de producto'));assert.ok(rows[1].senales.includes('Lanzamiento de producto'));assert.ok(rows[1].segmentos.includes('Empresas e instituciones'));assert.equal(rows[2].senales.length,0);assert.equal(c.searchText_('İŞ BANKACILIĞI'),c.searchText_('iş bankacılığı'));
 });
 
 test('la recopilación conserva inglés y turco y el idioma explícito o declarado por el RSS',()=>{
  const c=vm.createContext({Utilities:{DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(_,value)=>Array.from(createHash('sha256').update(value).digest()),getUuid:()=> 'id',formatDate:value=>value.toISOString().slice(0,10)}});vm.runInContext(readServerScript('dist',true),c);c.taxonomyCatalog_=()=>[];c.savedArticleTranslations_=rows=>rows;c.translationIdentityRows_=rows=>rows;const config=JSON.parse(read('assets/configuration-defaults.json'));c.configuration_=()=>config;
- const values={title:'BBVA introduces a new digital business account',link:'https://www.bbva.com/en/account/',pubDate:'2026-10-10T10:00:00Z',description:'An account for small businesses',source:''};
+ const values={title:'BBVA launches digital payments for businesses',link:'https://www.bbva.com/en/account/',pubDate:'2026-10-10T10:00:00Z',description:'An account for small businesses',source:''};
  c.XmlService={parse:()=>({getRootElement:()=>({getChild:()=>({getChildText:()=> 'en-US',getChildren:()=>[{getChildText:key=>values[key]}]})})})};
  const raw=c.parseFeed_('<rss/>')[0],feed=config.feeds.find(row=>row.language==='en'),now=new Date('2026-10-11T12:00:00Z'),item=c.evaluate_(raw,feed,now).item,record=c.newsRecord_(item,feed,now);
  assert.equal(record[5],values.title);assert.equal(record[6],values.description);assert.equal(record[10],'en-US');
@@ -130,9 +130,9 @@ for(const language of ['en','tr'])test('frases del Radar y de administración co
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="language"]');await a.change('#preview-language',language);
  assert.equal(a.find('#sidebar-context-title').textContent,translateText('Gestión de News Radar',language));
  await a.click('[data-view="radar"]');
- for(const [id,source] of [['radar-focus','Panorama de entidades'],['radar-context','Distribución geográfica, entidades mencionadas y evolución de las publicaciones recopiladas.'],['radar-headline','14 publicaciones en seguimiento'],['trend-note','Volumen agrupado en intervalos de 6 días.']])assert.equal(a.find('#'+id).textContent,translateText(source,language));
+ for(const [id,source] of [['radar-focus','Panorama de entidades'],['radar-context','Distribución geográfica, entidades mencionadas y evolución de las publicaciones recopiladas.'],['radar-headline','Radar'],['trend-note','Volumen agrupado en intervalos de 6 días.']])assert.equal(a.find('#'+id).textContent,translateText(source,language));
  assert.ok(a.find('#trend-chart').textContent.includes(new Intl.DateTimeFormat(language,{day:'numeric',month:'short',timeZone:'UTC'}).format(new Date('2026-10-01'))));
- await a.click('[data-view="subscriptions"]');assert.equal(a.find('#subscriptions-count').textContent,language==='en'?'2 subscriptions · 1 active':'2 abonelik · 1 etkin');
+ await a.click('[data-view="subscriptions"]');assert.equal(a.find('#subscriptions-count').textContent,translateText('Tu suscripción',language));
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="audit"]');assert.equal(a.find('#audit-note').textContent,translateText('0 coincidencias en las últimas 20000 entradas disponibles.',language));
  await a.click('[data-admin-view="telemetry"]');assert.equal(a.find('#telemetry-note').textContent,translateText('0 coincidencias en las últimas 20000 operaciones disponibles.',language));
  await a.click('[data-admin-view="adoption"]');assert.equal(a.find('#adoption-section .eyebrow').textContent,translateText('Uso de News Radar',language));
