@@ -6,7 +6,7 @@ import {storage} from './helpers/server.mjs';
 import {app} from './helpers/app.mjs';
 function server(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);s.c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';return s;}
 const path=(palanca='Pagos',subpalanca='Cobros')=>({palanca,subpalanca});
-function news(id,pais='España',entidad='BBVA',taxonomy=[path()]){return {id,pais,entidad,fecha:'2026-09-12',medio:'Editor',titular:entidad+' presenta servicio '+id,extracto:'Información del servicio '+id,tipo:'Banco tradicional',segmentos:['Empresas e instituciones'],senales:[],tema:'Financiación',taxonomia:taxonomy,url:'https://example.com/'+id};}
+function news(id,pais='España',entidad='BBVA',taxonomy=[path()]){return {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id,pais,entidad,fecha:'2026-09-12',medio:'Editor',titular:entidad+' presenta servicio '+id,extracto:'Información del servicio '+id,tipo:'Banco tradicional',segmentos:['Empresas e instituciones'],senales:[],tema:'Financiación',taxonomia:taxonomy,url:'https://example.com/'+id};}
 const rows=()=>[news('a'),news('b'),news('c'),news('d','España','BBVA',[path('Seguridad','Identidad')]),news('e','España','BBVA',[path('Seguridad','Identidad')]),news('f','México','Santander'),news('g','México','Santander',[path('Financiación','Crédito')])];
 const clean=value=>JSON.parse(JSON.stringify(value));
 test('la entrega mensual consulta el historial semanal del destinatario y destaca la alternativa más relevante',()=>{

@@ -1609,26 +1609,6 @@
       "language": "es"
     },
     {
-      "id": "bbva-corporativo",
-      "name": "BBVA · Información corporativa",
-      "url": "https://www.bbva.com/es/economia-y-finanzas/informacion-corporativa/feed/",
-      "domain": "bbva.com",
-      "entity": "BBVA",
-      "country": "Sin determinar",
-      "enabled": true,
-      "language": "es"
-    },
-    {
-      "id": "bbva-english",
-      "name": "BBVA · English",
-      "url": "https://www.bbva.com/en/feed/",
-      "domain": "bbva.com",
-      "entity": "BBVA",
-      "country": "Sin determinar",
-      "language": "en",
-      "enabled": true
-    },
-    {
       "id": "finextra-mobile",
       "name": "Finextra · Mobile & online",
       "url": "https://www.finextra.com/rss/channel.aspx?channel=mobile",

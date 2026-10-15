@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {storage} from './helpers/server.mjs';
+import {storage} from './helpers/delivery.mjs';
 function fixture(){const s=storage();s.c.initializeConfiguration();return s;}
 const work={pending:[{ciclo:'annual'}],jobs:[{id:'annual',tipo:'annual',pendientes:1}]};
 test('prioridad única: diaria, clasificación, traducción de negocio, newsletter, taxonomía, traducción de taxonomía y pendientes',()=>{

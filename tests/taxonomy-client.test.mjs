@@ -40,7 +40,7 @@ test('volver a Noticias después de etiquetar refresca una sola vez el contenido
 test('nombres multilingües visibles conservan valores canónicos de filtros y suscripciones',async t=>{
  const path='Pagos y cobros › Pagos biométricos',taxonomyTranslations={en:{'Pagos y cobros':'Payments and collections','Pagos biométricos':'Biometric payments',[path]:'Payments and collections › Biometric payments'},tr:{'Pagos y cobros':'Ödemeler','Pagos biométricos':'Biyometrik ödemeler',[path]:'Ödemeler › Biyometrik ödemeler'}};
  const a=await app(t,{language:'en-US',configure({data,replies}){
-  data.taxonomyTranslations=taxonomyTranslations;data.palanca=['Pagos y cobros'];data.subpalanca=[path];data.items=[{titular:'News',fecha:'2026-10-11',url:'https://example.com',taxonomia:[items[0]]}];
+  data.taxonomyTranslations=taxonomyTranslations;data.palanca=['Pagos y cobros'];data.subpalanca=[path];data.items=[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:'News',fecha:'2026-10-11',url:'https://example.com',taxonomia:[items[0]]}];
   replies.getNewsletterOptions.taxonomyTranslations=taxonomyTranslations;Object.assign(replies.getNewsletterOptions.catalogs,{palanca:data.palanca,subpalanca:data.subpalanca});replies.getTaxonomyStatus.items=items;replies.getTaxonomyStatus.taxonomyTranslations=taxonomyTranslations;
  }});
  await a.click('[data-view="news"]');assert.match(a.find('#news-list').textContent,/Sublever: Biometric payments/);

@@ -29,7 +29,7 @@ function client(responses={}){
 }
 const server=vm.createContext({});vm.runInContext(readServerScript('dist',true),server);server.configuration_=()=>JSON.parse(read("assets/configuration-defaults.json"));
 const radar=server.radarMetrics_([{fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País'}],{});
-const dashboard=title=>({applicationScope:JSON.parse(read('assets/configuration-defaults.json')).applicationScope,items:[{titular:title,fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País',tema:'Financiación',url:'https://example.com/news'}],
+const dashboard=title=>({applicationScope:JSON.parse(read('assets/configuration-defaults.json')).applicationScope,items:[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:title,fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País',tema:'Financiación',url:'https://example.com/news'}],
   page:0,pageSize:30,total:1,countries:['España','México'],entities:['BBVA','Santander'],sources:['El País'],topics:['Financiación'],
   stats:radar.summary,radar,sourceCount:57,daily:false,admin:false});
 const settle=async()=>{await Promise.resolve();await Promise.resolve();await Promise.resolve();};

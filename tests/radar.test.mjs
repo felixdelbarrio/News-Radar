@@ -28,7 +28,7 @@ test('clasifica fecha y dominio, rechaza ruido y no genera estados ni puntuacion
 });
 test('canonicalización y exportación protegen URLs y fórmulas',()=>{
   const c=context();assert.equal(c.canonicalUrl_('https://BBVA.com/a?z=1&utm_source=x&id=2#x'),'https://bbva.com/a?id=2&z=1');assert.equal(c.canonicalUrl_('javascript:alert(1)'),'');assert.equal(c.canonicalUrl_('https://user:pass@bbva.com/a'),'');assert.equal(c.domainMatches_('https://evilbbva.com/a','bbva.com'),false);assert.equal(c.safeCell_('=IMPORTXML("x")'),'\'=IMPORTXML("x")');
-  c.rows_=()=>[{...item,fecha:'2026-10-08',titular:'=HYPERLINK("x")',extracto:'texto',entidad:'BBVA',url:item.url}];const csv=c.exportNews({}).csv;assert.match(csv,/'=HYPERLINK/);assert.doesNotMatch(csv,/impacto|evidencia|criterio/);
+  c.rows_=()=>[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',...item,fecha:'2026-10-08',titular:'=HYPERLINK("x")',extracto:'texto',entidad:'BBVA',url:item.url}];const csv=c.exportNews({}).csv;assert.match(csv,/'=HYPERLINK/);assert.doesNotMatch(csv,/impacto|evidencia|criterio/);
 });
 test('autoriza con identidad activa y restringe administración y métricas',()=>{
   for(const email of ['reader@bbva.com','felix.delbarrio@bbva.com'])assert.doesNotThrow(()=>context(email).authorize_());
@@ -84,7 +84,7 @@ test('distribución no contiene flujo manual, estilos obsoletos ni permisos de l
 });
 
 test('filtros combinan entidad normalizada, ámbito y medio sin mezclar otras noticias',()=>{
-  const c=context(),rows=[{fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País',titular:'Financiación de empresas',extracto:''},{fecha:'2026-10-08',pais:'España',entidad:'Santander Empresas',medio:'El País',titular:'Otra noticia',extracto:''},{fecha:'2026-10-08',pais:'México',entidad:'BBVA Net Cash',medio:'Otro diario',titular:'Otra noticia',extracto:''}];
+  const c=context(),rows=[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País',titular:'Financiación de empresas',extracto:''},{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-08',pais:'España',entidad:'Santander Empresas',medio:'El País',titular:'Otra noticia',extracto:''},{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-08',pais:'México',entidad:'BBVA Net Cash',medio:'Otro diario',titular:'Otra noticia',extracto:''}];
   const selected=c.selectNews_(rows,{entity:'Santander',country:'México',source:'El País'});assert.equal(selected.length,1);assert.equal(selected[0].medio,'El País');assert.equal(c.entityKey_('BBVA Net Cash'),'BBVA');assert.equal(c.selectNews_(rows,{entity:'BBVA',source:'Otro diario'}).length,1);
 });
 test('todas las fuentes nacen activas y la configuración desactiva solo las seleccionadas',()=>{
@@ -94,16 +94,16 @@ test('todas las fuentes nacen activas y la configuración desactiva solo las sel
 });
 
 test('filtros y CSV coinciden para banco, país, medio, tema y fechas inclusivas',()=>{
-  const c=context(),rows=[{fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País',tema:'Financiación',titular:'Financiación y tesorería corporativa',extracto:''},
-    {fecha:'2026-10-07',pais:'España',entidad:'Santander Empresas',medio:'El País',tema:'Financiación',titular:'España',extracto:''},
-    {fecha:'2026-10-09',pais:'México',entidad:'BBVA Business',medio:'El País',tema:'Financiación',titular:'BBVA',extracto:''}];
+  const c=context(),rows=[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País',tema:'Financiación',titular:'Financiación y tesorería corporativa',extracto:''},
+    {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-07',pais:'España',entidad:'Santander Empresas',medio:'El País',tema:'Financiación',titular:'España',extracto:''},
+    {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-09',pais:'México',entidad:'BBVA Business',medio:'El País',tema:'Financiación',titular:'BBVA',extracto:''}];
   const query={entity:'Santander',country:'México',source:'El País',topic:'Financiación',from:'2026-10-08',to:'2026-10-08',search:'  tesoreria  '};
   const result=c.newsDashboard_(c.annotateNews_(rows),query,c.defaultFeeds_()),csv=c.newsCsv_(rows,query);assert.equal(result.total,1);assert.equal(csv.count,1);assert.match(csv.csv,/tesorería corporativa/);assert.doesNotMatch(csv.csv,/"España"/);
   assert.throws(()=>c.selectNews_(rows,{from:'2026-10-09',to:'2026-10-01'}),/fecha desde/);
 });
 test('países sin noticias se omiten y la paginación se ajusta al resultado',()=>{
   const c=context(),empty=c.newsDashboard_([],{page:99},c.defaultFeeds_());assert.equal(empty.page,0);assert.ok(empty.entities.includes('Santander'));assert.equal(empty.countries.length,0);
-  const row={fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País',tema:'Financiación',titular:'Santander',extracto:''};
+  const row={clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País',tema:'Financiación',titular:'Santander',extracto:''};
   const result=c.newsDashboard_(c.annotateNews_(Array.from({length:31},()=>row)),{page:99},[]);assert.equal(result.page,1);assert.equal(result.items.length,1);
 });
 
@@ -118,7 +118,7 @@ test('entrada web evalúa la plantilla y limita los fragmentos internos',()=>{
 
 
 test('el cuadro de mando agrega toda la selección, incluye días sin noticias y no geolocaliza lo desconocido',()=>{
-  const c=context(),rows=Array.from({length:61},(_,i)=>({fecha:i<30?'2026-10-01':'2026-10-03',pais:i<40?'México':'Sin determinar',entidad:i<50?'BBVA Business':'Santander Empresas',medio:'El País',titular:'Empresas',extracto:'',tema:'Empresas y pymes'}));
+  const c=context(),rows=Array.from({length:61},(_,i)=>({clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:i<30?'2026-10-01':'2026-10-03',pais:i<40?'México':'Sin determinar',entidad:i<50?'BBVA Business':'Santander Empresas',medio:'El País',titular:'Empresas',extracto:'',tema:'Empresas y pymes'}));
   const result=c.newsDashboard_(c.annotateNews_(rows),{page:1},[]);assert.equal(result.items.length,30);assert.equal(result.stats.news,61);assert.equal(result.stats.entities,2);assert.equal(result.radar.unlocated,21);assert.equal(result.radar.geographies[0].total,40);
   assert.equal(result.radar.trend.buckets.length,3);assert.ok(result.radar.trend.series.every(row=>row.values[1]===0));assert.equal(result.radar.trend.series.flatMap(row=>row.values).reduce((a,b)=>a+b,0),61);
   const selected=c.newsDashboard_(c.annotateNews_(rows),{entity:'Santander',country:'México'},[]);assert.equal(selected.total,0);assert.equal(selected.radar.trend.buckets.length,0);assert.equal(selected.radar.trend.intervalDays,1);
@@ -193,7 +193,7 @@ test('el lote saturado persiste consultas hijas y evita finalizar una cola con t
 });
 
 test('la caché de dashboard evita leer y clasificar Noticias otra vez y se invalida con datos o configuración',()=>{
- const c=context(),rows=[{fecha:'2026-10-08',pais:'España',entidad:'BBVA',medio:'Diario',titular:'Financiación para empresas',extracto:'',url:'https://bbva.com/a'}];let reads=0,revision='first';
+ const c=context(),rows=[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-08',pais:'España',entidad:'BBVA',medio:'Diario',titular:'Financiación para empresas',extracto:'',url:'https://bbva.com/a'}];let reads=0,revision='first';
  c.configurationRevision_=()=>revision;c.rows_=()=>{reads++;return rows;};
  const query={entity:'BBVA'},first=c.dashboardContent_(query,c.feeds_());assert.equal(first.cacheHit,false);assert.equal(first.data.total,1);
  assert.equal(c.dashboardContent_(query,c.feeds_()).cacheHit,true);assert.equal(reads,1);
@@ -233,7 +233,7 @@ test('descarte repetido conserva ejemplos acotados y totales completos en el JSO
 });
 
 test('filtrado previo clasifica solo las filas del ámbito elegido sin alterar el resultado',()=>{
- const c=context(),rows=[{fecha:'2026-10-08',pais:'España',entidad:'BBVA',medio:'Diario',titular:'Financiación para empresas',extracto:''},{fecha:'2026-10-08',pais:'México',entidad:'BBVA',medio:'Diario',titular:'Financiación para empresas',extracto:''}];
+ const c=context(),rows=[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-08',pais:'España',entidad:'BBVA',medio:'Diario',titular:'Financiación para empresas',extracto:''},{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-08',pais:'México',entidad:'BBVA',medio:'Diario',titular:'Financiación para empresas',extracto:''}];
  const annotate=c.annotateNews_;let classified;c.annotateNews_=items=>{classified=items.length;return annotate(items);};const query={entity:'BBVA',country:'España',from:'2026-10-01',topic:'Financiación'};
  const result=c.selectNews_(rows,query);assert.equal(classified,1);assert.deepEqual(JSON.parse(JSON.stringify(result)),JSON.parse(JSON.stringify(c.selectAnnotatedNews_(annotate(rows),query))));
 });
@@ -262,11 +262,11 @@ test('las ejecuciones se comparten entre cargas y una nueva escritura invalida l
 test('la telemetría identifica la versión que produjo cada operación y la exportación',()=>{
  const c=context();let rows;c.append_=(name,value)=>rows=value;c.trim_=()=>{};
  c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.ok(rows[0][4].startsWith('v'+vm.runInContext('RADAR.version',c)+';'));
- c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'3.0.5');
+ c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'3.1.0');
 });
 
 test('cada vista calcula solo su visualización y conserva el medio de las noticias',()=>{
- const c=context(),rows=[{fecha:'2026-10-08',pais:'España',entidad:'BBVA',medio:'Diario independiente',titular:'BBVA lanza cuenta para empresas',extracto:'Nueva cuenta',url:'https://example.com'}];
+ const c=context(),rows=[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-08',pais:'España',entidad:'BBVA',medio:'Diario independiente',titular:'BBVA lanza cuenta digital para empresas',extracto:'Nueva cuenta',url:'https://example.com'}];
  const radar=c.radarMetrics_,briefing=c.briefing_;c.radarMetrics_=()=>{throw Error('No calcular Radar en otra vista');};c.briefing_=()=>{throw Error('No calcular Novedades en Noticias');};
  const news=c.newsDashboard_(c.annotateNews_(rows),{},[],'news');assert.equal(news.items[0].medio,'Diario independiente');assert.equal('radar' in news,false);assert.equal('briefing' in news,false);
  c.briefing_=briefing;const novelty=c.newsDashboard_(c.annotateNews_(rows),{},[],'briefing');assert.equal(novelty.briefing.items[0].medio,'Diario independiente');assert.equal('radar' in novelty,false);
@@ -311,10 +311,10 @@ test('ejecuciones pagina todo el histórico disponible y el progreso es seguro p
 });
 test('todos los gráficos del Radar respetan entidad y segmento y distinguen editor de entidad mencionada',()=>{
  const c=context(),rows=[
- {fecha:'2026-10-11',entidad:'BBVA',pais:'España',medio:'Editor externo',titular:'BBVA financia empresas',extracto:''},
- {fecha:'2026-10-10',entidad:'BBVA',pais:'España',medio:'BBVA',titular:'BBVA lanza cuenta para empresas',extracto:''},
- {fecha:'2026-10-10',entidad:'BBVA',pais:'España',medio:'Editor Retail',titular:'BBVA tarjeta para particulares',extracto:''},
- {fecha:'2026-10-09',entidad:'Santander',pais:'México',medio:'BBVA',titular:'Santander financia empresas',extracto:''}];
+ {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-11',entidad:'BBVA',pais:'España',medio:'Editor externo',titular:'BBVA financia empresas',extracto:''},
+ {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-10',entidad:'BBVA',pais:'España',medio:'BBVA',titular:'BBVA lanza cuenta digital para empresas',extracto:''},
+ {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-10',entidad:'BBVA',pais:'España',medio:'Editor Retail',titular:'BBVA tarjeta para particulares',extracto:''},
+ {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-09',entidad:'Santander',pais:'México',medio:'BBVA',titular:'Santander financia empresas',extracto:''}];
  for(const entity of ['','BBVA','Santander']){
   const query=c.dashboardQuery_({view:'radar',entity,segment:'Empresas e instituciones'}),data=c.newsDashboard_(c.annotateNews_(rows),query,[],'radar'),selected=data.items;
   assert.equal(data.stats.news,selected.length);assert.ok(selected.every(row=>row.segmentos.includes(query.segment)));assert.ok(!entity||selected.every(row=>row.entidad===entity));

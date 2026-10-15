@@ -77,7 +77,7 @@ function sourceGeographies_(index=businessIndex_()){
   if(sourceGeographyMemory_?.config===index.config)return sourceGeographyMemory_.values;
   const values=new Map();
   for(const feed of index.config.feeds){const country=sourceCountry_(feed,index);if(country)values.set(searchText_(feed.name),country);}
-  for(const entity of index.config.entities)for(const geo of index.config.geographies)values.set(searchText_(entity.name+' · '+geo.name),geo.name);
+  for(const entity of index.config.entities)for(const geo of index.config.geographies){values.set(searchText_(entity.name+' · '+geo.name),geo.name);if(entity.name==='BBVA')values.set(searchText_('BBVA Empresas · '+geo.name),geo.name);}
   sourceGeographyMemory_={config:index.config,values};return values;
 }
 function newsCountry_(row,index=businessIndex_()){return sourceGeographies_(index).get(searchText_(row.fuente))||row.pais||settings_().unknownCountry;}

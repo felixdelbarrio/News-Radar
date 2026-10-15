@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import {storage} from './helpers/server.mjs';
+import {storage} from './helpers/delivery.mjs';
 import {app,tick} from './helpers/app.mjs';
 const clean=value=>JSON.parse(JSON.stringify(value));
 function server(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);s.c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';return s;}
 function news(s,id='one',country='España',title='BBVA lanza pagos digitales para empresas'){
- return s.c.annotateNews_([{id,fecha:'2026-09-10',pais:country,entidad:'BBVA',medio:'Editor',titular:title,extracto:'El servicio permite gestionar pagos digitales, permisos y cobros desde la app para empresas.',url:'https://example.com/'+id,idioma:'es',fuente:'Editor',capturada:'2026-09-10T00:00:00Z'}])[0];
+ return s.c.annotateNews_([{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id,fecha:'2026-09-10',pais:country,entidad:'BBVA',medio:'Editor',titular:title,extracto:'El servicio permite gestionar pagos digitales, permisos y cobros desde la app para empresas.',url:'https://example.com/'+id,idioma:'es',fuente:'Editor',capturada:'2026-09-10T00:00:00Z'}])[0];
 }
 function edition(s,id='edition',items=[news(s)],view='news'){
  const c=s.c,query={view,from:'2026-09-01',to:'2026-09-30',segment:'Empresas e instituciones'},content=c.newsletterContent_(items,query,'Selección',new Date(),'subscription','es',id);

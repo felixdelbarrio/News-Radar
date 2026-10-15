@@ -8,13 +8,14 @@ function profileFeed_(geo,entity,range,capabilitySearch=false) {
   const terms=capabilitySearch?capabilitySearchTerms_(geo,entity):collectionSearchTerms_(geo);
   if(!terms.length)return null;
   // Fechas al principio y OR agrupados: el proveedor no debe ampliar el período por una alternativa.
-  const prefix=period+' ('+[entity.name,...entity.aliases].slice(0,COLLECTION_POLICY.entityAliases+1).map(quote).join(' OR ')+') (',selected=[];let length=prefix.length+1;
+  const searchNames=entity.name==='BBVA'?['BBVA Empresas','BBVA Business','BBVA Provincial Empresas']: [entity.name,...entity.aliases];
+  const prefix=period+' ('+searchNames.slice(0,COLLECTION_POLICY.entityAliases+1).map(quote).join(' OR ')+') (',selected=[];let length=prefix.length+1;
   for(const term of terms){const value=quote(term),size=value.length+(selected.length?4:0);if(length+size>COLLECTION_POLICY.queryChars)continue;selected.push(value);length+=size;}
   if(!selected.length)return null;const query=prefix+selected.join(' OR ')+')';
   // Google News no publica edición UY; su redirección legítima utiliza US en español latinoamericano.
   const code=geo.code==='UY'?'US':geo.code;
   const url=canonicalUrl_('https://news.google.com/rss/search?q='+encodeURIComponent(query)+'&hl='+geo.language+'&gl='+code+'&ceid='+code+':'+geo.language);
-  return {id:'profile/'+geo.code+'/'+entity.name,name:entity.name+' · '+geo.name,url,domain:'news.google.com',entity:entity.name,country:geo.name,kind:'profile',language:geo.language,capabilitySearch,enabled:entity.enabled&&geo.enabled};
+  return {id:'profile/'+geo.code+'/'+(entity.name==='BBVA'?'BBVA Empresas':entity.name),name:(entity.name==='BBVA'?'BBVA Empresas':entity.name)+' · '+geo.name,url,domain:'news.google.com',entity:entity.name,country:geo.name,kind:'profile',language:geo.language,capabilitySearch,enabled:entity.enabled&&geo.enabled};
 }
 let collectionLanguageMemory_;
 function localizedSearchTerms_(terms,geo){
@@ -67,3 +68,23 @@ function enableDaily() {
   return 'Recopilación activada. '+collectionScheduleLabel_()+'.';
 }
 function disableDaily() {authorize_(true);ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='dailyRadar_').forEach(t=>ScriptApp.deleteTrigger(t));properties_().setProperty('DAILY_ENABLED','false');CacheService.getScriptCache().remove('daily-schedule');}
+
+// One-off source retirement requested by the owner. Sent newsletter snapshots stay immutable.
+function retiredBbvaSource_(name){const source=String(name||'').trim();return !/^BBVA\s*[·-]\s*Empresas(?:\s|$)/i.test(source)&&/^BBVA(?:\s*[·-]\s*.+)?$/i.test(source);}
+function migrateBbvaBusinessSources_(){
+  const p=properties_();if(p.getProperty('BBVA_BUSINESS_ONLY')==='1')return;
+  const book=book_(),news=book.getSheetByName('Noticias'),width=RADAR.sheets.Noticias.length,count=Math.max(0,news.getLastRow()-1),data=count?news.getRange(2,1,count,width).getDisplayValues():[];
+  const removed=data.filter(row=>retiredBbvaSource_(row[9]));
+  const configSheet=book.getSheetByName('Configuracion'),configRows=configSheet.getRange(1,1,configSheet.getLastRow(),2).getDisplayValues();
+  if(removed.length){
+    for(const [name,rows,columns] of [['RespaldoNoticiasI6',[RADAR.sheets.Noticias,...data],width],['RespaldoConfiguracionI6',configRows,2]])if(!book.getSheetByName(name)){const backup=book.insertSheet(name);if(rows.length>backup.getMaxRows())backup.insertRowsAfter(backup.getMaxRows(),rows.length-backup.getMaxRows());backup.getRange(1,1,rows.length,columns).setNumberFormat('@').setValues(rows);backup.setFrozenRows(1);}
+    SpreadsheetApp.flush();
+    const retained=data.filter(row=>!retiredBbvaSource_(row[9]));
+    news.getRange(2,1,count,width).setNumberFormat('@').setValues([...retained,...Array.from({length:count-retained.length},()=>Array(width).fill(''))]);
+    invalidateNews_();p.deleteProperty('MAINTENANCE_JOB');p.deleteProperty('CLASSIFICATION_JOB');requestTaxonomy_();requestTranslations_(true);
+  }
+  const row=configRows.findIndex(row=>row[0]==='feeds');if(row>=0){const feeds=JSON.parse(configRows[row][1]).filter(feed=>!(feed.entity==='BBVA'&&retiredBbvaSource_(feed.name)));configSheet.getRange(row+1,2,1,1).setValues([[JSON.stringify(feeds)]]);invalidateConfiguration_();}
+  const tasks=rows_('Recopilacion'),updates=tasks.map(task=>[retiredBbvaSource_(task.fuente)&&['Pendiente','Reintento programado','En curso'].includes(task.estado)?'Omitida':task.estado]);if(updates.length)book.getSheetByName('Recopilacion').getRange(2,4,updates.length,1).setValues(updates);
+  if(removed.length)append_('Auditoria',[['migration:'+RADAR.version,new Date().toISOString(),'BBVA genérico','','Retirada de fuente',removed.length+' noticias retiradas del corpus activo; respaldo RespaldoNoticiasI6; BBVA Empresas conservado.']]);
+  p.setProperty('BBVA_BUSINESS_ONLY','1');
+}

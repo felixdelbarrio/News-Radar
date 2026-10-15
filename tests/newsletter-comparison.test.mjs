@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {JSDOM} from 'jsdom';
-import {storage} from './helpers/server.mjs';
+import {storage} from './helpers/delivery.mjs';
 import {app} from './helpers/app.mjs';
 function setup(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);s.c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';s.c.annotateNews_=rows=>rows;return s;}
 const story=(id,country,entity,theme='Pagos y cobros',date='2026-09-10')=>({id,pais:country,entidad:entity,fecha:date,medio:'Editor',titular:entity+' presenta servicio '+id,extracto:'Una nueva capacidad para el canal.',url:'https://example.com/'+id,tipo:'Banco tradicional',segmentos:['Empresas e instituciones'],etiquetas:{digital:true},senales:['Lanzamiento de producto'],taxonomia:[{palanca:theme,subpalanca:'API'}]});

@@ -37,6 +37,7 @@ function queueMonthlyTaxonomy_(period){
 }
 function deliverNewsletterBatch_(work,maxMs=BACKGROUND_WORK.sliceMs){
   const started=Date.now(),now=new Date(started),result={accepted:0,empty:0,duplicates:0,pending:0,state:'disabled'};
+  if(backgroundPaused_()){deferBackgroundWork_('newsletter');return {...result,state:'configuration_pause'};}
   if(!settings_().newsletterEnabled){properties_().deleteProperty('NEWSLETTER_REQUEST');return result;}
   if(businessPipelinePending_(work)){ensureNewsletterContinuation_();return {...result,state:'collection_priority'};}
   const quotaPause=Number(properties_().getProperty('NEWSLETTER_QUOTA_UNTIL')||0);if(quotaPause>Date.now()){requestNewsletterDelivery_(quotaPause-Date.now());return {...result,state:'limit'};}

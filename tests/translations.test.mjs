@@ -13,7 +13,7 @@ test('solo las traducciones guardadas se sirven a las tarjetas y conservan los o
  assert.equal(c.savedArticleTranslations_([{...article,titular:'Contenido actualizado'}],'tr')[0].translation.state,'pending');assert.equal(c.savedArticleTranslations_([article],'en')[0].translation.state,'pending');
 });
 test('el job diario traduce tres idiomas de más reciente a más antiguo, reutiliza guardadas y se completa',()=>{
- const s=server(),c=s.c;add(s,[{...article,id:'old',fecha:'2026-09-01',titular:'Older headline'},{...article,id:'new'}]);const log=provider(c);c.storeArticleTranslation_(article,'tr');log.length=0;
+ const s=server(),c=s.c;add(s,[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',...article,id:'old',fecha:'2026-09-01',titular:'Older headline'},{...article,id:'new'}]);const log=provider(c);c.storeArticleTranslation_(article,'tr');log.length=0;
  c.requestTranslations_();c.backgroundTick_();assert.equal(log.length,5);assert.match(log[0].input,/BBVA lanza cuenta/);assert.match(log.at(-1).input,/Older headline/);assert.equal(c.translationJob_().state,'Completada');assert.equal(c.translationJob_().processed,2);assert.equal(c.translationJob_().translated,5);assert.equal(c.rows_('Traducciones').length,6);
  c.cachedArticleTranslations_=()=>{throw Error('El barrido consulta solo las claves de variantes guardadas');};c.requestTranslations_();c.backgroundTick_();assert.equal(log.length,5);assert.equal(c.translationJob_().calls,5);assert.ok(!c.ScriptApp.getProjectTriggers().some(t=>t.getHandlerFunction()==='backgroundTick_'));
 });
@@ -31,7 +31,7 @@ test('un fallo del traductor pausa y conserva las traducciones ya escritas para 
 });
 test('el límite diario conserva el cursor y el día siguiente prioriza nuevas publicaciones',()=>{
  const s=server(),c=s.c;add(s,[article]);provider(c);c.requestTranslations_();c.backgroundTick_();const job=c.translationJob_();job.state='Pendiente';job.calls=3000;job.processed=0;job.cursor=null;c.writeTranslationJob_(job);c.translationBatch_();c.backgroundTick_();assert.equal(c.translationJob_().state,'En pausa');assert.match(c.translationJob_().error,/Límite diario/);assert.ok(Math.abs(c.scheduledTriggers_('backgroundTick_')[0].delay-(c.nextDailyReset(Date.now(),c.settings_().timezone)-Date.now()))<1000);
- job.callDay='2026-01-01';job.started='2026-01-01T02:00:00Z';job.cursor={fecha:article.fecha,id:article.id};c.writeTranslationJob_(job);add(s,[{...article,id:'latest',titular:'Newest headline',fecha:'2026-10-12'}]);const log=provider(c);c.requestTranslations_();c.backgroundTick_();assert.match(log[0].input,/Newest headline/);assert.equal(c.translationJob_().calls,3);
+ job.callDay='2026-01-01';job.started='2026-01-01T02:00:00Z';job.cursor={fecha:article.fecha,id:article.id};c.writeTranslationJob_(job);add(s,[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',...article,id:'latest',titular:'Newest headline',fecha:'2026-10-12'}]);const log=provider(c);c.requestTranslations_();c.backgroundTick_();assert.match(log[0].input,/Newest headline/);assert.equal(c.translationJob_().calls,3);
 });
 test('la programación es idempotente, se integra en la cola diaria y solo el administrador puede controlarla',()=>{
  const s=server(),c=s.c;assert.equal(c.getTranslationStatus().scheduled,true);c.initializeConfiguration();assert.equal(c.ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='nightlyTranslations_').length,0);

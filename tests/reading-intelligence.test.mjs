@@ -6,7 +6,7 @@ import {heatmapPage,heatmapValue,HEATMAP_PAGE} from '../src/client/features/heat
 function server(){
  const s=storage(),c=s.c;c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;
 }
-function raw(id,entity='BBVA',date='2026-02-12'){return {id,entidad:entity,fecha:date,titular:entity+' lanza pagos digitales para empresas',extracto:'Nueva plataforma de pagos y cobros para empresas',url:'https://example.com/'+id,medio:'Editor',pais:'España',fuente:'Editor',idioma:'es',clasificacion:JSON.stringify({digital:true,generalista:true,capacidades:[]}),taxonomia:''};}
+function raw(id,entity='BBVA',date='2026-02-12'){return {id,entidad:entity,fecha:date,titular:entity+' lanza pagos digitales para empresas',extracto:'Nueva plataforma de pagos y cobros para empresas',url:'https://example.com/'+id,medio:'Editor',pais:'España',fuente:'Editor',idioma:'es',clasificacion:JSON.stringify({digital:true,generalista:true,capacidades:["Empresas: Pagos"]}),taxonomia:''};}
 function add(s,rows){const keys=vm.runInContext('RADAR.sheets.Noticias',s.c);s.sheets.get('Noticias').grid.push(...rows.map(row=>keys.map(key=>row[key]||'')));}
 function own(s,id='one',filters={entity:'BBVA'}){s.c.saveSubscription({id:undefined,name:'Mi selección '+id,periodicity:'fortnightly',active:true,filters});const rows=s.c.subscriptionRows_('owner@bbva.com');return rows.at(-1);}
 function edition(s,id='edition-one',items){const rows=items||s.c.annotateNews_([raw('one'),raw('two','Santander')]);s.c.saveNewsletterEdition_(id,'delivery-one','owner@bbva.com','Pagos de febrero',{from:'2026-02-01',to:'2026-02-28'},'en',rows);s.c.completeNewsletterEdition_(id,'Enviada');return rows;}
@@ -55,7 +55,7 @@ test('mapa disperso cuenta una vez por noticia y palanca, incluye todas las geog
 test('Novedades y newsletter predeterminadas priorizan canales digitales de todas las entidades de la quincena en curso cuando no hay suscripciones',()=>{
  const s=server(),c=s.c,range=c.dashboardPeriod_('briefing'),old=new Date(range.from+'T00:00:00Z');old.setUTCDate(old.getUTCDate()-1);
  c.configuration_().settings.defaultEntity='BBVA';c.configuration_().settings.defaultCountry='México';c.configuration_().settings.defaultTopic='Financiación';
- const general={...raw('general','Santander',range.from),titular:'Santander lanza financiación para empresas',extracto:'Nueva oferta de crédito para pymes',clasificacion:JSON.stringify({digital:false,generalista:true,capacidades:[]})};
+ const general={...raw('general','Santander',range.from),titular:'Santander lanza financiación para empresas',extracto:'Nueva oferta de crédito para pymes',clasificacion:JSON.stringify({digital:false,generalista:true,capacidades:["Empresas: Pagos"]})};
  const digital=raw('digital','BBVA',range.to),expired={...general,id:'old',fecha:old.toISOString().slice(0,10)},retail={...general,id:'retail',titular:'Santander lanza una cuenta para particulares',extracto:'Oferta para particulares'};
  add(s,[general,digital,expired,retail]);
  const dashboard=c.getDashboard({view:'briefing',initial:true});assert.deepEqual(JSON.parse(JSON.stringify(dashboard.selection)),{segment:'Empresas e instituciones',coverage:'digital',...JSON.parse(JSON.stringify(range))});assert.equal(dashboard.context.mode,'current');assert.equal(dashboard.personalization,undefined);assert.deepEqual(Array.from(dashboard.briefing.items,row=>row.id),['digital']);

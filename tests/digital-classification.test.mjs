@@ -26,7 +26,7 @@ test('canal digital contempla móvil, web, API e IA en contexto bancario; etique
  for(const title of negative)assert.equal(c.classification_(c.searchText_(title),c.searchText_(title)).labels.digital,false,title);
  assert.equal(c.classification_('bankinter celebra encuentros de analisis y mercados','bankinter celebra encuentros de analisis y mercados. la entidad ofrece banca online y herramientas de ia').labels.digital,false);
  const labels=c.classification_(c.searchText_(positive[4]),c.searchText_(positive[4])).labels;assert.ok(labels.capacidades.length>=3);
- assert.deepEqual(JSON.parse(JSON.stringify(c.savedNewsLabels_('bad'))),{generalista:false,digital:false,capacidades:[]});
+ assert.deepEqual(JSON.parse(JSON.stringify(c.savedNewsLabels_('bad'))),{generalista:false,digital:false,capacidades:["Empresas: Pagos"]});
 });
 test('etiquetas se persisten durante la ingesta y no se recalculan al consultar, exportar o generar newsletters',()=>{
  const {c}=server(),feed=c.feeds_().find(row=>row.entity==='BBVA'&&row.kind==='rss'),now=new Date('2026-10-12T12:00:00Z');
@@ -50,7 +50,7 @@ test('histórico acotado, reanudable e idempotente sin volver a consultar fuente
 test('filtros independientes se combinan y todas las vistas incluyen cobertura digital por defecto',()=>{
  const {c}=server(),now=new Date('2026-10-12T12:00:00Z');assert.equal(c.dashboardQuery_({view:'news',initial:true},now).coverage,'digital');const briefing=c.dashboardQuery_({view:'briefing',initial:true},now);assert.equal(briefing.segment,'Empresas e instituciones');assert.equal(briefing.coverage,'digital');assert.equal(briefing.entity,undefined);
  assert.equal(c.dashboardQuery_({view:'news',coverage:''},now).coverage,'');assert.equal(c.dashboardQuery_({view:'radar',coverage:'digital'},now).coverage,'digital');assert.equal(c.dashboardQuery_({coverage:'digital'},now).coverage,'digital');assert.throws(()=>c.dashboardQuery_({view:'news',coverage:'mobile'}),/cobertura/);
- const rows=positive.slice(0,2).map((title,i)=>({id:String(i),fecha:'2026-10-10',entidad:'BBVA',pais:i?'México':'España',titular:title,extracto:'',clasificacion:JSON.stringify({generalista:true,digital:true,capacidades:[]})}));rows.push({...rows[0],id:'general',titular:'BBVA presenta financiación para nuevas empresas',url:'https://example.com/general',clasificacion:JSON.stringify({generalista:true,digital:false,capacidades:[]})});
+ const rows=positive.slice(0,2).map((title,i)=>({id:String(i),fecha:'2026-10-10',entidad:'BBVA',pais:i?'México':'España',titular:title,extracto:'',clasificacion:JSON.stringify({generalista:true,digital:true,capacidades:["Empresas: Pagos"]})}));rows.push({...rows[0],id:'general',titular:'BBVA presenta financiación para nuevas empresas',url:'https://example.com/general',clasificacion:JSON.stringify({generalista:true,digital:false,capacidades:["Empresas: Pagos"]})});
  assert.equal(c.selectNews_(rows,{}).length,3);assert.equal(c.selectNews_(rows,{coverage:'generalista'}).length,3);assert.equal(c.selectNews_(rows,{coverage:'digital'}).length,2);assert.equal(c.selectNews_(rows,{coverage:'digital',country:'España',entity:'BBVA',from:'2026-10-09',to:'2026-10-11'}).length,1);
 });
 test('el selector real conserva elecciones por vista, permite Todos y aparece en Radar',async t=>{
@@ -68,7 +68,7 @@ test('migración conserva noticias y ediciones; incorpora valores nuevos una sol
  const stored=JSON.stringify(sheet.grid);c.initializeConfiguration();assert.equal(JSON.stringify(sheet.grid),stored);
 });
 test('Novedades agrupa BBVA primero; newsletter limita a tres destacados recientes',()=>{
- const {c}=server(),rows=[];for(const [entity,total,date] of [['BBVA',1,'2026-10-08'],['Qonto',3,'2026-10-11'],['N26',2,'2026-10-10'],['Santander',1,'2026-10-09']])for(let i=0;i<total;i++)rows.push({id:entity+i,entidad:entity,fecha:date,titular:entity+' lanza una nueva cuenta para empresas '+i,extracto:'',url:'https://example.com/'+entity+i,pais:'España',medio:'Editor'});
+ const {c}=server(),rows=[];for(const [entity,total,date] of [['BBVA',1,'2026-10-08'],['Qonto',3,'2026-10-11'],['N26',2,'2026-10-10'],['Santander',1,'2026-10-09']])for(let i=0;i<total;i++)rows.push({clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id:entity+i,entidad:entity,fecha:date,titular:entity+' lanza una nueva cuenta para empresas '+i,extracto:'',url:'https://example.com/'+entity+i,pais:'España',medio:'Editor'});
  const selected=c.annotateNews_(rows),grouped=c.newsDashboard_(c.annotateNews_(rows),{},c.feeds_(),'briefing').briefing.items;assert.deepEqual(JSON.parse(JSON.stringify(grouped.map(row=>row.entidad))),['BBVA','Qonto','Qonto','Qonto','N26','N26','Santander']);
  const newsletter=c.newsletter_(rows,{},'Canal',new Date('2026-10-12T12:00:00Z'),'sub');assert.equal(newsletter.items[0].entidad,'Qonto');assert.equal(newsletter.count,3);assert.equal(newsletter.evidence.length,7);assert.equal(c.briefing_(selected).items[0].entidad,'BBVA');
 });

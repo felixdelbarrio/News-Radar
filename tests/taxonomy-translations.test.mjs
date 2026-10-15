@@ -43,7 +43,7 @@ test('finalizar taxonomía encola traducción automáticamente y los lectores ut
   const s=server(),c=s.c;c.startTaxonomy();for(let i=0;i<10&&c.taxonomyPending_();i++)c.taxonomyBatch_();assert.equal(c.taxonomyJob_().state,'Completada');assert.ok(s.properties.TAXONOMY_TRANSLATION_REQUEST);
   // Reuse a classified article without changing its canonical taxonomy labels.
   const model=s.rows; s.sheets.get('Taxonomia').grid.splice(1);s.sheets.get('Taxonomia').grid.push(...model.map(row=>vm.runInContext('RADAR.sheets.Taxonomia',c).map(key=>Array.isArray(row[key])?JSON.stringify(row[key]):row[key])));s.properties.TAXONOMY_REVISION='reader';finish(c);
-  const row={id:'news',fecha:'2026-10-11',pais:'España',medio:'Editor',entidad:'BBVA',titular:'BBVA lanza pagos biometricos para empresas',extracto:'Nuevo canal digital',tema:'Pagos',url:'https://example.com/news',capturada:'',fuente:'Editor',idioma:'es',clasificacion:JSON.stringify({generalista:true,digital:true,capacidades:[]}),taxonomia:JSON.stringify({fingerprint:'test',ids:['one']})};
+  const row={id:'news',fecha:'2026-10-11',pais:'España',medio:'Editor',entidad:'BBVA',titular:'BBVA lanza pagos biometricos para empresas',extracto:'Nuevo canal digital',tema:'Pagos',url:'https://example.com/news',capturada:'',fuente:'Editor',idioma:'es',clasificacion:JSON.stringify({generalista:true,digital:true,capacidades:["Empresas: Pagos"]}),taxonomia:JSON.stringify({fingerprint:'test',ids:['one']})};
   s.sheets.get('Noticias').grid.push(vm.runInContext('RADAR.sheets.Noticias',c).map(key=>row[key]||''));
   c.LanguageApp={translate(){throw Error('Los lectores no traducen');}};
   const query={view:'news',entity:'BBVA',palanca:'Pagos y cobros',subpalanca:'Pagos y cobros › Pagos biometricos',language:'en'};

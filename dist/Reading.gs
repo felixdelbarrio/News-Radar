@@ -36,12 +36,14 @@ function newsletterEdition_(id,email){
 function ensureNewsletterContinuation_(delay=settings_().pauseMinutes*60000){if(backgroundPaused_()){deferBackgroundWork_('newsletter');return;}requestNewsletterDelivery_(delay);}
 function getNewsletterSummary(id){
   const session=authorize_(),row=newsletterEditionMetadata_(id,session.email,session.admin),editorial=JSON.parse(row.editorial||'null'),query=JSON.parse(row.filtros);
-  return {from:query.from,to:query.to,country:query.country||'',count:Number(row.cantidad),topics:(editorial?.cards||[]).slice(0,5).map(card=>card.title).filter(Boolean)};
+  const topics=(editorial?.cards||[]).slice(0,5).map(card=>card.title).filter(Boolean);
+  if(!topics.length&&Number(row.cantidad)){const size=Math.min(3,Number(row.cantidad));for(const [edition,value] of book_().getSheetByName('NewsletterContenido').getRange(Number(row.inicio),1,size,2).getDisplayValues()){if(edition!==id)throw Error('Edición de newsletter no disponible.');topics.push(unpackNews_(JSON.parse(value)).titular);}}
+  return {from:query.from,to:query.to,country:query.country||'',count:Number(row.cantidad),topics};
 }
 function getMyNewsletterHistory(query={}){
   const email=authorize_().email;return newsletterHistoryRecords_(query,email);
 }
 function newsletterHistoryRecords_(query={},email=null){
-  const rows=rows_('NewsletterEnvios',settings_().eventLimit,8).filter(row=>!email||row.correo===email),selected=filterRecords(rows,query,['correo','estado','suscripcion'],['correo','suscripcion','detalle','id'],'fecha',settings_().timezone),editions=new Map(rows_('NewsletterEdiciones',undefined,10).filter(row=>row.estado==='Enviada'&&(!email||row.correo===email)).map(row=>[row.envio,row.id]));
-  const page=recordPage(selected.reverse(),query,settings_().pageSize);return {...page,items:page.items.map(row=>({...row,edition:editions.get(row.id)||'',noticias:Number(row.detalle.match(/(?:^|; )(\d+) noticias incluidas/)?.[1]||0)})),options:recordOptions(rows,['correo','estado','suscripcion']),limited:rows.length===settings_().eventLimit,limit:settings_().eventLimit};
+  const available=rows_('NewsletterEnvios',settings_().eventLimit,8),rows=available.filter(row=>!email||row.correo===email),selected=filterRecords(rows,query,['correo','estado','suscripcion'],['correo','suscripcion','detalle','id'],'fecha',settings_().timezone),editions=new Map(rows_('NewsletterEdiciones',undefined,10).filter(row=>row.estado==='Enviada'&&(!email||row.correo===email)).map(row=>[row.envio,row.id]));
+  const page=recordPage(selected.reverse(),query,settings_().pageSize);return {...page,items:page.items.map(row=>({...row,edition:editions.get(row.id)||'',noticias:Number(row.detalle.match(/(?:^|; )(\d+) noticias incluidas/)?.[1]||0)})),options:recordOptions(rows,['correo','estado','suscripcion']),limited:available.length===settings_().eventLimit,limit:settings_().eventLimit};
 }

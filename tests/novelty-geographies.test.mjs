@@ -6,7 +6,7 @@ import {noveltyOverview,noveltyGroups,noveltyCount} from '../src/shared/novelty-
 import {storage} from './helpers/server.mjs';
 import {app} from './helpers/app.mjs';
 const signals=['Lanzamiento de producto','Mejora de oferta','Alianza estratégica'];
-function row(id,pais='España',entidad='BBVA',senales=[signals[0]],segmentos=['Empresas e instituciones']){return {id,pais,entidad,senales,segmentos,tipo:'Banco tradicional',titular:entidad+' lanza producto '+id,extracto:'Nueva oferta para empresas',fecha:'2026-10-10',medio:'Editor',url:'https://example.com/'+id,tema:'Financiación',taxonomia:[]};}
+function row(id,pais='España',entidad='BBVA',senales=[signals[0]],segmentos=['Empresas e instituciones']){return {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id,pais,entidad,senales,segmentos,tipo:'Banco tradicional',titular:entidad+' lanza producto '+id,extracto:'Nueva oferta para empresas',fecha:'2026-10-10',medio:'Editor',url:'https://example.com/'+id,tema:'Financiación',taxonomia:[]};}
 function server(){const s=storage();s.c.initializeConfiguration();return s;}
 test('agrupa cada noticia una sola vez en geografía, entidad y combinación de segmentos sin mutar ni sumar etiquetas duplicadas',()=>{
  const rows=[row('a','España','Santander',[...signals,signals[0]],['Retail','Empresas e instituciones','Retail']),row('b','España','BBVA'),row('c','México','BBVA'),row('d','España','Santander'),row('e','','',[],[])],before=JSON.stringify(rows),overview=noveltyOverview(rows,signals),groups=noveltyGroups(rows);

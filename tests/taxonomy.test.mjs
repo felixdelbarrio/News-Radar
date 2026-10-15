@@ -54,7 +54,7 @@ test('fallos de escritura conservan el cursor y las etiquetas existentes; una mo
 });
 
 test('las noticias nuevas se etiquetan con el modelo vigente durante la incorporación y los lotes no leen todo el corpus',()=>{
- const {c,sheets}=server();c.startTaxonomy();finish(c);const row=c.newsRecord_({date:new Date(),title:'BBVA lanza pagos biométricos',excerpt:'Para empresas',topic:'Pagos',url:'https://example.com/new',labels:{digital:true,generalista:true,capacidades:[]}},c.feeds_()[0],new Date());
+ const {c,sheets}=server();c.startTaxonomy();finish(c);const row=c.newsRecord_({date:new Date(),title:'BBVA lanza pagos biométricos',excerpt:'Para empresas',topic:'Pagos',url:'https://example.com/new',labels:{digital:true,generalista:true,capacidades:["Empresas: Pagos"]}},c.feeds_()[0],new Date());
  assert.ok(c.taxonomySaved_(row[12]).ids.length);
  for(let i=0;i<260;i++)sheets.get('Noticias').grid.push([...row.slice(0,12),'']);c.invalidateNews_();const reads=[],sheet=sheets.get('Noticias'),get=sheet.getRange;sheet.getRange=(...args)=>{reads.push(args);return get(...args);};c.startTaxonomy();finish(c);assert.ok(reads.every(args=>args[2]<=100));assert.equal(c.taxonomyJob_().processed,528);
 });

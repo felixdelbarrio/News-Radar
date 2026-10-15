@@ -105,7 +105,7 @@ async function load(reuse=false) {
       }
       renderSelection(data,navigation.current,appended);
       renderApplicationShell(data);
-      track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true}:{}),clientCacheHit,rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
+      track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true}:{}),clientCacheHit,sharedRequest:!clientCacheHit&&data.performance.transportMs>performance.now()-started+5,rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
       if (first) {
         track("acceso");
         track("vista");
