@@ -2,7 +2,7 @@
 
 ## Problemas corregidos
 
-Implementación local en `develop`. El proyecto de Apps Script y la hoja de producción se han consultado sin modificar su código, sus datos ni su despliegue. La distribución actualizada queda en `dist/`.
+Implementación en `develop`, publicada en el despliegue existente de Apps Script como versión 65 el 15/10/2026, después de incorporar las correcciones del PR #36. Se conservan URL, propietario y acceso de dominio. No se han eliminado noticias ni traducciones históricas. La distribución actualizada queda en `dist/`. Véase `iteration-5-live-performance.md` para medidas reales y cobertura de todas las secciones.
 
 - Se elimina `newsReadLimit` de consultas, configuración, formulario y telemetría. Exportaciones, newsletters y traducciones acceden a todo el histórico; el límite explícito de exportación conserva su finalidad independiente.
 - El índice de fechas y catálogos usa la caché existente `news-records`, es reconstruible desde Noticias y funciona con filas desordenadas. Se leen y clasifican los textos del período solicitado, con rangos agrupados y lecturas de hasta 2.000 filas.
@@ -52,7 +52,7 @@ Reproducción desde este árbol de trabajo, sin cargas concurrentes:
 
 ```sh
 node scripts/build.mjs
-node scripts/benchmark-news.mjs --baseline > output/iteration-5-before.jsonl
+node scripts/benchmark-news.mjs --baseline=5c43f28753cbfa239ac5535045a7b4bce90b755b > output/iteration-5-before.jsonl
 node scripts/benchmark-news.mjs > output/iteration-5-after.jsonl
 ```
 
@@ -66,7 +66,7 @@ Las pruebas reproducen Blue Diamond con puntuación distinta y dos días de dife
 
 Corregido en el código: prevención de nuevas copias por identidad editorial y URL equivalente; idempotencia entre fuentes y reintentos; consolidación lógica común en vistas, exportaciones y newsletters. Se dispone de `previewNewsDeduplication()` para revisar grupos, representantes y registros originales, incluso si dos filas repiten UUID. No utiliza LLM ni escribe datos.
 
-Pendiente: publicar estos cambios en la aplicación y, si se desea, efectuar una limpieza física del histórico tras revisión. No se han borrado filas de la hoja real.
+Publicado en la aplicación. La consolidación es lógica; no se han borrado filas de la hoja real. Una limpieza física queda fuera de esta implementación y requiere la revisión y preservación de referencias descritas a continuación.
 
 ### Procedimiento seguro de consolidación
 
@@ -83,3 +83,11 @@ Pendiente: publicar estos cambios en la aplicación y, si se desea, efectuar una
 - Tras retirar el campo interno de posición de las lecturas para newsletters: 68 pruebas de consumidores y regresión correctas, incluidas configuración, períodos, cadencias, correo e histórico.
 - Diez pruebas nuevas cubren 50.000 registros, acceso antiguo, paginación, orden por entidad, filtros, caché parcial, invalidaciones, traducciones, precalentamiento, deduplicación conservadora, casos de la hoja real, idempotencia y preservación de originales y ediciones.
 - Benchmark local: tres muestras de 10.000, 25.000 y 50.000 registros antes y después. No es una prueba de carga real de Apps Script.
+
+## Validación posterior al despliegue
+
+`npm run verify`: 429 pruebas correctas; cobertura de líneas 98 %, sentencias 93,84 %, funciones 96,11 % y ramas 88,92 %. `npm run check:dist` y `git diff --check` correctos. Se añaden agrupación adaptativa de lecturas y un índice de titulares traducidos sin extractos, con invalidación por revisión de traducciones. El informe de producción distingue mediciones del servidor, telemetría del navegador y simulación local.
+
+## Correcciones de revisión PR #36
+
+La deduplicación aproximada incluye el país en su identidad editorial, tanto al leer el histórico como durante la ingesta. Las coincidencias exactas y de URL conservan su comportamiento de sindicación. El benchmark resuelve la base fija de esta iteración (5c43f28753cbfa239ac5535045a7b4bce90b755b), admite `--baseline=<revisión>` y escribe el SHA resuelto en cada muestra. `--baseline` sin valor usa esa base fija, nunca HEAD implícito.

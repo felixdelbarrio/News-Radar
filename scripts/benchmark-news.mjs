@@ -1,10 +1,9 @@
 import vm from 'node:vm';
-import {execFileSync} from 'node:child_process';
+import {benchmarkSource} from './benchmark-source.mjs';
 import {performance} from 'node:perf_hooks';
 import {storage} from '../tests/helpers/server.mjs';
 // Local V8 + in-memory Sheets adapter. These are NOT Apps Script measurements.
-const baseline=process.argv.includes('--baseline'),samples=3;
-const source=baseline?execFileSync('git',['ls-tree','-r','--name-only','HEAD','dist'],{encoding:'utf8'}).trim().split('\n').filter(file=>file.endsWith('.gs')).map(file=>execFileSync('git',['show','HEAD:'+file],{encoding:'utf8',maxBuffer:20e6})).join('\n'):null;
+const {baseline,revision:baselineRevision,source}=benchmarkSource(process.argv.slice(2)),samples=3;
 for(const count of [10000,25000,50000])for(let sample=1;sample<=samples;sample++){
  const s=storage(source),c=s.c;c.initializeConfiguration();
  for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);
@@ -19,5 +18,5 @@ for(const count of [10000,25000,50000])for(let sample=1;sample<=samples;sample++
   const reads=s.reads,start=performance.now(),result=c.dashboardContent_(query,[],view,'es');
   runs.push({scenario,ms:Math.round((performance.now()-start)*10)/10,sheetReads:s.reads-reads,total:result.data.total,cacheHit:result.cacheHit});
  }
- console.log(JSON.stringify({baseline,count,sample,runs}));
+ console.log(JSON.stringify({baseline,baselineRevision,count,sample,runs}));
 }

@@ -18,12 +18,12 @@ function titleIdentity_(item){
   return {key,day:day.getTime()/86400000};
 }
 function editorialIdentity_(item,identity=titleIdentity_(item)){
-  const publisher=searchText_(item.publisher),entity=item.entity?searchText_(entityKey_(item.entity)):'';
+  const publisher=searchText_(item.publisher),entity=item.entity?searchText_(entityKey_(item.entity)):'',country=searchText_(item.country);
   if(!identity||!publisher||!entity)return null;
   const tokens=identity.key.split(' ');if(tokens.length<8)return null;
-  // Two stable anchors bound candidate lookup by publisher, entity and date.
+  // Two stable anchors bound candidate lookup by country, publisher, entity and date.
   const anchors=tokens.filter(token=>token.length>=4&&!/\d/.test(token)).slice(0,2);
-  return anchors.length===2?{key:publisher+'|'+entity+'|'+anchors.join('|'),tokens}:null;
+  return anchors.length===2?{key:JSON.stringify([country,publisher,entity,...anchors]),tokens}:null;
 }
 function rememberTitle_(known,item,entry=true){
   const identity=titleIdentity_(item);if(!identity)return;
@@ -65,7 +65,7 @@ function uniqueNews_(rows,groups=null){
   const known={titles:new Map()},urls=new Map(),result=[],parents=[],members=groups?[]:null;
   const root=index=>{while(parents[index]!==index){parents[index]=parents[parents[index]];index=parents[index];}return index;};
   for(const row of rows){
-    const items=[row.titular,row.original?.titular,...(row.identityTitles||[])].filter(Boolean).map(title=>({title,date:row.fecha,publisher:row.medio,entity:row.entidad})),url=newsUrlIdentity_(row.url);
+    const items=[row.titular,row.original?.titular,...(row.identityTitles||[])].filter(Boolean).map(title=>({title,date:row.fecha,publisher:row.medio,entity:row.entidad,country:row.pais})),url=newsUrlIdentity_(row.url);
     const matches=new Set([url?urls.get(url):undefined,...items.map(item=>duplicateTitleEntry_(known,item))].filter(index=>index!==undefined).map(root));
     const index=matches.size?Math.min(...matches):result.length;
     if(!matches.size){parents.push(index);result.push(row);}

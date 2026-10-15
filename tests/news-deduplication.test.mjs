@@ -24,3 +24,15 @@ test('la recuperación detecta alias y sufijo del editor contra las noticias gua
  c.parseFeed_=()=>[{title,source:'El Cronista',url:'https://news.google.com/articles/new',date:'2026-10-09T12:00:00Z',excerpt:'Nueva financiación para empresas y pymes en España'}];const result=c.ingestFeed_(feed,c.knownUrls_(),'cycle',new Date('2026-10-12T12:00:00Z'),{getResponseCode:()=>200,getContentText:()=>'<rss/>'});assert.equal(result.news.length,0);assert.equal(result.duplicated,1);
  const empty=new Set();empty.titles=new Map();c.rememberTitle_(empty,item);assert.equal(c.duplicateTitle_(empty,item,feed),true);assert.equal(c.duplicateTitle_(empty,{...item,date:new Date('2026-10-12T12:00:00Z')},feed),false);
 });
+
+test('erratas aproximadas se consolidan solo dentro del mismo país en vistas, CSV, newsletter e ingesta',()=>{
+ const s=server(),c=s.c,title='Santander lanza una plataforma digital de financiacion empresarial para nuevas empresas',base=row('base',{titular:title,extracto:'Pagos digitales para empresas'}),typo=row('typo',{titular:title.replace('financiacion','financiacoin'),extracto:'Pagos digitales para empresas'}),foreign={...typo,id:'foreign',url:'https://editor.test/foreign',pais:'México'};
+ assert.equal(c.uniqueNews_([base,typo]).length,1);assert.equal(c.uniqueNews_([base,foreign]).length,2);
+ add(s,[base,foreign]);const query={from:'2026-10-06',to:'2026-10-12'};
+ assert.equal(c.getDashboard({...query,view:'radar'}).stats.news,2);assert.equal(c.getDashboard({...query,view:'briefing'}).contextTotal,2);assert.equal(c.getDashboard({...query,view:'news'}).contextTotal,2);assert.equal(c.exportNews(query).count,2);assert.equal(c.newsletter_([base,foreign],query,'Países',new Date(),'subscription').count,2);
+ const historical=server();add(historical,[base]);const known=historical.c.knownUrls_(),candidate={title:typo.titular,date:'2026-10-09',publisher:'El Cronista',entity:'Santander',country:'España'};
+ assert.equal(c.duplicateTitle_(known,candidate),true);assert.equal(c.duplicateTitle_(known,{...candidate,country:'Perú'}),false);
+ c.parseFeed_=()=>[{title:typo.titular,source:'El Cronista',url:'https://editor.test/peru',date:'2026-10-09T12:00:00Z',excerpt:'Pagos digitales para empresas en Perú'}];
+ const feed={name:'Santander Perú',entity:'Santander',country:'Perú',domain:'editor.test',range:{from:'2026-10-06',to:'2026-10-12'}};
+ assert.equal(c.ingestFeed_(feed,known,'test',new Date('2026-10-12T12:00:00Z'),{getResponseCode:()=>200,getContentText:()=>'<rss/>'}).news.length,1);
+});
