@@ -131,25 +131,6 @@ function writeConfiguration_(config,revision){
   });
 }
 
-function testGmailAuthorization() {
-  authorize_(true);
-  const token = ScriptApp.getOAuthToken();
-
-  const response = UrlFetchApp.fetch(
-    'https://gmail.googleapis.com/gmail/v1/users/me/settings/sendAs',
-    {
-      method: 'get',
-      headers: {
-        Authorization: 'Bearer ' + token
-      },
-      muteHttpExceptions: true
-    }
-  );
-
-  Logger.log('HTTP: ' + response.getResponseCode());
-  Logger.log(response.getContentText());
-}
-
 function validateCapabilities_(capabilities){
   if(!capabilities||Object.keys(capabilities).join(',')!=='Empresas')throw Error('Define capacidades digitales para Empresas e instituciones.');
   for(const [segment,rows] of Object.entries(capabilities)){
