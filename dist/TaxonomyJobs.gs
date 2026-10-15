@@ -46,7 +46,7 @@ function taxonomyCheckpoint_(job){
 }
 function writeTaxonomyCheckpoint_(job,state){
   const chunks=taxonomyCheckpointChunks_(Object.values(state.candidates),TAXONOMY_POLICY.checkpointRows),titleChunks=taxonomyCheckpointChunks_(Object.entries(state.titles||{}));
-  const meta={id:job.id,next:state.next,documents:state.documents,size:state.size,chunks:chunks.length,titleChunks:titleChunks.length};
+  const meta={id:job.id,next:state.next,documents:state.documents,cursor:state.cursor||null,size:state.size,chunks:chunks.length,titleChunks:titleChunks.length};
   book_().getSheetByName('TaxonomiaTrabajo').getRange(2,1,chunks.length+titleChunks.length+1,1).setNumberFormat('@').setValues([[JSON.stringify(meta)],...chunks,...titleChunks]);
 }
 function taxonomyCheckpointChunks_(entries,maxRows=Infinity){
@@ -77,7 +77,7 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
     const sheet=book_().getSheetByName('Noticias'),keys=RADAR.sheets.Noticias,column=keys.indexOf('taxonomia');
     if(job.phase==='scan'){
       const state=taxonomyCheckpoint_(job),definitions=taxonomyDefinitions(configuration_().capabilities),excluded=new Set(configuration_().entities.flatMap(row=>[row.name,...row.aliases]).flatMap(name=>taxonomyText(name).match(/[a-z][a-z0-9]+/g)||[]));
-      const rows=newsWorkRows_(job,TAXONOMY_POLICY.batchRows);let cursor=job.cursor,read=0;
+      const rows=newsWorkRows_({...job,cursor:state.cursor||null},TAXONOMY_POLICY.batchRows);let cursor=state.cursor||null,read=0;
       state.titles=state.titles||{};
       for(const row of rows){
         if(Date.now()-started>=maxMs||backgroundPaused_(true)||read%20===0&&properties_().getProperty('DAILY_PIPELINE_REQUEST'))break;
@@ -89,7 +89,7 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
         }
         cursor=newsWorkCursor_(row);state.next++;read++;
       }
-      writeTaxonomyCheckpoint_(job,state);job.cursor=cursor;job.next=state.next;job.documents=state.documents;job.processed=state.next-2;
+      state.cursor=cursor;writeTaxonomyCheckpoint_(job,state);job.cursor=cursor;job.next=state.next;job.documents=state.documents;job.processed=state.next-2;
       if(state.next>job.total+1){job.phase='publish';}
     }else if(job.phase==='publish'){
       job.model=publishTaxonomy_(taxonomyCheckpoint_(job));job.changed=job.model!==properties_().getProperty('TAXONOMY_APPLIED_MODEL')||job.rules!==properties_().getProperty('TAXONOMY_APPLIED_RULES');job.phase='tag';job.next=2;job.cursor=null;

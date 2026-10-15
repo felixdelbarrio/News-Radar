@@ -81,7 +81,7 @@ function pruneEvents_(job){
   for(const row of rows){
     const detail=name==='Telemetria'?row[4]:name==='Ejecuciones'?row[7]:name==='Auditoria'?row[5]:'';
     if(retainedSummary_(detail)){if(!older.length){job.position++;summariesSkipped++;}else break;continue;}
-    if(!row[column]||row[column].slice(0,10)>=cutoff||name==='Ejecuciones'&&!['Completada','Parcial','Error'].includes(row[3]))break;
+    if(!row[column]||row[column].slice(0,10)>=cutoff||name==='Ejecuciones'&&!['Completada','Parcial','Error'].includes(row[3])){if(older.length)break;job.revisit=Math.min(job.revisit||Infinity,job.position);job.position++;summariesSkipped++;continue;}
     older.push(row);
   }
   if(!older.length){if(summariesSkipped===count)return;advanceMaintenanceTable_(job,cursors,name);return;}
@@ -94,7 +94,7 @@ function pruneEvents_(job){
 }
 
 function advanceMaintenanceTable_(job,cursors,name){
-  cursors[name]=job.position;properties_().setProperty('RETENTION_CURSORS',JSON.stringify(cursors));job.table++;job.position=2;job.retentionStarted=false;
+  cursors[name]=Math.min(job.revisit||Infinity,job.position);delete job.revisit;properties_().setProperty('RETENTION_CURSORS',JSON.stringify(cursors));job.table++;job.position=2;job.retentionStarted=false;
 }
 function invalidateMaintenanceCursor_(name,row){
   if(!MAINTENANCE_TABLES.includes(name))return;const cursors=JSON.parse(properties_().getProperty('RETENTION_CURSORS')||'{}');cursors[name]=Math.min(cursors[name]||2,Math.max(2,row));properties_().setProperty('RETENTION_CURSORS',JSON.stringify(cursors));
