@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {storage} from './helpers/server.mjs';
-const title='Banco Santander y el BEI acuerdan movilizar 300 millones de euros para financiar a pymes del sector de defensa y seguridad';
+const title='Banco Santander y el BEI lanzan una plataforma de financiación digital para movilizar 300 millones de euros para financiar a pymes del sector de defensa y seguridad';
 function server(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
 function row(id,changes={}){return {id,fecha:'2026-10-09',entidad:'Santander',pais:'España',titular:title,extracto:'',medio:'El Cronista',fuente:'RSS',url:'https://news.google.com/articles/'+id,clasificacion:JSON.stringify({digital:true,generalista:true,capacidades:["Empresas: Pagos"]}),taxonomia:JSON.stringify({ids:['finance']}),...changes};}
 function add(s,rows){const keys=vm.runInContext('RADAR.sheets.Noticias',s.c);s.sheets.get('Noticias').grid.push(...rows.map(row=>keys.map(key=>row[key]||'')));}

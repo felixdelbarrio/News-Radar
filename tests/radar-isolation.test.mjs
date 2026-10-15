@@ -6,7 +6,7 @@ import {app} from './helpers/app.mjs';
 
 test('News Radar no contiene código, configuración, diccionarios ni controles del recopilador independiente',()=>{
  for(const file of [...files('src'), 'assets/configuration-defaults.json','assets/admin-schema.json'])assert.doesNotMatch(read(file),/project[\s-]?finance|projectFinance|financiaci[oó]n de proyectos/i,file);
- const s=storage();s.c.initializeConfiguration();assert.deepEqual(Array.from(s.c.configuration_().segments,r=>r.name),['Empresas e instituciones','Retail']);assert.deepEqual(Array.from(s.c.configuration_().applicationScope,r=>r.name),['Empresas e instituciones','Retail']);
+ const s=storage();s.c.initializeConfiguration();assert.deepEqual(Array.from(s.c.configuration_().segments,r=>r.name),['Empresas e instituciones']);assert.deepEqual(Array.from(s.c.configuration_().applicationScope,r=>r.name),['Empresas e instituciones']);
  assert.throws(()=>s.c.collectNow('projectFinance'),/Hoy o Último año/);assert.equal(s.c.projectFinanceRadar_,undefined);
 });
 test('las búsquedas anuales conservan variantes digitales y generan menos consultas sin fuentes de infraestructura',()=>{

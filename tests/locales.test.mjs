@@ -86,7 +86,7 @@ test('la recopilación conserva inglés y turco y el idioma explícito o declara
  const raw=c.parseFeed_('<rss/>')[0],feed={...config.feeds[0],language:'en'},now=new Date('2026-10-11T12:00:00Z'),item=c.evaluate_(raw,feed,now).item,record=c.newsRecord_(item,feed,now);
  assert.equal(record[5],values.title);assert.equal(record[6],values.description);assert.equal(record[10],'en-US');
  const trFeed=c.profileFeed_(config.geographies.find(row=>row.language==='tr'),config.entities[0]);assert.equal(trFeed.language,'tr');assert.match(trFeed.url,/hl=tr/);
- const tr=c.evaluate_({title:'Garanti BBVA yeni dijital hesap sunar',excerpt:'KOBİ için ticari hesap',url:'https://news.google.com/article',date:values.pubDate},trFeed,now).item;assert.ok(tr);assert.equal(c.newsRecord_(tr,trFeed,now)[10],'tr');
+ const tr=c.evaluate_({title:'Garanti BBVA KOBİ için yeni nakit yönetimi sunar',excerpt:'KOBİ için ticari hesap',url:'https://news.google.com/article',date:values.pubDate},trFeed,now).item;assert.ok(tr);assert.equal(c.newsRecord_(tr,trFeed,now)[10],'tr');
  const original=JSON.stringify(config);config.feeds[0].language='invalid_language';assert.throws(()=>c.validateConfiguration_(config),/Idioma de fuente/);assert.notEqual(JSON.stringify(config),original);
 });
 test('cambiar de idioma conserva documento, sección, borradores y filtros sin navegar ni recargar',async t=>{

@@ -17,9 +17,9 @@ test('quincenal lunes tras el cierre, mensual primer miércoles y anual primer v
  const {c}=server();
  for(const [cadence,now,available,from,to] of [
   ['fortnightly','2026-10-13','2026-10-05','2026-09-16','2026-09-30'],
-  ['monthly','2026-10-01','2026-10-07','2026-07-01','2026-09-30'],
+  ['monthly','2026-10-01','2026-10-07','2026-09-01','2026-09-30'],
   ['yearly','2026-01-01','2026-01-02','2025-01-01','2025-12-31'],
-  ['monthly','2026-04-01','2026-04-01','2026-01-01','2026-03-31']]){
+  ['monthly','2026-04-01','2026-04-01','2026-03-01','2026-03-31']]){
    const period=c.newsletterPeriod_(cadence,new Date(now+'T12:00:00Z'));assert.deepEqual([period.available,period.from,period.to],[available,from,to]);
  }
  const row={activa:true,periodicidad:'monthly',actualizada:'2026-09-01'};assert.equal(c.newsletterNextDate_(row,new Date('2026-10-02T12:00:00Z')),'2026-10-07');

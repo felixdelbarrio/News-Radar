@@ -20,7 +20,7 @@ function recordEvents(events) {
     if(timings.length){
       append_('Telemetria',timings.map(event=>{
         const p=event.performance;
-        return [now.toISOString(),'dashboard',eventDuration_(event.duration),'OK',event.view+'; RPC '+eventDuration_(p.rpcMs)+' ms; servidor '+eventDuration_(p.serverMs)+' ms; noticias '+eventDuration_(p.newsMs)+' ms; render '+eventDuration_(p.renderMs)+' ms; caché '+(p.cacheHit===true?'hit':'miss')+'; preparación '+eventDuration_(p.preparationMs)+' ms; metadatos '+eventDuration_(p.metadataMs)+' ms; caché cliente '+(p.clientCacheHit===true?'hit':'miss')+'; v'+RADAR.version];
+        return [now.toISOString(),'dashboard',eventDuration_(event.duration),'OK',event.view+'; RPC '+eventDuration_(p.rpcMs)+' ms; servidor '+eventDuration_(p.serverMs)+' ms; noticias '+eventDuration_(p.newsMs)+' ms; render '+eventDuration_(p.renderMs)+' ms; caché '+(p.cacheHit===true?'hit':'miss')+'; preparación '+eventDuration_(p.preparationMs)+' ms; metadatos '+eventDuration_(p.metadataMs)+' ms; caché cliente '+(p.clientCacheHit===true?'hit':'miss')+'; RPC compartida '+(p.sharedRequest===true?'sí':'no')+'; v'+RADAR.version];
       }));
     }
     cache.put(key,'1',10);

@@ -70,6 +70,7 @@ function initializeConfiguration(){
     if(refreshCatalog&&book_().getSheetByName('Noticias').getLastRow()>1)requestTaxonomy_();
     initializeCollectionQueue_();
     if(refreshCatalog&&(book_().getSheetByName('Noticias').getLastRow()>1||book_().getSheetByName('Telemetria')?.getLastRow()>1))maintenance_();
+    properties_().deleteProperty('WORK_INTENT:iteration6-release');
     initializeBackgroundSchedules_();
     return 'Configuración inicializada en Sheets. Los valores existentes se han conservado.';
   });

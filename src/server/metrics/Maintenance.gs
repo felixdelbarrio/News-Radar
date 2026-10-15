@@ -68,13 +68,13 @@ function finishMaintenanceJournal_(job){
   const remaining=j.input-j.output,current=read(j.start+j.output,Math.min(remaining,Math.max(0,sheet.getLastRow()-j.start-j.output+1)));
   if(remaining&&digest(current)===j.deleteDigest)sheet.deleteRows(j.start+j.output,remaining);
   else if(remaining){const tail=sheet.getLastRow()>=j.start+j.output?read(j.start+j.output,1):[];if(digest(tail)!==j.tailDigest)throw Error('Compactación pendiente: la posición final cambió.');}
-  job.removed+=remaining;job.position=j.start+j.output;delete job.journal;saveMaintenanceJob_(job);
+  job.removed+=remaining;if(Number.isFinite(job.retentionEnd))job.retentionEnd-=remaining;job.position=j.start+j.output;delete job.journal;saveMaintenanceJob_(job);
 }
 function pruneEvents_(job){
   const cursors=JSON.parse(properties_().getProperty('RETENTION_CURSORS')||'{}'),name=MAINTENANCE_TABLES[job.table];
-  if(!job.retentionStarted){job.position=cursors[name]||2;job.retentionStarted=true;}
   if(!name){job.state='Completada';properties_().setProperty('RETENTION_DATE',recordDay(new Date(),settings_().timezone));return;}
-  const sheet=book_().getSheetByName(name),keys=RADAR.sheets[name],column=name==='Ejecuciones'?1:name==='Auditoria'?1:name==='NewsletterEventos'?7:name==='NewsletterFeedback'?5:0,cutoff=new Date(Date.now()-settings_().retentionDays*86400000).toISOString().slice(0,10),count=Math.min(MAINTENANCE_POLICY.retentionRows,Math.max(0,sheet.getLastRow()-job.position+1));
+  if(!job.retentionStarted){job.position=cursors[name]||2;job.retentionEnd=book_().getSheetByName(name)?.getLastRow()||1;job.retentionStarted=true;}
+  const sheet=book_().getSheetByName(name),keys=RADAR.sheets[name],column=name==='Ejecuciones'?1:name==='Auditoria'?1:name==='NewsletterEventos'?7:name==='NewsletterFeedback'?5:0,cutoff=new Date(Date.now()-settings_().retentionDays*86400000).toISOString().slice(0,10),count=Math.min(MAINTENANCE_POLICY.retentionRows,Math.max(0,Math.min(sheet.getLastRow(),job.retentionEnd)-job.position+1));
   if(!count){advanceMaintenanceTable_(job,cursors,name);return;}
   const rows=sheet.getRange(job.position,1,count,keys.length).getDisplayValues(),older=[];
   let summariesSkipped=0;
@@ -94,7 +94,7 @@ function pruneEvents_(job){
 }
 
 function advanceMaintenanceTable_(job,cursors,name){
-  cursors[name]=Math.min(job.revisit||Infinity,job.position);delete job.revisit;properties_().setProperty('RETENTION_CURSORS',JSON.stringify(cursors));job.table++;job.position=2;job.retentionStarted=false;
+  cursors[name]=Math.min(job.revisit||Infinity,job.position);delete job.revisit;properties_().setProperty('RETENTION_CURSORS',JSON.stringify(cursors));job.table++;job.position=2;job.retentionStarted=false;delete job.retentionEnd;
 }
 function invalidateMaintenanceCursor_(name,row){
   if(!MAINTENANCE_TABLES.includes(name))return;const cursors=JSON.parse(properties_().getProperty('RETENTION_CURSORS')||'{}');cursors[name]=Math.min(cursors[name]||2,Math.max(2,row));properties_().setProperty('RETENTION_CURSORS',JSON.stringify(cursors));
