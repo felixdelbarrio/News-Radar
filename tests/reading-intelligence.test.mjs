@@ -23,14 +23,7 @@ test('los enlaces incluyen la edición y la gestión y baja conservan su destino
  assert.match(content.html,/\?edition=edition-one/);assert.match(content.text,/\?edition=edition-one/);assert.match(content.html,/\?view=subscriptions/);assert.match(content.html,/unsubscribe=subscription/);
  c.saveNewsletterEdition_('pending','delivery','owner@bbva.com','Pendiente',{},'es',content.items);assert.throws(()=>c.newsletterEdition_('pending','owner@bbva.com'),/no disponible/);c.completeNewsletterEdition_('pending','No enviado');assert.throws(()=>c.newsletterEdition_('pending','owner@bbva.com'),/no disponible/);
 });
-test('la primera newsletter personaliza la entrada sin guardar preferencias ni exponer otras cuentas',()=>{
- const s=server(),c=s.c;own(s,'BBVA');own(s,'Santander',{entity:'Santander',palanca:''});
- assert.equal(c.getDashboard({view:'news',initial:true}).selection.entity,'BBVA');
- assert.equal(c.getDashboard({view:'news',entity:'Santander'}).selection.entity,'Santander');
- assert.equal(c.getDashboard({view:'news',initial:true}).selection.entity,'BBVA');
- s.setEmail('other@bbva.com');assert.equal(c.getDashboard({view:'briefing',initial:true}).selection.entity,undefined);
- assert.equal(c.getDashboard({view:'briefing',initial:true}).personalization,undefined);
-});
+test('la suscripción no personaliza la entrada de ninguna vista',()=>{const s=server(),c=s.c;own(s);for(const view of ['briefing','news','radar']){const data=c.getDashboard({view,initial:true});assert.ok(!data.selection.entity);assert.ok(!data.selection.country);}});
 test('entrega real guarda únicamente noticias no repetidas y el flujo aceptado habilita su lectura sin duplicar envíos',()=>{
  const s=server(),c=s.c,row=own(s),today=c.newsletterPeriod_('fortnightly',new Date()).to;s.sheets.get('Suscripciones').grid[1][6]='2000-01-01';c.configuration_().settings.newsletterEnabled=true;c.newsletterSender_=()=>({address:'sender@bbva.com',name:'Radar'});let content;
  c.sendNewsletterMail_=(_sender,_email,value)=>{content=value;return 'gmail-id';};add(s,[raw('new','BBVA',today)]);const result=c.deliverNewsletterBatch_();assert.equal(result.accepted,1);assert.equal(c.rows_('NewsletterEdiciones').length,1);assert.equal(c.rows_('NewsletterEdiciones')[0].estado,'Enviada');assert.equal(c.rows_('NewsletterContenido').length,1);assert.equal(c.newsletterEdition_(content.editionId,'owner@bbva.com').items[0].id,'new');assert.equal(c.deliverNewsletterBatch_().accepted,0);assert.equal(c.rows_('NewsletterEdiciones').length,1);

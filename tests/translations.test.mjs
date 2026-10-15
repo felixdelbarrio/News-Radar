@@ -73,12 +73,7 @@ test('las traducciones de una página se consultan por lote y las pendientes se 
  const translated=c.savedArticleTranslations_(rows,'en');assert.equal(translated.filter(row=>row.translation.state==='translated').length,3);assert.deepEqual(reads,[[2,1,3,1],[2,3,3,2]]);assert.equal(puts,1);
  vm.runInContext('articleTranslationMemory_=undefined;articleTranslationRows_=undefined;',c);reads.length=0;c.savedArticleTranslations_(rows.slice(0,3),'en');assert.equal(reads.length,0);assert.equal(gets,3);
 });
-test('la limpieza de variantes invalida posiciones de filas antes de otro lote del mismo turno',()=>{
- const s=server(),c=s.c,rows=Array.from({length:3},(_,i)=>({...article,titular:'Headline '+i}));
- s.sheets.get('Traducciones').grid.push(...rows.map((row,i)=>[c.articleTranslationKey_(row,'en'),'en','Translated '+i,'Summary','2026-10-11']));
- c.articleTranslationIndex_();c.trim_('Traducciones',2);s.cache.clear();vm.runInContext('articleTranslationMemory_=undefined;',c);
- const result=c.savedArticleTranslations_(rows,'en');assert.equal(result[0].translation.state,'pending');assert.equal(result[1].titular,'Translated 1');assert.equal(result[2].titular,'Translated 2');
-});
+test('las variantes históricas conservan sus posiciones; no se recortan por tamaño',()=>{const s=server();assert.equal(typeof s.c.trim_,'undefined');});
 
 test('una pausa de configuración entre idiomas conserva la traducción y no repite la llamada al reanudar',()=>{
  const s=server(),c=s.c;add(s,[article]);const log=[];
