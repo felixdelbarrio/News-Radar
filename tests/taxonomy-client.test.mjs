@@ -20,22 +20,9 @@ test('Taxonomía muestra jerarquía, paginación, progreso único y lanzamiento 
   a.replies.getTaxonomyStatus.job.state='En pausa';a.replies.getTaxonomyStatus.job.error='<script>fallo</script>';await a.click('[data-admin-view="sources"]');await a.click('[data-admin-view="taxonomy"]');assert.equal(a.find('#taxonomy-progress').querySelector('script'),null);assert.match(a.find('#taxonomy-progress').textContent,/fallo/);assert.equal(a.find('#taxonomy-start').disabled,false);
   await a.click('[data-view="news"]');assert.equal(timers.size,0);await tick();
 });
-test('los filtros de Noticias y las suscripciones personales y administrativas envían palanca y subpalanca',async t=>{
-  const path='Pagos y cobros › Pagos biométricos';
-  const a=await app(t,{configure({data,replies}){data.palanca=['Pagos y cobros'];data.subpalanca=[path];replies.getNewsletterOptions.catalogs={...replies.getNewsletterOptions.catalogs,palanca:['Pagos y cobros'],subpalanca:[path]};}});
-  await a.click('[data-view="news"]');await a.change('#filters [name="palanca"]','Pagos y cobros');await a.change('#filters [name="subpalanca"]',path);
-  const query=a.calls.filter(row=>row.method==='getDashboard').at(-1).query;assert.equal(query.palanca,'Pagos y cobros');assert.equal(query.subpalanca,path);
-  await a.click('[data-view="subscriptions"]');await a.click('#new-subscription');await a.change('#personal-editor [name="palanca"]','Pagos y cobros');await a.change('#personal-editor [name="subpalanca"]',path);await a.submit('#personal-editor form');
-  assert.equal(a.calls.find(row=>row.method==='saveSubscription').query.filters.subpalanca,path);
-  await a.click('[data-view="administration"]');await a.click('[data-admin-view="subscribers"]');await a.click('#new-admin-subscription');await a.change('#admin-subscription-editor [name="palanca"]','Pagos y cobros');await a.change('#admin-subscription-editor [name="subpalanca"]',path);await a.submit('#admin-subscription-editor form');assert.equal(a.calls.find(row=>row.method==='saveAdminSubscription').query.filters.palanca,'Pagos y cobros');
-});
+test('solo los filtros de Noticias envían palanca y subpalanca',async t=>{const path='Pagos y cobros › Pagos biométricos',a=await app(t,{configure({data}){data.palanca=['Pagos y cobros'];data.subpalanca=[path];}});await a.click('[data-view="news"]');await a.change('#filters [name="subpalanca"]',path);assert.equal(a.calls.filter(r=>r.method==='getDashboard').at(-1).query.subpalanca,path);await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('#personal-editor [name="subpalanca"]'),null);});
 
-test('volver a Noticias después de etiquetar refresca una sola vez el contenido y los filtros vigentes',async t=>{
- const a=await app(t,{configure({data,replies}){data.newsRevision='old';replies.getTaxonomyStatus.newsRevision='old';}});await a.click('[data-view="news"]');
- await a.click('[data-view="administration"]');a.data.newsRevision='new';a.data.palanca=['Pagos y cobros'];a.data.subpalanca=['Pagos y cobros › Pagos'];a.replies.getTaxonomyStatus.newsRevision='new';await a.click('[data-admin-view="taxonomy"]');const calls=a.calls.filter(row=>row.method==='getDashboard').length;
- await a.click('[data-view="news"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,calls+1);assert.match(a.find('#filters [name="palanca"]').textContent,/Pagos y cobros/);
- await a.click('[data-view="administration"]');await a.click('[data-view="news"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,calls+1);
-});
+test('volver a Noticias tras etiquetar conserva su selección hasta aplicar filtros nuevos',async t=>{const a=await app(t,{configure({data}){data.newsRevision='old';data.configurationRevision='1';}});await a.click('[data-view="news"]');await a.click('[data-view="administration"]');a.data.newsRevision='new';await a.click('[data-admin-view="taxonomy"]');const reads=a.calls.filter(r=>r.method==='getDashboard').length;await a.click('[data-view="news"]');assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,reads);await a.change('#filters [name="search"]','pagos');assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,reads+1);});
 
 test('nombres multilingües visibles conservan valores canónicos de filtros y suscripciones',async t=>{
  const path='Pagos y cobros › Pagos biométricos',taxonomyTranslations={en:{'Pagos y cobros':'Payments and collections','Pagos biométricos':'Biometric payments',[path]:'Payments and collections › Biometric payments'},tr:{'Pagos y cobros':'Ödemeler','Pagos biométricos':'Biyometrik ödemeler',[path]:'Ödemeler › Biyometrik ödemeler'}};

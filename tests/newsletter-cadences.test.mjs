@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {JSDOM} from 'jsdom';
-import {storage} from './helpers/server.mjs';
+import {storage} from './helpers/delivery.mjs';
 import {app} from './helpers/app.mjs';
 function server(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);s.c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';return s;}
 const path=(palanca='Pagos',subpalanca='Cobros')=>({palanca,subpalanca});
-function news(id,pais='España',entidad='BBVA',taxonomy=[path()]){return {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id,pais,entidad,fecha:'2026-09-12',medio:'Editor',titular:entidad+' presenta servicio '+id,extracto:'Información del servicio '+id,tipo:'Banco tradicional',segmentos:['Empresas e instituciones'],senales:[],tema:'Financiación',taxonomia:taxonomy,url:'https://example.com/'+id};}
+function news(id,pais='España',entidad='BBVA',taxonomy=[path()]){return {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id,pais,entidad,fecha:'2026-09-12',medio:'Editor',titular:entidad+' presenta servicio digital para empresas '+id,extracto:'Información del servicio para empresas '+id,tipo:'Banco tradicional',segmentos:['Empresas e instituciones'],senales:[],tema:'Financiación',taxonomia:taxonomy,url:'https://example.com/'+id};}
 const rows=()=>[news('a'),news('b'),news('c'),news('d','España','BBVA',[path('Seguridad','Identidad')]),news('e','España','BBVA',[path('Seguridad','Identidad')]),news('f','México','Santander'),news('g','México','Santander',[path('Financiación','Crédito')])];
 const clean=value=>JSON.parse(JSON.stringify(value));
 test('la entrega mensual consulta el historial semanal del destinatario y destaca la alternativa más relevante',()=>{
@@ -61,7 +61,7 @@ for(const [periodicity,view] of [['fortnightly','briefing'],['monthly','news'],[
  c.saveNewsletterEdition_(editionId,'delivery-'+periodicity,'owner@bbva.com','Resumen',query,'es',content.evidence,content.editorial);c.completeNewsletterEdition_(editionId,'Enviada');
  const requests=[],a=await app(t,{location,configure({w,data}){const original=w.RADAR_PREVIEW.call;w.RADAR_PREVIEW.call=async(method,payload)=>{if(method==='getDashboard'){requests.push(payload);return {...data,...clean(c.getDashboard(payload))};}return original(method,payload);};}});
  assert.equal(a.find('.nav [aria-current="page"]').dataset.view,view);assert.equal(a.find('#'+view+'-section').hidden,false);assert.equal(requests.length,1);assert.equal(requests[0].view,view);assert.equal(requests[0].edition,editionId);assert.equal(requests[0].initial,true);
- assert.equal(a.find('#filters [name="from"]').value,from);assert.equal(a.find('#filters [name="to"]').value,to);assert.equal(a.find('#filters [name="segment"]').value,'Empresas e instituciones');assert.match(a.find('#reading-context').textContent,/Resumen/);
+ assert.equal(a.find('#filters [name="from"]').value,from);assert.equal(a.find('#filters [name="to"]').value,to);assert.equal(a.w.document.querySelector('#filters [name="segment"]'),null);assert.match(a.find('#reading-context').textContent,/Resumen/);
  const alternate=view==='news'?'briefing':'news';await a.click('[data-view="'+alternate+'"]');assert.equal(a.find('#filters [name="from"]').value,from);assert.equal(a.find('#filters [name="to"]').value,to);
  await a.click('#reading-current');assert.equal(a.find('#filters [name="from"]').value,alternate==='briefing'?c.dashboardPeriod_('briefing').from:c.dashboardPeriod_('news').from);
  if(view!=='briefing')for(const more of dom.window.document.querySelectorAll('a.newsletter-cta')){const url=new URL(more.href),params=Object.fromEntries(url.searchParams);assert.equal(params.view,view);assert.equal(params.edition,editionId);const target=c.getDashboard({...params,initial:true});assert.equal(target.selection.from,from);assert.equal(target.selection.to,to);if(params.country)assert.equal(target.selection.country,params.country);assert.equal(target.selection.entity,params.entity??query.entity??undefined);}

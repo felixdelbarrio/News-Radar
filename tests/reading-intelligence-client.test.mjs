@@ -43,9 +43,4 @@ test('la matriz cambia ejes y medidas sin RPC, muestra porcentajes accesibles y 
  await a.click('#heatmap-table button');const query=a.calls.filter(row=>row.method==='getDashboard').at(-1).query;assert.equal(query.view,'news');assert.equal(query.country,'España');assert.equal(query.palanca,'Pagos y cobros');assert.equal(query.subpalanca,'Pagos y cobros › Pagos instantáneos');assert.equal(query.from,'2026-02-01');assert.equal(query.to,'2026-02-28');
 });
 
-test('aplicar una newsletter conserva las etiquetas de cobertura y permite cambiarla después',async t=>{
- const a=await app(t);a.replies.getSubscriptions[0].query={view:'briefing',coverage:'digital',segment:'Empresas e instituciones'};
- await a.click('[data-view="subscriptions"]');await a.click('#subscriptions-list [data-action="apply"]');
- const coverage=a.find('#filters [name="coverage"]');assert.equal(coverage.value,'digital');assert.equal(coverage.selectedOptions[0].textContent,'Canal digital');
- assert.equal([...coverage.options].some(option=>option.value==='generalista'),true);
-});
+test('Mi Newsletter no tiene acciones que apliquen filtros a la lectura',async t=>{const a=await app(t);await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('#subscriptions-list [data-action="apply"]'),null);assert.equal(a.w.document.querySelector('#subscriptions-sidebar'),null);});

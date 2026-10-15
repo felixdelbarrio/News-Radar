@@ -72,5 +72,5 @@ test('row checkpoints poll properties once a second while entry points always re
 
 test('manual newsletter tests cannot start while configuration holds the pause',()=>{
  const s=fixture();s.properties['WORK_INTENT:test']=String(Date.now()+600000);
- s.c.LockService.getScriptLock=()=>{throw Error('Must not acquire');};assert.throws(()=>s.c.sendNewsletterTest(),/configuración está en curso/);
+ s.c.LockService.getScriptLock=()=>{throw Error('Must not acquire');};assert.throws(()=>s.c.sendNewsletterTest({cadence:'fortnightly'}),/configuración está en curso/);
 });

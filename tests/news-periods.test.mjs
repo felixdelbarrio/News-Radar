@@ -1,30 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import {storage} from './helpers/server.mjs';
+import {storage} from './helpers/delivery.mjs';
 import {app} from './helpers/app.mjs';
 function server(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
 const clean=value=>JSON.parse(JSON.stringify(value));
-test('cada vista conserva su rango al aplicar la primera newsletter y respeta fechas editadas',()=>{
- const {c}=server(),now=new Date('2026-10-12T12:00:00Z'),subscription={filtros:{entity:'Santander',segment:'Empresas e instituciones',range:'year'}};
- for(const [view,from,to] of [['briefing','2026-10-01','2026-10-15'],['news','2026-10-01','2026-12-31'],['radar','2026-01-01','2026-12-31']]){const query=c.personalDashboardQuery_(subscription,view,now);assert.equal(query.from,from);assert.equal(query.to,to);assert.equal(query.entity,'Santander');assert.equal(query.range,undefined);}
- c.saveSubscription({name:'No debe usarse',filters:subscription.filtros});
- const selected=c.getDashboard({view:'news',initial:true});assert.deepEqual({from:selected.selection.from,to:selected.selection.to},{from:c.newsletterWindow('monthly',c.recordDay(new Date(),'Europe/Madrid')).from,to:c.newsletterWindow('monthly',c.recordDay(new Date(),'Europe/Madrid')).to});
- const radar=c.getDashboard({view:'radar',initial:true});assert.deepEqual({from:radar.selection.from,to:radar.selection.to},clean(c.dashboardPeriod_('radar')));
- const edited=c.getDashboard({view:'news',from:'2026-02-01',to:'2026-02-28',initial:false});assert.equal(edited.selection.from,'2026-02-01');assert.equal(edited.selection.to,'2026-02-28');
- assert.deepEqual(clean(c.dashboardPeriod_('briefing',new Date('2026-01-01T12:00:00Z'))),{from:'2026-01-01',to:'2026-01-15'});assert.throws(()=>c.dashboardPeriod_('unknown'),/Periodicidad/);
-});
-test('la periodicidad define el ámbito, el período y el asunto sin aceptar un período independiente',()=>{
- const {c}=server(),now=new Date('2026-10-12T12:00:00Z');
- for(const [periodicity,view,range] of [['fortnightly','briefing','week'],['monthly','news','month'],['yearly','radar','year']]){
-  const row=c.subscriptionRecord_({name:'Asunto arbitrario',periodicity,language:'en',filters:{entity:'BBVA',segment:'Empresas e instituciones',range:'year'}},'owner@bbva.com','id',now,0);
-  assert.equal(row.filtros.range,undefined);assert.match(row.nombre,/^\[bIA\] Entity: BBVA · Segment: /);assert.doesNotMatch(row.nombre,/arbitrario/);
-  assert.deepEqual(clean(c.subscriptionQuery_(row,now)),{entity:'BBVA',segment:'Empresas e instituciones',coverage:'digital',from:c.newsletterWindow(periodicity,'2026-10-12').from,to:c.newsletterWindow(periodicity,'2026-10-12').to,view});
-  const closed=c.subscriptionQuery_(row,now,true),period=c.newsletterPeriod_(periodicity,now);assert.equal(closed.from,period.from);assert.equal(closed.to,period.to);assert.equal(closed.view,view);
- }
- for(const periodicity of ['daily','invalid','constructor'])assert.throws(()=>c.subscriptionRecord_({periodicity,filters:{}},'owner@bbva.com','id',now,0),/Periodicidad/);
- const yearly=c.newsletterPeriod_('yearly',new Date('2027-01-01T12:00:00Z'));assert.equal(yearly.from,'2026-01-01');assert.equal(yearly.to,'2026-12-31');
-});
+test('cada vista conserva su ventana propia y respeta fechas explícitas sin leer suscripciones',()=>{const {c}=server();c.saveSubscription({country:'México'});for(const view of ['briefing','news','radar']){const selected=c.getDashboard({view,initial:true});assert.deepEqual({from:selected.selection.from,to:selected.selection.to},clean(c.dashboardPeriod_(view)));}const edited=c.getDashboard({view:'news',from:'2026-02-01',to:'2026-02-28'});assert.equal(edited.selection.from,'2026-02-01');assert.equal(edited.selection.to,'2026-02-28');});
+test('el plan traduce cada cadencia a su vista y a un período cerrado sin filtros personales',()=>{const {c}=server(),now=new Date('2026-10-12T12:00:00Z');for(const [periodicidad,view] of [['fortnightly','briefing'],['monthly','news'],['yearly','radar']]){const q=c.subscriptionQuery_({periodicidad,filtros:{country:'España',entity:'BBVA'}},now,true),period=c.newsletterPeriod_(periodicidad,now);assert.equal(q.view,view);assert.equal(q.from,period.from);assert.equal(q.to,period.to);assert.equal(q.entity,undefined);assert.equal(q.country,'España');}assert.throws(()=>c.newsletterWindow('invalid','2026-10-12'),/Periodicidad/);});
 test('el lote prepara una sola vez los períodos completos necesarios y excluye la semana en curso',()=>{
  const s=server(),{c}=s;c.configuration_().settings.newsletterEnabled=true;
  for(const [email,periodicity] of [['week@bbva.com','fortnightly'],['year@bbva.com','yearly']])c.saveAdminSubscription({email,periodicity,filters:{entity:'BBVA',coverage:''}});
@@ -37,10 +19,10 @@ test('el lote prepara una sola vez los períodos completos necesarios y excluye 
  const log=c.rows_('NewsletterEnvios');assert.equal(log[0].desde,week.from);assert.equal(log[1].desde,year.from);
 });
 for(const count of [0,1,2])test('No hay selector de newsletters en el panel lateral: '+count+' newsletters activas',async t=>{
- const a=await app(t,{configure({data}){data.personalization={active:'default',options:Array.from({length:count},(_,i)=>({id:'channel-'+i,name:'Canal '+i}))};}});
+ const a=await app(t,{configure({data,replies}){replies.getSubscriptions=[];data.personalization={active:'default',options:Array.from({length:count},(_,i)=>({id:'channel-'+i,name:'Canal '+i}))};}});
  assert.equal(a.find('#reading-context').closest('#mobile-filters')!==null,true);assert.equal(a.find('#reading-context').hidden,true);assert.equal(a.w.document.querySelector('#reading-choice'),null);
  for(const view of ['news','radar','briefing']){await a.click('[data-view="'+view+'"]');assert.equal(a.find('#reading-context').hidden,true);}
- await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);assert.equal(a.w.document.querySelector('#personal-editor [name="range"]'),null);assert.equal(a.find('#personal-editor [name="periodicity"]').value,'monthly');assert.equal(a.find('#filters-section').hidden,true);
+ await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);assert.equal(a.w.document.querySelector('#personal-editor [name="range"]'),null);assert.equal(a.w.document.querySelector('#personal-editor [name="periodicity"]'),null);assert.equal(a.find('#filters-section').hidden,true);
 });
 
 test('los valores iniciales y la restauración de cada vista coinciden con las newsletters en límites de quincena, trimestre y año',()=>{

@@ -35,7 +35,7 @@ test('vista local registra actividad real de la sesión y bloquea el correo remo
  const fs=await import('node:fs'),vm=await import('node:vm');const html=fs.readFileSync('output/preview.html','utf8'),adapter=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].find(match=>match[1].includes('window.RADAR_PREVIEW='))[1].replace('admin=false','admin=true');
  const c=vm.createContext({window:{}});vm.runInContext(adapter,c);const preview=c.window.RADAR_PREVIEW;assert.equal((await preview.call('getAdoption')).events,0);
  await preview.call('recordEvents',[{session:'local-session',event:'rendimiento',view:'radar',duration:120}]);const activity=await preview.call('getAdoption');assert.equal(activity.events,1);assert.equal(activity.dau,1);assert.equal((await preview.call('getTelemetry')).latencyP95,120);assert.equal((await preview.call('getAudit')).total,0);
- await assert.rejects(preview.call('sendNewsletterTest'),/No se envían correos/);
+ await assert.rejects(preview.call('sendNewsletterTest'),/no envía correos/);
 });
 
 test('make kill usa IPC local protegido y cierra solo el servidor registrado',async t=>{

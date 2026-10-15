@@ -15,7 +15,7 @@ function context(email='felix.delbarrio@bbva.com'){
   c.Utilities={DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(_algorithm,value)=>Array.from(createHash('sha256').update(value).digest()),getUuid:()=> 'id',formatDate:date=>date.toISOString().slice(0,10)};
   vm.runInContext(source,c);c.newsRecordIndex_=()=>({days:{'2026-10-08':[[2,2]]},entities:[],sources:[]});c.newsRowsAt_=()=>c.rows_('Noticias');c.taxonomyCatalog_=()=>[];c.drainCollectionRequests_=()=>{};c.collectionJobs_=()=>[];c.writeCollectionJob_=()=>{};let config=JSON.parse(read('assets/configuration-defaults.json'));c.configuration_=()=>config;c.configurationRevision_=()=>'test';c.writeConfiguration_=value=>{c.authorize_(true);c.validateConfiguration_(value);config=value;};return c;
 }
-const feed={name:'BBVA',domain:'bbva.com',entity:'BBVA',country:'Sin determinar',kind:'rss'},now=new Date('2026-10-09T12:00:00Z'),item={title:'BBVA financia a empresas',excerpt:'Operación de financiación corporativa',url:'https://www.bbva.com/es/noticia/?utm_source=rss',date:'2026-10-08T11:00:00Z'};
+const feed={name:'BBVA',domain:'bbva.com',entity:'BBVA',country:'Sin determinar',kind:'rss'},now=new Date('2026-10-09T12:00:00Z'),item={title:'BBVA lanza pagos digitales para empresas',excerpt:'Nueva plataforma digital para empresas',url:'https://www.bbva.com/es/noticia/?utm_source=rss',date:'2026-10-08T11:00:00Z'};
 test('extrae texto sin scripts, estilos ni comentarios y no recompone etiquetas',()=>{
   const c=context();assert.equal(c.plainText_('Antes<!-- <script>oculto</script> --><SCRIPT>x()</SCRIPT><style>css</style><p>Después</p>'),'Antes Después');
   assert.equal(c.plainText_('Visible<script>sin cierre'),'Visible');assert.equal(c.plainText_('<scr<script>ipt>oculto</scr</script>ipt>'),'ipt>oculto ipt>');assert.equal(c.plainText_('A<br>B &amp; &#243;'),'A B & ó');
@@ -23,12 +23,12 @@ test('extrae texto sin scripts, estilos ni comentarios y no recompone etiquetas'
 test('clasifica fecha y dominio, rechaza ruido y no genera estados ni puntuaciones',()=>{
   const c=context(),result=c.evaluate_(item,feed,now);assert.equal(result.item.topic,undefined);assert.equal(result.item.url,'https://www.bbva.com/es/noticia/');
   for(const change of [{date:''},{url:'https://bbva.com.evil.net/a'},{date:'2026-10-10'},{date:'2026-09-01'}])assert.ok(c.evaluate_({...item,...change},feed,now).reason);
-  assert.equal(c.evaluate_({...item,title:'BBVA publica una noticia fuera del catálogo temático'},feed,now).item.labels.generalista,true);
+  assert.equal(c.evaluate_({...item,title:'BBVA publica una noticia fuera del catálogo temático'},feed,now).item,undefined);
   assert.equal(result.item.impacto,undefined);assert.equal(result.item.estado,undefined);
 });
 test('canonicalización y exportación protegen URLs y fórmulas',()=>{
   const c=context();assert.equal(c.canonicalUrl_('https://BBVA.com/a?z=1&utm_source=x&id=2#x'),'https://bbva.com/a?id=2&z=1');assert.equal(c.canonicalUrl_('javascript:alert(1)'),'');assert.equal(c.canonicalUrl_('https://user:pass@bbva.com/a'),'');assert.equal(c.domainMatches_('https://evilbbva.com/a','bbva.com'),false);assert.equal(c.safeCell_('=IMPORTXML("x")'),'\'=IMPORTXML("x")');
-  c.rows_=()=>[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',...item,fecha:'2026-10-08',titular:'=HYPERLINK("x")',extracto:'texto',entidad:'BBVA',url:item.url}];const csv=c.exportNews({}).csv;assert.match(csv,/'=HYPERLINK/);assert.doesNotMatch(csv,/impacto|evidencia|criterio/);
+  c.rows_=()=>[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',...item,fecha:'2026-10-08',titular:'=HYPERLINK("x")',extracto:'texto',entidad:'BBVA',url:item.url}];const csv=c.exportNews({from:'2026-01-01',to:'2026-12-31'}).csv;assert.match(csv,/'=HYPERLINK/);assert.doesNotMatch(csv,/impacto|evidencia|criterio/);
 });
 test('autoriza con identidad activa y restringe administración y métricas',()=>{
   for(const email of ['reader@bbva.com','felix.delbarrio@bbva.com'])assert.doesNotThrow(()=>context(email).authorize_());
@@ -43,18 +43,18 @@ test('las entidades, alias, países y términos configurados generan fuentes sin
   const c=context(),feeds=c.defaultFeeds_(),config=c.configuration_();assert.equal(new Set(feeds.map(feed=>feed.url)).size,feeds.length);assert.equal(feeds.filter(feed=>feed.kind==='rss').length,config.feeds.length);
   for(const entity of config.entities)for(const country of entity.countries){
     const geo=config.geographies.find(row=>row.name===country),feed=feeds.find(feed=>feed.kind==='profile'&&feed.country===country&&feed.entity===entity.name);assert.ok(feed);
-    const query=new URL(feed.url).searchParams.get('q');for(const alias of [entity.name,...entity.aliases])assert.ok(query.includes(alias));for(const term of c.collectionSearchTerms_(geo))assert.ok(query.includes(term));assert.equal(new URL(feed.url).searchParams.get('gl'),geo.code==='UY'?'US':geo.code);
+    const query=new URL(feed.url).searchParams.get('q');for(const alias of entity.name==='BBVA'?['BBVA Empresas']:[entity.name,...entity.aliases])assert.ok(query.includes(alias));for(const term of c.collectionSearchTerms_(geo))assert.ok(query.includes(term));assert.equal(new URL(feed.url).searchParams.get('gl'),geo.code==='UY'?'US':geo.code);
   }
   assert.ok(feeds.some(feed=>feed.entity==='Revolut'));assert.ok(feeds.some(feed=>feed.entity==='Qonto'));
 });
 test('todas las fuentes RSS son editables y rechazan duplicados o dominios falsos',()=>{
-  const c=context(),count=c.feeds_().length;c.saveFeeds([{...feed,url:'https://bbva.com/extra'}]);assert.equal(c.feeds_().length,count-6);c.saveFeeds([]);assert.equal(c.feeds_().length,count-7);
+  const c=context(),count=c.feeds_().length;c.saveFeeds([{...feed,url:'https://bbva.com/extra'}]);assert.equal(c.feeds_().length,count-4);c.saveFeeds([]);assert.equal(c.feeds_().length,count-5);
   assert.throws(()=>c.saveFeeds([{...feed,url:'https://evilbbva.com/a'}]));assert.throws(()=>c.saveFeeds([{...feed,url:'https://bbva.com/a'},{...feed,url:'https://bbva.com/a'}]));
 });
 test('noticias agregadas se integran sin intervención y mantienen medio y enlace de Google News',()=>{
   const c=context(),profile=c.defaultFeeds_().find(feed=>feed.entity==='Santander'&&feed.country==='España');
-  const raw={title:'Santander financia empresas - Diario',source:'Diario',excerpt:'Santander financia empresas Diario',date:'2026-10-08',url:'https://news.google.com/rss/articles/123'};
-  const result=c.evaluate_(raw,profile,now);assert.equal(result.item.title,'Santander financia empresas');assert.equal(result.item.publisher,'Diario');assert.equal(result.item.excerpt,'');assert.equal(result.item.url,raw.url);
+  const raw={title:'Santander lanza pagos digitales para empresas - Diario',source:'Diario',excerpt:'Santander lanza pagos digitales para empresas Diario',date:'2026-10-08',url:'https://news.google.com/rss/articles/123'};
+  const result=c.evaluate_(raw,profile,now);assert.equal(result.item.title,'Santander lanza pagos digitales para empresas');assert.equal(result.item.publisher,'Diario');assert.equal(result.item.excerpt,'');assert.equal(result.item.url,raw.url);
   const record=c.newsRecord_(result.item,profile,now);assert.equal(record.length,13);assert.equal(record[3],'Diario');assert.equal(record[9],profile.name);
 });
 test('recopila por lotes, integra automáticamente, deduplica y conserva reintentos parciales',()=>{
@@ -314,7 +314,7 @@ test('todos los gráficos del Radar respetan entidad y segmento y distinguen edi
  {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-11',entidad:'BBVA',pais:'España',medio:'Editor externo',titular:'BBVA financia empresas',extracto:''},
  {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-10',entidad:'BBVA',pais:'España',medio:'BBVA',titular:'BBVA lanza cuenta digital para empresas',extracto:''},
  {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-10',entidad:'BBVA',pais:'España',medio:'Editor Retail',titular:'BBVA tarjeta para particulares',extracto:''},
- {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-09',entidad:'Santander',pais:'México',medio:'BBVA',titular:'Santander financia empresas',extracto:''}];
+ {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-09',entidad:'Santander',pais:'México',medio:'BBVA',titular:'Santander lanza pagos digitales para empresas',extracto:''}];
  for(const entity of ['','BBVA','Santander']){
   const query=c.dashboardQuery_({view:'radar',entity,segment:'Empresas e instituciones'}),data=c.newsDashboard_(c.annotateNews_(rows),query,[],'radar'),selected=data.items;
   assert.equal(data.stats.news,selected.length);assert.ok(selected.every(row=>row.segmentos.includes(query.segment)));assert.ok(!entity||selected.every(row=>row.entidad===entity));

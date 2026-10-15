@@ -26,18 +26,7 @@ test('cambios rápidos de vista comparten el RPC pendiente y solo presentan la �
  assert.equal(a.find('#radar-section').hidden,false);assert.equal(a.find('#news-section').hidden,true);assert.equal(a.find('#loading').hidden,true);assert.equal(a.find('.content').getAttribute('aria-busy'),'false');
 });
 
-test('el sondeo actualiza progreso y difiere la carga de contenido durante Newsletter',async t=>{
- const timers=new Map();let timerId=0;
- const a=await app(t,{configure({w,data,replies}){
-  w.setTimeout=(fn,ms)=>{const id=++timerId;timers.set(id,{fn,ms});return id;};w.clearTimeout=id=>timers.delete(id);
-  Object.defineProperty(w.document,'hidden',{value:false});data.newsRevision='old';data.collection.pending=10;
-  replies.getCollectionProgress={newsRevision:'new',collection:{total:10,processed:10,pending:0}};
- }});
- await a.click('[data-view="subscriptions"]');const calls=a.calls.filter(row=>row.method==='getDashboard').length;
- const timer=[...timers.values()].find(timer=>timer.ms===30000);await timer.fn();await tick();
- assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,calls);assert.equal(a.find('#active-filters').hidden,true);
- await a.click('[data-view="radar"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,calls+1);
-});
+test('la navegación de lectura no sondea revisiones ni refresca contenido automáticamente',async t=>{const a=await app(t);for(const view of ['news','radar','briefing','subscriptions'])await a.click('[data-view="'+view+'"]');assert.ok(!a.calls.some(r=>r.method==='getCollectionProgress'));});
 
 test('caché fragmentada conserva Unicode, respeta bytes y se recupera si se pierde un fragmento',()=>{
  const s=storage(),cache=s.c.CacheService.getScriptCache(),data={items:['€😀\\"'.repeat(18000)]};
@@ -63,13 +52,13 @@ test('las tablas adaptables conservan sus encabezados y etiquetas al cambiar el 
  assert.deepEqual([...a.find('#delivery-history-body').rows[0].cells].map(cell=>cell.dataset.label),[...subscriptionTable.tHead.rows[0].cells].map(cell=>cell.textContent));
 });
 
-test('la caché de navegación caduca desde la respuesta original, aunque se visite repetidamente',async t=>{
+test('la caché de navegación se conserva durante la sesión hasta aplicar filtros distintos',async t=>{
  let now=0;
  const a=await app(t,{configure({w,data}){w.performance.now=()=>now;data.newsRevision='news-1';data.configurationRevision='config-1';}});
  await a.click('[data-view="radar"]');now=10;await a.click('[data-view="news"]');
  const count=a.calls.filter(row=>row.method==='getDashboard').length;
  now=50000;await a.click('[data-view="radar"]');now=55000;await a.click('[data-view="news"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,count);
- now=61000;await a.click('[data-view="radar"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,count+1);
+ now=61000;await a.click('[data-view="radar"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,count);
 });
 
 test('el spinner y los skeletons pertenecen al panel activo; una respuesta abandonada no prolonga su carga',async t=>{

@@ -47,9 +47,9 @@ for(const language of ['es','en','tr'])test('interfaz '+language+': formularios,
  a.data.items=[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:'Noticias de España',extracto:'Nueva cuenta en España',medio:'Noticias España',pais:'España',fecha:'2026-10-11',url:'https://example.com/original',entidad:'BBVA',tema:'Financiación'}];a.data.total=1;
  await a.click('[data-view="radar"]');await a.click('[data-view="news"]');
  assert.equal(a.find('#news-list h3').textContent,'Noticias de España');assert.equal(a.find('#news-list .identity-label [data-original]')?.textContent??'Noticias España','Noticias España');assert.equal(a.find('#news-list p[data-original]').textContent,'Nueva cuenta en España');
- await a.click('[data-view="subscriptions"]');await a.click('#new-subscription');assert.equal(a.find('#personal-editor [name="language"]').value,language);
- assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);await a.change('#personal-editor [name="periodicity"]','yearly');await a.submit('#personal-editor form');const saved=a.calls.find(row=>row.method==='saveSubscription').query;assert.equal(saved.language,language);assert.equal(saved.name,undefined);assert.equal(saved.periodicity,'yearly');
- await a.click('[data-view="administration"]');assert.equal(a.find('#preview-language').value,'');await a.click('[data-admin-view="subscribers"]');await a.click('#new-admin-subscription');assert.equal(a.find('#admin-subscription-editor [name="language"]').value,'es');
+ a.replies.getSubscriptions=[];await a.click('[data-view="subscriptions"]');assert.equal(a.find('#personal-editor [name="language"]').value,language);
+ assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);await a.submit('#personal-editor form');const saved=a.calls.find(row=>row.method==='saveSubscription').query;assert.equal(saved.language,language);assert.equal(saved.name,undefined);assert.equal(saved.periodicity,undefined);
+ await a.click('[data-view="administration"]');assert.equal(a.find('#preview-language').value,'');await a.click('[data-admin-view="subscribers"]');await a.click('#new-admin-subscription');assert.equal(a.find('#admin-subscription-editor [name="language"]').value,language);
  await a.change('#admin-subscription-editor [name="language"]','tr');await a.submit('#admin-subscription-editor form');assert.equal(a.calls.find(row=>row.method==='saveAdminSubscription').query.language,'tr');
  a.replies.getAdoption.options={vista:['administration'],evento:['rendimiento']};
  for(const view of ['configuration','sources','audit','telemetry','adoption']){await a.click('[data-admin-view="'+view+'"]');assert.ok(a.find('#'+view+'-section').textContent.length);}
@@ -75,18 +75,18 @@ test('newsletters HTML y texto se generan por destinatario en tres idiomas sin t
 
 test('clasificación inglesa y turca reconoce productos, segmentos y exclusiones sin llamadas externas',()=>{
  const c=vm.createContext({});vm.runInContext(readServerScript('dist',true),c);c.taxonomyCatalog_=()=>[];c.savedArticleTranslations_=rows=>rows;c.translationIdentityRows_=rows=>rows;c.configuration_=()=>JSON.parse(read('assets/configuration-defaults.json'));
- const rows=c.annotateNews_([{entidad:'BBVA',titular:'BBVA introduces a new business account',extracto:''},{entidad:'BBVA',titular:'Garanti BBVA KOBİ için yeni hesap sunar',extracto:''},{entidad:'BBVA',titular:'Yeni hesap nedir: rehber',extracto:''}]);
+ const rows=c.annotateNews_([{entidad:'BBVA',titular:'BBVA introduces a new digital business account',extracto:''},{entidad:'BBVA',titular:'Garanti BBVA KOBİ için yeni hesap sunar',extracto:''},{entidad:'BBVA',titular:'Yeni hesap nedir: rehber',extracto:''}]);
  assert.ok(rows[0].senales.includes('Lanzamiento de producto'));assert.ok(rows[1].senales.includes('Lanzamiento de producto'));assert.ok(rows[1].segmentos.includes('Empresas e instituciones'));assert.equal(rows[2].senales.length,0);assert.equal(c.searchText_('İŞ BANKACILIĞI'),c.searchText_('iş bankacılığı'));
 });
 
 test('la recopilación conserva inglés y turco y el idioma explícito o declarado por el RSS',()=>{
  const c=vm.createContext({Utilities:{DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(_,value)=>Array.from(createHash('sha256').update(value).digest()),getUuid:()=> 'id',formatDate:value=>value.toISOString().slice(0,10)}});vm.runInContext(readServerScript('dist',true),c);c.taxonomyCatalog_=()=>[];c.savedArticleTranslations_=rows=>rows;c.translationIdentityRows_=rows=>rows;const config=JSON.parse(read('assets/configuration-defaults.json'));c.configuration_=()=>config;
- const values={title:'BBVA introduces a new business account',link:'https://www.bbva.com/en/account/',pubDate:'2026-10-10T10:00:00Z',description:'An account for small businesses',source:''};
+ const values={title:'BBVA introduces a new digital business account',link:'https://www.bbva.com/en/account/',pubDate:'2026-10-10T10:00:00Z',description:'An account for small businesses',source:''};
  c.XmlService={parse:()=>({getRootElement:()=>({getChild:()=>({getChildText:()=> 'en-US',getChildren:()=>[{getChildText:key=>values[key]}]})})})};
  const raw=c.parseFeed_('<rss/>')[0],feed=config.feeds.find(row=>row.language==='en'),now=new Date('2026-10-11T12:00:00Z'),item=c.evaluate_(raw,feed,now).item,record=c.newsRecord_(item,feed,now);
  assert.equal(record[5],values.title);assert.equal(record[6],values.description);assert.equal(record[10],'en-US');
  const trFeed=c.profileFeed_(config.geographies.find(row=>row.language==='tr'),config.entities[0]);assert.equal(trFeed.language,'tr');assert.match(trFeed.url,/hl=tr/);
- const tr=c.evaluate_({title:'Garanti BBVA yeni hesap sunar',excerpt:'KOBİ için ticari hesap',url:'https://news.google.com/article',date:values.pubDate},trFeed,now).item;assert.ok(tr);assert.equal(c.newsRecord_(tr,trFeed,now)[10],'tr');
+ const tr=c.evaluate_({title:'Garanti BBVA yeni dijital hesap sunar',excerpt:'KOBİ için ticari hesap',url:'https://news.google.com/article',date:values.pubDate},trFeed,now).item;assert.ok(tr);assert.equal(c.newsRecord_(tr,trFeed,now)[10],'tr');
  const original=JSON.stringify(config);config.feeds[0].language='invalid_language';assert.throws(()=>c.validateConfiguration_(config),/Idioma de fuente/);assert.notEqual(JSON.stringify(config),original);
 });
 test('cambiar de idioma conserva documento, sección, borradores y filtros sin navegar ni recargar',async t=>{

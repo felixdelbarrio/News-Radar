@@ -50,7 +50,7 @@ test('las visitas de newsletter usan identidad autenticada, IDs estables y dedup
  s.setEmail('reader@bbva.com');assert.throws(()=>c.recordEvents(input),/no disponible/);
 });
 test('el feedback actualizado conserva su retención mientras elimina otro registro antiguo',()=>{
- const s=server(),c=s.c;edition(s);c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:''});const sheet=s.sheets.get('NewsletterFeedback');sheet.grid.push(['old','edition','owner@bbva.com','negative','Antiguo','2000-01-01','pendiente']);s.properties.RETENTION_DATE='';c.pruneEvents_();assert.equal(c.rows_('NewsletterFeedback').length,1);assert.notEqual(c.rows_('NewsletterFeedback')[0].id,'old');
+ const s=server(),c=s.c;edition(s);c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:''});const sheet=s.sheets.get('NewsletterFeedback');sheet.grid.push(['old','edition','owner@bbva.com','negative','Antiguo','2000-01-01','pendiente']);s.properties.RETENTION_DATE='';const job={id:'retention',table:5,position:2,removed:0,state:'Pendiente'};for(let i=0;i<4&&job.table===5;i++)c.pruneEvents_(job);assert.equal(c.rows_('NewsletterFeedback').length,1);assert.notEqual(c.rows_('NewsletterFeedback')[0].id,'old');
 });
 test('traducción y categorización de Empresas preceden a la recuperación anual; los demás trabajos ceden entre lotes',()=>{
  const s=server(),c=s.c,work={pending:[{ciclo:'annual'}],jobs:[{id:'annual',tipo:'annual'}]};c.classificationReadyAt_=()=>0;assert.equal(c.backgroundTask_(work,false),'classification');c.classificationReadyAt_=()=>Infinity;
@@ -58,7 +58,7 @@ test('traducción y categorización de Empresas preceden a la recuperación anua
 });
 test('la traducción prioriza Empresas digital antes de Retail más reciente sin repetir variantes guardadas',()=>{
  const s=server(),c=s.c,business=news(s,'business'),retail=news(s,'retail','España','BBVA lanza una app de ahorro y tarjeta para particulares');business.etiquetas={generalista:true,digital:true,capacidades:['Empresas: Pagos']};retail.etiquetas={generalista:true,digital:true,capacidades:['Retail: Ahorro']};business.clasificacion=JSON.stringify(business.etiquetas);retail.clasificacion=JSON.stringify(retail.etiquetas);retail.fecha='2026-09-20';add(s,'Noticias',retail);add(s,'Noticias',business);
- const calls=[];c.LanguageApp={translate:html=>{calls.push(html);return html;}};c.requestTranslations_(true);c.translationBatch_();assert.match(calls[0],/pagos digitales para empresas/);assert.equal(c.translationJob_().state,'Completada');c.requestTranslations_();c.translationBatch_();assert.equal(calls.length,6);
+ const calls=[];c.LanguageApp={translate:html=>{calls.push(html);return html;}};c.requestTranslations_(true);c.translationBatch_();assert.match(calls[0],/pagos digitales para empresas/);assert.equal(c.translationJob_().state,'Completada');c.requestTranslations_();c.translationBatch_();assert.equal(calls.length,3);
 });
 test('una cuota diaria suspende ambos traductores y no se pierde la solicitud prioritaria',()=>{
  const s=server(),c=s.c,row=news(s);row.clasificacion=JSON.stringify(row.etiquetas);add(s,'Noticias',row);let calls=0;c.LanguageApp={translate(){calls++;throw Error('Service invoked too many times for one day: translate');}};

@@ -9,7 +9,9 @@ function profileFeed_(geo,entity,range,capabilitySearch=false) {
   if(!terms.length)return null;
   // Fechas al principio y OR agrupados: el proveedor no debe ampliar el período por una alternativa.
   const searchNames=entity.name==='BBVA'?['BBVA Empresas','BBVA Business','BBVA Provincial Empresas']: [entity.name,...entity.aliases];
-  const prefix=period+' ('+searchNames.slice(0,COLLECTION_POLICY.entityAliases+1).map(quote).join(' OR ')+') (',selected=[];let length=prefix.length+1;
+  const businessTerms={es:['empresas','pymes','corporativa','tesorería'],en:['business','SME','corporate','treasury'],tr:['işletme','ticari','KOBİ'],pt:['empresas','empresarial','tesouraria'],fr:['entreprises','professionnels','trésorerie'],it:['imprese','aziendali','tesoreria'],de:['unternehmen','firmenkunden','firmen']}[geo.language.split('-')[0]]||['business','SME','corporate'];
+  const business=' ('+businessTerms.map(quote).join(' OR ')+')';
+  const prefix=period+business+' ('+searchNames.slice(0,COLLECTION_POLICY.entityAliases+1).map(quote).join(' OR ')+') (',selected=[];let length=prefix.length+1;
   for(const term of terms){const value=quote(term),size=value.length+(selected.length?4:0);if(length+size>COLLECTION_POLICY.queryChars)continue;selected.push(value);length+=size;}
   if(!selected.length)return null;const query=prefix+selected.join(' OR ')+')';
   // Google News no publica edición UY; su redirección legítima utiliza US en español latinoamericano.
