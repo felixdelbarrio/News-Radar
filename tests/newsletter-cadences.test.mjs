@@ -10,12 +10,12 @@ function news(id,pais='España',entidad='BBVA',taxonomy=[path()]){return {id,pai
 const rows=()=>[news('a'),news('b'),news('c'),news('d','España','BBVA',[path('Seguridad','Identidad')]),news('e','España','BBVA',[path('Seguridad','Identidad')]),news('f','México','Santander'),news('g','México','Santander',[path('Financiación','Crédito')])];
 const clean=value=>JSON.parse(JSON.stringify(value));
 test('la entrega mensual consulta el historial semanal del destinatario y destaca la alternativa más relevante',()=>{
- const {c}=server();c.settings_().newsletterEnabled=true;const period=c.newsletterPeriod_('quarterly',new Date()),input=['fortnightly','fresh','recent'].map(id=>({...news(id),fecha:period.from}));
+ const {c}=server();c.settings_().newsletterEnabled=true;const period=c.newsletterPeriod_('monthly',new Date()),input=['fortnightly','fresh','recent'].map(id=>({...news(id),fecha:period.from}));
  c.newsRelevance_=row=>({fortnightly:100,fresh:90,recent:10}[row.id]);c.annotateNews_=rows=>rows;
- c.subscriptionRows_=()=>[{id:'quarterly',correo:'owner@bbva.com',nombre:'Mes',periodicidad:'quarterly',activa:true,actualizada:'2000-01-01',filtros:{coverage:''}}];
+ c.subscriptionRows_=()=>[{id:'monthly',correo:'owner@bbva.com',nombre:'Mes',periodicidad:'monthly',activa:true,actualizada:'2000-01-01',filtros:{coverage:''}}];
  c.rows_=name=>name==='Noticias'?input:name==='NewsletterEnvios'?[{id:'prior',suscripcion:'fortnightly',correo:'owner@bbva.com',estado:'Enviada',contenido:JSON.stringify(c.newsletterItemKeys_(input[0]))}]:[];
  c.newsletterSender_=()=>({});let sent;c.sendNewsletterMail_=(_sender,_email,content)=>{sent=content;return 'accepted';};
- assert.equal(c.deliverNewsletters_().accepted,1);assert.equal(sent.items[0].id,'fresh');assert.equal(sent.total,3);assert.equal(sent.editorial.cards[0].additionalCount,2);assert.equal(c.newsletterEdition_(sent.editionId,'owner@bbva.com').items.length,3);
+ assert.equal(c.deliverNewsletterBatch_().accepted,1);assert.equal(sent.items[0].id,'fresh');assert.equal(sent.total,3);assert.equal(sent.editorial.cards[0].additionalCount,2);assert.equal(c.newsletterEdition_(sent.editionId,'owner@bbva.com').items.length,3);
 });
 test('tres tarjetas diversas priorizan el país seleccionado y no mutan las evidencias',()=>{
  const {c}=server(),input=rows(),before=JSON.stringify(input),digest=c.newsletterDigest_(input,{view:'news',country:'México'},'es',value=>value);
@@ -33,9 +33,9 @@ test('HTML y texto de tres cadencias contienen hecho, relevancia, fuentes y acce
  }
 });
 test('los análisis mensuales incluyen noticias ya enviadas semanalmente y guardan toda la evidencia de sus KPIs',()=>{
- const s=server(),{c}=s;c.settings_().newsletterEnabled=true;const period=c.newsletterPeriod_('quarterly',new Date()),input=rows().map(row=>({...row,fecha:period.from}));
- c.subscriptionRows_=()=>[{id:'quarterly',correo:'owner@bbva.com',nombre:'Mes',periodicidad:'quarterly',activa:true,actualizada:'2000-01-01',filtros:{coverage:''}}];c.annotateNews_=rows=>rows;c.rows_=(name)=>name==='Noticias'?input:name==='NewsletterEnvios'?[{id:'fortnightly:fortnightly:'+period.from,suscripcion:'fortnightly',correo:'owner@bbva.com',estado:'Enviada',contenido:JSON.stringify(input.flatMap(c.newsletterItemKeys_))}]:[];
- c.newsletterSender_=()=>({});let sent;c.sendNewsletterMail_=(_sender,_email,content)=>{sent=content;return 'accepted';};assert.equal(c.deliverNewsletters_().accepted,1);assert.equal(sent.total,7);assert.equal(sent.count,3);
+ const s=server(),{c}=s;c.settings_().newsletterEnabled=true;const period=c.newsletterPeriod_('monthly',new Date()),input=rows().map(row=>({...row,fecha:period.from}));
+ c.subscriptionRows_=()=>[{id:'monthly',correo:'owner@bbva.com',nombre:'Mes',periodicidad:'monthly',activa:true,actualizada:'2000-01-01',filtros:{coverage:''}}];c.annotateNews_=rows=>rows;c.rows_=(name)=>name==='Noticias'?input:name==='NewsletterEnvios'?[{id:'fortnightly:fortnightly:'+period.from,suscripcion:'fortnightly',correo:'owner@bbva.com',estado:'Enviada',contenido:JSON.stringify(input.flatMap(c.newsletterItemKeys_))}]:[];
+ c.newsletterSender_=()=>({});let sent;c.sendNewsletterMail_=(_sender,_email,content)=>{sent=content;return 'accepted';};assert.equal(c.deliverNewsletterBatch_().accepted,1);assert.equal(sent.total,7);assert.equal(sent.count,3);
  const archived=c.newsletterEdition_(sent.editionId,'owner@bbva.com');assert.equal(archived.items.length,7);assert.equal(archived.query.view,'news');
  const dashboard=c.getDashboard({view:'news',initial:true,edition:sent.editionId,country:'España',entity:'BBVA'});assert.equal(dashboard.total,5);assert.equal(dashboard.context.count,7);assert.equal(dashboard.selection.from,period.from);assert.equal(dashboard.selection.to,period.to);
 });
@@ -53,13 +53,13 @@ test('Noticias cambia pestaña mediante un solo RPC y reinicia la página; el te
  a.find('#news-geographies [aria-selected="true"]').dispatchEvent(new a.w.KeyboardEvent('keydown',{key:'Home',bubbles:true}));await new Promise(resolve=>setTimeout(resolve,100));assert.equal(a.find('#news-geographies [aria-selected="true"]').dataset.geography,'España');assert.equal(a.w.document.activeElement.id,a.find('#news-geographies [aria-selected="true"]').id);await a.click('#next');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.page,1);
 });
 test('el formulario ofrece solo las tres periodicidades y no guarda rango ni asunto',async t=>{
- const a=await app(t);await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('[name="range"]'),null);assert.deepEqual([...a.find('#personal-editor [name="periodicity"]').options].map(row=>row.value),['fortnightly','quarterly','yearly']);
+ const a=await app(t);await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('[name="range"]'),null);assert.deepEqual([...a.find('#personal-editor [name="periodicity"]').options].map(row=>row.value),['fortnightly','monthly','yearly']);
  await a.change('#personal-editor [name="periodicity"]','yearly');await a.submit('#personal-editor form');const payload=a.calls.find(row=>row.method==='saveSubscription').query;assert.equal(payload.periodicity,'yearly');assert.equal(payload.filters.range,undefined);assert.equal(payload.subject,undefined);
 });
 test('inicializar limpia filtros ajenos al modelo y normaliza periodicidades fuera de catálogo sin alterar ediciones archivadas',()=>{
- const s=server(),{c}=s;c.saveSubscription({periodicity:'quarterly',filters:{entity:'BBVA'}});s.sheets.get('Suscripciones').grid[1][3]=JSON.stringify({entity:'BBVA',range:'year'});s.sheets.get('Suscripciones').grid[1][4]='invalid';c.initializeConfiguration();const record=c.subscriptionRows_()[0];assert.equal(record.periodicidad,'fortnightly');assert.deepEqual(clean(record.filtros),{entity:'BBVA',coverage:'digital'});assert.equal(JSON.parse(s.sheets.get('Suscripciones').grid[1][3]).range,undefined);const before=JSON.stringify(s.sheets.get('Suscripciones').grid);c.initializeConfiguration();assert.equal(JSON.stringify(s.sheets.get('Suscripciones').grid),before);
+ const s=server(),{c}=s;c.saveSubscription({periodicity:'monthly',filters:{entity:'BBVA'}});s.sheets.get('Suscripciones').grid[1][3]=JSON.stringify({entity:'BBVA',range:'year'});s.sheets.get('Suscripciones').grid[1][4]='invalid';c.initializeConfiguration();const record=c.subscriptionRows_()[0];assert.equal(record.periodicidad,'fortnightly');assert.deepEqual(clean(record.filtros),{entity:'BBVA',coverage:'digital'});assert.equal(JSON.parse(s.sheets.get('Suscripciones').grid[1][3]).range,undefined);const before=JSON.stringify(s.sheets.get('Suscripciones').grid);c.initializeConfiguration();assert.equal(JSON.stringify(s.sheets.get('Suscripciones').grid),before);
 });
-for(const [periodicity,view] of [['fortnightly','briefing'],['quarterly','news'],['yearly','radar']])test('el enlace '+periodicity+' abre '+view+' con edición, filtros y período; navegar o volver al presente mantiene el contrato',async t=>{
+for(const [periodicity,view] of [['fortnightly','briefing'],['monthly','news'],['yearly','radar']])test('el enlace '+periodicity+' abre '+view+' con edición, filtros y período; navegar o volver al presente mantiene el contrato',async t=>{
  const s=server(),{c}=s,input=[news('s','España','BBVA'),news('m','México','Santander')].map(row=>({...row,senales:['Lanzamiento de producto']})),from='2026-09-01',to='2026-09-30',query={view,segment:'Empresas e instituciones',from,to},editionId='edition-'+periodicity;
  const content=c.newsletterContent_(input,query,'Resumen',new Date(),'subscription','es',editionId),dom=new JSDOM(content.html),link=new URL(dom.window.document.querySelector('.newsletter-cta').href),location=Object.fromEntries(link.searchParams);
  assert.equal(location.view,view);assert.equal(location.edition,editionId);assert.equal(link.searchParams.getAll('view').length,1);assert.equal(new URL(c.newsletterLinks_('subscription','',view).app).searchParams.get('view'),view);
@@ -75,7 +75,7 @@ for(const [periodicity,view] of [['fortnightly','briefing'],['quarterly','news']
 test('el contexto y las referencias se conservan sin inventar evidencia estructural',()=>{
  const {c}=server(),input=[news('b','España','BBVA',[path('Seguridad','Identidad')]),news('s1','España','Santander'),news('q','España','Qonto')];input[2].fecha='2026-09-20';
  const digest=c.newsletterDigest_(input,{view:'radar'},'es',value=>value);assert.equal(digest.cards[0].id,'b');assert.match(digest.cards[0].relevance,/no permite afirmar/);assert.equal(digest.context.view,'radar');
- const quarterly=c.newsletterDigest_(input,{view:'news'},'es',value=>value);assert.match(quarterly.cards[0].relevance,/2 entidades/);
+ const monthly=c.newsletterDigest_(input,{view:'news'},'es',value=>value);assert.match(monthly.cards[0].relevance,/2 entidades/);
 });
 test('el texto editorial no supera 160 palabras; no se rellena una selección sin evidencia',()=>{
  const {c}=server(),input=rows().map(row=>({...row,senales:['Lanzamiento de producto'],titular:'Un titular original verificable de dieciocho palabras para mostrar un servicio digital con novedades específicas en este período reciente',extracto:'Detalle del servicio y sus condiciones. '.repeat(30)}));

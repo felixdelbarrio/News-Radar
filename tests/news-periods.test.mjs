@@ -9,14 +9,14 @@ test('cada vista conserva su rango al aplicar la primera newsletter y respeta fe
  const {c}=server(),now=new Date('2026-10-12T12:00:00Z'),subscription={filtros:{entity:'Santander',segment:'Empresas e instituciones',range:'year'}};
  for(const [view,from,to] of [['briefing','2026-10-01','2026-10-15'],['news','2026-10-01','2026-12-31'],['radar','2026-01-01','2026-12-31']]){const query=c.personalDashboardQuery_(subscription,view,now);assert.equal(query.from,from);assert.equal(query.to,to);assert.equal(query.entity,'Santander');assert.equal(query.range,undefined);}
  c.saveSubscription({name:'No debe usarse',filters:subscription.filtros});
- const selected=c.getDashboard({view:'news',initial:true});assert.deepEqual({from:selected.selection.from,to:selected.selection.to},{from:c.newsletterWindow('quarterly',c.recordDay(new Date(),'Europe/Madrid')).from,to:c.newsletterWindow('quarterly',c.recordDay(new Date(),'Europe/Madrid')).to});
+ const selected=c.getDashboard({view:'news',initial:true});assert.deepEqual({from:selected.selection.from,to:selected.selection.to},{from:c.newsletterWindow('monthly',c.recordDay(new Date(),'Europe/Madrid')).from,to:c.newsletterWindow('monthly',c.recordDay(new Date(),'Europe/Madrid')).to});
  const radar=c.getDashboard({view:'radar',initial:true});assert.deepEqual({from:radar.selection.from,to:radar.selection.to},clean(c.dashboardPeriod_('radar')));
  const edited=c.getDashboard({view:'news',from:'2026-02-01',to:'2026-02-28',initial:false});assert.equal(edited.selection.from,'2026-02-01');assert.equal(edited.selection.to,'2026-02-28');
  assert.deepEqual(clean(c.dashboardPeriod_('briefing',new Date('2026-01-01T12:00:00Z'))),{from:'2026-01-01',to:'2026-01-15'});assert.throws(()=>c.dashboardPeriod_('unknown'),/Periodicidad/);
 });
 test('la periodicidad define el ámbito, el período y el asunto sin aceptar un período independiente',()=>{
  const {c}=server(),now=new Date('2026-10-12T12:00:00Z');
- for(const [periodicity,view,range] of [['fortnightly','briefing','week'],['quarterly','news','month'],['yearly','radar','year']]){
+ for(const [periodicity,view,range] of [['fortnightly','briefing','week'],['monthly','news','month'],['yearly','radar','year']]){
   const row=c.subscriptionRecord_({name:'Asunto arbitrario',periodicity,language:'en',filters:{entity:'BBVA',segment:'Empresas e instituciones',range:'year'}},'owner@bbva.com','id',now,0);
   assert.equal(row.filtros.range,undefined);assert.match(row.nombre,/^\[bIA\] Entity: BBVA · Segment: /);assert.doesNotMatch(row.nombre,/arbitrario/);
   assert.deepEqual(clean(c.subscriptionQuery_(row,now)),{entity:'BBVA',segment:'Empresas e instituciones',coverage:'digital',from:c.newsletterWindow(periodicity,'2026-10-12').from,to:c.newsletterWindow(periodicity,'2026-10-12').to,view});
@@ -33,21 +33,21 @@ test('el lote prepara una sola vez los períodos completos necesarios y excluye 
  const rows=[{id:'old',fecha:year.from,titular:'BBVA lanza tarjeta para empresas',url:'https://example.com/old'},{id:'new',fecha:week.from,titular:'BBVA lanza cuenta para empresas',url:'https://example.com/new'},{id:'future',fecha:'2099-01-01',titular:'BBVA lanza crédito para empresas',url:'https://example.com/future'}].map(row=>({...row,entidad:'BBVA',pais:'España',medio:'Editor',extracto:'Nueva oferta para empresas'}));
  s.sheets.get('Noticias').grid.push(...rows.map(row=>keys.map(key=>row[key]||'')));
  let classified=0;const annotate=c.annotateNews_;c.annotateNews_=rows=>{classified+=rows.length;return annotate(rows);};c.newsletterSender_=()=>({});const sent=[];c.sendNewsletterMail_=(_sender,email,content)=>{sent.push({email,content});return 'gmail';};
- const result=c.deliverNewsletters_();assert.equal(result.accepted,2);assert.equal(classified,2);assert.equal(sent.find(row=>row.email==='week@bbva.com').content.count,1);assert.equal(sent.find(row=>row.email==='year@bbva.com').content.count,1);
+ const result=c.deliverNewsletterBatch_();assert.equal(result.accepted,2);assert.equal(classified,2);assert.equal(sent.find(row=>row.email==='week@bbva.com').content.count,1);assert.equal(sent.find(row=>row.email==='year@bbva.com').content.count,1);
  const log=c.rows_('NewsletterEnvios');assert.equal(log[0].desde,week.from);assert.equal(log[1].desde,year.from);
 });
 for(const count of [0,1,2])test('No hay selector de newsletters en el panel lateral: '+count+' newsletters activas',async t=>{
  const a=await app(t,{configure({data}){data.personalization={active:'default',options:Array.from({length:count},(_,i)=>({id:'channel-'+i,name:'Canal '+i}))};}});
  assert.equal(a.find('#reading-context').closest('#mobile-filters')!==null,true);assert.equal(a.find('#reading-context').hidden,true);assert.equal(a.w.document.querySelector('#reading-choice'),null);
  for(const view of ['news','radar','briefing']){await a.click('[data-view="'+view+'"]');assert.equal(a.find('#reading-context').hidden,true);}
- await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);assert.equal(a.w.document.querySelector('#personal-editor [name="range"]'),null);assert.equal(a.find('#personal-editor [name="periodicity"]').value,'quarterly');assert.equal(a.find('#filters-section').hidden,true);
+ await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);assert.equal(a.w.document.querySelector('#personal-editor [name="range"]'),null);assert.equal(a.find('#personal-editor [name="periodicity"]').value,'monthly');assert.equal(a.find('#filters-section').hidden,true);
 });
 
 test('los valores iniciales y la restauración de cada vista coinciden con las newsletters en límites de quincena, trimestre y año',()=>{
  const {c}=server();
  for(const day of ['2024-02-15','2024-02-16','2024-02-29','2026-03-31','2026-04-01','2026-10-15','2026-10-16','2026-12-31','2027-01-01']){
   const now=new Date(day+'T12:00:00Z');
-  for(const [view,cadence] of [['briefing','fortnightly'],['news','quarterly'],['radar','yearly']]){
+  for(const [view,cadence] of [['briefing','fortnightly'],['news','monthly'],['radar','yearly']]){
    const {from,to}=c.newsletterWindow(cadence,day);
    for(const initial of [true,false]){
     const selected=c.dashboardQuery_({view,initial},now);assert.equal(selected.from,from);assert.equal(selected.to,to);

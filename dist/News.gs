@@ -1,7 +1,7 @@
 function getDashboard(query) {
   const started=Date.now(),session=authorize_(),feeds=feeds_();
-  const view=query?.view||'radar',initial=Boolean(query?.initial),language=supportedLanguage(query?.language)?query.language:'es',edition=query?.edition?newsletterEdition_(query.edition,session.email):null,personal=initial&&!edition&&readingViews.includes(view)?firstNewsSubscription_(session.email):null;
-  query=dashboardQuery_(edition&&initial?{...edition.query,...(typeof query.country==='string'?{country:query.country}:{}),...(typeof query.entity==='string'?{entity:query.entity}:{}),...(query.palanca?{palanca:query.palanca}:{}),...(query.subpalanca?{subpalanca:query.subpalanca}:{}),...(query.benchmark?{benchmark:query.benchmark}:{}),view,initial:false}:!edition&&initial&&personal&&readingViews.includes(view)?personalDashboardQuery_(personal,view):{...query,view});
+  const view=query?.view||'radar',initial=Boolean(query?.initial),language=supportedLanguage(query?.language)?query.language:'es',edition=query?.edition?newsletterEdition_(query.edition,session.email):null;
+  query=dashboardQuery_(edition&&initial?{...edition.query,...(typeof query.country==='string'?{country:query.country}:{}),...(typeof query.entity==='string'?{entity:query.entity}:{}),...(query.palanca?{palanca:query.palanca}:{}),...(query.subpalanca?{subpalanca:query.subpalanca}:{}),...(query.benchmark?{benchmark:query.benchmark}:{}),view,initial:false}:{...query,view},new Date(),!edition);
   const preparationMs=Date.now()-started,content=dashboardContent_(query||{},feeds,view,language,edition),metadataStarted=Date.now(),runs=dashboardRuns_(),metadata=dashboardMetadata_();
   const response={...content.data,
     ...(edition?{feedback:newsletterFeedback_(edition.id,session.email)}:{}),context:edition?{mode:'edition',id:edition.id,title:edition.title,editorial:edition.editorial,commentLimit:NEWSLETTER_EDITORIAL.commentChars,from:edition.query.from,to:edition.query.to,count:edition.items.length,language:edition.language}:{mode:'current'},...metadata,taxonomyTranslations:edition?edition.names:metadata.taxonomyTranslations,initial,selection:query||{},defaults:dashboardQuery_({view,initial:true}),geographies:edition?.editorial?.geographies||metadata.geographies,applicationScope:edition?.editorial?.scope||metadata.applicationScope,
@@ -12,7 +12,7 @@ function getDashboard(query) {
 function getAudit(query={}){authorize_(true);return administrativeRecords_('Auditoria',query,['fuente','resultado','ejecucion'],['fuente','resultado','motivo','url','ejecucion']);}
 function exportNews(query) {
   const session=authorize_(),edition=query?.edition?newsletterEdition_(query.edition,session.email):null;
-  const selection=dashboardQuery_(edition?{...edition.query,...query}:query),rows=edition&&query.benchmark?newsletterComparisonRows_(edition.items,edition.editorial,query.benchmark):edition?edition.items:cachedNewsRecords_(selection);
+  const selection=dashboardQuery_(edition?{...edition.query,...query}:query,new Date(),!edition),rows=edition&&query.benchmark?newsletterComparisonRows_(edition.items,edition.editorial,query.benchmark):edition?edition.items:cachedNewsRecords_(selection);
   return newsCsv_(newsGeographySelection_(rows,selection,applicationGeography(edition?.editorial?.scope||configuration_().applicationScope,selection.segment)),selection,supportedLanguage(query?.language)?query.language:'es',true,edition?.names[query.language||'es'],edition?snapshotEntity_:entityKey_);
 }
 
@@ -33,7 +33,7 @@ function dashboardContent_(query,feeds,view='radar',language='es',edition=null){
   }
   let positions;
   const data=newsDashboard_(edition&&query.benchmark?newsletterComparisonRows_(edition.items,edition.editorial,query.benchmark):edition?edition.items:cachedNewsRecords_(query),query,edition?[]:feeds,view,edition?(edition.editorial||{}):null,paginated?ordered=>{positions=ordered.map(row=>row._sheetRow);}:null);
-  if(!edition){const index=newsRecordIndex_();data.entities=[...new Set([...index.entities.map(entityKey_),...feeds.map(feed=>entityKey_(feed.entity))])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));data.sources=index.sources.sort((a,b)=>a.localeCompare(b,'es'));}
+  if(!edition){const index=newsRecordIndex_();data.entities=[...new Set([...index.entities.map(entityKey_),...feeds.map(feed=>entityKey_(feed.entity))])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));data.sources=[...new Set(index.sources.map(publisherKey_))].sort((a,b)=>a.localeCompare(b,'es'));}
   if(edition){data.palanca=[...new Set(edition.items.flatMap(row=>row.taxonomia.map(item=>item.palanca)))];data.subpalanca=[...new Set(edition.items.flatMap(row=>row.taxonomia.map(taxonomyPath)))];}
   if(localized&&!edition){data.items=savedArticleTranslations_(data.items,language);if(data.briefing)data.briefing.items=savedArticleTranslations_(data.briefing.items,language);}
   if(paginated&&positions?.every(Number.isInteger)){const {items,page,...metadata}=data;writeDashboardCache_(cache,sharedKey+':selection',{data:metadata,positions});}

@@ -24,15 +24,15 @@ test('el supervisor no interrumpe un trabajador en ejecución ni lee hojas cuand
 });
 test('el progreso de newsletter deduplica intentos, detecta revisiones y nunca lee Noticias ni consulta Gmail',()=>{
  const s=fixture(),c=s.c;c.settings_().newsletterEnabled=true;
- for(let i=0;i<3;i++)s.sheets.get('Suscripciones').grid.push([String(i),'owner@bbva.com','Canal','{}','quarterly','true','2000-01-01','es']);
- const plan=c.newsletterDeliveryPlan_(new Date(),[]),period=plan.periods.get('quarterly'),id=plan.planned[0].id;
+ for(let i=0;i<3;i++)s.sheets.get('Suscripciones').grid.push([String(i),'owner@bbva.com','Canal','{}','monthly','true','2000-01-01','es']);
+ const plan=c.newsletterDeliveryPlan_(new Date(),[]),period=plan.periods.get('monthly'),id=plan.planned[0].id;
  s.sheets.get('NewsletterEnvios').grid.push([id,'0','owner@bbva.com',period.from,period.to,'No enviado',new Date().toISOString(),'',''],[id,'0','owner@bbva.com',period.from,period.to,'Enviada',new Date().toISOString(),'','']);
  const second=plan.planned[1].id;s.sheets.get('NewsletterEnvios').grid.push([second,'1','owner@bbva.com',period.from,period.to,'Revisar',new Date().toISOString(),'','']);
  s.sheets.get('Noticias').getRange=()=>{throw Error('No debe leer noticias');};c.newsletterSender_=()=>{throw Error('No debe consultar Gmail');};const progress=c.getNewsletterProgress();assert.equal(progress.job.total,3);assert.equal(progress.job.processed,1);assert.equal(progress.job.pending,1);assert.equal(progress.job.review,1);assert.equal(progress.job.state,'En pausa');
  const reads=s.reads;c.getNewsletterProgress();assert.equal(s.reads,reads);s.setEmail('reader@bbva.com');assert.throws(()=>c.getNewsletterProgress(),/administrador/);
 });
-test('envíos acotados mantienen progreso entre lotes y la taxonomía espera a terminar todas las trimestrales',()=>{
- const s=fixture(),c=s.c;c.settings_().newsletterEnabled=true;for(let i=0;i<3;i++)s.sheets.get('Suscripciones').grid.push([String(i),'owner@bbva.com','Canal','{}','quarterly','true','2000-01-01','es']);
+test('envíos acotados mantienen progreso entre lotes y la taxonomía espera a terminar todas las mensuales',()=>{
+ const s=fixture(),c=s.c;c.settings_().newsletterEnabled=true;for(let i=0;i<3;i++)s.sheets.get('Suscripciones').grid.push([String(i),'owner@bbva.com','Canal','{}','monthly','true','2000-01-01','es']);
  let clock=Date.now();c.Date=class extends Date{constructor(value=clock){super(value);}static now(){return clock;}};c.newsletterContent_=()=>{clock+=5000;return {count:0,items:[]};};c.newsletterContentDetail_=()=>'';
  const first=c.deliverNewsletterBatch_(undefined,5000);assert.equal(first.empty,1);assert.equal(first.pending,2);assert.equal(s.properties.TAXONOMY_REQUEST,undefined);assert.ok(s.properties.NEWSLETTER_REQUEST);const progress=c.getNewsletterProgress();assert.equal(progress.job.processed,1);assert.equal(progress.job.total,3);
  clock+=c.settings_().pauseMinutes*60000;c.deliverNewsletterBatch_();assert.equal(c.rows_('NewsletterEnvios').length,3);assert.ok(s.properties.TAXONOMY_REQUEST);assert.equal(s.properties.NEWSLETTER_REQUEST,undefined);c.deliverNewsletterBatch_();assert.equal(c.rows_('NewsletterEnvios').length,3);

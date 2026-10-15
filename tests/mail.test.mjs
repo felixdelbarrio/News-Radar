@@ -50,7 +50,7 @@ test('diagnóstico, pruebas y programación son exclusivos del administrador',()
 test('la prueba usa el correo del administrador y registra Gmail ID; no consume suscripciones reales',()=>{
   const m=mail(),{c}=m,log=[];let destination;
   c.LockService={getScriptLock:()=>({waitLock(){},releaseLock(){}})};c.rows_=()=>[];
-  c.newsletterSender_=()=>({address:m.settings.newsletterSender,name:m.settings.newsletterSenderName});c.subscriptionDefaults_=()=>({name:'Mi canal',periodicity:'quarterly',filters:{entity:'BBVA'}});c.subscriptionQuery_=()=>({from:'2026-09-01',to:'2026-09-30'});c.newsletter_=()=>({count:2,text:'Prueba',html:'<p>Prueba</p>'});
+  c.newsletterSender_=()=>({address:m.settings.newsletterSender,name:m.settings.newsletterSenderName});c.subscriptionDefaults_=()=>({name:'Mi canal',periodicity:'monthly',filters:{entity:'BBVA'}});c.subscriptionQuery_=()=>({from:'2026-09-01',to:'2026-09-30'});c.newsletter_=()=>({count:2,text:'Prueba',html:'<p>Prueba</p>'});
   c.append_=(name,rows)=>log.push(...rows);c.book_=()=>({getSheetByName:()=>({getLastRow:()=>log.length+1,getRange:()=>({setValues(values){log[0].splice(5,3,...values[0]);}})})});
   c.sendNewsletterMail_=(_sender,recipient)=>{destination=recipient;return 'gmail-test';};
   const result=c.sendNewsletterTest();assert.equal(result.recipient,'owner@bbva.com');assert.equal(result.messageId,'gmail-test');assert.equal(result.count,2);assert.equal(result.accepted,true);assert.equal(destination,'owner@bbva.com');assert.equal(log[0][1],'');assert.equal(log[0][5],'Enviada');assert.match(log[0][7],/gmail-test/);
@@ -69,7 +69,7 @@ test('una prueba bloqueada antes de enviar queda registrada sin consumir presupu
 });
 
 test('prueba personal usa filtros propios, destinatario autenticado y mantiene el período real pendiente',()=>{
-  const m=mail(),{c}=m;const own={id:'mine',correo:'owner@bbva.com',nombre:'Mi selección',periodicidad:'quarterly',filtros:{entity:'BBVA',country:'España'},activa:true};let query,recipient;const log=[];
+  const m=mail(),{c}=m;const own={id:'mine',correo:'owner@bbva.com',nombre:'Mi selección',periodicidad:'monthly',filtros:{entity:'BBVA',country:'España'},activa:true};let query,recipient;const log=[];
   c.authorize_=()=>({email:'owner@bbva.com',admin:false});c.subscriptionRows_=email=>email===own.correo?[own]:[];
   c.LockService={getScriptLock:()=>({waitLock(){},releaseLock(){}})};c.rows_=()=>[];c.newsletterSender_=()=>({address:m.settings.newsletterSender,name:'News Radar'});
   c.newsletter_=(_rows,filters,_name,_now,id)=>{query=filters;assert.equal(id,'mine');return {count:1,html:'<p>Prueba</p>',text:'Prueba'};};

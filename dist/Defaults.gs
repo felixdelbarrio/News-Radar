@@ -49,9 +49,7 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
       "lansman"
     ],
     "disabledSources": [],
-    "maxSubscriptions": 20,
     "unknownCountry": "Sin determinar",
-    "defaultPeriodicity": "quarterly",
     "newsletterEnabled": false,
     "newsletterBatch": 20,
     "newsletterSender": "news-radar.group@bbva.com",
@@ -67,7 +65,9 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "BBVA Empresas",
         "BBVA Business",
         "BBVA Net Cash",
-        "Garanti BBVA"
+        "Garanti BBVA",
+        "BBVA Provincial",
+        "Provinet Empresas"
       ],
       "countries": [
         "España",
@@ -92,7 +92,8 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "China",
         "Hong Kong",
         "Japón",
-        "Singapur"
+        "Singapur",
+        "Venezuela"
       ],
       "enabled": true
     },
@@ -972,6 +973,41 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
       ],
       "type": "Multilateral",
       "enabled": true
+    },
+    {
+      "name": "Mercantil Banco",
+      "type": "Banco tradicional",
+      "aliases": [
+        "Mercantil en Línea Empresas"
+      ],
+      "countries": [
+        "Venezuela"
+      ],
+      "enabled": true
+    },
+    {
+      "name": "RBC",
+      "type": "Banco tradicional",
+      "aliases": [
+        "Royal Bank of Canada",
+        "RBC Express"
+      ],
+      "countries": [
+        "Canadá"
+      ],
+      "enabled": true
+    },
+    {
+      "name": "Emirates NBD",
+      "type": "Banco tradicional",
+      "aliases": [
+        "businessONLINE",
+        "ENBD"
+      ],
+      "countries": [
+        "Emiratos Árabes Unidos"
+      ],
+      "enabled": true
     }
   ],
   "geographies": [
@@ -1282,6 +1318,44 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
       "searchName": "Thailand",
       "enabled": true,
       "terms": []
+    },
+    {
+      "name": "Venezuela",
+      "code": "VE",
+      "language": "es",
+      "mapId": "862",
+      "enabled": true,
+      "searchName": "Venezuela",
+      "terms": [
+        "Venezuela",
+        "venezolano"
+      ]
+    },
+    {
+      "name": "Canadá",
+      "code": "CA",
+      "language": "en",
+      "mapId": "124",
+      "enabled": true,
+      "searchName": "Canada",
+      "terms": [
+        "Canada",
+        "Canadian"
+      ]
+    },
+    {
+      "name": "Emiratos Árabes Unidos",
+      "code": "AE",
+      "language": "en",
+      "mapId": "784",
+      "enabled": true,
+      "searchName": "UAE",
+      "terms": [
+        "UAE",
+        "United Arab Emirates",
+        "Dubai",
+        "Abu Dhabi"
+      ]
     }
   ],
   "segments": [
@@ -1317,29 +1391,6 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "imprese",
         "unternehmen",
         "entreprises"
-      ],
-      "enabled": true
-    },
-    {
-      "name": "Retail",
-      "terms": [
-        "particular",
-        "consumidor",
-        "familia",
-        "retail",
-        "minorista",
-        "personal",
-        "hipoteca",
-        "nómina",
-        "ahorro",
-        "consumer",
-        "bireysel",
-        "tasarruf",
-        "maaş",
-        "conto corrente",
-        "girokonto",
-        "privatkunden",
-        "risparmio"
       ],
       "enabled": true
     }
@@ -1990,359 +2041,6 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         ],
         "enabled": true
       }
-    ],
-    "Retail": [
-      {
-        "name": "Aplicaciones de banca móvil",
-        "terms": [
-          "banca movil",
-          "mobile banking",
-          "banking app",
-          "mobil bankacilik"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Banca online",
-        "terms": [
-          "banca online",
-          "online banking",
-          "internet banking"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Onboarding digital",
-        "terms": [
-          "onboarding digital",
-          "digital onboarding"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Identificación y verificación digital",
-        "terms": [
-          "verificacion digital",
-          "digital verification",
-          "kyc"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Autenticación biométrica",
-        "terms": [
-          "biometria",
-          "biometric",
-          "face id"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Seguridad y prevención del fraude",
-        "terms": [
-          "prevencion del fraude",
-          "fraud prevention"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Pagos móviles",
-        "terms": [
-          "pagos moviles",
-          "mobile payments",
-          "bizum pay"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Transferencias inmediatas",
-        "terms": [
-          "transferencias inmediatas",
-          "instant payments",
-          "instant transfers"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Pagos P2P",
-        "terms": [
-          "pagos p2p",
-          "p2p payments"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Tarjetas virtuales",
-        "terms": [
-          "tarjeta virtual",
-          "virtual card"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Wallets digitales",
-        "terms": [
-          "wallet",
-          "monedero digital"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Gestión de tarjetas",
-        "terms": [
-          "gestion de tarjetas",
-          "card management"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Finanzas personales",
-        "terms": [
-          "finanzas personales",
-          "personal finance"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Ahorro digital",
-        "terms": [
-          "ahorro digital",
-          "digital savings",
-          "deposit account"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Inversión digital",
-        "terms": [
-          "inversion digital",
-          "digital investing",
-          "robo-advisor",
-          "cash fund"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Financiación al consumo",
-        "terms": [
-          "financiacion al consumo",
-          "consumer lending"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Hipotecas digitales",
-        "terms": [
-          "hipoteca digital",
-          "digital mortgage"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Contratación digital",
-        "terms": [
-          "contratacion digital",
-          "digital contracting"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Firma electrónica",
-        "terms": [
-          "firma electronica",
-          "electronic signature",
-          "e-signature"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Gestión de suscripciones",
-        "terms": [
-          "gestion de suscripciones",
-          "subscription management"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Open banking",
-        "terms": [
-          "open banking",
-          "banca abierta"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Embedded finance",
-        "terms": [
-          "embedded finance",
-          "finanzas embebidas"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Personalización",
-        "terms": [
-          "personalizacion",
-          "personalisation",
-          "personalization"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Experiencia de usuario",
-        "terms": [
-          "experiencia de usuario",
-          "user experience"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Accesibilidad",
-        "terms": [
-          "accesibilidad",
-          "accessibility"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Asistentes virtuales",
-        "terms": [
-          "asistente virtual",
-          "virtual assistant",
-          "chatbot"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Inteligencia artificial",
-        "terms": [
-          "inteligencia artificial",
-          "artificial intelligence",
-          "agentic ai",
-          "ia",
-          "ai"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Atención al cliente digital",
-        "terms": [
-          "atencion digital",
-          "digital customer service"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Autoservicio",
-        "terms": [
-          "autoservicio",
-          "self-service"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Notificaciones inteligentes",
-        "terms": [
-          "notificaciones inteligentes",
-          "smart notifications"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Educación financiera digital",
-        "terms": [
-          "educacion financiera digital",
-          "digital financial education"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Fidelización y recompensas",
-        "terms": [
-          "fidelizacion",
-          "rewards",
-          "loyalty"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Omnicanalidad",
-        "terms": [
-          "omnicanal",
-          "omnichannel"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Agregación financiera",
-        "terms": [
-          "agregacion financiera",
-          "account aggregation"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Nuevos productos y funcionalidades digitales",
-        "terms": [
-          "funcionalidad digital",
-          "digital feature",
-          "nueva funcionalidad",
-          "new feature",
-          "nuevas funcionalidades",
-          "mobile feature"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Recibos",
-        "terms": [
-          "recibos",
-          "direct debits"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Control de gastos",
-        "terms": [
-          "control de gastos",
-          "spending controls"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Límites de tarjetas",
-        "terms": [
-          "limites de tarjetas",
-          "card limits"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Dispositivos",
-        "terms": [
-          "dispositivos",
-          "devices"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Seguridad",
-        "terms": [
-          "seguridad",
-          "security"
-        ],
-        "enabled": true
-      },
-      {
-        "name": "Cuentas digitales europeas",
-        "terms": [
-          "conto corrente",
-          "girokonto",
-          "compte en ligne",
-          "conta digital"
-        ],
-        "enabled": true
-      }
     ]
   },
   "applicationScope": [
@@ -2355,21 +2053,8 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "Colombia",
         "Argentina",
         "Turquía",
-        "Uruguay"
-      ]
-    },
-    {
-      "name": "Retail",
-      "countries": [
-        "España",
-        "México",
-        "Perú",
-        "Colombia",
-        "Argentina",
-        "Turquía",
         "Uruguay",
-        "Italia",
-        "Alemania"
+        "Venezuela"
       ]
     }
   ]

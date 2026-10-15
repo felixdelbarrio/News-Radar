@@ -38,7 +38,7 @@ test('second configuration cannot clear the active configuration pause',()=>{
 test('scheduled work defers before reading configuration or acquiring locks',()=>{
  const s=storage();s.properties['WORK_INTENT:test']=String(Date.now()+600000);
  s.c.settings_=()=>{throw Error('Configuration unavailable');};s.c.LockService.getScriptLock=()=>{throw Error('Must not lock');};
- assert.equal(s.c.processBackground_().paused,true);assert.equal(s.c.deliverNewsletters_().state,'configuration_pause');
+ assert.equal(s.c.processBackground_().paused,true);assert.equal(s.c.deliverNewsletterBatch_().state,'configuration_pause');
  s.c.requestDailyPipeline_();s.c.scheduledNewsletters_();
  for(const name of ['background','newsletter','daily'])assert.equal(s.properties['WORK_PENDING:'+name],'true');
 });

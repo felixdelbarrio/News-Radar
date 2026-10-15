@@ -1,6 +1,6 @@
 function newsRecordsKey_(){return 'news-records:'+sha256_(RADAR.version+'|'+configurationRevision_()+'|'+(properties_().getProperty('NEWS_RECORDS_REVISION')||'0'));}
 function newsRecordIndex_(){
-  const key=newsRecordsKey_()+':index',cache=CacheService.getScriptCache(),cached=readDashboardCache_(cache,key);if(cached)return cached;
+  const key='news-records:index:'+RADAR.version+':'+(properties_().getProperty('NEWS_CONTENT_REVISION')||'0'),cache=CacheService.getScriptCache(),cached=readDashboardCache_(cache,key);if(cached)return cached;
   const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1,days=Object.create(null),entities=new Set(),sources=new Set();
   if(count>0)sheet.getRange(2,2,count,4).getDisplayValues().forEach(([date,,source,entity],index)=>{
     const position=index+2,ranges=days[date]||(days[date]=[]),last=ranges.at(-1);
@@ -15,7 +15,7 @@ function cachedNewsRecords_(query={}){
     const manifest=JSON.parse(raw),keys=Array.from({length:manifest.parts},(_,index)=>key+':'+manifest.id+':'+index),parts=cache.getAll(keys);
     if(keys.every(key=>parts[key]))return keys.flatMap(key=>JSON.parse(parts[key])).map(unpackNews_);
   }
-  const rows=annotateNews_(newsRowsForPeriod_(query)),chunks=[];
+  const rows=annotateNews_(newsRowsForPeriod_(query).filter(businessNews_)),chunks=[];
   function chunk(items){
     const value=cacheJsonValue_(items);if(value){chunks.push(value);return chunks.length<=NEWS_CACHE.recordParts;}
     if(items.length<2)return false;const middle=Math.ceil(items.length/2);return chunk(items.slice(0,middle))&&chunk(items.slice(middle));
@@ -29,10 +29,10 @@ function newsRowsForPeriod_(query={}){
   for(const [day,ranges] of Object.entries(newsRecordIndex_().days))if((!query.from||day>=query.from)&&(!query.to||day<=query.to))for(const [first,last] of ranges)for(let row=first;row<=last;row++)positions.push(row);
   return newsRowsAt_(positions.sort((a,b)=>a-b));
 }
-function newsRowsAt_(positions){
+function newsRowsAt_(positions,gap=8){
   if(!positions.length)return [];
   const sheet=book_().getSheetByName('Noticias'),keys=RADAR.sheets.Noticias,result=[],wanted=new Set(positions);
-  for(const [first,last] of sheetRowRanges_(positions)){
+  for(const [first,last] of sheetRowRanges_(positions,gap)){
     sheet.getRange(first,1,last-first+1,keys.length).getDisplayValues().forEach((values,index)=>{if(wanted.has(first+index))result.push({...Object.fromEntries(keys.map((key,i)=>[key,values[i]])),_sheetRow:first+index});});
   }
   return result;

@@ -11,7 +11,7 @@ function configuration_(){
   return configurationMemory_=config;
 }
 function invalidateConfiguration_(){configurationMemory_=undefined;configurationVersionMemory_=undefined;properties_().setProperty('CONFIG_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));}
-function configurationEdited_(event){const sheet=event?.range?.getSheet().getName();if(backgroundPaused_()&&['Configuracion','Noticias'].includes(sheet)){deferBackgroundWork_(sheet==='Configuracion'?'edited':'news');return;}if(sheet==='Configuracion'){invalidateConfiguration_();requestNewsClassification_(true);}else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
+function configurationEdited_(event){const sheet=event?.range?.getSheet().getName();if(MAINTENANCE_TABLES.includes(sheet))invalidateMaintenanceCursor_(sheet,event.range.getRow?.()||2);if(backgroundPaused_()&&['Configuracion','Noticias'].includes(sheet)){deferBackgroundWork_(sheet==='Configuracion'?'edited':'news');return;}if(sheet==='Configuracion'){invalidateConfiguration_();requestNewsClassification_(true);}else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
 function initializeConfiguration(){
   authorize_(true);return withForegroundWrite_(()=>{
     const refreshCatalog=properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION;
@@ -30,19 +30,22 @@ function initializeConfiguration(){
     // Add only absent defaults when the catalog version changes; preserve existing edits and activations.
     if(refreshCatalog){
       const data=count?sheet.getRange(2,1,count,2).getValues():[];
-      for(const key of ['geographies','segments','signals','feeds','entities','capabilities']){
+      for(const key of ['geographies','segments','signals','feeds','entities','capabilities','applicationScope']){
         const index=data.findIndex(row=>row[0]===key);if(index<0)continue;
         const value=JSON.parse(data[index][1]),defaults=CONFIGURATION_DEFAULTS[key];
         if(key==='capabilities'){
+          for(const segment of Object.keys(value))if(!Object.hasOwn(defaults,segment))delete value[segment];
           for(const segment of Object.keys(defaults)){
             const names=new Set(value[segment].map(row=>searchText_(row.name)));
             value[segment].push(...defaults[segment].filter(row=>!names.has(searchText_(row.name))).slice(0,Math.max(0,60-value[segment].length)));
           }
         }else{
+          if(['segments','applicationScope'].includes(key))value.splice(0,value.length,...value.filter(row=>row.name===sectorNewsDefaults.segment));
+          if(key==='applicationScope')for(const row of value){row.countries=[...new Set([...row.countries,...(defaults.find(seed=>seed.name===row.name)?.countries||[])])];}
           const names=new Set(value.map(row=>key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))),ids=new Set(value.map(row=>row.id));
           if(key==='geographies')for(const row of value){const seed=defaults.find(item=>item.code===row.code);if(seed)row.terms=[...new Set([...(row.terms||[]),...seed.terms])];}
           if(key==='segments')for(const row of value){const seed=defaults.find(item=>item.name===row.name);if(seed)row.terms=[...new Set([...row.terms,...seed.terms])];}
-          if(key==='entities')for(const row of value){const seed=defaults.find(item=>searchText_(item.name)===searchText_(row.name));if(seed)row.countries=[...new Set([...row.countries,...seed.countries])];}
+          if(key==='entities')for(const row of value){const seed=defaults.find(item=>searchText_(item.name)===searchText_(row.name));if(seed){row.countries=[...new Set([...row.countries,...seed.countries])];row.aliases=[...new Set([...row.aliases,...seed.aliases])];}}
           value.push(...defaults.filter(row=>!names.has(key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))&&(key!=='feeds'||!ids.has(row.id))));
         }
         sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(value)]]);
@@ -52,29 +55,27 @@ function initializeConfiguration(){
     const settingsRow=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues().findIndex(row=>row[0]==='settings')+2,stored=JSON.parse(sheet.getRange(settingsRow,2,1,1).getValues()[0][0]);
     const settings=Object.fromEntries(Object.entries(CONFIGURATION_DEFAULTS.settings).map(([key,value])=>[key,key in stored?stored[key]:value]));
     if(refreshCatalog)settings.searchTerms=[...new Set([...settings.searchTerms,...CONFIGURATION_DEFAULTS.settings.searchTerms])];
-    const cadenceChanges={weekly:'fortnightly',monthly:'quarterly'};
-    settings.defaultPeriodicity=cadenceChanges[settings.defaultPeriodicity]||settings.defaultPeriodicity;
-    if(!Object.hasOwn(newsletterCadences,settings.defaultPeriodicity))settings.defaultPeriodicity='quarterly';
     sheet.getRange(settingsRow,2,1,1).setValues([[JSON.stringify(settings)]]);
     if(!ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='configurationEdited_'))ScriptApp.newTrigger('configurationEdited_').forSpreadsheet(book_()).onEdit().create();
     const subscriptions=book_().getSheetByName('Suscripciones'),countSubscriptions=subscriptions.getLastRow()-1;
     if(countSubscriptions>0){const range=subscriptions.getRange(2,8,countSubscriptions,1);range.setValues(range.getValues().map(([value])=>[value||'es']));}
-    initializeNewsletterCadences_(subscriptions,cadenceChanges);
+    initializeSubscriptions_(subscriptions);
     invalidateConfiguration_();
     if(refreshCatalog){upgradeCollectionQueries_();if(translationJob_())requestTranslations_(true);properties_().setProperty('CATALOG_VERSION',CONFIGURATION_CATALOG_VERSION);}
     properties_().deleteProperty('CLASSIFICATION_VERSION');
     requestNewsClassification_();
     if(refreshCatalog&&book_().getSheetByName('Noticias').getLastRow()>1)requestTaxonomy_();
     initializeCollectionQueue_();
+    if(refreshCatalog&&(book_().getSheetByName('Noticias').getLastRow()>1||book_().getSheetByName('Telemetria')?.getLastRow()>1))maintenance_();
     initializeBackgroundSchedules_();
     return 'Configuración inicializada en Sheets. Los valores existentes se han conservado.';
   });
 }
 function validateConfiguration_(config){
-  const numeric={windowDays:[1,90],pageSize:[1,100],maxCustomFeeds:[1,100],maxFeedBytes:[10000,2000000],maxItems:[1,1000],exportLimit:[1,10000],eventLimit:[100,20000],retentionDays:[1,90],trendPoints:[2,60],trendSeries:[1,6],collectionBatch:[1,5],retryMinutes:[1,60],pauseMinutes:[1,60],dailyHour:[0,23],briefingLimit:[1,100],maxSubscriptions:[1,100],newsletterBatch:[1,100],newsletterDailyLimit:[1,1500]};
+  const numeric={windowDays:[1,90],pageSize:[1,100],maxCustomFeeds:[1,100],maxFeedBytes:[10000,2000000],maxItems:[1,1000],exportLimit:[1,10000],eventLimit:[100,20000],retentionDays:[1,90],trendPoints:[2,60],trendSeries:[1,6],collectionBatch:[1,5],retryMinutes:[1,60],pauseMinutes:[1,60],dailyHour:[0,23],briefingLimit:[1,100],newsletterBatch:[1,100],newsletterDailyLimit:[1,1500]};
   if(!config||typeof config.settings!=='object')throw Error('Falta configuración operativa.');
   for(const [name,[min,max]] of Object.entries(numeric)){const n=config.settings[name];if(!Number.isInteger(n)||n<min||n>max)throw Error(name+': requiere un entero entre '+min+' y '+max+'.');}
-  if(!Object.hasOwn(newsletterCadences,config.settings.defaultPeriodicity)||typeof config.settings.newsletterEnabled!=='boolean')throw Error('Configuración de newsletter no válida.');
+  if(typeof config.settings.newsletterEnabled!=='boolean')throw Error('Configuración de newsletter no válida.');
   newsletterEmail_(config.settings.newsletterSender);
   if(typeof config.settings.newsletterAppUrl!=='string'||(config.settings.newsletterAppUrl&&!/^https:\/\/script\.google\.com\/(?:a\/macros\/bbva\.com\/|macros\/)s\/[A-Za-z0-9_-]+\/exec$/.test(config.settings.newsletterAppUrl)))throw Error('URL de newsletter no válida: indica la WebApp publicada en Apps Script.');
   if(typeof config.settings.newsletterSenderName!=='string'||!config.settings.newsletterSenderName.trim()||config.settings.newsletterSenderName.length>100||/[\r\n]/.test(config.settings.newsletterSenderName))throw Error('Nombre del remitente no válido.');
@@ -95,6 +96,7 @@ function validateConfiguration_(config){
     }
     if(JSON.stringify(list).length>40000)throw Error('El catálogo excede el tamaño de una celda: '+key);
   }
+  if(config.segments.length!==1||config.segments[0].name!==sectorNewsDefaults.segment||!config.segments[0].enabled)throw Error('El ámbito de contenido es Empresas e instituciones.');
   validateCapabilities_(config.capabilities);
   if(Object.keys(config).sort().join(',')!=='applicationScope,capabilities,entities,feeds,geographies,segments,settings,signals')throw Error('Claves de configuración no reconocidas.');
   for(const key of ['searchTerms','disabledSources'])if(!Array.isArray(config.settings[key])||config.settings[key].length>1000||config.settings[key].some(value=>typeof value!=='string'||value.length>160))throw Error('Lista operativa no válida: '+key);
@@ -148,7 +150,7 @@ function testGmailAuthorization() {
 }
 
 function validateCapabilities_(capabilities){
-  if(!capabilities||Object.keys(capabilities).sort().join(',')!=='Empresas,Retail')throw Error('Define capacidades digitales para Empresas y Retail.');
+  if(!capabilities||Object.keys(capabilities).join(',')!=='Empresas')throw Error('Define capacidades digitales para Empresas e instituciones.');
   for(const [segment,rows] of Object.entries(capabilities)){
     if(!Array.isArray(rows)||rows.length>60)throw Error('Máximo 60 capacidades por segmento: '+segment);
     const names=new Set();

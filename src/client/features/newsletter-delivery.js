@@ -1,3 +1,4 @@
+import {attachNewsletterSummaries} from './newsletter-summary.js';
 import {$,escape,date} from '../core/dom.js';
 import {call} from '../core/api.js';
 import {createRecordFilters} from './record-filters.js';
@@ -13,28 +14,21 @@ export function createNewsletterDelivery({run,isActive}){
     historyFilters||=createRecordFilters('delivery',[['correo','Suscriptor'],['estado','Estado'],['suscripcion','Suscripción']],history,{dates:true,placeholder:'Gmail ID, correo o motivo'});
     const request=++historyRequest,data=await call('getNewsletterHistory',historyFilters.query());if(request!==historyRequest)return;
     historyFilters.options(data.options);historyFilters.page(data);
-    $('delivery-history-body').innerHTML=data.items.map(row=>`<tr><td>${escape(date(row.fecha))}</td><td>${escape(row.correo)}</td><td>${escape(row.estado)}</td><td>${row.noticias??'Sin detalle'}</td><td>${escape(row.detalle)}</td></tr>`).join('')||'<tr><td colspan="5">Sin envíos con estos filtros.</td></tr>';
+    $('delivery-history-body').innerHTML=data.items.map(row=>`<tr><td>${escape(date(row.fecha))}</td><td>${escape(row.correo)}</td><td>${escape(row.estado)}</td><td>${row.noticias??'Sin detalle'}</td><td>${escape(row.detalle)}${row.edition?`<details data-newsletter-summary="${escape(row.edition)}"><summary>Resumen enviado</summary><div data-summary-content></div></details>`:''}</td></tr>`).join('')||'<tr><td colspan="5">Sin envíos con estos filtros.</td></tr>';
     $('delivery-history-note').textContent=data.total+' coincidencias.'+(data.limited?' Histórico visible limitado a '+data.limit+' registros; el control de duplicados conserva el historial completo.':'');
   }
   async function open(){
-    const [status]=await Promise.all([call('getNewsletterDeliveryStatus'),history(),monitor.open()]);
+    const [status,options]=await Promise.all([call('getNewsletterDeliveryStatus'),call('getNewsletterOptions'),history(),monitor.open()]);
+    const form=$('newsletter-test-form'),selected=form.elements.country.value;form.elements.email.placeholder=options.email;form.elements.country.innerHTML='<option value="">Sin personalizar</option>'+options.countries.map(name=>'<option>'+escape(name)+'</option>').join('');form.elements.country.value=selected;
     $('newsletter-sender').textContent=status.name+' <'+status.address+'>';
-    $('newsletter-checks').innerHTML=[['Remitente',status.available?'Verificado':'Pendiente'],['Entrega',status.enabled?'Activada':'Desactivada'],['Programación',status.scheduled?'Instalada':'Sin activador']].map(([name,value])=>`<div class="delivery-check"><strong>${name}</strong><span>${value}</span></div>`).join('');
-    $('newsletter-sender-status').textContent=status.available?'Gmail permite usar el remitente configurado.':status.error;
+    $('newsletter-checks').innerHTML=[['Remitente',status.available?'Configurado':'Pendiente'],['Entrega',status.enabled?'Activada':'Desactivada'],['Programación',status.scheduled?'Instalada':'Sin activador']].map(([name,value])=>`<div class="delivery-check"><strong>${name}</strong><span>${value}</span></div>`).join('');
+    $('newsletter-sender-status').textContent=status.available?'El remitente se utiliza en los envíos automáticos y las pruebas.':status.error;
     $('newsletter-budget').textContent=status.remaining+' envíos disponibles dentro del límite configurado de 24 horas.';
     $('newsletter-content-note').textContent=status.untracked?status.untracked+' envíos anteriores no registraron las noticias incluidas. El control de contenido se aplica a los envíos con inventario; los anteriores requieren contrastar los correos originales.':'El contenido de los nuevos envíos queda registrado por suscriptor. Las pruebas se excluyen del control de duplicados.';
     const last=status.last;
     $('newsletter-history').innerHTML=last?`<strong>Último intento · ${escape(date(last.fecha))}</strong><span>${escape(last.estado)} · ${escape(last.correo)}</span><span>${escape(last.detalle)}</span>`:'<span>No hay intentos de envío registrados.</span>';
   }
-  function execute(method,describe){run(async()=>{
-    feedback('Procesando solicitud…');
-    try{const result=await call(method);feedback(describe(result),result.state==='error');}
-    catch(error){feedback(error.message||String(error),true);}
-    await open();
-  },false);}
-  $('validate-newsletter-sender').addEventListener('click',()=>run(open,false));
-  $('test-newsletter').addEventListener('click',()=>execute('sendNewsletterTest',result=>result.accepted?t('Gmail ha aceptado la prueba para {recipient}. Remitente: {sender}. Gmail ID: {id}. Incluye {count} novedades del {from} al {to}.',{...result,id:result.messageId})+' '+t('Si no aparece en la bandeja de entrada, revisa Spam y la cuarentena de Workspace; la aceptación no confirma la recepción.'):t('No se ha enviado la prueba: no hay noticias disponibles con estos filtros en el período.')));
-  $('install-newsletter').addEventListener('click',()=>execute('installNewsletterSchedule',result=>result));
-  $('send-pending-newsletters').addEventListener('click',()=>execute('sendPendingNewsletters',result=>result.state==='configuration_pause'?'Entrega en pausa durante la configuración. Se reanudará automáticamente.':result.state==='no_due'?'No hay entregas pendientes. Las suscripciones nuevas comienzan en el siguiente cierre de su período.':result.state==='busy'?'Hay otro envío en ejecución.':result.state==='limit'?'Se ha alcanzado el límite de envíos en 24 horas.':`${result.accepted} correos aceptados por Gmail · ${result.empty} selecciones sin novedades · ${result.duplicates} noticias repetidas omitidas · ${result.pending} pendientes.${result.error?' '+result.error:''}`));
+  attachNewsletterSummaries($('delivery-history-body'));
+  $('newsletter-test-form').addEventListener('submit',event=>{event.preventDefault();const form=event.target;if(!form.reportValidity())return;const data=Object.fromEntries(new FormData(form));run(async()=>{feedback('Procesando solicitud…');try{const result=await call('sendNewsletterTest',data);feedback(result.accepted?t('Gmail ha aceptado la prueba para {recipient} · {count} novedades.',result):'No hay noticias para esta edición y geografía.');}catch(error){feedback(error.message,true);}await open();},false);});
   return {open,close:monitor.close};
 }

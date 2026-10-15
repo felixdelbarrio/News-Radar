@@ -1,5 +1,6 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "Mi Newsletter": ["My Newsletter", "Bültenim"],
   "Una noticia puede pertenecer a varios segmentos. Sin coincidencia se mantiene sin segmento.": ["An article can belong to multiple segments. Articles without a match remain unassigned.", "Bir haber birden fazla segmente ait olabilir. Eşleşmeyen haberler segmentsiz kalır."],
   "Productos nuevos, mejoras de oferta y alianzas para comparar cómo evoluciona el servicio de las entidades que sigues.": ["New products, improved offers and partnerships to compare how the banks you follow are evolving their services.", "Takip ettiğiniz bankaların hizmetlerini nasıl geliştirdiğini karşılaştırmak için yeni ürünler, iyileştirilmiş teklifler ve ortaklıklar."],
   "Cargar más noticias": ["Load more news", "Daha fazla haber yükle"],
@@ -1095,5 +1096,5 @@ function formatCalendarDay(value,language='es'){
 function formatText(text,values,language='es'){return translateText(text,language).replace(/\{(\w+)\}/g,(_,key)=>String(values[key]??''));}
 
 function feedLanguage(value){const tag=String(value||'').trim();return /^[a-z]{2}(?:-[A-Za-z0-9]{2,8})?$/.test(tag)?tag:'';}
-const recordLabels={radar:'Radar',news:'Noticias',briefing:'Novedades',subscriptions:'Newsletter',administration:'Administración',configuration:'Configuración de negocio',daily:'Recopilación diaria',annual:'Recuperación anual',sources:'Fuentes',runs:'Ejecuciones',language:'Idioma',audit:'Auditoría',telemetry:'Telemetría',adoption:'Adopción',subscribers:'Suscripciones',acceso:'Acceso',vista:'Vista',filtro:'Filtro',lectura:'Lectura',exportacion:'Exportación',rendimiento:'Rendimiento',error:'Error',dashboard:'Carga de selección',recopilacion:'Recopilación',traduccion:'Traducción de noticias'};
+const recordLabels={radar:'Radar',news:'Noticias',briefing:'Novedades',subscriptions:'Mi Newsletter',administration:'Administración',configuration:'Configuración de negocio',daily:'Recopilación diaria',annual:'Recuperación anual',sources:'Fuentes',runs:'Ejecuciones',language:'Idioma',audit:'Auditoría',telemetry:'Telemetría',adoption:'Adopción',subscribers:'Suscripciones',acceso:'Acceso',vista:'Vista',filtro:'Filtro',lectura:'Lectura',exportacion:'Exportación',rendimiento:'Rendimiento',error:'Error',dashboard:'Carga de selección',recopilacion:'Recopilación',traduccion:'Traducción de noticias'};
 function displayRecord(value,language='es'){return translateText(Object.prototype.hasOwnProperty.call(recordLabels,value)?recordLabels[value]:value,language);}

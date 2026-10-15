@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {storage} from './helpers/server.mjs';
 function server(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
-const article={id:'news',fecha:'2026-10-11',titular:'BBVA lanza cuenta',extracto:'Para empresas',fuente:'Otro editor',idioma:'es',capturada:'2026-10-11T00:00:00Z'};
+const article={id:'news',fecha:'2026-10-11',titular:'BBVA lanza cuenta',extracto:'Para empresas',fuente:'Otro editor',idioma:'es',capturada:'2026-10-11T00:00:00Z',clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}'};
 function add(s,rows){const keys=vm.runInContext('RADAR.sheets.Noticias',s.c);for(const row of rows)s.sheets.get('Noticias').grid.push(keys.map(key=>row[key]||''));}
 function provider(c,log=[]){c.LanguageApp={translate(input,source,language,options){log.push({input,language});assert.equal(source,'');assert.equal(options.contentType,'html');return input.replace('BBVA lanza cuenta',language+' translated headline');}};return log;}
 test('solo las traducciones guardadas se sirven a las tarjetas y conservan los originales',()=>{

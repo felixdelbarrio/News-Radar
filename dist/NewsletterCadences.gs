@@ -1,4 +1,4 @@
-const newsletterCadences=Object.freeze({fortnightly:{label:'Quincenal',view:'briefing',scope:'Novedades',weekday:1},quarterly:{label:'Trimestral',view:'news',scope:'Noticias',weekday:3},yearly:{label:'Anual',view:'radar',scope:'Radar',weekday:5}});
+const newsletterCadences=Object.freeze({fortnightly:{label:'Quincenal',view:'briefing',scope:'Novedades',weekday:1},monthly:{label:'Mensual',view:'news',scope:'Noticias',weekday:3},yearly:{label:'Anual',view:'radar',scope:'Radar',weekday:5}});
 const newsletterComparisonLabels=Object.freeze({local:'Tu geografía',group:'El grupo en otras geografías',market:'El mercado internacional'});
 function newsletterWindow(periodicity,day,closed=false){
  const cadence=newsletterCadences[periodicity];if(!cadence)throw Error('Periodicidad no válida.');
@@ -8,8 +8,8 @@ function newsletterWindow(periodicity,day,closed=false){
   if(closed){if(start.getUTCDate()===1)start.setUTCMonth(month-1,16);else start.setUTCDate(1);}
   end.setTime(start.getTime());if(start.getUTCDate()===1)end.setUTCDate(16);else end.setUTCMonth(start.getUTCMonth()+1,1);
  }else{
-  const months=periodicity==='quarterly'?3:12;
-  start.setUTCMonth(periodicity==='quarterly'?Math.floor(month/3)*3:0,1);
+  const months=periodicity==='monthly'?1:12;
+  start.setUTCMonth(periodicity==='monthly'?month:0,1);
   if(closed)start.setUTCMonth(start.getUTCMonth()-months);
   end.setTime(start.getTime());end.setUTCMonth(end.getUTCMonth()+months);
  }

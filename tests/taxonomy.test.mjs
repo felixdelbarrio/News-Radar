@@ -6,7 +6,7 @@ import {storage} from './helpers/server.mjs';
 import {taxonomyDefinitions,taxonomyObserve,taxonomyBuild,TAXONOMY_POLICY} from '../src/shared/taxonomy.js';
 function server(titles=['BBVA lanza pagos biométricos para empresas','Santander incorpora pagos biométricos para particulares','BBVA lanza una API generativa','BBVA anuncia resultados financieros y dividendos']){
   const s=storage(),c=s.c;c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);
-  for(const [i,title] of titles.entries())s.sheets.get('Noticias').grid.push([String(i),'2026-10-10','España','Editor','BBVA',title,'Nueva experiencia digital para empresas y particulares','https://example.com/'+i,'','Editor','es',JSON.stringify({generalista:true,digital:true,capacidades:[]}), '']);
+  for(const [i,title] of titles.entries())s.sheets.get('Noticias').grid.push([String(i),'2026-10-10','España','Editor','BBVA',title,'Nueva experiencia digital para empresas y particulares','https://example.com/'+i,'','Editor','es',JSON.stringify({digital:true,capacidades:["Empresas: Pagos"]}), '']);
   return s;
 }
 function finish(c){for(let i=0;i<100&&c.taxonomyPending_();i++)c.taxonomyBatch_();assert.equal(c.taxonomyJob_().state,'Completada',c.taxonomyJob_().error);}
@@ -37,7 +37,7 @@ test('el modelo cambia con contenido nuevo sin reescribir etiquetas intactas; fi
 });
 test('programación única, autorización, petición durable y recuperación diaria prioritaria',()=>{
   const s=server(Array.from({length:250},()=> 'BBVA lanza una API para empresas')),c=s.c;c.initializeConfiguration();assert.equal(c.scheduledTriggers_('dailyTaxonomy_').length,0);c.writeClassificationJob_({...c.classificationJob_(),state:'Completada'});
-  const locks=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};c.queueQuarterlyTaxonomy_({to:'2026-09-30'});assert.equal(c.processBackground_().busy,true);assert.ok(s.properties.TAXONOMY_REQUEST);c.LockService=locks;
+  const locks=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};c.queueMonthlyTaxonomy_({to:'2026-09-30'});assert.equal(c.processBackground_().busy,true);assert.ok(s.properties.TAXONOMY_REQUEST);c.LockService=locks;
   const feed=c.feeds_()[0],keys=vm.runInContext('RADAR.sheets.Recargas',c),job={id:'daily',tipo:'daily',inicio:new Date().toISOString(),estado:'Pendiente',total:7,pendientes:7};s.sheets.get('Recargas').grid.push(keys.map(key=>job[key]||''));
   for(let i=0;i<7;i++)s.sheets.get('Recopilacion').grid.push(['daily',feed.name,feed.url,'Pendiente',0,'',0,0,'','2026-10-12']);
   c.collectionBatch_=work=>{for(const task of work.pending)s.sheets.get('Recopilacion').grid[task.row-1][3]='Completada';c.collectionSnapshots_(work.tasks,work.jobs);return {added:0,errors:[]};};

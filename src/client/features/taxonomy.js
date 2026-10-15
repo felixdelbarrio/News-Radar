@@ -13,7 +13,7 @@ export function createTaxonomy({run,isActive,onRevision}){
   }
   return createJobMonitor({id:'taxonomy',get:'getTaxonomyStatus',start:'startTaxonomy',run,isActive,onRevision,render(data){
     const job=data.job,total=Number(job?.total||0)*2,done=Number(job?.processed||0);
-    $('taxonomy-schedule').textContent=t('Taxonomía tras completar las newsletters trimestrales · {state}',{state:t(data.scheduled?'Activada':'Desactivada')});
+    $('taxonomy-schedule').textContent=t('Taxonomía tras completar las newsletters mensuales · {state}',{state:t(data.scheduled?'Activada':'Desactivada')});
     $('taxonomy-progress').innerHTML=job?jobProgressHtml(job,{total,done,label:'Progreso de taxonomía',queued:data.queued,summary:t('{done}/{total} pasos de análisis y etiquetado; {tagged} etiquetas actualizadas.',{done,total,tagged:job.tagged})}):'<p class="muted">'+t(data.queued?'En cola':'Sin taxonomías ejecutadas.')+'</p>';
     const next=JSON.stringify([data.items,data.pageSize,data.taxonomyTranslations,language]);
     if(next!==signature){signature=next;items=data.items;pageSize=data.pageSize;filters.options(recordOptions(items,['palanca']));render();}

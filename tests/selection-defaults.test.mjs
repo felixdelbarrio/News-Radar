@@ -18,7 +18,7 @@ test('las tres vistas comparten segmento y cobertura iniciales y respetan las el
 });
 test('la newsletter nueva incluye Canal digital; Todos y Generalista se conservan al guardar, recargar y consultar cada periodicidad',()=>{
  const s=server(),{c}=s;assert.deepEqual(clean(c.subscriptionDefaults_().filters),sectorNewsDefaults);assert.deepEqual(clean(c.getNewsletterOptions().catalogs.coverage),['digital','generalista']);
- for(const coverage of ['','generalista','digital'])for(const periodicity of ['fortnightly','quarterly','yearly']){
+ for(const coverage of ['','generalista','digital'])for(const periodicity of ['fortnightly','monthly','yearly']){
   c.saveSubscription({periodicity,filters:{segment:'Retail',coverage}});const own=c.subscriptionRows_('owner@bbva.com').at(-1);assert.equal(own.filtros.coverage,coverage);assert.equal(own.filtros.segment,'Retail');assert.equal(c.subscriptionQuery_(own,new Date()).coverage,coverage);c.initializeNewsletterCadences_(s.sheets.get('Suscripciones'));assert.equal(c.subscriptionRows_().at(-1).filtros.coverage,coverage);
  }
  const created=c.subscriptionRecord_({filters:{entity:'BBVA'}},'owner@bbva.com','default',new Date(),0);assert.equal(created.filtros.coverage,'digital');assert.equal(created.filtros.segment,sectorNewsDefaults.segment);assert.match(created.nombre,/Cobertura: Canal digital/);

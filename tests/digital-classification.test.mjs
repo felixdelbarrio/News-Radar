@@ -18,7 +18,7 @@ const negative=[
  'BBVA reports record earnings and appoints an AI director',
  'Qonto anuncia resultados financieros de banca online',
  'BBVA obtiene un premio de innovación digital',
- 'Banco tradicional presenta resultados trimestrales',
+ 'Banco tradicional presenta resultados mensuales',
  'Festival presenta aplicaciones de IA para pintura'
 ];
 test('canal digital contempla móvil, web, API e IA en contexto bancario; etiquetas y capacidades no son excluyentes',()=>{

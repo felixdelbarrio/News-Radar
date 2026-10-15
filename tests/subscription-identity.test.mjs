@@ -16,17 +16,17 @@ test('altas personales y administrativas bloquean duplicados efectivos sin escri
 });
 test('se conservan suscripciones con distinto destinatario, periodicidad, idioma o filtros y una edición no puede duplicar otra',()=>{
  const {c}=server(),input={periodicity:'fortnightly',language:'es',filters:{entity:'BBVA'}};
- for(const candidate of [input,{...input,periodicity:'quarterly'},{...input,language:'en'},{...input,filters:{entity:'Santander'}},{...input,filters:{entity:'BBVA',coverage:''}}])c.saveSubscription(candidate);
+ for(const candidate of [input,{...input,periodicity:'monthly'},{...input,language:'en'},{...input,filters:{entity:'Santander'}},{...input,filters:{entity:'BBVA',coverage:''}}])c.saveSubscription(candidate);
  c.saveAdminSubscription({...input,email:'other@bbva.com'});assert.equal(c.subscriptionRows_().length,6);
  const second=c.subscriptionRows_()[1];assert.throws(()=>c.saveSubscription({...input,id:second.id}),/Ya existe una suscripción/);
- assert.equal(c.subscriptionRows_()[1].periodicidad,'quarterly');
+ assert.equal(c.subscriptionRows_()[1].periodicidad,'monthly');
  c.saveSubscription({...input,id:second.id,periodicity:'yearly'});assert.equal(c.subscriptionRows_()[1].periodicidad,'yearly');
 });
 test('la identidad ignora orden, campos vacíos y normaliza la búsqueda como las noticias',()=>{
  const {c}=server(),input={periodicity:'fortnightly',filters:{search:'Pagos móviles',entity:'BBVA'}};
  c.saveSubscription(input);assert.throws(()=>c.saveSubscription({...input,filters:{source:'',entity:'BBVA',search:' PAGOS   MOVILES '}}),/Ya existe una suscripción/);
  c.saveSubscription({...input,filters:{entity:'BBVA',search:'Pagos instantáneos'}});assert.equal(c.subscriptionRows_().length,2);
- c.saveSubscription({periodicity:'quarterly',filters:{}});assert.throws(()=>c.saveSubscription({periodicity:'quarterly',filters:{search:'   '}}),/Ya existe una suscripción/);
+ c.saveSubscription({periodicity:'monthly',filters:{}});assert.throws(()=>c.saveSubscription({periodicity:'monthly',filters:{search:'   '}}),/Ya existe una suscripción/);
 });
 test('la inicialización cachea solo la primera activa sin traducir asuntos; refinar filtros no vuelve a consultar suscripciones',()=>{
  const s=server(),{c}=s;c.saveSubscription({periodicity:'fortnightly',filters:{entity:'BBVA'}});

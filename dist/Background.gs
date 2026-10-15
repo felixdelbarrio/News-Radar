@@ -70,7 +70,7 @@ function backgroundTask_(work,daily){
     if(taxonomyReadyAt_()<=Date.now())return 'taxonomy';
     if(taxonomyTranslationReadyAt_()<=Date.now())return 'taxonomyTranslation';
   }
-  const available={collection:work.pending.length>0,translation:!blocked&&!classificationPending_()&&translationReadyAt_()<=Date.now()},order=['collection','translation'],last=order.indexOf(properties_().getProperty('BACKGROUND_LAST'));
+  const available={collection:work.pending.length>0,translation:!blocked&&!classificationPending_()&&translationReadyAt_()<=Date.now(),maintenance:!blocked&&!classificationPending_()&&maintenanceReadyAt_()<=Date.now()},order=['collection','translation','maintenance'],last=order.indexOf(properties_().getProperty('BACKGROUND_LAST'));
   for(let i=1;i<=order.length;i++){const task=order[(last+i)%order.length];if(available[task])return task;}return '';
 }
 function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
@@ -89,7 +89,8 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
       const task=backgroundTask_(work,daily);if(!task){if(Date.now()-started<BACKGROUND_WORK.maxMs-5000)warmed=warmDefaultDashboard_(work);break;}
       const remaining=Math.min(BACKGROUND_WORK.sliceMs,BACKGROUND_WORK.maxMs-(Date.now()-started));if(remaining<=0)break;
       progressContextMemory_=undefined;properties_().setProperty('BACKGROUND_RUN_ID',runId);const stage=task==='collection'?daily?'daily':'annual':task;properties_().setProperty('BACKGROUND_ACTIVE',stage);properties_().setProperty('BACKGROUND_ACTIVE_UNTIL',String(Date.now()+BACKGROUND_WORK.maxMs+BACKGROUND_WORK.activeGraceMs));properties_().setProperty('JOB_LAST_EXECUTED:'+stage,new Date().toISOString());
-      if(task==='newsletter')deliverNewsletterBatch_(work,remaining);
+      if(task==='maintenance')maintenanceBatch_(Math.min(MAINTENANCE_POLICY.maxMs,remaining));
+      else if(task==='newsletter')deliverNewsletterBatch_(work,remaining);
       else if(task==='taxonomyTranslation')taxonomyTranslationBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
       else if(task==='taxonomy')taxonomyBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
       else if(task==='classification')newsClassificationBatch_(Math.min(CLASSIFICATION_WORK.maxMs,remaining));
@@ -103,20 +104,20 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
     completed=true;return {...collectionStatus_(null,work?.jobs),added,errors};
   }finally{
     try{
-      const queued=backgroundQueued_(work),next=queued||!completed||warmed&&properties_().getProperty('DASHBOARD_WARMUP')!==null?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_(),classificationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_(work));
+      const queued=backgroundQueued_(work),next=queued||!completed||warmed&&properties_().getProperty('DASHBOARD_WARMUP')!==null?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_(),classificationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_(work),maintenanceReadyAt_());
       if(Number.isFinite(next))ensureBackgroundWorker_(next-Date.now());else properties_().deleteProperty('BACKGROUND_PENDING');
     }finally{if(acquired){if(properties_().getProperty('BACKGROUND_RUN_ID')===runId){properties_().deleteProperty('BACKGROUND_RUN_ID');properties_().deleteProperty('BACKGROUND_ACTIVE');properties_().deleteProperty('BACKGROUND_ACTIVE_UNTIL');}lock.releaseLock();}}
   }
 }
 function initializeBackgroundSchedules_(){
-  const p=properties_(),newsletter=scheduledTriggers_('scheduledNewsletters_').length||scheduledTriggers_('deliverNewsletters_').length;
+  const p=properties_();
   CacheService.getScriptCache().remove('daily-schedule');
   for(const handler of ['collectionTick_','collectionWake_','translationTick_','backgroundTick_','nightlyTranslations_','dailyClassification_','dailyTaxonomy_','newsletterTick_','deliverNewsletters_'])scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   p.deleteProperty('BACKGROUND_NEXT');
   if(!scheduledTriggers_('backgroundWatchdog_').length)ScriptApp.newTrigger('backgroundWatchdog_').timeBased().everyMinutes(BACKGROUND_WORK.watchdogMinutes).create();
   if(p.getProperty('DAILY_ENABLED')==='true')replaceCollectionSchedule_();else scheduledTriggers_('dailyRadar_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   if(p.getProperty('TRANSLATION_ENABLED')!=='false')p.setProperty('TRANSLATION_ENABLED','true');
-  if(newsletter)replaceDailySchedule_('scheduledNewsletters_',settings_().dailyHour);
+  if(settings_().newsletterEnabled)replaceDailySchedule_('scheduledNewsletters_',settings_().dailyHour);else scheduledTriggers_('scheduledNewsletters_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   if(Number.isFinite(taxonomyTranslationReadyAt_())||taxonomyPending_()||p.getProperty('TAXONOMY_REQUEST')||classificationPending_()||p.getProperty('CLASSIFICATION_REQUEST')||collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_())||Number.isFinite(newsletterReadyAt_()))ensureBackgroundWorker_();
 }
 function updateOperationalSchedule(){authorize_(true);return withForegroundWrite_(()=>{initializeBackgroundSchedules_();return 'Prioridades y programación actualizadas.';});}
@@ -124,12 +125,12 @@ function updateOperationalSchedule(){authorize_(true);return withForegroundWrite
 function backgroundWatchdog_(){
   const p=properties_(),values=p.getProperties();if(backgroundPaused_())return;
   if(Object.entries(values).some(([key,value])=>key.startsWith('WORK_PENDING:')&&value==='true')){workWake_();return;}
-  if(!values.BACKGROUND_PENDING&&!['DAILY_PIPELINE_REQUEST','CLASSIFICATION_REQUEST','DAILY_TRANSLATION_REQUEST','TRANSLATION_REQUEST','TAXONOMY_REQUEST','TAXONOMY_TRANSLATION_REQUEST'].some(key=>values[key])&&!(values.NEWSLETTER_REQUEST&&settings_().newsletterEnabled))return;
+  if(!values.BACKGROUND_PENDING&&!['DAILY_PIPELINE_REQUEST','CLASSIFICATION_REQUEST','DAILY_TRANSLATION_REQUEST','TRANSLATION_REQUEST','TAXONOMY_REQUEST','TAXONOMY_TRANSLATION_REQUEST'].some(key=>values[key])&&!(values.NEWSLETTER_REQUEST&&settings_().newsletterEnabled)&&!Number.isFinite(maintenanceReadyAt_()))return;
   if(scheduledTriggers_('backgroundTick_').length&&Number(p.getProperty('BACKGROUND_NEXT'))>Date.now()-BACKGROUND_WORK.maxMs*2)return;
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return;
   try{
     const now=Date.now(),fetchPause=Number(p.getProperty('FETCH_PAUSED_UNTIL')||0),jobs=collectionJobs_(),collection=jobs.filter(job=>Number(job.pendientes)>0||job.estado==='Preparando').map(job=>Math.max(now,fetchPause,Number(job.pausa||0))),queued=backgroundQueued_({jobs});
-    const next=queued?now:Math.min(...collection,classificationReadyAt_(),translationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_({jobs}));
+    const next=queued?now:Math.min(...collection,classificationReadyAt_(),translationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_({jobs}),maintenanceReadyAt_());
     if(Number.isFinite(next)){p.deleteProperty('BACKGROUND_NEXT');ensureBackgroundWorker_(next-now);}else p.deleteProperty('BACKGROUND_PENDING');
   }finally{lock.releaseLock();}
 }

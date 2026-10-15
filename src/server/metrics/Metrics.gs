@@ -1,7 +1,6 @@
 function eventDuration_(value){return Math.max(0,Math.min(3600000,Math.round(Number(value)||0)));}
 function telemetry_(operation,duration,status,detail) {
   append_('Telemetria',[[new Date().toISOString(),operation,Math.max(0,Math.round(duration)),status,('v'+RADAR.version+'; '+String(detail||'')).slice(0,300)]]);
-  trim_('Telemetria',settings_().eventLimit);
 }
 function recordEvents(events) {
   const session=authorize_(),now=new Date();
@@ -16,13 +15,13 @@ function recordEvents(events) {
   try {
     const cache=CacheService.getScriptCache(),key='events:'+session.email+':'+events[0]?.session;
     if(cache.get(key))return {saved:false};
-    pruneEvents_();recordNewsletterEvents_(events,session.email);append_('Adopcion',cleaned);trim_('Adopcion',settings_().eventLimit);
+    recordNewsletterEvents_(events,session.email);append_('Adopcion',cleaned);
     const timings=events.filter(event=>event.event==='rendimiento'&&event.performance);
     if(timings.length){
       append_('Telemetria',timings.map(event=>{
         const p=event.performance;
         return [now.toISOString(),'dashboard',eventDuration_(event.duration),'OK',event.view+'; RPC '+eventDuration_(p.rpcMs)+' ms; servidor '+eventDuration_(p.serverMs)+' ms; noticias '+eventDuration_(p.newsMs)+' ms; render '+eventDuration_(p.renderMs)+' ms; caché '+(p.cacheHit===true?'hit':'miss')+'; preparación '+eventDuration_(p.preparationMs)+' ms; metadatos '+eventDuration_(p.metadataMs)+' ms; caché cliente '+(p.clientCacheHit===true?'hit':'miss')+'; v'+RADAR.version];
-      }));trim_('Telemetria',settings_().eventLimit);
+      }));
     }
     cache.put(key,'1',10);
     return {saved:true};
@@ -37,22 +36,6 @@ function getTelemetry(query={}) {
   authorize_(true);const records=administrativeRecords_('Telemetria',query,['operacion','estado'],['operacion','estado','detalle']),usage=metrics_(rows_('Adopcion',settings_().eventLimit),Date.now());
   return {...records,rows:records.items,latencyP95:usage.latencyP95,clientErrors:usage.failures,collection:collectionStatus_()};
 }
-function maintenance_() {
-  pruneEvents_();
-}
-function pruneEvents_() {
-  const p=properties_(),today=new Date().toISOString().slice(0,10);if(p.getProperty('RETENTION_DATE')===today)return;
-  const cutoff=new Date(Date.now()-settings_().retentionDays*86400000).toISOString();
-  [['Adopcion',1],['Telemetria',1],['NewsletterEventos',8],['NewsletterFeedback',6]].forEach(([name,column])=>{
-    const sheet=book_().getSheetByName(name),count=sheet.getLastRow()-1;
-    if(!count)return;
-    const dates=sheet.getRange(2,column,count,1).getDisplayValues();let expired=0;
-    while(expired<dates.length&&dates[expired][0]<cutoff)expired++;
-    if(name==='NewsletterFeedback'){for(let i=dates.length-1;i>=0;i--)if(dates[i][0]<cutoff)sheet.deleteRow(i+2);}else if(expired)sheet.deleteRows(2,expired);
-  });
-  p.setProperty('RETENTION_DATE',today);
-}
-
 function exportTelemetry(){
   authorize_(true);const limit=settings_().eventLimit;
   const telemetry=rows_('Telemetria',limit),runs=rows_('Ejecuciones',limit),audit=rows_('Auditoria',limit),tasks=rows_('Recopilacion');
@@ -61,13 +44,14 @@ function exportTelemetry(){
 }
 
 function exclusionReasons_(audit){
+  audit=audit.map(row=>{const summary=retainedSummary_(row.motivo);return summary?{...row,motivo:summary.original,repetitions:summary.count}:{...row,repetitions:1};});
   const reasons={},summaries=new Set(),key=row=>JSON.stringify([row.ejecucion,row.fecha,row.fuente]);
   for(const row of audit){
     if(row.resultado!=='Fuente consultada')continue;
     const match=row.motivo.match(/; motivos (\{.*\})(?:; posible|$)/);if(!match)continue;
     const counts=JSON.parse(match[1]);summaries.add(key(row));
-    for(const [reason,count] of Object.entries(counts))reasons[reason]=(reasons[reason]||0)+Number(count);
+    for(const [reason,count] of Object.entries(counts))reasons[reason]=(reasons[reason]||0)+Number(count)*row.repetitions;
   }
-  for(const row of audit)if(row.resultado==='Excluida'&&!summaries.has(key(row)))reasons[row.motivo]=(reasons[row.motivo]||0)+1;
+  for(const row of audit)if(row.resultado==='Excluida'&&!summaries.has(key(row)))reasons[row.motivo]=(reasons[row.motivo]||0)+row.repetitions;
   return reasons;
 }

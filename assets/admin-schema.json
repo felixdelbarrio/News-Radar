@@ -152,9 +152,7 @@
       "collectionBatch": "Fuentes por lote",
       "retryMinutes": "Minutos entre reintentos",
       "pauseMinutes": "Minutos de pausa",
-      "maxSubscriptions": "Máximo de selecciones por usuario",
       "unknownCountry": "Geografía predeterminado de un RSS sin país",
-      "defaultPeriodicity": "Periodicidad inicial (quarterly, fortnightly, yearly)",
       "newsletterEnabled": "Activar entrega de newsletters",
       "newsletterBatch": "Máximo de destinatarios por ejecución",
       "newsletterSender": "Remitente verificado en Gmail (correo del grupo)",
@@ -170,10 +168,8 @@
           "newsletterSender",
           "newsletterSenderName",
           "newsletterAppUrl",
-          "defaultPeriodicity",
           "newsletterBatch",
           "newsletterDailyLimit",
-          "maxSubscriptions",
           "briefingLimit"
         ]
       },

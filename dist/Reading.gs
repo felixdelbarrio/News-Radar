@@ -1,9 +1,3 @@
-function firstNewsSubscription_(email){
-  const revision=properties_().getProperty('SUBSCRIPTIONS_REVISION')||'0',key='first-subscription:'+RADAR.version+':'+sha256_(email+'|'+revision),cached=CacheService.getScriptCache().get(key);
-  if(cached)return JSON.parse(cached);
-  const row=rows_('Suscripciones').find(row=>row.correo===email&&String(row.activa)==='true'),selected=row?{periodicidad:row.periodicidad,filtros:subscriptionFilters_(JSON.parse(row.filtros))}:null;
-  cacheJson_(key,selected,300);return selected;
-}
 function saveNewsletterEdition_(id,delivery,email,name,query,language,items,editorial=null){
   const sheet=book_().getSheetByName('NewsletterContenido'),start=sheet.getLastRow()+1,allNames=taxonomyTranslations_(),names={};
   for(const code of Object.keys(languageNames)){
@@ -22,12 +16,12 @@ function completeNewsletterEdition_(id,state){
   if(position<0)throw Error('Edición de newsletter no disponible.');
   sheet.getRange(position+2,10,1,1).setValues([[state]]);
 }
-function newsletterEditionMetadata_(id,email){
+function newsletterEditionMetadata_(id,email,admin=false){
   if(!/^[a-zA-Z0-9-]{1,80}$/.test(id))throw Error('Edición de newsletter no disponible.');
   const sheet=book_().getSheetByName('NewsletterEdiciones'),count=sheet.getLastRow()-1,ids=count?sheet.getRange(2,1,count,1).getDisplayValues():[],position=ids.findIndex(([value])=>value===id);
   if(position<0)throw Error('Edición de newsletter no disponible.');
   const keys=RADAR.sheets.NewsletterEdiciones,values=sheet.getRange(position+2,1,1,keys.length).getDisplayValues()[0],row=Object.fromEntries(keys.map((key,index)=>[key,values[index]]));
-  if(row.correo!==email||row.estado!=='Enviada')throw Error('Edición de newsletter no disponible.');
+  if(row.correo!==email&&!admin||row.estado!=='Enviada')throw Error('Edición de newsletter no disponible.');
   return row;
 }
 function newsletterEdition_(id,email){
@@ -40,3 +34,14 @@ function newsletterEdition_(id,email){
 }
 
 function ensureNewsletterContinuation_(delay=settings_().pauseMinutes*60000){if(backgroundPaused_()){deferBackgroundWork_('newsletter');return;}requestNewsletterDelivery_(delay);}
+function getNewsletterSummary(id){
+  const session=authorize_(),row=newsletterEditionMetadata_(id,session.email,session.admin),editorial=JSON.parse(row.editorial||'null'),query=JSON.parse(row.filtros);
+  return {from:query.from,to:query.to,country:query.country||'',count:Number(row.cantidad),topics:(editorial?.cards||[]).slice(0,5).map(card=>card.title).filter(Boolean)};
+}
+function getMyNewsletterHistory(query={}){
+  const email=authorize_().email;return newsletterHistoryRecords_(query,email);
+}
+function newsletterHistoryRecords_(query={},email=null){
+  const rows=rows_('NewsletterEnvios',settings_().eventLimit,8).filter(row=>!email||row.correo===email),selected=filterRecords(rows,query,['correo','estado','suscripcion'],['correo','suscripcion','detalle','id'],'fecha',settings_().timezone),editions=new Map(rows_('NewsletterEdiciones',undefined,10).filter(row=>row.estado==='Enviada'&&(!email||row.correo===email)).map(row=>[row.envio,row.id]));
+  const page=recordPage(selected.reverse(),query,settings_().pageSize);return {...page,items:page.items.map(row=>({...row,edition:editions.get(row.id)||'',noticias:Number(row.detalle.match(/(?:^|; )(\d+) noticias incluidas/)?.[1]||0)})),options:recordOptions(rows,['correo','estado','suscripcion']),limited:rows.length===settings_().eventLimit,limit:settings_().eventLimit};
+}

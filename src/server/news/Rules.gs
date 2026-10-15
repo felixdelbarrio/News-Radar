@@ -1,3 +1,4 @@
+function publisherKey_(value){const text=String(value||'').trim();return /^bbva(?:\s*[·-]\s*empresas|\s+empresas|\s+noticias)?$/i.test(text)?'BBVA':text;}
 function plainText_(value) {
   const html=String(value||''), parts=[];
   let cursor=0, hidden='';
@@ -38,8 +39,7 @@ function businessIndex_(){
   const entities=new Map(),entityTerms=new Map();for(const row of config.entities){const terms=[row.name,...row.aliases].map(searchText_);entityTerms.set(row.name,terms);for(const term of terms)entities.set(term,row);}
   const rules=rows=>rows.filter(row=>row.enabled).map(row=>({...row,terms:[...new Set(row.terms.map(searchText_))],context:(row.context||[]).map(searchText_),exclude:(row.exclude||[]).map(searchText_)}));
   const capabilities=Object.entries(config.capabilities).flatMap(([segment,rows])=>rules(rows).map(row=>({...row,segment}))),aliases=[...entities].filter(([,row])=>row.enabled).sort((a,b)=>b[0].length-a[0].length);
-  const capabilitySegments=new Map();for(const row of capabilities)for(const term of row.terms){const segments=capabilitySegments.get(term)||new Set();segments.add(row.segment);capabilitySegments.set(term,segments);}
-  return businessIndexMemory_={config,capabilitySegments,entities,entityTerms,aliases,capabilities,segments:rules(config.segments),signals:rules(config.signals),geographies:config.geographies.filter(row=>row.enabled).map(row=>({...row,terms:[...new Set([row.name,row.searchName,...(row.terms||[])].map(searchText_))]}))};
+  return businessIndexMemory_={config,entities,entityTerms,aliases,capabilities,segments:rules(config.segments),signals:rules(config.signals),geographies:config.geographies.filter(row=>row.enabled).map(row=>({...row,terms:[...new Set([row.name,row.searchName,...(row.terms||[])].map(searchText_))]}))};
 }
 function termsMatch_(text,terms){return terms.some(term=>text.includes(term));}
 function phrasePosition_(text,term){
@@ -60,11 +60,7 @@ function classification_(title,text,includeLabels=true){
   const signals=index.signals.filter(row=>termsMatch_(row.scope==='headline'?title:text,row.terms)&&!termsMatch_(title,row.exclude)&&(!row.context.length||termsMatch_(text,row.context))).map(row=>row.name);
   if(assessment.capabilities.length&&assessment.channel&&assessment.change&&assessment.score>0&&!signals.length){const launch=index.signals[0];if(launch&&!termsMatch_(title,launch.exclude))signals.push(launch.name);}
   let segments=index.segments.filter(row=>termsMatch_(text,row.terms)).map(row=>row.name);
-  if(assessment.channel)for(const capability of assessment.capabilities){
-    const exclusive=capability.terms.some(term=>phraseMatch_(text,term)&&index.capabilitySegments.get(term).size===1);
-    const segment=index.segments.find(row=>row.name===(capability.segment==='Empresas'?'Empresas e instituciones':'Retail'));if(exclusive&&segment&&!segments.includes(segment.name))segments.push(segment.name);
-  }
-  const labels=includeLabels?newsLabels_(assessment,title):undefined;
+  const labels=includeLabels?newsLabels_(assessment,title,segments.includes(sectorNewsDefaults.segment)):undefined;
   return {signals,assessment,segments,labels};
 }
 let sourceGeographyMemory_;
@@ -89,7 +85,7 @@ function annotateNews_(rows){
   const index=businessIndex_(),taxonomy=new Map(taxonomyCatalog_().map(({id,palanca,subpalanca})=>[id,{id,palanca,subpalanca}]));
   return rows.map(row=>{
     const catalog=index.entities.get(searchText_(row.entidad)),classification=classification_(searchText_(row.titular),searchText_(row.titular+' '+row.extracto),false);
-    const annotated={...row,pais:newsCountry_(row,index),taxonomia:taxonomySaved_(row.taxonomia).ids.map(id=>taxonomy.get(id)).filter(Boolean),etiquetas:savedNewsLabels_(row.clasificacion),entidad:catalog?.name||row.entidad,tipo:catalog?.type||'',segmentos:classification.segments,senales:classification.assessment.excluded?[]:classification.signals};newsRelevanceMemory_.set(annotated,classification.assessment.score);return annotated;
+    const annotated={...row,medio:publisherKey_(row.medio),pais:newsCountry_(row,index),taxonomia:taxonomySaved_(row.taxonomia).ids.map(id=>taxonomy.get(id)).filter(Boolean),etiquetas:savedNewsLabels_(row.clasificacion),entidad:catalog?.name||row.entidad,tipo:catalog?.type||'',segmentos:classification.segments,senales:classification.assessment.excluded?[]:classification.signals};newsRelevanceMemory_.set(annotated,classification.assessment.score);return annotated;
   });
 }
 function evaluate_(item, feed, now) {
@@ -108,6 +104,7 @@ function evaluate_(item, feed, now) {
   const geographyText=text;
   const countries=index.geographies.filter(geo=>geo.terms.some(term=>phraseMatch_(geographyText,term))).map(geo=>geo.name);
   if(feed.kind==='profile'&&countries.length&&!countries.includes(feed.country))return {inRange:true,reason:'Geografía distinta de la búsqueda'};
+  if(!classification.labels.digital||!classification.labels.capacidades.some(name=>name.startsWith('Empresas: ')))return {inRange:true,reason:'Fuera de canal digital de Empresas e instituciones'};
   const country=sourceCountry_(feed,index)||(countries.length===1?countries[0]:settings_().unknownCountry);
   if(feed.capabilitySearch&&classification.assessment.excluded)return {inRange:true,reason:'Información corporativa sin novedad de canal digital'};
   if(feed.capabilitySearch&&(!classification.assessment.capabilities.length||!classification.assessment.channel))return {inRange:true,reason:'Sin capacidad digital activa en contexto de canal'};
