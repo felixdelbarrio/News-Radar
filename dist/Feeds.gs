@@ -20,9 +20,9 @@ function ingestFeed_(feed,known,cycle,now,response) {
     let state='Excluida',reason=result.reason;
     if(item){
       if(result.relevant)relevant++;
-      if(known.has(item.url)){state='Duplicada';reason='URL ya recopilada';}
-      else if(duplicateTitle_(known,item)){state='Duplicada';reason='Titular sindicado equivalente en fecha próxima';known.add(item.url);}
-      else{known.add(item.url);rememberTitle_(known,item);state='Incluida';reason=feed.kind==='profile'?'Noticia integrada desde RSS de Google News':'Noticia integrada desde RSS del editor';news.push(newsRecord_(item,feed,now));if(item.labels.digital)digital++;}
+      if(known.has(newsUrlIdentity_(item.url))){state='Duplicada';reason='URL ya recopilada';}
+      else if(duplicateTitle_(known,item)){state='Duplicada';reason='Titular sindicado equivalente en fecha próxima';known.add(newsUrlIdentity_(item.url));}
+      else{known.add(newsUrlIdentity_(item.url));rememberTitle_(known,item);state='Incluida';reason=feed.kind==='profile'?'Noticia integrada desde RSS de Google News':'Noticia integrada desde RSS del editor';news.push(newsRecord_(item,feed,now));if(item.labels.digital)digital++;}
     }
     if(state==='Excluida'){excluded++;reasons[reason]=(reasons[reason]||0)+1;}else if(state==='Duplicada')duplicated++;
     if(state==='Incluida'||(state==='Duplicada'?duplicated<=3:reasons[reason]<=3))audit.push([cycle,date,feed.name,item?.url||String(raw.url||''),state,reason]);
@@ -32,9 +32,9 @@ function ingestFeed_(feed,known,cycle,now,response) {
 }
 function knownUrls_() {
   const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1,known=new Set();known.titles=new Map();
-  if(count>0)for(const row of translationIdentityRows_(sheet.getRange(2,2,count,7).getDisplayValues().map(row=>({fecha:row[0],medio:row[2],titular:row[4],extracto:row[5],url:row[6]})))){
-    const url=canonicalUrl_(row.url);if(url)known.add(url);
-    if(Number.isFinite(Date.parse(row.fecha)))for(const title of [row.titular,...(row.identityTitles||[])])rememberTitle_(known,{date:row.fecha,title,publisher:row.medio});
+  if(count>0)for(const row of translationIdentityRows_(sheet.getRange(2,2,count,7).getDisplayValues().map(row=>({fecha:row[0],medio:row[2],entidad:row[3],titular:row[4],extracto:row[5],url:row[6]})))){
+    const url=newsUrlIdentity_(row.url);if(url)known.add(url);
+    if(Number.isFinite(Date.parse(row.fecha)))for(const title of [row.titular,...(row.identityTitles||[])])rememberTitle_(known,{date:row.fecha,title,publisher:row.medio,entity:row.entidad});
   }
   return known;
 }

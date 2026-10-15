@@ -77,7 +77,7 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
   if(backgroundPaused_()){deferBackgroundWork_('background');return {added:0,errors:[],paused:true};}
   scheduledTriggers_('backgroundTick_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));properties_().deleteProperty('BACKGROUND_NEXT');
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000)){ensureBackgroundWorker_();return {added:0,errors:[],busy:true};}
-  const started=Date.now(),runId=Utilities.getUuid(),errors=[];let work,known,knownRevision,completed=false,added=0,acquired=true;
+  const started=Date.now(),runId=Utilities.getUuid(),errors=[];let work,known,knownRevision,completed=false,added=0,acquired=true,warmed=false;
   try{
     for(let batch=0;batch<batchLimit&&Date.now()-started<BACKGROUND_WORK.maxMs;batch++){
       if(backgroundPaused_()){deferBackgroundWork_('background');break;}
@@ -86,7 +86,7 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
       const daily=Boolean(work.pending.length&&work.jobs.some(job=>job.id===work.pending[0].ciclo&&job.tipo==='daily'));
       if(!work.pending.length&&batch===0)collectionBatch_(work);
       if(!daily&&!dailyCollectionPending_(work)){drainClassificationRequest_();drainDailyTranslations_(work);drainTaxonomyRequest_();}
-      const task=backgroundTask_(work,daily);if(!task)break;
+      const task=backgroundTask_(work,daily);if(!task){if(Date.now()-started<BACKGROUND_WORK.maxMs-5000)warmed=warmDefaultDashboard_(work);break;}
       const remaining=Math.min(BACKGROUND_WORK.sliceMs,BACKGROUND_WORK.maxMs-(Date.now()-started));if(remaining<=0)break;
       progressContextMemory_=undefined;properties_().setProperty('BACKGROUND_RUN_ID',runId);const stage=task==='collection'?daily?'daily':'annual':task;properties_().setProperty('BACKGROUND_ACTIVE',stage);properties_().setProperty('BACKGROUND_ACTIVE_UNTIL',String(Date.now()+BACKGROUND_WORK.maxMs+BACKGROUND_WORK.activeGraceMs));properties_().setProperty('JOB_LAST_EXECUTED:'+stage,new Date().toISOString());
       if(task==='newsletter')deliverNewsletterBatch_(work,remaining);
@@ -103,7 +103,7 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
     completed=true;return {...collectionStatus_(null,work?.jobs),added,errors};
   }finally{
     try{
-      const queued=backgroundQueued_(work),next=queued||!completed?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_(),classificationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_(work));
+      const queued=backgroundQueued_(work),next=queued||!completed||warmed&&properties_().getProperty('DASHBOARD_WARMUP')!==null?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_(),classificationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_(work));
       if(Number.isFinite(next))ensureBackgroundWorker_(next-Date.now());else properties_().deleteProperty('BACKGROUND_PENDING');
     }finally{if(acquired){if(properties_().getProperty('BACKGROUND_RUN_ID')===runId){properties_().deleteProperty('BACKGROUND_RUN_ID');properties_().deleteProperty('BACKGROUND_ACTIVE');properties_().deleteProperty('BACKGROUND_ACTIVE_UNTIL');}lock.releaseLock();}}
   }

@@ -38,7 +38,7 @@ function getTelemetry(query={}) {
   return {...records,rows:records.items,latencyP95:usage.latencyP95,clientErrors:usage.failures,collection:collectionStatus_()};
 }
 function maintenance_() {
-  pruneEvents_();trim_('Traducciones',settings_().newsReadLimit*3);
+  pruneEvents_();
 }
 function pruneEvents_() {
   const p=properties_(),today=new Date().toISOString().slice(0,10);if(p.getProperty('RETENTION_DATE')===today)return;
@@ -57,7 +57,7 @@ function exportTelemetry(){
   authorize_(true);const limit=settings_().eventLimit;
   const telemetry=rows_('Telemetria',limit),runs=rows_('Ejecuciones',limit),audit=rows_('Auditoria',limit),tasks=rows_('Recopilacion');
   const reasons=exclusionReasons_(audit);
-  return {schemaVersion:1,applicationVersion:RADAR.version,exportedAt:new Date().toISOString(),timezone:settings_().timezone,limits:{eventLimit:limit,newsReadLimit:settings_().newsReadLimit,collectionBatch:settings_().collectionBatch},pipeline:{classification:classificationJob_(),translation:translationJob_(),taxonomy:taxonomyJob_(),taxonomyTranslation:taxonomyTranslationJob_(),fetchResumeAt:Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0)},collection:{...collectionStatus_(tasks),tasks},telemetry,runs,audit,exclusionReasons:reasons,auditSampling:{maxExcludedExamplesPerReason:3,totals:'motivos en los resúmenes de Fuente consultada'},limited:{telemetry:telemetry.length===limit,runs:runs.length===limit,audit:audit.length===limit},usage:metrics_(rows_('Adopcion',limit),Date.now())};
+  return {schemaVersion:1,applicationVersion:RADAR.version,exportedAt:new Date().toISOString(),timezone:settings_().timezone,limits:{eventLimit:limit,collectionBatch:settings_().collectionBatch},pipeline:{classification:classificationJob_(),translation:translationJob_(),taxonomy:taxonomyJob_(),taxonomyTranslation:taxonomyTranslationJob_(),fetchResumeAt:Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0)},collection:{...collectionStatus_(tasks),tasks},telemetry,runs,audit,exclusionReasons:reasons,auditSampling:{maxExcludedExamplesPerReason:3,totals:'motivos en los resúmenes de Fuente consultada'},limited:{telemetry:telemetry.length===limit,runs:runs.length===limit,audit:audit.length===limit},usage:metrics_(rows_('Adopcion',limit),Date.now())};
 }
 
 function exclusionReasons_(audit){

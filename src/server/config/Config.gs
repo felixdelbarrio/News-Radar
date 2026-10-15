@@ -24,7 +24,7 @@ const RADAR = Object.freeze({
 const NEWSLETTER_EDITORIAL=Object.freeze({cards:3,groupEntity:'BBVA',entityThemes:2,supportItems:30,titleWords:18,factWords:18,relevanceWords:12,introWords:16,headingWords:6,commentChars:1000});
 const TRANSLATION_WORK=Object.freeze({dailyCalls:3000,batchCalls:20,batchRows:100,readRows:20,maxMs:45000,retryMs:900000});
 
-const NEWS_CACHE=Object.freeze({chunkRows:128,seconds:300,dashboardChars:12000,dashboardParts:64});
+const NEWS_CACHE=Object.freeze({schema:2,chunkRows:128,recordParts:400,seconds:300,dashboardChars:12000,dashboardParts:64});
 const BACKGROUND_WORK=Object.freeze({maxBatches:3,maxMs:45000,sliceMs:10000,watchdogMinutes:5,activeGraceMs:60000});
 
 const COLLECTION_LANGUAGE_TERMS=Object.freeze({"es":["banca","empresa","pyme","autónomo","cuenta","tarjeta","financiación","pagos","producto","lanzamiento"],"en":["banking","business","SME","account","card","finance","payment","product","launch","retail"],"tr":["ticari bankacılık","nakit yönetimi","KOBİ","kredi","hesap","kart","ürün","lansman"],"it":["banca digitale","conto corrente","pagamenti digitali","app bancaria"],"de":["digitales banking","girokonto","digitales bezahlen","banking app"],"fr":["banque en ligne","paiements","application bancaire"],"pt":["banca digital","conta digital","pagamentos digitais"],"nl":["digitaal bankieren","betaalrekening"],"ro":["banca digitala","cont online"]});
