@@ -15,6 +15,8 @@ function configurationEdited_(event){const sheet=event?.range?.getSheet().getNam
 function initializeConfiguration(){
   authorize_(true);return withForegroundWrite_(()=>{
     const refreshCatalog=properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION;
+    const prior=book_().getSheetByName('Configuracion');
+    if(refreshCatalog&&prior?.getLastRow()>1&&!properties_().getProperty('BBVA_BUSINESS_ONLY')&&!book_().getSheetByName('RespaldoConfiguracionI6')){const backup=book_().insertSheet('RespaldoConfiguracionI6'),data=prior.getRange(1,1,prior.getLastRow(),2).getDisplayValues();backup.getRange(1,1,data.length,2).setNumberFormat('@').setValues(data);SpreadsheetApp.flush();}
     const news=book_().getSheetByName('Noticias');
     if(news&&news.getRange(1,8,1,1).getDisplayValues()[0][0]==='tema')news.deleteColumn(8);
     const catalog=book_().getSheetByName('Configuracion');

@@ -50,7 +50,7 @@ test('fallos de escritura conservan el cursor y las etiquetas existentes; una mo
   const sheet=sheets.get('Noticias'),range=sheet.getRange;sheet.getRange=(...args)=>{const result=range(...args);if(args[1]===13)result.setValues=()=>{throw Error('Escritura temporal');};return result;};
   c.taxonomyBatch_();assert.equal(c.taxonomyJob_().state,'En pausa');assert.equal(c.taxonomyJob_().next,2);assert.match(c.taxonomyJob_().error,/Escritura/);
   sheet.getRange=range;c.startTaxonomy();finish(c);assert.ok(c.taxonomySaved_(sheet.grid[1][12]).ids.length);
-  c.startTaxonomy();c.taxonomyBatch_();const id=c.taxonomyJob_().id;c.invalidateNews_();c.taxonomyBatch_();assert.equal(c.taxonomyJob_().id,id);assert.ok(c.taxonomyJob_().next>2);finish(c);
+  c.startTaxonomy();c.taxonomyBatch_();const id=c.taxonomyJob_().id;c.invalidateNews_();c.taxonomyBatch_();assert.equal(c.taxonomyJob_().id,id);assert.equal(c.taxonomyJob_().phase,'tag');finish(c);
 });
 
 test('las noticias nuevas se etiquetan con el modelo vigente durante la incorporación y los lotes no leen todo el corpus',()=>{
