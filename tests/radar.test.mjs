@@ -13,7 +13,7 @@ function context(email='felix.delbarrio@bbva.com'){
   c.ScriptApp={getProjectTriggers:()=>[],newTrigger:()=>({timeBased(){return this;},after(){return this;},create(){}})};
   c.LockService={getScriptLock:()=>({tryLock:()=>true,waitLock(){},releaseLock(){}})};
   c.Utilities={DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(_algorithm,value)=>Array.from(createHash('sha256').update(value).digest()),getUuid:()=> 'id',formatDate:date=>date.toISOString().slice(0,10)};
-  vm.runInContext(source,c);c.taxonomyCatalog_=()=>[];c.drainCollectionRequests_=()=>{};c.collectionJobs_=()=>[];c.writeCollectionJob_=()=>{};let config=JSON.parse(read('assets/configuration-defaults.json'));c.configuration_=()=>config;c.configurationRevision_=()=>'test';c.writeConfiguration_=value=>{c.authorize_(true);c.validateConfiguration_(value);config=value;};return c;
+  vm.runInContext(source,c);c.newsRecordIndex_=()=>({days:{'2026-10-08':[[2,2]]},entities:[],sources:[]});c.newsRowsAt_=()=>c.rows_('Noticias');c.taxonomyCatalog_=()=>[];c.drainCollectionRequests_=()=>{};c.collectionJobs_=()=>[];c.writeCollectionJob_=()=>{};let config=JSON.parse(read('assets/configuration-defaults.json'));c.configuration_=()=>config;c.configurationRevision_=()=>'test';c.writeConfiguration_=value=>{c.authorize_(true);c.validateConfiguration_(value);config=value;};return c;
 }
 const feed={name:'BBVA',domain:'bbva.com',entity:'BBVA',country:'Sin determinar',kind:'rss'},now=new Date('2026-10-09T12:00:00Z'),item={title:'BBVA financia a empresas',excerpt:'Operación de financiación corporativa',url:'https://www.bbva.com/es/noticia/?utm_source=rss',date:'2026-10-08T11:00:00Z'};
 test('extrae texto sin scripts, estilos ni comentarios y no recompone etiquetas',()=>{
@@ -179,7 +179,7 @@ test('el extracto agregado se clasifica antes de ocultar el titular repetido',()
 
 test('exportación de telemetría incluye exclusiones, límites y cola; exige administración',()=>{
  const c=context();c.rows_=name=>name==='Auditoria'?[{resultado:'Excluida',motivo:'Sin coincidencia'}]:[];
- const report=c.exportTelemetry();assert.equal(report.schemaVersion,1);assert.equal(report.exclusionReasons['Sin coincidencia'],1);assert.equal(report.collection.tasks.length,0);assert.equal(report.limits.newsReadLimit,10000);
+ const report=c.exportTelemetry();assert.equal(report.schemaVersion,1);assert.equal(report.exclusionReasons['Sin coincidencia'],1);assert.equal(report.collection.tasks.length,0);assert.equal('newsReadLimit' in report.limits,false);
  assert.throws(()=>context('reader@bbva.com').exportTelemetry(),/no autorizado/);
 });
 
@@ -203,8 +203,8 @@ test('la caché de dashboard evita leer y clasificar Noticias otra vez y se inva
 });
 
 test('la caché respeta el límite en bytes UTF-8 y nunca recorta el resultado',()=>{
- const c=context();let reads=0;c.rows_=()=>{reads++;return [];};c.newsDashboard_=()=>({items:['€'.repeat(31000)]});
- assert.equal(c.dashboardContent_({},[]).data.items[0].length,31000);assert.equal(c.dashboardContent_({},[]).cacheHit,true);assert.equal(reads,1);
+ const c=context();let reads=0;c.rows_=()=>{reads++;return [];};c.newsDashboard_=()=>({items:[{titular:'€'.repeat(31000)}]});
+ assert.equal(c.dashboardContent_({},[]).data.items[0].titular.length,31000);assert.equal(c.dashboardContent_({},[]).cacheHit,true);assert.equal(reads,1);
 });
 
 test('el lote consulta todas las fuentes juntas y sigue el 302 de Google sin repetir las otras',()=>{

@@ -63,7 +63,7 @@ function newsletterTest_(session,subscription){
     const now=new Date(),deliveries=rows_('NewsletterEnvios');if(!newsletterBudget_(deliveries,now))throw Error('Se ha alcanzado el límite configurado de newsletters en 24 horas.');
     const defaults=subscription?{filters:subscription.filtros}:subscriptionDefaults_();
     const edition=Utilities.getUuid(),delivery='prueba:'+Utilities.getUuid();
-    const query=subscriptionQuery_(subscription||{filtros:defaults.filters,periodicidad:defaults.periodicity},now),title=newsletterSubject_(query,subscription?.idioma||'es'),content=newsletter_(rows_('Noticias',settings_().newsReadLimit),query,title,now,subscription?.id,subscription?.idioma||'es',edition,newsletterSentContent_(deliveries).get(session.email)||new Set());
+    const query=subscriptionQuery_(subscription||{filtros:defaults.filters,periodicidad:defaults.periodicity},now),title=newsletterSubject_(query,subscription?.idioma||'es'),content=newsletter_(rows_('Noticias',undefined,undefined,query),query,title,now,subscription?.id,subscription?.idioma||'es',edition,newsletterSentContent_(deliveries).get(session.email)||new Set());
     if(!content.count){append_('NewsletterEnvios',[[delivery,'',session.email,query.from,query.to,'Sin novedades',now.toISOString(),newsletterContentDetail_(content)]]);return {accepted:false,recipient:session.email,count:0,from:query.from,to:query.to};}
     const sender=newsletterSender_();
     saveNewsletterEdition_(edition,delivery,session.email,title,query,subscription?.idioma||'es',content.evidence,content.editorial);

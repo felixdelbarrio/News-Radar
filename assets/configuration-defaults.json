@@ -7,7 +7,6 @@
     "maxFeedBytes": 2000000,
     "maxItems": 200,
     "exportLimit": 10000,
-    "newsReadLimit": 10000,
     "eventLimit": 20000,
     "retentionDays": 90,
     "trendPoints": 60,

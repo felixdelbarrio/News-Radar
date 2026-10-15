@@ -1,7 +1,7 @@
 import vm from 'node:vm';
 import {createHash} from 'node:crypto';
 import {readServerScript} from '../../scripts/source.mjs';
-export function storage(){
+export function storage(source){
   const sheets=new Map(),properties={OWNER_EMAIL:'owner@bbva.com',SPREADSHEET_ID:'book'},cache=new Map(),triggers=[];let email='owner@bbva.com',reads=0,id=0;
   function sheet(name){
     const grid=[];return {grid,getName:()=>name,getLastRow:()=>{let size=grid.length;while(size&&!(grid[size-1]||[]).some(value=>value!==''&&value!=null))size--;return size;},getMaxRows:()=>10000,setFrozenRows(){},
@@ -9,7 +9,7 @@ export function storage(){
   }
   const book={getUrl:()=>'https://docs.google.com/spreadsheets/test',getSheetByName:name=>sheets.get(name),insertSheet:name=>{const value=sheet(name);sheets.set(name,value);return value;}};
   const c=vm.createContext({PropertiesService:{getScriptProperties:()=>({getProperty:key=>properties[key]||null,setProperty:(key,value)=>properties[key]=value,deleteProperty:key=>delete properties[key],getProperties:()=>({...properties}),setProperties:value=>Object.assign(properties,value)})},CacheService:{getScriptCache:()=>({get:key=>cache.get(key),getAll:keys=>Object.fromEntries(keys.filter(key=>cache.has(key)).map(key=>[key,cache.get(key)])),putAll:values=>Object.entries(values).forEach(([key,value])=>cache.set(key,value)),put:(key,value)=>cache.set(key,value),remove:key=>cache.delete(key)})},SpreadsheetApp:{openById:()=>book,flush(){}},Session:{getActiveUser:()=>({getEmail:()=>email})},LockService:{getUserLock:()=>({tryLock:()=>true,releaseLock(){}}),getScriptLock:()=>({waitLock(){},tryLock:()=>true,releaseLock(){}})},Utilities:{formatDate:date=>date.toISOString().slice(0,10),getUuid:()=>String(++id),DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(_algorithm,value)=>Array.from(createHash('sha256').update(value).digest())},ScriptApp:{getProjectTriggers:()=>triggers,deleteTrigger:value=>triggers.splice(triggers.indexOf(value),1),newTrigger:handler=>{const schedule={handler};const trigger={forSpreadsheet:()=>trigger,onEdit:()=>trigger,timeBased:()=>trigger,everyMinutes:minutes=>{schedule.minutes=minutes;return trigger;},atHour:hour=>{schedule.hour=hour;return trigger;},nearMinute:minute=>{schedule.minute=minute;return trigger;},everyDays:days=>{schedule.days=days;return trigger;},inTimezone:timezone=>{schedule.timezone=timezone;return trigger;},after:delay=>{schedule.delay=delay;return trigger;},create:()=>triggers.push({...schedule,getHandlerFunction:()=>handler})};return trigger;}}});
-  vm.runInContext(readServerScript('dist',true),c);
+  vm.runInContext(source||readServerScript('dist',true),c);
   // Las pruebas existentes verifican un lote; las pruebas del trabajador usan processBackground_ con su presupuesto completo.
   c.backgroundTick_=()=>c.processBackground_(1);
   return {c,sheets,cache,book,properties,setEmail:value=>email=value,get reads(){return reads;}};

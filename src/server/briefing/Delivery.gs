@@ -71,7 +71,7 @@ function deliverNewsletterBatch_(work,maxMs=BACKGROUND_WORK.sliceMs){
     if(!quota){requestNewsletterDelivery_(newsletterQuotaReset_(deliveries,now)-Date.now());return {...result,state:'limit'};}
     let sender;
     const history=newsletterSentContent_(deliveries),window={from:due.reduce((start,item)=>item.query.from<start?item.query.from:start,due[0].query.from),to:due.reduce((end,item)=>item.query.to>end?item.query.to:end,due[0].query.to)};
-    const news=annotateNews_(rows_('Noticias',settings_().newsReadLimit).filter(row=>newsScope_(row,window,''))),prepared=new Map(),sheet=book_().getSheetByName('NewsletterEnvios');
+    const news=annotateNews_(rows_('Noticias',undefined,undefined,window).filter(row=>newsScope_(row,window,''))),prepared=new Map(),sheet=book_().getSheetByName('NewsletterEnvios');
     sheet.getRange(1,9,1,1).setValues([['contenido']]);
     result.state='processed';
     for(const {row,id,query} of due){

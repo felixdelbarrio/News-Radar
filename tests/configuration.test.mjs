@@ -80,7 +80,7 @@ test('un rechazo confirmado se puede reintentar y los mensajes de selecciones di
 function deliveryFixture(){
  const s=storage(),{c}=s;c.initializeConfiguration();const config=c.getConfiguration();config.config.settings.newsletterEnabled=true;c.saveConfiguration(config);
  const news=s.book.insertSheet('Noticias');news.grid.push(c.RADAR?.sheets?.Noticias||['id','fecha','pais','medio','entidad','titular','extracto','url','capturada','fuente']);
- const period=c.newsletterPeriod_('fortnightly',new Date()),add=(id,title='BBVA lanza cuenta para empresas',url='https://example.com/'+id)=>news.grid.push([id,period.from,'España','BBVA','BBVA',title,'Nueva cuenta',url,'','BBVA']);
+ const period=c.newsletterPeriod_('fortnightly',new Date()),add=(id,title='BBVA lanza cuenta para empresas',url='https://example.com/'+id)=>{news.grid.push([id,period.from,'España','BBVA','BBVA',title,'Nueva cuenta',url,'','BBVA']);c.invalidateNews_();};
  const subscriptions=[{id:'a',correo:'equipo@bbva.com',nombre:'Canal',periodicidad:'fortnightly',activa:true,actualizada:'2020-01-01',filtros:{entity:'BBVA',coverage:''}}],sent=[];
  c.subscriptionRows_=()=>subscriptions;c.newsletterSender_=()=>({});c.sendNewsletterMail_=(_sender,email,content)=>{const record=s.sheets.get('NewsletterEnvios').grid.at(-1);assert.equal(record[5],'Enviando');assert.ok(JSON.parse(record[8]).length);sent.push({email,content});return 'gmail-'+sent.length;};
  return {...s,period,add,subscriptions,sent};

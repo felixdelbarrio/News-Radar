@@ -43,7 +43,7 @@ test('Noticias pagina cada geografía manteniendo los totales completos, recuper
  const {c}=server();c.settings_().pageSize=2;const input=rows(),first=c.newsDashboard_(input,{},[],'news'),second=c.newsDashboard_(input,{newsGeography:'México',page:10},[],'news');
  assert.equal(first.total,5);assert.equal(first.items.length,2);assert.deepEqual(Array.from(first.newsGeographies,row=>[row.name,row.total]),[['España',5],['México',2]]);assert.equal(second.page,0);assert.equal(second.total,2);assert.ok(second.items.every(row=>row.pais==='México'));
  const page=c.newsDashboard_(input,{newsGeography:'España',page:2},[],'news');assert.equal(page.items.length,1);assert.equal(page.items[0].id,'e');assert.equal(c.newsDashboard_(input,{newsGeography:'México',country:'España'},[],'news').newsGeography,'España');assert.equal(c.newsDashboard_([],{},[],'news').newsGeographies.length,0);
- c.rows_=()=>input;c.selectNews_=(_rows,query)=>c.selectAnnotatedNews_(input,query);const csv=c.exportNews({view:'news',newsGeography:'México',from:'2026-01-01',to:'2026-12-31'});assert.equal(csv.count,2);assert.doesNotMatch(csv.csv,/España/);
+ c.cachedNewsRecords_=()=>input;c.selectNews_=(_rows,query)=>c.selectAnnotatedNews_(input,query);const csv=c.exportNews({view:'news',newsGeography:'México',from:'2026-01-01',to:'2026-12-31'});assert.equal(csv.count,2);assert.doesNotMatch(csv.csv,/España/);
 });
 test('Noticias cambia pestaña mediante un solo RPC y reinicia la página; el teclado conserva el foco',async t=>{
  const s=server(),input=rows();s.c.settings_().pageSize=2;

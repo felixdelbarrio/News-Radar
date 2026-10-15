@@ -1,0 +1,481 @@
+{
+  "deployedVersion": 65,
+  "applicationVersion": "3.0.5",
+  "measuredAt": "2026-10-15",
+  "controlledBriefing": {
+    "before": [
+      {
+        "phase": "plan",
+        "rows": 5165,
+        "span": 7711,
+        "groups": 58
+      },
+      {
+        "phase": "result",
+        "performance": {
+          "version": "3.0.5",
+          "serverMs": 22011,
+          "preparationMs": 57,
+          "metadataMs": 1945,
+          "newsMs": 20008,
+          "cacheHit": false
+        },
+        "total": 116,
+        "metrics": {
+          "readCache": {
+            "calls": 5,
+            "ms": 109
+          },
+          "writeCache": {
+            "calls": 4,
+            "ms": 777
+          },
+          "index": {
+            "calls": 3,
+            "ms": 3508
+          },
+          "readRows": {
+            "calls": 1,
+            "ms": 7359
+          },
+          "annotate": {
+            "calls": 1,
+            "ms": 426
+          },
+          "identities": {
+            "calls": 1,
+            "ms": 9416
+          },
+          "dedup": {
+            "calls": 1,
+            "ms": 78
+          }
+        }
+      }
+    ],
+    "after": [
+      {
+        "phase": "plan",
+        "rows": 5165,
+        "span": 7711,
+        "groups": 4
+      },
+      {
+        "phase": "result",
+        "performance": {
+          "version": "3.0.5",
+          "serverMs": 8425,
+          "preparationMs": 24,
+          "metadataMs": 2258,
+          "newsMs": 6143,
+          "cacheHit": false
+        },
+        "total": 116,
+        "metrics": {
+          "readCache": {
+            "calls": 5,
+            "ms": 39
+          },
+          "writeCache": {
+            "calls": 4,
+            "ms": 640
+          },
+          "index": {
+            "calls": 3,
+            "ms": 3518
+          },
+          "readRows": {
+            "calls": 1,
+            "ms": 1907
+          },
+          "annotate": {
+            "calls": 1,
+            "ms": 337
+          },
+          "identities": {
+            "calls": 1,
+            "ms": 1602
+          },
+          "dedup": {
+            "calls": 1,
+            "ms": 35
+          }
+        }
+      }
+    ]
+  },
+  "sectionsBeforeTitleIndex": [
+    {
+      "section": "radar",
+      "ms": 23322,
+      "bytes": 209069,
+      "total": 278,
+      "performance": {
+        "version": "3.0.5",
+        "serverMs": 23321,
+        "preparationMs": 1849,
+        "metadataMs": 3033,
+        "newsMs": 18438,
+        "cacheHit": false
+      },
+      "metrics": {
+        "index": {
+          "calls": 2,
+          "ms": 3440
+        },
+        "readRows": {
+          "calls": 1,
+          "ms": 1623
+        },
+        "translationIndex": {
+          "calls": 2,
+          "ms": 452
+        },
+        "fingerprints": {
+          "calls": 8527,
+          "ms": 3768
+        },
+        "translationValues": {
+          "calls": 1,
+          "ms": 4911
+        },
+        "identities": {
+          "calls": 1,
+          "ms": 9280
+        },
+        "dedup": {
+          "calls": 2,
+          "ms": 440
+        },
+        "radar": {
+          "calls": 1,
+          "ms": 4
+        },
+        "heatmap": {
+          "calls": 1,
+          "ms": 1
+        },
+        "metadata": {
+          "calls": 1,
+          "ms": 1171
+        },
+        "collection": {
+          "calls": 1,
+          "ms": 646
+        },
+        "admin": {
+          "calls": 1,
+          "ms": 190
+        }
+      }
+    },
+    {
+      "section": "news",
+      "ms": 5108,
+      "bytes": 157412,
+      "total": 2,
+      "performance": {
+        "version": "3.0.5",
+        "serverMs": 5108,
+        "preparationMs": 470,
+        "metadataMs": 466,
+        "newsMs": 4172,
+        "cacheHit": false
+      }
+    },
+    {
+      "section": "briefing",
+      "ms": 4113,
+      "bytes": 223142,
+      "total": 116,
+      "performance": {
+        "version": "3.0.5",
+        "serverMs": 4113,
+        "preparationMs": 127,
+        "metadataMs": 483,
+        "newsMs": 3503,
+        "cacheHit": false
+      }
+    },
+    {
+      "section": "newsletter-options",
+      "ms": 428,
+      "bytes": 65918
+    },
+    {
+      "section": "subscriptions",
+      "ms": 585,
+      "bytes": 2093
+    },
+    {
+      "section": "runs",
+      "ms": 767,
+      "bytes": 10940,
+      "total": 1802
+    },
+    {
+      "section": "admin-subscriptions",
+      "ms": 456,
+      "bytes": 3351
+    },
+    {
+      "section": "delivery",
+      "ms": 792,
+      "bytes": 436
+    },
+    {
+      "section": "adoption",
+      "ms": 992,
+      "bytes": 1582,
+      "total": 5
+    },
+    {
+      "section": "newsletter-insights",
+      "ms": 581,
+      "bytes": 624
+    },
+    {
+      "section": "telemetry",
+      "ms": 1171,
+      "bytes": 19916,
+      "total": 5223
+    },
+    {
+      "section": "taxonomy",
+      "ms": 482,
+      "bytes": 37030
+    },
+    {
+      "section": "language",
+      "ms": 310,
+      "bytes": 602
+    },
+    {
+      "section": "taxonomy-language",
+      "ms": 440,
+      "bytes": 24479
+    },
+    {
+      "section": "audit",
+      "ms": 1954,
+      "bytes": 20862,
+      "total": 20000
+    },
+    {
+      "section": "configuration",
+      "ms": 53,
+      "bytes": 35899
+    },
+    {
+      "section": "history",
+      "ms": 257,
+      "bytes": 8183,
+      "total": 26
+    }
+  ],
+  "sectionsAfterTitleIndex": [
+    {
+      "section": "radar",
+      "ms": 15216,
+      "bytes": 209068,
+      "total": 278,
+      "performance": {
+        "version": "3.0.5",
+        "serverMs": 15215,
+        "preparationMs": 768,
+        "metadataMs": 2403,
+        "newsMs": 12044,
+        "cacheHit": false
+      },
+      "metrics": {
+        "index": {
+          "calls": 2,
+          "ms": 1674
+        },
+        "readRows": {
+          "calls": 1,
+          "ms": 1410
+        },
+        "fingerprints": {
+          "calls": 8529,
+          "ms": 5285
+        },
+        "identities": {
+          "calls": 1,
+          "ms": 6607
+        },
+        "dedup": {
+          "calls": 2,
+          "ms": 423
+        },
+        "radar": {
+          "calls": 1,
+          "ms": 2
+        },
+        "heatmap": {
+          "calls": 1,
+          "ms": 2
+        },
+        "metadata": {
+          "calls": 1,
+          "ms": 1156
+        },
+        "collection": {
+          "calls": 1,
+          "ms": 144
+        },
+        "admin": {
+          "calls": 1,
+          "ms": 138
+        }
+      }
+    },
+    {
+      "section": "news",
+      "ms": 5284,
+      "bytes": 157412,
+      "total": 2,
+      "performance": {
+        "version": "3.0.5",
+        "serverMs": 5284,
+        "preparationMs": 128,
+        "metadataMs": 768,
+        "newsMs": 4388,
+        "cacheHit": false
+      }
+    },
+    {
+      "section": "briefing",
+      "ms": 6881,
+      "bytes": 223143,
+      "total": 116,
+      "performance": {
+        "version": "3.0.5",
+        "serverMs": 6880,
+        "preparationMs": 150,
+        "metadataMs": 1999,
+        "newsMs": 4731,
+        "cacheHit": false
+      }
+    },
+    {
+      "section": "newsletter-options",
+      "ms": 1811,
+      "bytes": 65918
+    },
+    {
+      "section": "subscriptions",
+      "ms": 793,
+      "bytes": 2093
+    },
+    {
+      "section": "runs",
+      "ms": 792,
+      "bytes": 10954,
+      "total": 1803
+    },
+    {
+      "section": "admin-subscriptions",
+      "ms": 459,
+      "bytes": 3351
+    },
+    {
+      "section": "delivery",
+      "ms": 793,
+      "bytes": 436
+    },
+    {
+      "section": "adoption",
+      "ms": 626,
+      "bytes": 1582,
+      "total": 5
+    },
+    {
+      "section": "newsletter-insights",
+      "ms": 725,
+      "bytes": 624
+    },
+    {
+      "section": "telemetry",
+      "ms": 1230,
+      "bytes": 19908,
+      "total": 5224
+    },
+    {
+      "section": "taxonomy",
+      "ms": 432,
+      "bytes": 37030
+    },
+    {
+      "section": "language",
+      "ms": 240,
+      "bytes": 602
+    },
+    {
+      "section": "taxonomy-language",
+      "ms": 392,
+      "bytes": 24479
+    },
+    {
+      "section": "audit",
+      "ms": 2154,
+      "bytes": 21197,
+      "total": 20000
+    },
+    {
+      "section": "configuration",
+      "ms": 47,
+      "bytes": 35899
+    },
+    {
+      "section": "history",
+      "ms": 529,
+      "bytes": 8183,
+      "total": 26
+    }
+  ],
+  "limitations": [
+    "Una muestra por escenario; no son medianas ni percentiles.",
+    "Las consultas de cada perfil global comparten ejecución y memoria; no representan arranques independientes.",
+    "La recuperación seguía activa; el corpus creció de 8527 a 8529 filas entre perfiles de Radar.",
+    "Los tiempos del servidor excluyen transporte y render del navegador."
+  ],
+  "browserTelemetry": [
+    {
+      "view": "briefing",
+      "deployment": 64,
+      "ms": 11816,
+      "serverMs": 8335,
+      "cacheHit": false
+    },
+    {
+      "view": "radar-personal",
+      "deployment": 64,
+      "ms": 18897,
+      "serverMs": 14834,
+      "cacheHit": false
+    },
+    {
+      "view": "radar-cached",
+      "deployment": 64,
+      "ms": 5574,
+      "serverMs": 1963,
+      "newsMs": 247,
+      "cacheHit": true
+    },
+    {
+      "view": "radar-all-segments-coverages",
+      "deployment": 64,
+      "ms": 17402,
+      "serverMs": 12893,
+      "cacheHit": false
+    },
+    {
+      "view": "news-from-annual-radar",
+      "deployment": 64,
+      "ms": 20553,
+      "serverMs": 15392,
+      "cacheHit": false
+    }
+  ]
+}
