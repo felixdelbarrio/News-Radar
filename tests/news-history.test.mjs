@@ -96,3 +96,26 @@ test('la paginación con entidades intercaladas agrupa lecturas y mantiene idén
 test('la previsualización contabiliza copias persistidas que repiten también su UUID',()=>{
  const s=server(1),grid=s.sheets.get('Noticias').grid;grid.push([...grid[1]]);const plan=s.c.previewNewsDeduplication();assert.equal(plan.total,2);assert.equal(plan.unique,1);assert.equal(plan.duplicates,1);assert.equal(plan.groups[0].duplicates[0].id,plan.groups[0].representative.id);
 });
+test('un período intercalado reduce las llamadas a Sheets sin clasificar ni devolver filas fuera del filtro',()=>{
+ const s=server(5000),c=s.c,grid=s.sheets.get('Noticias').grid;grid.slice(1).forEach((row,index)=>{row[1]=index%3===0?'2024-01-01':'2025-10-16';});
+ c.newsRecordIndex_();const reads=s.reads,annotate=c.annotateNews_;let transformed=0;c.annotateNews_=rows=>{transformed+=rows.length;return annotate(rows);};
+ const rows=c.cachedNewsRecords_({from:'2024-01-01',to:'2024-01-01'});assert.equal(rows.length,1667);assert.equal(transformed,1667);assert.equal(s.reads-reads,3);assert.ok(rows.every(row=>row.fecha==='2024-01-01'));assert.equal(rows[0].id,'id-0');assert.equal(rows.at(-1).id,'id-4998');
+ const tiny=c.newsRowsAt_([2,3000,5000]);assert.equal(tiny.length,3);assert.deepEqual(Array.from(tiny,row=>row.id),['id-0','id-2998','id-4998']);
+});
+test('recuperar traducciones dispersas agrupa rangos y conserva las pendientes y las claves solicitadas',()=>{
+ const s=server(),c=s.c,grid=s.sheets.get('Traducciones').grid;for(let i=0;i<5000;i++)grid.push(['en:'+i,'en','Headline '+i,'Excerpt '+i,'2026-10-15']);
+ const keys=Array.from({length:80},(_,i)=>'en:'+(i*60));keys.push('en:missing');c.articleTranslationIndex_();const before=s.reads,result=c.cachedArticleTranslations_(keys);
+ assert.ok(s.reads-before<=3);assert.equal(result.get('en:0').titular,'Headline 0');assert.equal(result.get('en:4740').extracto,'Excerpt 4740');assert.equal(result.get('en:missing'),null);assert.equal(result.has('en:1'),false);
+ const reads=s.reads;c.cachedArticleTranslations_(keys);assert.equal(s.reads,reads);
+});
+
+test('identidades traducidas leen solo claves e índices de titulares y reutilizan caché entre revisiones de noticias',()=>{
+ const s=server(2),c=s.c,a=article(0),b=article(1),sheet=s.sheets.get('Traducciones');
+ sheet.grid.push([c.articleTranslationKey_(a,'en'),'en','Translated title','Large excerpt'.repeat(1000),'2026-10-15']);s.properties['TRANSLATIONS_REVISION:en']='first';
+ const reads=[],range=sheet.getRange.bind(sheet);sheet.getRange=(...args)=>{reads.push(args);return range(...args);};
+ assert.deepEqual(plain(c.translationIdentityRows_([a,b]).map(row=>row.identityTitles)),[['Translated title'],[]]);assert.deepEqual(reads,[[2,1,1,3]]);
+ vm.runInContext('articleIdentityTitlesMemory_=undefined;',c);c.invalidateNews_();reads.length=0;c.translationIdentityRows_([a,b]);assert.equal(reads.length,0);
+ sheet.grid.push([c.articleTranslationKey_(b,'tr'),'tr','Other translated title','Excerpt','2026-10-15']);s.properties['TRANSLATIONS_REVISION:tr']='new';
+ assert.deepEqual(plain(c.translationIdentityRows_([b])[0].identityTitles),['Other translated title']);assert.equal(reads.length,1);
+ s.cache.clear();vm.runInContext('articleIdentityTitlesMemory_=undefined;',c);assert.deepEqual(plain(c.translationIdentityRows_([a])[0].identityTitles),['Translated title']);
+});

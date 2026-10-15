@@ -31,12 +31,9 @@ function newsRowsForPeriod_(query={}){
 }
 function newsRowsAt_(positions){
   if(!positions.length)return [];
-  const sheet=book_().getSheetByName('Noticias'),keys=RADAR.sheets.Noticias,result=[],wanted=new Set(positions);let start=0;
-  for(let end=1;end<=positions.length;end++){
-    // Small gaps cost fewer Sheets calls than a separate range for every article.
-    if(end<positions.length&&positions[end]-positions[end-1]<=8&&positions[end]-positions[start]<2000&&positions[end]-positions[start]<2*(end-start)+8)continue;
-    const first=positions[start],height=positions[end-1]-first+1;
-    sheet.getRange(first,1,height,keys.length).getDisplayValues().forEach((values,index)=>{if(wanted.has(first+index))result.push({...Object.fromEntries(keys.map((key,i)=>[key,values[i]])),_sheetRow:first+index});});start=end;
+  const sheet=book_().getSheetByName('Noticias'),keys=RADAR.sheets.Noticias,result=[],wanted=new Set(positions);
+  for(const [first,last] of sheetRowRanges_(positions)){
+    sheet.getRange(first,1,last-first+1,keys.length).getDisplayValues().forEach((values,index)=>{if(wanted.has(first+index))result.push({...Object.fromEntries(keys.map((key,i)=>[key,values[i]])),_sheetRow:first+index});});
   }
   return result;
 }

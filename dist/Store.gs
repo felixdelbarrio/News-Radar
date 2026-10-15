@@ -62,3 +62,13 @@ function cacheJsonValue_(value){
   return encoded.length<=90000&&encodeURIComponent(encoded).replace(/%[A-F\d]{2}/gi,'x').length<=90000?encoded:null;
 }
 function cacheJson_(key,value,seconds){const encoded=cacheJsonValue_(value);if(encoded)CacheService.getScriptCache().put(key,encoded,seconds);}
+
+function sheetRowRanges_(positions,gap=8){
+  if(!positions.length)return [];
+  const dense=positions.at(-1)-positions[0]+1<=Math.max(2000,positions.length*4),ranges=[];let start=0;
+  for(let end=1;end<=positions.length;end++){
+    if(end<positions.length&&positions[end]-positions[start]<2000&&(dense||positions[end]-positions[end-1]<=gap))continue;
+    ranges.push([positions[start],positions[end-1]]);start=end;
+  }
+  return ranges;
+}
