@@ -1,0 +1,892 @@
+{
+  "environment": "Local Node.js V8 and in-memory Sheets adapter; not Apps Script",
+  "node": "v24.1.0",
+  "baselineCommit": "5c43f28753cbfa239ac5535045a7b4bce90b755b",
+  "samples": 3,
+  "before": [
+    {
+      "baseline": true,
+      "count": 10000,
+      "sample": 1,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 595.7,
+          "sheetReads": 1,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 26.3,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 30.8,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.2,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 20.2,
+          "sheetReads": 0,
+          "total": 55,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 98.7,
+          "sheetReads": 0,
+          "total": 10000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": true,
+      "count": 10000,
+      "sample": 2,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 601,
+          "sheetReads": 1,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 27.2,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 30,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 20.6,
+          "sheetReads": 0,
+          "total": 55,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 90.9,
+          "sheetReads": 0,
+          "total": 10000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": true,
+      "count": 10000,
+      "sample": 3,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 582.6,
+          "sheetReads": 1,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 25.4,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 27.2,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 20.6,
+          "sheetReads": 0,
+          "total": 55,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 90.7,
+          "sheetReads": 0,
+          "total": 10000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": true,
+      "count": 25000,
+      "sample": 1,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 599.9,
+          "sheetReads": 1,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 33.3,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 35.5,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 19,
+          "sheetReads": 0,
+          "total": 0,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 88,
+          "sheetReads": 0,
+          "total": 10000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": true,
+      "count": 25000,
+      "sample": 2,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 597.4,
+          "sheetReads": 1,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 33.1,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 36.7,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 18.9,
+          "sheetReads": 0,
+          "total": 0,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 89.4,
+          "sheetReads": 0,
+          "total": 10000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": true,
+      "count": 25000,
+      "sample": 3,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 602.1,
+          "sheetReads": 1,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 34.8,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 37,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 19.6,
+          "sheetReads": 0,
+          "total": 0,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 90.9,
+          "sheetReads": 0,
+          "total": 10000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": true,
+      "count": 50000,
+      "sample": 1,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 627.1,
+          "sheetReads": 1,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 46.2,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 46.6,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 18.3,
+          "sheetReads": 0,
+          "total": 0,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 87.7,
+          "sheetReads": 0,
+          "total": 10000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": true,
+      "count": 50000,
+      "sample": 2,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 622.7,
+          "sheetReads": 1,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 47.9,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 48.2,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 19.2,
+          "sheetReads": 0,
+          "total": 0,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 89.8,
+          "sheetReads": 0,
+          "total": 10000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": true,
+      "count": 50000,
+      "sample": 3,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 630.2,
+          "sheetReads": 1,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 45.4,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 47,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 20.7,
+          "sheetReads": 0,
+          "total": 0,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 87.8,
+          "sheetReads": 0,
+          "total": 10000,
+          "cacheHit": false
+        }
+      ]
+    }
+  ],
+  "after": [
+    {
+      "baseline": false,
+      "count": 10000,
+      "sample": 1,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 72,
+          "sheetReads": 2,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 15.2,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 2.1,
+          "sheetReads": 2,
+          "total": 767,
+          "cacheHit": true
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 4.8,
+          "sheetReads": 1,
+          "total": 55,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 720.5,
+          "sheetReads": 5,
+          "total": 10000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": false,
+      "count": 10000,
+      "sample": 2,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 72.9,
+          "sheetReads": 2,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 13.3,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 2,
+          "sheetReads": 2,
+          "total": 767,
+          "cacheHit": true
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 4.7,
+          "sheetReads": 1,
+          "total": 55,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 711.3,
+          "sheetReads": 5,
+          "total": 10000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": false,
+      "count": 10000,
+      "sample": 3,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 69.3,
+          "sheetReads": 2,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 13.4,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 2,
+          "sheetReads": 2,
+          "total": 767,
+          "cacheHit": true
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 767,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 5,
+          "sheetReads": 1,
+          "total": 55,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 708.8,
+          "sheetReads": 5,
+          "total": 10000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": false,
+      "count": 25000,
+      "sample": 1,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 167.9,
+          "sheetReads": 2,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 42.2,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 2.3,
+          "sheetReads": 2,
+          "total": 1917,
+          "cacheHit": true
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 10.4,
+          "sheetReads": 1,
+          "total": 137,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 2055.5,
+          "sheetReads": 13,
+          "total": 25000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": false,
+      "count": 25000,
+      "sample": 2,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 211.7,
+          "sheetReads": 2,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 46.4,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 2.7,
+          "sheetReads": 2,
+          "total": 1917,
+          "cacheHit": true
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 12.5,
+          "sheetReads": 1,
+          "total": 137,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 1946.8,
+          "sheetReads": 13,
+          "total": 25000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": false,
+      "count": 25000,
+      "sample": 3,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 173.2,
+          "sheetReads": 2,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 43.4,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 2.9,
+          "sheetReads": 2,
+          "total": 1917,
+          "cacheHit": true
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 1917,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 10.5,
+          "sheetReads": 1,
+          "total": 137,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 1892.6,
+          "sheetReads": 13,
+          "total": 25000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": false,
+      "count": 50000,
+      "sample": 1,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 329.6,
+          "sheetReads": 3,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 81.2,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 2,
+          "sheetReads": 1,
+          "total": 3835,
+          "cacheHit": true
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 19.9,
+          "sheetReads": 1,
+          "total": 274,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 3745.9,
+          "sheetReads": 25,
+          "total": 50000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": false,
+      "count": 50000,
+      "sample": 2,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 330.5,
+          "sheetReads": 3,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 79.8,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 2,
+          "sheetReads": 1,
+          "total": 3835,
+          "cacheHit": true
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 20.9,
+          "sheetReads": 1,
+          "total": 274,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 3740.5,
+          "sheetReads": 25,
+          "total": 50000,
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "baseline": false,
+      "count": 50000,
+      "sample": 3,
+      "runs": [
+        {
+          "scenario": "radar cold",
+          "ms": 334.6,
+          "sheetReads": 3,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news cold",
+          "ms": 79.8,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": false
+        },
+        {
+          "scenario": "news next page",
+          "ms": 2.2,
+          "sheetReads": 1,
+          "total": 3835,
+          "cacheHit": true
+        },
+        {
+          "scenario": "news cache hit",
+          "ms": 0.1,
+          "sheetReads": 0,
+          "total": 3835,
+          "cacheHit": true
+        },
+        {
+          "scenario": "old period",
+          "ms": 20.1,
+          "sheetReads": 1,
+          "total": 274,
+          "cacheHit": false
+        },
+        {
+          "scenario": "full history",
+          "ms": 3736,
+          "sheetReads": 25,
+          "total": 50000,
+          "cacheHit": false
+        }
+      ]
+    }
+  ]
+}

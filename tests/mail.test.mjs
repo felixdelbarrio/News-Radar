@@ -14,14 +14,9 @@ test('una prueba sin noticias se registra sin contactar Gmail ni archivar una ed
  const {c,calls}=mail(),log=[];let released=false;
  c.LockService={getScriptLock:()=>({waitLock(){},releaseLock(){released=true;}})};c.rows_=()=>[];c.append_=(_name,rows)=>log.push(...rows);
  c.newsletter_=()=>({count:0});c.newsletterSender_=()=>{throw Error('No debe validar remitente');};c.saveNewsletterEdition_=()=>{throw Error('No debe archivar');};
- const result=c.sendNewsletterTest();assert.equal(result.accepted,false);assert.equal(result.count,0);assert.equal(log[0][5],'Sin novedades');assert.equal(calls.length,0);assert.equal(released,true);
+ const result=c.sendNewsletterTest({cadence:'fortnightly'});assert.equal(result.accepted,false);assert.equal(result.count,0);assert.equal(log[0][5],'Sin novedades');assert.equal(calls.length,0);assert.equal(released,true);
 });
-test('el grupo requiere alias aceptado; errores de permisos y alias pendientes bloquean el envío',()=>{
-  const m=mail(),{c}=m;assert.equal(c.newsletterSender_().address,'news-radar.group@bbva.com');assert.match(m.calls[0].url,/settings\/sendAs\/news-radar.group%40bbva.com$/);
-  m.setResponse({sendAsEmail:m.settings.newsletterSender,verificationStatus:'pending'});assert.throws(()=>c.newsletterSender_(),/verificado/);
-  m.setResponse({},403);assert.throws(()=>c.newsletterSender_(),/permisos del propietario/);m.setResponse({},404);assert.throws(()=>c.newsletterSender_(),/Añade y verifica/);
-  assert.ok(m.calls.every(call=>call.options.method==='get'));
-});
+test('el remitente configurado no consulta Gmail al mostrar su estado y el transporte comunica los rechazos',()=>{const m=mail();assert.equal(m.c.newsletterSender_().address,m.settings.newsletterSender);assert.equal(m.calls.length,0);m.setResponse({error:{message:'Sender alias rejected'}},400);assert.throws(()=>m.c.sendNewsletterMail_(m.c.newsletterSender_(),'owner@bbva.com',{count:1,subject:'Test',html:'<p>Test</p>',text:'Test'}),/Sender alias rejected/);});
 test('MIME preserva Unicode, usa destinatario individual y Reply-To del grupo sin CC ni BCC',()=>{
   const m=mail(),{c}=m;m.setResponse({id:'gmail-confirmed'});
   const sender={address:m.settings.newsletterSender,name:m.settings.newsletterSenderName},content={count:1,subject:'[bIA] Entidad: BBVA · Geografía: México 💡 '+('á'.repeat(80)),text:'Financiación para pequeñas empresas · España',html:'<h1>Novedades México</h1>'};
@@ -45,7 +40,7 @@ test('el límite persistente de 24 horas reserva envíos inciertos y excluye per
   assert.equal(m.c.newsletterBudget_(rows,now),1);rows.push({estado:'Enviada',fecha:'2026-10-10T09:00:00Z'});assert.equal(m.c.newsletterBudget_(rows,now),0);
 });
 test('diagnóstico, pruebas y programación son exclusivos del administrador',()=>{
-  const m=mail();m.setAdmin(false);for(const name of ['getNewsletterDeliveryStatus','sendNewsletterTest','installNewsletterSchedule','sendPendingNewsletters'])assert.throws(()=>m.c[name](),/administrador/);assert.equal(m.calls.length,0);
+  const m=mail();m.setAdmin(false);for(const name of ['getNewsletterDeliveryStatus','sendNewsletterTest'])assert.throws(()=>m.c[name](),/administrador/);assert.equal(m.calls.length,0);
 });
 test('la prueba usa el correo del administrador y registra Gmail ID; no consume suscripciones reales',()=>{
   const m=mail(),{c}=m,log=[];let destination;
@@ -53,7 +48,7 @@ test('la prueba usa el correo del administrador y registra Gmail ID; no consume 
   c.newsletterSender_=()=>({address:m.settings.newsletterSender,name:m.settings.newsletterSenderName});c.subscriptionDefaults_=()=>({name:'Mi canal',periodicity:'quarterly',filters:{entity:'BBVA'}});c.subscriptionQuery_=()=>({from:'2026-09-01',to:'2026-09-30'});c.newsletter_=()=>({count:2,text:'Prueba',html:'<p>Prueba</p>'});
   c.append_=(name,rows)=>log.push(...rows);c.book_=()=>({getSheetByName:()=>({getLastRow:()=>log.length+1,getRange:()=>({setValues(values){log[0].splice(5,3,...values[0]);}})})});
   c.sendNewsletterMail_=(_sender,recipient)=>{destination=recipient;return 'gmail-test';};
-  const result=c.sendNewsletterTest();assert.equal(result.recipient,'owner@bbva.com');assert.equal(result.messageId,'gmail-test');assert.equal(result.count,2);assert.equal(result.accepted,true);assert.equal(destination,'owner@bbva.com');assert.equal(log[0][1],'');assert.equal(log[0][5],'Enviada');assert.match(log[0][7],/gmail-test/);
+  const result=c.sendNewsletterTest({cadence:'fortnightly'});assert.equal(result.recipient,'owner@bbva.com');assert.equal(result.messageId,'gmail-test');assert.equal(result.count,2);assert.equal(result.accepted,true);assert.equal(destination,'owner@bbva.com');assert.equal(log[0][1],'');assert.equal(log[0][5],'Enviada');assert.match(log[0][7],/gmail-test/);
 });
 
 test('rechazos explícitos conservan la causa de Gmail y permiten reintento; errores inciertos requieren revisión',()=>{
@@ -65,22 +60,15 @@ test('rechazos explícitos conservan la causa de Gmail y permiten reintento; err
 });
 test('una prueba bloqueada antes de enviar queda registrada sin consumir presupuesto',()=>{
   const m=mail(),{c}=m,log=[];c.LockService={getScriptLock:()=>({waitLock(){},releaseLock(){}})};c.rows_=()=>[];c.append_=(_name,rows)=>log.push(...rows);c.newsletter_=()=>({count:1});c.newsletterSender_=()=>{throw Error('Alias no verificado');};
-  assert.throws(()=>c.sendNewsletterTest(),/Alias no verificado/);assert.equal(log[0][2],'owner@bbva.com');assert.equal(log[0][5],'Bloqueada');assert.equal(c.newsletterBudget_(log.map(row=>({estado:row[5],fecha:row[6]})),new Date()),m.settings.newsletterDailyLimit);assert.equal(m.calls.length,0);
+  assert.throws(()=>c.sendNewsletterTest({cadence:'fortnightly'}),/Alias no verificado/);assert.equal(log[0][2],'owner@bbva.com');assert.equal(log[0][5],'Bloqueada');assert.equal(c.newsletterBudget_(log.map(row=>({estado:row[5],fecha:row[6]})),new Date()),m.settings.newsletterDailyLimit);assert.equal(m.calls.length,0);
 });
 
-test('prueba personal usa filtros propios, destinatario autenticado y mantiene el período real pendiente',()=>{
-  const m=mail(),{c}=m;const own={id:'mine',correo:'owner@bbva.com',nombre:'Mi selección',periodicidad:'quarterly',filtros:{entity:'BBVA',country:'España'},activa:true};let query,recipient;const log=[];
-  c.authorize_=()=>({email:'owner@bbva.com',admin:false});c.subscriptionRows_=email=>email===own.correo?[own]:[];
-  c.LockService={getScriptLock:()=>({waitLock(){},releaseLock(){}})};c.rows_=()=>[];c.newsletterSender_=()=>({address:m.settings.newsletterSender,name:'News Radar'});
-  c.newsletter_=(_rows,filters,_name,_now,id)=>{query=filters;assert.equal(id,'mine');return {count:1,html:'<p>Prueba</p>',text:'Prueba'};};
-  c.append_=(_name,rows)=>log.push(...rows);c.book_=()=>({getSheetByName:()=>({getLastRow:()=>2})});c.completeNewsletterDelivery_=(_sheet,_index,_sender,email)=>{recipient=email;return 'personal-test';};
-  const result=c.sendSubscriptionTest('mine');assert.equal(recipient,'owner@bbva.com');assert.equal(query.country,'España');assert.equal(query.entity,'BBVA');assert.ok(query.from<query.to);assert.equal(result.messageId,'personal-test');assert.match(log[0][0],/^prueba:/);assert.equal(log[0][1],'');assert.throws(()=>c.sendSubscriptionTest('someone-else'),/no encontrada/);
-});
+test('la API de prueba personal está retirada',()=>{assert.equal(typeof mail().c.sendSubscriptionTest,'undefined');});
 
 test('newsletter usa prefijo bIA, imagen MIME inline y enlaces distintos para gestión y baja',()=>{
   const m=mail(),{c}=m;m.settings.newsletterAppUrl='https://script.google.com/macros/s/deployment/exec';
   c.taxonomyCatalog_=()=>[];c.savedArticleTranslations_=rows=>rows;c.configuration_=()=>JSON.parse(read('assets/configuration-defaults.json'));
-  const content=c.newsletter_([{id:'one',fecha:'2026-10-13',pais:'España',entidad:'BBVA',medio:'Editor',titular:'BBVA lanza pagos digitales para empresas',extracto:'Nuevo servicio de cobros empresariales',url:'https://example.com/one'}],{},'Mi selección',new Date(), 'subscription-123');
+  const content=c.newsletter_([{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id:'one',fecha:'2026-10-13',pais:'España',entidad:'BBVA',medio:'Editor',titular:'BBVA lanza pagos digitales para empresas',extracto:'Nuevo servicio de cobros empresariales',url:'https://example.com/one'}],{},'Mi selección',new Date(), 'subscription-123');
   assert.doesNotMatch(content.html,/Ir a Newsradar/);assert.match(content.html,/view=subscriptions&amp;unsubscribe=subscription-123/);assert.match(content.html,/cid:bia-logo/);assert.match(content.text,/view=subscriptions&unsubscribe=subscription-123/);assert.match(content.html,/Banca Inteligente y Autónoma/);
   m.setResponse({id:'test'});c.sendNewsletterMail_({address:m.settings.newsletterSender,name:'News Radar'},'owner@bbva.com',content);
   const mime=Buffer.from(JSON.parse(m.calls[0].options.payload).raw,'base64url').toString();

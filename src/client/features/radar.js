@@ -2,7 +2,7 @@ import {identityMark} from '../../shared/visual-identity.js';
 import { $, escape, metricCards } from "../core/dom.js";
 import {language,t} from '../core/language.js';
 import { trendChart } from "./trend-chart.js";
-function createRadar({ onCountry, onEntity, onSource, onNews }) {
+function createRadar({ onCountry, onEntity, onSource }) {
   let signature = "", geographySignature="", trend, chartWidth=0;
   function renderTrend(width){
     if(!trend||!width)return;
@@ -46,7 +46,6 @@ function createRadar({ onCountry, onEntity, onSource, onNews }) {
   for(const name of ['pointerout','focusout'])$('trend-chart').addEventListener(name,event=>highlightPoint({target:event.relatedTarget&&$('trend-chart').contains(event.relatedTarget)?event.relatedTarget:$('trend-chart')}));
   const mapObserver=new ResizeObserver(entries=>{const height=entries[0].contentRect.height;if(height)$('map-panel').style.setProperty('--map-height',height+'px');});
   mapObserver.observe(document.querySelector('.map-canvas'));
-  $("radar-open-news").addEventListener("click", onNews);
   return { render(data) {
     const geography=JSON.stringify(data.geographies||[]);
     if(geography!==geographySignature){
@@ -64,9 +63,8 @@ function createRadar({ onCountry, onEntity, onSource, onNews }) {
     signature = next;
     $("metrics").innerHTML = metricCards([["Publicaciones", data.stats.news, "En la selección"], ["Entidades", data.stats.entities, "Con presencia en medios"], ["Medios", data.stats.sources, "Editores distintos"], ["Geografías", data.stats.countries, "Con publicaciones en la selección"]]);
     $("radar-focus").textContent = radar.ranking.length === 1 ? radar.ranking[0].entity : "Panorama de entidades";
-    $("radar-headline").textContent = radar.summary.news ? t('{count} publicaciones en seguimiento',{count:radar.summary.news}) : "Sin publicaciones en la selección";
     $("radar-context").textContent = radar.summary.news ? "Distribución geográfica, entidades mencionadas y evolución de las publicaciones recopiladas." : "Amplía los filtros para descubrir nuevas publicaciones y su distribución.";
-    $("radar-latest").textContent = radar.latest || "Sin publicaciones";
+    $('radar-count').textContent=t('{count} publicaciones',{count:radar.summary.news});
     $("map-selection").textContent = radar.ranking.length === 1 ? radar.ranking[0].entity : "Todas las entidades de la selección";
     const max = Math.max(1, ...radar.geographies.map((area) => area.total)), areas = new Map(radar.geographies.map((area) => [area.country, area]));
     $("world-map").querySelectorAll("[data-country]").forEach((node) => {

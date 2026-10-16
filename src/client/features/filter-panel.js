@@ -1,6 +1,6 @@
 import {$} from '../core/dom.js';
 export function createFilterPanel(){
-  const dialog=$('filters-dialog'),panels={administration:$('admin-tabs'),subscriptions:$('subscriptions-sidebar'),news:$('filters-section')};
+  const dialog=$('filters-dialog'),panels={administration:$('admin-tabs'),news:$('filters-section')};
   for(const panel of Object.values(panels))$('mobile-filters').appendChild(panel);
   $('mobile-filters').appendChild($('sidebar-context'));
   $('mobile-filters').appendChild(document.querySelector('.sidebar-foot'));
@@ -19,10 +19,10 @@ export function createFilterPanel(){
   return {show(view){
     if(dialog.open)dialog.close();
     const toolbar=document.querySelector('.selection-toolbar'),freshness=$('selection-freshness'),host=document.querySelector('#'+view+'-section .reading-hero');
-    toolbar.hidden=view==='administration'&&!media.matches;
+    toolbar.hidden=view==='subscriptions'||view==='administration'&&!media.matches;
     if(view==='administration')$('administration-tools').appendChild(toolbar);else if(host){host.appendChild(freshness);host.appendChild(toolbar);}else{const content=document.querySelector('.content');content.prepend(toolbar);toolbar.after(freshness);}
     const active=panels[view]||panels.news,admin=view==='administration',reading=!admin&&view!=='subscriptions';
-    for(const panel of Object.values(panels))panel.hidden=panel!==active;
+    for(const panel of Object.values(panels))panel.hidden=view==='subscriptions'||panel!==active;
     $('panel-button-label').textContent=admin?'Menú':'Filtros';$('panel-dialog-title').textContent=admin?'Administración':'Filtros';dialog.setAttribute('aria-label',admin?'Herramientas de administración':'Configurar filtros');$('filter-dialog-actions').hidden=!reading;administrationLayout();
   }};
 }

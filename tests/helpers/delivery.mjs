@@ -1,0 +1,3 @@
+// Exercise one cadence per fixture subscription. The complete fan-out is covered in iteration-6.test.mjs.
+import {storage as serverStorage} from './server.mjs';
+export function storage(source){const s=serverStorage(source),plan=s.c.newsletterDeliveryPlan_;s.c.newsletterDeliveryPlan_=(now,deliveries)=>{const result=plan(now,deliveries),cadences=new Map(s.c.subscriptionRows_().map(row=>[row.id,row.periodicidad==='all'?'fortnightly':row.periodicidad]));return {...result,planned:result.planned.filter(item=>item.row.periodicidad===cadences.get(item.row.id)),due:result.due.filter(item=>item.row.periodicidad===cadences.get(item.row.id))};};return s;}

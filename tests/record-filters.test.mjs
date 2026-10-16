@@ -20,6 +20,6 @@ test('Adopción recalcula métricas, tabla y días a partir de los mismos evento
  const result=c.getAdoption({correo:'a@bbva.com',vista:'news',evento:'lectura'});assert.equal(result.events,1);assert.equal(result.sessions,1);assert.equal(result.mau,1);assert.equal(result.users.length,1);assert.equal(result.daily[0].users,1);assert.equal(result.options.correo.length,2);
 });
 test('el historial de newsletters omite las huellas y filtra por destinatario sin exponer contenido',()=>{
- const c=server();c.rows_=(name,limit,width)=>{assert.equal(name,'NewsletterEnvios');assert.equal(limit,20000);assert.equal(width,8);return [{fecha:'2026-10-11T10:00:00Z',correo:'a@bbva.com',suscripcion:'a',estado:'Enviada',detalle:'Gmail ID: one; 2 noticias incluidas'}, {fecha:'2026-10-11T10:00:00Z',correo:'b@bbva.com',suscripcion:'b',estado:'Enviada',detalle:'Gmail ID: two'}];};
- const result=c.getNewsletterHistory({correo:'a@bbva.com'});assert.equal(result.total,1);assert.equal(result.items[0].noticias,'2');assert.equal(result.items[0].contenido,undefined);
+ const c=server();c.rows_=(name,limit,width)=>{if(name==='NewsletterEdiciones')return [];assert.equal(name,'NewsletterEnvios');assert.equal(limit,20000);assert.equal(width,8);return [{fecha:'2026-10-11T10:00:00Z',correo:'a@bbva.com',suscripcion:'a',estado:'Enviada',detalle:'Gmail ID: one; 2 noticias incluidas'}, {fecha:'2026-10-11T10:00:00Z',correo:'b@bbva.com',suscripcion:'b',estado:'Enviada',detalle:'Gmail ID: two'}];};
+ const result=c.getNewsletterHistory({correo:'a@bbva.com'});assert.equal(result.total,1);assert.equal(result.items[0].noticias,2);assert.equal(result.items[0].contenido,undefined);
 });

@@ -18,16 +18,17 @@ function profileFeed_(geo,entity,range,capabilitySearch=false) {
 }
 let collectionLanguageMemory_;
 function localizedSearchTerms_(terms,geo){
-  if(!collectionLanguageMemory_){
-    collectionLanguageMemory_=new Map();
-    for(const [language,values] of Object.entries(COLLECTION_QUERY_LANGUAGES))for(const term of values){const key=searchText_(term);if(!collectionLanguageMemory_.has(key))collectionLanguageMemory_.set(key,new Set());collectionLanguageMemory_.get(key).add(language);}
+  const config=configuration_();if(collectionLanguageMemory_?.config!==config){
+    const terms=new Map();
+    for(const row of config.searchLanguages.filter(row=>row.enabled))for(const term of row.terms){const key=searchText_(term);if(!terms.has(key))terms.set(key,new Set());terms.get(key).add(row.language);}
+    collectionLanguageMemory_={config,terms};
   }
   const language=geo.language.split('-')[0],native=[],english=[],custom=[];
-  for(const term of terms){const languages=collectionLanguageMemory_.get(searchText_(term));if(!languages)custom.push(term);else if(languages.has(language))native.push(term);else if(languages.has('en'))english.push(term);}
+  for(const term of terms){const languages=collectionLanguageMemory_.terms.get(searchText_(term));if(!languages)custom.push(term);else if(languages.has(language))native.push(term);else if(languages.has('en'))english.push(term);}
   return [...native,...english,...custom];
 }
 function collectionSearchTerms_(geo){
-  const local=(COLLECTION_LANGUAGE_TERMS[geo.language.split('-')[0]]||[]).slice(0,COLLECTION_POLICY.localTerms),terms=localizedSearchTerms_([...new Set(settings_().searchTerms)],geo),count=Math.min(terms.length,Math.max(0,COLLECTION_POLICY.searchTerms-local.length));
+  const local=(configuration_().searchLanguages.find(row=>row.enabled&&row.language===geo.language.split('-')[0])?.terms||[]).slice(0,COLLECTION_POLICY.localTerms),terms=localizedSearchTerms_([...new Set(settings_().searchTerms)],geo),count=Math.min(terms.length,Math.max(0,COLLECTION_POLICY.searchTerms-local.length));
   return [...new Set([...local,...Array.from({length:count},(_,i)=>terms[Math.floor(i*terms.length/count)])])];
 }
 function capabilitySearchTerms_(geo,entity){
@@ -67,3 +68,4 @@ function enableDaily() {
   return 'Recopilación activada. '+collectionScheduleLabel_()+'.';
 }
 function disableDaily() {authorize_(true);ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='dailyRadar_').forEach(t=>ScriptApp.deleteTrigger(t));properties_().setProperty('DAILY_ENABLED','false');CacheService.getScriptCache().remove('daily-schedule');}
+

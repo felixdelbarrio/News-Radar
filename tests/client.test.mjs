@@ -17,7 +17,7 @@ function client(responses={}){
     Object.defineProperty(select,'innerHTML',{get:()=>html,set(value){html=value;select.value='';}});
   }
   const context=vm.createContext({document:{addEventListener(){},documentElement:{},body:{nodeType:0},title:"",getElementById:element,querySelector:element,querySelectorAll:()=>[],createElement:()=>({click(){}})},
-    URLSearchParams,Blob,URL:{createObjectURL:()=> 'blob:local',revokeObjectURL(){}},
+    navigator:{languages:['es-ES'],language:'es-ES'},URLSearchParams,Blob,URL:{createObjectURL:()=> 'blob:local',revokeObjectURL(){}},
     window:{location:{search:'?view=briefing'},addEventListener(){},scrollTo(){},matchMedia:()=>({matches:false,addEventListener(){}}),RADAR_PREVIEW:{call(method,query){rpc.push({method,query});if(method!=='getDashboard')return Promise.resolve(responses[method]||(method==='getNewsletterHistory'?{items:[],total:0,page:0,pageSize:30,options:{},limit:20000}:method==='getSubscriptions'?[]:method==='getNewsletterOptions'?{email:'reader@bbva.com',defaults:{name:'Mi canal',periodicity:'quarterly',filters:{}},catalogs:{}}:method==='getConfiguration'?{config:JSON.parse(read('assets/configuration-defaults.json')),revision:'test'}:{saved:true}));return new Promise(resolve=>requests.push({query,resolve}));}}},
     FormData:class {constructor(){return Object.entries(form.elements).map(([name,input])=>[name,input.value]);}},
     MutationObserver:class {observe(){}disconnect(){}takeRecords(){return [];}},
@@ -29,7 +29,7 @@ function client(responses={}){
 }
 const server=vm.createContext({});vm.runInContext(readServerScript('dist',true),server);server.configuration_=()=>JSON.parse(read("assets/configuration-defaults.json"));
 const radar=server.radarMetrics_([{fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País'}],{});
-const dashboard=title=>({applicationScope:JSON.parse(read('assets/configuration-defaults.json')).applicationScope,items:[{titular:title,fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País',tema:'Financiación',url:'https://example.com/news'}],
+const dashboard=title=>({applicationScope:JSON.parse(read('assets/configuration-defaults.json')).applicationScope,items:[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:title,fecha:'2026-10-08',pais:'México',entidad:'Santander Empresas',medio:'El País',tema:'Financiación',url:'https://example.com/news'}],
   page:0,pageSize:30,total:1,countries:['España','México'],entities:['BBVA','Santander'],sources:['El País'],topics:['Financiación'],
   stats:radar.summary,radar,sourceCount:57,daily:false,admin:false});
 const settle=async()=>{await Promise.resolve();await Promise.resolve();await Promise.resolve();};

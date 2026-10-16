@@ -12,7 +12,7 @@ test('opción vacía y respuesta sin resultados conservan Colombia, señal y chi
 test('cargar más añade noticias sin perder las anteriores; cambiar filtros reinicia la lista',async t=>{
  const a=await app(t);const row={...a.data.briefing.items[0],id:'first'};Object.assign(a.data,{items:[row],page:0,pageSize:1,total:2,newsRevision:'stable'});await a.click('[data-view="news"]');
  const firstCard=a.find('#news-list .news-row');a.data.items=[{...row,id:'second',titular:'Segunda publicación'}];a.data.page=1;await a.click('#next');assert.equal(a.find('#news-list').querySelectorAll('.news-row').length,2);assert.equal(a.find('#news-list .news-row'),firstCard);assert.match(a.find('#news-list').textContent,/BBVA lanza cuenta/);assert.match(a.find('#news-list').textContent,/Segunda publicación/);assert.equal(a.find('#next').disabled,true);
- a.data.page=0;a.data.total=1;await a.click('#open-filters');await a.submit('#filters');assert.equal(a.find('#news-list').querySelectorAll('.news-row').length,1);
+ a.data.page=0;a.data.total=1;await a.change('#filters [name="search"]','segunda');assert.equal(a.find('#news-list').querySelectorAll('.news-row').length,1);
 });
 test('mapa y países se destacan juntos, el punto muestra detalle y el medio filtra',async t=>{
  const a=await app(t,{configure({data}){data.geographies=[{name:'España',mapId:724}];data.radar.publishers=[{publisher:'Editor',total:1}];data.radar.geographies=[{country:'España',total:1,entities:[]}];data.radar.trend={buckets:['2026-10-11'],series:[{entity:'BBVA',total:1,values:[1]}],from:'2026-10-11',to:'2026-10-11',intervalDays:1};}});await a.click('[data-view="radar"]');

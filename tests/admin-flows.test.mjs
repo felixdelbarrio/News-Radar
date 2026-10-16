@@ -1,29 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {app} from './helpers/app.mjs';
-test('suscripciones personales y administrativas guardan, editan, prueban y eliminan sin alterar filtros',async t=>{
- const a=await app(t);await a.click('[data-view="subscriptions"]');assert.match(a.find('#subscriptions-list').textContent,/Mi canal/);
- await a.click('#subscriptions-list [data-action="edit"]');assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);assert.equal(a.find('#personal-editor [name="periodicity"]').value,'fortnightly');
- await a.change('#personal-editor [name="periodicity"]','quarterly');await a.submit('#personal-editor form');assert.equal(a.calls.find(r=>r.method==='saveSubscription').query.periodicity,'quarterly');assert.equal(a.calls.find(r=>r.method==='saveSubscription').query.name,undefined);
- await a.click('#subscriptions-list [data-action="test"]');assert.match(a.find('#message').textContent,/aceptado/);
- a.replies.sendSubscriptionTest={accepted:false,count:0};await a.click('#subscriptions-list [data-action="test"]');assert.match(a.find('#message').textContent,/No se ha enviado la prueba/);
- await a.click('#subscriptions-list [data-action="apply"]');assert.equal(a.find('#page-title').textContent,'Novedades');
- await a.click('[data-view="subscriptions"]');await a.click('#subscriptions-list [data-action="delete"]');assert.ok(a.calls.some(r=>r.method==='deleteSubscription'));
- await a.click('#new-subscription');await a.click('[data-view="administration"]');await a.click('[data-admin-view="subscribers"]');
- await a.click('#new-admin-subscription');await a.submit('#admin-subscription-editor form');assert.ok(a.calls.some(r=>r.method==='saveAdminSubscription'));
- await a.click('#admin-subscriptions-list [data-action="edit"]');await a.click('[data-close-editor]');assert.equal(a.find('#admin-subscription-editor').hidden,true);
- a.replies.getSubscriptions=[];await a.click('[data-view="subscriptions"]');assert.match(a.find('#subscriptions-list').textContent,/No tienes suscripciones/);
+test('alta personal única, pausa, baja y edición administrativa conservan la selección de lectura',async t=>{
+ const a=await app(t);await a.click('[data-view="subscriptions"]');assert.match(a.find('#subscriptions-list').textContent,/Mi Newsletter/);assert.equal(a.w.document.querySelector('#subscriptions-filters'),null);assert.equal(a.w.document.querySelector('#subscriptions-list [data-action="edit"]'),null);await a.click('#subscriptions-list [data-action="toggle"]');assert.equal(a.calls.find(r=>r.method==='saveSubscription').query.active,false);await a.click('#subscriptions-list [data-action="delete"]');assert.ok(a.calls.some(r=>r.method==='deleteSubscription'));a.replies.getSubscriptions=[];await a.click('[data-view="news"]');await a.click('[data-view="subscriptions"]');assert.equal(a.find('#personal-editor').hidden,false);await a.submit('#personal-editor form');assert.equal(a.calls.filter(r=>r.method==='saveSubscription').at(-1).query.periodicity,undefined);await a.click('[data-view="administration"]');await a.click('[data-admin-view="subscribers"]');await a.click('#new-admin-subscription');await a.submit('#admin-subscription-editor form');assert.ok(a.calls.some(r=>r.method==='saveAdminSubscription'));await a.click('#admin-subscriptions-list [data-action="edit"]');await a.click('[data-close-editor]');assert.equal(a.find('#admin-subscription-editor').hidden,true);
 });
-test('newsletter informa de vacíos, duplicados, cuotas, bloqueos y errores de pruebas',async t=>{
- const a=await app(t);await a.click('[data-view="administration"]');await a.click('[data-admin-view="subscribers"]');
- assert.match(a.find('#newsletter-content-note').textContent,/1 envíos anteriores/);assert.match(a.find('#delivery-history-body').textContent,/Gmail ID/);
- await a.click('#test-newsletter');assert.match(a.find('#newsletter-test-result').textContent,/Incluye 1 novedades/);
- a.replies.sendNewsletterTest={accepted:false,count:0};await a.click('#test-newsletter');assert.match(a.find('#newsletter-test-result').textContent,/No se ha enviado la prueba/);
- await a.click('#install-newsletter');assert.match(a.find('#newsletter-test-result').textContent,/Instalada/);
- for(const [state,text] of [['no_due','No hay entregas'],['busy','otro envío'],['limit','límite'],['processed','repetidas omitidas'],['error','Fallo Gmail']]){a.replies.sendPendingNewsletters={state,accepted:1,empty:2,duplicates:3,pending:0,error:state==='error'?'Fallo Gmail':''};await a.click('#send-pending-newsletters');assert.match(a.find('#newsletter-test-result').textContent,new RegExp(text));}
- a.replies.sendNewsletterTest=Error('Alias pendiente');await a.click('#test-newsletter');assert.match(a.find('#newsletter-test-result').textContent,/Alias pendiente/);
- a.replies.getNewsletterDeliveryStatus={...a.replies.getNewsletterDeliveryStatus,available:false,enabled:false,scheduled:false,untracked:0,last:null,error:'Sin alias'};a.replies.getNewsletterHistory={items:[],options:{},total:0,page:0,pageSize:30};await a.click('#validate-newsletter-sender');assert.match(a.find('#newsletter-sender-status').textContent,/Sin alias/);assert.match(a.find('#delivery-history-body').textContent,/Sin envíos/);
-});
+test('prueba administrativa indica aceptación, ausencia de noticias y errores sin controles manuales obsoletos',async t=>{const a=await app(t);await a.click('[data-view="administration"]');await a.click('[data-admin-view="subscribers"]');await a.submit('#newsletter-test-form');assert.match(a.find('#newsletter-test-result').textContent,/aceptado/);a.replies.sendNewsletterTest={accepted:false,count:0};await a.submit('#newsletter-test-form');assert.match(a.find('#newsletter-test-result').textContent,/No hay noticias/);a.replies.sendNewsletterTest=Error('Gmail rechazó el envío');await a.submit('#newsletter-test-form');assert.match(a.find('#newsletter-test-result').textContent,/Gmail rechazó/);for(const id of ['test-newsletter','install-newsletter','send-pending-newsletters','validate-newsletter-sender'])assert.equal(a.w.document.getElementById(id),null);});
 test('catálogos preservan cambios al cambiar de categoría y permiten ordenar, añadir y guardar',async t=>{
  const a=await app(t);await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');
  const first=a.find('#catalog-fields [data-key="name"]');first.value='Entidad editada';
@@ -50,27 +31,9 @@ test('ejecuciones carga al abrir su pestaña, filtra en el servidor y presenta e
  a.replies.getRuns={items:[],total:0,page:0,pageSize:30,options:{}};await a.click('#runs-clear');assert.match(a.find('#runs-body').textContent,/Sin ejecuciones/);
  a.replies.getRuns=Error('Error de lectura');await a.click('#runs-clear');assert.match(a.find('#message').textContent,/Error de lectura/);
 });
-test('el seguimiento refresca contenido nuevo, evita llamadas en pestañas ocultas y reintenta errores',async t=>{
- const timers=new Map();let id=100000,hidden=false;
- const a=await app(t,{configure({w,data,replies}){
-  const set=w.setTimeout.bind(w),clear=w.clearTimeout.bind(w);w.setTimeout=(fn,ms)=>{if(ms<30000)return set(fn,ms);timers.set(++id,{fn,ms});return id;};w.clearTimeout=key=>{timers.delete(key);clear(key);};
-  Object.defineProperty(w.document,'hidden',{get:()=>hidden});data.newsRevision='0';data.collection={total:10,processed:2,pending:8,added:2,lastActivity:'2026-10-11',pausedUntil:String(Date.now()+600000),failed:1};replies.getCollectionProgress={newsRevision:'1',collection:{total:10,processed:3,pending:7,added:3}};
- }});
- const next=async()=>{const [key,timer]=[...timers][0];timers.delete(key);await timer.fn();return timer;};
- assert.match(a.find('#collection-progress').textContent,/2\/10/);assert.match(a.find('#collection-progress').textContent,/1 Errores/);
- hidden=true;await next();assert.ok(!a.calls.some(r=>r.method==='getCollectionProgress'));hidden=false;
- const before=a.calls.filter(r=>r.method==='getDashboard').length;a.data.newsRevision='1';a.data.collection=a.replies.getCollectionProgress.collection;await next();assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,before+1);
- await next();assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,before+1);
- a.replies.getCollectionProgress=Error('Sin conexión');await next();assert.equal([...timers.values()][0].ms,60000);
- a.replies.getCollectionProgress={newsRevision:'1',collection:{total:10,processed:10,pending:0,added:3}};await next();assert.equal(timers.size,0);assert.match(a.find('#collection-progress').textContent,/0 pendientes/);
-});
+test('el progreso administrativo no refresca las lecturas y se detiene fuera de Administración',async t=>{const timers=new Map();let id=10000;const a=await app(t,{configure({w,data,replies}){const set=w.setTimeout.bind(w);w.setTimeout=(fn,ms)=>{if(ms<30000)return set(fn,ms);timers.set(++id,{fn,ms});return id;};w.clearTimeout=key=>timers.delete(key);data.collection={total:10,processed:2,pending:8};replies.getCollectionProgress={newsRevision:'changed',collection:{total:10,processed:3,pending:7}};}});assert.ok(!a.calls.some(r=>r.method==='getCollectionProgress'));await a.click('[data-view="administration"]');const reads=a.calls.filter(r=>r.method==='getDashboard').length;const poll=[...timers.values()].find(v=>v.ms===30000);if(poll)await poll.fn();assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,reads);await a.click('[data-view="briefing"]');assert.ok(!a.find('#briefing-section').hidden);});
 
-test('volver al Radar consulta una vez su contenido después de una acción administrativa',async t=>{
- const a=await app(t);await a.click('[data-view="radar"]');await a.click('[data-view="administration"]');a.data.radar.summary.news=5;a.data.radar.publishers=[{publisher:'Diario vivo',total:5}];
- await a.click('#collect');const calls=a.calls.filter(r=>r.method==='getDashboard').length;
- await a.click('[data-view="radar"]');assert.match(a.find('#radar-headline').textContent,/5 publicaciones/);assert.match(a.find('#publisher-chart').textContent,/Diario vivo/);assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,calls+1);
- await a.click('[data-view="administration"]');a.data.collection.pending=5;await a.click('[data-view="news"]');await a.click('[data-view="administration"]');await a.click('#continue-collection');assert.ok(a.calls.some(r=>r.method==='resumeCollection'));
-});
+test('volver al Radar mantiene su contenido después de una acción administrativa hasta aplicar filtros distintos',async t=>{const a=await app(t,{configure({data}){data.newsRevision='1';data.configurationRevision='1';}});await a.click('[data-view="radar"]');const before=a.find('#radar-count').textContent;await a.click('[data-view="administration"]');a.data.radar.summary.news=5;await a.click('#collect');const reads=a.calls.filter(r=>r.method==='getDashboard').length;await a.click('[data-view="radar"]');assert.equal(a.find('#radar-count').textContent,before);assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,reads);await a.change('#filters [name="search"]','pagos');assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,reads+1);});
 test('muestra progreso independiente y porcentajes atendidos para anual, diaria y cargas en cola',async t=>{
  const a=await app(t,{language:'tr-TR',configure({data}){data.collection={total:10,processed:3,pending:7,jobs:[{id:'annual',tipo:'annual',desde:'2025-10-11',hasta:'2026-10-11',estado:'En pausa',total:10,procesadas:3,pendientes:5,omitidas:1,fallidas:1,nuevas:2,actualizada:'2026-10-11',pausa:String(Date.now()+60000)},{id:'daily',tipo:'daily',desde:'2026-10-01',hasta:'2026-10-11',estado:'En cola',total:0,pendientes:0,nuevas:0}]};}});
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="runs"]');
@@ -78,7 +41,7 @@ test('muestra progreso independiente y porcentajes atendidos para anual, diaria 
 });
 test('las tarjetas presentan traducciones guardadas y no llaman al traductor al navegar',async t=>{
  const a=await app(t,{language:'en-US',configure({data}){
-  data.items=[{id:'one',titular:'Translated headline',extracto:'Translated summary',original:{titular:'Titular original',extracto:'Extracto original'},translation:{language:'en',state:'translated'},url:'https://example.com',fecha:'2026-10-11',medio:'Diario'}];
+  data.items=[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id:'one',titular:'Translated headline',extracto:'Translated summary',original:{titular:'Titular original',extracto:'Extracto original'},translation:{language:'en',state:'translated'},url:'https://example.com',fecha:'2026-10-11',medio:'Diario'}];
  }});
  await a.click('[data-view="news"]');assert.match(a.find('#news-list h3').textContent,/Translated headline/);assert.match(a.find('.article-original').textContent,/Titular original/);assert.doesNotMatch(a.find('#news-list').textContent,/Automatic translation/);
  await a.click('[data-view="administration"]');await a.click('[data-view="news"]');assert.ok(!a.calls.some(call=>call.method==='translateNews'));
@@ -91,10 +54,7 @@ test('Idioma tiene sección propia, programación diaria y progreso con controle
  await a.click('#translation-toggle');assert.ok(a.calls.some(call=>call.method==='disableTranslationSchedule'));await a.click('#translation-start');assert.ok(a.calls.some(call=>call.method==='startTranslations'));
  a.replies.getTranslationStatus.scheduled=false;await a.click('[data-admin-view="configuration"]');await a.click('[data-admin-view="language"]');await a.click('#translation-toggle');assert.ok(a.calls.some(call=>call.method==='installTranslationSchedule'));await a.click('[data-admin-view="runs"]');assert.equal(a.find('#language-section').hidden,true);assert.match(a.find('#runs-section h2').textContent,/Çalıştırmalar/);
 });
-test('Explorar noticias conserva entidad y segmento del Radar para poder contrastar sus cifras',async t=>{
- const a=await app(t,{configure({data}){data.selection={entity:'Santander',segment:'Empresas e instituciones'};}});await a.click('#radar-open-news');
- const query=a.calls.filter(call=>call.method==='getDashboard').at(-1).query;assert.equal(query.view,'news');assert.equal(query.entity,'Santander');assert.equal(query.segment,'Empresas e instituciones');assert.equal(query.from,'');assert.equal(query.to,'');
-});
+test('Radar presenta título estable, contador independiente e icono sin el enlace retirado',async t=>{const a=await app(t);await a.click('[data-view="radar"]');assert.equal(a.find('#radar-headline').textContent,'Radar');assert.ok(a.find('#radar-section .hero-emblem svg'));assert.equal(a.w.document.querySelector('#radar-open-news'),null);assert.equal(a.w.document.querySelector('#radar-latest'),null);});
 test('Fuentes contiene Abrir hoja y Ejecuciones bloquea cada recuperación activa incluso después de otra acción',async t=>{
  const a=await app(t);assert.ok(a.find('#sources-section #sheet-link'));assert.equal(a.w.document.querySelector('#sources-section #collect'),null);assert.ok(a.find('#runs-section #collect'));assert.equal(a.w.document.querySelector('#administration-section > .admin-heading #collect'),null);
  a.data.collection={pending:1,blocked:{today:false,year:true},jobs:[]};a.replies.getRuns.collection=a.data.collection;await a.click('[data-view="administration"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('[value="year"][name="recovery-range"]').disabled,false);assert.equal(a.find('#collect').disabled,false);

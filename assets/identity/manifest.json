@@ -492,6 +492,27 @@
       "width": 40,
       "height": 27,
       "source": "https://flagcdn.com/w40/th.png"
+    },
+    "Venezuela": {
+      "id": "country-ve",
+      "file": "country-ve.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/ve.png"
+    },
+    "Canadá": {
+      "id": "country-ca",
+      "file": "country-ca.png",
+      "width": 40,
+      "height": 20,
+      "source": "https://flagcdn.com/w40/ca.png"
+    },
+    "Emiratos Árabes Unidos": {
+      "id": "country-ae",
+      "file": "country-ae.png",
+      "width": 40,
+      "height": 20,
+      "source": "https://flagcdn.com/w40/ae.png"
     }
   },
   "publishers": {

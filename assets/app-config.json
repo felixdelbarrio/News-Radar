@@ -3,16 +3,16 @@
     "briefing": "Novedades",
     "news": "Noticias",
     "radar": "Radar",
-    "subscriptions": "Newsletter",
+    "subscriptions": "Mi Newsletter",
     "administration": "Administración"
   },
   "adminViews": {
     "runs": "Ejecuciones",
+    "taxonomy": "Taxonomía",
+    "language": "Idioma",
     "subscribers": "Suscripciones",
     "adoption": "Adopción",
     "telemetry": "Telemetría",
-    "taxonomy": "Taxonomía",
-    "language": "Idioma",
     "sources": "Fuentes",
     "audit": "Auditoría",
     "configuration": "Configuración de negocio"

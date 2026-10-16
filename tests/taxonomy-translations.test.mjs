@@ -43,10 +43,10 @@ test('finalizar taxonomía encola traducción automáticamente y los lectores ut
   const s=server(),c=s.c;c.startTaxonomy();for(let i=0;i<10&&c.taxonomyPending_();i++)c.taxonomyBatch_();assert.equal(c.taxonomyJob_().state,'Completada');assert.ok(s.properties.TAXONOMY_TRANSLATION_REQUEST);
   // Reuse a classified article without changing its canonical taxonomy labels.
   const model=s.rows; s.sheets.get('Taxonomia').grid.splice(1);s.sheets.get('Taxonomia').grid.push(...model.map(row=>vm.runInContext('RADAR.sheets.Taxonomia',c).map(key=>Array.isArray(row[key])?JSON.stringify(row[key]):row[key])));s.properties.TAXONOMY_REVISION='reader';finish(c);
-  const row={id:'news',fecha:'2026-10-11',pais:'España',medio:'Editor',entidad:'BBVA',titular:'BBVA lanza pagos biometricos para empresas',extracto:'Nuevo canal digital',tema:'Pagos',url:'https://example.com/news',capturada:'',fuente:'Editor',idioma:'es',clasificacion:JSON.stringify({generalista:true,digital:true,capacidades:[]}),taxonomia:JSON.stringify({fingerprint:'test',ids:['one']})};
-  s.sheets.get('Noticias').grid.push(vm.runInContext('RADAR.sheets.Noticias',c).map(key=>row[key]||''));
+  const row={id:'news',fecha:'2026-10-11',pais:'España',medio:'Editor',entidad:'BBVA',titular:'BBVA lanza pagos biometricos para empresas',extracto:'Nuevo canal digital',tema:'Pagos',url:'https://example.com/news',capturada:'',fuente:'Editor',idioma:'es',clasificacion:JSON.stringify({generalista:true,digital:true,capacidades:["Empresas: Pagos"]}),taxonomia:JSON.stringify({fingerprint:'test',ids:['one']})};
+  s.sheets.get('Noticias').grid.push(vm.runInContext('RADAR.sheets.Noticias',c).map(key=>row[key]||''));c.invalidateNews_();
   c.LanguageApp={translate(){throw Error('Los lectores no traducen');}};
-  const query={view:'news',entity:'BBVA',palanca:'Pagos y cobros',subpalanca:'Pagos y cobros › Pagos biometricos',language:'en'};
+  const query={view:'news',from:'2026-01-01',to:'2026-12-31',entity:'BBVA',palanca:'Pagos y cobros',subpalanca:'Pagos y cobros › Pagos biometricos',language:'en'};
   const data=c.getDashboard(query);assert.equal(data.total,1);assert.equal(data.items[0].taxonomia[0].id,'one');assert.equal(data.taxonomyTranslations.en[query.subpalanca],'Payments and collections › en Pagos biometricos');
   assert.match(c.exportNews(query).csv,/en Pagos biometricos/);
   const mail=c.newsletter_(c.rows_('Noticias'),query,'News',new Date(),undefined,'en');assert.match(mail.html,/en Pagos biometricos/);assert.match(mail.text,/en Pagos biometricos/);

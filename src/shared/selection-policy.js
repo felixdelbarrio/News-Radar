@@ -1,7 +1,7 @@
-export const applicationScopeSegments=Object.freeze(['Empresas e instituciones','Retail']);
+export const applicationScopeSegments=Object.freeze(['Empresas e instituciones']);
 export const readingViews=Object.freeze(['news','briefing','radar']);
 export const sectorNewsDefaults=Object.freeze({segment:'Empresas e instituciones',coverage:'digital'});
-export const coverageOptions=Object.freeze({digital:'Canal digital',generalista:'Generalista'});
+export const coverageOptions=Object.freeze({digital:'Canal digital'});
 export const subscriptionFilterKeys=Object.freeze(['entity','country','source','type','segment','coverage','signal','search','palanca','subpalanca']);
 export const otherGeography='Otras geografías';
 export function geographyLabel(name){return !name||name==='Sin determinar'?otherGeography:name;}

@@ -1,10 +1,25 @@
 let articleTranslationRows_,articleTranslationMemory_;
 function articleFingerprint_(row){return sha256_(String(row.titular||'')+'\n'+String(row.extracto||''));}
 function articleTranslationKey_(row,language){return language+':'+articleFingerprint_(row);}
+let articleIdentityTitlesMemory_;
+function articleIdentityTitles_(){
+  const revisions=Object.keys(languageNames).map(language=>properties_().getProperty('TRANSLATIONS_REVISION:'+language)||'0'),revision=JSON.stringify(revisions);
+  if(articleIdentityTitlesMemory_?.revision===revision)return articleIdentityTitlesMemory_.values;
+  const key='news-records:translation-titles:'+sha256_(revision),cache=CacheService.getScriptCache(),cached=readDashboardCache_(cache,key);
+  if(cached){const values=new Map(cached);articleIdentityTitlesMemory_={revision,values};return values;}
+  const sheet=book_().getSheetByName('Traducciones'),count=sheet.getLastRow()-1,variants=new Map();
+  // Deduplication needs titles only; never fetch or cache translated excerpts here.
+  for(let offset=0;offset<count;offset+=2000)for(const [key,language,title] of sheet.getRange(offset+2,1,Math.min(2000,count-offset),3).getDisplayValues()){
+    if(!supportedLanguage(language)||!key.startsWith(language+':'))continue;
+    const fingerprint=key.slice(language.length+1),titles=variants.get(fingerprint)||new Map();titles.set(language,title);variants.set(fingerprint,titles);
+  }
+  const values=new Map([...variants].map(([fingerprint,titles])=>[fingerprint,[...new Set(Object.keys(languageNames).map(language=>titles.get(language)).filter(Boolean))]]));
+  writeDashboardCache_(cache,key,[...values]);articleIdentityTitlesMemory_={revision,values};return values;
+}
 function translationIdentityRows_(rows){
   if(!rows.length||!Object.keys(languageNames).some(language=>properties_().getProperty('TRANSLATIONS_REVISION:'+language)))return rows;
-  const index=articleTranslationIndex_(),languages=Object.keys(languageNames),keys=rows.map(row=>{const fingerprint=articleFingerprint_(row.original||row);return languages.map(language=>language+':'+fingerprint).filter(key=>index.has(key));}),values=cachedArticleTranslations_(keys.flat());
-  rows.forEach((row,i)=>{row.identityTitles=[...new Set(keys[i].map(key=>values.get(key)?.titular).filter(Boolean))];});
+  const titles=articleIdentityTitles_();
+  rows.forEach(row=>{row.identityTitles=titles.size?(titles.get(articleFingerprint_(row.original||row))||[]):[];});
   return rows;
 }
 function articleTranslationIndex_(){
@@ -20,11 +35,10 @@ function cachedArticleTranslations_(keys){
   if(!uncached.length)return articleTranslationMemory_;
   const index=articleTranslationIndex_(),positions=uncached.filter(key=>index.has(key)).map(key=>({key,row:index.get(key)})).sort((a,b)=>a.row-b.row),values={};
   for(const key of uncached)articleTranslationMemory_.set(key,null);
-  let start=0;
-  for(let end=1;end<=positions.length;end++){
-    if(end<positions.length&&positions[end].row===positions[end-1].row+1)continue;
-    const rows=book_().getSheetByName('Traducciones').getRange(positions[start].row,3,end-start,2).getDisplayValues();
-    rows.forEach(([titular,extracto],offset)=>{const key=positions[start+offset].key,value={titular,extracto};articleTranslationMemory_.set(key,value);const encoded=cacheJsonValue_(value);if(encoded)values['article:'+key]=encoded;});start=end;
+  const byRow=new Map(positions.map(({key,row})=>[row,key]));
+  for(const [first,last] of sheetRowRanges_(positions.map(item=>item.row),64)){
+    const rows=book_().getSheetByName('Traducciones').getRange(first,3,last-first+1,2).getDisplayValues();
+    rows.forEach(([titular,extracto],offset)=>{const key=byRow.get(first+offset);if(!key)return;const value={titular,extracto};articleTranslationMemory_.set(key,value);const encoded=cacheJsonValue_(value);if(encoded)values['article:'+key]=encoded;});
   }
   if(Object.keys(values).length)cache.putAll(values,21600);return articleTranslationMemory_;
 }

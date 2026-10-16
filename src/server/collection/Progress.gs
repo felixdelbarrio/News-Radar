@@ -1,5 +1,5 @@
 let progressContextMemory_;
-const PROGRESS_JOB_NAMES=Object.freeze({daily:'Recopilación diaria',classification:'Clasificación de noticias',translation:'Traducción de noticias',newsletter:'Envíos de newsletters planificadas',taxonomy:'Taxonomía',taxonomyTranslation:'Traducción de taxonomía',annual:'Recuperación anual'});
+const PROGRESS_JOB_NAMES=Object.freeze({daily:'Recopilación diaria',classification:'Clasificación de noticias',translation:'Traducción de noticias',newsletter:'Envíos de newsletters planificadas',taxonomy:'Taxonomía',taxonomyTranslation:'Traducción de taxonomía',annual:'Recuperación anual',maintenance:'Mantenimiento incremental'});
 function progressContext_(jobs){
   if(progressContextMemory_)return progressContextMemory_;
   const p=properties_().getProperties(),now=Date.now(),collection=jobs||collectionJobs_(),classification=p.CLASSIFICATION_JOB?JSON.parse(p.CLASSIFICATION_JOB):null,translation=p.TRANSLATION_JOB?JSON.parse(p.TRANSLATION_JOB):null,taxonomy=p.TAXONOMY_JOB?JSON.parse(p.TAXONOMY_JOB):null,taxonomyTranslation=p.TAXONOMY_TRANSLATION_JOB?JSON.parse(p.TAXONOMY_TRANSLATION_JOB):null,unfinished=job=>Boolean(job&&job.state!=='Completada');
@@ -14,7 +14,7 @@ function progressBlockingJob_(stage,context){
   if(stage==='newsletter'&&c.translating||!['translation','newsletter'].includes(stage)&&c.translating&&c.ready.translation)return 'translation';
   if(['taxonomy','taxonomyTranslation','annual'].includes(stage)&&c.ready.newsletter&&!c.translating)return 'newsletter';
   if(stage==='taxonomyTranslation'&&c.analyzing||stage==='annual'&&c.ready.taxonomy)return 'taxonomy';
-  if(stage==='annual'&&c.ready.taxonomyTranslation)return 'taxonomyTranslation';return '';
+  if(['annual','maintenance'].includes(stage)&&c.ready.taxonomyTranslation)return 'taxonomyTranslation';return '';
 }
 function jobProgressState_(stage,job={},options={}){
   const c=progressContext_(options.jobs),{p,now}=c,ownPause=Number(options.pausedUntil??job.pausedUntil??0),quotaUntil=['translation','taxonomyTranslation'].includes(stage)?c.translationQuota:stage==='daily'||stage==='annual'?Number(p.FETCH_PAUSED_UNTIL||0):Number(options.quotaUntil||0),effectiveQuota=Math.max(quotaUntil,serviceQuotaPause_(job.error)&&ownPause>now?ownPause:0),running=p.BACKGROUND_ACTIVE===stage&&Number(p.BACKGROUND_ACTIVE_UNTIL)>now||stage==='newsletter'&&Number(p.NEWSLETTER_RUNNING_UNTIL)>now;

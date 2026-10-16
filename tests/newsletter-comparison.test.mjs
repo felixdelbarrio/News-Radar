@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {JSDOM} from 'jsdom';
-import {storage} from './helpers/server.mjs';
+import {storage} from './helpers/delivery.mjs';
 import {app} from './helpers/app.mjs';
 function setup(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);s.c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';s.c.annotateNews_=rows=>rows;return s;}
 const story=(id,country,entity,theme='Pagos y cobros',date='2026-09-10')=>({id,pais:country,entidad:entity,fecha:date,medio:'Editor',titular:entity+' presenta servicio '+id,extracto:'Una nueva capacidad para el canal.',url:'https://example.com/'+id,tipo:'Banco tradicional',segmentos:['Empresas e instituciones'],etiquetas:{digital:true},senales:['Lanzamiento de producto'],taxonomia:[{palanca:theme,subpalanca:'API'}]});
@@ -34,8 +34,8 @@ test('la trimestral conserva el informe ejecutivo y muestra los tres meses del c
 test('las ventanas cubren quincenas naturales, años bisiestos, trimestres y cierres en la zona configurada',()=>{
  const {c}=setup();for(const [cadence,day,from,to] of [['fortnightly','2028-03-01','2028-02-16','2028-02-29'],['fortnightly','2026-10-16','2026-10-01','2026-10-15'],['fortnightly','2027-01-01','2026-12-16','2026-12-31'],['quarterly','2027-01-01','2026-10-01','2026-12-31'],['quarterly','2026-07-01','2026-04-01','2026-06-30']]){const period=c.newsletterWindow(cadence,day,true);assert.deepEqual([period.from,period.to],[from,to]);}
  const midnight=c.newsletterPeriod_('fortnightly',new Date('2026-10-15T22:30:00Z'));assert.equal(midnight.to,'2026-10-15');
- assert.throws(()=>c.subscriptionRecord_({periodicity:'weekly',filters:{}},'owner@bbva.com','id',new Date(),0),/Periodicidad/);assert.throws(()=>c.subscriptionRecord_({periodicity:'monthly',filters:{}},'owner@bbva.com','id',new Date(),0),/Periodicidad/);
+ assert.equal(c.subscriptionRecord_({},'owner@bbva.com','id',new Date()).periodicidad,'all');
 });
 test('inicializar convierte los datos existentes sin mantener cadencias antiguas en el contrato activo',()=>{
- const {c,sheets}=setup();c.saveSubscription({periodicity:'fortnightly',filters:{entity:'BBVA'}});c.saveSubscription({periodicity:'quarterly',filters:{entity:'Santander'}});const sheet=sheets.get('Suscripciones');sheet.grid[1][4]='weekly';sheet.grid[2][4]='monthly';const settings=sheets.get('Configuracion').grid.find(row=>row[0]==='settings'),value=JSON.parse(settings[1]);value.defaultPeriodicity='monthly';settings[1]=JSON.stringify(value);c.initializeConfiguration();assert.deepEqual(Array.from(c.subscriptionRows_(),row=>row.periodicidad),['fortnightly','quarterly']);assert.equal(c.settings_().defaultPeriodicity,'quarterly');const before=JSON.stringify(sheet.grid);c.initializeConfiguration();assert.equal(JSON.stringify(sheet.grid),before);
+ const {c,sheets}=setup();c.saveSubscription({periodicity:'fortnightly',filters:{entity:'BBVA'}});c.saveAdminSubscription({email:'other@bbva.com',periodicity:'quarterly',filters:{entity:'Santander'}});const sheet=sheets.get('Suscripciones');sheet.grid[1][4]='weekly';sheet.grid[2][4]='quarterly';const settings=sheets.get('Configuracion').grid.find(row=>row[0]==='settings'),value=JSON.parse(settings[1]);value.defaultPeriodicity='quarterly';settings[1]=JSON.stringify(value);c.initializeConfiguration();assert.deepEqual(Array.from(c.subscriptionRows_(),row=>row.periodicidad),['all','all']);assert.equal(c.settings_().defaultPeriodicity,undefined);const before=JSON.stringify(sheet.grid);c.initializeConfiguration();assert.equal(JSON.stringify(sheet.grid),before);
 });
