@@ -262,7 +262,7 @@ test('las ejecuciones se comparten entre cargas y una nueva escritura invalida l
 test('la telemetría identifica la versión que produjo cada operación y la exportación',()=>{
  const c=context();let rows;c.append_=(name,value)=>rows=value;c.trim_=()=>{};
  c.telemetry_('recopilacion',100,'OK','preparación 10 ms; red 20 ms; proceso 30 ms; escritura 40 ms');assert.ok(rows[0][4].startsWith('v'+vm.runInContext('RADAR.version',c)+';'));
- c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,'3.2.2');
+ c.rows_=()=>[];assert.equal(c.exportTelemetry().applicationVersion,vm.runInContext('RADAR.version',c));
 });
 
 test('cada vista calcula solo su visualización y conserva el medio de las noticias',()=>{

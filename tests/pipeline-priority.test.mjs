@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {storage} from './helpers/delivery.mjs';
-function fixture(){const s=storage();s.c.initializeConfiguration();return s;}
+function fixture(){const s=storage();s.c.initializeConfiguration();delete s.properties.DASHBOARD_SNAPSHOT_REQUEST;return s;}
 const work={pending:[{ciclo:'annual'}],jobs:[{id:'annual',tipo:'annual',pendientes:1}]};
 test('prioridad única: diaria, clasificación, traducción de negocio, newsletter, taxonomía, traducción de taxonomía y pendientes',()=>{
  const {c,properties:p}=fixture();c.settings_().newsletterEnabled=true;

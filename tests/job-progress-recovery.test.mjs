@@ -20,7 +20,7 @@ test('el supervisor repone un trabajador perdido y conserva las pausas y los dat
  c.initializeBackgroundSchedules_();assert.equal(c.scheduledTriggers_('backgroundWatchdog_').length,1);assert.equal(c.scheduledTriggers_('backgroundWatchdog_')[0].minutes,5);
 });
 test('el supervisor no interrumpe un trabajador en ejecución ni lee hojas cuando no hay pendientes',()=>{
- const s=fixture(),c=s.c;delete s.properties.BACKGROUND_PENDING;c.collectionJobs_=()=>{throw Error('No debe consultar Sheets');};c.backgroundWatchdog_();s.properties.BACKGROUND_PENDING='true';c.LockService={getScriptLock:()=>({tryLock:()=>false})};c.backgroundWatchdog_();assert.equal(c.scheduledTriggers_('backgroundTick_').length,0);
+ const s=fixture(),c=s.c;for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();delete s.properties.BACKGROUND_PENDING;c.collectionJobs_=()=>{throw Error('No debe consultar Sheets');};c.backgroundWatchdog_();s.properties.BACKGROUND_PENDING='true';c.LockService={getScriptLock:()=>({tryLock:()=>false})};c.backgroundWatchdog_();assert.equal(c.scheduledTriggers_('backgroundTick_').length,0);
 });
 test('el progreso de newsletter deduplica intentos, detecta revisiones y nunca lee Noticias ni consulta Gmail',()=>{
  const s=fixture(),c=s.c;c.settings_().newsletterEnabled=true;

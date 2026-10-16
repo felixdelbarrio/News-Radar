@@ -30,7 +30,7 @@ test('una diaria llegada durante clasificación se atiende en el siguiente lote,
 });
 test('ejecución manual administrativa conserva cursor activo y progreso final; reejecución no vuelve a escribir etiquetas',()=>{
  const s=server(),c=s.c;c.startClassification();c.newsClassificationBatch_();assert.equal(c.getClassificationStatus().job.processed,100);const job=JSON.stringify(c.classificationJob_());c.startClassification();assert.equal(JSON.stringify(c.classificationJob_()),job);c.processBackground_();const status=c.getClassificationStatus();assert.equal(status.job.state,'Completada');assert.equal(status.job.processed,250);assert.equal(status.job.classified,250);assert.equal(status.job.digital,250);
- c.startClassification();c.processBackground_();assert.equal(c.getClassificationStatus().job.classified,0);assert.equal(c.getClassificationStatus().job.processed,250);assert.equal(c.scheduledTriggers_('backgroundTick_').length,0);
+ c.startClassification();c.processBackground_();assert.equal(c.getClassificationStatus().job.classified,0);assert.equal(c.getClassificationStatus().job.processed,250);for(let i=0;i<3;i++)c.processBackground_();assert.equal(c.scheduledTriggers_('backgroundTick_').length,0);
  s.setEmail('reader@bbva.com');assert.throws(()=>c.startClassification(),/administrador/);assert.throws(()=>c.getClassificationStatus(),/administrador/);
 });
 test('error de Sheets conserva cursor, pausa y reintenta después; no monopoliza el trabajador',()=>{
