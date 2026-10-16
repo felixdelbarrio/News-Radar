@@ -51,7 +51,7 @@ const negative=[
  'Visa expands stablecoin payments: Barclays keeps Buy on Visa stock',
  'N26 launches online banking for personal customers',
  'BBVA mejora su app para particulares',
- 'Banco tradicional presenta resultados mensuales',
+ 'Banco tradicional presenta resultados trimestrales',
  'Qué es una API bancaria y cómo funciona',
  'Cómo abrir una cuenta para empresas por internet',
  'HSBC recognised for cash management in Qatar by Euromoney'

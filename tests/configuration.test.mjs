@@ -28,7 +28,7 @@ test('desactivar entidades o países elimina consultas futuras sin borrar notici
   assert.ok(!c.feeds_().some(row=>row.entity==='Qonto'||row.country==='México'));assert.ok(c.configuredFeeds_().some(row=>row.entity==='Qonto'&&!row.enabled));
 });
 test('selecciones personales impiden suplantación y acceso cruzado; newsletter conserva fuentes y escapa HTML',()=>{
-  const s=storage(),{c}=s;c.initializeConfiguration();s.setEmail('a@bbva.com');c.saveSubscription({name:'Mi canal',periodicity:'monthly',email:'forged@bbva.com',filters:{entity:'Qonto',segment:'Empresas e instituciones',coverage:''}});const own=c.getSubscriptions();assert.equal(own[0].correo,'a@bbva.com');
+  const s=storage(),{c}=s;c.initializeConfiguration();s.setEmail('a@bbva.com');c.saveSubscription({name:'Mi canal',periodicity:'quarterly',email:'forged@bbva.com',filters:{entity:'Qonto',segment:'Empresas e instituciones',coverage:''}});const own=c.getSubscriptions();assert.equal(own[0].correo,'a@bbva.com');
   c.rows_=name=>name==='Noticias'?[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:c.subscriptionQuery_({...own[0],periodicidad:'fortnightly'},new Date()).from,pais:'España',entidad:'Qonto',medio:'Editor',titular:'Qonto lanza cuenta para autónomos <script>',extracto:'Texto de la fuente',url:'https://example.com/product'}]:s.sheets.get(name).grid.slice(1).map(row=>Object.fromEntries(['id','correo','nombre','filtros','periodicidad','activa','actualizada'].map((key,i)=>[key,String(row[i])])));
   const result=c.newsletter_(c.rows_('Noticias'),c.subscriptionQuery_({...own[0],periodicidad:'fortnightly'},new Date()),own[0].nombre,new Date(),own[0].id);assert.equal(result.count,1);assert.match(result.html,/href="https:\/\/example.com\/product"/);assert.doesNotMatch(result.html,/<script>/);assert.doesNotMatch(result.html,/<script>/);
   s.setEmail('b@bbva.com');assert.equal(c.getSubscriptions().length,0);assert.equal(typeof c.sendSubscriptionTest,'undefined');assert.throws(()=>c.deleteSubscription(own[0].id),/no encontrada/);s.setEmail('a@bbva.com');c.deleteSubscription(own[0].id);assert.equal(c.getSubscriptions().length,0);
@@ -46,12 +46,12 @@ test('las señales de titular evitan confundir artículos educativos o promesas 
 
 test('newsletter selecciona quincenas y conserva cierres naturales en la zona configurada',()=>{
  const s=storage(),{c}=s;c.initializeConfiguration();const q=c.subscriptionQuery_({periodicidad:'fortnightly',filtros:{entity:'BBVA',coverage:''}},new Date('2026-10-25T23:30:00Z'));assert.equal(q.to,'2026-10-31');assert.equal(q.from,'2026-10-16');assert.equal(q.entity,undefined);
- const leap=c.newsletterPeriod_('monthly',new Date('2024-04-01T10:00:00Z'));assert.equal(leap.from,'2024-03-01');assert.equal(leap.to,'2024-03-31');const week=c.newsletterPeriod_('fortnightly',new Date('2026-10-12T10:00:00Z'));assert.equal(week.from,'2026-09-16');assert.equal(week.to,'2026-09-30');
+ const leap=c.newsletterPeriod_('quarterly',new Date('2024-04-01T10:00:00Z'));assert.equal(leap.from,'2024-01-01');assert.equal(leap.to,'2024-03-31');const week=c.newsletterPeriod_('fortnightly',new Date('2026-10-12T10:00:00Z'));assert.equal(week.from,'2026-09-16');assert.equal(week.to,'2026-09-30');
 });
 test('administración da altas y edita suscripciones; lectores no acceden a otros usuarios',()=>{
  const s=storage(),{c}=s;c.initializeConfiguration();s.book.insertSheet('Noticias').grid.push([]);const defaults=c.getNewsletterOptions().defaults;assert.equal(defaults.periodicity,undefined);assert.equal(defaults.filters.entity,undefined);assert.equal(defaults.filters.segment,undefined);assert.equal(defaults.filters.country,undefined);
  c.saveAdminSubscription({email:'equipo@bbva.com',name:'Equipo',filters:defaults.filters});let rows=c.getAdminSubscriptions();assert.equal(rows.length,1);c.saveAdminSubscription({id:rows[0].id,email:'equipo@bbva.com',name:'Pausada',active:false,periodicity:'fortnightly',filters:defaults.filters});rows=c.getAdminSubscriptions();assert.equal(rows[0].activa,false);assert.equal(rows[0].periodicidad,'all');
- assert.throws(()=>c.saveAdminSubscription({email:'outside@example.com',name:'Fuera',filters:{}}),/dominio/);s.setEmail('equipo@bbva.com');assert.equal(c.getSubscriptions().length,1);assert.throws(()=>c.getAdminSubscriptions(),/administrador/);assert.throws(()=>c.saveAdminSubscription({}),/administrador/);c.saveSubscription({id:rows[0].id,name:'Mía',periodicity:'monthly',active:true,filters:{}});assert.equal(c.getSubscriptions()[0].nombre,'Mi Newsletter');
+ assert.throws(()=>c.saveAdminSubscription({email:'outside@example.com',name:'Fuera',filters:{}}),/dominio/);s.setEmail('equipo@bbva.com');assert.equal(c.getSubscriptions().length,1);assert.throws(()=>c.getAdminSubscriptions(),/administrador/);assert.throws(()=>c.saveAdminSubscription({}),/administrador/);c.saveSubscription({id:rows[0].id,name:'Mía',periodicity:'quarterly',active:true,filters:{}});assert.equal(c.getSubscriptions()[0].nombre,'Mi Newsletter');
 });
 
 test('la entrega registra cada período antes de enviar y no duplica ni reintenta envíos inciertos',()=>{
@@ -66,14 +66,14 @@ test('la entrega registra cada período antes de enviar y no duplica ni reintent
 });
 
 test('la próxima entrega diferencia altas nuevas, pendientes, rechazos y suscripciones pausadas',()=>{
- const s=storage(),{c}=s;c.initializeConfiguration();const now=new Date('2026-10-10T10:00:00Z'),row={activa:true,periodicidad:'monthly',actualizada:'2026-10-10T09:00:00Z'};
- assert.equal(c.newsletterNextDate_(row,now),'2026-11-04');row.actualizada='2026-09-01T09:00:00Z';assert.equal(c.newsletterNextDate_(row,now),'2026-10-10');
- assert.equal(c.newsletterNextDate_(row,now,{id:'undefined:monthly:2026-09-01',estado:'Enviada'}),'2026-11-04');assert.equal(c.newsletterNextDate_(row,now,{id:'undefined:monthly:2026-09-01',estado:'No enviado'}),'2026-10-10');
+ const s=storage(),{c}=s;c.initializeConfiguration();const now=new Date('2026-10-10T10:00:00Z'),row={activa:true,periodicidad:'quarterly',actualizada:'2026-10-10T09:00:00Z'};
+ assert.equal(c.newsletterNextDate_(row,now),'2027-01-06');row.actualizada='2026-09-01T09:00:00Z';assert.equal(c.newsletterNextDate_(row,now),'2026-10-10');
+ assert.equal(c.newsletterNextDate_(row,now,{id:'undefined:quarterly:2026-07-01',estado:'Enviada'}),'2027-01-06');assert.equal(c.newsletterNextDate_(row,now,{id:'undefined:quarterly:2026-07-01',estado:'No enviado'}),'2026-10-10');
  assert.equal(c.newsletterNextDate_({...row,periodicidad:'fortnightly',actualizada:now.toISOString()},now),'2026-10-19');assert.equal(c.newsletterNextDate_({...row,periodicidad:'yearly',actualizada:now.toISOString()},now),'2027-01-01');assert.equal(c.newsletterNextDate_({...row,activa:false},now),'');
 });
 test('un rechazo confirmado se puede reintentar y los mensajes de selecciones distintas conservan su nombre',()=>{
  const s=storage(),{c}=s;c.initializeConfiguration();const cfg=c.getConfiguration();cfg.config.settings.newsletterEnabled=true;c.saveConfiguration(cfg);s.book.insertSheet('Noticias').grid.push([]);
- const names=[],rows=['Canal A','Canal B'].map((nombre,i)=>({id:String(i),nombre,correo:'user'+i+'@bbva.com',periodicidad:'monthly',activa:true,actualizada:'2020-01-01',filtros:{}}));c.subscriptionRows_=()=>rows;c.newsletterSender_=()=>({});
+ const names=[],rows=['Canal A','Canal B'].map((nombre,i)=>({id:String(i),nombre,correo:'user'+i+'@bbva.com',periodicidad:'quarterly',activa:true,actualizada:'2020-01-01',filtros:{}}));c.subscriptionRows_=()=>rows;c.newsletterSender_=()=>({});
  c.newsletterContent_=(_rows,_query,title)=>{names.push(title);return {count:1,html:title,text:title,items:[],evidence:[]};};c.sendNewsletterMail_=()=>{const error=Error('Rechazado');error.rejected=true;throw error;};
  assert.equal(c.deliverNewsletterBatch_().state,'error');assert.equal(s.sheets.get('NewsletterEnvios').grid[1][5],'No enviado');c.sendNewsletterMail_=(_s,_r,content)=>{assert.match(content.html,/Canal [AB]/);return 'accepted';};
  const result=c.deliverNewsletterBatch_();assert.equal(result.accepted,2);assert.deepEqual(names,['Canal A','Canal A','Canal B']);assert.equal(c.deliverNewsletterBatch_().state,'no_due');

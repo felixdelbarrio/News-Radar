@@ -6,7 +6,7 @@ import {storage} from './helpers/server.mjs';
 function setup(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);s.c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';return s;}
 const story=(id,country='España',entity='BBVA',category='Integración y automatización')=>({id,pais:country,entidad:entity,fecha:'2026-10-13',medio:'Editor',titular:'Un servicio digital para empresas '+id,extracto:'Un cambio concreto y verificable.',senales:[],segmentos:['Empresas e instituciones'],tipo:'Banco tradicional',etiquetas:{digital:true},taxonomia:[{id:'api',palanca:category,subpalanca:'APIs e integración'}],url:'https://example.com/'+id});
 const query={view:'news',country:'España',coverage:'digital',segment:'Empresas e instituciones',from:'2026-10-01',to:'2026-10-31'};
-test('el ejemplo mensual y anual prioriza la relevancia entre noticias nuevas para el destinatario sin recortar el corpus',()=>{
+test('el ejemplo trimestral y anual prioriza la relevancia entre noticias nuevas para el destinatario sin recortar el corpus',()=>{
  const {c}=setup(),input=[story('fortnightly'),story('fresh'),story('recent')];input[2].fecha='2026-10-31';for(const row of input)row.senales=['Lanzamiento de producto'];
  c.newsRelevance_=row=>({fortnightly:100,fresh:90,recent:10}[row.id]);
  const fortnightly=c.newsletterContent_(input,{view:'briefing'},'Semana',new Date(),'sub');
@@ -54,7 +54,7 @@ test('la semanal agrupa por subpalanca, conserva la palanca y abre solo sus evid
  for(const anchor of d.querySelectorAll('.newsletter-related')){const params=Object.fromEntries(new URL(anchor.href).searchParams),target=c.getDashboard({...params,initial:true});assert.equal(target.selection.subpalanca,'Integración y automatización › APIs e integración');assert.equal(target.newsGeographies.reduce((sum,row)=>sum+row.total,0),params.country?2:3);}
  for(const language of ['en','tr']){const translated=c.newsletterContent_(input,{...query,view:'briefing'},'Semana',new Date(),'sub',language,'fortnightly');assert.doesNotMatch(translated.html,/noticia más en esta subpalanca|Un ejemplo de esta subpalanca|\{count\}/);}
 });
-test('la mensual prioriza volumen anual frente a recencia y resume entidades y actividad por trimestre con evidencia completa',()=>{
+test('la trimestral prioriza volumen anual frente a recencia y resume entidades y actividad por trimestre con evidencia completa',()=>{
  const s=setup(),c=s.c,input=Array.from({length:8},(_,i)=>({...story('old'+i,i<5?'España':'México',i<4?'BBVA':'Santander','Pagos y cobros'),fecha:'2026-'+['01','04','07','10'][i%4]+'-10'}));
  input.push({...story('latest','España','Qonto','Acceso y experiencia digital'),fecha:'2026-12-31'});input[0].taxonomia.push({...input[0].taxonomia[0],id:'duplicate',subpalanca:'Otra etiqueta'});input.push(story('transversal','Sin determinar','Revolut','Integración y automatización'));
  c.annotateNews_=rows=>rows;
@@ -66,7 +66,7 @@ test('la mensual prioriza volumen anual frente a recencia y resume entidades y a
  const entityLink=d.querySelector('.newsletter-leader-name a'),params=Object.fromEntries(new URL(entityLink.href).searchParams),target=c.getDashboard({...params,initial:true});assert.equal(target.selection.entity,'BBVA');assert.equal(target.selection.country,'España');assert.equal(target.total,4);
  c.settings_().briefingLimit=1;const limited=c.newsletterContent_(input,{view:'news'},'Año',new Date(),'sub');assert.equal(limited.count,1);assert.equal(limited.editorial.landscapes.global.total,10);
 });
-test('la mensual sin geografía muestra solo mirada global, traduce sus métricas y admite datos sin taxonomía',()=>{
+test('la trimestral sin geografía muestra solo mirada global, traduce sus métricas y admite datos sin taxonomía',()=>{
  const {c}=setup(),input=[{...story('one','Sin determinar'),taxonomia:[]}];
  for(const language of ['es','en','tr']){const content=c.newsletterContent_(input,{view:'news'},'Año',new Date(),'sub',language),d=new JSDOM(content.html).window.document;assert.equal(d.querySelectorAll('.newsletter-report').length,1);assert.equal(content.editorial.landscapes.global.themes.length,0);assert.equal(content.editorial.landscapes.global.countryCount,0);assert.doesNotMatch(content.html,/\{theme\}|\{share\}|NaN|undefined/);assert.equal(d.querySelector('.newsletter-leader-name a'),null);}
  const empty=c.newsletterContent_([],{view:'news'},'Año',new Date(),'sub');assert.equal(new JSDOM(empty.html).window.document.querySelector('.newsletter-report'),null);

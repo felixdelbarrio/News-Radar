@@ -66,7 +66,9 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "BBVA Net Cash",
         "Garanti BBVA",
         "BBVA Provincial",
-        "Provinet Empresas"
+        "Provinet Empresas",
+        "Openpay",
+        "BBVA Pivot"
       ],
       "countries": [
         "España",
@@ -100,7 +102,11 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
       "name": "Santander",
       "type": "Banco tradicional",
       "aliases": [
-        "Santander Empresas"
+        "Santander Empresas",
+        "Getnet",
+        "PagoNxt",
+        "Ebury",
+        "Cash Nexus"
       ],
       "countries": [
         "España",
@@ -174,7 +180,9 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
       "name": "HSBC",
       "type": "Banco tradicional",
       "aliases": [
-        "HSBC Empresas"
+        "HSBC Empresas",
+        "HSBCnet",
+        "HSBCnio"
       ],
       "countries": [
         "México",
@@ -628,7 +636,9 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
       "countries": [
         "Estados Unidos"
       ],
-      "aliases": [],
+      "aliases": [
+        "CashPro"
+      ],
       "type": "Banco tradicional",
       "enabled": true
     },
@@ -640,7 +650,9 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "Hong Kong"
       ],
       "aliases": [
-        "Citibank"
+        "Citibank",
+        "CitiDirect",
+        "CitiBusiness"
       ],
       "type": "Banco tradicional",
       "enabled": true
@@ -1807,7 +1819,12 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
           "checkout",
           "tpv",
           "softpos",
-          "paycomet"
+          "paycomet",
+          "datáfono",
+          "contactless",
+          "sin contacto",
+          "receivables",
+          "payment acceptance"
         ],
         "enabled": true
       },
@@ -1935,7 +1952,10 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
           "erp",
           "contpaqi",
           "contabilidad",
-          "accounting integration"
+          "accounting integration",
+          "facturación electrónica",
+          "e-invoicing",
+          "electronic invoicing"
         ],
         "enabled": true
       },
@@ -2118,7 +2138,11 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "name": "Pagos masivos",
         "terms": [
           "pagos masivos",
-          "bulk payments"
+          "bulk payments",
+          "payroll",
+          "nóminas",
+          "pago de proveedores",
+          "supplier payments"
         ],
         "enabled": true
       },
@@ -2496,7 +2520,13 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "artificial intelligence",
         "agentic ai",
         "ai",
-        "ia"
+        "ia",
+        "contactless",
+        "sin contacto",
+        "nfc",
+        "cashless",
+        "datáfono",
+        "e-invoicing"
       ],
       "enabled": true
     },
@@ -2686,7 +2716,12 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "jubilacion",
         "quiniela",
         "loteria",
-        "resultados financieros"
+        "resultados financieros",
+        "ingresos de su negocio",
+        "beneficios del grupo",
+        "resultado neto",
+        "net income",
+        "quarterly results"
       ],
       "enabled": true
     },

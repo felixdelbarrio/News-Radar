@@ -15,13 +15,6 @@ function configurationEdited_(event){const sheet=event?.range?.getSheet().getNam
 function initializeConfiguration(){
   authorize_(true);return withForegroundWrite_(()=>{
     const refreshCatalog=properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION;
-    const news=book_().getSheetByName('Noticias');
-    if(news&&news.getRange(1,8,1,1).getDisplayValues()[0][0]==='tema')news.deleteColumn(8);
-    const catalog=book_().getSheetByName('Configuracion');
-    if(catalog&&catalog.getLastRow()>1){
-      const keys=catalog.getRange(2,1,catalog.getLastRow()-1,1).getDisplayValues();
-      for(let i=keys.length-1;i>=0;i--)if(keys[i][0]==='topics')catalog.deleteRow(i+2);
-    }
     for(const name of ['Configuracion','Suscripciones','NewsletterEnvios','NewsletterEdiciones','NewsletterContenido','NewsletterEventos','NewsletterFeedback','Noticias','Recopilacion','Recargas','Traducciones','Taxonomia','TaxonomiaTrabajo','TaxonomiaTraducciones','Auditoria','Telemetria','Ejecuciones','Adopcion']){
       if(book_().getSheetByName(name)){if(name!=='Configuracion')book_().getSheetByName(name).getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]);continue;}
       const sheet=book_().insertSheet(name);sheet.getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]).setFontWeight('bold').setBackground(SHEET_THEME.background).setFontColor(SHEET_THEME.foreground);sheet.setFrozenRows(1);
@@ -62,7 +55,6 @@ function initializeConfiguration(){
     invalidateConfiguration_();
     initializeSubscriptions_(subscriptions);
     if(refreshCatalog){upgradeCollectionQueries_();if(translationJob_())requestTranslations_(true);properties_().setProperty('CATALOG_VERSION',CONFIGURATION_CATALOG_VERSION);}
-    properties_().deleteProperty('CLASSIFICATION_VERSION');
     requestNewsClassification_();
     if(refreshCatalog&&book_().getSheetByName('Noticias').getLastRow()>1)requestTaxonomy_();
     initializeCollectionQueue_();

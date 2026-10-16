@@ -54,11 +54,11 @@ function headlineEntity_(headline,index){
 }
 function digitalAssessment_(title,text,index=businessIndex_()){
   // Entity names are not evidence of a service (for example, Mercado Pago).
-  title=title.replace(index.serviceNames,' ');text=text.replace(index.serviceNames,' ');
+  const headline=title;title=title.replace(index.serviceNames,' ');text=text.replace(index.serviceNames,' ');
   const capabilities=index.capabilities.filter(row=>row.pattern.test(text));
   const business=index.segments.some(row=>row.pattern.test(text)),channel=index.relevance.channel.test(text),shared=index.relevance.shared.test(title);
   const change=index.signals.some(row=>termsMatch_(title,row.terms)),editorial=index.relevance.editorial.test(title),excluded=index.relevance.corporate.test(title)||index.relevance.incidental.test(title)||!business&&index.relevance.retail.test(title);
-  const relevant=Boolean(capabilities.length&&!excluded&&!editorial&&(business&&(channel||shared)&&(index.relevance.service.test(text)||headlineEntity_(title,index))||shared&&(channel||change||index.relevance.infrastructure.test(title))));
+  const relevant=Boolean(capabilities.length&&!excluded&&!editorial&&(business&&(channel||shared)&&(index.relevance.service.test(text)||headlineEntity_(headline,index))||shared&&(channel||change||index.relevance.infrastructure.test(title))));
   const score=relevant?4+Math.min(3,capabilities.length)+(business?2:0)+(change?2:0):0;
   return {capabilities,score,channel,change,editorial,excluded,relevant,business,shared};
 }

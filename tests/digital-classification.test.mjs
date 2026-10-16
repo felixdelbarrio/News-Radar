@@ -18,7 +18,7 @@ const negative=[
  'BBVA reports record earnings and appoints an AI director',
  'Qonto anuncia resultados financieros de banca online',
  'BBVA obtiene un premio de innovación digital',
- 'Banco tradicional presenta resultados mensuales',
+ 'Banco tradicional presenta resultados trimestrales',
  'Festival presenta aplicaciones de IA para pintura'
 ];
 test('canal digital empresarial reconoce API, IA y móvil con contexto explícito y excluye Retail',()=>{const {c}=server();for(const title of ['Qonto lanza una API de tesorería para empresas','BBVA incorpora IA a su asistente digital para empresas','BBVA mejora banca móvil con autenticación biométrica para pymes'])assert.equal(c.classification_(c.searchText_(title),c.searchText_(title)).labels.digital,true,title);for(const title of [...negative,'N26 launches online banking for personal customers','BBVA mejora su app para particulares'])assert.equal(c.classification_(c.searchText_(title),c.searchText_(title)).labels.digital,false,title);assert.deepEqual(JSON.parse(JSON.stringify(c.savedNewsLabels_('bad'))),{digital:false,capacidades:[]});});

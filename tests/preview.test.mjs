@@ -56,7 +56,7 @@ test('la vista local configura períodos y asuntos traducidos y personaliza sin 
  const c=vm.createContext({window:{}});vm.runInContext(adapter,c);const preview=c.window.RADAR_PREVIEW;
  await preview.call('saveSubscription',{name:'Nombre ignorado',language:'en',periodicity:'yearly',filters:{entity:'Santander'}});await preview.call('saveSubscription',{language:'tr',periodicity:'fortnightly',filters:{entity:'BBVA'}});
  const subscriptions=await preview.call('getSubscriptions');assert.equal(subscriptions[0].nombre,'Mi Newsletter');assert.doesNotMatch(subscriptions[0].nombre,/ignorado/);assert.equal(subscriptions.length,1);assert.equal(subscriptions[0].periodicidad,'all');
- const {newsletterCadences}=await import('../src/shared/newsletter-cadences.js');
- for(const [cadence,{view}] of Object.entries(newsletterCadences)){const data=await preview.call('getDashboard',{view,initial:true}),period=c.dashboardPeriod_(view,new Date(),Boolean(data.context.periodFallback));assert.equal(data.selection.from,period.from);assert.equal(data.selection.to,period.to);assert.notEqual(data.selection.entity,'Santander');assert.equal(data.personalization,undefined);assert.equal(data.context.mode,'current');}
+ const {newsletterCadences,readingWindow}=await import('../src/shared/newsletter-cadences.js');
+ for(const [cadence,{view}] of Object.entries(newsletterCadences)){const data=await preview.call('getDashboard',{view,initial:true}),period=readingWindow(view,new Date().toLocaleDateString('en-CA',{timeZone:'Europe/Madrid'}),Boolean(data.context.periodFallback));assert.equal(data.selection.from,period.from);assert.equal(data.selection.to,period.to);assert.notEqual(data.selection.entity,'Santander');assert.equal(data.personalization,undefined);assert.equal(data.context.mode,'current');}
  const options=await preview.call('getNewsletterOptions');assert.equal(options.defaults.name,undefined);assert.equal(options.defaults.filters.range,undefined);
 });

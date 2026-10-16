@@ -33,7 +33,7 @@ function writeSubscription_(input,admin){
     if(input.id&&(index<0||rows[index].id!==input.id))throw Error('Suscripción no encontrada.');
     const record=subscriptionRecord_(input,email,index>=0?rows[index].id:Utilities.getUuid(),new Date());if(index>=0){const original=JSON.parse(book_().getSheetByName('Suscripciones').getRange(index+2,4,1,1).getDisplayValues()[0][0]);if(original.aliases?.length)record.filtros.aliases=original.aliases;}const values=RADAR.sheets.Suscripciones.map(key=>key==='filtros'?JSON.stringify(record[key]):record[key]);
     if(index<0)append_('Suscripciones',[values]);else book_().getSheetByName('Suscripciones').getRange(index+2,1,1,values.length).setValues([values]);
-    properties_().setProperty('SUBSCRIPTIONS_REVISION',Utilities.getUuid());return 'Suscripción guardada. Recibirás las ediciones quincenal, mensual y anual.';
+    properties_().setProperty('SUBSCRIPTIONS_REVISION',Utilities.getUuid());return 'Suscripción guardada. Recibirás las ediciones quincenal, trimestral y anual.';
   });
 }
 function saveSubscription(input){return writeSubscription_(input,false);}

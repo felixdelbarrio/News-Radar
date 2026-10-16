@@ -73,7 +73,7 @@
   },
   "segments": {
     "label": "Segmentos",
-    "help": "Una noticia puede pertenecer a varios segmentos. Sin coincidencia se mantiene sin segmento.",
+    "help": "Contexto de Empresas e instituciones, pymes y autónomos. Términos separados por punto y coma; * al final de una palabra admite sus variantes. Las capacidades transversales pueden ser relevantes aunque el titular no mencione el segmento.",
     "fields": [
       [
         "name",
@@ -217,7 +217,7 @@
   },
   "capabilities": {
     "label": "Capacidades digitales",
-    "help": "Capacidades independientes para Empresas y Retail. Términos separados por punto y coma; solo las activas participan en búsquedas y relevancia.",
+    "help": "Capacidades del canal de Empresas e instituciones. Solo las activas participan en búsquedas, clasificación y relevancia. Términos separados por punto y coma.",
     "fields": [
       [
         "name",
