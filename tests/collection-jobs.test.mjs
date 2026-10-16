@@ -6,7 +6,7 @@ function server(){
  const s=storage(),c=s.c;c.initializeConfiguration();
  for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);
  const feed=c.feeds_().find(feed=>feed.kind==='rss');c.collectionFeeds_=range=>[{...feed,range}];
- c.UrlFetchApp={fetchAll:requests=>requests.map(()=>({getResponseCode:()=>200,getContentText:()=>'<rss/>'}))};c.parseFeed_=()=>[];return {...s,feed};
+ c.UrlFetchApp={fetchAll:requests=>requests.map(()=>({getResponseCode:()=>200,getContentText:()=>'<rss/>'}))};c.parseFeed_=()=>[];for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();return {...s,feed};
 }
 function addJob(s,id,type,count,priority='2026-10-11'){
  const keys=vm.runInContext('RADAR.sheets.Recargas',s.c),job={id,tipo:type,desde:'2025-10-11',hasta:priority,inicio:'2026-10-11T00:00:00Z',fin:'',estado:'Pendiente',total:count,procesadas:0,pendientes:count,omitidas:0,fallidas:0,nuevas:0,actualizada:'',pausa:''};

@@ -1,6 +1,7 @@
 const RADAR = Object.freeze({
-  version:'3.2.2',
+  version:'3.2.3',
   sheets:{
+    DashboardSnapshots:['vista','generacion','parte','datos'],
     Configuracion:['clave','valor'],
     Suscripciones:['id','correo','nombre','filtros','periodicidad','activa','actualizada','idioma'],
     NewsletterEdiciones:['id','envio','correo','nombre','filtros','idioma','fecha','inicio','cantidad','estado','traducciones','editorial'],
@@ -31,3 +32,5 @@ const COLLECTION_POLICY=Object.freeze({windowDays:28,searchTerms:10,localTerms:4
 const CONFIGURATION_CATALOG_VERSION='3.2.0';
 const CLASSIFICATION_WORK=Object.freeze({rulesVersion:'3.2.2',batchRows:100,maxMs:10000});
 const RELEVANCE_ROLES=Object.freeze(['channel','service','shared','infrastructure','corporate','retail','editorial','incidental']);
+
+const DASHBOARD_SNAPSHOTS=Object.freeze({views:['briefing','news','radar'],chars:40000,parts:64});
