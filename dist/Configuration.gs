@@ -12,6 +12,20 @@ function configuration_(){
 }
 function invalidateConfiguration_(){configurationMemory_=undefined;configurationVersionMemory_=undefined;properties_().setProperty('CONFIG_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));}
 function configurationEdited_(event){const sheet=event?.range?.getSheet().getName();if(MAINTENANCE_TABLES.includes(sheet))invalidateMaintenanceCursor_(sheet,event.range.getRow?.()||2);if(backgroundPaused_()&&['Configuracion','Noticias'].includes(sheet)){deferBackgroundWork_(sheet==='Configuracion'?'edited':'news');return;}if(sheet==='Configuracion'){invalidateConfiguration_();requestNewsClassification_(true);}else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
+function addVocabularyTerms_(config){
+  let changed=false;
+  for(const [key,rows] of [['relevanceRules',config.relevanceRules],['capabilities',config.capabilities.Empresas]])for(const addition of CONFIGURATION_VOCABULARY_UPDATE[key]){
+    const row=rows.find(item=>item.name===addition.name);if(!row)continue;
+    const terms=[...new Set([...row.terms,...addition.terms])];if(terms.length!==row.terms.length){row.terms=terms;changed=true;}
+  }
+  return changed;
+}
+function updateVocabulary_(sheet){
+  if(properties_().getProperty('VOCABULARY_VERSION')===CONFIGURATION_VOCABULARY_UPDATE.version)return false;
+  const values=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues(),config=Object.fromEntries(values.map(([key,value])=>[key,JSON.parse(value)])),changed=addVocabularyTerms_(config);
+  if(changed)for(const key of ['relevanceRules','capabilities'])sheet.getRange(values.findIndex(row=>row[0]===key)+2,2,1,1).setValues([[JSON.stringify(config[key])]]);
+  properties_().setProperty('VOCABULARY_VERSION',CONFIGURATION_VOCABULARY_UPDATE.version);return changed;
+}
 function initializeConfiguration(){
   authorize_(true);return withForegroundWrite_(()=>{
     const refreshCatalog=properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION;
@@ -52,10 +66,10 @@ function initializeConfiguration(){
     if(!ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='configurationEdited_'))ScriptApp.newTrigger('configurationEdited_').forSpreadsheet(book_()).onEdit().create();
     const subscriptions=book_().getSheetByName('Suscripciones'),countSubscriptions=subscriptions.getLastRow()-1;
     if(countSubscriptions>0){const range=subscriptions.getRange(2,8,countSubscriptions,1);range.setValues(range.getValues().map(([value])=>[value||'es']));}
-    invalidateConfiguration_();
+    const vocabularyChanged=updateVocabulary_(sheet);invalidateConfiguration_();
     initializeSubscriptions_(subscriptions);
     if(refreshCatalog){upgradeCollectionQueries_();if(translationJob_())requestTranslations_(true);properties_().setProperty('CATALOG_VERSION',CONFIGURATION_CATALOG_VERSION);}
-    requestNewsClassification_();
+    requestNewsClassification_(vocabularyChanged);
     if(refreshCatalog&&book_().getSheetByName('Noticias').getLastRow()>1)requestTaxonomy_();
     initializeCollectionQueue_();
     if(refreshCatalog&&(book_().getSheetByName('Noticias').getLastRow()>1||book_().getSheetByName('Telemetria')?.getLastRow()>1))maintenance_();

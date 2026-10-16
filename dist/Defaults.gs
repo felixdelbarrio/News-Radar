@@ -1,3 +1,61 @@
+const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
+  "version": "3.2.2",
+  "relevanceRules": [
+    {
+      "name": "Evidencia de canal digital",
+      "terms": [
+        "transacciones inmediatas",
+        "pagos inmediatos",
+        "bre-b",
+        "instant transfers"
+      ]
+    },
+    {
+      "name": "Servicios financieros y operativa",
+      "terms": [
+        "transacciones inmediatas",
+        "llaves",
+        "bre-b",
+        "gastos"
+      ]
+    },
+    {
+      "name": "Capacidades reutilizables por empresas",
+      "terms": [
+        "transacciones inmediatas",
+        "pagos inmediatos",
+        "bre-b",
+        "digitaliza gastos"
+      ]
+    },
+    {
+      "name": "Infraestructura y servicios empresariales",
+      "terms": [
+        "bre-b"
+      ]
+    }
+  ],
+  "capabilities": [
+    {
+      "name": "Gestión de gastos corporativos",
+      "terms": [
+        "digitaliza gastos",
+        "digitalizacion de gastos",
+        "digitises expenses",
+        "digitizes expenses"
+      ]
+    },
+    {
+      "name": "Transferencias",
+      "terms": [
+        "transacciones inmediatas",
+        "pagos inmediatos",
+        "bre-b",
+        "instant transfers"
+      ]
+    }
+  ]
+});
 const CONFIGURATION_DEFAULTS = Object.freeze({
   "settings": {
     "timezone": "Europe/Madrid",
@@ -1938,11 +1996,7 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
           "control de gastos",
           "spending controls",
           "limites de tarjetas",
-          "limites de las tarjetas",
-          "digitaliza gastos",
-          "digitalizacion de gastos",
-          "digitises expenses",
-          "digitizes expenses"
+          "limites de las tarjetas"
         ],
         "enabled": true
       },
@@ -2176,11 +2230,7 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "name": "Transferencias",
         "terms": [
           "transferencias",
-          "transfers",
-          "transacciones inmediatas",
-          "pagos inmediatos",
-          "bre-b",
-          "instant transfers"
+          "transfers"
         ],
         "enabled": true
       }
@@ -2532,11 +2582,7 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "nfc",
         "cashless",
         "datáfono",
-        "e-invoicing",
-        "transacciones inmediatas",
-        "pagos inmediatos",
-        "bre-b",
-        "instant transfers"
+        "e-invoicing"
       ],
       "enabled": true
     },
@@ -2600,11 +2646,7 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "swift",
         "stablecoin*",
         "tokenized deposits",
-        "tokenised deposits",
-        "transacciones inmediatas",
-        "llaves",
-        "bre-b",
-        "gastos"
+        "tokenised deposits"
       ],
       "enabled": true
     },
@@ -2653,11 +2695,7 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "cybersecurity",
         "biometri*",
         "passkey*",
-        "rcs",
-        "transacciones inmediatas",
-        "pagos inmediatos",
-        "bre-b",
-        "digitaliza gastos"
+        "rcs"
       ],
       "enabled": true
     },
@@ -2686,8 +2724,7 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "swift",
         "stablecoin*",
         "tokenized deposits",
-        "tokenised deposits",
-        "bre-b"
+        "tokenised deposits"
       ],
       "enabled": true
     },
@@ -2880,3 +2917,4 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
     }
   ]
 });
+addVocabularyTerms_(CONFIGURATION_DEFAULTS);

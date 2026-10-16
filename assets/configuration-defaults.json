@@ -1938,11 +1938,7 @@
           "control de gastos",
           "spending controls",
           "limites de tarjetas",
-          "limites de las tarjetas",
-          "digitaliza gastos",
-          "digitalizacion de gastos",
-          "digitises expenses",
-          "digitizes expenses"
+          "limites de las tarjetas"
         ],
         "enabled": true
       },
@@ -2176,11 +2172,7 @@
         "name": "Transferencias",
         "terms": [
           "transferencias",
-          "transfers",
-          "transacciones inmediatas",
-          "pagos inmediatos",
-          "bre-b",
-          "instant transfers"
+          "transfers"
         ],
         "enabled": true
       }
@@ -2532,11 +2524,7 @@
         "nfc",
         "cashless",
         "datáfono",
-        "e-invoicing",
-        "transacciones inmediatas",
-        "pagos inmediatos",
-        "bre-b",
-        "instant transfers"
+        "e-invoicing"
       ],
       "enabled": true
     },
@@ -2600,11 +2588,7 @@
         "swift",
         "stablecoin*",
         "tokenized deposits",
-        "tokenised deposits",
-        "transacciones inmediatas",
-        "llaves",
-        "bre-b",
-        "gastos"
+        "tokenised deposits"
       ],
       "enabled": true
     },
@@ -2653,11 +2637,7 @@
         "cybersecurity",
         "biometri*",
         "passkey*",
-        "rcs",
-        "transacciones inmediatas",
-        "pagos inmediatos",
-        "bre-b",
-        "digitaliza gastos"
+        "rcs"
       ],
       "enabled": true
     },
@@ -2686,8 +2666,7 @@
         "swift",
         "stablecoin*",
         "tokenized deposits",
-        "tokenised deposits",
-        "bre-b"
+        "tokenised deposits"
       ],
       "enabled": true
     },

@@ -171,3 +171,10 @@ test('la pausa entre destinatarios conserva el envío confirmado y reanuda solo 
  delete f.properties['WORK_INTENT:test'];f.c.sendNewsletterMail_=send;f.c.workWake_();
  const resumed=f.c.deliverNewsletterBatch_();assert.equal(resumed.accepted,1);assert.equal(resumed.pending,0);assert.equal(f.sent.length,2);assert.equal(f.c.deliverNewsletterBatch_().state,'no_due');
 });
+test('actualizar vocabulario añade solo términos nuevos una vez, conservando ediciones y activaciones del administrador',()=>{
+ const s=storage(),c=s.c;c.initializeConfiguration();const config=c.getConfiguration().config,update=vm.runInContext('CONFIGURATION_VOCABULARY_UPDATE',c);
+ for(const [key,rows] of [['relevanceRules',config.relevanceRules],['capabilities',config.capabilities.Empresas]])for(const addition of update[key]){const row=rows.find(item=>item.name===addition.name);row.terms=row.terms.filter(term=>!addition.terms.includes(term));row.terms.push('criterio propio');row.enabled=false;}
+ c.saveConfiguration({config,revision:c.getConfiguration().revision});delete s.properties.VOCABULARY_VERSION;s.properties.CATALOG_VERSION='3.2.0';c.initializeConfiguration();const migrated=c.getConfiguration().config;
+ for(const [key,rows] of [['relevanceRules',migrated.relevanceRules],['capabilities',migrated.capabilities.Empresas]])for(const addition of update[key]){const row=rows.find(item=>item.name===addition.name);assert.equal(row.enabled,false);assert.ok(row.terms.includes('criterio propio'));for(const term of addition.terms)assert.ok(row.terms.includes(term));}
+ const before=JSON.stringify(migrated);c.initializeConfiguration();assert.equal(JSON.stringify(c.getConfiguration().config),before);assert.equal(s.properties.VOCABULARY_VERSION,update.version);
+});

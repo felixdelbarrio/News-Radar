@@ -22,7 +22,7 @@ const design=designOutputs(),tokens=JSON.parse(read('src/design/tokens.json')).c
 const newsletterStyle=(read('src/styles/identity.css')+'\n'+read('src/styles/newsletter.css')).replace(/var\(--([\w-]+)\)/g,(_,key)=>tokens[key]);
 const newsletterInline=newsletterInlineStyles(newsletterStyle);
 const output={
-  'Defaults.gs':'const CONFIGURATION_DEFAULTS = Object.freeze('+read('assets/configuration-defaults.json').trim()+');\n',
+  'Defaults.gs':'const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze('+read('assets/vocabulary-update.json').trim()+');\nconst CONFIGURATION_DEFAULTS = Object.freeze('+read('assets/configuration-defaults.json').trim()+');\naddVocabularyTerms_(CONFIGURATION_DEFAULTS);\n',
   'Design.gs':design.sheet,
   'IdentityAssets.gs':'const IDENTITY_ASSETS = Object.freeze('+JSON.stringify(identityAssets())+');\n',
   'Newsletter.gs':'const NEWSLETTER_BIA_PNG = '+JSON.stringify(fs.readFileSync(path.join(root,'assets/bia.png')).toString('base64'))+';\nconst NEWSLETTER_STYLE = '+JSON.stringify(newsletterStyle)+';\nconst NEWSLETTER_INLINE = '+JSON.stringify(newsletterInline)+';\n',
