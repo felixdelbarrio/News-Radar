@@ -24,3 +24,17 @@ test('las pestañas y el correo agrupan las noticias sin país en Otras geograf�
  s.c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';const content=s.c.newsletterContent_(input,{view:'news'},'Resumen',new Date(),'id','es','edition');assert.match(content.html,/Otras geografías/);assert.doesNotMatch(content.html,/>Sin determinar</);assert.equal(s.c.newsletterExploreLink_(s.c.newsletterLinks_('id','edition').app,'news','Sin determinar').includes('country=Sin%20determinar'),true);
 });
 test('los formularios de suscripción no exponen cobertura ni segmento',async t=>{const a=await app(t,{configure({replies}){replies.getSubscriptions=[];}});await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('#personal-editor [name="coverage"]'),null);await a.click('[data-view="administration"]');await a.click('[data-admin-view="subscribers"]');await a.click('#new-admin-subscription');assert.equal(a.w.document.querySelector('#admin-subscription-editor [name="segment"]'),null);});
+test('la primera carga de Noticias conserva el país detectado y permite elegir otra pestaña',()=>{
+ const {c}=server(),input=[row('c','Colombia'),row('e','España'),row('m','México')];
+ const query=c.dashboardQuery_({view:'news',initial:true,newsGeography:'España'},new Date('2026-10-16T12:00:00Z'));
+ assert.equal(query.newsGeography,'España');assert.equal(c.newsDashboard_(input,{...query,from:'2026-10-01',to:'2026-10-31'},[],'news').newsGeography,'España');
+ assert.equal(c.dashboardQuery_({view:'news',initial:false,newsGeography:'México'}).newsGeography,'México');
+ assert.equal(c.newsDashboard_(input,{newsGeography:'Perú'},[],'news').newsGeography,'Colombia');
+});
+test('editar conserva preferencias guardadas y cancelar no guarda ni añade consultas',async t=>{
+ const a=await app(t,{language:'en-US',configure({replies}){replies.getSubscriptions[0].filtros.country='México';replies.getSubscriptions[0].idioma='tr';}});
+ await a.click('[data-view="subscriptions"]');const before=a.calls.length;await a.click('#subscriptions-list [data-action="edit"]');assert.equal(a.find('#personal-editor [name="country"]').value,'México');assert.equal(a.find('#personal-editor [name="language"]').value,'tr');await a.click('#personal-editor [data-close-editor]');assert.equal(a.find('#personal-editor').hidden,true);assert.equal(a.calls.length,before);
+});
+test('una suscripción inactiva cuenta cero y el alta preselecciona el idioma detectado',async t=>{
+ const a=await app(t,{language:'tr-TR',configure({replies}){replies.getSubscriptions[0].activa=false;}});await a.click('[data-view="subscriptions"]');assert.match(a.find('#subscriptions-count').textContent,/0/);a.replies.getSubscriptions=[];await a.click('[data-view="news"]');await a.click('[data-view="subscriptions"]');assert.equal(a.find('#personal-editor [name="language"]').value,'tr');assert.equal(a.w.document.querySelector('[data-action="toggle"]'),null);
+});
