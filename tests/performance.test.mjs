@@ -52,13 +52,13 @@ test('las tablas adaptables conservan sus encabezados y etiquetas al cambiar el 
  assert.deepEqual([...a.find('#delivery-history-body').rows[0].cells].map(cell=>cell.dataset.label),[...subscriptionTable.tHead.rows[0].cells].map(cell=>cell.textContent));
 });
 
-test('la caché de navegación se conserva durante la sesión hasta aplicar filtros distintos',async t=>{
+test('la caché de navegación se reutiliza durante un minuto sin prolongarse al volver',async t=>{
  let now=0;
  const a=await app(t,{configure({w,data}){w.performance.now=()=>now;data.newsRevision='news-1';data.configurationRevision='config-1';}});
  await a.click('[data-view="radar"]');now=10;await a.click('[data-view="news"]');
  const count=a.calls.filter(row=>row.method==='getDashboard').length;
  now=50000;await a.click('[data-view="radar"]');now=55000;await a.click('[data-view="news"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,count);
- now=61000;await a.click('[data-view="radar"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,count);
+ now=61000;await a.click('[data-view="radar"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,count+1);
 });
 
 test('el spinner y los skeletons pertenecen al panel activo; una respuesta abandonada no prolonga su carga',async t=>{

@@ -6,13 +6,12 @@ function pauseNewsletterQuota_(error){
   if(error.quota||serviceQuotaPause_(error))properties_().setProperty('NEWSLETTER_QUOTA_UNTIL',String(Date.now()+(error.dailyQuota?86400000:serviceQuotaPause_(error)||settings_().pauseMinutes*60000)));
 }
 function newsletterDeliveryPlan_(now,deliveries){
-  const periods=new Map(),attempts=new Map(),planned=[];
-  for(const row of deliveries)if(!['Enviada','Sin novedades'].includes(attempts.get(row.id)?.estado))attempts.set(row.id,row);
+  const periods=new Map(),attempts=newsletterDeliveryAttempts_(deliveries),planned=[];
   for(const subscription of subscriptionRows_().filter(row=>row.activa))for(const periodicity of Object.keys(newsletterCadences)){
     const row={...subscription,periodicidad:periodicity};
     if(!periods.has(periodicity))periods.set(periodicity,newsletterPeriod_(periodicity,now));
     const period=periods.get(periodicity);if(recordDay(now,settings_().timezone)<period.available||new Date(row.actualizada)>=new Date(period.cutoff))continue;
-    const id=newsletterDeliveryId_(row,period);planned.push({row,id,attempt:attempts.get(id)});
+    const id=newsletterDeliveryId_(row,period);planned.push({row,id,attempt:newsletterDeliveryAttempt_(row,period,attempts)});
   }
   return {periods,planned,due:planned.filter(item=>!item.attempt||['No enviado','Bloqueada'].includes(item.attempt.estado)).map(item=>({...item,query:subscriptionQuery_(item.row,now,true)}))};
 }

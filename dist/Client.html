@@ -32,6 +32,7 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Ya existe una suscripci\xF3n para ese correo.": ["This email already has a subscription.", "Bu e-posta i\xE7in zaten bir abonelik var."],
     "Contexto de Empresas e instituciones, pymes y aut\xF3nomos. T\xE9rminos separados por punto y coma; * al final de una palabra admite sus variantes. Las capacidades transversales pueden ser relevantes aunque el titular no mencione el segmento.": ["Business and institutional context, including SMEs and self-employed users. Separate terms with semicolons; a trailing * matches word variants. Shared capabilities can be relevant even if the headline does not mention the segment.", "KOB\u0130 ve serbest \xE7al\u0131\u015Fanlar dahil i\u015Fletme ve kurum ba\u011Flam\u0131. Terimleri noktal\u0131 virg\xFClle ay\u0131r\u0131n; s\xF6zc\xFCk sonundaki * t\xFCrevleri e\u015Fle\u015Ftirir. Ba\u015Fl\u0131k segmentten s\xF6z etmese de ortak yetenekler ilgili olabilir."],
     "Capacidades del canal de Empresas e instituciones. Solo las activas participan en b\xFAsquedas, clasificaci\xF3n y relevancia. T\xE9rminos separados por punto y coma.": ["Business and institutional channel capabilities. Only active entries participate in searches, classification and relevance. Separate terms with semicolons.", "\u0130\u015Fletme ve kurum kanal\u0131n\u0131n yetenekleri. Arama, s\u0131n\u0131fland\u0131rma ve ilgililikte yaln\u0131zca etkin kay\u0131tlar kullan\u0131l\u0131r. Terimleri noktal\u0131 virg\xFClle ay\u0131r\u0131n."],
     "Criterios de relevancia": ["Relevance criteria", "\u0130lgililik \xF6l\xE7\xFCtleri"],
@@ -1662,7 +1663,7 @@
   };
 
   // src/client/config.js
-  var navigationCache = Object.freeze({ milliseconds: 1 / 0, entries: 6 }), defaultView = Object.keys(app_config_default.views)[0], config_default = app_config_default;
+  var navigationCache = Object.freeze({ milliseconds: 6e4, entries: 6 }), defaultView = Object.keys(app_config_default.views)[0], config_default = app_config_default;
 
   // src/client/features/language-settings.js
   function createLanguageSettings({ run, isActive, onRevision }) {
