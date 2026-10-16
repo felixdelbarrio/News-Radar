@@ -40,9 +40,9 @@ function createRadar({ onCountry, onEntity, onSource }) {
     const band=index!=null?$('trend-chart').querySelector('[data-bucket="'+index+'"]'):null;
     $('trend-chart').querySelectorAll('.chart-band.is-highlighted').forEach(node=>node.classList.remove('is-highlighted'));
     if(band)band.classList.add('is-highlighted');
-    tooltip.hidden=!band;if(band)tooltip.textContent=band.getAttribute('aria-label');
+    tooltip.hidden=!band;if(band){tooltip.textContent=band.getAttribute('aria-label');const panel=tooltip.parentElement.getBoundingClientRect(),anchor=point.getBoundingClientRect(),x=event.clientX||anchor.x+anchor.width/2,y=event.clientY||anchor.y;tooltip.style.left=Math.max(0,Math.min(x-panel.x+12,panel.width-tooltip.offsetWidth))+'px';tooltip.style.top=Math.max(0,Math.min(y-panel.y+16,panel.height-tooltip.offsetHeight))+'px';}
   }
-  for(const name of ['pointerover','focusin'])$('trend-chart').addEventListener(name,highlightPoint);
+  for(const name of ['pointerover','pointermove','focusin'])$('trend-chart').addEventListener(name,highlightPoint);
   for(const name of ['pointerout','focusout'])$('trend-chart').addEventListener(name,event=>highlightPoint({target:event.relatedTarget&&$('trend-chart').contains(event.relatedTarget)?event.relatedTarget:$('trend-chart')}));
   const mapObserver=new ResizeObserver(entries=>{const height=entries[0].contentRect.height;if(height)$('map-panel').style.setProperty('--map-height',height+'px');});
   mapObserver.observe(document.querySelector('.map-canvas'));

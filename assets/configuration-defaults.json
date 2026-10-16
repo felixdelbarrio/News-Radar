@@ -16,8 +16,6 @@
     "pauseMinutes": 5,
     "dailyHour": 7,
     "briefingLimit": 50,
-    "defaultEntity": "BBVA",
-    "defaultCountry": "",
     "searchTerms": [
       "banca",
       "banking",

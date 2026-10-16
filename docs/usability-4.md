@@ -1,0 +1,13 @@
+# Usabilidad y cobertura empresarial · 3.2.2
+
+Noticias inicia con el trimestre natural vigente, sin entidad ni país prefiltrados. Conserva la pestaña geográfica detectada por el navegador; si el período está vacío se consulta el trimestre anterior. Se retiran los parámetros obsoletos de entidad/país inicial de la configuración y del formulario administrativo.
+
+Mi Newsletter cuenta suscripciones activas con singular y plural. Editar sustituye Pausar y permite corregir geografía e idioma, conservando la identidad y el historial. El alta utiliza las preferencias inferidas; editar utiliza las guardadas. Abrir, navegar y cancelar los editores no generan RPC.
+
+Los controles compartidos incorporan listas con estados de selección, hover y foco de teclado, búsqueda normalizada y confirmación explícita. Un calendario modal compartido funciona dentro del iframe de Apps Script: click en campo o chip, teclado por días/semanas, Inicio/Fin, RePág/AvPág por meses y Mayús por años. Elegir una fecha conserva el flujo de Aplicar filtros. La explicación queda inmediatamente bajo las fechas. Se eliminan períodos duplicados en cabeceras, las etiquetas informativas pasan a texto neutro, se compactan tarjetas y metadatos, se centra Cargar más y se acerca el tooltip al punto de interacción. Las filas de noticias abren su enlace, respetando enlaces, detalles y selección de texto.
+
+Mantenimiento y clasificación comparten el cálculo de país. Una fuente o país válidos prevalecen; un titular con un único país del catálogo puede completar una geografía ausente. Los titulares multigeografía no se asignan arbitrariamente. Una revisión nueva reinicia el mantenimiento desde el comienzo en lugar de reutilizar un cursor anterior.
+
+La auditoría de la hoja real del 16 de octubre encontró 8.713 noticias con ID y dos entradas recuperables del respaldo con las ampliaciones de vocabulario: transacciones inmediatas con llaves y digitalización de gastos empresariales. Las adiciones se aplican a criterios y capacidades editables, conservando los términos y activaciones del administrador. Crédito genérico, publicidad particular y guías sin movimiento de canal continúan excluidos. La retirada de respaldos exige comprobar IDs únicos, ninguna noticia recuperable pendiente, integridad de ambos respaldos y hashes de las ediciones históricas de newsletter; queda registrada en Auditoría.
+
+Validación local: 470 pruebas completas sin fallos; seis pruebas de regresión de esta iteración, incluida la navegación extendida del calendario, pasan. Comprobaciones de sintaxis, permisos y distribución reproducible correctas. Evidencias y mediciones reales se conservan en `output/usability-4` y `output/relevance-recovery` (excluidos de Git).

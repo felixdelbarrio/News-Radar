@@ -1,5 +1,6 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "Snapshots de Novedades, Noticias y Radar en cola.": ["Updates, News and Radar snapshots queued.", "Güncellemeler, Haberler ve Radar anlık görüntüleri kuyruğa alındı."],
   "Ya existe una suscripción para ese correo.": ["This email already has a subscription.", "Bu e-posta için zaten bir abonelik var."],
   "Contexto de Empresas e instituciones, pymes y autónomos. Términos separados por punto y coma; * al final de una palabra admite sus variantes. Las capacidades transversales pueden ser relevantes aunque el titular no mencione el segmento.": ["Business and institutional context, including SMEs and self-employed users. Separate terms with semicolons; a trailing * matches word variants. Shared capabilities can be relevant even if the headline does not mention the segment.", "KOBİ ve serbest çalışanlar dahil işletme ve kurum bağlamı. Terimleri noktalı virgülle ayırın; sözcük sonundaki * türevleri eşleştirir. Başlık segmentten söz etmese de ortak yetenekler ilgili olabilir."],
   "Capacidades del canal de Empresas e instituciones. Solo las activas participan en búsquedas, clasificación y relevancia. Términos separados por punto y coma.": ["Business and institutional channel capabilities. Only active entries participate in searches, classification and relevance. Separate terms with semicolons.", "İşletme ve kurum kanalının yetenekleri. Arama, sınıflandırma ve ilgililikte yalnızca etkin kayıtlar kullanılır. Terimleri noktalı virgülle ayırın."],
@@ -49,10 +50,10 @@ const translations = Object.freeze({
   "Registro de taxonomía demasiado grande.": ["Taxonomy record is too large.", "Taksonomi kaydı çok büyük."],
   "Recibe Mi Newsletter": ["Receive My Newsletter", "Bültenime abone olun"],
   "Novedades quincenales, balance trimestral y radar anual. Canal digital de Empresas e instituciones. La suscripción no cambia tus pantallas.": ["Fortnightly updates, quarterly review and annual radar. Digital channels for businesses and institutions. Subscribing does not change your screens.", "İki haftalık gelişmeler, üç aylık değerlendirme ve yıllık radar. İşletmeler ve kurumlar için dijital kanallar. Abonelik ekranlarınızı değiştirmez."],
-  "Guardar geografía": ["Save geography", "Coğrafyayı kaydet"],
-  "Geografía e idioma": ["Geography and language", "Coğrafya ve dil"],
-  "Tu suscripción": ["Your subscription", "Aboneliğiniz"],
-  "Sin suscripción": ["No subscription", "Abonelik yok"],
+  "Mes anterior": ["Previous month", "Önceki ay"],
+  "Mes siguiente": ["Next month", "Sonraki ay"],
+  "1 suscripción": ["1 subscription", "1 abonelik"],
+  "{count} suscripciones": ["{count} subscriptions", "{count} abonelik"],
   "Sin suscripciones.": ["No subscriptions.", "Abonelik bulunmuyor."],
   "Sin envíos registrados": ["No deliveries recorded", "Kayıtlı gönderim yok"],
   "Todavía no has recibido newsletters.": ["You have not received any newsletters yet.", "Henüz bülten almadınız."],

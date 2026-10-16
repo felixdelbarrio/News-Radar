@@ -7,11 +7,11 @@ function storage(){const s=createStorage();s.c.Date=Date;return s;}
 import {read,readServerScript} from '../scripts/source.mjs';
 const seed=()=>JSON.parse(read('assets/configuration-defaults.json'));
 test('inicializa solo claves ausentes, persiste en Sheets y reutiliza e invalida la caché versionada',()=>{
-  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,18);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
-  config.settings.defaultEntity='Qonto';config.segments[0].terms.push('innovación verificable');c.saveConfiguration({config,revision:c.getConfiguration().revision});assert.equal(c.getConfiguration().config.settings.defaultEntity,'Qonto');
-  c.initializeConfiguration();assert.equal(c.getConfiguration().config.settings.defaultEntity,'Qonto');assert.ok(c.getConfiguration().config.segments[0].terms.includes('innovación verificable'));
-  const sheet=s.sheets.get('Configuracion'),index=sheet.grid.findIndex(row=>row[0]==='settings'),settings=JSON.parse(sheet.grid[index][1]);settings.defaultEntity='Revolut';sheet.grid[index][1]=JSON.stringify(settings);
-  c.configurationEdited_({range:{getSheet:()=>sheet}});assert.equal(c.getConfiguration().config.settings.defaultEntity,'Revolut');assert.ok(s.cache.size>=2);
+  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,19);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
+  config.settings.unknownCountry='Qonto';config.segments[0].terms.push('innovación verificable');c.saveConfiguration({config,revision:c.getConfiguration().revision});assert.equal(c.getConfiguration().config.settings.unknownCountry,'Qonto');
+  c.initializeConfiguration();assert.equal(c.getConfiguration().config.settings.unknownCountry,'Qonto');assert.ok(c.getConfiguration().config.segments[0].terms.includes('innovación verificable'));
+  const sheet=s.sheets.get('Configuracion'),index=sheet.grid.findIndex(row=>row[0]==='settings'),settings=JSON.parse(sheet.grid[index][1]);settings.unknownCountry='Revolut';sheet.grid[index][1]=JSON.stringify(settings);
+  c.configurationEdited_({range:{getSheet:()=>sheet}});assert.equal(c.getConfiguration().config.settings.unknownCountry,'Revolut');assert.ok(s.cache.size>=2);
 });
 test('configuración deniega lectores y rechaza catálogos incoherentes antes de escribir',()=>{
   const s=storage();s.c.initializeConfiguration();const original=JSON.stringify(s.sheets.get('Configuracion').grid);s.setEmail('reader@bbva.com');assert.throws(()=>s.c.getConfiguration(),/administrador/);assert.throws(()=>s.c.saveConfiguration({config:seed(),revision:'0'}),/administrador/);assert.throws(()=>s.c.initializeConfiguration(),/administrador/);
@@ -35,7 +35,7 @@ test('selecciones personales impiden suplantación y acceso cruzado; newsletter 
 });
 
 test('una edición antigua no sobrescribe cambios guardados desde otra sesión',()=>{
-  const s=storage(),{c}=s;c.initializeConfiguration();const old=JSON.parse(JSON.stringify(c.getConfiguration())),fresh=JSON.parse(JSON.stringify(old));fresh.config.settings.defaultEntity='Qonto';c.saveConfiguration(fresh);old.config.settings.defaultEntity='Revolut';assert.throws(()=>c.saveConfiguration(old),/otra sesión/);assert.equal(c.getConfiguration().config.settings.defaultEntity,'Qonto');
+  const s=storage(),{c}=s;c.initializeConfiguration();const old=JSON.parse(JSON.stringify(c.getConfiguration())),fresh=JSON.parse(JSON.stringify(old));fresh.config.settings.unknownCountry='Qonto';c.saveConfiguration(fresh);old.config.settings.unknownCountry='Revolut';assert.throws(()=>c.saveConfiguration(old),/otra sesión/);assert.equal(c.getConfiguration().config.settings.unknownCountry,'Qonto');
 });
 test('las señales de titular evitan confundir artículos educativos o promesas del extracto con novedades',()=>{
   const s=storage(),{c}=s;c.initializeConfiguration();const rows=[{titular:'Qué son las finanzas de género',extracto:'Buscan reducir barreras de acceso a la financiación',entidad:'BBVA'}, {titular:'La cuenta para empresas de Qonto',extracto:'Qonto lanza nueva tarjeta para empresas',entidad:'Qonto'}, {titular:'BBVA y el municipio acuerdan impulsar la financiación de empresas',extracto:'Convenio de colaboración',entidad:'BBVA'}];
@@ -170,4 +170,11 @@ test('la pausa entre destinatarios conserva el envío confirmado y reanuda solo 
  assert.equal(f.sheets.get('NewsletterEnvios').grid[1][5],'Enviada');assert.equal(f.properties['WORK_PENDING:newsletter'],'true');
  delete f.properties['WORK_INTENT:test'];f.c.sendNewsletterMail_=send;f.c.workWake_();
  const resumed=f.c.deliverNewsletterBatch_();assert.equal(resumed.accepted,1);assert.equal(resumed.pending,0);assert.equal(f.sent.length,2);assert.equal(f.c.deliverNewsletterBatch_().state,'no_due');
+});
+test('actualizar vocabulario añade solo términos nuevos una vez, conservando ediciones y activaciones del administrador',()=>{
+ const s=storage(),c=s.c;c.initializeConfiguration();const config=c.getConfiguration().config,update=vm.runInContext('CONFIGURATION_VOCABULARY_UPDATE',c);
+ for(const [key,rows] of [['relevanceRules',config.relevanceRules],['capabilities',config.capabilities.Empresas]])for(const addition of update[key]){const row=rows.find(item=>item.name===addition.name);row.terms=row.terms.filter(term=>!addition.terms.includes(term));row.terms.push('criterio propio');row.enabled=false;}
+ c.saveConfiguration({config,revision:c.getConfiguration().revision});delete s.properties.VOCABULARY_VERSION;s.properties.CATALOG_VERSION='3.2.0';c.initializeConfiguration();const migrated=c.getConfiguration().config;
+ for(const [key,rows] of [['relevanceRules',migrated.relevanceRules],['capabilities',migrated.capabilities.Empresas]])for(const addition of update[key]){const row=rows.find(item=>item.name===addition.name);assert.equal(row.enabled,false);assert.ok(row.terms.includes('criterio propio'));for(const term of addition.terms)assert.ok(row.terms.includes(term));}
+ const before=JSON.stringify(migrated);c.initializeConfiguration();assert.equal(JSON.stringify(c.getConfiguration().config),before);assert.equal(s.properties.VOCABULARY_VERSION,update.version);
 });

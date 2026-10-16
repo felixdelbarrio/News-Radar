@@ -41,13 +41,6 @@ test('caché vacía o incompleta reconstruye resultados; inserción, clasificaci
  }
  const keys=vm.runInContext('RADAR.sheets.Noticias',c);s.sheets.get('Noticias').grid.push(keys.map(key=>article(100)[key]||''));c.invalidateNews_();assert.equal(c.dashboardContent_(query,[],'news').data.total,66);
 });
-test('precalienta solo valores predeterminados en reposo y cede ante trabajos de ingesta y traducción',()=>{
- const s=server(),c=s.c;let views=[];c.dashboardContent_=(query,feeds,view)=>{views.push(view);};
- c.invalidateNews_();assert.equal(c.warmDefaultDashboard_({jobs:[{pendientes:1}]}),false);assert.equal(views.length,0);
- s.properties.TRANSLATION_REQUEST='pending';assert.equal(c.warmDefaultDashboard_({jobs:[]}),false);delete s.properties.TRANSLATION_REQUEST;
- for(let i=0;i<3;i++)assert.equal(c.warmDefaultDashboard_({jobs:[]}),true);
- assert.deepEqual(views,['radar','briefing','news']);assert.equal(s.properties.DASHBOARD_WARMUP,undefined);assert.equal(c.warmDefaultDashboard_({jobs:[]}),false);
-});
 test('identidad canónica y similitud acotada conservan importes, productos, negaciones y fechas distintas',()=>{
  const {c}=server(),base=article(1,{titular:'BBVA lanza una plataforma digital de financiacion empresarial para nuevas empresas'}),typo={...base,id:'typo',url:'https://editor.test/typo',titular:base.titular.replace('financiacion','financiacoin')};
  assert.equal(c.uniqueNews_([base,typo]).length,1);

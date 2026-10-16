@@ -1,3 +1,4 @@
+import {initializeDatePickers} from './features/date-picker.js';
 import {createJobMonitor,jobProgressHtml} from './features/job-monitor.js';
 import {browserCountry} from './core/browser-country.js';
 import {initializeSearchableSelects} from './features/searchable-selects.js';
@@ -28,7 +29,7 @@ import { createUsage } from "./features/usage.js";
 import { createNavigation } from "./features/navigation.js";
 import {initializeLocalization,flushLocalization} from './core/localization.js';
 initializeLocalization();
-initializeSearchableSelects();
+const refreshSelects=initializeSearchableSelects();initializeDatePickers();
 const state = { data: null, request: 0, busy: false,contentStale:false,attribution:'',view:null,ready:false };
 const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady:()=>Boolean(state.data),getAttribution:()=>state.attribution&&state.data?.context?.id===state.attribution?state.attribution:'' }), { track, flush } = usage;
 const dashboards=new Map();
@@ -70,7 +71,7 @@ function renderApplicationShell(data){
       renderShell(data);
       if (data.admin) sources.render(data);
       collectionProgress.update(data);
-      flushLocalization();
+      refreshSelects();flushLocalization();
  }
 async function load(reuse=false) {
   const request = ++state.request, started = performance.now();
@@ -105,7 +106,7 @@ async function load(reuse=false) {
       }
       renderSelection(data,navigation.current,appended);
       renderApplicationShell(data);
-      track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true}:{}),clientCacheHit,sharedRequest:!clientCacheHit&&data.performance.transportMs>performance.now()-started+5,rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
+      track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true,snapshotHit:false}:{}),clientCacheHit,sharedRequest:!clientCacheHit&&data.performance.transportMs>performance.now()-started+5,rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
       if (first) {
         track("acceso");
         track("vista");

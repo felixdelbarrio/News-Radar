@@ -59,15 +59,3 @@ function writeDashboardCache_(cache,key,data){
   for(let index=0;index<count;index++)parts[key+':'+id+':'+index]=JSON.stringify(encoded.slice(index*size,(index+1)*size));
   cache.putAll(parts,NEWS_CACHE.seconds);cache.put(key,JSON.stringify({id,parts:count}),NEWS_CACHE.seconds);
 }
-
-function warmDefaultDashboard_(work){
-  if(backgroundPaused_()||collectionRequests_().length||work.jobs.some(job=>Number(job.pendientes)>0||job.estado==='Preparando')||businessPipelinePending_(work)||Number.isFinite(translationReadyAt_())||Number.isFinite(taxonomyReadyAt_())||Number.isFinite(taxonomyTranslationReadyAt_())||Number.isFinite(newsletterReadyAt_(work)))return false;
-  const pending=properties_().getProperty('DASHBOARD_WARMUP');if(pending===null)return false;
-  const views=['radar','briefing','news'],step=Number(pending),view=views[step];
-  if(view){
-    const query=dashboardQuery_({view,initial:true}),count=newsPeriodCount_(query);
-    // Leave larger periods to an interactive request; do not consume a worker slice.
-    if(count<=2000)dashboardContent_(query,feeds_(),view,'es');
-  }
-  if(step+1<views.length)properties_().setProperty('DASHBOARD_WARMUP',String(step+1));else properties_().deleteProperty('DASHBOARD_WARMUP');return true;
-}
