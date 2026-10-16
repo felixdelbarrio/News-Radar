@@ -7,7 +7,7 @@ function saveNewsletterFeedback(input){
     if(!input.rating&&!comment){if(index>=0)sheet.deleteRow(index+2);return {feedback:null};}
     const feedback={id,edicion:input.edition,correo:session.email,valoracion:input.rating,comentario:comment,fecha:new Date().toISOString(),estado:'pendiente'},values=RADAR.sheets.NewsletterFeedback.map(key=>safeCell_(feedback[key]));
     if(index>=0)sheet.getRange(index+2,1,1,values.length).setNumberFormat('@').setValues([values]);else append_('NewsletterFeedback',[values]);
-    trim_('NewsletterFeedback',settings_().eventLimit);return {feedback};
+    return {feedback};
   });
 }
 function setNewsletterFeedbackState(input){
@@ -24,7 +24,7 @@ function recordNewsletterEvents_(events,email){
     const edition=editions.get(event.edition),cadence=Object.entries(newsletterCadences).find(([,row])=>row.view===(JSON.parse(edition.filtros).view||'briefing'))[0],destination=event.event==='lectura'?'fuente':event.event==='exportacion'?'exportacion':event.view;
     values.push([event.id,event.edition,email,event.session,event.event,destination,cadence,new Date().toISOString()]);
   }
-  append_('NewsletterEventos',values);trim_('NewsletterEventos',settings_().eventLimit);
+  append_('NewsletterEventos',values);
 }
 function getNewsletterInsights(query={}){
   authorize_(true);const events=filterRecords(rows_('NewsletterEventos',settings_().eventLimit),query.adoption||query,['edicion','cadencia'],['edicion','cadencia','destino'],'fecha',settings_().timezone),groups=new Map();

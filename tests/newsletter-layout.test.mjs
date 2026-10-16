@@ -6,7 +6,7 @@ import {storage} from './helpers/server.mjs';
 function setup(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);s.c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';return s;}
 const story=(id,country='España',entity='BBVA',category='Integración y automatización')=>({id,pais:country,entidad:entity,fecha:'2026-10-13',medio:'Editor',titular:'Un servicio digital para empresas '+id,extracto:'Un cambio concreto y verificable.',senales:[],segmentos:['Empresas e instituciones'],tipo:'Banco tradicional',etiquetas:{digital:true},taxonomia:[{id:'api',palanca:category,subpalanca:'APIs e integración'}],url:'https://example.com/'+id});
 const query={view:'news',country:'España',coverage:'digital',segment:'Empresas e instituciones',from:'2026-10-01',to:'2026-10-31'};
-test('el ejemplo mensual y anual prioriza la relevancia entre noticias nuevas para el destinatario sin recortar el corpus',()=>{
+test('el ejemplo trimestral y anual prioriza la relevancia entre noticias nuevas para el destinatario sin recortar el corpus',()=>{
  const {c}=setup(),input=[story('fortnightly'),story('fresh'),story('recent')];input[2].fecha='2026-10-31';for(const row of input)row.senales=['Lanzamiento de producto'];
  c.newsRelevance_=row=>({fortnightly:100,fresh:90,recent:10}[row.id]);
  const fortnightly=c.newsletterContent_(input,{view:'briefing'},'Semana',new Date(),'sub');

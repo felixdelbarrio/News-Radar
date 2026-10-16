@@ -8,26 +8,12 @@ import {geographyOrder,geographyLabel,sectorNewsDefaults} from '../src/shared/se
 const clean=value=>JSON.parse(JSON.stringify(value));
 function server(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
 const row=(id,pais)=>({id,pais,entidad:'BBVA',fecha:'2026-10-10',senales:['Lanzamiento de producto'],segmentos:['Empresas e instituciones'],etiquetas:{digital:true,generalista:true},taxonomia:[],titular:'BBVA lanza producto digital para empresas '+id,extracto:'Información del producto',medio:'Editor',tema:'Canales digitales',tipo:'Banco tradicional',url:'https://example.com/'+id});
-test('las tres vistas comparten segmento y cobertura iniciales y respetan las elecciones explícitas',()=>{
- const {c}=server(),now=new Date('2026-10-12T12:00:00Z');
- for(const view of ['briefing','news','radar']){
-  const initial=c.dashboardQuery_({view,initial:true},now);assert.equal(initial.segment,sectorNewsDefaults.segment);assert.equal(initial.coverage,'digital');
-  for(const coverage of ['','generalista','digital']){const query=c.dashboardQuery_({view,initial:false,segment:'Retail',coverage},now);assert.equal(query.segment,'Retail');assert.equal(query.coverage,coverage);assert.equal(c.personalDashboardQuery_({filtros:{segment:'Retail',coverage}},view,now).coverage,coverage);}
-  assert.throws(()=>c.dashboardQuery_({view,coverage:'unknown'},now),/cobertura/);
- }
-});
-test('la newsletter nueva incluye Canal digital; Todos y Generalista se conservan al guardar, recargar y consultar cada periodicidad',()=>{
- const s=server(),{c}=s;assert.deepEqual(clean(c.subscriptionDefaults_().filters),sectorNewsDefaults);assert.deepEqual(clean(c.getNewsletterOptions().catalogs.coverage),['digital','generalista']);
- for(const coverage of ['','generalista','digital'])for(const periodicity of ['fortnightly','quarterly','yearly']){
-  c.saveSubscription({periodicity,filters:{segment:'Retail',coverage}});const own=c.subscriptionRows_('owner@bbva.com').at(-1);assert.equal(own.filtros.coverage,coverage);assert.equal(own.filtros.segment,'Retail');assert.equal(c.subscriptionQuery_(own,new Date()).coverage,coverage);c.initializeNewsletterCadences_(s.sheets.get('Suscripciones'));assert.equal(c.subscriptionRows_().at(-1).filtros.coverage,coverage);
- }
- const created=c.subscriptionRecord_({filters:{entity:'BBVA'}},'owner@bbva.com','default',new Date(),0);assert.equal(created.filtros.coverage,'digital');assert.equal(created.filtros.segment,sectorNewsDefaults.segment);assert.match(created.nombre,/Cobertura: Canal digital/);
- assert.throws(()=>c.subscriptionRecord_({filters:{coverage:'mobile'}},'owner@bbva.com','bad',new Date(),0),/cobertura/);
-});
+test('las vistas actuales fijan el ámbito empresarial y digital y rechazan cobertura desconocida',()=>{const {c}=server(),now=new Date('2026-10-12T12:00:00Z');for(const view of ['briefing','news','radar']){const q=c.dashboardQuery_({view,initial:false,segment:'Retail',coverage:''},now);assert.equal(q.segment,sectorNewsDefaults.segment);assert.equal(q.coverage,'digital');assert.throws(()=>c.dashboardQuery_({view,coverage:'unknown'},now),/cobertura/);}});
+test('la suscripción conserva solo país y todas las cadencias',()=>{const {c}=server();for(const periodicity of ['fortnightly','quarterly','yearly']){c.saveSubscription({periodicity,filters:{segment:'Retail',coverage:'generalista'}});const row=c.getSubscriptions()[0];assert.equal(row.periodicidad,'all');assert.equal(row.filtros.segment,sectorNewsDefaults.segment);assert.equal(row.filtros.coverage,'digital');}assert.equal(c.getSubscriptions().length,1);});
 test('países seguidos se ordenan antes de Otras geografías, que incluye noticias sin país',()=>{
  const input=[row('m','México'),row('z','Zimbabue'),row('a','Alemania'),...Array.from({length:6},(_,i)=>row('u'+i,'Sin determinar'))],names=['Alemania','México','Zimbabue','Otras geografías'];
  assert.deepEqual(noveltyOverview(input).geographies.map(row=>row.name),names);assert.deepEqual(noveltyGroups(input).map(row=>row.name),names);assert.equal(geographyLabel('Sin determinar'),'Otras geografías');assert.equal(geographyLabel('España'),'España');assert.deepEqual(input.map(row=>({name:geographyLabel(row.pais)})).sort(geographyOrder).slice(0,3).map(row=>row.name),names.slice(0,3));
- const {c}=server(),data=c.newsDashboard_(input,{},[],'news');assert.deepEqual(Array.from(data.newsGeographies,row=>row.name),['Alemania','México','Otras geografías']);assert.equal(data.newsGeography,'Alemania');assert.equal(c.newsDashboard_(input,{newsGeography:'Otras geografías'},[],'news').total,7);
+ const {c}=server(),data=c.newsDashboard_(input,{},[],'news');assert.deepEqual(Array.from(data.newsGeographies,row=>row.name),['México','Otras geografías']);assert.equal(data.newsGeography,'México');assert.equal(c.newsDashboard_(input,{newsGeography:'Otras geografías'},[],'news').total,8);
 });
 test('las pestañas y el correo agrupan las noticias sin país en Otras geografías',async t=>{
  const input=[row('u','Sin determinar'),row('u2','Sin determinar'),row('m','México'),row('e','España')],s=server();
@@ -37,8 +23,4 @@ test('las pestañas y el correo agrupan las noticias sin país en Otras geograf�
  await a.click('[data-view="news"]');assert.match(tabs('#news-geographies').at(-1).textContent,/Otras geografías/);await a.click('#news-geographies [data-geography="Otras geografías"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'Otras geografías');
  s.c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';const content=s.c.newsletterContent_(input,{view:'news'},'Resumen',new Date(),'id','es','edition');assert.match(content.html,/Otras geografías/);assert.doesNotMatch(content.html,/>Sin determinar</);assert.equal(s.c.newsletterExploreLink_(s.c.newsletterLinks_('id','edition').app,'news','Sin determinar').includes('country=Sin%20determinar'),true);
 });
-test('formularios personales y administrativos muestran Cobertura y permiten eliminar el valor por defecto',async t=>{
- const s=server(),a=await app(t,{configure({replies}){replies.getNewsletterOptions={...replies.getNewsletterOptions,defaults:s.c.subscriptionDefaults_(),catalogs:{coverage:['digital','generalista'],segment:['Empresas e instituciones','Retail'],entity:['BBVA']}};}});
- await a.click('[data-view="subscriptions"]');assert.equal(a.find('#personal-editor [name="coverage"]').value,'digital');assert.equal(a.find('#personal-editor [name="segment"]').value,sectorNewsDefaults.segment);assert.equal(a.find('#personal-editor [name="coverage"] option[value="digital"]').textContent,'Canal digital');await a.change('#personal-editor [name="coverage"]','');await a.submit('#personal-editor form');assert.equal(a.calls.find(row=>row.method==='saveSubscription').query.filters.coverage,'');
- await a.click('[data-view="administration"]');await a.click('[data-admin-view="subscribers"]');await a.click('#new-admin-subscription');assert.equal(a.find('#admin-subscription-editor [name="coverage"]').value,'digital');await a.change('#admin-subscription-editor [name="coverage"]','generalista');await a.submit('#admin-subscription-editor form');assert.equal(a.calls.find(row=>row.method==='saveAdminSubscription').query.filters.coverage,'generalista');
-});
+test('los formularios de suscripción no exponen cobertura ni segmento',async t=>{const a=await app(t,{configure({replies}){replies.getSubscriptions=[];}});await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('#personal-editor [name="coverage"]'),null);await a.click('[data-view="administration"]');await a.click('[data-admin-view="subscribers"]');await a.click('#new-admin-subscription');assert.equal(a.w.document.querySelector('#admin-subscription-editor [name="segment"]'),null);});

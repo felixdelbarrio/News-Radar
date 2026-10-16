@@ -73,7 +73,7 @@ test('casos de la hoja real separan la sindicación próxima, la reedición leja
   ['Commonwealth Bank of Australia (CBA.AX) stock price, news, quote and history','Commonwealth Bank of Australia (CBAPJ.AX) stock price, news, quote and history','2026-10-10','2026-10-10',2],
   ['El BCE empuja al Sabadell y al francés BPCE para fusionarse y crear un gigante bancario ibero-francés','El BCE empuja al Sabadell y al francés BPCE para fusionarse y crear un gigante bancario ibero-galo','2026-10-09','2026-10-09',2]
  ];
- for(const [a,b,dayA,dayB,count] of pairs)assert.equal(c.uniqueNews_([article(1,{titular:a,fecha:dayA}),article(2,{titular:b,fecha:dayB})]).length,count,a);
+ for(const [a,b,dayA,dayB,count] of pairs)assert.equal(c.uniqueNews_([article(1,{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:a,fecha:dayA}),article(2,{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:b,fecha:dayB})]).length,count,a);
 });
 test('URLs editoriales equivalentes son idempotentes entre fuentes y reintentos sin alterar claves de newsletters previas',()=>{
  const s=server(),c=s.c,a=article(1,{fecha:'2026-10-09',url:'https://news.google.com/rss/articles/token?oc=5'}),keys=vm.runInContext('RADAR.sheets.Noticias',c);s.sheets.get('Noticias').grid.push(keys.map(key=>a[key]||''));

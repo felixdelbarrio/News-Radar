@@ -20,7 +20,7 @@ function taxonomyReadyAt_(){const job=taxonomyJob_();return job&&job.state!=='Co
 function writeTaxonomyJob_(job){progressContextMemory_=undefined;properties_().setProperty('TAXONOMY_JOB',JSON.stringify(job));}
 function requestTaxonomy_(){
   const total=Math.max(0,book_().getSheetByName('Noticias').getLastRow()-1),now=new Date().toISOString();
-  writeTaxonomyJob_({id:Utilities.getUuid(),state:'Pendiente',phase:'scan',next:2,total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:classificationRulesRevision_()});
+  writeTaxonomyJob_({id:Utilities.getUuid(),state:'Pendiente',phase:'scan',next:2,cursor:null,total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:classificationRulesRevision_()});
   ensureBackgroundWorker_();
 }
 function drainTaxonomyRequest_(){
@@ -45,14 +45,14 @@ function taxonomyCheckpoint_(job){
   return {...meta,candidates,titles};
 }
 function writeTaxonomyCheckpoint_(job,state){
-  const entries=Object.values(state.candidates),chunks=[];
-  for(let i=0;i<entries.length;i+=TAXONOMY_POLICY.checkpointRows)chunks.push([JSON.stringify(entries.slice(i,i+TAXONOMY_POLICY.checkpointRows))]);
-  const titles=Object.entries(state.titles||{}),titleChunks=[];
-  let chunk=[],size=2;
-  for(const entry of titles){const value=JSON.stringify(entry);if(size+value.length+1>TAXONOMY_POLICY.checkpointChars&&chunk.length){titleChunks.push(['['+chunk.join(',')+']']);chunk=[];size=2;}chunk.push(value);size+=value.length+1;}
-  if(chunk.length)titleChunks.push(['['+chunk.join(',')+']']);
-  const meta={id:job.id,next:state.next,documents:state.documents,size:state.size,chunks:chunks.length,titleChunks:titleChunks.length};
+  const chunks=taxonomyCheckpointChunks_(Object.values(state.candidates),TAXONOMY_POLICY.checkpointRows),titleChunks=taxonomyCheckpointChunks_(Object.entries(state.titles||{}));
+  const meta={id:job.id,next:state.next,documents:state.documents,cursor:state.cursor||null,size:state.size,chunks:chunks.length,titleChunks:titleChunks.length};
   book_().getSheetByName('TaxonomiaTrabajo').getRange(2,1,chunks.length+titleChunks.length+1,1).setNumberFormat('@').setValues([[JSON.stringify(meta)],...chunks,...titleChunks]);
+}
+function taxonomyCheckpointChunks_(entries,maxRows=Infinity){
+  const chunks=[];let values=[],size=2;
+  for(const entry of entries){const encoded=JSON.stringify(entry);if(values.length&&(size+encoded.length+1>TAXONOMY_POLICY.checkpointChars||values.length>=maxRows)){chunks.push(['['+values.join(',')+']']);values=[];size=2;}if(encoded.length+2>TAXONOMY_POLICY.checkpointChars)throw Error('Registro de taxonomía demasiado grande.');values.push(encoded);size+=encoded.length+1;}
+  if(values.length)chunks.push(['['+values.join(',')+']']);return chunks;
 }
 function taxonomyModelRevision_(items){return sha256_(JSON.stringify(items.map(row=>[row.id,row.palanca,row.subpalanca,row.segmentos,row.terminos])));}
 function publishTaxonomy_(state){
@@ -73,44 +73,37 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
   const job=taxonomyJob_();if(!job||job.state==='Completada')return;
   const started=Date.now();let written=false;
   try{
-    if(job.corpus!==(properties_().getProperty('NEWS_CONTENT_REVISION')||'0')||job.rules!==classificationRulesRevision_()){requestTaxonomy_();return;}
+    if(job.rules!==classificationRulesRevision_()){requestTaxonomy_();return;}
     const sheet=book_().getSheetByName('Noticias'),keys=RADAR.sheets.Noticias,column=keys.indexOf('taxonomia');
     if(job.phase==='scan'){
       const state=taxonomyCheckpoint_(job),definitions=taxonomyDefinitions(configuration_().capabilities),excluded=new Set(configuration_().entities.flatMap(row=>[row.name,...row.aliases]).flatMap(name=>taxonomyText(name).match(/[a-z][a-z0-9]+/g)||[]));
-      const count=Math.min(TAXONOMY_POLICY.batchRows,Math.max(0,job.total-state.next+2));
+      const rows=newsWorkRows_({...job,cursor:state.cursor||null},TAXONOMY_POLICY.batchRows);let cursor=state.cursor||null,read=0;
       state.titles=state.titles||{};
-      if(count)for(const row of sheet.getRange(job.total-state.next-count+4,2,count,6).getDisplayValues().reverse()){
-        const title=searchText_(row[4]),text=taxonomyText(row[4]+' '+row[5]),identity=titleIdentity_({title:row[4],date:row[0],publisher:row[2]}),key=identity?sha256_(identity.key):'',days=state.titles[key]||[];
-        const duplicate=identity&&days.some(day=>Math.abs(day-identity.day)<=COLLECTION_POLICY.duplicateDays);
-        if(identity&&!duplicate){days.push(identity.day);state.titles[key]=days;}
-        if(!duplicate&&taxonomyEligible_(title,text))taxonomyObserve(state,text,definitions,excluded);
-        state.next++;if(Date.now()-started>=maxMs||backgroundPaused_(true))break;
+      for(const row of rows){
+        if(Date.now()-started>=maxMs||backgroundPaused_(true)||read%20===0&&properties_().getProperty('DAILY_PIPELINE_REQUEST'))break;
+        if(businessNews_(row)){
+          const title=searchText_(row.titular),text=taxonomyText(row.titular+' '+row.extracto),identity=titleIdentity_({title:row.titular,date:row.fecha,publisher:row.medio}),key=identity?sha256_(identity.key):'',days=state.titles[key]||[];
+          const duplicate=identity&&days.some(day=>Math.abs(day-identity.day)<=COLLECTION_POLICY.duplicateDays);
+          if(identity&&!duplicate){days.push(identity.day);state.titles[key]=days;}
+          if(!duplicate&&taxonomyEligible_(title,text))taxonomyObserve(state,text,definitions,excluded);
+        }
+        cursor=newsWorkCursor_(row);state.next++;read++;
       }
-      writeTaxonomyCheckpoint_(job,state);job.next=state.next;job.documents=state.documents;job.processed=state.next-2;
+      state.cursor=cursor;writeTaxonomyCheckpoint_(job,state);job.cursor=cursor;job.next=state.next;job.documents=state.documents;job.processed=state.next-2;
       if(state.next>job.total+1){job.phase='publish';}
     }else if(job.phase==='publish'){
-      job.model=publishTaxonomy_(taxonomyCheckpoint_(job));job.changed=job.model!==properties_().getProperty('TAXONOMY_APPLIED_MODEL')||job.rules!==properties_().getProperty('TAXONOMY_APPLIED_RULES');job.phase='tag';job.next=2;
+      job.model=publishTaxonomy_(taxonomyCheckpoint_(job));job.changed=job.model!==properties_().getProperty('TAXONOMY_APPLIED_MODEL')||job.rules!==properties_().getProperty('TAXONOMY_APPLIED_RULES');job.phase='tag';job.next=2;job.cursor=null;
     }else{
-      let next=job.next;
-      const items=taxonomyCatalog_(),count=Math.min(TAXONOMY_POLICY.batchRows,Math.max(0,job.total-job.next+2)),updates=[];
-      if(count){
-        const rows=sheet.getRange(job.next,6,count,column-4).getDisplayValues();
-        for(const row of rows){
-          const saved=taxonomySaved_(row[column-5]),fingerprint=taxonomyFingerprint_(row[0],row[1]);
-          if(job.changed||saved.fingerprint!==fingerprint){
-            const ids=taxonomyNewsIds_(row[0],row[1],items);
-            if(saved.fingerprint!==fingerprint||JSON.stringify(saved.ids)!==JSON.stringify(ids))updates.push({row:next,value:JSON.stringify({fingerprint,ids})});
-          }
-          next++;if(Date.now()-started>=maxMs||backgroundPaused_(true))break;
+      const items=taxonomyCatalog_(),rows=newsWorkRows_(job,TAXONOMY_POLICY.batchRows),updates=[];let next=job.next,cursor=job.cursor;
+      for(const row of rows){
+        if(Date.now()-started>=maxMs||backgroundPaused_(true)||(next-job.next)%20===0&&properties_().getProperty('DAILY_PIPELINE_REQUEST'))break;
+        const saved=taxonomySaved_(row.taxonomia),fingerprint=taxonomyFingerprint_(row.titular,row.extracto);
+        if(businessNews_(row)&&(job.changed||saved.fingerprint!==fingerprint)){
+          const ids=taxonomyNewsIds_(row.titular,row.extracto,items);if(saved.fingerprint!==fingerprint||JSON.stringify(saved.ids)!==JSON.stringify(ids))updates.push({row:row._sheetRow,column:column+1,value:JSON.stringify({fingerprint,ids})});
         }
-        for(let start=0,end=1;end<=updates.length;end++){
-          if(end<updates.length&&updates[end].row===updates[end-1].row+1)continue;
-          sheet.getRange(updates[start].row,column+1,end-start,1).setNumberFormat('@').setValues(updates.slice(start,end).map(update=>[update.value]));written=true;job.tagged+=end-start;start=end;
-          if(end<updates.length&&Date.now()-started>=maxMs){next=updates[end].row;break;}
-        }
-        if(written)SpreadsheetApp.flush();
+        cursor=newsWorkCursor_(row);next++;
       }
-      job.next=next;job.processed=job.total+Math.min(job.total,job.next-2);
+      writeNewsCells_(updates);written=updates.length>0;if(written)SpreadsheetApp.flush();job.tagged+=updates.length;job.cursor=cursor;job.next=next;job.processed=job.total+Math.min(job.total,job.next-2);
       if(job.next>job.total+1){job.state='Completada';properties_().setProperty('TAXONOMY_APPLIED_MODEL',job.model);properties_().setProperty('TAXONOMY_APPLIED_RULES',job.rules);properties_().setProperty('TAXONOMY_EVALUATED_CORPUS',job.corpus);}
     }
     Object.assign(job,{state:job.state==='Completada'?'Completada':'En curso',updated:new Date().toISOString(),error:'',pausedUntil:0});writeTaxonomyJob_(job);

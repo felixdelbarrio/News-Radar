@@ -8,10 +8,10 @@ function pauseNewsletterQuota_(error){
 function newsletterDeliveryPlan_(now,deliveries){
   const periods=new Map(),attempts=new Map(),planned=[];
   for(const row of deliveries)if(!['Enviada','Sin novedades'].includes(attempts.get(row.id)?.estado))attempts.set(row.id,row);
-  for(const row of subscriptionRows_().filter(row=>row.activa)){
-    if(!periods.has(row.periodicidad))periods.set(row.periodicidad,newsletterPeriod_(row.periodicidad,now));
-    const period=periods.get(row.periodicidad);
-    if(recordDay(now,settings_().timezone)<period.available||new Date(row.actualizada)>=new Date(period.cutoff))continue;
+  for(const subscription of subscriptionRows_().filter(row=>row.activa))for(const periodicity of Object.keys(newsletterCadences)){
+    const row={...subscription,periodicidad:periodicity};
+    if(!periods.has(periodicity))periods.set(periodicity,newsletterPeriod_(periodicity,now));
+    const period=periods.get(periodicity);if(recordDay(now,settings_().timezone)<period.available||new Date(row.actualizada)>=new Date(period.cutoff))continue;
     const id=newsletterDeliveryId_(row,period);planned.push({row,id,attempt:attempts.get(id)});
   }
   return {periods,planned,due:planned.filter(item=>!item.attempt||['No enviado','Bloqueada'].includes(item.attempt.estado)).map(item=>({...item,query:subscriptionQuery_(item.row,now,true)}))};
@@ -23,7 +23,6 @@ function getNewsletterProgress(){
   job.progress=jobProgressState_('newsletter',job,{queued,quotaUntil:Math.max(Number(p.getProperty('NEWSLETTER_QUOTA_UNTIL')||0),due.length?newsletterQuotaReset_(deliveries,now):0)});
   const result={enabled,queued,active:enabled&&(queued||running),job};cacheJson_('newsletter-progress',result,15);return result;
 }
-function installNewsletterSchedule(){authorize_(true);newsletterSender_();replaceDailySchedule_('scheduledNewsletters_',settings_().dailyHour);return 'Programación instalada. Activa la entrega en Configuración de negocio → Newsletter.';}
 function requestNewsletterDelivery_(delay=0){properties_().setProperty('NEWSLETTER_REQUEST','true');properties_().setProperty('NEWSLETTER_NEXT',String(Date.now()+delay));ensureBackgroundWorker_(delay);}
 function scheduledNewsletters_(){
   if(backgroundPaused_()){deferBackgroundWork_('newsletter');return;}
@@ -31,33 +30,14 @@ function scheduledNewsletters_(){
 }
 function newsletterReadyAt_(work){return properties_().getProperty('NEWSLETTER_REQUEST')&&settings_().newsletterEnabled&&!businessPipelinePending_(work)?Math.max(Date.now(),Number(properties_().getProperty('NEWSLETTER_NEXT')||0),Number(properties_().getProperty('NEWSLETTER_QUOTA_UNTIL')||0)):Infinity;}
 function queueQuarterlyTaxonomy_(period){
-  const p=properties_();if(!period||p.getProperty('TAXONOMY_QUARTER')===period.to)return;
-  p.setProperty('TAXONOMY_QUARTER',period.to);
+  const p=properties_();if(!period||p.getProperty('TAXONOMY_PERIOD')===period.to)return;
+  p.setProperty('TAXONOMY_PERIOD',period.to);
   if(p.getProperty('TAXONOMY_EVALUATED_CORPUS')===(p.getProperty('NEWS_CONTENT_REVISION')||'0')&&p.getProperty('TAXONOMY_APPLIED_RULES')===classificationRulesRevision_())return;
   p.setProperty('TAXONOMY_REQUEST',period.to);ensureBackgroundWorker_();
 }
-function sendPendingNewsletters(){
-  authorize_(true);
-  if(!settings_().newsletterEnabled)throw Error('La entrega está desactivada. Actívala en Configuración de negocio → Newsletter.');
-  return deliverNewsletters_();
-}
-function deliverNewsletters_(){
-  const result={accepted:0,empty:0,duplicates:0,pending:0,state:'disabled'};
-  if(backgroundPaused_()){deferBackgroundWork_('newsletter');return {...result,state:'configuration_pause'};}
-  if(!settings_().newsletterEnabled)return result;
-  const lock=LockService.getScriptLock();if(!lock.tryLock(1000)){
-    if(backgroundPaused_()){deferBackgroundWork_('newsletter');return {...result,state:'configuration_pause'};}
-    ensureNewsletterContinuation_();return {...result,state:'busy'};
-  }
-  try{
-    if(backgroundPaused_()){deferBackgroundWork_('newsletter');return {...result,state:'configuration_pause'};}
-    if(businessPipelinePending_()){ensureNewsletterContinuation_();return {...result,state:'collection_priority'};}
-    return deliverNewsletterBatch_();
-  }finally{lock.releaseLock();}
-}
-
 function deliverNewsletterBatch_(work,maxMs=BACKGROUND_WORK.sliceMs){
   const started=Date.now(),now=new Date(started),result={accepted:0,empty:0,duplicates:0,pending:0,state:'disabled'};
+  if(backgroundPaused_()){deferBackgroundWork_('newsletter');return {...result,state:'configuration_pause'};}
   if(!settings_().newsletterEnabled){properties_().deleteProperty('NEWSLETTER_REQUEST');return result;}
   if(businessPipelinePending_(work)){ensureNewsletterContinuation_();return {...result,state:'collection_priority'};}
   const quotaPause=Number(properties_().getProperty('NEWSLETTER_QUOTA_UNTIL')||0);if(quotaPause>Date.now()){requestNewsletterDelivery_(quotaPause-Date.now());return {...result,state:'limit'};}
@@ -71,7 +51,7 @@ function deliverNewsletterBatch_(work,maxMs=BACKGROUND_WORK.sliceMs){
     if(!quota){requestNewsletterDelivery_(newsletterQuotaReset_(deliveries,now)-Date.now());return {...result,state:'limit'};}
     let sender;
     const history=newsletterSentContent_(deliveries),window={from:due.reduce((start,item)=>item.query.from<start?item.query.from:start,due[0].query.from),to:due.reduce((end,item)=>item.query.to>end?item.query.to:end,due[0].query.to)};
-    const news=annotateNews_(rows_('Noticias',undefined,undefined,window).filter(row=>newsScope_(row,window,''))),prepared=new Map(),sheet=book_().getSheetByName('NewsletterEnvios');
+    const news=annotateNews_(rows_('Noticias',undefined,undefined,window).filter(row=>businessNews_(row)&&newsScope_(row,window,''))),prepared=new Map(),sheet=book_().getSheetByName('NewsletterEnvios');
     sheet.getRange(1,9,1,1).setValues([['contenido']]);
     result.state='processed';
     for(const {row,id,query} of due){

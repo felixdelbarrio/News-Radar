@@ -1,3 +1,5 @@
+import {createJobMonitor,jobProgressHtml} from './features/job-monitor.js';
+import {browserCountry} from './core/browser-country.js';
 import {initializeSearchableSelects} from './features/searchable-selects.js';
 import {createGeographyTabs} from './features/geography-tabs.js';
 import {createReadingContext} from './features/reading-context.js';
@@ -31,16 +33,16 @@ const state = { data: null, request: 0, busy: false,contentStale:false,attributi
 const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady:()=>Boolean(state.data),getAttribution:()=>state.attribution&&state.data?.context?.id===state.attribution?state.attribution:'' }), { track, flush } = usage;
 const dashboards=new Map();
 const selectionKey=query=>JSON.stringify(Object.entries(query).filter(([,value])=>value!==''&&value!=null).sort(([a],[b])=>a.localeCompare(b)));
-const noteNewsRevision=revision=>{if(revision&&state.data&&revision!==state.data.newsRevision){state.contentStale=true;dashboards.clear();}};
 const configuration = createConfiguration({run:action});
-const taxonomy=createTaxonomy({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='taxonomy'});
-const subscriptions = createSubscriptions({run:action,onApply:query=>navigateSelection(query.view,query)});
-const classification=createClassification({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='runs'});
+const taxonomy=createTaxonomy({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='taxonomy'});
+const subscriptions = createSubscriptions({run:action});
+const classification=createClassification({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='runs'});
+const maintenance=createJobMonitor({id:'maintenance',get:'getMaintenanceStatus',isActive:()=>navigation.current==='administration'&&administration.current==='runs',render({job}){$('maintenance-progress').innerHTML=job?jobProgressHtml(job,{total:job.total,done:job.reviewed,label:'Mantenimiento incremental',summary:job.reviewed+' revisados · '+job.corrected+' corregidos · '+job.consolidated+' consolidados · '+job.removed+' eliminados'}):'<p>Sin mantenimiento pendiente.</p>';}});
 const newsletterDelivery=createNewsletterDelivery({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='subscribers'});
-const languageSettings=createLanguageSettings({run:action,onRevision:noteNewsRevision,isActive:()=>navigation.current==='administration'&&administration.current==='language'});
-const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onLanguage:()=>languageSettings.open(),onLeaveLanguage:()=>languageSettings.close(),onRuns:async()=>{const data=await loadRuns();if(data)await classification.open(data.classification);},onLeaveRuns:()=>classification.close(),onLeaveSubscribers:()=>newsletterDelivery.close(),onTaxonomy:()=>taxonomy.open(),onLeaveTaxonomy:()=>taxonomy.close() });
+const languageSettings=createLanguageSettings({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='language'});
+const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onLanguage:()=>languageSettings.open(),onLeaveLanguage:()=>languageSettings.close(),onRuns:async()=>{const data=await loadRuns();if(data)await Promise.all([classification.open(data.classification),maintenance.open()]);},onLeaveRuns:()=>{classification.close();maintenance.close();},onLeaveSubscribers:()=>newsletterDelivery.close(),onTaxonomy:()=>taxonomy.open(),onLeaveTaxonomy:()=>taxonomy.close() });
 const panel=createFilterPanel();
-const navigation = createNavigation({onPanel:view=>{if(view!=='administration'){classification.close();newsletterDelivery.close();}++state.request;panel.show(view);refreshLoading();}, onSelection:view=>{taxonomy.close();const changed=filters.show(view);if(state.ready&&(changed||state.contentStale||state.view!==view))load(true);}, onSubscriptions:()=>{taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
+const navigation = createNavigation({onPanel:view=>{if(view!=='administration'){classification.close();maintenance.close();newsletterDelivery.close();}++state.request;panel.show(view);if(state.data)collectionProgress.update(state.data);refreshLoading();}, onSelection:view=>{taxonomy.close();const changed=filters.show(view);if(state.ready&&(changed||state.contentStale||state.view!==view))load(true);}, onSubscriptions:()=>{taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
 const filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
   track("filtro");
   load();
@@ -50,11 +52,11 @@ const heatmap=createTaxonomyHeatmap({onExplore:query=>navigateSelection('news',q
 const briefing=createBriefing();
 const newsTabs=createGeographyTabs('news-geographies','news-list',name=>filters.setGeography(name));
 function navigateSelection(view,query){filters.show(view);filters.apply(query,false);state.contentStale=true;track('filtro');navigation.show(view);}
-const radar=createRadar({onSource:source=>navigateSelection('news',{...state.data.selection,source}),onCountry:country=>navigateSelection('news',{...state.data.selection,country}),onEntity:entity=>navigateSelection('news',{...state.data.selection,entity}),onNews:()=>navigateSelection('news',state.data.selection)});
+const radar=createRadar({onSource:source=>navigateSelection('news',{...state.data.selection,source}),onCountry:country=>navigateSelection('news',{...state.data.selection,country}),onEntity:entity=>navigateSelection('news',{...state.data.selection,entity})});
 
 const sources = createSources({ getData: () => state.data, run: action });
 const recoveryControls=createRecoveryControls({getData:()=>state.data,run:action});
-const collectionProgress=createCollectionProgress({reload:data=>{noteNewsRevision(data.newsRevision);if(['news','briefing','radar'].includes(navigation.current))return load();},isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
+const collectionProgress=createCollectionProgress({isActive:()=>navigation.current==='administration',isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
 function renderSelection(data,view=navigation.current,appended=null){
   reading.render(data,view);if(view==='news'){renderNews(data,appended);newsTabs.render(data.newsGeographies||[],data.newsGeography||'');}
   if(view==='radar'){radar.render(data);heatmap.render(data);}
@@ -78,6 +80,7 @@ async function load(reuse=false) {
   try {
     const administrative=navigation.current==='administration',query=administrative?{view:administration.current,language:filters.query().language}:filters.query();
     if(!administrative){renderFreshness(query.initial?{}:query,state.data?.lastRun);if(query.initial)$("active-filters").hidden=true;}
+    if(query.view==='news'&&!query.edition&&!query.newsGeography)query.newsGeography=browserCountry();
     const key=selectionKey(query),cached=reuse&&!administrative&&!state.contentStale&&dashboards.get(key);
     const clientCacheHit=Boolean(cached&&performance.now()-cached.time<navigationCache.milliseconds);
     let data=clientCacheHit?{...cached.data,collection:state.data.collection,lastRun:state.data.lastRun,daily:state.data.daily}:await call("getDashboard",query),appended=null;
@@ -88,9 +91,8 @@ async function load(reuse=false) {
     }
     if (request === state.request) {
       const first = !state.data;
-      if(state.data&&(data.newsRevision!==state.data.newsRevision||data.configurationRevision!==state.data.configurationRevision))dashboards.clear();
+      if(!administrative&&!clientCacheHit&&state.data&&(data.newsRevision!==state.data.newsRevision||data.configurationRevision!==state.data.configurationRevision))dashboards.clear();
       if(administrative&&state.data){
-        state.contentStale||=data.newsRevision!==state.data.newsRevision||data.configurationRevision!==state.data.configurationRevision;
         data={...state.data,...data,selection:state.data.selection,context:state.data.context};
       }else state.contentStale=false;
       state.data=data;state.view=query.view;
@@ -103,7 +105,7 @@ async function load(reuse=false) {
       }
       renderSelection(data,navigation.current,appended);
       renderApplicationShell(data);
-      track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true}:{}),clientCacheHit,rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
+      track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true}:{}),clientCacheHit,sharedRequest:!clientCacheHit&&data.performance.transportMs>performance.now()-started+5,rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
       if (first) {
         track("acceso");
         track("vista");

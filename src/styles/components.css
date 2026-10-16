@@ -39,3 +39,5 @@ section[data-loading="append"]>.loading{min-height:0}section[data-loading="appen
 summary.button{width:100%;cursor:pointer;list-style:none;justify-content:space-between}summary.button::-webkit-details-marker{display:none}summary.button::after{content:"⌄"}details[open]>summary.button::after{content:"⌃"}
 
 .story-excerpt{margin-bottom:var(--space-1);color:var(--color-primary-text-secondary);display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+
+.article-metadata>.news-meta{display:flex;flex-wrap:wrap;column-gap:var(--space-2);row-gap:var(--space-1)}.article-metadata .identity-label{display:inline-flex;align-items:center;gap:var(--space-1)}

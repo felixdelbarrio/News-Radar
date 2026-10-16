@@ -23,7 +23,7 @@ test('el histórico usa el origen para filtros y banderas y la clasificación pe
  c.requestNewsClassification_(true);c.newsClassificationBatch_();const stored=c.rows_('Noticias')[0];assert.equal(stored.pais,'Perú');assert.equal(stored.fuente,input.fuente);assert.equal(stored.url,input.url);assert.equal(c.classificationJob_().state,'Completada');
 });
 test('titulares equivalentes entre idiomas cuentan una vez en noticias, novedades, Radar, exportación y newsletter sin traductor durante lectura',()=>{
- const s=server(),c=s.c,a=story('es'),b=story('en',{titular:english,extracto:'New digital payments for businesses',fecha:'2026-10-10'});add(s,[a,b]);translate(c,a);c.LanguageApp.translate=()=>{throw Error('No se traduce durante lectura');};
+ const s=server(),c=s.c,a=story('es'),b=story('en',{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:english,extracto:'New digital payments for businesses',fecha:'2026-10-10'});add(s,[a,b]);translate(c,a);c.LanguageApp.translate=()=>{throw Error('No se traduce durante lectura');};
  c.taxonomyCatalog_=()=>[{id:'payments',palanca:'Pagos y cobros',subpalanca:'Pagos empresariales'}];
  const query={from:'2026-10-08',to:'2026-10-11'};assert.equal(c.getDashboard({...query,view:'news'}).contextTotal,1);assert.equal(c.getDashboard({...query,view:'radar'}).stats.news,1);assert.equal(c.getDashboard({...query,view:'briefing'}).briefing.total,1);assert.equal(c.exportNews(query).count,1);assert.equal(c.newsletter_(c.rows_('Noticias'),query,'Resumen',new Date(),'sub').count,1);assert.equal(c.rows_('Noticias').length,2);
  const known=c.knownUrls_();assert.equal(c.duplicateTitle_(known,{title:english,date:new Date('2026-10-10'),publisher:'Otro editor'}),true);
@@ -31,7 +31,7 @@ test('titulares equivalentes entre idiomas cuentan una vez en noticias, novedade
 });
 test('la identidad traducida conserva importes, fechas lejanas y titulares cortos y fusiona equivalencias transitivas',()=>{
  const {c}=server(),a=story('a',{identityTitles:[english]}),b=story('b',{titular:'Santander presenta una nueva oferta digital de cobros para empresas',identityTitles:['Santander introduces a new digital collections service for businesses']}),bridge=story('bridge',{titular:english,identityTitles:[b.identityTitles[0]]});
- assert.equal(c.uniqueNews_([a,b,bridge]).length,1);assert.equal(c.uniqueNews_([a,story('amount',{titular:english.replace('new','300 million euro')}),story('later',{titular:english,fecha:'2026-10-20'}),story('short-a',{titular:'Pagos',identityTitles:['Payments']}),story('short-b',{titular:'Payments'})]).length,5);
+ assert.equal(c.uniqueNews_([a,b,bridge]).length,1);assert.equal(c.uniqueNews_([a,story('amount',{titular:english.replace('new','300 million euro')}),story('later',{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:english,fecha:'2026-10-20'}),story('short-a',{titular:'Pagos',identityTitles:['Payments']}),story('short-b',{titular:'Payments'})]).length,5);
 });
 test('una traducción recién guardada invalida el recuento de Radar aunque se reutilice el caché de registros originales',()=>{
  const s=server(),c=s.c,a=story('es'),b=story('en',{titular:english,extracto:'New digital payments for businesses'});add(s,[a,b]);assert.equal(c.getDashboard({view:'radar'}).stats.news,2);translate(c,a);assert.equal(c.getDashboard({view:'radar'}).stats.news,1);

@@ -6,7 +6,7 @@ function parseFeed_(xml) {
   return items.map(item=>({title:item.getChildText('title'),url:item.getChildText('link'),date:item.getChildText('pubDate'),excerpt:item.getChildText('description'),source:item.getChildText('source'),language}));
 }
 function newsRecord_(item,feed,now) {
-  const record={id:Utilities.getUuid(),fecha:Utilities.formatDate(item.date,settings_().timezone,'yyyy-MM-dd'),pais:item.country||feed.country,medio:item.publisher||(feed.kind==='profile'?'':feed.name),entidad:item.entity||feed.entity,titular:item.title,extracto:item.excerpt,url:item.url,capturada:now.toISOString(),fuente:feed.name,idioma:item.language||feed.language||'',clasificacion:JSON.stringify(item.labels),taxonomia:JSON.stringify({fingerprint:taxonomyFingerprint_(item.title,item.excerpt),ids:taxonomyNewsIds_(item.title,item.excerpt)})};
+  const record={id:Utilities.getUuid(),fecha:Utilities.formatDate(item.date,settings_().timezone,'yyyy-MM-dd'),pais:item.country||feed.country,medio:publisherKey_(item.publisher||(feed.kind==='profile'?'':feed.name)),entidad:item.entity||feed.entity,titular:item.title,extracto:item.excerpt,url:item.url,capturada:now.toISOString(),fuente:feed.name,idioma:item.language||feed.language||'',clasificacion:JSON.stringify(item.labels),taxonomia:JSON.stringify({fingerprint:taxonomyFingerprint_(item.title,item.excerpt),ids:taxonomyNewsIds_(item.title,item.excerpt)})};
   return RADAR.sheets.Noticias.map(key=>record[key]);
 }
 function ingestFeed_(feed,known,cycle,now,response) {
@@ -34,7 +34,7 @@ function knownUrls_() {
   const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1,known=new Set();known.titles=new Map();
   if(count>0)for(const row of translationIdentityRows_(sheet.getRange(2,2,count,7).getDisplayValues().map(row=>({fecha:row[0],pais:row[1],medio:row[2],entidad:row[3],titular:row[4],extracto:row[5],url:row[6]})))){
     const url=newsUrlIdentity_(row.url);if(url)known.add(url);
-    if(Number.isFinite(Date.parse(row.fecha)))for(const title of [row.titular,...(row.identityTitles||[])])rememberTitle_(known,{date:row.fecha,title,publisher:row.medio,entity:row.entidad,country:row.pais});
+    if(Number.isFinite(Date.parse(row.fecha)))for(const title of [row.titular,...(row.identityTitles||[])])rememberTitle_(known,{date:row.fecha,title,publisher:publisherKey_(row.medio),entity:row.entidad,country:row.pais});
   }
   return known;
 }

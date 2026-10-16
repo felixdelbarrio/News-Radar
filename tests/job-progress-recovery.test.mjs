@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {app,tick} from './helpers/app.mjs';
-import {storage} from './helpers/server.mjs';
+import {storage} from './helpers/delivery.mjs';
 function fixture(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
 test('Ejecuciones incluye una sola clasificación bajo las recargas y usa el estado del mismo RPC',async t=>{
  const a=await app(t,{entry:''});await a.click('[data-view="administration"]');assert.ok(a.find('#runs-section').contains(a.find('#classification-start')));assert.equal(a.find('#classification-progress').querySelectorAll('progress').length,1);assert.ok(a.find('#collection-jobs').compareDocumentPosition(a.find('#classification-progress'))&a.w.Node.DOCUMENT_POSITION_FOLLOWING);assert.equal(a.w.document.querySelector('#configuration-section #classification-start'),null);assert.equal(a.calls.filter(c=>c.method==='getClassificationStatus').length,0);

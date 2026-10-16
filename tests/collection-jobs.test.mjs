@@ -36,8 +36,8 @@ test('las pausas de la anual no bloquean la diaria y los reintentos respetan su 
 });
 test('cada lote guarda contadores por ciclo y deduplica noticias compartidas entre diaria y anual',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',1);addJob(s,'daily','daily',1);
- const date=new Date('2026-10-10T12:00:00Z');c.parseFeed_=()=>[{title:'BBVA lanza financiación para empresas',date:date.toISOString(),url:'https://bbva.com/nueva-noticia',excerpt:'Nueva cuenta para empresas'}];
- const result=c.backgroundTick_();assert.equal(result.added,1);c.backgroundTick_();assert.equal(c.rows_('Noticias').length,1);assert.equal(c.rows_('Ejecuciones').length,2);
+ const date=new Date('2026-10-10T12:00:00Z');c.parseFeed_=()=>[{title:'BBVA lanza financiación digital para empresas',date:date.toISOString(),url:'https://bbva.com/nueva-noticia',excerpt:'Nueva cuenta para empresas'}];
+ const result=c.backgroundTick_();assert.equal(result.added,1);c.processBackground_(10);assert.equal(c.rows_('Noticias').length,1);assert.equal(c.rows_('Ejecuciones').length,2);
  const status=c.collectionStatus_();assert.equal(status.jobs.length,2);assert.equal(status.jobs.reduce((n,job)=>n+Number(job.nuevas),0),1);assert.ok(status.jobs.every(job=>job.estado==='Completada'));
  const runs=c.getRuns({id:'daily'});assert.equal(runs.total,1);assert.equal(runs.items[0].tipo,'daily');assert.ok(runs.collection.jobs.length);
 });
@@ -54,7 +54,7 @@ test('terminar una carga conserva su progreso pero retira sus tareas al preparar
 test('errores simultáneos solo pausan su ciclo y quedan reintentables',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',2);addJob(s,'daily','daily',1);
  const ingest=c.ingestFeed_;c.ingestFeed_=(feed,known,cycle,now,response)=>{if(cycle==='annual'){const e=Error('HTTP 503');e.retryable=true;throw e;}return ingest(feed,known,cycle,now,response);};
- c.backgroundTick_();c.backgroundTick_();const jobs=c.collectionJobs_();assert.ok(Number(jobs.find(job=>job.id==='annual').pausa)>Date.now());assert.equal(jobs.find(job=>job.id==='daily').estado,'Completada');assert.equal(c.rows_('Recopilacion').filter(task=>task.estado==='Reintento programado').length,2);
+ c.backgroundTick_();c.processBackground_(10);const jobs=c.collectionJobs_();assert.ok(Number(jobs.find(job=>job.id==='annual').pausa)>Date.now());assert.equal(jobs.find(job=>job.id==='daily').estado,'Completada');assert.equal(c.rows_('Recopilacion').filter(task=>task.estado==='Reintento programado').length,2);
 });
 test('el despertador recupera solicitudes si coincide con el apagado del activador y reintenta un bloqueo',()=>{
  const s=server(),c=s.c;c.requestCollection_('annual',{from:'2026-10-11',to:'2026-10-11'});
@@ -83,7 +83,7 @@ test('los lanzamientos manual y programado comparten la solicitud diaria y recha
 test('un único trabajador serializa diaria, anual y traducción, y alterna los dos procesos secundarios',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',30);addJob(s,'daily','daily',1);const order=[];const collect=c.collectionBatch_;
  c.collectionBatch_=work=>{order.push(work.pending[0]?.ciclo);return collect(work);};c.translationBatch_=()=>{order.push('translation');};c.requestTranslations_();
- c.backgroundTick_();assert.deepEqual(order,['daily']);c.backgroundTick_();assert.deepEqual(order,['daily','translation']);c.backgroundTick_();assert.deepEqual(order,['daily','translation','annual']);c.backgroundTick_();assert.deepEqual(order,['daily','translation','annual','translation']);
+ c.backgroundTick_();assert.deepEqual(order,['daily']);c.backgroundTick_();assert.deepEqual(order,['daily','translation']);c.backgroundTick_();c.backgroundTick_();assert.deepEqual(order,['daily','translation','annual']);c.backgroundTick_();assert.deepEqual(order,['daily','translation','annual','translation']);
  assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
  const lock=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};assert.equal(c.backgroundTick_().busy,true);assert.equal(order.length,4);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);c.LockService=lock;
 });
@@ -101,7 +101,7 @@ test('el trabajador aprovecha un despertar para tres lotes y persiste resultados
  c.processBackground_();assert.deepEqual(batches,[12,24,36]);assert.equal(c.rows_('Ejecuciones').length,3);assert.equal(c.collectionJobs_()[0].pendientes,'14');assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
 });
 test('una diaria llegada durante un lote anual es el siguiente lote y las llamadas lentas limitan el turno',()=>{
- const s=server(),c=s.c;addJob(s,'annual','annual',50);const order=[],collect=c.collectionBatch_;c.collectionBatch_=work=>{order.push(work.pending[0]?.ciclo);const result=collect(work);if(order.length===1)c.requestDailyCollection_();return result;};c.processBackground_();assert.equal(order[0],'annual');assert.match(order[1],/^daily\//);assert.equal(order[2],'annual');
+ const s=server(),c=s.c;addJob(s,'annual','annual',50);const order=[],collect=c.collectionBatch_;c.collectionBatch_=work=>{order.push(work.pending[0]?.ciclo);const result=collect(work);if(order.length===1)c.requestDailyCollection_();return result;};c.processBackground_();assert.equal(order[0],'annual');assert.match(order[1],/^daily\//);c.processBackground_(3);assert.ok(order.slice(2).includes('annual'));
  const nativeDate=vm.runInContext('Date',c);let clock=Date.now(),batches=0;c.Date=class extends nativeDate{constructor(value){super(value===undefined?clock:value);}static now(){return clock;}};c.collectionBatch_=work=>{batches++;const result=collect(work);clock+=50000;return result;};c.processBackground_();assert.equal(batches,1);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
 });
 

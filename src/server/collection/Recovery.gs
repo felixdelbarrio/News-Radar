@@ -17,7 +17,7 @@ function collectionFeeds_(range){
     return variants.map(feed=>collectionProfile_(feed,window)).filter(Boolean);
   })));
   const primary=new Set(configuration_().applicationScope.find(scope=>scope.name==='Empresas e instituciones').countries),seen=new Set();
-  return selected.filter(feed=>{if(seen.has(feed.url))return false;seen.add(feed.url);return true;}).sort((a,b)=>Number(primary.has(b.country))-Number(primary.has(a.country)));
+  return selected.filter(feed=>{if(seen.has(feed.url))return false;seen.add(feed.url);return true;}).sort((a,b)=>String(b.range?.to||'').localeCompare(String(a.range?.to||''))||Number(primary.has(b.country))-Number(primary.has(a.country)));
 }
 
 function splitCollectionFeed_(feed){

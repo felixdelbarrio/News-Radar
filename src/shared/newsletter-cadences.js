@@ -16,3 +16,6 @@ export function newsletterWindow(periodicity,day,closed=false){
  const cutoff=end.toISOString(),delivery=new Date(end);delivery.setUTCDate(delivery.getUTCDate()+(cadence.weekday-delivery.getUTCDay()+7)%7);end.setUTCDate(end.getUTCDate()-1);
  return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10),cutoff,available:delivery.toISOString().slice(0,10)};
 }
+export function readingWindow(view,day,closed=false){
+ const cadence=Object.keys(newsletterCadences).find(key=>newsletterCadences[key].view===view);return newsletterWindow(cadence,day,closed);
+}

@@ -11,8 +11,7 @@ function createFilters({ onInvalidate, onChange }) {
   let page = 0, view=defaultView, defaults={},edition='',newsGeography='',editionSelection={},taxonomy=[],applied={},dirty=false;
   const selections=new Map(),initialized=new Set();
   function options(name, values, selected) {
-    if(name==='coverage')values=Object.keys(coverageOptions);
-    const el = form.elements[name], current = selected ?? el.value;
+    const el = form.elements[name];if(!el)return;const current = selected ?? el.value;
     if(current&&!values.includes(current))values=[...values,current];
     const signature = JSON.stringify(values);
     if (el.dataset.options === signature) return;
@@ -28,7 +27,7 @@ function createFilters({ onInvalidate, onChange }) {
       $('filter-description').textContent='Edita los criterios y pulsa Aplicar filtros para actualizar los resultados.';
   }
   layout();
-  const chipLabels={benchmark:'Ámbito comparativo',coverage:'Cobertura',search:'Búsqueda',country:'Geografía',entity:'Entidad',source:'Medio',type:'Tipo de entidad',segment:'Segmento',signal:'Novedad',palanca:'Palanca',subpalanca:'Subpalanca',from:'Fecha desde',to:'Fecha hasta'};
+  const chipLabels={benchmark:'Ámbito comparativo',search:'Búsqueda',country:'Geografía',entity:'Entidad',source:'Medio',type:'Tipo de entidad',signal:'Novedad',palanca:'Palanca',subpalanca:'Subpalanca',from:'Fecha desde',to:'Fecha hasta'};
   function renderChips(){
     const target=$('active-filters');
     const values=Object.entries(chipLabels).filter(([name])=>applied[name]);
@@ -52,6 +51,7 @@ function createFilters({ onInvalidate, onChange }) {
     if(edition&&['from','to'].includes(event.target?.name)&&!event.target.value){current();return;}
     if(event.type==="input"&&event.target?.name!=="search")return;
     syncTaxonomyControls(form,taxonomy,event.target?.name);
+    const next=Object.fromEntries(new FormData(form));if(event.type==='submit'&&JSON.stringify(Object.entries(next).sort())===JSON.stringify(Object.entries(applied).filter(([key])=>form.elements[key]).sort()))return;
     clearTimeout(timer);
     page = 0;
     initialized.add(view);

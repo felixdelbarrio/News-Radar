@@ -73,7 +73,7 @@
   },
   "segments": {
     "label": "Segmentos",
-    "help": "Una noticia puede pertenecer a varios segmentos. Sin coincidencia se mantiene sin segmento.",
+    "help": "Contexto de Empresas e instituciones, pymes y autónomos. Términos separados por punto y coma; * al final de una palabra admite sus variantes. Las capacidades transversales pueden ser relevantes aunque el titular no mencione el segmento.",
     "fields": [
       [
         "name",
@@ -152,9 +152,7 @@
       "collectionBatch": "Fuentes por lote",
       "retryMinutes": "Minutos entre reintentos",
       "pauseMinutes": "Minutos de pausa",
-      "maxSubscriptions": "Máximo de selecciones por usuario",
       "unknownCountry": "Geografía predeterminado de un RSS sin país",
-      "defaultPeriodicity": "Periodicidad inicial (quarterly, fortnightly, yearly)",
       "newsletterEnabled": "Activar entrega de newsletters",
       "newsletterBatch": "Máximo de destinatarios por ejecución",
       "newsletterSender": "Remitente verificado en Gmail (correo del grupo)",
@@ -170,10 +168,8 @@
           "newsletterSender",
           "newsletterSenderName",
           "newsletterAppUrl",
-          "defaultPeriodicity",
           "newsletterBatch",
           "newsletterDailyLimit",
-          "maxSubscriptions",
           "briefingLimit"
         ]
       },
@@ -221,7 +217,7 @@
   },
   "capabilities": {
     "label": "Capacidades digitales",
-    "help": "Capacidades independientes para Empresas y Retail. Términos separados por punto y coma; solo las activas participan en búsquedas y relevancia.",
+    "help": "Capacidades del canal de Empresas e instituciones. Solo las activas participan en búsquedas, clasificación y relevancia. Términos separados por punto y coma.",
     "fields": [
       [
         "name",
@@ -243,5 +239,91 @@
   "applicationScope": {
     "label": "Ámbito de aplicación",
     "help": "Países con pestaña propia por segmento en Noticias y Novedades. Los restantes y las noticias sin país se agrupan en Otras geografías. Radar conserva todas las geografías conocidas."
+  },
+  "relevanceRules": {
+    "label": "Criterios de relevancia",
+    "help": "Se requiere una capacidad activa y contexto empresarial o una capacidad transversal útil para empresas. Canal y servicio aportan evidencia; las exclusiones se buscan en el titular. Retail solo se excluye cuando falta contexto empresarial. Las señales de cambio proceden de Novedades y lanzamientos. Términos separados por punto y coma; * al final de una palabra admite sus variantes. Ámbito de aplicación prioriza los países y agrupa el resto como referencia internacional.",
+    "fields": [
+      [
+        "name",
+        "Nombre",
+        "text"
+      ],
+      [
+        "role",
+        "Criterio",
+        "choice",
+        [
+          [
+            "channel",
+            "Evidencia de canal digital"
+          ],
+          [
+            "service",
+            "Servicios financieros y operativa"
+          ],
+          [
+            "shared",
+            "Capacidades reutilizables por empresas"
+          ],
+          [
+            "infrastructure",
+            "Infraestructura y servicios empresariales"
+          ],
+          [
+            "corporate",
+            "Excluir información corporativa sin utilidad de canal"
+          ],
+          [
+            "retail",
+            "Excluir consumo particular sin contexto empresarial"
+          ],
+          [
+            "editorial",
+            "Excluir guías genéricas sin movimiento de mercado"
+          ],
+          [
+            "incidental",
+            "Excluir avisos rutinarios y sucesos individuales"
+          ]
+        ]
+      ],
+      [
+        "terms",
+        "Términos o raíces",
+        "list"
+      ],
+      [
+        "enabled",
+        "Activa",
+        "boolean"
+      ]
+    ]
+  },
+  "searchLanguages": {
+    "label": "Búsquedas por idioma",
+    "help": "Vocabulario editable de recuperación. Los primeros cuatro términos tienen prioridad en las búsquedas del idioma; se combinan con Operación y selección inicial y Capacidades digitales. Editar estas listas cambia las próximas consultas sin añadir fuentes ni multiplicar combinaciones.",
+    "fields": [
+      [
+        "name",
+        "Nombre",
+        "text"
+      ],
+      [
+        "language",
+        "Idioma de búsqueda (código de dos letras)",
+        "text"
+      ],
+      [
+        "terms",
+        "Términos o raíces",
+        "list"
+      ],
+      [
+        "enabled",
+        "Activa",
+        "boolean"
+      ]
+    ]
   }
 }
