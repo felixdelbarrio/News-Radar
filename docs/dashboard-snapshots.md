@@ -15,3 +15,19 @@ El cálculo de noticias, agrupación, taxonomía y traducciones usa las funcione
 Las regresiones comprueban igualdad con el cálculo normal en las tres vistas, persistencia sin caché, pestaña de país, idioma, retroceso de período, fechas explícitas por defecto, aislamiento de filtros, invalidación por revisiones, fragmentos corruptos y generación completa desde el trabajador.
 
 La verificación en Apps Script compara el mismo contenido antes y después de materializarlo, y mide servidor y preparación de noticias. La comprobación del navegador utiliza la URL de producción existente y su telemetría; los tiempos de red de Apps Script se separan del cálculo. Las cifras finales se incorporan tras publicar y medir.
+
+## Resultado real en Apps Script
+
+Publicación existente actualizada a la versión 71, aplicación 3.2.3. Se retiró `RecoveryReview.gs` antes de crear la versión. Se conserva URL, ejecución por propietario y acceso del dominio.
+
+| Vista | Servidor sin snapshot | Primera lectura persistente | Reducción | Siguientes lecturas |
+| --- | ---: | ---: | ---: | ---: |
+| Novedades | 6.783 ms | 536 ms | 92,1 % | 106–109 ms |
+| Noticias | 2.868 ms | 867 ms | 69,8 % | 95–101 ms |
+| Radar | 2.686 ms | 403 ms | 85,0 % | 99–106 ms |
+
+Nueve comprobaciones de igualdad correctas, con tres lecturas por vista y sin variar el corpus: 163 noticias elegibles en el período de Novedades (24 señales), 168 en Noticias y 366 en Radar. Estos tiempos pertenecen al servidor; el transporte RPC de Google y el renderizado se verifican por separado en el navegador. No equivalen a una medición aislada de CPU o RAM de Apps Script.
+
+Validación local: 482 pruebas correctas, cero fallos; distribución reproducible y comprobaciones de sintaxis, diseño y permisos. El simulador de blobs exige MIME, igual que el descompresor de Apps Script.
+
+La telemetría histórica disponible incluye 6.837 registros de distintas versiones. Entre cargas de lectura sin acierto de caché del navegador, las medianas históricas son 7.408 ms en Novedades (295 muestras), 6.255 ms en Noticias (311) y 5.987 ms en Radar (161); sus p95 son 15.556, 13.813 y 46.420 ms. Sirve como contexto, no como comparación controlada: mezcla versiones, filtros y tamaños de contenido. La comparación de la tabla sí usa idéntico contenido y versión.
