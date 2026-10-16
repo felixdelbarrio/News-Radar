@@ -132,7 +132,7 @@ for(const language of ['en','tr'])test('frases del Radar y de administración co
  await a.click('[data-view="radar"]');
  for(const [id,source] of [['radar-focus','Panorama de entidades'],['radar-context','Distribución geográfica, entidades mencionadas y evolución de las publicaciones recopiladas.'],['radar-headline','Radar'],['trend-note','Volumen agrupado en intervalos de 6 días.']])assert.equal(a.find('#'+id).textContent,translateText(source,language));
  assert.ok(a.find('#trend-chart').textContent.includes(new Intl.DateTimeFormat(language,{day:'numeric',month:'short',timeZone:'UTC'}).format(new Date('2026-10-01'))));
- await a.click('[data-view="subscriptions"]');assert.equal(a.find('#subscriptions-count').textContent,translateText('Tu suscripción',language));
+ await a.click('[data-view="subscriptions"]');assert.equal(a.find('#subscriptions-count').textContent,translateText('1 suscripción',language));
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="audit"]');assert.equal(a.find('#audit-note').textContent,translateText('0 coincidencias en las últimas 20000 entradas disponibles.',language));
  await a.click('[data-admin-view="telemetry"]');assert.equal(a.find('#telemetry-note').textContent,translateText('0 coincidencias en las últimas 20000 operaciones disponibles.',language));
  await a.click('[data-admin-view="adoption"]');assert.equal(a.find('#adoption-section .eyebrow').textContent,translateText('Uso de News Radar',language));

@@ -1,3 +1,4 @@
+import {openDatePicker} from './date-picker.js';
 import {newsletterComparisonLabels} from '../../shared/newsletter-cadences.js';
 import {taxonomySubLabel} from '../../shared/taxonomy-path.js';
 import {syncTaxonomyControls} from './taxonomy-controls.js';
@@ -40,7 +41,7 @@ function createFilters({ onInvalidate, onChange }) {
     }).join('');
   }
   $('active-filters').addEventListener('click',event=>{
-    const edit=event.target.closest('[data-edit-filter]');if(edit?.dataset.editFilter){$('advanced-filters').open=true;$('filters-dialog').showModal();form.elements[edit.dataset.editFilter].focus();return;}
+    const edit=event.target.closest('[data-edit-filter]');if(edit?.dataset.editFilter){$('advanced-filters').open=true;$('filters-dialog').showModal();const input=form.elements[edit.dataset.editFilter];input.focus();openDatePicker(input);return;}
     const button=event.target.closest('[data-remove-filter]');if(!button)return;
     if(edition&&['from','to'].includes(button.dataset.removeFilter)){current();return;}
     for(const input of form.elements)if(input.name)input.value=applied[input.name]||'';

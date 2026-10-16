@@ -1,3 +1,61 @@
+const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
+  "version": "3.2.2",
+  "relevanceRules": [
+    {
+      "name": "Evidencia de canal digital",
+      "terms": [
+        "transacciones inmediatas",
+        "pagos inmediatos",
+        "bre-b",
+        "instant transfers"
+      ]
+    },
+    {
+      "name": "Servicios financieros y operativa",
+      "terms": [
+        "transacciones inmediatas",
+        "llaves",
+        "bre-b",
+        "gastos"
+      ]
+    },
+    {
+      "name": "Capacidades reutilizables por empresas",
+      "terms": [
+        "transacciones inmediatas",
+        "pagos inmediatos",
+        "bre-b",
+        "digitaliza gastos"
+      ]
+    },
+    {
+      "name": "Infraestructura y servicios empresariales",
+      "terms": [
+        "bre-b"
+      ]
+    }
+  ],
+  "capabilities": [
+    {
+      "name": "Gestión de gastos corporativos",
+      "terms": [
+        "digitaliza gastos",
+        "digitalizacion de gastos",
+        "digitises expenses",
+        "digitizes expenses"
+      ]
+    },
+    {
+      "name": "Transferencias",
+      "terms": [
+        "transacciones inmediatas",
+        "pagos inmediatos",
+        "bre-b",
+        "instant transfers"
+      ]
+    }
+  ]
+});
 const CONFIGURATION_DEFAULTS = Object.freeze({
   "settings": {
     "timezone": "Europe/Madrid",
@@ -16,8 +74,6 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
     "pauseMinutes": 5,
     "dailyHour": 7,
     "briefingLimit": 50,
-    "defaultEntity": "BBVA",
-    "defaultCountry": "",
     "searchTerms": [
       "banca",
       "banking",
@@ -2861,3 +2917,4 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
     }
   ]
 });
+addVocabularyTerms_(CONFIGURATION_DEFAULTS);

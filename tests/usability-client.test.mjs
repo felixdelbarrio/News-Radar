@@ -15,7 +15,7 @@ test('editar criterios conserva resultados y chips hasta Aplicar filtros; restau
 
 test('chips de fecha abren el calendario sin eliminar el período y fechas inválidas no consultan',async t=>{
  const a=await app(t,{configure({data}){data.selection={from:'2026-10-07',to:'2026-10-13'};}});const before=dashboards(a).length;
- assert.equal(a.w.document.querySelector('[data-remove-filter="from"]'),null);await a.click('[data-edit-filter="from"]');assert.equal(a.find('#filters-dialog').open,true);assert.equal(a.w.document.activeElement,a.find('#filters [name="from"]'));
+ assert.equal(a.w.document.querySelector('[data-remove-filter="from"]'),null);await a.click('[data-edit-filter="from"]');assert.equal(a.find('#filters-dialog').open,true);assert.equal(a.find('.calendar-dialog').open,true);await a.click('.calendar-dialog [data-calendar-close]');
  await draft(a,'from','2026-10-20');await a.submit('#filters');assert.equal(dashboards(a).length,before);assert.equal(a.find('#filters [name="to"]').validity.customError,true);
 });
 
@@ -23,7 +23,7 @@ test('selectores largos buscan sin acentos, puntuación ni mayúsculas y conserv
  const a=await app(t,{configure({data}){data.entities=['BBVA','Crédit-Agricole','Santander','Qonto','Akbank','Wise','ANZ'];}});
  await a.click('#open-filters');const select=a.find('#filters [name="entity"]'),wrapper=select.closest('details');assert.ok(wrapper);wrapper.open=true;await tick();
  const search=wrapper.querySelector('input');search.value='CREDIT agricole';search.dispatchEvent(new a.w.Event('input',{bubbles:true}));await tick();
- assert.deepEqual([...select.options].filter(option=>!option.hidden).map(option=>option.value),['','Crédit-Agricole']);
+ assert.deepEqual([...wrapper.querySelectorAll('[role="option"]:not([hidden])')].map(option=>option.textContent),['Crédit-Agricole']);
  select.value='Crédit-Agricole';select.dispatchEvent(new a.w.Event('change',{bubbles:true}));await tick();assert.equal(wrapper.open,false);assert.equal(select.value,'Crédit-Agricole');assert.equal([...select.options].some(option=>option.hidden),false);assert.equal(a.w.document.querySelectorAll('#filters [name="entity"]').length,1);
 });
 

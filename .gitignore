@@ -5,6 +5,7 @@ node_modules/
 output/
 codeql-source/
 codeql-results/
+tmp/
 docs/deployment.json
 .env
 .env.*
