@@ -49,6 +49,8 @@ const translations = Object.freeze({
   "Registro de taxonomía demasiado grande.": ["Taxonomy record is too large.", "Taksonomi kaydı çok büyük."],
   "Recibe Mi Newsletter": ["Receive My Newsletter", "Bültenime abone olun"],
   "Novedades quincenales, balance trimestral y radar anual. Canal digital de Empresas e instituciones. La suscripción no cambia tus pantallas.": ["Fortnightly updates, quarterly review and annual radar. Digital channels for businesses and institutions. Subscribing does not change your screens.", "İki haftalık gelişmeler, üç aylık değerlendirme ve yıllık radar. İşletmeler ve kurumlar için dijital kanallar. Abonelik ekranlarınızı değiştirmez."],
+  "Mes anterior": ["Previous month", "Önceki ay"],
+  "Mes siguiente": ["Next month", "Sonraki ay"],
   "1 suscripción": ["1 subscription", "1 abonelik"],
   "{count} suscripciones": ["{count} subscriptions", "{count} abonelik"],
   "Sin suscripciones.": ["No subscriptions.", "Abonelik bulunmuyor."],

@@ -16,8 +16,6 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
     "pauseMinutes": 5,
     "dailyHour": 7,
     "briefingLimit": 50,
-    "defaultEntity": "BBVA",
-    "defaultCountry": "",
     "searchTerms": [
       "banca",
       "banking",
@@ -1940,7 +1938,11 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
           "control de gastos",
           "spending controls",
           "limites de tarjetas",
-          "limites de las tarjetas"
+          "limites de las tarjetas",
+          "digitaliza gastos",
+          "digitalizacion de gastos",
+          "digitises expenses",
+          "digitizes expenses"
         ],
         "enabled": true
       },
@@ -2174,7 +2176,11 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "name": "Transferencias",
         "terms": [
           "transferencias",
-          "transfers"
+          "transfers",
+          "transacciones inmediatas",
+          "pagos inmediatos",
+          "bre-b",
+          "instant transfers"
         ],
         "enabled": true
       }
@@ -2526,7 +2532,11 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "nfc",
         "cashless",
         "datáfono",
-        "e-invoicing"
+        "e-invoicing",
+        "transacciones inmediatas",
+        "pagos inmediatos",
+        "bre-b",
+        "instant transfers"
       ],
       "enabled": true
     },
@@ -2590,7 +2600,11 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "swift",
         "stablecoin*",
         "tokenized deposits",
-        "tokenised deposits"
+        "tokenised deposits",
+        "transacciones inmediatas",
+        "llaves",
+        "bre-b",
+        "gastos"
       ],
       "enabled": true
     },
@@ -2639,7 +2653,11 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "cybersecurity",
         "biometri*",
         "passkey*",
-        "rcs"
+        "rcs",
+        "transacciones inmediatas",
+        "pagos inmediatos",
+        "bre-b",
+        "digitaliza gastos"
       ],
       "enabled": true
     },
@@ -2668,7 +2686,8 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "swift",
         "stablecoin*",
         "tokenized deposits",
-        "tokenised deposits"
+        "tokenised deposits",
+        "bre-b"
       ],
       "enabled": true
     },

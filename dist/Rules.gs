@@ -86,7 +86,12 @@ function sourceGeographies_(index=businessIndex_()){
   for(const entity of index.config.entities)for(const geo of index.config.geographies){values.set(searchText_(entity.name+' · '+geo.name),geo.name);if(entity.name==='BBVA')values.set(searchText_('BBVA Empresas · '+geo.name),geo.name);}
   sourceGeographyMemory_={config:index.config,values};return values;
 }
-function newsCountry_(row,index=businessIndex_()){return sourceGeographies_(index).get(searchText_(row.fuente))||row.pais||settings_().unknownCountry;}
+function newsCountry_(row,index=businessIndex_()){
+  const source=sourceGeographies_(index).get(searchText_(row.fuente));if(source)return source;
+  if(index.geographies.some(geo=>geo.name===row.pais))return row.pais;
+  const title=searchText_(row.titular),matches=index.geographies.filter(geo=>geo.terms.some(term=>phraseMatch_(title,term)));
+  return matches.length===1?matches[0].name:row.pais||settings_().unknownCountry;
+}
 function annotateNews_(rows){
   const index=businessIndex_(),taxonomy=new Map(taxonomyCatalog_().map(({id,palanca,subpalanca})=>[id,{id,palanca,subpalanca}]));
   return rows.map(row=>{

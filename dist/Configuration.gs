@@ -103,9 +103,6 @@ function validateConfiguration_(config){
     if(row.countries.some(country=>!countries.has(country)))throw Error('País desconocido en '+row.name);
     for(const name of [row.name,...row.aliases]){const key=searchText_(name);if(aliases.has(key))throw Error('Alias compartido por varias entidades: '+name);aliases.add(key);}
   }
-  for(const [setting,key] of [['defaultEntity','entities'],['defaultCountry','geographies']]){
-    const value=config.settings[setting];if(typeof value!=='string'||(value&&!config[key].some(row=>row.name===value&&row.enabled)))throw Error('Selección inicial no válida: '+setting);
-  }
   if(new Set(config.geographies.map(row=>row.code)).size!==config.geographies.length||new Set(config.geographies.map(row=>row.mapId)).size!==config.geographies.length)throw Error('Código de país duplicado.');
   if(typeof config.settings.unknownCountry!=='string'||!config.settings.unknownCountry.trim()||config.settings.unknownCountry.length>100)throw Error('Define la geografía predeterminada de los RSS.');
   if(new Set(config.feeds.map(row=>row.id)).size!==config.feeds.length||new Set(config.feeds.map(row=>canonicalUrl_(row.url))).size!==config.feeds.length)throw Error('Fuente RSS duplicada.');

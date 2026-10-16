@@ -29,5 +29,5 @@ const BACKGROUND_WORK=Object.freeze({maxBatches:3,maxMs:45000,sliceMs:10000,watc
 
 const COLLECTION_POLICY=Object.freeze({windowDays:28,searchTerms:10,localTerms:4,entityAliases:8,capabilityTerms:6,queryChars:1500,providerLimit:100,saturationRatio:.8,duplicateDays:2});
 const CONFIGURATION_CATALOG_VERSION='3.2.0';
-const CLASSIFICATION_WORK=Object.freeze({rulesVersion:'3.2.0',batchRows:100,maxMs:10000});
+const CLASSIFICATION_WORK=Object.freeze({rulesVersion:'3.2.2',batchRows:100,maxMs:10000});
 const RELEVANCE_ROLES=Object.freeze(['channel','service','shared','infrastructure','corporate','retail','editorial','incidental']);

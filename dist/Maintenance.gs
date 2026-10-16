@@ -3,8 +3,8 @@ const MAINTENANCE_POLICY=Object.freeze({batchRows:100,retentionRows:200,maxMs:80
 function maintenanceJob_(){const raw=properties_().getProperty('MAINTENANCE_JOB');return raw?JSON.parse(raw):null;}
 function saveMaintenanceJob_(job){job.updated=new Date().toISOString();properties_().setProperty('MAINTENANCE_JOB',JSON.stringify(job));}
 function maintenance_(){
-  const previous=maintenanceJob_();if(previous&&previous.state!=='Completada')return;
-  const revision=classificationRulesRevision_()+':'+(properties_().getProperty('TAXONOMY_REVISION')||'0'),total=Math.max(0,book_().getSheetByName('Noticias').getLastRow()-1),firstRow=previous?.revision===revision?Math.min(previous.total+2,total+2):2;
+  const previous=maintenanceJob_(),revision=classificationRulesRevision_()+':'+(properties_().getProperty('TAXONOMY_REVISION')||'0');if(previous&&previous.state!=='Completada'&&previous.revision===revision)return;
+  const total=Math.max(0,book_().getSheetByName('Noticias').getLastRow()-1),firstRow=previous?.revision===revision?Math.min(previous.total+2,total+2):2;
   saveMaintenanceJob_({id:Utilities.getUuid(),revision,total,firstRow,cursor:null,next:2,phase:'news',state:'Pendiente',reviewed:0,corrected:0,consolidated:0,removed:0,table:0,position:2,started:new Date().toISOString(),pausedUntil:0,error:''});ensureBackgroundWorker_();
 }
 function maintenanceReadyAt_(){const job=maintenanceJob_();return job&&job.state!=='Completada'?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}

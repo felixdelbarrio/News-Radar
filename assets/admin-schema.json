@@ -135,8 +135,6 @@
       "timezone": "Zona horaria",
       "windowDays": "Ventana de recopilación (días)",
       "pageSize": "Noticias por página",
-      "defaultEntity": "Entidad inicial (vacío: todas)",
-      "defaultCountry": "País inicial (vacío: todos)",
       "dailyHour": "Hora de banca digital (0–23)",
       "searchTerms": "Términos de búsqueda de sector",
       "disabledSources": "IDs de fuentes de perfil desactivadas",
@@ -171,13 +169,6 @@
           "newsletterBatch",
           "newsletterDailyLimit",
           "briefingLimit"
-        ]
-      },
-      {
-        "label": "Selección inicial",
-        "keys": [
-          "defaultEntity",
-          "defaultCountry"
         ]
       },
       {
