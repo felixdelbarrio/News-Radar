@@ -32,6 +32,23 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Criterios de relevancia": ["Relevance criteria", "\u0130lgililik \xF6l\xE7\xFCtleri"],
+    Criterio: ["Criterion", "\xD6l\xE7\xFCt"],
+    "B\xFAsquedas por idioma": ["Searches by language", "Dile g\xF6re aramalar"],
+    "Idioma de b\xFAsqueda (c\xF3digo de dos letras)": ["Search language (two-letter code)", "Arama dili (iki harfli kod)"],
+    "Criterio de relevancia no v\xE1lido.": ["Invalid relevance criterion.", "Ge\xE7ersiz ilgililik \xF6l\xE7\xFCt\xFC."],
+    "Perfil de b\xFAsqueda no v\xE1lido.": ["Invalid search profile.", "Ge\xE7ersiz arama profili."],
+    "Mostrando el per\xEDodo anterior porque el actual a\xFAn no tiene publicaciones.": ["Showing the previous period because the current one has no publications yet.", "Ge\xE7erli d\xF6nemde hen\xFCz yay\u0131n bulunmad\u0131\u011F\u0131 i\xE7in \xF6nceki d\xF6nem g\xF6steriliyor."],
+    "Evidencia de canal digital": ["Digital channel evidence", "Dijital kanal kan\u0131t\u0131"],
+    "Servicios financieros y operativa": ["Financial services and operations", "Finansal hizmetler ve i\u015Flemler"],
+    "Capacidades reutilizables por empresas": ["Capabilities reusable by businesses", "\u0130\u015Fletmelerin kullanabilece\u011Fi yetenekler"],
+    "Infraestructura y servicios empresariales": ["Business infrastructure and services", "\u0130\u015F altyap\u0131s\u0131 ve hizmetleri"],
+    "Excluir informaci\xF3n corporativa sin utilidad de canal": ["Exclude corporate information without channel value", "Kanal a\xE7\u0131s\u0131ndan de\u011Feri olmayan kurumsal bilgileri hari\xE7 tut"],
+    "Excluir consumo particular sin contexto empresarial": ["Exclude personal consumption without business context", "\u0130\u015F ba\u011Flam\u0131 olmayan bireysel t\xFCketimi hari\xE7 tut"],
+    "Excluir gu\xEDas gen\xE9ricas sin movimiento de mercado": ["Exclude generic guides without market developments", "Piyasa geli\u015Fmesi i\xE7ermeyen genel rehberleri hari\xE7 tut"],
+    "Excluir avisos rutinarios y sucesos individuales": ["Exclude routine notices and individual incidents", "Rutin bildirimleri ve bireysel olaylar\u0131 hari\xE7 tut"],
+    "Se requiere una capacidad activa y contexto empresarial o una capacidad transversal \xFAtil para empresas. Canal y servicio aportan evidencia; las exclusiones se buscan en el titular. Retail solo se excluye cuando falta contexto empresarial. Las se\xF1ales de cambio proceden de Novedades y lanzamientos. T\xE9rminos separados por punto y coma; * al final de una palabra admite sus variantes. \xC1mbito de aplicaci\xF3n prioriza los pa\xEDses y agrupa el resto como referencia internacional.": ["An active capability and business context or a reusable business capability are required. Channel and service provide evidence; exclusions apply to headlines. Retail is excluded only without business context. Change signals come from News and launches. Separate terms with semicolons; a trailing * matches word variants. Application scope prioritizes countries and groups the rest as an international reference.", "Etkin bir yetenek ve i\u015F ba\u011Flam\u0131 veya i\u015Fletmelerce kullan\u0131labilen bir yetenek gereklidir. Kanal ve hizmet kan\u0131t sa\u011Flar; hari\xE7 tutmalar ba\u015Fl\u0131kta aran\u0131r. Bireysel i\xE7erik yaln\u0131zca i\u015F ba\u011Flam\u0131 yoksa hari\xE7 tutulur. De\u011Fi\u015Fim i\u015Faretleri Yenilikler ve lansmanlardan gelir. Terimleri noktal\u0131 virg\xFClle ay\u0131r\u0131n; s\xF6zc\xFCk sonundaki * t\xFCrevleri e\u015Fle\u015Ftirir. Uygulama kapsam\u0131 \xFClkelere \xF6ncelik verir, kalan\u0131n\u0131 uluslararas\u0131 referans olarak gruplar."],
+    "Vocabulario editable de recuperaci\xF3n. Los primeros cuatro t\xE9rminos tienen prioridad en las b\xFAsquedas del idioma; se combinan con Operaci\xF3n y selecci\xF3n inicial y Capacidades digitales. Editar estas listas cambia las pr\xF3ximas consultas sin a\xF1adir fuentes ni multiplicar combinaciones.": ["Editable retrieval vocabulary. The first four terms have priority in searches in that language; they combine with Operation and initial selection and Digital capabilities. Editing these lists changes future queries without adding sources or multiplying combinations.", "D\xFCzenlenebilir haber toplama s\xF6zl\xFC\u011F\xFC. \u0130lk d\xF6rt terim ilgili dilde \xF6nceliklidir; \u0130\u015Fletim ve ba\u015Flang\u0131\xE7 se\xE7imi ile Dijital yeteneklerle birle\u015Ftirilir. Bu listeleri d\xFCzenlemek kaynak eklemeden veya kombinasyonlar\u0131 \xE7o\u011Faltmadan gelecekteki sorgular\u0131 de\u011Fi\u015Ftirir."],
     "Capacidades de Empresas e instituciones": ["Business and institutional capabilities", "\u0130\u015Fletmeler ve kurumlar i\xE7in yetenekler"],
     "Mantenimiento incremental": ["Incremental maintenance", "Art\u0131ml\u0131 bak\u0131m"],
     "Mi Newsletter solo se personaliza por geograf\xEDa. La selecci\xF3n de noticias es independiente.": ["My Newsletter is personalized by geography only. News selection is independent.", "B\xFCltenim yaln\u0131zca co\u011Frafyaya g\xF6re ki\u015Fiselle\u015Ftirilir. Haber se\xE7imi ba\u011F\u0131ms\u0131zd\u0131r."],
@@ -330,7 +347,7 @@
     "El cat\xE1logo de capacidades excede el tama\xF1o de una celda.": ["The capability catalog exceeds the size of a cell.", "Yetenek katalo\u011Fu bir h\xFCcrenin boyutunu a\u015F\u0131yor."],
     "M\xE1ximo 60 capacidades por segmento": ["Maximum 60 capabilities per segment", "Segment ba\u015F\u0131na en fazla 60 yetenek"],
     "Capacidad vac\xEDa, duplicada o no v\xE1lida": ["Empty, duplicate or invalid capability", "Bo\u015F, yinelenen veya ge\xE7ersiz yetenek"],
-    "Define entre 1 y 12 t\xE9rminos de hasta 80 caracteres": ["Define 1 to 12 terms of up to 80 characters", "En fazla 80 karakterlik 1 ile 12 aras\u0131nda terim tan\u0131mlay\u0131n"],
+    "Define entre 1 y 24 t\xE9rminos de hasta 80 caracteres": ["Define 1 to 24 terms of up to 80 characters", "En fazla 80 karakterlik 1 ile 24 aras\u0131nda terim tan\u0131mlay\u0131n"],
     "Sin entidad de seguimiento en el titular": ["No tracked entity in the headline", "Ba\u015Fl\u0131kta takip edilen kurum yok"],
     "Sin evidencia de la entidad buscada": ["No evidence of the searched entity", "Aranan kurum i\xE7in kan\u0131t yok"],
     "Geograf\xEDa distinta de la b\xFAsqueda": ["Different geography from the search", "Aramadan farkl\u0131 co\u011Frafya"],
@@ -2135,6 +2152,92 @@
     applicationScope: {
       label: "\xC1mbito de aplicaci\xF3n",
       help: "Pa\xEDses con pesta\xF1a propia por segmento en Noticias y Novedades. Los restantes y las noticias sin pa\xEDs se agrupan en Otras geograf\xEDas. Radar conserva todas las geograf\xEDas conocidas."
+    },
+    relevanceRules: {
+      label: "Criterios de relevancia",
+      help: "Se requiere una capacidad activa y contexto empresarial o una capacidad transversal \xFAtil para empresas. Canal y servicio aportan evidencia; las exclusiones se buscan en el titular. Retail solo se excluye cuando falta contexto empresarial. Las se\xF1ales de cambio proceden de Novedades y lanzamientos. T\xE9rminos separados por punto y coma; * al final de una palabra admite sus variantes. \xC1mbito de aplicaci\xF3n prioriza los pa\xEDses y agrupa el resto como referencia internacional.",
+      fields: [
+        [
+          "name",
+          "Nombre",
+          "text"
+        ],
+        [
+          "role",
+          "Criterio",
+          "choice",
+          [
+            [
+              "channel",
+              "Evidencia de canal digital"
+            ],
+            [
+              "service",
+              "Servicios financieros y operativa"
+            ],
+            [
+              "shared",
+              "Capacidades reutilizables por empresas"
+            ],
+            [
+              "infrastructure",
+              "Infraestructura y servicios empresariales"
+            ],
+            [
+              "corporate",
+              "Excluir informaci\xF3n corporativa sin utilidad de canal"
+            ],
+            [
+              "retail",
+              "Excluir consumo particular sin contexto empresarial"
+            ],
+            [
+              "editorial",
+              "Excluir gu\xEDas gen\xE9ricas sin movimiento de mercado"
+            ],
+            [
+              "incidental",
+              "Excluir avisos rutinarios y sucesos individuales"
+            ]
+          ]
+        ],
+        [
+          "terms",
+          "T\xE9rminos o ra\xEDces",
+          "list"
+        ],
+        [
+          "enabled",
+          "Activa",
+          "boolean"
+        ]
+      ]
+    },
+    searchLanguages: {
+      label: "B\xFAsquedas por idioma",
+      help: "Vocabulario editable de recuperaci\xF3n. Los primeros cuatro t\xE9rminos tienen prioridad en las b\xFAsquedas del idioma; se combinan con Operaci\xF3n y selecci\xF3n inicial y Capacidades digitales. Editar estas listas cambia las pr\xF3ximas consultas sin a\xF1adir fuentes ni multiplicar combinaciones.",
+      fields: [
+        [
+          "name",
+          "Nombre",
+          "text"
+        ],
+        [
+          "language",
+          "Idioma de b\xFAsqueda (c\xF3digo de dos letras)",
+          "text"
+        ],
+        [
+          "terms",
+          "T\xE9rminos o ra\xEDces",
+          "list"
+        ],
+        [
+          "enabled",
+          "Activa",
+          "boolean"
+        ]
+      ]
     }
   };
 
@@ -2156,7 +2259,7 @@
         else setEntries([...$("catalog-fields").children].map((row) => Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input) => [input.dataset.key, input.type === "checkbox" ? input.checked : input.dataset.list === "true" ? input.value.split(";").map((value) => value.trim()).filter(Boolean) : input.value]))));
     }
     function fields(fields2, row) {
-      return fields2.map(([key, label, type]) => `<label>${escape(label)}${type === "boolean" ? `<input type="checkbox" data-key="${key}" ${row[key] ? "checked" : ""}>` : `<input data-key="${key}" ${type === "list" ? 'data-list="true"' : ""} type="${type === "number" ? "number" : "text"}" value="${escape(type === "list" ? (row[key] || []).join("; ") : row[key] ?? "")}">`}</label>`).join("");
+      return fields2.map(([key, label, type, choices]) => `<label>${escape(label)}${type === "choice" ? `<select data-key="${key}">${choices.map(([value, label2]) => `<option value="${escape(value)}" ${row[key] === value ? "selected" : ""}>${escape(label2)}</option>`).join("")}</select>` : type === "boolean" ? `<input type="checkbox" data-key="${key}" ${row[key] ? "checked" : ""}>` : `<input data-key="${key}" ${type === "list" ? 'data-list="true"' : ""} type="${type === "number" ? "number" : "text"}" value="${escape(type === "list" ? (row[key] || []).join("; ") : row[key] ?? "")}">`}</label>`).join("");
     }
     function render() {
       let meta = admin_schema_default[category];
@@ -2178,7 +2281,7 @@
     }), $("capability-restore").addEventListener("click", () => {
       readFields(), config.capabilities.Empresas = JSON.parse(JSON.stringify(capabilityDefaults.Empresas)), render();
     }), $("catalog-add").addEventListener("click", () => {
-      readFields(), entries().push(Object.fromEntries(admin_schema_default[category].fields.map(([key, , type]) => [key, type === "list" ? [] : type === "boolean" ? !0 : ""]))), render();
+      readFields(), entries().push(Object.fromEntries(admin_schema_default[category].fields.map(([key, , type]) => [key, type === "list" ? [] : type === "boolean" ? !0 : type === "choice" ? admin_schema_default[category].fields.find((field) => field[0] === key)[3][0][0] : ""]))), render();
     }), $("catalog-form").addEventListener("submit", (event) => {
       event.preventDefault(), readFields(), run(async () => {
         message(await call("saveConfiguration", { config, revision })), await fetchConfig(), render();
@@ -2592,11 +2695,11 @@
   }
 
   // src/client/features/shell.js
-  function renderFreshness(selection = {}, lastRun) {
-    $("selection-freshness").textContent = [selection.from && selection.to ? t("Per\xEDodo") + ": " + formatCalendarDay(selection.from, language) + " \u2014 " + formatCalendarDay(selection.to, language) : "", t("\xDAltima recopilaci\xF3n") + ": " + date(lastRun)].filter(Boolean).join(" \xB7 ");
+  function renderFreshness(selection = {}, lastRun, periodFallback = !1) {
+    $("selection-freshness").textContent = [selection.from && selection.to ? t("Per\xEDodo") + ": " + formatCalendarDay(selection.from, language) + " \u2014 " + formatCalendarDay(selection.to, language) : "", t("\xDAltima recopilaci\xF3n") + ": " + date(lastRun), periodFallback ? t("Mostrando el per\xEDodo anterior porque el actual a\xFAn no tiene publicaciones.") : ""].filter(Boolean).join(" \xB7 ");
   }
   function renderShell(data) {
-    $("last-run").textContent = date(data.lastRun), renderFreshness(data.selection, data.lastRun);
+    $("last-run").textContent = date(data.lastRun), renderFreshness(data.selection, data.lastRun, data.context?.periodFallback);
     let daily = data.daily ? data.preferences.dailyLabel : "Recopilaci\xF3n diaria desactivada";
     $("daily-sidebar").textContent = daily, document.querySelectorAll("[data-admin]").forEach((el) => el.hidden = !data.admin), $("sheet-link").hidden = !0, data.admin && validUrl(data.sheetUrl) && ($("sheet-link").href = data.sheetUrl, $("sheet-link").hidden = !1);
   }

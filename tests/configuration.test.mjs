@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import {storage} from './helpers/delivery.mjs';
+import {storage as createStorage} from './helpers/delivery.mjs';
+import {TestDate as Date} from './helpers/clock.mjs';
+function storage(){const s=createStorage();s.c.Date=Date;return s;}
 import {read,readServerScript} from '../scripts/source.mjs';
 const seed=()=>JSON.parse(read('assets/configuration-defaults.json'));
 test('inicializa solo claves ausentes, persiste en Sheets y reutiliza e invalida la caché versionada',()=>{
@@ -17,7 +19,7 @@ test('configuración deniega lectores y rechaza catálogos incoherentes antes de
 });
 test('cambiar catálogos modifica clasificación, tipos, segmentos y filtros del histórico sin recompilar',()=>{
   const s=storage(),{c}=s;c.initializeConfiguration();const rows=[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-09',pais:'España',entidad:'Qonto',medio:'Editor',titular:'Qonto lanza una nueva cuenta para autónomos',extracto:'',url:'https://example.com/q'}, {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-09',pais:'España',entidad:'N26',medio:'Editor',titular:'N26 lanza tarjeta para particulares',extracto:'',url:'https://example.com/n'},{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-09',pais:'España',entidad:'Revolut',medio:'Editor',titular:'Nuevo director de Revolut',extracto:'',url:'https://example.com/r'}];
-  assert.equal(c.selectNews_(rows,{type:'Fintech',segment:'Empresas e instituciones',signal:'Lanzamiento de producto'}).length,1);assert.equal(c.selectNews_(rows,{type:'Neobanco',segment:'Retail',signal:'Lanzamiento de producto'}).length,0);assert.equal(c.newsDashboard_(c.annotateNews_(rows),{},c.feeds_(),'briefing').briefing.total,2);
+  assert.equal(c.selectNews_(rows,{type:'Fintech',segment:'Empresas e instituciones',signal:'Lanzamiento de producto'}).length,1);assert.equal(c.selectNews_(rows,{type:'Neobanco',segment:'Retail',signal:'Lanzamiento de producto'}).length,0);assert.equal(c.newsDashboard_(c.annotateNews_(rows),{},c.feeds_(),'briefing').briefing.total,1);
   const config=c.getConfiguration().config;config.signals[0].terms=['comunicado inexistente'];c.saveConfiguration({config,revision:c.getConfiguration().revision});assert.equal(c.newsDashboard_(c.annotateNews_(rows),{},c.feeds_(),'briefing').briefing.total,0);
   config.entities.find(row=>row.name==='Qonto').type='Categoría propia';c.saveConfiguration({config,revision:c.getConfiguration().revision});assert.equal(c.selectNews_(rows,{type:'Categoría propia'}).length,1);
 });
@@ -149,7 +151,7 @@ test('el idioma del destinatario cambia los literales del correo sin reiniciar e
 
 test('la actualización explícita de idiomas conserva catálogos propios y fuentes desactivadas y es idempotente',()=>{
  const s=storage(),{c}=s;c.initializeConfiguration();let snapshot=c.getConfiguration();snapshot.config.feeds=snapshot.config.feeds.filter(row=>row.id!=='bbva-english');snapshot.config.segments[0].terms=['personalizado'];snapshot.config.settings.searchTerms=['seguimiento propio'];snapshot.config.feeds[0].enabled=false;c.saveConfiguration(snapshot);
- c.initializeLanguages();const updated=c.getConfiguration();assert.ok(updated.config.segments[0].terms.includes('personalizado'));assert.ok(updated.config.segments[0].terms.includes('business'));assert.equal(updated.config.feeds[0].enabled,false);assert.equal(updated.config.feeds.filter(row=>row.id==='bbva-english').length,0);assert.ok(updated.config.settings.searchTerms.includes('seguimiento propio'));
+ c.initializeLanguages();const updated=c.getConfiguration();assert.ok(updated.config.segments[0].terms.includes('personalizado'));assert.ok(updated.config.segments[0].terms.includes('business'));assert.equal(updated.config.feeds[0].enabled,false);assert.equal(updated.config.feeds.filter(row=>row.id==='bbva-english').length,1);assert.ok(updated.config.settings.searchTerms.includes('seguimiento propio'));
  c.initializeLanguages();assert.equal(c.getConfiguration().revision,updated.revision);s.setEmail('reader@bbva.com');assert.throws(()=>c.initializeLanguages(),/administrador/);
 });
 

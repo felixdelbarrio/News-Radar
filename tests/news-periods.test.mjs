@@ -1,11 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import {storage} from './helpers/delivery.mjs';
+import {storage as createStorage} from './helpers/delivery.mjs';
+import {TestDate as Date} from './helpers/clock.mjs';
+function storage(){const s=createStorage();s.c.Date=Date;return s;}
 import {app} from './helpers/app.mjs';
 function server(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
 const clean=value=>JSON.parse(JSON.stringify(value));
-test('cada vista conserva su ventana propia y respeta fechas explícitas sin leer suscripciones',()=>{const {c}=server();c.saveSubscription({country:'México'});for(const view of ['briefing','news','radar']){const selected=c.getDashboard({view,initial:true});assert.deepEqual({from:selected.selection.from,to:selected.selection.to},clean(c.dashboardPeriod_(view)));}const edited=c.getDashboard({view:'news',from:'2026-02-01',to:'2026-02-28'});assert.equal(edited.selection.from,'2026-02-01');assert.equal(edited.selection.to,'2026-02-28');});
+test('cada vista conserva su ventana propia y respeta fechas explícitas sin leer suscripciones',()=>{const {c}=server();c.saveSubscription({country:'México'});for(const view of ['briefing','news','radar']){const selected=c.getDashboard({view,initial:true});assert.deepEqual({from:selected.selection.from,to:selected.selection.to},clean(c.dashboardPeriod_(view,new Date(),view!=='radar')));}const edited=c.getDashboard({view:'news',from:'2026-02-01',to:'2026-02-28'});assert.equal(edited.selection.from,'2026-02-01');assert.equal(edited.selection.to,'2026-02-28');});
 test('el plan traduce cada cadencia a su vista y a un período cerrado sin filtros personales',()=>{const {c}=server(),now=new Date('2026-10-12T12:00:00Z');for(const [periodicidad,view] of [['fortnightly','briefing'],['monthly','news'],['yearly','radar']]){const q=c.subscriptionQuery_({periodicidad,filtros:{country:'España',entity:'BBVA'}},now,true),period=c.newsletterPeriod_(periodicidad,now);assert.equal(q.view,view);assert.equal(q.from,period.from);assert.equal(q.to,period.to);assert.equal(q.entity,undefined);assert.equal(q.country,'España');}assert.throws(()=>c.newsletterWindow('invalid','2026-10-12'),/Periodicidad/);});
 test('el lote prepara una sola vez los períodos completos necesarios y excluye la semana en curso',()=>{
  const s=server(),{c}=s;c.configuration_().settings.newsletterEnabled=true;
@@ -25,12 +27,12 @@ for(const count of [0,1,2])test('No hay selector de newsletters en el panel late
  await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);assert.equal(a.w.document.querySelector('#personal-editor [name="range"]'),null);assert.equal(a.w.document.querySelector('#personal-editor [name="periodicity"]'),null);assert.equal(a.find('#filters-section').hidden,true);
 });
 
-test('los valores iniciales y la restauración de cada vista coinciden con las newsletters en límites de quincena, trimestre y año',()=>{
+test('las ventanas de lectura respetan quincenas, trimestres y años sin modificar las cadencias de envío',()=>{
  const {c}=server();
  for(const day of ['2024-02-15','2024-02-16','2024-02-29','2026-03-31','2026-04-01','2026-10-15','2026-10-16','2026-12-31','2027-01-01']){
   const now=new Date(day+'T12:00:00Z');
   for(const [view,cadence] of [['briefing','fortnightly'],['news','monthly'],['radar','yearly']]){
-   const {from,to}=c.newsletterWindow(cadence,day);
+   const {from,to}=view==='news'?c.dashboardPeriod_(view,now):c.newsletterWindow(cadence,day);
    for(const initial of [true,false]){
     const selected=c.dashboardQuery_({view,initial},now);assert.equal(selected.from,from);assert.equal(selected.to,to);
    }

@@ -2,16 +2,13 @@ function businessNews_(row){
   const labels=row.etiquetas||savedNewsLabels_(row.clasificacion);
   return labels.digital&&labels.capacidades.some(name=>name.startsWith('Empresas: '));
 }
-function newsLabels_(assessment,title,businessContext=false){
-  const digital=Boolean(businessContext&&assessment.capabilities.length&&assessment.channel&&assessment.score>0&&!assessment.excluded&&!assessment.editorial&&(assessment.change||assessment.capabilities.some(row=>row.terms.some(term=>phraseMatch_(title,term)))));
-  return {digital,capacidades:[...new Set(assessment.capabilities.map(row=>row.segment+': '+row.name))]};
-}
+function newsLabels_(assessment){return {digital:assessment.relevant,capacidades:[...new Set(assessment.capabilities.map(row=>row.segment+': '+row.name))]};}
 function savedNewsLabels_(value){
   if(!value)return {digital:false,capacidades:[]};
   try{const labels=JSON.parse(value);return {digital:labels.digital===true,capacidades:Array.isArray(labels.capacidades)?labels.capacidades:[],...(typeof labels.canonicalId==='string'?{canonicalId:labels.canonicalId}:{})};}
   catch(_){return {digital:false,capacidades:[]};}
 }
-function classificationRulesRevision_(config=configuration_()){return sha256_(JSON.stringify([CLASSIFICATION_WORK.rulesVersion,config.capabilities,config.entities,config.segments,config.geographies,config.feeds.map(({name,country,url})=>({name,country,url}))]));}
+function classificationRulesRevision_(config=configuration_()){return sha256_(JSON.stringify([CLASSIFICATION_WORK.rulesVersion,config.capabilities,config.relevanceRules,config.signals,config.entities,config.segments,config.geographies,config.feeds.map(({name,country,url})=>({name,country,url}))]));}
 function classificationJob_(){const raw=properties_().getProperty('CLASSIFICATION_JOB');return raw?JSON.parse(raw):null;}
 function classificationPending_(){const job=classificationJob_();return Boolean(job&&job.state!=='Completada');}
 function classificationReadyAt_(){const job=classificationJob_();return job&&job.state!=='Completada'?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}

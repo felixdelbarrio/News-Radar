@@ -20,7 +20,7 @@ test('TF-IDF suavizado genera subpalancas recurrentes con reglas y vocabulario a
 });
 test('analiza todo el histórico, crea etiquetas estables y no escribe noticias ni catálogo en una repetición idéntica',()=>{
   const {c,sheets}=server();c.startTaxonomy();finish(c);
-  const status=c.getTaxonomyStatus();assert.equal(status.job.processed,8);assert.equal(status.job.total,4);assert.ok(status.items.some(row=>row.subpalanca==='Pagos biometricos'));
+  const status=c.getTaxonomyStatus();assert.equal(status.job.processed,8);assert.equal(status.job.total,4);assert.ok(status.items.some(row=>row.subpalanca==='Biometría'));
   const labels=c.rows_('Noticias').map(row=>c.taxonomySaved_(row.taxonomia));assert.ok(labels[0].ids.length);assert.equal(labels[3].ids.length,0);
   const first=JSON.stringify(sheets.get('Noticias').grid),writes=[],catalogWrites=[],range=sheets.get('Noticias').getRange,catRange=sheets.get('Taxonomia').getRange;
   sheets.get('Noticias').getRange=(...args)=>{const value=range(...args),set=value.setValues;value.setValues=rows=>{writes.push(args);return set(rows);};return value;};
@@ -28,7 +28,7 @@ test('analiza todo el histórico, crea etiquetas estables y no escribe noticias 
   c.startTaxonomy();finish(c);assert.equal(c.getTaxonomyStatus().job.tagged,0);assert.deepEqual(writes,[]);assert.deepEqual(catalogWrites,[]);assert.equal(JSON.stringify(sheets.get('Noticias').grid),first);
 });
 test('el modelo cambia con contenido nuevo sin reescribir etiquetas intactas; filtros y newsletters usan la misma taxonomía',()=>{
-  const {c,sheets}=server();c.startTaxonomy();finish(c);const prior=sheets.get('Noticias').grid[1][12],items=c.taxonomyCatalog_(),payment=items.find(row=>row.subpalanca==='Pagos biometricos'),query={palanca:payment.palanca,subpalanca:taxonomyPath(payment)};
+  const {c,sheets}=server();c.startTaxonomy();finish(c);const prior=sheets.get('Noticias').grid[1][12],items=c.taxonomyCatalog_(),payment=items.find(row=>row.subpalanca==='Biometría'),query={palanca:payment.palanca,subpalanca:taxonomyPath(payment)};
   assert.equal(c.selectNews_(c.rows_('Noticias'),query).length,2);assert.deepEqual(Object.keys(c.selectNews_(c.rows_('Noticias'),query)[0].taxonomia[0]).sort(),['id','palanca','subpalanca']);assert.equal(c.newsDashboard_(c.annotateNews_(c.rows_('Noticias')),{},[],'news').subpalanca.includes(query.subpalanca),true);
   const subscription=c.subscriptionRecord_({name:'Pagos',filters:query},'user@bbva.com','id',new Date(),0);assert.equal(subscription.filtros.subpalanca,undefined);
   c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';const newsletter=c.newsletter_(c.rows_('Noticias'),query,'Pagos digitales',new Date(),'id');assert.equal(newsletter.count,1);assert.equal(newsletter.total,2);assert.equal(newsletter.editorial.cards[0].additionalCount,1);assert.ok(newsletter.html.includes(payment.subpalanca));assert.ok(newsletter.text.includes(payment.subpalanca));

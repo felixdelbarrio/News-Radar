@@ -1,7 +1,8 @@
 function calendarDate_(now){return new Date(recordDay(now,settings_().timezone)+'T00:00:00Z');}
-function dashboardPeriod_(view,now=new Date()){
+function dashboardPeriod_(view,now=new Date(),closed=false){
+  if(view==='news'){const start=calendarDate_(now);start.setUTCMonth(Math.floor(start.getUTCMonth()/3)*3-(closed?3:0),1);const end=new Date(start);end.setUTCMonth(end.getUTCMonth()+3);end.setUTCDate(0);return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10)};}
   const cadence=Object.keys(newsletterCadences).find(key=>newsletterCadences[key].view===view);
-  const {from,to}=newsletterWindow(cadence,recordDay(now,settings_().timezone));
+  const {from,to}=newsletterWindow(cadence,recordDay(now,settings_().timezone),closed);
   return {from,to};
 }
 function dashboardQuery_(query={},now=new Date(),currentScope=true){

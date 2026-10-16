@@ -15,8 +15,6 @@ function configurationEdited_(event){const sheet=event?.range?.getSheet().getNam
 function initializeConfiguration(){
   authorize_(true);return withForegroundWrite_(()=>{
     const refreshCatalog=properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION;
-    const prior=book_().getSheetByName('Configuracion');
-    if(refreshCatalog&&prior?.getLastRow()>1&&!properties_().getProperty('BBVA_BUSINESS_ONLY')&&!book_().getSheetByName('RespaldoConfiguracionI6')){const backup=book_().insertSheet('RespaldoConfiguracionI6'),data=prior.getRange(1,1,prior.getLastRow(),2).getDisplayValues();backup.getRange(1,1,data.length,2).setNumberFormat('@').setValues(data);SpreadsheetApp.flush();}
     const news=book_().getSheetByName('Noticias');
     if(news&&news.getRange(1,8,1,1).getDisplayValues()[0][0]==='tema')news.deleteColumn(8);
     const catalog=book_().getSheetByName('Configuracion');
@@ -63,14 +61,12 @@ function initializeConfiguration(){
     if(countSubscriptions>0){const range=subscriptions.getRange(2,8,countSubscriptions,1);range.setValues(range.getValues().map(([value])=>[value||'es']));}
     invalidateConfiguration_();
     initializeSubscriptions_(subscriptions);
-    migrateBbvaBusinessSources_();
     if(refreshCatalog){upgradeCollectionQueries_();if(translationJob_())requestTranslations_(true);properties_().setProperty('CATALOG_VERSION',CONFIGURATION_CATALOG_VERSION);}
     properties_().deleteProperty('CLASSIFICATION_VERSION');
     requestNewsClassification_();
     if(refreshCatalog&&book_().getSheetByName('Noticias').getLastRow()>1)requestTaxonomy_();
     initializeCollectionQueue_();
     if(refreshCatalog&&(book_().getSheetByName('Noticias').getLastRow()>1||book_().getSheetByName('Telemetria')?.getLastRow()>1))maintenance_();
-    properties_().deleteProperty('WORK_INTENT:iteration6-release');
     initializeBackgroundSchedules_();
     return 'Configuración inicializada en Sheets. Los valores existentes se han conservado.';
   });
@@ -84,13 +80,13 @@ function validateConfiguration_(config){
   if(typeof config.settings.newsletterAppUrl!=='string'||(config.settings.newsletterAppUrl&&!/^https:\/\/script\.google\.com\/(?:a\/macros\/bbva\.com\/|macros\/)s\/[A-Za-z0-9_-]+\/exec$/.test(config.settings.newsletterAppUrl)))throw Error('URL de newsletter no válida: indica la WebApp publicada en Apps Script.');
   if(typeof config.settings.newsletterSenderName!=='string'||!config.settings.newsletterSenderName.trim()||config.settings.newsletterSenderName.length>100||/[\r\n]/.test(config.settings.newsletterSenderName))throw Error('Nombre del remitente no válido.');
   try{new Intl.DateTimeFormat('es',{timeZone:config.settings.timezone});}catch(_){throw Error('Zona horaria no válida.');}
-  for(const key of ['entities','geographies','segments','signals','feeds']){
+  for(const key of ['entities','geographies','segments','signals','feeds','searchLanguages','relevanceRules']){
     const list=config[key];if(!Array.isArray(list)||list.length>200)throw Error('Catálogo no válido: '+key);
     const names=new Set();
     for(const row of list){
       if(!row||typeof row.name!=='string'||!row.name.trim()||row.name.length>100||names.has(row.name)||typeof row.enabled!=='boolean')throw Error('Nombre duplicado, vacío o activación no válida: '+key);
       names.add(row.name);
-      for(const field of ['terms','context','aliases','countries','exclude'])if(field in row&&(!Array.isArray(row[field])||row[field].length>80||row[field].some(value=>typeof value!=='string'||!value.trim()||value.length>100)))throw Error('Lista de términos no válida: '+row.name);
+      for(const field of ['terms','context','aliases','countries','exclude'])if(field in row&&(!Array.isArray(row[field])||row[field].length>(key==='searchLanguages'?160:80)||row[field].some(value=>typeof value!=='string'||!value.trim()||value.length>100)))throw Error('Lista de términos no válida: '+row.name);
       if(['segments','signals'].includes(key)&&!row.terms?.length)throw Error('Añade términos a '+row.name);
       if(key==='signals'&&(!Array.isArray(row.context)||!Array.isArray(row.exclude)||!['headline','fullText'].includes(row.scope)))throw Error('Define el contexto de '+row.name+' (puede estar vacío).');
       if(key==='entities'&&(!row.type||!Array.isArray(row.aliases)||!Array.isArray(row.countries)))throw Error('Entidad incompleta: '+row.name);
@@ -102,7 +98,9 @@ function validateConfiguration_(config){
   }
   if(config.segments.length!==1||config.segments[0].name!==sectorNewsDefaults.segment||!config.segments[0].enabled)throw Error('El ámbito de contenido es Empresas e instituciones.');
   validateCapabilities_(config.capabilities);
-  if(Object.keys(config).sort().join(',')!=='applicationScope,capabilities,entities,feeds,geographies,segments,settings,signals')throw Error('Claves de configuración no reconocidas.');
+  for(const row of config.relevanceRules)if(!RELEVANCE_ROLES.includes(row.role)||!row.terms.length||Object.keys(row).sort().join(',')!=='enabled,name,role,terms'||row.terms.some(term=>/[\\^$+?(){}[\]|]/.test(term)||term.includes('**')||term.split(' ').some(word=>word.includes('*')&&word.indexOf('*')!==word.length-1)))throw Error('Criterio de relevancia no válido.');
+  const languages=new Set();for(const row of config.searchLanguages){if(!/^[a-z]{2}$/.test(row.language)||languages.has(row.language)||!row.terms.length||row.terms.length>160||Object.keys(row).sort().join(',')!=='enabled,language,name,terms')throw Error('Perfil de búsqueda no válido.');languages.add(row.language);}
+  if(Object.keys(config).sort().join(',')!=='applicationScope,capabilities,entities,feeds,geographies,relevanceRules,searchLanguages,segments,settings,signals')throw Error('Claves de configuración no reconocidas.');
   for(const key of ['searchTerms','disabledSources'])if(!Array.isArray(config.settings[key])||config.settings[key].length>1000||config.settings[key].some(value=>typeof value!=='string'||value.length>160))throw Error('Lista operativa no válida: '+key);
   if(!config.settings.searchTerms.length||config.settings.searchTerms.length>80)throw Error('Define entre 1 y 80 términos de búsqueda.');
   if(encodeURIComponent(JSON.stringify(config)).replace(/%[A-F\d]{2}/gi,'x').length>90000)throw Error('Configuración demasiado grande para la caché.');
@@ -143,7 +141,7 @@ function validateCapabilities_(capabilities){
       const name=searchText_(row?.name);
       if(!row||typeof row.name!=='string'||!name||row.name.length>100||names.has(name)||typeof row.enabled!=='boolean'||Object.keys(row).sort().join(',')!=='enabled,name,terms')throw Error('Capacidad vacía, duplicada o no válida: '+segment);
       names.add(name);
-      if(!Array.isArray(row.terms)||!row.terms.length||row.terms.length>12||row.terms.some(term=>typeof term!=='string'||!term.trim()||term.length>80||/[";\r\n]/.test(term)))throw Error('Define entre 1 y 12 términos de hasta 80 caracteres: '+row.name);
+      if(!Array.isArray(row.terms)||!row.terms.length||row.terms.length>24||row.terms.some(term=>typeof term!=='string'||!term.trim()||term.length>80||/[";\r\n]/.test(term)))throw Error('Define entre 1 y 24 términos de hasta 80 caracteres: '+row.name);
     }
   }
   if(JSON.stringify(capabilities).length>40000)throw Error('El catálogo de capacidades excede el tamaño de una celda.');

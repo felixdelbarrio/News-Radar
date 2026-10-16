@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import {storage} from './helpers/delivery.mjs';
+import {storage as createStorage} from './helpers/delivery.mjs';
+import {TestDate as Date} from './helpers/clock.mjs';
+function storage(){const s=createStorage();s.c.Date=Date;return s;}
 import {heatmapPage,heatmapValue,HEATMAP_PAGE} from '../src/client/features/heatmap-model.js';
 function server(){
  const s=storage(),c=s.c;c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;
