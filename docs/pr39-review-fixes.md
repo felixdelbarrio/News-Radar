@@ -15,3 +15,5 @@ La edición administrativa localiza la fila mediante el ID antes de aplicar el n
 ## Validación
 
 Nueve pruebas de regresión específicas cubren los seis estados de entrega bajo alias anidados, el predominio de envíos confirmados y ausencia de reenvío, las fechas/progreso, edición/collisiones/autorización y la caducidad e invalidación de la caché. La distribución se regenera desde las fuentes; no se envían correos reales para probar estos casos.
+
+Batería completa: **462 pruebas pasan**, cero fallos. Cobertura: sentencias 92,82 %, ramas 87,11 %, funciones 95 % y líneas 97,83 %. Sintaxis, permisos y distribución reproducible verificados. La comparación con el código original reproduce tres ediciones pendientes tras envíos confirmados bajo alias; con la corrección son cero. Se ha incorporado la base `master` a la rama de trabajo sin cambios de contenido para actualizar la PR.
