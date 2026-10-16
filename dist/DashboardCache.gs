@@ -24,6 +24,9 @@ function cachedNewsRecords_(query={}){
   if(complete){const id=Utilities.getUuid();if(chunks.length)cache.putAll(Object.fromEntries(chunks.map((value,index)=>[key+':'+id+':'+index,value])),NEWS_CACHE.seconds);cache.put(key,JSON.stringify({id,parts:chunks.length}),NEWS_CACHE.seconds);}
   return rows;
 }
+function newsPeriodCount_(query){
+  let count=0;for(const [day,ranges] of Object.entries(newsRecordIndex_().days))if(day>=query.from&&day<=query.to)for(const [first,last] of ranges)count+=last-first+1;return count;
+}
 function newsRowsForPeriod_(query={}){
   const positions=[];
   for(const [day,ranges] of Object.entries(newsRecordIndex_().days))if((!query.from||day>=query.from)&&(!query.to||day<=query.to))for(const [first,last] of ranges)for(let row=first;row<=last;row++)positions.push(row);
@@ -62,8 +65,7 @@ function warmDefaultDashboard_(work){
   const pending=properties_().getProperty('DASHBOARD_WARMUP');if(pending===null)return false;
   const views=['radar','briefing','news'],step=Number(pending),view=views[step];
   if(view){
-    const query=dashboardQuery_({view,initial:true}),index=newsRecordIndex_();let count=0;
-    for(const [day,ranges] of Object.entries(index.days))if(day>=query.from&&day<=query.to)for(const [first,last] of ranges)count+=last-first+1;
+    const query=dashboardQuery_({view,initial:true}),count=newsPeriodCount_(query);
     // Leave larger periods to an interactive request; do not consume a worker slice.
     if(count<=2000)dashboardContent_(query,feeds_(),view,'es');
   }

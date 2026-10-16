@@ -1,5 +1,7 @@
 # Iteración 6 · implementación y verificación
 
+Estado final de cobertura, recuperación, períodos y publicación: [informe de negocio y rendimiento](iteration-6-business-policy.md). La lista inferior conserva el plan original.
+
 Fuente: PDF de 10 páginas y telemetría exportada 2026-10-15T12:57:09.688Z. Rama `codex/iteration-6`, base `2b463ae` (PR36 ya corregido; despliegue65).
 
 ## Requisitos y estado
@@ -14,7 +16,7 @@ Fuente: PDF de 10 páginas y telemetría exportada 2026-10-15T12:57:09.688Z. Ram
 - [ ] País inicial de pestañas Noticias/Novedades y formulario de suscripción: inferencia aproximada idioma/zona horaria, sin permisos ni servicios IP; respetar selección explícita.
 - [ ] Tarjetas: metadatos espaciados sin país redundante; todas las etiquetas aplicables visibles.
 - [ ] Auditar contador de medios de Radar con datos reales; no confundir medio/editor con entidad ni prometer cobertura completa del proveedor.
-- [ ] Una suscripción por usuario, país opcional del ámbito Empresas; todas las entregas quincenal/mensual/anual automáticas, sin filtros personalizados ni efectos en defaults; alta/pausa/baja.
+- [ ] Una suscripción por usuario, país opcional del ámbito Empresas; todas las entregas quincenal/trimestral/anual automáticas, sin filtros personalizados ni efectos en defaults; alta/pausa/baja.
 - [ ] Historial propio y administrativo con resumen muy compacto bajo details, acceso autorizado y contenido enviado inmutable.
 - [ ] Administración siempre abre Ejecuciones; orden Ejecuciones, Taxonomía, Idioma, Suscripciones, Adopción, Telemetría, Fuentes, Auditoría, Configuración.
 - [ ] Quitar controles de programación/pendientes/comprobar remitente y código UI obsoleto. Prueba administrativa por destinatario, cadencia y geografía; no enviar correos de prueba sin una petición concreta de envío.
