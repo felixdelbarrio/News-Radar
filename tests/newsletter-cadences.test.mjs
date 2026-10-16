@@ -63,7 +63,7 @@ for(const [periodicity,view] of [['fortnightly','briefing'],['quarterly','news']
  assert.equal(a.find('.nav [aria-current="page"]').dataset.view,view);assert.equal(a.find('#'+view+'-section').hidden,false);assert.equal(requests.length,1);assert.equal(requests[0].view,view);assert.equal(requests[0].edition,editionId);assert.equal(requests[0].initial,true);
  assert.equal(a.find('#filters [name="from"]').value,from);assert.equal(a.find('#filters [name="to"]').value,to);assert.equal(a.w.document.querySelector('#filters [name="segment"]'),null);assert.match(a.find('#reading-context').textContent,/Resumen/);
  const alternate=view==='news'?'briefing':'news';await a.click('[data-view="'+alternate+'"]');assert.equal(a.find('#filters [name="from"]').value,from);assert.equal(a.find('#filters [name="to"]').value,to);
- await a.click('#reading-current');assert.equal(a.find('#filters [name="from"]').value,alternate==='briefing'?c.dashboardPeriod_('briefing').from:c.dashboardPeriod_('news').from);
+ await a.click('#reading-current');assert.equal(a.find('#filters [name="from"]').value,c.dashboardPeriod_(alternate,new Date(),true).from);
  if(view!=='briefing')for(const more of dom.window.document.querySelectorAll('a.newsletter-cta')){const url=new URL(more.href),params=Object.fromEntries(url.searchParams);assert.equal(params.view,view);assert.equal(params.edition,editionId);const target=c.getDashboard({...params,initial:true});assert.equal(target.selection.from,from);assert.equal(target.selection.to,to);if(params.country)assert.equal(target.selection.country,params.country);assert.equal(target.selection.entity,params.entity??query.entity??undefined);}
  dom.window.close();
 });

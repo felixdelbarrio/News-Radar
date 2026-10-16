@@ -156,7 +156,7 @@ test('Novedades respeta un período explícito y Noticias lo utiliza solo al abr
   const novelty=c.dashboardQuery_({view:'briefing',entity:'BBVA',from:'2026-01-01',to:'2026-01-31'},now);
   assert.equal(novelty.from,'2026-01-01');assert.equal(novelty.to,'2026-01-31');assert.equal(novelty.entity,'BBVA');
   const news=c.dashboardQuery_({view:'news',initial:true},now);
-  assert.equal(news.from,'2026-11-01');assert.equal(news.to,'2026-11-30');
+  assert.equal(news.from,'2026-10-01');assert.equal(news.to,'2026-12-31');
   const edited=c.dashboardQuery_({view:'news',from:'2026-02-01',to:'2026-02-28'},now);
   assert.equal(edited.from,'2026-02-01');assert.equal(edited.to,'2026-02-28');
   assert.equal(c.dashboardPeriod_('news',new Date('2024-02-15T12:00:00Z')).to,'2024-03-31');
