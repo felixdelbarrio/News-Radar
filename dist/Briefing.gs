@@ -9,8 +9,10 @@ function briefing_(rows,perGeography=false,geography=row=>geographyLabel(row.pai
     return {row,entity,score:newsRelevance_(row)};
   });
   ranked.sort((a,b)=>Number(b.entity==='BBVA')-Number(a.entity==='BBVA')||entities.get(b.entity)-entities.get(a.entity)||a.entity.localeCompare(b.entity,'es')||b.score-a.score||b.row.fecha.localeCompare(a.row.fecha));
-  const overview=noveltyOverview(ranked.map(item=>item.row),configuration_().signals.filter(row=>row.enabled).map(row=>row.name),geography),items=[],counts=new Map(),limit=settings_().briefingLimit;
-  for(const {row} of ranked){const key=perGeography?geography(row):'';if((counts.get(key)||0)>=limit)continue;counts.set(key,(counts.get(key)||0)+1);items.push(row);}
+  const overview=noveltyOverview(ranked.map(item=>item.row),configuration_().signals.filter(row=>row.enabled).map(row=>row.name),geography),items=[],limit=settings_().briefingLimit;
+  const problemSignals=new Set(configuration_().signals.filter(row=>row.enabled&&row.group==='Problema').map(row=>row.name)),groups=new Map();
+  for(const {row} of ranked){const key=perGeography?geography(row):'';if(!groups.has(key))groups.set(key,[]);groups.get(key).push(row);}
+  for(const group of groups.values()){const chosen=new Set(group.filter(row=>row.senales.some(name=>problemSignals.has(name))).slice(0,Math.max(1,Math.ceil(limit/3))));for(const row of group){if(chosen.size>=limit)break;chosen.add(row);}items.push(...group.filter(row=>chosen.has(row)));}
   return {...overview,items,limited:overview.total>items.length};
 }
 function newsletter_(rows,query,title,now,subscriptionId,language='es',editionId='',known=new Set()){

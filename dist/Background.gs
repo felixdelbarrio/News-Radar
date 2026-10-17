@@ -64,7 +64,7 @@ function backgroundTask_(work,daily){
   const blocked=dailyCollectionPending_(work)||properties_().getProperty('DAILY_PIPELINE_REQUEST');
   if(daily)return 'collection';
   if(!blocked&&classificationReadyAt_()<=Date.now())return 'classification';
-  if(!blocked&&!classificationPending_()&&properties_().getProperty('DASHBOARD_SNAPSHOT_REQUEST')==='ready')return 'snapshot';
+  if(!blocked&&!classificationPending_()&&dashboardSnapshotsDue_())return 'snapshot';
   if(!blocked&&!classificationPending_()&&!properties_().getProperty('CLASSIFICATION_REQUEST')){
     if(businessTranslationPending_()&&translationReadyAt_()<=Date.now())return 'translation';
     if(newsletterReadyAt_(work)<=Date.now())return 'newsletter';

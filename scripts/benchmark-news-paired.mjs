@@ -1,6 +1,6 @@
 import {benchmarkNews} from './benchmark-news.mjs';
 import {benchmarkSource} from './benchmark-source.mjs';
-const baseline=benchmarkSource(['--baseline=HEAD']);
+const baseline=benchmarkSource([...process.argv.slice(2),'--baseline=HEAD']);
 // Alternate execution order; keep browser interactions and other test processes idle.
 for(let sample=1;sample<=4;sample++)for(const version of sample%2?['baseline','current']:['current','baseline']){
  globalThis.gc?.();

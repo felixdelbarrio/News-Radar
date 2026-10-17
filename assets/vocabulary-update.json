@@ -1,5 +1,5 @@
 {
-  "version": "3.4.0",
+  "version": "3.6.0",
   "relevanceRules": [
     {
       "name": "Evidencia de canal digital",
@@ -7,7 +7,9 @@
         "transacciones inmediatas",
         "pagos inmediatos",
         "bre-b",
-        "instant transfers"
+        "instant transfers",
+        "pasarela de pago",
+        "pasarelas de pago"
       ]
     },
     {
@@ -54,6 +56,39 @@
       "terms": [
         "bre-b"
       ]
+    },
+    {
+      "name": "Excluir avisos rutinarios y sucesos individuales",
+      "terms": [],
+      "remove": [
+        "caida de",
+        "sufrio caida",
+        "presenta fallas",
+        "presentan fallas",
+        "reporta fallas",
+        "reportan fallas",
+        "reportan problemas",
+        "habrian problemas",
+        "fallas masivas",
+        "se cayo",
+        "colapsaron",
+        "caida global",
+        "falla global",
+        "no funciona*",
+        "goes down",
+        "outage",
+        "intermitencias",
+        "no podian",
+        "fuera de servicio",
+        "no se puede iniciar"
+      ]
+    },
+    {
+      "name": "Infraestructura y servicios empresariales",
+      "terms": [
+        "payment processing",
+        "procesamiento de pagos"
+      ]
     }
   ],
   "capabilities": [
@@ -95,7 +130,11 @@
         "Quantum",
         "depósitos tokenizados",
         "pagos con stablecoins",
-        "agentes de ia"
+        "agentes de ia",
+        "indisponibilidad",
+        "intermitencias",
+        "fallas masivas",
+        "transferencias fallidas"
       ]
     },
     {
@@ -126,7 +165,11 @@
         "cleareye",
         "payment gateway",
         "custody",
-        "model context protocol"
+        "model context protocol",
+        "outage",
+        "service disruption",
+        "payment failures",
+        "delayed payments"
       ]
     }
   ]

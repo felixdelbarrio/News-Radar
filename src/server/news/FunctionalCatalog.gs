@@ -5,6 +5,7 @@ function validateTaxonomy_(blocks){
     if(!block||!/^\d{2}\..{1,100}$/.test(block.name)||names.has(block.name)||!Array.isArray(block.functions)||!Array.isArray(block.terms)||!Array.isArray(block.emerging)||block.terms.length>80||block.emerging.length>20||block.terms.some(term=>typeof term!=='string'||!term.trim()||term.length>100))throw Error('Bloque funcional no válido o duplicado.');
     names.add(block.name);
     const concepts=new Set();for(const concept of block.emerging){if(!concept||typeof concept.name!=='string'||!concept.name.trim()||concept.name.length>100||concepts.has(taxonomyText(concept.name))||!Array.isArray(concept.terms)||!concept.terms.length||concept.terms.length>24||concept.terms.some(term=>typeof term!=='string'||!term.trim()||term.length>100)||('primary' in concept&&typeof concept.primary!=='boolean'))throw Error('Concepto emergente no válido.');concepts.add(taxonomyText(concept.name));}
+    for(const row of [...block.functions,...block.emerging])for(const key of ['context','exclude','primaryTerms'])if(row[key]!==undefined&&(!Array.isArray(row[key])||row[key].length>24||row[key].some(term=>typeof term!=='string'||!term.trim()||term.length>200)))throw Error('Condición funcional no válida.');
     for(const row of block.functions){
       if(!row||!/^\d{2}\.\d{2}$/.test(row.id)||!row.id.startsWith(block.name.slice(0,3))||ids.has(row.id)||typeof row.name!=='string'||!row.name.trim()||row.name.length>200||!Array.isArray(row.terms)||row.terms.length>24||row.terms.some(term=>typeof term!=='string'||!term.trim()||term.length>200))throw Error('Funcionalidad no válida o duplicada: '+row?.id);
       if(row.description!==undefined&&(typeof row.description!=='string'||row.description.length>10000))throw Error('Descripción funcional no válida.');ids.add(row.id);count++;
@@ -61,7 +62,7 @@ function refreshFunctionalCatalog_(){
   properties_().setProperty('FUNCTIONAL_CATALOG_SYNCED',new Date().toISOString());telemetry_('catalogo_funcional',Date.now()-started,'OK',changed?'Espejo actualizado desde el maestro de Drive':'Sin cambios en el maestro de Drive');return {source:'drive',changed};
  }catch(error){const detail=String(error.message).slice(0,180);telemetry_('catalogo_funcional',Date.now()-started,'Error',detail);return {source:'espejo',error:detail};}
 }
-function taxonomyRulesRevision_(){return sha256_(JSON.stringify([TAXONOMY_POLICY.version,configuration_().taxonomy,classificationRulesRevision_()]));}
+function taxonomyRulesRevision_(){return sha256_(JSON.stringify([TAXONOMY_POLICY.version,'business',configuration_().taxonomy,classificationRulesRevision_()]));}
 function saveTaxonomySource(payload){
   authorize_(true);const snapshot=JSON.parse(JSON.stringify(configuration_()));snapshot.settings.taxonomyCatalogUrl=payload.url;return writeConfiguration_(snapshot,payload.revision);
 }

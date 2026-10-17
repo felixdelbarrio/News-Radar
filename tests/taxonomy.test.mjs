@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import {taxonomyPath} from '../src/shared/taxonomy-path.js';
 import {storage} from './helpers/server.mjs';
 import {taxonomyDefinitions,taxonomyObserve,taxonomyBuild,TAXONOMY_POLICY} from '../src/shared/taxonomy.js';
-function server(titles=['BBVA lanza pagos biométricos para empresas','Santander incorpora pagos biométricos para particulares','BBVA lanza una API generativa','BBVA anuncia resultados financieros y dividendos']){
+function server(titles=['BBVA lanza login biométrico para empresas','Santander incorpora login biométrico para particulares','BBVA lanza una API generativa','BBVA anuncia resultados financieros y dividendos']){
   const s=storage(),c=s.c;c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);
   for(const [i,title] of titles.entries())s.sheets.get('Noticias').grid.push([String(i),'2026-10-10','España','Editor','BBVA',title,'Nueva experiencia digital para empresas y particulares','https://example.com/'+i,'','Editor','es',JSON.stringify({digital:true,capacidades:["Empresas: Pagos"]}), '']);
   return s;
@@ -54,7 +54,7 @@ test('fallos de escritura conservan el cursor y las etiquetas existentes; una mo
 });
 
 test('las noticias nuevas se etiquetan con el modelo vigente durante la incorporación y los lotes no leen todo el corpus',()=>{
- const {c,sheets}=server();c.startTaxonomy();finish(c);const row=c.newsRecord_({date:new Date(),title:'BBVA lanza pagos biométricos',excerpt:'Para empresas',topic:'Pagos',url:'https://example.com/new',labels:{digital:true,generalista:true,capacidades:["Empresas: Pagos"]}},c.feeds_()[0],new Date());
+ const {c,sheets}=server();c.startTaxonomy();finish(c);const row=c.newsRecord_({date:new Date(),title:'BBVA lanza login biométrico',excerpt:'Para empresas',topic:'Pagos',url:'https://example.com/new',labels:{digital:true,generalista:true,capacidades:["Empresas: Pagos"]}},c.feeds_()[0],new Date());
  assert.ok(c.taxonomySaved_(row[12]).ids.length);
  for(let i=0;i<260;i++)sheets.get('Noticias').grid.push([...row.slice(0,12),'']);c.invalidateNews_();const reads=[],sheet=sheets.get('Noticias'),get=sheet.getRange;sheet.getRange=(...args)=>{reads.push(args);return get(...args);};c.startTaxonomy();finish(c);assert.ok(reads.every(args=>args[3]===4||args[2]<=2000));assert.equal(c.taxonomyJob_().processed,528);
 });

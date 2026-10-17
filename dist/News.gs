@@ -46,7 +46,7 @@ function dashboardContent_(query,feeds,view='radar',language='es',edition=null){
   dashboardArticleFields_(data);writeDashboardCache_(cache,key,data);
   return {data,duration:Date.now()-started,cacheHit:false};
 }
-function invalidateNews_(content=true,records=true){properties_().setProperty('DASHBOARD_SNAPSHOT_REQUEST','pending');const revision=Date.now()+'-'+Math.random().toString(36).slice(2);properties_().setProperty('NEWS_REVISION',revision);if(content)properties_().setProperty('NEWS_CONTENT_REVISION',revision);if(records)properties_().setProperty('NEWS_RECORDS_REVISION',revision);}
+function invalidateNews_(content=true,records=true){invalidateDashboardSnapshots_();const revision=Date.now()+'-'+Math.random().toString(36).slice(2);properties_().setProperty('NEWS_REVISION',revision);if(content)properties_().setProperty('NEWS_CONTENT_REVISION',revision);if(records)properties_().setProperty('NEWS_RECORDS_REVISION',revision);}
 
 function dashboardRuns_(){
   const cache=CacheService.getScriptCache(),key='dashboard-runs:'+RADAR.version,cached=cache.get(key);

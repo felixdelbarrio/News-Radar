@@ -10,13 +10,13 @@ function configuration_(){
   const resolved=functionalConfiguration_(config);validateConfiguration_(resolved);cacheJson_(key,functionalConfigurationSettings_(resolved),21600);
   return configurationMemory_=resolved;
 }
-function invalidateConfiguration_(){properties_().setProperty('DASHBOARD_SNAPSHOT_REQUEST','pending');configurationMemory_=undefined;configurationVersionMemory_=undefined;properties_().setProperty('CONFIG_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));}
+function invalidateConfiguration_(){invalidateDashboardSnapshots_();configurationMemory_=undefined;configurationVersionMemory_=undefined;properties_().setProperty('CONFIG_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));}
 function configurationEdited_(event){const sheet=event?.range?.getSheet().getName();if(MAINTENANCE_TABLES.includes(sheet))invalidateMaintenanceCursor_(sheet,event.range.getRow?.()||2);if(backgroundPaused_()&&['Configuracion','Noticias'].includes(sheet)){deferBackgroundWork_(sheet==='Configuracion'?'edited':'news');return;}if(sheet==='CatalogoFuncional'){properties_().deleteProperty('FUNCTIONAL_CATALOG_REVISION');functionalCatalogMemory_=undefined;invalidateConfiguration_();properties_().setProperty('TAXONOMY_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}else if(sheet==='Configuracion'){invalidateConfiguration_();requestNewsClassification_(true);}else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
 function addVocabularyTerms_(config){
   let changed=false;
   for(const [key,rows] of [['relevanceRules',config.relevanceRules],['capabilities',config.capabilities.Empresas],['searchLanguages',config.searchLanguages]])for(const addition of CONFIGURATION_VOCABULARY_UPDATE[key]){
     const row=rows.find(item=>item.name===addition.name);if(!row)continue;
-    const terms=[...new Set([...row.terms,...addition.terms])];if(terms.length!==row.terms.length){row.terms=terms;changed=true;}
+    const removed=new Set((addition.remove||[]).map(searchText_)),terms=[...new Set([...row.terms.filter(term=>!removed.has(searchText_(term))),...addition.terms])];if(JSON.stringify(terms)!==JSON.stringify(row.terms)){row.terms=terms;changed=true;}
   }
   return changed;
 }
@@ -53,6 +53,7 @@ function initializeConfiguration(){
           if(key==='geographies')for(const row of value){const seed=defaults.find(item=>item.code===row.code);if(seed)row.terms=[...new Set([...(row.terms||[]),...seed.terms])];}
           if(key==='segments')for(const row of value){const seed=defaults.find(item=>item.name===row.name);if(seed)row.terms=[...new Set([...row.terms,...seed.terms])];}
           if(key==='entities')for(const row of value){const seed=defaults.find(item=>searchText_(item.name)===searchText_(row.name));if(seed){row.countries=[...new Set([...row.countries,...seed.countries])];row.aliases=[...new Set([...row.aliases,...seed.aliases])];}}
+          if(key==='signals')for(const row of value){const seed=defaults.find(item=>item.name===row.name);row.group=row.group||seed?.group||'Novedad';if(seed)for(const key of ['terms','context'])row[key]=[...new Set([...row[key],...seed[key]])];}
           value.push(...defaults.filter(row=>!names.has(key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))&&(key!=='feeds'||!ids.has(row.id))));
         }
         sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(value)]]);
@@ -61,7 +62,11 @@ function initializeConfiguration(){
     if(keys.has('taxonomy')){
       const rows=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues(),index=rows.findIndex(row=>row[0]==='taxonomy'),blocks=JSON.parse(rows[index][1]),defaults=new Map(CONFIGURATION_DEFAULTS.taxonomy.flatMap(block=>block.functions.map(row=>[row.id,row])));
       if(book_().getSheetByName('CatalogoFuncional').getLastRow()<2&&blocks.every(block=>block.functions.every(row=>typeof row.name==='string')))writeFunctionalCatalog_(blocks);
-      if(refreshCatalog)for(const block of blocks){const seed=CONFIGURATION_DEFAULTS.taxonomy.find(row=>row.name===block.name);for(const concept of seed?.emerging||[])if(!block.emerging.some(row=>row.name===concept.name))block.emerging.push(concept);for(const row of block.functions){const terms=defaults.get(row.id)?.terms;if(terms)row.terms=seed?.functions.find(item=>item.id===row.id)?.name.startsWith('Landing')?terms:[...new Set([...row.terms,...terms])];}}
+      if(refreshCatalog)for(const block of blocks){
+        const seed=CONFIGURATION_DEFAULTS.taxonomy.find(row=>row.name===block.name);
+        for(const concept of seed?.emerging||[]){const previous=block.emerging.find(row=>row.name===concept.name||concept.primaryTerms?.includes(taxonomyText(row.name)));if(previous)Object.assign(previous,concept,{terms:[...new Set([...previous.terms,...concept.terms])]});else block.emerging.push(concept);}
+        for(const row of block.functions){const next=defaults.get(row.id);if(next){row.terms=next.name.startsWith('Landing')?next.terms:[...new Set([...row.terms,...next.terms])];for(const key of ['context','exclude'])if(next[key]?.length)row[key]=next[key];}}
+      }
       sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(functionalRuleSettings(blocks))]]);
     }
     append_('Configuracion',Object.entries(functionalConfigurationSettings_(CONFIGURATION_DEFAULTS)).filter(([key])=>!keys.has(key)).map(([key,value])=>[key,JSON.stringify(value)]));
@@ -101,6 +106,7 @@ function validateConfiguration_(config){
       for(const field of ['terms','context','aliases','countries','exclude'])if(field in row&&(!Array.isArray(row[field])||row[field].length>(key==='searchLanguages'?160:80)||row[field].some(value=>typeof value!=='string'||!value.trim()||value.length>100)))throw Error('Lista de términos no válida: '+row.name);
       if(['segments','signals'].includes(key)&&!row.terms?.length)throw Error('Añade términos a '+row.name);
       if(key==='signals'&&(!Array.isArray(row.context)||!Array.isArray(row.exclude)||!['headline','fullText'].includes(row.scope)))throw Error('Define el contexto de '+row.name+' (puede estar vacío).');
+      if(key==='signals'&&!['Novedad','Problema'].includes(row.group))throw Error('Define el tipo de señal: '+row.name);
       if(key==='entities'&&(!row.type||!Array.isArray(row.aliases)||!Array.isArray(row.countries)))throw Error('Entidad incompleta: '+row.name);
       if(key==='geographies'&&(!row.searchName||!/^[A-Z]{2}$/.test(row.code)||!/^\d{3}$/.test(row.mapId)||!/^[a-z]{2}(?:-[A-Za-z0-9]{2,8})?$/.test(row.language)))throw Error('País: código ISO, identificador cartográfico o idioma incorrectos.');
       if(key==='feeds'&&row.language&&feedLanguage(row.language)!==row.language)throw Error('Idioma de fuente no válido.');

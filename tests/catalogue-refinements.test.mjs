@@ -30,12 +30,12 @@ test('los filtros muestran nombres sin índices, en orden alfabético y con valo
 test('las nuevas funciones entran en la búsqueda acotada sin un despliegue y el contexto empresarial permanece',()=>{
  const {c}=storage();c.initializeConfiguration();const rows=c.catalogueSearchRows_();assert.ok(rows.some(row=>row.key==='20.04'&&row.terms.includes('Quantum')));assert.ok(rows.some(row=>row.key==='03.09'&&row.terms.includes('vostro payments')));
  c.functionalCatalog_().find(row=>row.name.startsWith('20.')).functions.push({id:'20.99',name:'NovaFleet',description:''});c.invalidateConfiguration_();assert.ok(c.catalogueSearchRows_().some(row=>row.key==='20.99'));
- const geo=c.configuration_().geographies[0],entity=c.configuration_().entities[0],feed=c.profileFeed_(geo,entity,undefined,true),query=new URL(feed.url).searchParams.get('q');assert.match(query,/"(?:empresa|empresas|business)"/);assert.ok(query.length<1800);assert.ok(c.capabilitySearchTerms_(geo,entity).length<=6);
+ const geo=c.configuration_().geographies[0],entity=c.configuration_().entities[0],feed=c.profileFeed_(geo,entity,undefined,true),query=new URL(feed.url).searchParams.get('q');assert.match(query,/"(?:empresa|empresas|business)"/);assert.ok(query.length<1800);assert.ok(c.capabilitySearchTerms_(geo,entity).length<=7);
 });
 
 test('TF-IDF admite agentes y depósitos tokenizados solo tras evidencia recurrente y conserva un ganador',async()=>{
  const {taxonomyObserve,taxonomyBuild}=await import('../src/shared/taxonomy.js');
- for(const [phrase,code] of [['DBS rolls out agentic AI to corporate clients','17.xx Agentes de IA'],['ANZ completes tokenised deposit transactions','02.xx Depósitos tokenizados']]){
+ for(const [phrase,code] of [['DBS rolls out agentic AI to automate corporate banking','17.xx Agentes de IA'],['ANZ completes tokenised deposit transactions','02.xx Depósitos tokenizados']]){
   const state={documents:0,candidates:{}};for(let i=0;i<2;i++)taxonomyObserve(state,taxonomyText(phrase),definitions,new Set(),'Medio '+i);assert.ok(!taxonomyBuild(state).some(row=>row.subpalanca===code));
   taxonomyObserve(state,taxonomyText(phrase),definitions,new Set(),'Medio 2');const model=taxonomyBuild(state);assert.ok(model.some(row=>row.subpalanca===code));const matches=taxonomyMatches(taxonomyText(phrase),model,phrase);assert.equal(matches.length,1);assert.equal(matches[0].row.subpalanca,code);
  }

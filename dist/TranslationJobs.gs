@@ -6,11 +6,7 @@ function requestTranslations_(priority=false){properties_().setProperty('TRANSLA
 function startTranslations(){authorize_(true);requestTranslations_();return getTranslationStatus();}
 function getTranslationStatus(){authorize_(true);return {newsRevision:properties_().getProperty('NEWS_REVISION')||'0',scheduled:properties_().getProperty('TRANSLATION_ENABLED')!=='false',timezone:settings_().timezone,job:withJobProgress_('translation',translationJob_(),Boolean(properties_().getProperty('TRANSLATION_REQUEST'))),queued:Boolean(properties_().getProperty('TRANSLATION_REQUEST'))};}
 function translationCandidates_(job){
-  const sheet=book_().getSheetByName('Noticias'),count=Math.max(0,sheet.getLastRow()-1);if(!count)return [];
-  const first=sheet.getLastRow()-count+1,labels=sheet.getRange(first,RADAR.sheets.Noticias.indexOf('clasificacion')+1,count,1).getDisplayValues(),dates=sheet.getRange(first,1,count,2).getDisplayValues(),captured=sheet.getRange(first,RADAR.sheets.Noticias.indexOf('capturada')+1,count,1).getDisplayValues();
-  return dates.map(([id,fecha],index)=>({id,fecha,captured:captured[index][0],priority:businessNews_({clasificacion:labels[index][0]})?0:1}))
-    .filter(row=>row.priority===0&&row.id&&row.captured<=job.started&&(!job.cursor||row.priority>job.cursor.priority||row.priority===job.cursor.priority&&(row.fecha<job.cursor.fecha||row.fecha===job.cursor.fecha&&row.id<job.cursor.id)))
-    .sort((a,b)=>a.priority-b.priority||(a.fecha===b.fecha?(a.id===b.id?0:a.id>b.id?-1:1):a.fecha>b.fecha?-1:1));
+  return businessNewsIndex_().rows.filter(row=>row.captured<=job.started&&(!job.cursor||row.fecha<job.cursor.fecha||row.fecha===job.cursor.fecha&&row.id<job.cursor.id)).sort((a,b)=>a.fecha===b.fecha?(a.id===b.id?0:a.id>b.id?-1:1):a.fecha>b.fecha?-1:1);
 }
 function translationBatch_(maxMs=TRANSLATION_WORK.maxMs){
   const started=Date.now(),now=new Date(started),today=recordDay(now,settings_().timezone);let job;
