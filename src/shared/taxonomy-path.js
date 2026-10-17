@@ -1,4 +1,4 @@
-export function taxonomyPath(row){return row.palanca+' › '+row.subpalanca;}
+export function taxonomyPath(row){return row.subpalanca?row.palanca+' › '+row.subpalanca:row.palanca;}
 export function taxonomySubLabel(value){return String(value||'').split(' › ').slice(1).join(' › ')||String(value||'');}
 export function taxonomyChoices(paths,selection={}){
   const rows=paths.map(value=>({value,palanca:value.split(' › ')[0],subpalanca:taxonomySubLabel(value)}));

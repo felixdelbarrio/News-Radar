@@ -15,7 +15,7 @@ const rows=raw.flatMap((item,i)=>{
   const feed=feeds[i<10?0:1],result=context.evaluate_(item,feed,now);if(!result.item)return [];
   const n=result.item;return [{id:String(i),fecha:n.date.toISOString().slice(0,10),pais:n.country,medio:feed.name,entidad:feed.entity,titular:n.title,extracto:n.excerpt,url:n.url,fuente:feed.name,idioma:n.language||feed.language||'',clasificacion:JSON.stringify(n.labels)}];
 });
-const taxonomyState={documents:0,candidates:{}},definitions=context.taxonomyDefinitions(seed.capabilities),excluded=new Set(seed.entities.flatMap(row=>[row.name,...row.aliases]).flatMap(value=>context.taxonomyText(value).split(' ')));
+const taxonomyState={documents:0,candidates:{}},definitions=context.taxonomyDefinitions(seed.taxonomy),excluded=new Set(seed.entities.flatMap(row=>[row.name,...row.aliases]).flatMap(value=>context.taxonomyText(value).split(' ')));
 for(const row of rows){const text=context.taxonomyText(row.titular+' '+row.extracto);if(context.taxonomyEligible_(context.searchText_(row.titular),text))context.taxonomyObserve(taxonomyState,text,definitions,excluded);}
 const taxonomy=context.taxonomyBuild(taxonomyState).map(row=>({id:createHash('sha256').update(row.key).digest('hex').slice(0,24),palanca:row.palanca,subpalanca:row.subpalanca,segmentos:row.segments,terminos:row.terms,noticias:row.df,peso:row.peso,origen:row.origin}));
 for(const row of rows)row.taxonomia=JSON.stringify({ids:context.taxonomyNewsIds_(row.titular,row.extracto,taxonomy)});
@@ -59,7 +59,7 @@ ${previewDelay?`if(method!=='recordEvents')await new Promise(resolve=>setTimeout
  if(method==='getMaintenanceStatus'){authorize_();return {active:false,job:null};}
  if(method==='getNewsletterHistory'){authorize_();return {...recordPage([],q),options:{},limit:settings_().eventLimit,limited:false};}
  if(method==='getRuns') {authorize_();return {...recordPage([],q),options:{},collection:{jobs:[]},classification:{scheduled:false,queued:false,job:null},limit:settings_().eventLimit,limited:false};}
- if(method==='getTaxonomyStatus'){authorize_();return {scheduled:false,hour:settings_().dailyHour,minute:45,timezone:settings_().timezone,job:null,items:taxonomyCatalog_()};}
+ if(method==='getTaxonomyStatus'){authorize_();return {scheduled:false,hour:settings_().dailyHour,minute:45,timezone:settings_().timezone,job:null,items:taxonomyCatalog_(),catalogUrl:settings_().taxonomyCatalogUrl,catalogRefresh:settings_().taxonomyCatalogRefresh,configurationRevision:configurationRevision_()};}
  if(method==='startTaxonomy'){authorize_();throw Error('La taxonomía se ejecuta en Google Apps Script.');}
  if(method==='getClassificationStatus') {authorize_();return {scheduled:false,hour:settings_().dailyHour,timezone:settings_().timezone,job:null};}
  if(method==='startClassification'){authorize_();throw Error('La clasificación se ejecuta en Google Apps Script.');}
@@ -73,6 +73,7 @@ ${previewDelay?`if(method!=='recordEvents')await new Promise(resolve=>setTimeout
  if(method==='getTelemetry'){authorize_();const metrics=metrics_(usage,Date.now());return {...recordPage([],q),options:{},limit:settings_().eventLimit,limited:false,rows:[],latencyP95:metrics.latencyP95,clientErrors:metrics.failures,collection:{processed:0,pending:0}};}
  if(method==='getConfiguration'){authorize_();return {config:JSON.parse(JSON.stringify(configuration)),revision,capabilityDefaults};}
  if(method==='saveConfiguration')return writeConfiguration_(q.config,q.revision);
+ if(method==='saveTaxonomySource'){authorize_();const config=structuredClone(configuration_());config.settings.taxonomyCatalogUrl=q.url;config.settings.taxonomyCatalogRefresh=q.refresh;return writeConfiguration_(config,q.revision);}
  if(method==='saveSourceSettings')return saveSourceSettings(q);
  if(method==='saveFeeds')return saveFeeds(q);
  if(method==='exportNews'){const selection=dashboardQuery_(q);return newsCsv_(newsGeographySelection_(annotateNews_(rows),selection),selection,q.language||'es',true);}

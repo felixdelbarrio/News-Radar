@@ -10,7 +10,7 @@ function taxonomyHeatmap_(rows,entityName=entityKey_){
     for(const index of labels)row.counts.set(index,(row.counts.get(index)||0)+1);
   }
   for(const row of rows){
-    const labels=new Set();for(const category of row.taxonomia){labels.add(node(category,'palanca'));labels.add(node(category,'subpalanca'));}
+    const labels=new Set();for(const category of row.taxonomia){labels.add(node(category,'palanca'));if(category.subpalanca)labels.add(node(category,'subpalanca'));}
     if(labels.size)tagged++;for(const index of labels)nodes[index].count++;
     group(entities,entityName(row.entidad),labels);group(countries,row.pais||settings_().unknownCountry,labels);
   }

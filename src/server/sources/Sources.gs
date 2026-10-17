@@ -33,8 +33,8 @@ function collectionSearchTerms_(geo){
 }
 function capabilitySearchTerms_(geo,entity){
   const rows=businessIndex_().capabilities;if(!rows.length)return [];
-  const seed=[entity.name,geo.code].join('|');
-  const offset=[...seed].reduce((sum,char)=>sum+char.charCodeAt(0),0)%rows.length,terms=new Set(),base=new Set(collectionSearchTerms_(geo).map(searchText_));
+  const seed=[entity.name,geo.code].join('|'),day=Math.floor(Date.parse(recordDay(new Date(),settings_().timezone))/86400000);
+  const offset=([...seed].reduce((sum,char)=>sum+char.charCodeAt(0),0)+day)%rows.length,terms=new Set(),base=new Set(collectionSearchTerms_(geo).map(searchText_));
   const ordered=rows.slice(offset).concat(rows.slice(0,offset)),count=Math.min(rows.length,COLLECTION_POLICY.capabilityTerms),preferred=Array.from({length:count},(_,i)=>ordered[Math.floor(i*rows.length/count)]);
   for(const row of preferred.concat(ordered)){
     const choices=localizedSearchTerms_(row.terms,geo).filter(term=>!base.has(searchText_(term))),term=choices[0];if(term)terms.add(term);if(terms.size===COLLECTION_POLICY.capabilityTerms)break;

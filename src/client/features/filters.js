@@ -28,7 +28,7 @@ function createFilters({ onInvalidate, onChange }) {
       $('filter-description').textContent='Edita los criterios y pulsa Aplicar filtros para actualizar los resultados.';
   }
   layout();
-  const chipLabels={benchmark:'Ámbito comparativo',search:'Búsqueda',country:'Geografía',entity:'Entidad',source:'Medio',type:'Tipo de entidad',signal:'Novedad',palanca:'Palanca',subpalanca:'Subpalanca',from:'Fecha desde',to:'Fecha hasta'};
+  const chipLabels={benchmark:'Ámbito comparativo',search:'Búsqueda',country:'Geografía',entity:'Entidad',source:'Medio',type:'Tipo de entidad',signal:'Novedad',palanca:"Bloque funcional",subpalanca:"Funcionalidad / Sub Operativa",from:'Fecha desde',to:'Fecha hasta'};
   function renderChips(){
     const target=$('active-filters');
     const values=Object.entries(chipLabels).filter(([name])=>applied[name]);

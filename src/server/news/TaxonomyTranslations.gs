@@ -1,7 +1,7 @@
 let taxonomyTranslationMemory_;
 function taxonomyTranslationJob_(){const value=properties_().getProperty('TAXONOMY_TRANSLATION_JOB');return value?JSON.parse(value):null;}
 function writeTaxonomyTranslationJob_(job){progressContextMemory_=undefined;properties_().setProperty('TAXONOMY_TRANSLATION_JOB',JSON.stringify(job));}
-function taxonomyTranslationNames_(){return [...new Set(taxonomyCatalog_().flatMap(row=>[row.palanca,row.subpalanca]))].sort();}
+function taxonomyTranslationNames_(){return [...new Set(taxonomyCatalog_().flatMap(row=>[row.palanca,row.subpalanca]).filter(Boolean))].sort();}
 function taxonomyTranslationKey_(name,language){return language+':'+sha256_(name);}
 function taxonomyTranslationIndex_(){
   if(taxonomyTranslationMemory_)return taxonomyTranslationMemory_;
@@ -11,10 +11,10 @@ function taxonomyTranslationIndex_(){
 function taxonomyTranslations_(){
   const items=taxonomyCatalog_();if(!items.length)return {};
   const key='taxonomy-names:'+(properties_().getProperty('TAXONOMY_REVISION')||'0')+':'+(properties_().getProperty('TAXONOMY_TRANSLATIONS_REVISION')||'0'),cached=CacheService.getScriptCache().get(key);if(cached)return JSON.parse(cached);
-  const values=taxonomyTranslationIndex_(),unique=new Set(items.flatMap(row=>[row.palanca,row.subpalanca])),result={};
+  const values=taxonomyTranslationIndex_(),unique=new Set(items.flatMap(row=>[row.palanca,row.subpalanca]).filter(Boolean)),result={};
   for(const language of Object.keys(languageNames)){
     const names=Object.create(null);for(const name of unique)names[name]=values.get(taxonomyTranslationKey_(name,language))||translateText(name,language);
-    for(const row of items)names[taxonomyPath(row)]=names[row.palanca]+' › '+names[row.subpalanca];
+    for(const row of items)if(row.subpalanca)names[taxonomyPath(row)]=names[row.palanca]+' › '+names[row.subpalanca];
     result[language]=names;
   }cacheJson_(key,result,21600);return result;
 }

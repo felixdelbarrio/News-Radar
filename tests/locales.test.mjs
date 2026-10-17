@@ -7,6 +7,10 @@ import {JSDOM} from 'jsdom';
 import {detectLanguage,supportedLanguage,translations,translateText,formatText,formatCalendarDay,feedLanguage} from '../src/shared/locales.js';
 import {files,read,readServerScript} from '../scripts/source.mjs';
 import {app,tick} from './helpers/app.mjs';
+test('todas las traducciones conservan exactamente las variables de interpolación del original',()=>{
+ const variables=text=>[...new Set(text.match(/\{[^}]+\}/g)||[])].sort();
+ for(const [source,values]of Object.entries(translations))for(const value of values)assert.deepEqual(variables(value),variables(source),source);
+});
 
 test('la detección usa preferencias ordenadas, variantes regionales y español si ninguna es compatible',()=>{
  for(const [values,expected] of [[['fr-FR','tr-TR','en-US'],'tr'],[['en-GB','es-ES'],'en'],[['es-419'],'es'],[['zh','de'],'es'],[[],'es']])assert.equal(detectLanguage(values),expected);
