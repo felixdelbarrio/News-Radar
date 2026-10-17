@@ -13,29 +13,29 @@ function server(){
 function finish(c){for(let i=0;i<20;i++){c.taxonomyTranslationBatch_();if(c.taxonomyTranslationJob_().state==='Completada')return;}assert.fail(JSON.stringify(c.taxonomyTranslationJob_()));}
 test('traduce cada nombre único a los idiomas soportados, reutiliza resultados y mantiene IDs y etiquetas',()=>{
   const s=server(),c=s.c,news=JSON.stringify(s.sheets.get('Noticias').grid),catalog=JSON.stringify(s.sheets.get('Taxonomia').grid);
-  c.startTaxonomyTranslations();finish(c);assert.equal(c.taxonomyTranslationJob_().total,9);assert.equal(s.calls.length,6);assert.deepEqual([...new Set(s.calls.map(row=>row.language))],['es','en','tr']);assert.ok(s.calls.every(row=>row.source===''));
+  c.startTaxonomyTranslations();finish(c);assert.equal(c.taxonomyTranslationJob_().total,6);assert.equal(s.calls.length,4);assert.deepEqual([...new Set(s.calls.map(row=>row.language))],['en','tr']);assert.ok(s.calls.every(row=>row.source===''));
   assert.equal(c.taxonomyTranslations_().tr['Pagos y cobros › Pagos biometricos'],'Ödemeler ve tahsilatlar › tr Pagos biometricos');
   assert.equal(JSON.stringify(s.sheets.get('Noticias').grid),news);assert.equal(JSON.stringify(s.sheets.get('Taxonomia').grid),catalog);assert.equal(s.properties.NEWS_CONTENT_REVISION,undefined);
   const stored=JSON.stringify(s.sheets.get('TaxonomiaTraducciones').grid),revision=s.properties.NEWS_REVISION;c.startTaxonomyTranslations();finish(c);
-  assert.equal(s.calls.length,6);assert.equal(c.taxonomyTranslationJob_().translated,0);assert.equal(JSON.stringify(s.sheets.get('TaxonomiaTraducciones').grid),stored);assert.equal(s.properties.NEWS_REVISION,revision);
-  c.writeTranslationJob_({state:'Completada',calls:3000,callDay:c.recordDay(new Date(),c.settings_().timezone)});c.startTaxonomyTranslations();assert.ok(c.taxonomyTranslationReadyAt_()<=Date.now());finish(c);assert.equal(s.calls.length,6);
+  assert.equal(s.calls.length,4);assert.equal(c.taxonomyTranslationJob_().translated,0);assert.equal(JSON.stringify(s.sheets.get('TaxonomiaTraducciones').grid),stored);assert.equal(s.properties.NEWS_REVISION,revision);
+  c.writeTranslationJob_({state:'Completada',calls:3000,callDay:c.recordDay(new Date(),c.settings_().timezone)});c.startTaxonomyTranslations();assert.ok(c.taxonomyTranslationReadyAt_()<=Date.now());finish(c);assert.equal(s.calls.length,4);
   c.LanguageApp={translate(){throw Error('No se traduce en lecturas');}};assert.ok(c.getTaxonomyStatus().taxonomyTranslations.en['Pagos biometricos']);
 });
 test('traduce solo nombres nuevos y elimina traducciones fuera del catálogo vigente',()=>{
   const s=server(),c=s.c;c.startTaxonomyTranslations();finish(c);
   s.sheets.get('Taxonomia').grid[2][2]='Pagos instantaneos';s.properties.TAXONOMY_REVISION='two';c.requestTaxonomyTranslations_();finish(c);
-  assert.equal(s.calls.length,9);assert.equal(c.rows_('TaxonomiaTraducciones').length,9);assert.ok(!c.taxonomyTranslations_().en['Pagos recurrentes']);assert.equal(c.taxonomyTranslations_().en['Pagos biometricos'],'en Pagos biometricos');
+  assert.equal(s.calls.length,6);assert.equal(c.rows_('TaxonomiaTraducciones').length,6);assert.ok(!c.taxonomyTranslations_().en['Pagos recurrentes']);assert.equal(c.taxonomyTranslations_().en['Pagos biometricos'],'en Pagos biometricos');
 });
 test('un error conserva traducciones parciales y cursor; el lanzamiento manual reanuda la misma línea',()=>{
   const s=server(),c=s.c;let fail=true;c.LanguageApp={translate(name,_source,language){if(language==='en'&&fail)throw Error('Temporal');return language+' '+name;}};
-  c.startTaxonomyTranslations();c.taxonomyTranslationBatch_();const failed=c.taxonomyTranslationJob_();assert.equal(failed.state,'En pausa');assert.equal(failed.processed,1);assert.equal(c.rows_('TaxonomiaTraducciones').length,1);
-  assert.ok(c.taxonomyTranslationReadyAt_()>Date.now());fail=false;c.startTaxonomyTranslations();finish(c);assert.equal(c.rows_('TaxonomiaTraducciones').length,9);assert.equal(c.taxonomyTranslationJob_().translated,9);
+  c.startTaxonomyTranslations();c.taxonomyTranslationBatch_();const failed=c.taxonomyTranslationJob_();assert.equal(failed.state,'En pausa');assert.equal(failed.processed,0);assert.equal(c.rows_('TaxonomiaTraducciones').length,0);
+  assert.ok(c.taxonomyTranslationReadyAt_()>Date.now());fail=false;c.startTaxonomyTranslations();finish(c);assert.equal(c.rows_('TaxonomiaTraducciones').length,6);assert.equal(c.taxonomyTranslationJob_().translated,6);
   s.setEmail('reader@bbva.com');assert.throws(()=>c.startTaxonomyTranslations(),/no autorizado/);assert.throws(()=>c.getTaxonomyTranslationStatus(),/no autorizado/);
 });
 test('presupuesto compartido con noticias y lotes acotados; no monopoliza ni compite con recuperación',()=>{
   const s=server(),c=s.c,today=c.recordDay(new Date(),c.settings_().timezone);
   c.writeTranslationJob_({state:'Completada',calls:2999,callDay:today});c.startTaxonomyTranslations();c.taxonomyTranslationBatch_();assert.equal(s.calls.length,1);assert.equal(c.translationCallsToday_(),3000);assert.equal(c.taxonomyTranslationJob_().state,'En pausa');assert.ok(c.taxonomyTranslationReadyAt_()>Date.now());assert.equal(c.translationReadyAt_(),Infinity);
-  c.writeTranslationJob_({state:'Completada',calls:0,callDay:today});finish(c);assert.equal(s.calls.length,6);
+  c.writeTranslationJob_({state:'Completada',calls:0,callDay:today});finish(c);assert.equal(s.calls.length,4);
   c.writeTaxonomyTranslationJob_({...c.taxonomyTranslationJob_(),state:'Pendiente'});const annual={pending:[{ciclo:'annual'}],jobs:[{id:'annual',tipo:'year'}]};assert.equal(c.backgroundTask_(annual,false),'taxonomyTranslation');assert.equal(c.backgroundTask_(annual,true),'collection');
   c.writeTaxonomyJob_({state:'En curso'});assert.equal(c.taxonomyTranslationReadyAt_(),Infinity);
 });
@@ -57,10 +57,10 @@ test('una diaria recibida durante la llamada detiene el lote tras guardar el res
 });
 test('un catálogo amplio se divide en lotes de llamadas y reanuda al cambiar de día aunque no haya traducción nocturna',()=>{
  const s=server(),c=s.c,sheet=s.sheets.get('Taxonomia');for(let i=0;i<12;i++)sheet.grid.push(['extra'+i,'Pagos y cobros','Pago variante '+i,'["Retail"]','["pago"]',1,1,'regla']);s.properties.TAXONOMY_REVISION='large';
- c.startTaxonomyTranslations();c.taxonomyTranslationBatch_();assert.equal(s.calls.length,20);assert.equal(c.taxonomyTranslationJob_().state,'Pendiente');finish(c);assert.equal(s.calls.length,42);
+ c.startTaxonomyTranslations();c.taxonomyTranslationBatch_();assert.equal(s.calls.length,20);assert.equal(c.taxonomyTranslationJob_().state,'Pendiente');finish(c);assert.equal(s.calls.length,28);
  c.disableTranslationSchedule();c.writeTaxonomyTranslationJob_({...c.taxonomyTranslationJob_(),state:'En pausa',callDay:'2000-01-01',calls:3000,pausedUntil:0});assert.ok(c.taxonomyTranslationReadyAt_()<=Date.now());c.taxonomyTranslationBatch_();assert.equal(c.taxonomyTranslationJob_().state,'Completada');assert.equal(c.taxonomyTranslationJob_().calls,0);
 });
 test('el índice de nombres guardados se reutiliza entre ejecuciones sin nuevas lecturas de Sheets',()=>{
  const s=server(),c=s.c;c.startTaxonomyTranslations();finish(c);vm.runInContext('taxonomyTranslationMemory_=undefined;',c);c.taxonomyTranslationIndex_();const reads=s.reads;
- vm.runInContext('taxonomyTranslationMemory_=undefined;',c);assert.equal(c.taxonomyTranslationIndex_().size,9);assert.equal(s.reads,reads);
+ vm.runInContext('taxonomyTranslationMemory_=undefined;',c);assert.equal(c.taxonomyTranslationIndex_().size,6);assert.equal(s.reads,reads);
 });

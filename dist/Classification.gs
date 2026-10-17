@@ -8,7 +8,7 @@ function savedNewsLabels_(value){
   try{const labels=JSON.parse(value);return {digital:labels.digital===true,capacidades:Array.isArray(labels.capacidades)?labels.capacidades:[],...(typeof labels.canonicalId==='string'?{canonicalId:labels.canonicalId}:{})};}
   catch(_){return {digital:false,capacidades:[]};}
 }
-function classificationRulesRevision_(config=configuration_()){return sha256_(JSON.stringify([CLASSIFICATION_WORK.rulesVersion,config.capabilities,config.relevanceRules,config.signals,config.entities,config.segments,config.geographies,config.feeds.map(({name,country,url})=>({name,country,url}))]));}
+function classificationRulesRevision_(config=configuration_()){return sha256_(JSON.stringify([CLASSIFICATION_WORK.rulesVersion,config.capabilities,config.taxonomy.flatMap(block=>block.functions),config.relevanceRules,config.signals,config.entities,config.segments,config.geographies,config.feeds.map(({name,country,url})=>({name,country,url}))]));}
 function classificationJob_(){const raw=properties_().getProperty('CLASSIFICATION_JOB');return raw?JSON.parse(raw):null;}
 function classificationPending_(){const job=classificationJob_();return Boolean(job&&job.state!=='Completada');}
 function classificationReadyAt_(){const job=classificationJob_();return job&&job.state!=='Completada'?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}

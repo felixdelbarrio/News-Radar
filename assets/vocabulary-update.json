@@ -1,5 +1,5 @@
 {
-  "version": "3.2.2",
+  "version": "3.4.0",
   "relevanceRules": [
     {
       "name": "Evidencia de canal digital",
@@ -16,7 +16,21 @@
         "transacciones inmediatas",
         "llaves",
         "bre-b",
-        "gastos"
+        "gastos",
+        "nominas",
+        "payroll",
+        "impuestos",
+        "tax",
+        "adquirencia",
+        "acquiring",
+        "depositos",
+        "deposit",
+        "seguros",
+        "insurance",
+        "huella de carbono",
+        "carbon footprint",
+        "stablecoin",
+        "stablecoins"
       ]
     },
     {
@@ -25,7 +39,14 @@
         "transacciones inmediatas",
         "pagos inmediatos",
         "bre-b",
-        "digitaliza gastos"
+        "digitaliza gastos",
+        "request to pay",
+        "cyber insurance",
+        "ciberseguro",
+        "stablecoin",
+        "stablecoins",
+        "retargeting",
+        "deeplink"
       ]
     },
     {
@@ -52,6 +73,60 @@
         "pagos inmediatos",
         "bre-b",
         "instant transfers"
+      ]
+    }
+  ],
+  "searchLanguages": [
+    {
+      "name": "Español",
+      "terms": [
+        "nominas digitales",
+        "pago de impuestos",
+        "adquirencia",
+        "depositos a plazo",
+        "huella de carbono",
+        "salud financiera",
+        "ciberseguro",
+        "stablecoins",
+        "request to pay",
+        "deeplink",
+        "pagos vostro",
+        "cuentas vostro",
+        "Quantum",
+        "depósitos tokenizados",
+        "pagos con stablecoins",
+        "agentes de ia"
+      ]
+    },
+    {
+      "name": "English",
+      "terms": [
+        "payroll",
+        "tax payments",
+        "merchant acquiring",
+        "term deposit",
+        "carbon footprint",
+        "financial health",
+        "cyber insurance",
+        "stablecoin",
+        "request to pay",
+        "deep link",
+        "vostro payments",
+        "vostro accounts",
+        "Quantum",
+        "tokenized deposits",
+        "tokenised deposits",
+        "stablecoin payouts",
+        "stablecoin payments",
+        "ai agents",
+        "agentic ai",
+        "personal agent protocol",
+        "trade finance automation",
+        "automate trade finance",
+        "cleareye",
+        "payment gateway",
+        "custody",
+        "model context protocol"
       ]
     }
   ]

@@ -28,14 +28,14 @@ function createFilters({ onInvalidate, onChange }) {
       $('filter-description').textContent='Edita los criterios y pulsa Aplicar filtros para actualizar los resultados.';
   }
   layout();
-  const chipLabels={benchmark:'Ámbito comparativo',search:'Búsqueda',country:'Geografía',entity:'Entidad',source:'Medio',type:'Tipo de entidad',signal:'Novedad',palanca:'Palanca',subpalanca:'Subpalanca',from:'Fecha desde',to:'Fecha hasta'};
+  const chipLabels={benchmark:'Ámbito comparativo',search:'Búsqueda',country:'Geografía',entity:'Entidad',source:'Medio',type:'Tipo de entidad',signal:'Novedad',palanca:"Bloque funcional",subpalanca:"Funcionalidad / Sub Operativa",from:'Fecha desde',to:'Fecha hasta'};
   function renderChips(){
     const target=$('active-filters');
     const values=Object.entries(chipLabels).filter(([name])=>applied[name]);
     target.hidden=!values.length;
     target.innerHTML=values.map(([name,label])=>{
       const raw=applied[name],value=name==='benchmark'?newsletterComparisonLabels[raw]:name==='coverage'?coverageOptions[raw]:['from','to'].includes(name)?formatCalendarDay(raw,language):name==='subpalanca'?taxonomySubLabel(raw):raw;
-      const original=['search','entity','source'].includes(name),text=t(label)+': '+(original?value:t(value));
+      const original=['search','entity','source'].includes(name),text=['palanca','subpalanca'].includes(name)?t(value):t(label)+': '+(original?value:t(value));
       if(['from','to'].includes(name))return '<button type="button" class="filter-chip" data-original data-edit-filter="'+name+'" aria-label="'+escape(t('Editar')+' '+text)+'"><span>'+escape(text)+'</span></button>';
       return '<button type="button" class="filter-chip" data-original data-remove-filter="'+name+'" aria-label="'+escape(t('Quitar'))+' '+escape(text)+'"><span>'+escape(text)+'</span><span aria-hidden="true">×</span></button>';
     }).join('');

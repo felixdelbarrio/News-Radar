@@ -1,3 +1,5 @@
+> Revisión 3.4.0: [Catálogo global de funcionalidades](docs/functional-catalogue-3.4.0.md), clasificación única y recuperación vinculada al catálogo.
+
 # BBVA Empresas · News Radar
 
 WebApp de Google Apps Script con Google Sheets como almacén, sin dependencias de ejecución ni claves API.
@@ -31,7 +33,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.0.5`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.4.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -71,7 +73,7 @@ Apps Script comparte un espacio global entre sus archivos `.gs`; las funciones i
 
 Los imports ES del cliente se empaquetan con esbuild, usado solo durante el desarrollo. No hay dependencias de ejecución. Exportar no vuelve a cargar el dashboard. Los formularios de fuentes se reconstruyen únicamente cuando cambia su configuración. El empaquetado elimina exports sin uso; el formateador de fechas se reutiliza en vez de crearse para cada fila. CodeQL analiza los módulos originales del cliente y copias `.js` de cada archivo de servidor.
 
-El build conserva los módulos de servidor separados: actualmente genera 59 archivos, incluidos los cuatro HTML y el manifiesto. Las hojas operativas son Noticias, Auditoria, Ejecuciones, Recopilacion, Telemetria, Adopcion, Configuracion, Suscripciones y NewsletterEnvios.
+El build conserva los módulos de servidor separados: actualmente genera 62 archivos, incluidos los cuatro HTML y el manifiesto. Las hojas operativas son Noticias, Auditoria, Ejecuciones, Recopilacion, Telemetria, Adopcion, Configuracion, Suscripciones y NewsletterEnvios.
 
 ## Configuración de negocio en Sheets
 
@@ -494,3 +496,9 @@ El país configurado del RSS se conserva incluso sin una mención local en el ti
 ## Agrupamiento geográfico — 3.0.5
 
 Las noticias sin país se incluyen en Otras geografías, junto con los países fuera del ámbito de seguimiento. Noticias, Novedades y newsletters comparten nombre, agrupamiento y orden. Se conserva el país original para auditoría; la revisión no reinicia la clasificación en curso. Véase [validación y publicación](docs/optimization-3.0.5.md).
+
+## Taxonomía funcional · 3.3.0
+
+El catálogo global de Empresas e instituciones aporta 22 bloques funcionales y 322 funcionalidades / sub operativas. Sus códigos, nombres, equivalencias y conceptos emergentes admitidos se guardan en las reglas de negocio de Sheets. TF-IDF solo publica propuestas .xx dentro de esos bloques, con recurrencia y medios independientes. Administración → Taxonomía permite configurar la URL del catálogo de Drive; inicialmente se utiliza el Excel aportado. Se amplía el vocabulario de recuperación sin multiplicar peticiones ni eliminar noticias.
+
+Véase [análisis, decisiones, rendimiento y publicación](docs/functional-taxonomy-3.3.0.md) y el [inventario de las 322 funcionalidades](docs/functional-taxonomy-3.3.0-catalog.md). Publicación: versión 72 de la implementación existente, con el paquete completo validado de 3.3.0.

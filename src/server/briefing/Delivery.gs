@@ -31,7 +31,7 @@ function newsletterReadyAt_(work){return properties_().getProperty('NEWSLETTER_R
 function queueQuarterlyTaxonomy_(period){
   const p=properties_();if(!period||p.getProperty('TAXONOMY_PERIOD')===period.to)return;
   p.setProperty('TAXONOMY_PERIOD',period.to);
-  if(p.getProperty('TAXONOMY_EVALUATED_CORPUS')===(p.getProperty('NEWS_CONTENT_REVISION')||'0')&&p.getProperty('TAXONOMY_APPLIED_RULES')===classificationRulesRevision_())return;
+  if(!settings_().taxonomyCatalogUrl&&p.getProperty('TAXONOMY_EVALUATED_CORPUS')===(p.getProperty('NEWS_CONTENT_REVISION')||'0')&&p.getProperty('TAXONOMY_APPLIED_RULES')===taxonomyRulesRevision_())return;
   p.setProperty('TAXONOMY_REQUEST',period.to);ensureBackgroundWorker_();
 }
 function deliverNewsletterBatch_(work,maxMs=BACKGROUND_WORK.sliceMs){

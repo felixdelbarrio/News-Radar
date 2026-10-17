@@ -41,7 +41,9 @@ function businessIndex_(){
   const capabilities=Object.entries(config.capabilities).flatMap(([segment,rows])=>rules(rows).map(row=>({...row,segment}))),aliases=[...entities].filter(([,row])=>row.enabled).sort((a,b)=>b[0].length-a[0].length);
   const relevance=Object.fromEntries(RELEVANCE_ROLES.map(role=>[role,phrasePattern_(config.relevanceRules.filter(row=>row.enabled&&row.role===role).flatMap(row=>row.terms.map(searchText_)))]));
   const serviceNames=phrasePattern_(aliases.filter(([alias])=>alias.includes(' ')&&relevance.service.test(alias)).map(([alias])=>alias),'g');
-  return businessIndexMemory_={config,entities,entityTerms,aliases,serviceNames,relevance,capabilities,segments:rules(config.segments),signals:rules(config.signals),geographies:config.geographies.filter(row=>row.enabled).map(row=>({...row,terms:[...new Set([row.name,row.searchName,...(row.terms||[])].map(searchText_))]}))};
+  const catalogue=config.taxonomy.flatMap(block=>block.functions.map(row=>({name:row.id+'.'+row.name,segment:'Empresas',pattern:phrasePattern_([row.name,...row.terms].map(searchText_))})));
+  const cataloguePattern=phrasePattern_(config.taxonomy.flatMap(block=>block.functions.flatMap(row=>[row.name,...row.terms])).map(searchText_));
+  return businessIndexMemory_={cataloguePattern,catalogue,config,entities,entityTerms,aliases,serviceNames,relevance,capabilities,segments:rules(config.segments),signals:rules(config.signals),geographies:config.geographies.filter(row=>row.enabled).map(row=>({...row,terms:[...new Set([row.name,row.searchName,...(row.terms||[])].map(searchText_))]}))};
 }
 function phrasePattern_(terms,flags=''){return new RegExp('(?:^|[^a-z0-9])(?:'+(terms.map(term=>term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\\\*/g,'[a-z0-9]*')).join('|')||'(?!)')+')(?![a-z0-9])',flags);}
 function termsMatch_(text,terms){return terms.some(term=>text.includes(term));}
@@ -57,6 +59,7 @@ function digitalAssessment_(title,text,index=businessIndex_()){
   const headline=title;title=title.replace(index.serviceNames,' ');text=text.replace(index.serviceNames,' ');
   const capabilities=index.capabilities.filter(row=>row.pattern.test(text));
   const business=index.segments.some(row=>row.pattern.test(text)),channel=index.relevance.channel.test(text),shared=index.relevance.shared.test(title);
+  if(!capabilities.length&&business&&channel&&index.cataloguePattern.test(text))capabilities.push(...index.catalogue.filter(row=>row.pattern.test(text)));
   const change=index.signals.some(row=>termsMatch_(title,row.terms)),editorial=index.relevance.editorial.test(title),excluded=index.relevance.corporate.test(title)||index.relevance.incidental.test(title)||!business&&index.relevance.retail.test(title);
   const relevant=Boolean(capabilities.length&&!excluded&&!editorial&&(business&&(channel||shared)&&(index.relevance.service.test(text)||headlineEntity_(headline,index))||shared&&(channel||change||index.relevance.infrastructure.test(title))));
   const score=relevant?4+Math.min(3,capabilities.length)+(business?2:0)+(change?2:0):0;
