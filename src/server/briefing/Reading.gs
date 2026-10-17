@@ -2,8 +2,8 @@ function saveNewsletterEdition_(id,delivery,email,name,query,language,items,edit
   const sheet=book_().getSheetByName('NewsletterContenido'),start=sheet.getLastRow()+1,allNames=taxonomyTranslations_(),names={};
   for(const code of Object.keys(languageNames)){
     names[code]={};for(const item of items)for(const category of item.taxonomia){
-      for(const label of [category.palanca,category.subpalanca])names[code][label]=allNames[code]?.[label]||translateText(label,code);
-      names[code][taxonomyPath(category)]=names[code][category.palanca]+' › '+names[code][category.subpalanca];
+      for(const label of [category.palanca,category.subpalanca].filter(Boolean))names[code][label]=allNames[code]?.[label]||translateText(label,code);
+      if(category.subpalanca)names[code][taxonomyPath(category)]=names[code][category.palanca]+' › '+names[code][category.subpalanca];
     }
   }
   append_('NewsletterContenido',items.map(item=>[id,JSON.stringify(packNews_({...item,entidad:entityKey_(item.entidad)}))]));

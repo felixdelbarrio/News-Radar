@@ -40,7 +40,7 @@ function dashboardContent_(query,feeds,view='radar',language='es',edition=null){
   let positions;
   const data=newsDashboard_(edition&&query.benchmark?newsletterComparisonRows_(edition.items,edition.editorial,query.benchmark):edition?edition.items:cachedNewsRecords_(query),query,edition?[]:feeds,view,edition?(edition.editorial||{}):null,paginated?ordered=>{positions=ordered.map(row=>row._sheetRow);}:null);
   if(!edition)dashboardCatalogOptions_(data,feeds);
-  if(edition){data.palanca=[...new Set(edition.items.flatMap(row=>row.taxonomia.map(item=>item.palanca)))];data.subpalanca=[...new Set(edition.items.flatMap(row=>row.taxonomia.map(taxonomyPath)))];}
+  if(edition){data.palanca=[...new Set(edition.items.flatMap(row=>row.taxonomia.map(item=>item.palanca)))];data.subpalanca=[...new Set(edition.items.flatMap(row=>row.taxonomia.filter(item=>item.subpalanca).map(taxonomyPath)))];}
   if(localized&&!edition){data.items=savedArticleTranslations_(data.items,language);if(data.briefing)data.briefing.items=savedArticleTranslations_(data.briefing.items,language);}
   if(paginated&&positions?.every(Number.isInteger)){const {items,page,...metadata}=data;writeDashboardCache_(cache,sharedKey+':selection',{data:metadata,positions});}
   dashboardArticleFields_(data);writeDashboardCache_(cache,key,data);

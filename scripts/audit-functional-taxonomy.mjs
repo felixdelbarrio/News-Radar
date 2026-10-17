@@ -5,7 +5,7 @@ import {performance} from 'node:perf_hooks';
 import {read,readServerScript} from './source.mjs';
 import {benchmarkSource} from './benchmark-source.mjs';
 import {taxonomyDefinitions,taxonomyObserve,taxonomyBuild,taxonomySeed,taxonomyText} from '../src/shared/taxonomy.js';
-const config=JSON.parse(read('assets/configuration-defaults.json')),base=benchmarkSource(['--baseline=HEAD']),oldConfig=JSON.parse(execFileSync('git',['show',base.revision+':assets/configuration-defaults.json'],{encoding:'utf8'}));
+const config=JSON.parse(read('assets/configuration-defaults.json')),base=benchmarkSource([...process.argv.slice(2),'--baseline=e3ea37dbed046bca76f357b2584c3b9f81b3c2ae']),oldConfig=JSON.parse(execFileSync('git',['show',base.revision+':assets/configuration-defaults.json'],{encoding:'utf8'}));
 const contexts=[base.source,readServerScript()].map((source,i)=>{const context=vm.createContext({});vm.runInContext(source,context);context.configuration_=()=>i?config:oldConfig;return context;});
 const samples=new Map();
 for(const file of ['digital-feeds','iteration3-feeds'])for(const feed of JSON.parse(read('tests/fixtures/'+file+'.json')).feeds)for(const item of feed.items)samples.set(item.url,{...item,publisher:item.source||feed.id});
@@ -18,7 +18,7 @@ for(let version=0;version<2;version++){
   const started=performance.now();selected=rows.filter(row=>context.digitalAssessment_(context.searchText_(context.plainText_(row.title)),context.searchText_(context.plainText_(row.title+' '+row.excerpt))).relevant);
   if(run)times.push(performance.now()-started);
  }
- accepted.push(new Set(selected.map(row=>row.url)));runs.push({version:version?'3.4.0':'HEAD',accepted:selected.length,medianCpuMs:times.sort((a,b)=>a-b)[2]});
+ accepted.push(new Set(selected.map(row=>row.url)));runs.push({version:vm.runInContext('RADAR.version',context),accepted:selected.length,medianCpuMs:times.sort((a,b)=>a-b)[2]});
 }
 const definitions=taxonomyDefinitions(config.taxonomy),state={documents:0,candidates:{}},excluded=new Set(config.entities.flatMap(row=>[row.name,...row.aliases]).flatMap(value=>taxonomyText(value).split(' '))),started=performance.now();taxonomySeed(state,definitions);
 for(const row of rows)if(accepted[1].has(row.url))taxonomyObserve(state,taxonomyText(contexts[1].plainText_(row.title+' '+row.excerpt)),definitions,excluded,row.publisher);

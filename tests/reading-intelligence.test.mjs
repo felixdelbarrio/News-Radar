@@ -12,6 +12,15 @@ function raw(id,entity='BBVA',date='2026-02-12'){return {id,entidad:entity,fecha
 function add(s,rows){const keys=vm.runInContext('RADAR.sheets.Noticias',s.c);s.sheets.get('Noticias').grid.push(...rows.map(row=>keys.map(key=>row[key]||'')));}
 function own(s,id='one',filters={entity:'BBVA'}){s.c.saveSubscription({id:undefined,name:'Mi selección '+id,periodicity:'fortnightly',active:true,filters});const rows=s.c.subscriptionRows_('owner@bbva.com');return rows.at(-1);}
 function edition(s,id='edition-one',items){const rows=items||s.c.annotateNews_([raw('one'),raw('two','Santander')]);s.c.saveNewsletterEdition_(id,'delivery-one','owner@bbva.com','Pagos de febrero',{from:'2026-02-01',to:'2026-02-28'},'en',rows);s.c.completeNewsletterEdition_(id,'Enviada');return rows;}
+test('una edición conserva el bloque sin suboperativa sin ofrecerlo como funcionalidad ni corromper su traducción',()=>{
+ const s=server(),c=s.c,rows=c.annotateNews_([raw('child'),raw('parent','Santander')]),block='01.Home',child='01.01.Dashboard';
+ rows[0].taxonomia=[{id:'child',palanca:block,subpalanca:child}];rows[1].taxonomia=[{id:'parent',palanca:block,subpalanca:''}];
+ c.taxonomyTranslations_=()=>({en:{[block]:'Home',[child]:'Dashboard'}});edition(s,'parent-only',rows);
+ const saved=c.newsletterEdition_('parent-only','owner@bbva.com');assert.equal(saved.names.en[block],'Home');assert.equal(saved.names.en[block+' › '+child],'Home › Dashboard');assert.equal(Object.hasOwn(saved.names.en,''),false);
+ const query={view:'news',edition:'parent-only',initial:true},data=c.getDashboard(query);
+ assert.deepEqual([...data.palanca],[block]);assert.deepEqual([...data.subpalanca],[block+' › '+child]);assert.equal(data.total,2);
+ assert.equal(c.getDashboard({...query,palanca:block}).total,2);const filtered=c.getDashboard({...query,subpalanca:data.subpalanca[0]});assert.equal(filtered.total,1);assert.equal(filtered.items[0].id,'child');
+});
 test('la edición abre solo lo enviado, conserva período y etiquetas tras eliminar noticias y cambiar configuración; protege la identidad',()=>{
  const s=server(),c=s.c,rows=c.annotateNews_([raw('one'),raw('two','Santander')]);rows[0].taxonomia=[{id:'old',palanca:'Pagos y cobros',subpalanca:'Pagos archivados'}];edition(s,'edition-one',rows);
  add(s,[raw('new','BBVA',new Date().toISOString().slice(0,10))]);const data=c.getDashboard({view:'briefing',edition:'edition-one',initial:true,language:'en'});

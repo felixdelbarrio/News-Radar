@@ -27,6 +27,8 @@ Las propuestas `.xx` necesitan una regla semántica admitida en negocio, al meno
 
 ## Validación
 
+La auditoría se ejecuta con `node scripts/audit-functional-taxonomy.mjs`. Su referencia predeterminada es el commit previo al catálogo, `e3ea37dbed046bca76f357b2584c3b9f81b3c2ae`, fijado también en la auditoría 3.3.0. Para reproducir la comparación de esta revisión frente a 3.3.0 se utiliza `node scripts/audit-functional-taxonomy.mjs --baseline=76262b161a91398498802a9c122000f9d35574cc`. Ambas referencias permanecen estables después de nuevos commits; el informe registra el SHA resuelto y las versiones de ambas implementaciones.
+
 La muestra congelada contiene 368 entradas. Conserva las ocho admitidas por la revisión anterior, sin bajas, y admite una adicional; las nueve encuentran una funcionalidad en el modelo resultante. La muestra permite validar conservación y clasificación, no demostrar un aumento del volumen real de las próximas recuperaciones.
 
 La batería completa supera 499 pruebas, incluida la marca de noticias no catalogables. La comprobación de sintaxis, diseño, permisos y distribución reproducible también pasa. En el benchmark alternado de cuatro muestras por versión con 50.000 registros, Radar pasa de una mediana de 343,1 a 346,8 ms; Noticias de 141,55 a 141,7 ms; una repetición mantiene 0,2 ms y cero lecturas. El histórico completo pasa de 3.359,2 a 3.391,45 ms. Las diferencias son próximas al 1 %; se conservan los resultados y las lecturas de Sheets (tres en Radar). Los benchmarks locales utilizan V8 y un adaptador de Sheets en memoria; no equivalen a latencia o memoria de Apps Script.
