@@ -21,9 +21,9 @@ test('dos activadores del mismo día conservan una sola recopilación y las etap
  const {c,properties:p}=fixture();c.requestDailyPipeline_();c.requestDailyPipeline_();c.drainDailyPipeline_();const request=c.collectionRequests_()[0];assert.equal(c.collectionRequests_().length,1);assert.ok(p.CLASSIFICATION_REQUEST);assert.ok(p.DAILY_TRANSLATION_REQUEST);
  c.requestDailyPipeline_();c.drainDailyPipeline_();assert.equal(c.collectionRequests_().length,1);assert.equal(c.collectionRequests_()[0].id,request.id);
 });
-test('la revisión trimestral se deduplica y el corpus sin cambios no repite el análisis',()=>{
- const {c,properties:p}=fixture();c.queueQuarterlyTaxonomy_({to:'2026-06-30'});assert.equal(p.TAXONOMY_REQUEST,'2026-06-30');delete p.TAXONOMY_REQUEST;c.queueQuarterlyTaxonomy_({to:'2026-06-30'});assert.equal(p.TAXONOMY_REQUEST,undefined);
- p.TAXONOMY_EVALUATED_CORPUS=p.NEWS_CONTENT_REVISION||'0';p.TAXONOMY_APPLIED_RULES=c.taxonomyRulesRevision_();c.queueQuarterlyTaxonomy_({to:'2026-09-30'});assert.equal(p.TAXONOMY_REQUEST,'2026-09-30');delete p.TAXONOMY_REQUEST;c.settings_().taxonomyCatalogUrl='';c.queueQuarterlyTaxonomy_({to:'2026-12-31'});assert.equal(p.TAXONOMY_REQUEST,undefined);
+test('la revisión trimestral se pide una vez y debe completarse antes del envío',()=>{
+ const {c,properties:p}=fixture(),period={to:'2026-06-30'};assert.equal(c.queueQuarterlyTaxonomy_(period),false);assert.equal(p.TAXONOMY_REQUEST,'quarterly:2026-06-30');delete p.TAXONOMY_REQUEST;assert.equal(c.queueQuarterlyTaxonomy_(period),false);assert.equal(p.TAXONOMY_REQUEST,'quarterly:2026-06-30');c.drainTaxonomyRequest_();assert.equal(c.queueQuarterlyTaxonomy_(period),false);assert.equal(p.TAXONOMY_REQUEST,undefined);
+ p.TAXONOMY_PERIOD=period.to;delete p.TAXONOMY_QUARTER_REQUEST;assert.equal(c.queueQuarterlyTaxonomy_(period),true);assert.equal(c.queueQuarterlyTaxonomy_({to:'2026-09-30'}),false);assert.equal(p.TAXONOMY_REQUEST,'quarterly:2026-09-30');
 });
 test('actualizar programación elimina activadores independientes y conserva los cursores pendientes',()=>{
  const s=fixture(),c=s.c;const config=c.getConfiguration();config.config.settings.newsletterEnabled=true;c.saveConfiguration(config);c.enableDaily();for(const name of ['dailyClassification_','dailyTaxonomy_','nightlyTranslations_','deliverNewsletters_','newsletterTick_'])c.ScriptApp.newTrigger(name).timeBased().create();c.writeTranslationJob_({state:'En pausa',cursor:{id:'retained'},pausedUntil:Date.now()+86400000});

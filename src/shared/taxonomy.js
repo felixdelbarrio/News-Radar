@@ -1,5 +1,5 @@
 // Sparse statistics and bounded evidence; article bodies are never retained.
-export const TAXONOMY_POLICY=Object.freeze({version:'3.4.1',batchRows:100,maxMs:10000,maxCandidates:600,maxEmergingPerLever:3,minEmergingDocuments:3,minEmergingSources:2,maxTerms:24,checkpointRows:20,checkpointChars:40000,maxOverlapLinks:32,overlapContainment:.8,overlapSizeRatio:.5});
+export const TAXONOMY_POLICY=Object.freeze({version:'3.5.0',batchRows:100,maxMs:10000,maxCandidates:600,maxEmergingPerLever:3,minEmergingDocuments:3,minEmergingSources:2,maxTerms:24,checkpointRows:20,checkpointChars:40000,maxOverlapLinks:32,overlapContainment:.8,overlapSizeRatio:.5});
 const definitionIndexes=new WeakMap(),taxonomyDefinitionMemory=new WeakMap(),rankingIndexes=new WeakMap();
 export function taxonomyText(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ı/g,'i');}
 const words=value=>taxonomyText(value).match(/[a-z][a-z0-9]+/g)||[];
@@ -7,13 +7,14 @@ export function taxonomyDefinitions(blocks){
  if(taxonomyDefinitionMemory.has(blocks))return taxonomyDefinitionMemory.get(blocks);
  const definitions=blocks.flatMap(block=>[
   {key:block.name,palanca:block.name,subpalanca:'',segments:['Empresas'],terms:block.terms.map(taxonomyText),emerging:block.emerging},
-  ...block.functions.map(row=>({key:row.id,palanca:block.name,subpalanca:row.id+'.'+row.name,segments:['Empresas'],terms:[...new Set([taxonomyText(row.name),...row.terms.map(taxonomyText)])]}))
+  ...block.functions.map(row=>({key:row.id,palanca:block.name,subpalanca:row.id+'.'+row.name,segments:['Empresas'],description:row.description||'',terms:[...new Set([taxonomyText(row.name),...row.terms.map(taxonomyText)])]}))
  ]);taxonomyDefinitionMemory.set(blocks,definitions);return definitions;
 }
 export function taxonomySeed(state,definitions){state.catalog=definitions;}
 function taxonomyIndex(definitions){
  let index=definitionIndexes.get(definitions);if(index)return index;
- const known=new Set(definitions.filter(row=>row.subpalanca).flatMap(row=>row.terms.map(taxonomyText)));
+ const functions=definitions.filter(row=>row.subpalanca),known=new Set(functions.flatMap(row=>row.terms.map(taxonomyText)));
+ for(const block of definitions.filter(row=>!row.subpalanca))for(const concept of block.emerging)for(const term of concept.terms.map(taxonomyText))if(functions.some(row=>taxonomyTermCounts(taxonomyText(row.description),[term]).size))known.add(term);
  index={known};definitionIndexes.set(definitions,index);return index;
 }
 export function taxonomyTermCounts(text,terms){
@@ -22,26 +23,32 @@ export function taxonomyTermCounts(text,terms){
  return counts;
 }
 // Compile once per catalogue, then rank bounded phrases by specificity and headline evidence.
-const rankingStopWords=new Set(['landing','de','del','la','el','y','para','con','the','and','of','for','ve']);
+const rankingStopWords=new Set('landing de del la el y para con the and of for ve que en un una los las por se su sus al es esta este como donde todos todas cliente clientes permite permitir funcionalidad funcionalidades operativa canal producto productos información desde hasta sobre entre también actualmente través mediante disponer tener haber ser estar poder así más'.split(' '));
 const rankingWord=word=>word.length>4?word.replace(/s$/,''):word;
 function rankingIndex(definitions){
  let index=rankingIndexes.get(definitions);if(index)return index;
- const frequencies=new Map(),phrases=new Map(),canonical=new Map(),rows=definitions.filter(row=>row.subpalanca);
+ const frequencies=new Map(),phrases=new Map(),canonical=new Map(),contexts=new Map(),rows=definitions.filter(row=>row.subpalanca);const contextWords=value=>words(value).map(rankingWord).filter(word=>!rankingStopWords.has(word)&&word.length>2);
  for(const row of rows){
   const tokens=new Set();for(const term of row.terms){if(!phrases.has(term))phrases.set(term,words(term).map(rankingWord));for(const word of phrases.get(term))tokens.add(word);}
+  for(const word of contextWords(row.description))tokens.add(word);contexts.set(row,new Set(contextWords(row.description)));
   for(const word of tokens)frequencies.set(word,(frequencies.get(word)||0)+1);
   canonical.set(row,new Set(words(row.subpalanca).map(rankingWord).filter(word=>!rankingStopWords.has(word))));
  }
  const weights=new Map([...phrases].map(([term,tokens])=>[term,tokens.reduce((sum,word)=>sum+1+Math.log((1+rows.length)/(1+(frequencies.get(word)||0))),0)/Math.max(1,tokens.length)*(1+Math.log(1+tokens.length))]));
- index={weights,phrases,canonical,blocks:new Map(definitions.filter(row=>!row.subpalanca).map(row=>[row.palanca,row]))};rankingIndexes.set(definitions,index);return index;
+ const idf=new Map([...frequencies].map(([word,count])=>[word,1+Math.log((1+rows.length)/(1+count))]));
+ const norms=new Map([...contexts].map(([row,tokens])=>[row,[...tokens].reduce((sum,word)=>sum+(idf.get(word)||0)**2,0)]));const minimumIdf=Math.min(2.5,1+Math.log((1+rows.length)/2));for(const [row,tokens] of contexts)contexts.set(row,[...tokens].filter(word=>(idf.get(word)||0)>=minimumIdf));
+ index={weights,phrases,canonical,contexts,norms,idf,blocks:new Map(definitions.filter(row=>!row.subpalanca).map(row=>[row.palanca,row]))};rankingIndexes.set(definitions,index);return index;
 }
 export function taxonomyMatches(text,definitions,headline=''){
- const index=rankingIndex(definitions),title=taxonomyText(headline);let best;
+ const index=rankingIndex(definitions),title=taxonomyText(headline),tokens=new Set(words(text).map(rankingWord)),titleWords=new Set(words(title).map(rankingWord));let best;
  for(const row of definitions){
   if(!row.subpalanca)continue;
-  const counts=taxonomyTermCounts(text,row.terms);if(!counts.size)continue;
+  if(/(?:^|\.)landing\b/i.test(row.subpalanca)&&!/(?:landing|dashboard|visi[oó]n integral|vista (?:global|agregada)|posici[oó]n (?:global|integrada)|aggregate|aggregated|overview|bütünleşik|genel bakış)/i.test(text))continue;
+  const counts=taxonomyTermCounts(text,row.terms),context=index.contexts.get(row),shared=context.filter(word=>tokens.has(word));
+  let semantic=0;if(shared.length>=2&&(!title||shared.some(word=>titleWords.has(word)))){const matched=shared.reduce((sum,word)=>sum+index.idf.get(word)**2,0),norm=index.norms.get(row);semantic=Math.sqrt(matched/Math.max(1,norm));}
+  if(!counts.size&&semantic<.3)continue;
   const titleCounts=title?taxonomyTermCounts(title,[...counts.keys()]):new Map();
-  let score=0,count=0;
+  let score=semantic*8,count=counts.size?0:shared.length;
   for(const [term,frequency]of counts){
    const nameEvidence=index.phrases.get(term)?.some(word=>index.canonical.get(row).has(word))?1.5:1,headlineEvidence=titleCounts.has(term)?4*(1+1/(1+title.indexOf(term)/80)):1;
    score+=(index.weights.get(term)||1)*(1+Math.log(frequency))*nameEvidence*headlineEvidence;count+=frequency;
@@ -51,7 +58,7 @@ export function taxonomyMatches(text,definitions,headline=''){
  }
  return best?[best]:[];
 }
-export function taxonomyObserve(state,text,definitions,excludedWords,evidence=''){
+export function taxonomyObserve(state,text,definitions,excludedWords,evidence='',options={}){
  taxonomySeed(state,definitions);
  const matched=taxonomyMatches(text,definitions);if(!matched.length&&!definitions.some(row=>!row.subpalanca&&(taxonomyTermCounts(text,row.terms).size||row.emerging.some(concept=>taxonomyTermCounts(text,concept.terms.map(taxonomyText)).size))))return false;
  state.documents++;state.size=Object.keys(state.candidates).length;
@@ -59,7 +66,7 @@ export function taxonomyObserve(state,text,definitions,excludedWords,evidence=''
  const observe=(entry,count)=>{
   let stats=state.candidates[entry.key];
   if(!stats){if(state.size>=definitions.length+TAXONOMY_POLICY.maxCandidates)return;stats=state.candidates[entry.key]={...entry,df:0,tf:0,sources:[]};state.size++;}
-  stats.df++;stats.tf+=1+Math.log(count);if(entry.origin==='tf-idf'){stats.terms=[...new Set([...stats.terms,...entry.terms])].slice(0,TAXONOMY_POLICY.maxTerms);if(evidence&&!stats.sources.includes(evidence)&&stats.sources.length<8)stats.sources.push(evidence);}observed.push(stats);
+  stats.primaryEvidence=Boolean(stats.primaryEvidence||entry.primaryEvidence);stats.df++;stats.tf+=1+Math.log(count);if(entry.origin==='tf-idf'){stats.terms=[...new Set([...stats.terms,...entry.terms])].slice(0,TAXONOMY_POLICY.maxTerms);if(evidence&&!stats.sources.includes(evidence)&&stats.sources.length<8)stats.sources.push(evidence);}observed.push(stats);
  };
  for(const {row,count}of matched)observe({...row,origin:'regla'},count);
  const {known}=taxonomyIndex(definitions);
@@ -67,7 +74,7 @@ export function taxonomyObserve(state,text,definitions,excludedWords,evidence=''
   const terms=concept.terms.map(taxonomyText),name=taxonomyText(concept.name);
   if(known.has(name)||terms.some(term=>known.has(term))||words(name).some(word=>excludedWords.has(word)))continue;
   const counts=taxonomyTermCounts(text,terms);if(!counts.size)continue;
-  observe({key:block.key+'|'+name,palanca:block.palanca,subpalanca:block.palanca.slice(0,2)+'.xx '+concept.name,terms,segments:['Empresas'],origin:'tf-idf'},[...counts.values()].reduce((a,b)=>a+b,0));
+  observe({key:block.key+'|'+name,palanca:block.palanca,subpalanca:block.palanca.slice(0,2)+'.xx '+concept.name,terms,segments:['Empresas'],origin:'tf-idf',primaryEvidence:Boolean(concept.primary&&options.primary&&taxonomyTermCounts(taxonomyText(options.headline),terms).size)},[...counts.values()].reduce((a,b)=>a+b,0));
  }
  for(const a of observed)for(const b of observed){if(a===b)continue;a.overlap=a.overlap||{};if(Object.hasOwn(a.overlap,b.key)||Object.keys(a.overlap).length<TAXONOMY_POLICY.maxOverlapLinks)a.overlap[b.key]=(a.overlap[b.key]||0)+1;}
  return true;
@@ -81,7 +88,7 @@ export function taxonomyBuild(state){
  for(const row of Object.values(state.candidates))candidates.set(row.key,row);
  const rows=[...candidates.values()].map(row=>({...row,peso:Number((row.tf/Math.max(1,state.documents)*(Math.log((1+state.documents)/(1+row.df))+1)).toFixed(6))}));
  const anchors=rows.filter(row=>row.origin==='regla'),blocks=new Set(anchors.map(row=>row.palanca)),counts=new Map();
- const emerging=rows.filter(row=>row.origin==='tf-idf'&&blocks.has(row.palanca)&&row.df>=TAXONOMY_POLICY.minEmergingDocuments&&(row.sources?.length||0)>=TAXONOMY_POLICY.minEmergingSources).sort((a,b)=>b.df-a.df||b.peso-a.peso||a.key.localeCompare(b.key));
+ const emerging=rows.filter(row=>row.origin==='tf-idf'&&blocks.has(row.palanca)&&(row.primaryEvidence||row.df>=TAXONOMY_POLICY.minEmergingDocuments&&(row.sources?.length||0)>=TAXONOMY_POLICY.minEmergingSources)).sort((a,b)=>b.df-a.df||b.peso-a.peso||a.key.localeCompare(b.key));
  for(const row of emerging){
   if(anchors.some(anchor=>anchor.origin==='tf-idf'&&anchor.palanca===row.palanca&&taxonomyRedundant(row,anchor)))continue;
   const count=counts.get(row.palanca)||0;if(count>=TAXONOMY_POLICY.maxEmergingPerLever)continue;counts.set(row.palanca,count+1);anchors.push(row);

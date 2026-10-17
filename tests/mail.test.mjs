@@ -1,9 +1,10 @@
+import {configurationDefaults} from '../scripts/configuration-defaults.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {read,readServerScript} from '../scripts/source.mjs';
 function mail(){
-  const calls=[],settings=JSON.parse(read('assets/configuration-defaults.json')).settings;
+  const calls=[],settings=configurationDefaults().settings;
   let response={sendAsEmail:settings.newsletterSender,verificationStatus:'accepted'},code=200,admin=true;
   const c=vm.createContext({SpreadsheetApp:{flush(){}},Utilities:{Charset:{UTF_8:'UTF-8'},getUuid:()=> 'test-boundary',base64Encode:value=>Buffer.from(value).toString('base64'),base64EncodeWebSafe:value=>Buffer.from(value).toString('base64url')},ScriptApp:{getOAuthToken:()=> 'private-token'},UrlFetchApp:{fetch(url,options){calls.push({url,options});return {getResponseCode:()=>code,getContentText:()=>JSON.stringify(response)};}}});
   vm.runInContext(readServerScript('dist',true),c);c.PropertiesService={getScriptProperties:()=>({getProperty:()=>null,getProperties:()=>({})})};c.settings_=()=>settings;c.authorize_=()=>{if(!admin)throw Error('administrador');return {email:'owner@bbva.com'};};
@@ -67,7 +68,7 @@ test('la API de prueba personal está retirada',()=>{assert.equal(typeof mail().
 
 test('newsletter usa prefijo bIA, imagen MIME inline y enlaces distintos para gestión y baja',()=>{
   const m=mail(),{c}=m;m.settings.newsletterAppUrl='https://script.google.com/macros/s/deployment/exec';
-  c.taxonomyCatalog_=()=>[];c.savedArticleTranslations_=rows=>rows;c.configuration_=()=>JSON.parse(read('assets/configuration-defaults.json'));
+  c.taxonomyCatalog_=()=>[];c.savedArticleTranslations_=rows=>rows;c.configuration_=()=>configurationDefaults();
   const content=c.newsletter_([{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id:'one',fecha:'2026-10-13',pais:'España',entidad:'BBVA',medio:'Editor',titular:'BBVA lanza pagos digitales para empresas',extracto:'Nuevo servicio de cobros empresariales',url:'https://example.com/one'}],{},'Mi selección',new Date(), 'subscription-123');
   assert.doesNotMatch(content.html,/Ir a Newsradar/);assert.match(content.html,/view=subscriptions&amp;unsubscribe=subscription-123/);assert.match(content.html,/cid:bia-logo/);assert.match(content.text,/view=subscriptions&unsubscribe=subscription-123/);assert.match(content.html,/Banca Inteligente y Autónoma/);
   m.setResponse({id:'test'});c.sendNewsletterMail_({address:m.settings.newsletterSender,name:'News Radar'},'owner@bbva.com',content);

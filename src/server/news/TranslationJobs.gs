@@ -49,5 +49,5 @@ function translationBatch_(maxMs=TRANSLATION_WORK.maxMs){
     if(serviceQuotaPause_(error))properties_().setProperty('TRANSLATION_PAUSED_UNTIL',String(Date.now()+serviceQuotaPause_(error)));
     job.state='En pausa';job.errors++;job.error='Traducción temporalmente no disponible. Se reintentará automáticamente.';job.pausedUntil=Date.now()+(serviceQuotaPause_(error)||TRANSLATION_WORK.retryMs);
     telemetry_('traduccion',Date.now()-started,'Error',String(error.message).slice(0,180));
-  }finally{if(job){job.updated=new Date().toISOString();writeTranslationJob_(job);}}
+  }finally{if(job){job.updated=new Date().toISOString();writeTranslationJob_(job);if(job.state==='Completada')requestDashboardSnapshots_(true);}}
 }

@@ -1,7 +1,8 @@
+import {configurationDefaults} from './configuration-defaults.mjs';
 import vm from 'node:vm';
 import {performance} from 'node:perf_hooks';
 import {read,readServerScript} from './source.mjs';
-const config=JSON.parse(read('assets/configuration-defaults.json'));
+const config=configurationDefaults();
 const additions=JSON.parse(read('tests/fixtures/iteration3-feeds.json'));
 const existing=JSON.parse(read('tests/fixtures/digital-feeds.json'));
 export function compareDigital(){

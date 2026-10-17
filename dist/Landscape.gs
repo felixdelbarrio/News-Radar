@@ -4,7 +4,7 @@ function newsletterComparisonScope_(row,comparison,country){
   if(!row.pais||row.pais==='Sin determinar')return '';
   return row.entidad===comparison.entity?(comparison.countries.includes(row.pais)?'group':''):'market';
 }
-function newsletterComparisonRows_(items,editorial,scope){if(!editorial.comparison||!Object.hasOwn(newsletterComparisonLabels,scope))throw Error('Ámbito comparativo no disponible en esta edición.');return items.filter(row=>newsletterComparisonScope_(row,editorial.comparison,editorial.context.country)===scope);}
+function newsletterComparisonRows_(items,editorial,scope){if(scope==='international'&&editorial.cadence==='fortnightly')return items.filter(row=>!editorial.context.country||row.pais!==editorial.context.country);if(!editorial.comparison||!Object.hasOwn(newsletterComparisonLabels,scope))throw Error('Ámbito comparativo no disponible en esta edición.');return items.filter(row=>newsletterComparisonScope_(row,editorial.comparison,editorial.context.country)===scope);}
 function newsletterComparison_(items,query){
   const comparison={entity:NEWSLETTER_EDITORIAL.groupEntity,countries:[...new Set(configuration_().applicationScope.filter(row=>!query.segment||row.name===query.segment).flatMap(row=>row.countries))]},buckets={local:[],group:[],market:[]},geographies=new Map();let unassigned=0;
   for(const row of items){const scope=newsletterComparisonScope_(row,comparison,query.country);if(!scope){unassigned++;continue;}buckets[scope].push(row);if(scope==='group'){if(!geographies.has(row.pais))geographies.set(row.pais,{name:row.pais,total:0,themes:new Map()});const country=geographies.get(row.pais);country.total++;for(const name of new Set(row.taxonomia.map(tag=>tag.palanca)))country.themes.set(name,(country.themes.get(name)||0)+1);}}

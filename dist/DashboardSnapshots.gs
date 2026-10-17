@@ -1,9 +1,9 @@
-function dashboardSnapshotRevision_(view,now=new Date()){
-  const p=properties_().getProperties(),period=dashboardPeriod_(view,now);
+function dashboardSnapshotRevision_(view,now=new Date(),p=properties_().getProperties()){
+  const period=dashboardPeriod_(view,now);
   return sha256_(JSON.stringify([RADAR.version,NEWS_CACHE.schema,view,p.CONFIG_REVISION||'0',p.NEWS_REVISION||'0',p.TAXONOMY_REVISION||'0',p.TAXONOMY_TRANSLATIONS_REVISION||'0',Object.keys(languageNames).map(code=>p['TRANSLATIONS_REVISION:'+code]||'0'),period]));
 }
 function dashboardSnapshotManifest_(view){const value=properties_().getProperty('DASHBOARD_SNAPSHOT:'+view);return value?JSON.parse(value):null;}
-function dashboardSnapshotsPending_(){return DASHBOARD_SNAPSHOTS.views.some(view=>dashboardSnapshotManifest_(view)?.revision!==dashboardSnapshotRevision_(view));}
+function dashboardSnapshotsPending_(){const p=properties_().getProperties(),now=new Date();return DASHBOARD_SNAPSHOTS.views.some(view=>JSON.parse(p['DASHBOARD_SNAPSHOT:'+view]||'null')?.revision!==dashboardSnapshotRevision_(view,now,p));}
 function requestDashboardSnapshots_(ready=false){if(!dashboardSnapshotsPending_())return;const previous=properties_().getProperty('DASHBOARD_SNAPSHOT_REQUEST');if(previous&&(!ready||previous==='ready'))return;properties_().setProperty('DASHBOARD_SNAPSHOT_REQUEST',ready?'ready':'pending');ensureBackgroundWorker_();}
 function defaultDashboardSnapshot_(view,query,language){
   if(!DASHBOARD_SNAPSHOTS.views.includes(view))return null;
@@ -34,7 +34,7 @@ function dashboardSnapshotLanguages_(data,view){
 }
 // The worker holds the script lock. Publish the manifest last, using the inactive slot.
 function dashboardSnapshotBatch_(){
-  const view=DASHBOARD_SNAPSHOTS.views.find(view=>dashboardSnapshotManifest_(view)?.revision!==dashboardSnapshotRevision_(view));
+  const p=properties_().getProperties(),now=new Date(),view=DASHBOARD_SNAPSHOTS.views.find(view=>JSON.parse(p['DASHBOARD_SNAPSHOT:'+view]||'null')?.revision!==dashboardSnapshotRevision_(view,now,p));
   if(!view){properties_().deleteProperty('DASHBOARD_SNAPSHOT_REQUEST');return false;}
   const started=Date.now(),revision=dashboardSnapshotRevision_(view),feeds=feeds_();let query=dashboardQuery_({view,initial:true}),rows=cachedNewsRecords_(query),data=dashboardSnapshotData_(rows,query,feeds,view),periodFallback=false;
   if((view==='briefing'?data.briefing.total:data.contextTotal)===0){query={...query,...dashboardPeriod_(view,new Date(),true)};rows=cachedNewsRecords_(query);data=dashboardSnapshotData_(rows,query,feeds,view);periodFallback=true;}

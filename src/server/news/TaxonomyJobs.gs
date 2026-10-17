@@ -13,25 +13,27 @@ function taxonomyFingerprint_(title,excerpt){return sha256_(JSON.stringify([titl
 function taxonomyNewsIds_(title,excerpt,items=taxonomyCatalog_()){
   if(!items.length)return [];
   const text=taxonomyText(title+' '+excerpt);
-  if(!taxonomyMatchingMemory_.has(items))taxonomyMatchingMemory_.set(items,items.map(item=>({...item,terms:item.terminos})));
+  if(!taxonomyMatchingMemory_.has(items))taxonomyMatchingMemory_.set(items,items.map(item=>({...item,terms:item.terminos,description:item.descripcion||''})));
   return taxonomyEligible_(searchText_(title),text)?taxonomyMatches(text,taxonomyMatchingMemory_.get(items),title).map(({row})=>row.id).sort():[];
 }
 function taxonomyJob_(){const raw=properties_().getProperty('TAXONOMY_JOB');return raw?JSON.parse(raw):null;}
 function taxonomyPending_(){const job=taxonomyJob_();return Boolean(job&&job.state!=='Completada');}
 function taxonomyReadyAt_(){const job=taxonomyJob_();return job&&job.state!=='Completada'?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
 function writeTaxonomyJob_(job){progressContextMemory_=undefined;properties_().setProperty('TAXONOMY_JOB',JSON.stringify(job));}
-function requestTaxonomy_(){
+function requestTaxonomy_(request=''){
+  request=properties_().getProperty('TAXONOMY_QUARTER_REQUEST')||request;
   const catalog=refreshFunctionalCatalog_();
   const total=Math.max(0,book_().getSheetByName('Noticias').getLastRow()-1),now=new Date().toISOString();
-  writeTaxonomyJob_({catalog,id:Utilities.getUuid(),state:'Pendiente',phase:'scan',next:2,cursor:null,total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});
+  writeTaxonomyJob_({request,catalog,id:Utilities.getUuid(),state:'Pendiente',phase:'scan',next:2,cursor:null,total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});
   ensureBackgroundWorker_();
 }
 function drainTaxonomyRequest_(){
-  const p=properties_(),day=p.getProperty('TAXONOMY_REQUEST');if(!day||taxonomyPending_())return;
-  if(taxonomyJob_()?.day!==day)requestTaxonomy_();p.deleteProperty('TAXONOMY_REQUEST');
+  const p=properties_(),day=p.getProperty('TAXONOMY_QUARTER_REQUEST')||p.getProperty('TAXONOMY_REQUEST');if(!day||taxonomyPending_()&&taxonomyJob_().request===day)return;
+  if(taxonomyPending_()&&!day.startsWith('quarterly:'))return;
+  if(taxonomyJob_()?.request!==day||day.startsWith('quarterly:'))requestTaxonomy_(day);p.deleteProperty('TAXONOMY_REQUEST');
 }
 function getTaxonomyStatus(){
-  authorize_(true);return {newsRevision:properties_().getProperty('NEWS_REVISION')||'0',pageSize:settings_().pageSize,job:withJobProgress_('taxonomy',taxonomyJob_(),Boolean(properties_().getProperty('TAXONOMY_REQUEST'))),catalogUrl:settings_().taxonomyCatalogUrl,configurationRevision:configurationRevision_(),items:taxonomyCatalog_(),taxonomyTranslations:taxonomyTranslations_(),queued:Boolean(properties_().getProperty('TAXONOMY_REQUEST')),scheduled:newsletterEnabled_(),timezone:settings_().timezone};
+  authorize_(true);return {newsRevision:properties_().getProperty('NEWS_REVISION')||'0',pageSize:settings_().pageSize,job:withJobProgress_('taxonomy',taxonomyJob_(),Boolean(properties_().getProperty('TAXONOMY_REQUEST'))),catalogUrl:settings_().taxonomyCatalogUrl,configurationRevision:configurationRevision_(),items:taxonomyCatalog_(),taxonomyTranslations:taxonomyTranslations_(),queued:Boolean(properties_().getProperty('TAXONOMY_REQUEST')),synced:properties_().getProperty('FUNCTIONAL_CATALOG_SYNCED')||'',scheduled:newsletterEnabled_(),timezone:settings_().timezone};
 }
 function startTaxonomy(){
   authorize_(true);return withForegroundWrite_(()=>{
@@ -57,10 +59,10 @@ function taxonomyCheckpointChunks_(entries,maxRows=Infinity){
   for(const entry of entries){const encoded=JSON.stringify(entry);if(values.length&&(size+encoded.length+1>TAXONOMY_POLICY.checkpointChars||values.length>=maxRows)){chunks.push(['['+values.join(',')+']']);values=[];size=2;}if(encoded.length+2>TAXONOMY_POLICY.checkpointChars)throw Error('Registro de catálogo global de funcionalidades demasiado grande.');values.push(encoded);size+=encoded.length+1;}
   if(values.length)chunks.push(['['+values.join(',')+']']);return chunks;
 }
-function taxonomyModelRevision_(items){return sha256_(JSON.stringify(items.map(row=>[row.id,row.palanca,row.subpalanca,row.segmentos,row.terminos])));}
+function taxonomyModelRevision_(items){return sha256_(JSON.stringify(items.map(row=>[row.id,row.palanca,row.subpalanca,row.segmentos,row.terminos,row.descripcion])));}
 function publishTaxonomy_(state){
   taxonomySeed(state,taxonomyDefinitions(configuration_().taxonomy));
-  const items=taxonomyBuild(state).map(row=>({id:sha256_(row.key).slice(0,24),palanca:row.palanca,subpalanca:row.subpalanca,segmentos:row.segments,terminos:row.terms,noticias:row.df,peso:row.peso,origen:row.origin}));
+  const items=taxonomyBuild(state).map(row=>({id:sha256_(row.key).slice(0,24),palanca:row.palanca,subpalanca:row.subpalanca,segmentos:row.segments,terminos:row.terms,noticias:row.df,peso:row.peso,origen:row.origin,descripcion:row.description||''}));
   const revision=sha256_(JSON.stringify(items));
   if(revision===properties_().getProperty('TAXONOMY_REVISION')){taxonomyMemory_={revision,items};return taxonomyModelRevision_(items);}
   const sheet=book_().getSheetByName('Taxonomia'),previous=Math.max(0,sheet.getLastRow()-1),keys=RADAR.sheets.Taxonomia;
@@ -70,6 +72,7 @@ function publishTaxonomy_(state){
   properties_().setProperty('TAXONOMY_REVISION',revision);taxonomyMemory_={revision,items};invalidateNews_(false);
   return taxonomyModelRevision_(items);
 }
+function taxonomyPrimarySource_(row){return configuration_().feeds.some(feed=>feed.enabled&&entityKey_(feed.entity)===entityKey_(row.entidad)&&domainMatches_(row.url,feed.domain));}
 function taxonomyEligible_(title,text){
   const assessment=digitalAssessment_(title,text);return !assessment.excluded&&!assessment.editorial;
 }
@@ -77,7 +80,7 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
   const job=taxonomyJob_();if(!job||job.state==='Completada')return;
   const started=Date.now();let written=false;
   try{
-    if(job.rules!==taxonomyRulesRevision_()){requestTaxonomy_();return;}
+    if(job.rules!==taxonomyRulesRevision_()){requestTaxonomy_(job.request);return;}
     const sheet=book_().getSheetByName('Noticias'),keys=RADAR.sheets.Noticias,column=keys.indexOf('taxonomia');
     if(job.phase==='scan'){
       const state=taxonomyCheckpoint_(job),definitions=taxonomyDefinitions(configuration_().taxonomy),excluded=new Set(configuration_().entities.flatMap(row=>[row.name,...row.aliases]).flatMap(name=>taxonomyText(name).match(/[a-z][a-z0-9]+/g)||[]));
@@ -90,7 +93,7 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
           const title=searchText_(row.titular),text=taxonomyText(row.titular+' '+row.extracto),identity=titleIdentity_({title:row.titular,date:row.fecha,publisher:row.medio}),key=identity?sha256_(identity.key):'',days=state.titles[key]||[];
           const duplicate=identity&&days.some(day=>Math.abs(day-identity.day)<=COLLECTION_POLICY.duplicateDays);
           if(identity&&!duplicate){days.push(identity.day);state.titles[key]=days;}
-          if(!duplicate&&taxonomyEligible_(title,text))taxonomyObserve(state,text,definitions,excluded,publisherKey_(row.medio));
+          if(!duplicate&&taxonomyEligible_(title,text))taxonomyObserve(state,text,definitions,excluded,publisherKey_(row.medio),{headline:row.titular,primary:taxonomyPrimarySource_(row)});
         }
         cursor=newsWorkCursor_(row);state.next++;read++;
       }
@@ -112,7 +115,7 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
       if(job.next>job.total+1){job.state='Completada';properties_().setProperty('TAXONOMY_APPLIED_MODEL',job.model);properties_().setProperty('TAXONOMY_APPLIED_RULES',job.rules);properties_().setProperty('TAXONOMY_EVALUATED_CORPUS',job.corpus);}
     }
     Object.assign(job,{state:job.state==='Completada'?'Completada':'En curso',updated:new Date().toISOString(),error:'',pausedUntil:0});writeTaxonomyJob_(job);
-    if(job.state==='Completada')requestTaxonomyTranslations_();
+    if(job.state==='Completada'){if(job.request?.startsWith('quarterly:')){properties_().setProperty('TAXONOMY_PERIOD',job.request.slice(10));properties_().deleteProperty('TAXONOMY_QUARTER_REQUEST');}requestTaxonomyTranslations_();requestDashboardSnapshots_(true);}
     telemetry_('taxonomia',Date.now()-started,'OK',job.phase+'; '+job.processed+'/'+job.total*2+' revisadas; '+job.tagged+' etiquetas actualizadas');
   }catch(error){Object.assign(job,{state:'En pausa',error:String(error.message).slice(0,180),updated:new Date().toISOString(),pausedUntil:Date.now()+(serviceQuotaPause_(error)||settings_().retryMinutes*60000)});writeTaxonomyJob_(job);telemetry_('taxonomia',Date.now()-started,'Error',job.error);}
   finally{if(written)invalidateNews_(false);}

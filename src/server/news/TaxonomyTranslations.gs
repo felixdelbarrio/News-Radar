@@ -84,5 +84,5 @@ function taxonomyTranslationBatch_(maxMs=TAXONOMY_POLICY.maxMs){
     if(serviceQuotaPause_(error))p.setProperty('TRANSLATION_PAUSED_UNTIL',String(Date.now()+serviceQuotaPause_(error)));
     Object.assign(job,{state:'En pausa',error:'Traducción temporalmente no disponible. Se reintentará automáticamente.',pausedUntil:Date.now()+(serviceQuotaPause_(error)||TRANSLATION_WORK.retryMs)});
     telemetry_('traduccion-taxonomia',Date.now()-started,'Error',String(error.message).slice(0,180));
-  }finally{if(job){job.updated=new Date().toISOString();writeTaxonomyTranslationJob_(job);}if(written){p.setProperty('TAXONOMY_TRANSLATIONS_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));invalidateNews_(false,false);}}
+  }finally{if(job){job.updated=new Date().toISOString();writeTaxonomyTranslationJob_(job);}if(written){p.setProperty('TAXONOMY_TRANSLATIONS_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));invalidateNews_(false,false);}if(job?.state==='Completada')requestDashboardSnapshots_(true);}
 }

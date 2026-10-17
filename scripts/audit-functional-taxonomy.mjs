@@ -1,12 +1,12 @@
+import {configurationDefaults} from './configuration-defaults.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
-import {execFileSync} from 'node:child_process';
 import {performance} from 'node:perf_hooks';
 import {read,readServerScript} from './source.mjs';
 import {benchmarkSource} from './benchmark-source.mjs';
 import {taxonomyDefinitions,taxonomyObserve,taxonomyBuild,taxonomySeed,taxonomyText} from '../src/shared/taxonomy.js';
-const config=JSON.parse(read('assets/configuration-defaults.json')),base=benchmarkSource([...process.argv.slice(2),'--baseline=e3ea37dbed046bca76f357b2584c3b9f81b3c2ae']),oldConfig=JSON.parse(execFileSync('git',['show',base.revision+':assets/configuration-defaults.json'],{encoding:'utf8'}));
-const contexts=[base.source,readServerScript()].map((source,i)=>{const context=vm.createContext({});vm.runInContext(source,context);context.configuration_=()=>i?config:oldConfig;return context;});
+const config=configurationDefaults(),base=benchmarkSource([...process.argv.slice(2),'--baseline=e3ea37dbed046bca76f357b2584c3b9f81b3c2ae']);
+const contexts=[base.source,readServerScript()].map((source,i)=>{const context=vm.createContext({});vm.runInContext(source,context);const defaults=i?config:vm.runInContext('CONFIGURATION_DEFAULTS',context);context.configuration_=()=>defaults;return context;});
 const samples=new Map();
 for(const file of ['digital-feeds','iteration3-feeds'])for(const feed of JSON.parse(read('tests/fixtures/'+file+'.json')).feeds)for(const item of feed.items)samples.set(item.url,{...item,publisher:item.source||feed.id});
 for(const query of JSON.parse(read('tests/fixtures/digital-search.json')).queries)for(const item of query.items)samples.set(item.url,{...item,publisher:item.source||query.entity});
