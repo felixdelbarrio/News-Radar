@@ -15,7 +15,7 @@ export function createLanguageSettings({run,isActive,onRevision}){
     progress('translation',data,'Progreso de traducción','{done}/{total} noticias revisadas; {translated} traducciones guardadas.','Sin traducciones programadas ejecutadas.');
   }});
   const taxonomy=createJobMonitor({id:'taxonomy-translation',get:'getTaxonomyTranslationStatus',start:'startTaxonomyTranslations',run,isActive,onRevision,render(data){
-    progress('taxonomy-translation',data,'Progreso de traducción de taxonomía','{done}/{total} nombres revisados; {translated} traducciones guardadas.','Sin traducciones de taxonomía ejecutadas.');
+    progress('taxonomy-translation',data,'Progreso de traducción de catálogo global de funcionalidades','{done}/{total} nombres revisados; {translated} traducciones guardadas.','Sin traducciones de catálogo global de funcionalidades ejecutadas.');
   }});
   $('translation-toggle').addEventListener('click',()=>run(async()=>{await call(scheduled?'disableTranslationSchedule':'installTranslationSchedule');await articles.open();},false));
   return {open:()=>Promise.all([articles.open(),taxonomy.open()]),close(){articles.close();taxonomy.close();}};

@@ -23,7 +23,7 @@ test('dos activadores del mismo día conservan una sola recopilación y las etap
 });
 test('la revisión trimestral se deduplica y el corpus sin cambios no repite el análisis',()=>{
  const {c,properties:p}=fixture();c.queueQuarterlyTaxonomy_({to:'2026-06-30'});assert.equal(p.TAXONOMY_REQUEST,'2026-06-30');delete p.TAXONOMY_REQUEST;c.queueQuarterlyTaxonomy_({to:'2026-06-30'});assert.equal(p.TAXONOMY_REQUEST,undefined);
- p.TAXONOMY_EVALUATED_CORPUS=p.NEWS_CONTENT_REVISION||'0';p.TAXONOMY_APPLIED_RULES=c.taxonomyRulesRevision_();c.queueQuarterlyTaxonomy_({to:'2026-09-30'});assert.equal(p.TAXONOMY_REQUEST,undefined);
+ p.TAXONOMY_EVALUATED_CORPUS=p.NEWS_CONTENT_REVISION||'0';p.TAXONOMY_APPLIED_RULES=c.taxonomyRulesRevision_();c.queueQuarterlyTaxonomy_({to:'2026-09-30'});assert.equal(p.TAXONOMY_REQUEST,'2026-09-30');delete p.TAXONOMY_REQUEST;c.settings_().taxonomyCatalogUrl='';c.queueQuarterlyTaxonomy_({to:'2026-12-31'});assert.equal(p.TAXONOMY_REQUEST,undefined);
 });
 test('actualizar programación elimina activadores independientes y conserva los cursores pendientes',()=>{
  const s=fixture(),c=s.c;const config=c.getConfiguration();config.config.settings.newsletterEnabled=true;c.saveConfiguration(config);c.enableDaily();for(const name of ['dailyClassification_','dailyTaxonomy_','nightlyTranslations_','deliverNewsletters_','newsletterTick_'])c.ScriptApp.newTrigger(name).timeBased().create();c.writeTranslationJob_({state:'En pausa',cursor:{id:'retained'},pausedUntil:Date.now()+86400000});

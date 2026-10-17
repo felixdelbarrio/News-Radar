@@ -3,8 +3,7 @@ import {benchmarkSource} from './benchmark-source.mjs';
 import {performance} from 'node:perf_hooks';
 import {storage} from '../tests/helpers/server.mjs';
 // Local V8 + in-memory Sheets adapter. These are NOT Apps Script measurements.
-const {baseline,revision:baselineRevision,source}=benchmarkSource(process.argv.slice(2)),samples=3;
-for(const count of [10000,25000,50000])for(let sample=1;sample<=samples;sample++){
+export function benchmarkNews(count,sample,source){
  const s=storage(source),c=s.c;c.initializeConfiguration();
  for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);
  const headers=vm.runInContext('RADAR.sheets.Noticias',c),grid=s.sheets.get('Noticias').grid;
@@ -18,5 +17,9 @@ for(const count of [10000,25000,50000])for(let sample=1;sample<=samples;sample++
   const reads=s.reads,start=performance.now(),result=c.dashboardContent_(query,[],view,'es');
   runs.push({scenario,ms:Math.round((performance.now()-start)*10)/10,sheetReads:s.reads-reads,total:result.data.total,cacheHit:result.cacheHit});
  }
- console.log(JSON.stringify({baseline,baselineRevision,count,sample,runs}));
+ return runs;
+}
+if(process.argv[1]?.endsWith('/benchmark-news.mjs')){
+ const {baseline,revision:baselineRevision,source}=benchmarkSource(process.argv.slice(2));
+ for(const count of [10000,25000,50000])for(let sample=1;sample<=3;sample++)console.log(JSON.stringify({baseline,baselineRevision,count,sample,runs:benchmarkNews(count,sample,source)}));
 }

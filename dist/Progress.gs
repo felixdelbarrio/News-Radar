@@ -1,5 +1,5 @@
 let progressContextMemory_;
-const PROGRESS_JOB_NAMES=Object.freeze({daily:'Recopilación diaria',classification:'Clasificación de noticias',translation:'Traducción de noticias',newsletter:'Envíos de newsletters planificadas',taxonomy:'Taxonomía',taxonomyTranslation:'Traducción de taxonomía',annual:'Recuperación anual',maintenance:'Mantenimiento incremental'});
+const PROGRESS_JOB_NAMES=Object.freeze({daily:'Recopilación diaria',classification:'Clasificación de noticias',translation:'Traducción de noticias',newsletter:'Envíos de newsletters planificadas',taxonomy:'Catálogo global de funcionalidades',taxonomyTranslation:'Traducción de catálogo global de funcionalidades',annual:'Recuperación anual',maintenance:'Mantenimiento incremental'});
 function progressContext_(jobs){
   if(progressContextMemory_)return progressContextMemory_;
   const p=properties_().getProperties(),now=Date.now(),collection=jobs||collectionJobs_(),classification=p.CLASSIFICATION_JOB?JSON.parse(p.CLASSIFICATION_JOB):null,translation=p.TRANSLATION_JOB?JSON.parse(p.TRANSLATION_JOB):null,taxonomy=p.TAXONOMY_JOB?JSON.parse(p.TAXONOMY_JOB):null,taxonomyTranslation=p.TAXONOMY_TRANSLATION_JOB?JSON.parse(p.TAXONOMY_TRANSLATION_JOB):null,unfinished=job=>Boolean(job&&job.state!=='Completada');

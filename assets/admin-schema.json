@@ -318,7 +318,7 @@
     ]
   },
   "taxonomy": {
-    "label": "Taxonomía funcional",
-    "help": "Catálogo global de Soluciones Funcionales y Capacidades canal. Los bloques son cerrados para TF-IDF. Edita equivalencias de lenguaje; la fuente de Drive se configura en Taxonomía. Las propuestas .xx requieren evidencia recurrente de varias fuentes."
+    "label": "Catálogo global de funcionalidades",
+    "help": "Catálogo global de Soluciones Funcionales y Capacidades canal. Los bloques son cerrados para TF-IDF. Edita equivalencias de lenguaje; la fuente de Drive se configura en Catálogo global de funcionalidades. Las propuestas .xx requieren evidencia recurrente de varias fuentes."
   }
 }

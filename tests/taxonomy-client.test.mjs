@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import {app,tick} from './helpers/app.mjs';
 const items=[{id:'pay',palanca:'Pagos y cobros',subpalanca:'Pagos biométricos',segmentos:['Empresas','Retail'],terminos:['pagos biometricos'],noticias:10,peso:1.2,origen:'tf-idf'}, {id:'api',palanca:'Integración y automatización',subpalanca:'APIs',segmentos:['Empresas'],terminos:['api'],noticias:4,peso:1,origen:'regla'}];
 test('la fuente de Drive se guarda desde Taxonomía con revisión y conserva el catálogo del Excel',async t=>{
- const a=await app(t,{configure({replies}){replies.getTaxonomyStatus={items,configurationRevision:'revision-1',catalogUrl:'https://docs.google.com/spreadsheets/d/catalog/edit',catalogRefresh:false};replies.saveTaxonomySource='Configuración guardada.';}});
- await a.click('[data-view="administration"]');await a.click('[data-admin-view="taxonomy"]');assert.match(a.find('#taxonomy-catalog-status').textContent,/Excel/);a.find('#taxonomy-catalog-url').value='https://docs.google.com/spreadsheets/d/new/edit';a.find('#taxonomy-catalog-refresh').checked=true;await a.submit('#taxonomy-source-form');
- const request=a.calls.find(row=>row.method==='saveTaxonomySource').query;assert.equal(request.revision,'revision-1');assert.equal(request.refresh,true);assert.equal(request.url,'https://docs.google.com/spreadsheets/d/new/edit');assert.equal(a.find('#taxonomy-body').querySelectorAll('tr').length,2);
+ const a=await app(t,{configure({replies}){replies.getTaxonomyStatus={items,configurationRevision:'revision-1',catalogUrl:'https://docs.google.com/spreadsheets/d/catalog/edit',};replies.saveTaxonomySource='Configuración guardada.';}});
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="taxonomy"]');assert.match(a.find('#taxonomy-catalog-status').textContent,/Drive/);a.find('#taxonomy-catalog-url').value='https://docs.google.com/spreadsheets/d/new/edit';await a.submit('#taxonomy-source-form');
+ const request=a.calls.find(row=>row.method==='saveTaxonomySource').query;assert.equal(request.revision,'revision-1');assert.equal(Object.hasOwn(request,'refresh'),false);assert.equal(a.w.document.querySelector('#taxonomy-catalog-refresh'),null);assert.equal(request.url,'https://docs.google.com/spreadsheets/d/new/edit');assert.equal(a.find('#taxonomy-body').querySelectorAll('tr').length,2);
 });
 test('Taxonomía muestra jerarquía, paginación, progreso único y lanzamiento administrativo; abandona el sondeo al salir',async t=>{
   const timers=new Map();let id=0;
@@ -35,7 +35,7 @@ test('nombres multilingües visibles conservan valores canónicos de filtros y s
   data.taxonomyTranslations=taxonomyTranslations;data.palanca=['Pagos y cobros'];data.subpalanca=[path];data.items=[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:'News',fecha:'2026-10-11',url:'https://example.com',taxonomia:[items[0]]}];
   replies.getNewsletterOptions.taxonomyTranslations=taxonomyTranslations;Object.assign(replies.getNewsletterOptions.catalogs,{palanca:data.palanca,subpalanca:data.subpalanca});replies.getTaxonomyStatus.items=items;replies.getTaxonomyStatus.taxonomyTranslations=taxonomyTranslations;
  }});
- await a.click('[data-view="news"]');assert.match(a.find('#news-list').textContent,/Functionality \/ Sub-operation: Biometric payments/);
+ await a.click('[data-view="news"]');assert.match(a.find('#news-list').textContent,/Biometric payments/);
  const option=a.find('#filters [name="subpalanca"] option:nth-child(2)');assert.equal(option.value,path);assert.equal(option.textContent,taxonomyTranslations.en['Pagos biométricos']);
  await a.change('#filters [name="subpalanca"]',path);assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.subpalanca,path);assert.match(a.find('#active-filters').textContent,/Biometric payments/);
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="taxonomy"]');assert.match(a.find('#taxonomy-body').textContent,/Biometric payments/);await a.change('#preview-language','tr');assert.match(a.find('#taxonomy-body').textContent,/Biyometrik ödemeler/);

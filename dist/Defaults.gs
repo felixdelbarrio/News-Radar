@@ -1,5 +1,5 @@
 const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
-  "version": "3.3.0",
+  "version": "3.4.0",
   "relevanceRules": [
     {
       "name": "Evidencia de canal digital",
@@ -89,7 +89,13 @@ const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
         "ciberseguro",
         "stablecoins",
         "request to pay",
-        "deeplink"
+        "deeplink",
+        "pagos vostro",
+        "cuentas vostro",
+        "Quantum",
+        "depósitos tokenizados",
+        "pagos con stablecoins",
+        "agentes de ia"
       ]
     },
     {
@@ -104,7 +110,23 @@ const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
         "cyber insurance",
         "stablecoin",
         "request to pay",
-        "deep link"
+        "deep link",
+        "vostro payments",
+        "vostro accounts",
+        "Quantum",
+        "tokenized deposits",
+        "tokenised deposits",
+        "stablecoin payouts",
+        "stablecoin payments",
+        "ai agents",
+        "agentic ai",
+        "personal agent protocol",
+        "trade finance automation",
+        "automate trade finance",
+        "cleareye",
+        "payment gateway",
+        "custody",
+        "model context protocol"
       ]
     }
   ]
@@ -164,8 +186,7 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
     "newsletterSenderName": "News Radar · BBVA Empresas",
     "newsletterDailyLimit": 100,
     "newsletterAppUrl": "",
-    "taxonomyCatalogUrl": "https://docs.google.com/spreadsheets/d/1hsFp-ZiiSsSt_ka73oKAWFlHEySdmJM_IrkBmK6YfH8/edit?gid=1593939800#gid=1593939800",
-    "taxonomyCatalogRefresh": false
+    "taxonomyCatalogUrl": "https://docs.google.com/spreadsheets/d/1hsFp-ZiiSsSt_ka73oKAWFlHEySdmJM_IrkBmK6YfH8/edit?gid=1593939800#gid=1593939800"
   },
   "entities": [
     {
@@ -2502,7 +2523,13 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "ciberseguro",
         "stablecoins",
         "request to pay",
-        "deeplink"
+        "deeplink",
+        "pagos vostro",
+        "cuentas vostro",
+        "Quantum",
+        "depósitos tokenizados",
+        "pagos con stablecoins",
+        "agentes de ia"
       ],
       "enabled": true
     },
@@ -2616,7 +2643,22 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         "cyber insurance",
         "stablecoin",
         "request to pay",
-        "deep link"
+        "deep link",
+        "vostro payments",
+        "vostro accounts",
+        "Quantum",
+        "tokenized deposits",
+        "tokenised deposits",
+        "stablecoin payouts",
+        "stablecoin payments",
+        "ai agents",
+        "personal agent protocol",
+        "trade finance automation",
+        "automate trade finance",
+        "cleareye",
+        "payment gateway",
+        "custody",
+        "model context protocol"
       ],
       "enabled": true
     },
@@ -3114,7 +3156,13 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
           "name": "Dashboard/Posición productos transformados",
           "terms": [
             "posicion global",
-            "financial dashboard"
+            "financial dashboard",
+            "dashboard",
+            "home banking",
+            "digital banking solution",
+            "corporate banking platform",
+            "app itau empresas",
+            "banca digital empresarial"
           ]
         }
       ],
@@ -3140,7 +3188,20 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         {
           "id": "02.01",
           "name": "Landing de cuentas",
-          "terms": []
+          "terms": [
+            "cuentas",
+            "accounts",
+            "cash management",
+            "tesoreria",
+            "liquidez",
+            "conciliacion",
+            "cash pooling",
+            "reconciliation",
+            "cuenta",
+            "account",
+            "liquidity",
+            "treasury"
+          ]
         },
         {
           "id": "02.02",
@@ -3266,7 +3327,19 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
           "terms": []
         }
       ],
-      "emerging": []
+      "emerging": [
+        {
+          "name": "Depósitos tokenizados",
+          "terms": [
+            "depositos tokenizados",
+            "deposito tokenizado",
+            "tokenized deposits",
+            "tokenised deposits",
+            "tokenized deposit",
+            "tokenised deposit"
+          ]
+        }
+      ]
     },
     {
       "name": "03.Pagos - Transf. y traspasos",
@@ -3284,7 +3357,24 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         {
           "id": "03.01",
           "name": "Landing de pagos",
-          "terms": []
+          "terms": [
+            "pagos",
+            "payments",
+            "transferencias",
+            "transfers",
+            "remesas",
+            "remittances",
+            "pago",
+            "payment",
+            "pagamenti",
+            "pagamento",
+            "paiements",
+            "pagamentos",
+            "odeme",
+            "bizum",
+            "bre-b",
+            "remittance"
+          ]
         },
         {
           "id": "03.02",
@@ -3328,7 +3418,12 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         {
           "id": "03.09",
           "name": "Pagos individuales cuentas VOSTRO",
-          "terms": []
+          "terms": [
+            "pagos vostro",
+            "vostro payments",
+            "cuentas vostro",
+            "vostro accounts"
+          ]
         },
         {
           "id": "03.10",
@@ -3453,7 +3548,10 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
             "payments with stablecoins",
             "stablecoins payments",
             "transferencias con stablecoins",
-            "stablecoin transfers"
+            "stablecoin transfers",
+            "stablecoin payouts",
+            "stablecoin",
+            "stablecoins"
           ]
         }
       ]
@@ -3671,7 +3769,19 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
           "terms": []
         }
       ],
-      "emerging": []
+      "emerging": [
+        {
+          "name": "Pagos de impuestos F24 / I24",
+          "terms": [
+            "pagamenti f24",
+            "pagamenti f24 e i24",
+            "impuestos f24",
+            "f24 tax",
+            "f24 e i24",
+            "f24 e tasso"
+          ]
+        }
+      ]
     },
     {
       "name": "06.Pagos - Servicios y otros",
@@ -3686,7 +3796,12 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         {
           "id": "06.01",
           "name": "Pagos individuales CIE o servicios/recibos no domicilados",
-          "terms": []
+          "terms": [
+            "pago de servicios",
+            "pago factura",
+            "bill payment",
+            "utility payments"
+          ]
         },
         {
           "id": "06.02",
@@ -3786,7 +3901,14 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         {
           "id": "07.01",
           "name": "Landing de cobros",
-          "terms": []
+          "terms": [
+            "cobros",
+            "collections",
+            "recaudacion",
+            "direct debit",
+            "cobro",
+            "collection"
+          ]
         },
         {
           "id": "07.02",
@@ -3908,7 +4030,28 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         {
           "id": "08.01",
           "name": "Landing de Financiación",
-          "terms": []
+          "terms": [
+            "financiacion",
+            "financing",
+            "lending",
+            "credito",
+            "credit",
+            "prestamo",
+            "loan",
+            "factoring",
+            "confirming",
+            "leasing",
+            "financiamiento",
+            "financiamientos",
+            "creditos",
+            "prestamos",
+            "loans",
+            "credits",
+            "credito empresarial",
+            "business lending",
+            "financiaciones",
+            "financiamento"
+          ]
         },
         {
           "id": "08.02",
@@ -4182,7 +4325,16 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         {
           "id": "09.01",
           "name": "Landing de tarjetas/ Listado de tarjetas",
-          "terms": []
+          "terms": [
+            "tarjetas",
+            "cards",
+            "card",
+            "wallet",
+            "wallets",
+            "gestion de gastos",
+            "expense management",
+            "tarjeta"
+          ]
         },
         {
           "id": "09.02",
@@ -4363,7 +4515,9 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
           "id": "10.07",
           "name": "Digital Trade Loan",
           "terms": [
-            "digital trade loan"
+            "digital trade loan",
+            "digital trade finance",
+            "trade finance platform"
           ]
         },
         {
@@ -4404,7 +4558,19 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
           "terms": []
         }
       ],
-      "emerging": []
+      "emerging": [
+        {
+          "name": "Automatización documental de trade finance",
+          "terms": [
+            "automate trade finance",
+            "trade finance automation",
+            "trade finance overhaul",
+            "ai across trade finance",
+            "ai deal for trade finance",
+            "cleareye"
+          ]
+        }
+      ]
     },
     {
       "name": "11.Adquirencia / TPVs",
@@ -4420,14 +4586,27 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         {
           "id": "11.01",
           "name": "Landing TPVs (reportería TPVs)",
-          "terms": []
+          "terms": [
+            "adquirencia",
+            "acquiring",
+            "tpv",
+            "pos",
+            "checkout",
+            "merchant services",
+            "getnet",
+            "merchant acquiring"
+          ]
         },
         {
           "id": "11.02",
           "name": "Contratación TPV",
           "terms": [
             "contratacion tpv",
-            "digital merchant onboarding"
+            "digital merchant onboarding",
+            "payment gateway",
+            "pasarela de pago",
+            "pasarelas de pago",
+            "stripe checkout"
           ]
         },
         {
@@ -4515,7 +4694,15 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         {
           "id": "12.07",
           "name": "Mercados Globales",
-          "terms": []
+          "terms": [
+            "mercados globales",
+            "global markets",
+            "mesa de tesoreria",
+            "trading desk",
+            "trading algoritmico",
+            "trader algoritmico",
+            "algorithmic trading"
+          ]
         },
         {
           "id": "12.08",
@@ -4532,7 +4719,9 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
           "name": "Custodio de valores",
           "terms": [
             "custodia de valores",
-            "securities custody"
+            "securities custody",
+            "custody",
+            "custodia"
           ]
         },
         {
@@ -4630,7 +4819,12 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
         {
           "id": "14.01",
           "name": "Landing de Seguros",
-          "terms": []
+          "terms": [
+            "seguros",
+            "insurance",
+            "ciberseguro",
+            "seguro"
+          ]
         },
         {
           "id": "14.02",
@@ -4899,7 +5093,8 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
             "digital onboarding",
             "onboarding empresas",
             "kyb",
-            "kyc"
+            "kyc",
+            "onboarding"
           ]
         },
         {
@@ -5070,7 +5265,13 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
             "api",
             "apis",
             "integracion erp",
-            "erp integration"
+            "erp integration",
+            "mcp",
+            "model context protocol",
+            "embedded finance",
+            "contpaqi",
+            "integracion contable",
+            "accounting integration"
           ]
         },
         {
@@ -5079,10 +5280,28 @@ const CONFIGURATION_DEFAULTS = Object.freeze({
           "terms": []
         }
       ],
-      "emerging": []
+      "emerging": [
+        {
+          "name": "Agentes de IA",
+          "terms": [
+            "agentes de ia",
+            "agente de inteligencia artificial",
+            "agentes de inteligencia artificial",
+            "ai agents",
+            "ai agent",
+            "ai-agent",
+            "ai-agent rail",
+            "agentic ai",
+            "personal agent protocol",
+            "agentes de inteligencia",
+            "agenti e strumenti di ia",
+            "agents d'ia"
+          ]
+        }
+      ]
     },
     {
-      "name": "18.Herramientas Empleados",
+      "name": "18.Herramientas empleados",
       "terms": [
         "helpdesk",
         "monitor funcional"

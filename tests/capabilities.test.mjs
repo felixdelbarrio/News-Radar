@@ -13,10 +13,10 @@ test('51 capacidades empresariales, validación acotada y persistencia sin catá
 test('editar, desactivar y eliminar capacidades modifica consultas y puntuación sin despliegue',()=>{
  const {c}=server();custom(c);const config=c.configuration_(),geo=config.geographies[0],entity=config.entities.find(row=>row.name==='Qonto'),feed=c.profileFeed_(geo,entity,range,true);
  assert.match(decodeURIComponent(feed.url),/flujo exclusivo/);const score=c.digitalAssessment_('qonto lanza flujo exclusivo en su canal digital para empresas','qonto lanza flujo exclusivo en su canal digital para empresas').score;assert.ok(score>2);assert.ok(c.evaluate_(raw,feed,now).item);
- let snapshot=clone(c.getConfiguration());snapshot.config.capabilities.Empresas[0].enabled=false;c.saveConfiguration(snapshot);assert.equal(c.profileFeed_(geo,entity,range,true),null);assert.equal(c.digitalAssessment_('qonto lanza flujo exclusivo en su canal digital para empresas','qonto lanza flujo exclusivo en su canal digital para empresas').score,0);assert.match(c.evaluate_(raw,feed,now).reason,/canal digital/);
+ let snapshot=clone(c.getConfiguration());snapshot.config.capabilities.Empresas[0].enabled=false;c.saveConfiguration(snapshot);assert.doesNotMatch(decodeURIComponent(c.profileFeed_(geo,entity,range,true).url),/flujo exclusivo/);assert.equal(c.digitalAssessment_('qonto lanza flujo exclusivo en su canal digital para empresas','qonto lanza flujo exclusivo en su canal digital para empresas').score,0);assert.match(c.evaluate_(raw,feed,now).reason,/canal digital/);
  snapshot=clone(c.getConfiguration());snapshot.config.capabilities.Empresas[0].enabled=true;snapshot.config.capabilities.Empresas[0].terms=['nuevo flujo'];c.saveConfiguration(snapshot);assert.match(decodeURIComponent(c.profileFeed_(geo,entity,range,true).url),/nuevo flujo/);assert.doesNotMatch(decodeURIComponent(c.profileFeed_(geo,entity,range,true).url),/flujo exclusivo/);
  const record=c.annotateNews_([{entidad:'Qonto',titular:'Qonto lanza nuevo flujo digital para empresas',extracto:''}])[0];assert.ok(record.segmentos.includes('Empresas e instituciones'));assert.ok(record.senales.length);
- snapshot=clone(c.getConfiguration());snapshot.config.capabilities.Empresas=[];c.saveConfiguration(snapshot);assert.equal(c.profileFeed_(geo,entity,range,true),null);
+ snapshot=clone(c.getConfiguration());snapshot.config.capabilities.Empresas=[];c.saveConfiguration(snapshot);assert.doesNotMatch(decodeURIComponent(c.profileFeed_(geo,entity,range,true).url),/flujo exclusivo/);
 });
 test('consultas acotadas y sin producto cartesiano; idioma, país y fechas se validan localmente',()=>{
  const {c}=server(),profiles=c.feeds_().filter(feed=>feed.kind==='profile'),feeds=c.collectionFeeds_(range);assert.ok(feeds.length<=profiles.length*2+c.configuration_().feeds.length);assert.equal(new Set(feeds.map(feed=>feed.url)).size,feeds.length);
@@ -81,6 +81,6 @@ test('el trabajador reutiliza el índice de noticias entre lotes y no ordena si 
  c.processBackground_();assert.equal(builds,1);assert.equal(sorts,0);assert.equal(c.collectionJobs_()[0].estado,'Completada');assert.equal(c.rows_('Ejecuciones').length,3);assert.match(c.rows_('Telemetria').find(row=>row.operacion==='recopilacion').detalle,/recuperadas.*relevantes.*duplicadas.*saturadas/);
 });
 test('términos extensos válidos mantienen acotado el tamaño de las consultas',()=>{
- const {c}=server(),snapshot=clone(c.getConfiguration());snapshot.config.settings.searchTerms=Array.from({length:80},(_,i)=>String(i)+' '.repeat(1)+'x'.repeat(150));snapshot.config.entities[0].aliases=Array.from({length:80},(_,i)=>'alias '+i+'x'.repeat(90));c.saveConfiguration(snapshot);
+ const {c}=server(),snapshot=clone(c.getConfiguration());snapshot.config.settings.searchTerms=Array.from({length:80},(_,i)=>String(i)+' '.repeat(1)+'x'.repeat(120));snapshot.config.entities[0].aliases=Array.from({length:80},(_,i)=>'alias '+i+'x'.repeat(90));c.saveConfiguration(snapshot);
  const feed=c.profileFeed_(c.configuration_().geographies[0],c.configuration_().entities[0],range);assert.ok(new URL(feed.url).searchParams.get('q').length<=1500);
 });

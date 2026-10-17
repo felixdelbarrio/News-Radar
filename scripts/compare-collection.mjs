@@ -5,7 +5,7 @@ const search=JSON.parse(read('tests/fixtures/digital-search.json')),sources=JSON
 function context(before=false){
  const c=vm.createContext({});let source=readServerScript();
  if(before)source=source.replace(read('src/server/news/Rules.gs'),read('tests/fixtures/iteration1-rules.txt')).replace(read('src/server/sources/Sources.gs'),read('tests/fixtures/iteration1-sources.txt'));
- vm.runInContext(source,c);c.configuration_=()=>before?{...config,...historical,settings:{...config.settings,...historical.settings}}:config;return c;
+ vm.runInContext(source,c);c.properties_=()=>({getProperty:()=>null});c.taxonomyCatalog_=()=>[];c.configuration_=()=>before?{...config,...historical,settings:{...config.settings,...historical.settings}}:config;return c;
 }
 export function compareCollection(){
  const old=context(true),current=context(),now=new Date(search.now),metrics={before:{queries:0,retrieved:0,outside:0,useful:0},after:{queries:0,retrieved:0,outside:0,useful:0}},articles={before:new Map(),after:new Map()};

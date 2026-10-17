@@ -1,6 +1,6 @@
 // Sparse statistics and bounded evidence; article bodies are never retained.
-export const TAXONOMY_POLICY=Object.freeze({version:'3.3.0',batchRows:100,maxMs:10000,maxCandidates:600,maxEmergingPerLever:3,minEmergingDocuments:3,minEmergingSources:2,maxTerms:24,checkpointRows:20,checkpointChars:40000,maxOverlapLinks:32,overlapContainment:.8,overlapSizeRatio:.5});
-const definitionIndexes=new WeakMap(),taxonomyDefinitionMemory=new WeakMap();
+export const TAXONOMY_POLICY=Object.freeze({version:'3.4.1',batchRows:100,maxMs:10000,maxCandidates:600,maxEmergingPerLever:3,minEmergingDocuments:3,minEmergingSources:2,maxTerms:24,checkpointRows:20,checkpointChars:40000,maxOverlapLinks:32,overlapContainment:.8,overlapSizeRatio:.5});
+const definitionIndexes=new WeakMap(),taxonomyDefinitionMemory=new WeakMap(),rankingIndexes=new WeakMap();
 export function taxonomyText(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ı/g,'i');}
 const words=value=>taxonomyText(value).match(/[a-z][a-z0-9]+/g)||[];
 export function taxonomyDefinitions(blocks){
@@ -21,14 +21,39 @@ export function taxonomyTermCounts(text,terms){
  for(const term of terms){if(!term)continue;let at=-1,count=0;while((at=text.indexOf(term,at+1))>=0)if((at===0||!/[a-z0-9]/.test(text[at-1]))&&(at+term.length===text.length||!/[a-z0-9]/.test(text[at+term.length])))count++;if(count)counts.set(term,count);}
  return counts;
 }
-export function taxonomyMatches(text,definitions){
- const matched=[];for(const row of definitions){const counts=taxonomyTermCounts(text,row.terms);if(counts.size)matched.push({row,count:[...counts.values()].reduce((a,b)=>a+b,0)});}
- const detailed=new Set(matched.filter(({row})=>row.subpalanca).map(({row})=>row.palanca));
- return matched.filter(({row})=>row.subpalanca||!detailed.has(row.palanca));
+// Compile once per catalogue, then rank bounded phrases by specificity and headline evidence.
+const rankingStopWords=new Set(['landing','de','del','la','el','y','para','con','the','and','of','for','ve']);
+const rankingWord=word=>word.length>4?word.replace(/s$/,''):word;
+function rankingIndex(definitions){
+ let index=rankingIndexes.get(definitions);if(index)return index;
+ const frequencies=new Map(),phrases=new Map(),canonical=new Map(),rows=definitions.filter(row=>row.subpalanca);
+ for(const row of rows){
+  const tokens=new Set();for(const term of row.terms){if(!phrases.has(term))phrases.set(term,words(term).map(rankingWord));for(const word of phrases.get(term))tokens.add(word);}
+  for(const word of tokens)frequencies.set(word,(frequencies.get(word)||0)+1);
+  canonical.set(row,new Set(words(row.subpalanca).map(rankingWord).filter(word=>!rankingStopWords.has(word))));
+ }
+ const weights=new Map([...phrases].map(([term,tokens])=>[term,tokens.reduce((sum,word)=>sum+1+Math.log((1+rows.length)/(1+(frequencies.get(word)||0))),0)/Math.max(1,tokens.length)*(1+Math.log(1+tokens.length))]));
+ index={weights,phrases,canonical,blocks:new Map(definitions.filter(row=>!row.subpalanca).map(row=>[row.palanca,row]))};rankingIndexes.set(definitions,index);return index;
+}
+export function taxonomyMatches(text,definitions,headline=''){
+ const index=rankingIndex(definitions),title=taxonomyText(headline);let best;
+ for(const row of definitions){
+  if(!row.subpalanca)continue;
+  const counts=taxonomyTermCounts(text,row.terms);if(!counts.size)continue;
+  const titleCounts=title?taxonomyTermCounts(title,[...counts.keys()]):new Map();
+  let score=0,count=0;
+  for(const [term,frequency]of counts){
+   const nameEvidence=index.phrases.get(term)?.some(word=>index.canonical.get(row).has(word))?1.5:1,headlineEvidence=titleCounts.has(term)?4*(1+1/(1+title.indexOf(term)/80)):1;
+   score+=(index.weights.get(term)||1)*(1+Math.log(frequency))*nameEvidence*headlineEvidence;count+=frequency;
+  }
+  const block=index.blocks.get(row.palanca);if(block&&taxonomyTermCounts(text,block.terms).size)score*=1.25;
+  if(!best||score>best.score||score===best.score&&row.subpalanca.localeCompare(best.row.subpalanca,'es')<0)best={row,count,score};
+ }
+ return best?[best]:[];
 }
 export function taxonomyObserve(state,text,definitions,excludedWords,evidence=''){
  taxonomySeed(state,definitions);
- const matched=taxonomyMatches(text,definitions);if(!matched.length)return false;
+ const matched=taxonomyMatches(text,definitions);if(!matched.length&&!definitions.some(row=>!row.subpalanca&&(taxonomyTermCounts(text,row.terms).size||row.emerging.some(concept=>taxonomyTermCounts(text,concept.terms.map(taxonomyText)).size))))return false;
  state.documents++;state.size=Object.keys(state.candidates).length;
  const observed=[];
  const observe=(entry,count)=>{

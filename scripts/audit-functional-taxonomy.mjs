@@ -18,7 +18,7 @@ for(let version=0;version<2;version++){
   const started=performance.now();selected=rows.filter(row=>context.digitalAssessment_(context.searchText_(context.plainText_(row.title)),context.searchText_(context.plainText_(row.title+' '+row.excerpt))).relevant);
   if(run)times.push(performance.now()-started);
  }
- accepted.push(new Set(selected.map(row=>row.url)));runs.push({version:version?'3.3.0':'HEAD',accepted:selected.length,medianCpuMs:times.sort((a,b)=>a-b)[2]});
+ accepted.push(new Set(selected.map(row=>row.url)));runs.push({version:version?'3.4.0':'HEAD',accepted:selected.length,medianCpuMs:times.sort((a,b)=>a-b)[2]});
 }
 const definitions=taxonomyDefinitions(config.taxonomy),state={documents:0,candidates:{}},excluded=new Set(config.entities.flatMap(row=>[row.name,...row.aliases]).flatMap(value=>taxonomyText(value).split(' '))),started=performance.now();taxonomySeed(state,definitions);
 for(const row of rows)if(accepted[1].has(row.url))taxonomyObserve(state,taxonomyText(contexts[1].plainText_(row.title+' '+row.excerpt)),definitions,excluded,row.publisher);

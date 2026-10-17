@@ -20,7 +20,7 @@ function functionalCatalogRows_(sheets,previous){
     const columns=rows[header],idColumn=columns.indexOf('ID'),blockColumn=columns.indexOf('Bloque funcional'),functionColumn=columns.indexOf('Funcionalidad/Sub Operativa');
     for(const row of rows.slice(header+1)){
       const id=String(row[idColumn]||'').trim();if(!/^\d{2}\.\d{2}$/.test(id))continue;
-      const name=String(row[blockColumn]||'').replace(/\s+/g,' ').trim().replace('Herramientas empleados','Herramientas Empleados'),key=id.slice(0,2)+'.'+name;
+      const name=String(row[blockColumn]||'').replace(/\s+/g,' ').trim(),label=id.slice(0,2)+'.'+name,key=[...blocks.keys()].find(key=>taxonomyText(key)===taxonomyText(label))||label;
       if(!blocks.has(key)){const old=previous.find(block=>block.name===key)||previous.find(block=>block.functions.some(item=>item.id===id));blocks.set(key,{name:key,terms:old?.terms||[],emerging:old?.emerging||[],functions:[]});}
       blocks.get(key).functions.push({id,name:String(row[functionColumn]||'').replace(/\s+/g,' ').trim(),terms:existing.get(id)?.terms||[]});
     }
@@ -33,17 +33,17 @@ function functionalCatalogRows_(sheets,previous){
   validateTaxonomy_(result);return result;
 }
 function refreshFunctionalCatalog_(){
-  const config=configuration_();if(!config.settings.taxonomyCatalogRefresh)return {source:'excel',detail:'Catálogo de reglas de negocio; revisión de Drive desactivada.'};
+  const config=configuration_();if(!config.settings.taxonomyCatalogUrl)return {source:'reglas',detail:'Se utiliza el catálogo guardado.'};
   const started=Date.now();
   try{
     const id=config.settings.taxonomyCatalogUrl.match(/\/d\/([\w-]+)/)[1],book=SpreadsheetApp.openById(id),names=['Soluciones Funcionales','Capacidades canal (core y VD)'];
     const tables=names.map(name=>{const sheet=book.getSheetByName(name);if(!sheet||sheet.getLastRow()>1500)throw Error('Pestaña del catálogo ausente o fuera de límite: '+name);return sheet.getRange(1,1,sheet.getLastRow(),6).getDisplayValues();});
     const taxonomy=functionalCatalogRows_(tables,config.taxonomy),changed=JSON.stringify(taxonomy)!==JSON.stringify(config.taxonomy);
-    if(changed){const sheet=book_().getSheetByName('Configuracion'),keys=sheet.getRange(2,1,sheet.getLastRow()-1,1).getValues().flat(),row=keys.indexOf('taxonomy');if(row<0)throw Error('Inicializa la configuración de taxonomía.');sheet.getRange(row+2,2,1,1).setValues([[JSON.stringify(taxonomy)]]);invalidateConfiguration_();}
+    if(changed){const sheet=book_().getSheetByName('Configuracion'),keys=sheet.getRange(2,1,sheet.getLastRow()-1,1).getValues().flat(),row=keys.indexOf('taxonomy');if(row<0)throw Error('Inicializa la configuración de catálogo global de funcionalidades.');sheet.getRange(row+2,2,1,1).setValues([[JSON.stringify(taxonomy)]]);invalidateConfiguration_();requestNewsClassification_(true);}
     telemetry_('catalogo_funcional',Date.now()-started,'OK',changed?'Catálogo actualizado desde Drive':'Sin cambios en Drive');return {source:'drive',changed};
   }catch(error){const detail=String(error.message).slice(0,180);telemetry_('catalogo_funcional',Date.now()-started,'Error',detail);return {source:'reglas',error:detail};}
 }
 function taxonomyRulesRevision_(){return sha256_(JSON.stringify([TAXONOMY_POLICY.version,configuration_().taxonomy,classificationRulesRevision_()]));}
 function saveTaxonomySource(payload){
-  authorize_(true);const snapshot=JSON.parse(JSON.stringify(configuration_()));snapshot.settings.taxonomyCatalogUrl=payload.url;snapshot.settings.taxonomyCatalogRefresh=payload.refresh;return writeConfiguration_(snapshot,payload.revision);
+  authorize_(true);const snapshot=JSON.parse(JSON.stringify(configuration_()));snapshot.settings.taxonomyCatalogUrl=payload.url;return writeConfiguration_(snapshot,payload.revision);
 }

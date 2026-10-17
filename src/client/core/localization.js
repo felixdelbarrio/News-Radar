@@ -1,4 +1,5 @@
 import {language,t,setLanguage,getLanguageOverride} from './language.js';
+import {taxonomyDisplayLabel} from '../../shared/taxonomy-path.js';
 import {languageNames,translateText} from '../../shared/locales.js';
 let observer,translateChanges;
 export function flushLocalization(){if(observer)translateChanges(observer.takeRecords());}
@@ -11,7 +12,9 @@ function localized(node,key,value){
 const attributes=['placeholder','title','aria-label','alt'],excluded='[data-original],script,style,textarea';
 export function localize(root){
   if(root.nodeType===3){if(!root.parentElement?.closest(excluded)){const output=localized(root,'text',root.textContent);if(output!==root.textContent)root.textContent=output;}return;}
-  if(root.nodeType!==1||root.matches(excluded))return;
+  if(root.nodeType!==1)return;
+  if(root.dataset.catalogName){root.textContent=taxonomyDisplayLabel(t(root.dataset.catalogName));return;}
+  if(root.matches(excluded))return;
   if(root.tagName==='TABLE'&&root.closest('.table-wrap'))root.setAttribute('role','table');
   if(root.tagName==='TR'&&root.closest('.table-wrap')&&root.parentElement.tagName==='TBODY'){
     const headings=root.closest('table').tHead?.rows[0]?.cells;

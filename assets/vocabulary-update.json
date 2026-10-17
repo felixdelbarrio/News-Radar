@@ -1,5 +1,5 @@
 {
-  "version": "3.3.0",
+  "version": "3.4.0",
   "relevanceRules": [
     {
       "name": "Evidencia de canal digital",
@@ -89,7 +89,13 @@
         "ciberseguro",
         "stablecoins",
         "request to pay",
-        "deeplink"
+        "deeplink",
+        "pagos vostro",
+        "cuentas vostro",
+        "Quantum",
+        "depósitos tokenizados",
+        "pagos con stablecoins",
+        "agentes de ia"
       ]
     },
     {
@@ -104,7 +110,23 @@
         "cyber insurance",
         "stablecoin",
         "request to pay",
-        "deep link"
+        "deep link",
+        "vostro payments",
+        "vostro accounts",
+        "Quantum",
+        "tokenized deposits",
+        "tokenised deposits",
+        "stablecoin payouts",
+        "stablecoin payments",
+        "ai agents",
+        "agentic ai",
+        "personal agent protocol",
+        "trade finance automation",
+        "automate trade finance",
+        "cleareye",
+        "payment gateway",
+        "custody",
+        "model context protocol"
       ]
     }
   ]

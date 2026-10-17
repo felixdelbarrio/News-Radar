@@ -58,6 +58,17 @@ function initializeConfiguration(){
         sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(value)]]);
       }
     }
+    if(refreshCatalog&&keys.has('taxonomy')){
+      const rows=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues(),index=rows.findIndex(row=>row[0]==='taxonomy'),blocks=JSON.parse(rows[index][1]);
+      const defaults=new Map(CONFIGURATION_DEFAULTS.taxonomy.flatMap(block=>block.functions.map(row=>[row.id,{...row,block:block.name}])));
+      for(const block of blocks){
+        const canonical=defaults.get(block.functions[0]?.id);if(canonical)block.name=canonical.block;
+        const source=CONFIGURATION_DEFAULTS.taxonomy.find(seed=>seed.name===block.name);
+        for(const concept of source?.emerging||[]){const existing=block.emerging.find(row=>row.name===concept.name);if(existing)existing.terms=[...new Set([...existing.terms,...concept.terms])];else block.emerging.push(concept);}
+        for(const row of block.functions){const seed=defaults.get(row.id);if(seed){row.name=seed.name;row.terms=[...new Set([...row.terms,...seed.terms])];}}
+      }
+      sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(blocks)]]);
+    }
     append_('Configuracion',Object.entries(CONFIGURATION_DEFAULTS).filter(([key])=>!keys.has(key)).map(([key,value])=>[key,JSON.stringify(value)]));
     const settingsRow=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues().findIndex(row=>row[0]==='settings')+2,stored=JSON.parse(sheet.getRange(settingsRow,2,1,1).getValues()[0][0]);
     const settings=Object.fromEntries(Object.entries(CONFIGURATION_DEFAULTS.settings).map(([key,value])=>[key,key in stored?stored[key]:value]));
@@ -105,7 +116,7 @@ function validateConfiguration_(config){
   if(config.segments.length!==1||config.segments[0].name!==sectorNewsDefaults.segment||!config.segments[0].enabled)throw Error('El ámbito de contenido es Empresas e instituciones.');
   validateCapabilities_(config.capabilities);
   validateTaxonomy_(config.taxonomy);
-  if(typeof config.settings.taxonomyCatalogUrl!=='string'||!/^https:\/\/docs\.google\.com\/spreadsheets\/d\/[\w-]+(?:\/edit(?:[?#].*)?)?$/.test(config.settings.taxonomyCatalogUrl)||typeof config.settings.taxonomyCatalogRefresh!=='boolean')throw Error('Fuente del catálogo funcional no válida.');
+  if(typeof config.settings.taxonomyCatalogUrl!=='string'||(config.settings.taxonomyCatalogUrl&&!/^https:\/\/docs\.google\.com\/spreadsheets\/d\/[\w-]+(?:\/edit(?:[?#].*)?)?$/.test(config.settings.taxonomyCatalogUrl)))throw Error('Fuente del catálogo funcional no válida.');
   for(const row of config.relevanceRules)if(!RELEVANCE_ROLES.includes(row.role)||!row.terms.length||Object.keys(row).sort().join(',')!=='enabled,name,role,terms'||row.terms.some(term=>/[\\^$+?(){}[\]|]/.test(term)||term.includes('**')||term.split(' ').some(word=>word.includes('*')&&word.indexOf('*')!==word.length-1)))throw Error('Criterio de relevancia no válido.');
   const languages=new Set();for(const row of config.searchLanguages){if(!/^[a-z]{2}$/.test(row.language)||languages.has(row.language)||!row.terms.length||row.terms.length>160||Object.keys(row).sort().join(',')!=='enabled,language,name,terms')throw Error('Perfil de búsqueda no válido.');languages.add(row.language);}
   if(Object.keys(config).sort().join(',')!=='applicationScope,capabilities,entities,feeds,geographies,relevanceRules,searchLanguages,segments,settings,signals,taxonomy')throw Error('Claves de configuración no reconocidas.');
@@ -131,7 +142,7 @@ function writeConfiguration_(config,revision){
   validateConfiguration_(config);return withForegroundWrite_(()=>{
     if(revision!==String(properties_().getProperty('CONFIG_REVISION')||'0'))throw Error('La configuración ha cambiado en otra sesión. Recarga los catálogos antes de guardar.');
     const reclassify=classificationRulesRevision_()!==classificationRulesRevision_(config);
-    const taxonomyChanged=JSON.stringify(configuration_().taxonomy)!==JSON.stringify(config.taxonomy);
+    const taxonomyChanged=JSON.stringify(configuration_().taxonomy)!==JSON.stringify(config.taxonomy)||configuration_().settings.taxonomyCatalogUrl!==config.settings.taxonomyCatalogUrl;
     const sheet=book_().getSheetByName('Configuracion'),rows=Object.entries(config).map(([key,value])=>[key,JSON.stringify(value)]);
     sheet.getRange(2,1,Math.max(rows.length,sheet.getLastRow()-1),2).clearContent();append_('Configuracion',rows);invalidateConfiguration_();if(reclassify)requestNewsClassification_(true);if(taxonomyChanged)requestTaxonomy_();initializeBackgroundSchedules_();
     return 'Configuración guardada. Se aplicará a filtros, clasificación y próximas recopilaciones.';
