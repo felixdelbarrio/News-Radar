@@ -1,3 +1,4 @@
+import {configurationDefaults} from '../scripts/configuration-defaults.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -5,9 +6,9 @@ import {storage as createStorage} from './helpers/delivery.mjs';
 import {TestDate as Date} from './helpers/clock.mjs';
 function storage(){const s=createStorage();s.c.Date=Date;return s;}
 import {read,readServerScript} from '../scripts/source.mjs';
-const seed=()=>JSON.parse(read('assets/configuration-defaults.json'));
+const seed=()=>configurationDefaults();
 test('inicializa solo claves ausentes, persiste en Sheets y reutiliza e invalida la caché versionada',()=>{
-  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,19);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
+  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,20);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
   config.settings.unknownCountry='Qonto';config.segments[0].terms.push('innovación verificable');c.saveConfiguration({config,revision:c.getConfiguration().revision});assert.equal(c.getConfiguration().config.settings.unknownCountry,'Qonto');
   c.initializeConfiguration();assert.equal(c.getConfiguration().config.settings.unknownCountry,'Qonto');assert.ok(c.getConfiguration().config.segments[0].terms.includes('innovación verificable'));
   const sheet=s.sheets.get('Configuracion'),index=sheet.grid.findIndex(row=>row[0]==='settings'),settings=JSON.parse(sheet.grid[index][1]);settings.unknownCountry='Revolut';sheet.grid[index][1]=JSON.stringify(settings);
@@ -73,7 +74,7 @@ test('la próxima entrega diferencia altas nuevas, pendientes, rechazos y suscri
 });
 test('un rechazo confirmado se puede reintentar y los mensajes de selecciones distintas conservan su nombre',()=>{
  const s=storage(),{c}=s;c.initializeConfiguration();const cfg=c.getConfiguration();cfg.config.settings.newsletterEnabled=true;c.saveConfiguration(cfg);s.book.insertSheet('Noticias').grid.push([]);
- const names=[],rows=['Canal A','Canal B'].map((nombre,i)=>({id:String(i),nombre,correo:'user'+i+'@bbva.com',periodicidad:'quarterly',activa:true,actualizada:'2020-01-01',filtros:{}}));c.subscriptionRows_=()=>rows;c.newsletterSender_=()=>({});
+ c.queueQuarterlyTaxonomy_=()=>true;const names=[],rows=['Canal A','Canal B'].map((nombre,i)=>({id:String(i),nombre,correo:'user'+i+'@bbva.com',periodicidad:'quarterly',activa:true,actualizada:'2020-01-01',filtros:{}}));c.subscriptionRows_=()=>rows;c.newsletterSender_=()=>({});
  c.newsletterContent_=(_rows,_query,title)=>{names.push(title);return {count:1,html:title,text:title,items:[],evidence:[]};};c.sendNewsletterMail_=()=>{const error=Error('Rechazado');error.rejected=true;throw error;};
  assert.equal(c.deliverNewsletterBatch_().state,'error');assert.equal(s.sheets.get('NewsletterEnvios').grid[1][5],'No enviado');c.sendNewsletterMail_=(_s,_r,content)=>{assert.match(content.html,/Canal [AB]/);return 'accepted';};
  const result=c.deliverNewsletterBatch_();assert.equal(result.accepted,2);assert.deepEqual(names,['Canal A','Canal A','Canal B']);assert.equal(c.deliverNewsletterBatch_().state,'no_due');

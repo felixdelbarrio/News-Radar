@@ -37,7 +37,7 @@ function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
       job.cursor=cursor;job.reviewed+=reviewed;job.corrected+=corrected;job.consolidated+=consolidated;
       if(rows.length===0||reviewed===rows.length&&rows.length<MAINTENANCE_POLICY.batchRows){job.phase='retention';job.position=2;}
     }else pruneEvents_(job);
-    job.state=job.state==='Completada'?'Completada':'Pendiente';job.error='';job.pausedUntil=0;saveMaintenanceJob_(job);
+    job.state=job.state==='Completada'?'Completada':'Pendiente';job.error='';job.pausedUntil=0;saveMaintenanceJob_(job);if(job.state==='Completada')requestDashboardSnapshots_(true);
     telemetry_('mantenimiento',Date.now()-started,'OK',JSON.stringify({phase:job.phase,reviewed:job.reviewed,corrected:job.corrected,consolidated:job.consolidated,removed:job.removed,changed}));
   }catch(error){job.state='En pausa';job.error=String(error.message).slice(0,180);job.pausedUntil=Date.now()+settings_().retryMinutes*60000;saveMaintenanceJob_(job);telemetry_('mantenimiento',Date.now()-started,'Error',job.error);}
 }
@@ -68,7 +68,7 @@ function finishMaintenanceJournal_(job){
   const remaining=j.input-j.output,current=read(j.start+j.output,Math.min(remaining,Math.max(0,sheet.getLastRow()-j.start-j.output+1)));
   if(remaining&&digest(current)===j.deleteDigest)sheet.deleteRows(j.start+j.output,remaining);
   else if(remaining){const tail=sheet.getLastRow()>=j.start+j.output?read(j.start+j.output,1):[];if(digest(tail)!==j.tailDigest)throw Error('Compactación pendiente: la posición final cambió.');}
-  job.removed+=remaining;if(Number.isFinite(job.retentionEnd))job.retentionEnd-=remaining;job.position=j.start+j.output;delete job.journal;saveMaintenanceJob_(job);
+  job.removed+=remaining;if(Number.isFinite(job.retentionEnd))job.retentionEnd-=remaining;job.position=j.start+j.output;delete job.journal;saveMaintenanceJob_(job);if(job.state==='Completada')requestDashboardSnapshots_(true);
 }
 function pruneEvents_(job){
   const cursors=JSON.parse(properties_().getProperty('RETENTION_CURSORS')||'{}'),name=MAINTENANCE_TABLES[job.table];
@@ -88,7 +88,7 @@ function pruneEvents_(job){
   const summaries=['Auditoria','Telemetria','Ejecuciones'].includes(name)?maintenanceSummaries_(name,older):[];
   if(summaries.length>=older.length){job.position+=older.length;return;}
   const output=summaries.map(row=>row.map(String)),input=older.length,start=job.position,deleteRows=older.slice(output.length),tail=sheet.getLastRow()>=start+input?sheet.getRange(start+input,1,1,keys.length).getDisplayValues():[],journal={name,start,input,sourceDigest:sha256_(JSON.stringify(older)),output:output.length,outputDigest:sha256_(JSON.stringify(output)),deleteDigest:sha256_(JSON.stringify(deleteRows)),tailDigest:sha256_(JSON.stringify(tail))};
-  job.journal=journal;saveMaintenanceJob_(job);
+  job.journal=journal;saveMaintenanceJob_(job);if(job.state==='Completada')requestDashboardSnapshots_(true);
   if(output.length)sheet.getRange(start,1,output.length,keys.length).setNumberFormat('@').setValues(output);
   SpreadsheetApp.flush();finishMaintenanceJournal_(job);
 }

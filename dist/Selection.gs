@@ -1,4 +1,5 @@
 function snapshotEntity_(value){return String(value||'').trim();}
+function newsReadingGeography_(context,query){return context?.cadence==='fortnightly'&&query.benchmark==='international'&&!query.country?()=> 'Otras geografías':applicationGeography(context?.scope||configuration_().applicationScope,query.segment);}
 function newsGeographySelection_(rows,query,geography=applicationGeography(configuration_().applicationScope,query.segment)){
   return query.newsGeography?rows.filter(row=>geography(row)===query.newsGeography):rows;
 }
@@ -23,7 +24,7 @@ function newsDashboard_(rows, query, feeds,view='radar',context=null,pagination=
   const identities=Boolean(context)||view==='radar';if(!context&&view==='radar')rows=translationIdentityRows_(rows);
   const entityName=context?snapshotEntity_:entityKey_,selected=selectAnnotatedNews_(rows,query,entityName,identities),radar=view==='radar'?radarMetrics_(selected,query,context?.geographies,entityName):null;
   if(radar){const available={total:0,from:'',to:'',limited:false},period=['country','entity','source','search','type','segment','signal','coverage','palanca','subpalanca'].some(key=>query[key])?uniqueNews_(rows.filter(row=>newsScope_(row,{from:query.from,to:query.to},''))):selected;for(const row of period){available.total++;if(!available.from||row.fecha<available.from)available.from=row.fecha;if(row.fecha>available.to)available.to=row.fecha;}radar.available=available;}
-  const geography=applicationGeography(context?.scope||configuration_().applicationScope,query.segment);
+  const geography=newsReadingGeography_(context,query);
   const newsGeographies=view==='news'?noveltyOverview(selected,[],geography).geographies.map(({name,total})=>({name,total})):[],newsGeography=newsGeographies.some(row=>row.name===query.newsGeography)?query.newsGeography:newsGeographies[0]?.name||'',visible=view==='news'?newsGeographySelection_(selected,{...query,newsGeography},geography):selected;
   const page=Math.min(Math.max(0,Math.floor(Number(query.page)||0)),Math.max(0,Math.ceil(visible.length/settings_().pageSize)-1));
   const ordered=view==='news'&&pagination?newsEntityGroups(visible).flatMap(group=>group.items):visible;if(pagination)pagination(ordered);

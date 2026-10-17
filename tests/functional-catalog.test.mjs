@@ -1,9 +1,10 @@
+import {configurationDefaults} from '../scripts/configuration-defaults.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {storage} from './helpers/server.mjs';
 import {taxonomyDefinitions,taxonomyObserve,taxonomyBuild,taxonomySeed} from '../src/shared/taxonomy.js';
-const config=JSON.parse(fs.readFileSync(new URL('../assets/configuration-defaults.json',import.meta.url))),blocks=config.taxonomy;
+const config=configurationDefaults(),blocks=config.taxonomy;
 test('el Excel aporta 322 códigos únicos, 22 bloques y conserva las dos etiquetas del prefijo 13',()=>{
  const rows=blocks.flatMap(block=>block.functions);assert.equal(rows.length,322);assert.equal(new Set(rows.map(row=>row.id)).size,322);assert.equal(blocks.length,22);assert.equal(blocks.filter(block=>block.name.startsWith('13.')).length,2);
  assert.equal(blocks.find(block=>block.name==='08.Financiación').functions.find(row=>row.id==='08.02').name,'Crédito Virtual');assert.equal(blocks.find(block=>block.name==='20.Venta Digital').functions.find(row=>row.id==='20.04').name,'Quantum');
@@ -20,18 +21,18 @@ test('las revisiones de Drive interpretan ambas estructuras, ignoran referencias
  const {c}=storage();c.initializeConfiguration();
  const tables=[['ID','ID OLD','Bloque funcional','Funcionalidad/Sub Operativa'],['08.02','','Financiación','Crédito Virtual'],['19.XX','','Capacidades core','Referencia'],['08.43','','Financiación','Nuevo servicio empresarial']];
  const channel=[['ID','Bloque funcional','Funcionalidad/Sub Operativa'],['20.04','Venta Digital','Quantum']];
- const result=c.functionalCatalogRows_([tables,channel],blocks),functions=result.flatMap(block=>block.functions);assert.equal(functions.length,323);assert.equal(functions.find(row=>row.id==='08.43').name,'Nuevo servicio empresarial');assert.deepEqual(Array.from(functions.find(row=>row.id==='08.02').terms),['credito virtual','virtual credit']);assert.ok(!functions.some(row=>row.id==='19.XX'));
- assert.throws(()=>c.functionalCatalogRows_([tables,[...channel,['20.04','Venta Digital','Duplicado']]],blocks),/duplicada/);
+ const result=c.functionalCatalogRules(c.functionalCatalogRows_([tables,channel]),blocks),functions=result.flatMap(block=>block.functions);assert.equal(functions.length,3);assert.equal(functions.find(row=>row.id==='08.43').name,'Nuevo servicio empresarial');assert.deepEqual(Array.from(functions.find(row=>row.id==='08.02').terms),['credito virtual','virtual credit']);assert.ok(!functions.some(row=>row.id==='19.XX'));
+ assert.throws(()=>c.functionalCatalogRows_([tables,[...channel,['20.04','Venta Digital','Duplicado']]]),/duplicada/);
 });
 test('revisión sin acceso conserva reglas y noticias, registra el fallo y continúa usando el Excel',()=>{
  const {c,sheets}=storage();c.initializeConfiguration();const before=JSON.stringify(sheets.get('Configuracion').grid),news=JSON.stringify(sheets.get('Noticias').grid);
  c.SpreadsheetApp.openById=()=>{throw Error('PERMISSION_DENIED');};const result=c.refreshFunctionalCatalog_();assert.equal(result.error,'PERMISSION_DENIED');assert.equal(JSON.stringify(sheets.get('Configuracion').grid),before);assert.equal(JSON.stringify(sheets.get('Noticias').grid),news);
 });
-test('la revisión de Drive guarda solo novedades en las reglas y una segunda pasada no modifica el catálogo',()=>{
+test('la revisión de Drive actualiza el espejo y conserva solo equivalencias en las reglas',()=>{
  const s=storage(),{c,sheets}=s;c.initializeConfiguration();c.saveTaxonomySource({url:'https://docs.google.com/spreadsheets/d/source/edit',revision:c.configurationRevision_()});
  const data={'Soluciones Funcionales':[['ID','ID OLD','Bloque funcional','Funcionalidad/Sub Operativa'],['08.02','','Financiación','Crédito Virtual'],['08.43','','Financiación','Servicio nuevo']], 'Capacidades canal (core y VD)':[['ID','Bloque funcional','Funcionalidad/Sub Operativa'],['20.04','Venta Digital','Quantum']]};
  c.SpreadsheetApp.openById=id=>id==='book'?s.book:{getSheetByName:name=>({getLastRow:()=>data[name].length,getRange:()=>({getDisplayValues:()=>data[name]})})};
- assert.equal(c.refreshFunctionalCatalog_().changed,true);const value=sheets.get('Configuracion').grid.find(row=>row[0]==='taxonomy')[1];assert.equal(JSON.parse(value).flatMap(block=>block.functions).length,323);assert.equal(c.refreshFunctionalCatalog_().changed,false);assert.equal(sheets.get('Configuracion').grid.find(row=>row[0]==='taxonomy')[1],value);
+ assert.equal(c.refreshFunctionalCatalog_().changed,true);const value=sheets.get('Configuracion').grid.find(row=>row[0]==='taxonomy')[1];assert.equal(JSON.parse(value).flatMap(block=>block.functions).length,322);assert.ok(JSON.parse(value).every(block=>block.functions.every(row=>!Object.hasOwn(row,'name'))));assert.equal(c.configuration_().taxonomy.flatMap(block=>block.functions).length,3);assert.equal(sheets.get('CatalogoFuncional').getLastRow(),4);assert.equal(c.refreshFunctionalCatalog_().changed,false);assert.equal(sheets.get('Configuracion').grid.find(row=>row[0]==='taxonomy')[1],value);
 });
 test('el trabajo reanudado conserva estadísticas de las primeras 100 noticias y publica todas las funciones',()=>{
  const {c,sheets}=storage();c.initializeConfiguration();for(let i=0;i<130;i++)sheets.get('Noticias').grid.push([String(i),'2026-10-10','España','Editor '+i,'BBVA','BBVA lanza pagos con stablecoins '+i,'Nueva operativa para empresas','https://example.com/'+i,'','Editor '+i,'es','{"digital":true,"capacidades":["Empresas: Pagos"]}','']);

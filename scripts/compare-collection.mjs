@@ -1,6 +1,7 @@
+import {configurationDefaults} from './configuration-defaults.mjs';
 import vm from 'node:vm';
 import {read,readServerScript} from './source.mjs';
-const config=JSON.parse(read('assets/configuration-defaults.json')),historical=JSON.parse(read('tests/fixtures/iteration1-configuration.json'));
+const config=configurationDefaults(),historical=JSON.parse(read('tests/fixtures/iteration1-configuration.json'));
 const search=JSON.parse(read('tests/fixtures/digital-search.json')),sources=JSON.parse(read('tests/fixtures/digital-feeds.json'));
 function context(before=false){
  const c=vm.createContext({});let source=readServerScript();

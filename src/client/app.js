@@ -165,7 +165,7 @@ if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
 async function startApplication(params={}){
   if(params.edition){
     state.attribution=params.edition;const view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;
-    filters.show(view);navigation.show(view);state.ready=true;filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca,subpalanca:params.subpalanca,benchmark:params.benchmark});return;
+    filters.show(view);navigation.show(view);state.ready=true;filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca,subpalanca:params.subpalanca,benchmark:params.benchmark,newsGeography:params.newsGeography});return;
   }
   try{
     if(params.view==='subscriptions'){state.data=await call('getDashboard',{view:'subscriptions'});renderApplicationShell(state.data);state.ready=true;await navigation.show('subscriptions');}

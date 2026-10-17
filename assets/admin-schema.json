@@ -319,6 +319,6 @@
   },
   "taxonomy": {
     "label": "Catálogo global de funcionalidades",
-    "help": "Catálogo global de Soluciones Funcionales y Capacidades canal. Los bloques son cerrados para TF-IDF. Edita equivalencias de lenguaje; la fuente de Drive se configura en Catálogo global de funcionalidades. Las propuestas .xx requieren evidencia recurrente de varias fuentes."
+    "help": "Equivalencias y conceptos emergentes de News Radar. Los códigos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aquí. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios."
   }
 }

@@ -1,6 +1,7 @@
 const RADAR = Object.freeze({
-  version:'3.4.0',
+  version:'3.5.0',
   sheets:{
+    CatalogoFuncional:['id','bloque','nombre','descripcion'],
     DashboardSnapshots:['vista','generacion','parte','datos'],
     Configuracion:['clave','valor'],
     Suscripciones:['id','correo','nombre','filtros','periodicidad','activa','actualizada','idioma'],
@@ -15,7 +16,7 @@ const RADAR = Object.freeze({
     NewsletterFeedback:['id','edicion','correo','valoracion','comentario','fecha','estado'],
     Adopcion:['fecha','correo','sesion','evento','vista','duracion_ms'],
     Recargas:['id','tipo','desde','hasta','inicio','fin','estado','total','procesadas','pendientes','omitidas','fallidas','nuevas','actualizada','pausa'],
-    Taxonomia:['id','palanca','subpalanca','segmentos','terminos','noticias','peso','origen'],
+    Taxonomia:['id','palanca','subpalanca','segmentos','terminos','noticias','peso','origen','descripcion'],
     TaxonomiaTrabajo:['estado'],
     TaxonomiaTraducciones:['clave','idioma','texto','fecha'],
     Traducciones:['clave','idioma','titular','extracto','fecha'],
@@ -29,8 +30,8 @@ const NEWS_CACHE=Object.freeze({schema:4,chunkRows:128,recordParts:400,seconds:3
 const BACKGROUND_WORK=Object.freeze({maxBatches:3,maxMs:45000,sliceMs:10000,watchdogMinutes:5,activeGraceMs:60000});
 
 const COLLECTION_POLICY=Object.freeze({windowDays:28,searchTerms:10,localTerms:4,entityAliases:8,capabilityTerms:6,queryChars:1500,providerLimit:100,saturationRatio:.8,duplicateDays:2});
-const CONFIGURATION_CATALOG_VERSION='3.4.0';
-const CLASSIFICATION_WORK=Object.freeze({rulesVersion:'3.4.1',batchRows:100,maxMs:10000});
+const CONFIGURATION_CATALOG_VERSION='3.5.0';
+const CLASSIFICATION_WORK=Object.freeze({rulesVersion:'3.5.0',batchRows:100,maxMs:10000});
 const RELEVANCE_ROLES=Object.freeze(['channel','service','shared','infrastructure','corporate','retail','editorial','incidental']);
 
 const DASHBOARD_SNAPSHOTS=Object.freeze({views:['briefing','news','radar'],chars:40000,parts:64});

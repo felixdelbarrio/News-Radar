@@ -36,7 +36,7 @@ test('presupuesto compartido con noticias y lotes acotados; no monopoliza ni com
   const s=server(),c=s.c,today=c.recordDay(new Date(),c.settings_().timezone);
   c.writeTranslationJob_({state:'Completada',calls:2999,callDay:today});c.startTaxonomyTranslations();c.taxonomyTranslationBatch_();assert.equal(s.calls.length,1);assert.equal(c.translationCallsToday_(),3000);assert.equal(c.taxonomyTranslationJob_().state,'En pausa');assert.ok(c.taxonomyTranslationReadyAt_()>Date.now());assert.equal(c.translationReadyAt_(),Infinity);
   c.writeTranslationJob_({state:'Completada',calls:0,callDay:today});finish(c);assert.equal(s.calls.length,4);
-  c.writeTaxonomyTranslationJob_({...c.taxonomyTranslationJob_(),state:'Pendiente'});const annual={pending:[{ciclo:'annual'}],jobs:[{id:'annual',tipo:'year'}]};assert.equal(c.backgroundTask_(annual,false),'taxonomyTranslation');assert.equal(c.backgroundTask_(annual,true),'collection');
+  c.writeTaxonomyTranslationJob_({...c.taxonomyTranslationJob_(),state:'Pendiente'});delete s.properties.DASHBOARD_SNAPSHOT_REQUEST;const annual={pending:[{ciclo:'annual'}],jobs:[{id:'annual',tipo:'year'}]};assert.equal(c.backgroundTask_(annual,false),'taxonomyTranslation');assert.equal(c.backgroundTask_(annual,true),'collection');
   c.writeTaxonomyJob_({state:'En curso'});assert.equal(c.taxonomyTranslationReadyAt_(),Infinity);
 });
 test('finalizar taxonomía encola traducción automáticamente y los lectores utilizan nombres guardados',()=>{

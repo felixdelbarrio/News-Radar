@@ -34,7 +34,7 @@ function createFilters({ onInvalidate, onChange }) {
     const values=Object.entries(chipLabels).filter(([name])=>applied[name]);
     target.hidden=!values.length;
     target.innerHTML=values.map(([name,label])=>{
-      const raw=applied[name],value=name==='benchmark'?newsletterComparisonLabels[raw]:name==='coverage'?coverageOptions[raw]:['from','to'].includes(name)?formatCalendarDay(raw,language):name==='subpalanca'?taxonomySubLabel(raw):raw;
+      const raw=applied[name],value=name==='benchmark'?(raw==='international'?'Mirada internacional':newsletterComparisonLabels[raw]):name==='coverage'?coverageOptions[raw]:['from','to'].includes(name)?formatCalendarDay(raw,language):name==='subpalanca'?taxonomySubLabel(raw):raw;
       const original=['search','entity','source'].includes(name),text=['palanca','subpalanca'].includes(name)?t(value):t(label)+': '+(original?value:t(value));
       if(['from','to'].includes(name))return '<button type="button" class="filter-chip" data-original data-edit-filter="'+name+'" aria-label="'+escape(t('Editar')+' '+text)+'"><span>'+escape(text)+'</span></button>';
       return '<button type="button" class="filter-chip" data-original data-remove-filter="'+name+'" aria-label="'+escape(t('Quitar'))+' '+escape(text)+'"><span>'+escape(text)+'</span><span aria-hidden="true">×</span></button>';

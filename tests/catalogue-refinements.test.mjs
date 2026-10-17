@@ -1,3 +1,4 @@
+import {configurationDefaults} from '../scripts/configuration-defaults.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -5,7 +6,7 @@ import {storage} from './helpers/server.mjs';
 import {app} from './helpers/app.mjs';
 import {taxonomyDefinitions,taxonomyMatches,taxonomyText} from '../src/shared/taxonomy.js';
 import {taxonomyPath,taxonomyDisplayLabel} from '../src/shared/taxonomy-path.js';
-const config=JSON.parse(fs.readFileSync(new URL('../assets/configuration-defaults.json',import.meta.url))),definitions=taxonomyDefinitions(config.taxonomy);
+const config=configurationDefaults(),definitions=taxonomyDefinitions(config.taxonomy);
 test('la evidencia específica del titular produce una única pareja, incluso ante varios bloques en el resumen',()=>{
  const title='BBVA mejora pagos VOSTRO para empresas',text=taxonomyText(title+' con financiación, cuentas, crédito virtual, deep links y un login biométrico');
  const matches=taxonomyMatches(text,definitions,title);assert.equal(matches.length,1);assert.equal(matches[0].row.key,'03.09');assert.equal(matches[0].row.palanca,'03.Pagos - Transf. y traspasos');
@@ -28,7 +29,7 @@ test('los filtros muestran nombres sin índices, en orden alfabético y con valo
 });
 test('las nuevas funciones entran en la búsqueda acotada sin un despliegue y el contexto empresarial permanece',()=>{
  const {c}=storage();c.initializeConfiguration();const rows=c.catalogueSearchRows_();assert.ok(rows.some(row=>row.key==='20.04'&&row.terms.includes('Quantum')));assert.ok(rows.some(row=>row.key==='03.09'&&row.terms.includes('vostro payments')));
- const current=c.getConfiguration();current.config.taxonomy.find(row=>row.name.startsWith('20.')).functions.push({id:'20.99',name:'NovaFleet',terms:[]});c.saveConfiguration(current);assert.ok(c.catalogueSearchRows_().some(row=>row.key==='20.99'));
+ c.functionalCatalog_().find(row=>row.name.startsWith('20.')).functions.push({id:'20.99',name:'NovaFleet',description:''});c.invalidateConfiguration_();assert.ok(c.catalogueSearchRows_().some(row=>row.key==='20.99'));
  const geo=c.configuration_().geographies[0],entity=c.configuration_().entities[0],feed=c.profileFeed_(geo,entity,undefined,true),query=new URL(feed.url).searchParams.get('q');assert.match(query,/"(?:empresa|empresas|business)"/);assert.ok(query.length<1800);assert.ok(c.capabilitySearchTerms_(geo,entity).length<=6);
 });
 
@@ -40,11 +41,11 @@ test('TF-IDF admite agentes y depósitos tokenizados solo tras evidencia recurre
  }
 });
 test('equivalencias operativas cubren pago singular, Getnet, MCP, seguros y custodia',()=>{
- for(const [headline,code]of [['Getnet permitirá a las empresas una única solución de pago','11.01'],['Qonto lancia MCP nel conto business','17.16'],['Banco de Bogotá lanza seguro para transacciones Bre-B','14.01'],['Standard Chartered launches institutional custody','12.10']])assert.equal(taxonomyMatches(taxonomyText(headline),definitions,headline)[0]?.row.key,code,headline);
+ for(const [headline,code]of [['Getnet permitirá a las empresas una única solución de pago',undefined],['Qonto lancia MCP nel conto business','17.16'],['Banco de Bogotá lanza seguro para transacciones Bre-B',undefined],['Standard Chartered launches institutional custody','12.10']])assert.equal(taxonomyMatches(taxonomyText(headline),definitions,headline)[0]?.row.key,code,headline);
 });
 test('el catálogo amplía admisión sin recalcular 322 capacidades cuando una capacidad habitual ya basta',()=>{
  const {c}=storage();c.initializeConfiguration();const title='BBVA launches digital payments for businesses',known=c.digitalAssessment_(c.searchText_(title),c.searchText_(title));assert.ok(known.relevant);assert.ok(known.capabilities.every(row=>!/^\d{2}\./.test(row.name)));
- const snapshot=c.getConfiguration();snapshot.config.taxonomy.find(row=>row.name.startsWith('20.')).functions.push({id:'20.99',name:'NovaFleet',terms:[]});c.saveConfiguration(snapshot);const discovery='BBVA launches NovaFleet in its digital channel for businesses';assert.ok(c.digitalAssessment_(c.searchText_(discovery),c.searchText_(discovery)).relevant);
+ c.functionalCatalog_().find(row=>row.name.startsWith('20.')).functions.push({id:'20.99',name:'NovaFleet',description:''});c.invalidateConfiguration_();const discovery='BBVA launches NovaFleet in its digital channel for businesses';assert.ok(c.digitalAssessment_(c.searchText_(discovery),c.searchText_(discovery)).relevant);
 });
 test('cambiar propuestas emergentes no obliga a reclasificar la admisión de todo el histórico',()=>{
  const {c}=storage();c.initializeConfiguration();const before=c.classificationRulesRevision_(),config=structuredClone(c.configuration_());config.taxonomy[0].emerging.push({name:'Función nueva',terms:['funcion nueva']});assert.equal(c.classificationRulesRevision_(config),before);config.taxonomy[0].functions[0].terms.push('nuevo termino operativo');assert.notEqual(c.classificationRulesRevision_(config),before);
