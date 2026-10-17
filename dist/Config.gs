@@ -1,5 +1,5 @@
 const RADAR = Object.freeze({
-  version:'3.5.0',
+  version:'3.5.1',
   sheets:{
     CatalogoFuncional:['id','bloque','nombre','descripcion'],
     DashboardSnapshots:['vista','generacion','parte','datos'],

@@ -22,7 +22,7 @@ test('dos activadores del mismo día conservan una sola recopilación y las etap
  c.requestDailyPipeline_();c.drainDailyPipeline_();assert.equal(c.collectionRequests_().length,1);assert.equal(c.collectionRequests_()[0].id,request.id);
 });
 test('la revisión trimestral se pide una vez y debe completarse antes del envío',()=>{
- const {c,properties:p}=fixture(),period={to:'2026-06-30'};assert.equal(c.queueQuarterlyTaxonomy_(period),false);assert.equal(p.TAXONOMY_REQUEST,'quarterly:2026-06-30');delete p.TAXONOMY_REQUEST;assert.equal(c.queueQuarterlyTaxonomy_(period),false);assert.equal(p.TAXONOMY_REQUEST,undefined);
+ const {c,properties:p}=fixture(),period={to:'2026-06-30'};assert.equal(c.queueQuarterlyTaxonomy_(period),false);assert.equal(p.TAXONOMY_REQUEST,'quarterly:2026-06-30');delete p.TAXONOMY_REQUEST;assert.equal(c.queueQuarterlyTaxonomy_(period),false);assert.equal(p.TAXONOMY_REQUEST,'quarterly:2026-06-30');c.drainTaxonomyRequest_();assert.equal(c.queueQuarterlyTaxonomy_(period),false);assert.equal(p.TAXONOMY_REQUEST,undefined);
  p.TAXONOMY_PERIOD=period.to;delete p.TAXONOMY_QUARTER_REQUEST;assert.equal(c.queueQuarterlyTaxonomy_(period),true);assert.equal(c.queueQuarterlyTaxonomy_({to:'2026-09-30'}),false);assert.equal(p.TAXONOMY_REQUEST,'quarterly:2026-09-30');
 });
 test('actualizar programación elimina activadores independientes y conserva los cursores pendientes',()=>{

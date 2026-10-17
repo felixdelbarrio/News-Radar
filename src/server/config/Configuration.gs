@@ -60,6 +60,7 @@ function initializeConfiguration(){
     }
     if(keys.has('taxonomy')){
       const rows=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues(),index=rows.findIndex(row=>row[0]==='taxonomy'),blocks=JSON.parse(rows[index][1]),defaults=new Map(CONFIGURATION_DEFAULTS.taxonomy.flatMap(block=>block.functions.map(row=>[row.id,row])));
+      if(book_().getSheetByName('CatalogoFuncional').getLastRow()<2&&blocks.every(block=>block.functions.every(row=>typeof row.name==='string')))writeFunctionalCatalog_(blocks);
       if(refreshCatalog)for(const block of blocks){const seed=CONFIGURATION_DEFAULTS.taxonomy.find(row=>row.name===block.name);for(const concept of seed?.emerging||[])if(!block.emerging.some(row=>row.name===concept.name))block.emerging.push(concept);for(const row of block.functions){const terms=defaults.get(row.id)?.terms;if(terms)row.terms=seed?.functions.find(item=>item.id===row.id)?.name.startsWith('Landing')?terms:[...new Set([...row.terms,...terms])];}}
       sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(functionalRuleSettings(blocks))]]);
     }

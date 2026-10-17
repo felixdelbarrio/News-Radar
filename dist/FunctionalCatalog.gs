@@ -41,6 +41,14 @@ function functionalCatalog_(){
 }
 function functionalConfiguration_(config){return {...config,taxonomy:functionalCatalogRules(functionalCatalog_(),config.taxonomy)};}
 function functionalConfigurationSettings_(config){return {...config,taxonomy:functionalRuleSettings(config.taxonomy)};}
+function writeFunctionalCatalog_(blocks){
+ const catalogue=blocks.map(({name,functions})=>({name,functions:functions.map(({id,name,description})=>({id,name,description:description||''}))})),revision=sha256_(JSON.stringify(catalogue)),p=properties_();
+ let sheet=book_().getSheetByName('CatalogoFuncional');if(revision===p.getProperty('FUNCTIONAL_CATALOG_REVISION')&&sheet?.getLastRow()>1)return false;
+ if(!sheet){sheet=book_().insertSheet('CatalogoFuncional');sheet.getRange(1,1,1,4).setValues([RADAR.sheets.CatalogoFuncional]);sheet.setFrozenRows(1);}
+ const rows=catalogue.flatMap(block=>block.functions.map(row=>[row.id,block.name,row.name,row.description])),count=sheet.getLastRow()-1;
+ sheet.getRange(2,1,rows.length,4).setNumberFormat('@').setValues(rows);if(count>rows.length)sheet.getRange(rows.length+2,1,count-rows.length,4).clearContent();
+ p.setProperty('FUNCTIONAL_CATALOG_REVISION',revision);functionalCatalogMemory_={revision,items:catalogue};invalidateConfiguration_();return true;
+}
 function refreshFunctionalCatalog_(){
  const config=configuration_();if(!config.settings.taxonomyCatalogUrl)return {source:'espejo',detail:'Se utiliza el último espejo del catálogo.'};
  const started=Date.now();
@@ -48,13 +56,8 @@ function refreshFunctionalCatalog_(){
   const id=config.settings.taxonomyCatalogUrl.match(/\/d\/([\w-]+)/)[1];if(id===properties_().getProperty('SPREADSHEET_ID'))throw Error('El maestro debe ser un documento distinto del libro de News Radar.');
   const book=SpreadsheetApp.openById(id),names=['Soluciones Funcionales','Capacidades canal (core y VD)'];
   const tables=names.map(name=>{const sheet=book.getSheetByName(name);if(!sheet||sheet.getLastRow()>1500)throw Error('Pestaña del catálogo ausente o fuera de límite: '+name);return sheet.getRange(1,1,sheet.getLastRow(),6).getDisplayValues();});
-  const catalogue=functionalCatalogRows_(tables).map(({name,functions})=>({name,functions:functions.map(({id,name,description})=>({id,name,description}))})),revision=sha256_(JSON.stringify(catalogue)),changed=revision!==properties_().getProperty('FUNCTIONAL_CATALOG_REVISION');
-  if(changed){
-   let sheet=book_().getSheetByName('CatalogoFuncional');if(!sheet){sheet=book_().insertSheet('CatalogoFuncional');sheet.getRange(1,1,1,4).setValues([RADAR.sheets.CatalogoFuncional]);sheet.setFrozenRows(1);}
-   const rows=catalogue.flatMap(block=>block.functions.map(row=>[row.id,block.name,row.name,row.description])),count=sheet.getLastRow()-1;
-   sheet.getRange(2,1,rows.length,4).setNumberFormat('@').setValues(rows);if(count>rows.length)sheet.getRange(rows.length+2,1,count-rows.length,4).clearContent();
-   properties_().setProperty('FUNCTIONAL_CATALOG_REVISION',revision);functionalCatalogMemory_={revision,items:catalogue};invalidateConfiguration_();requestNewsClassification_(true);requestDashboardSnapshots_(true);
-  }
+  const changed=writeFunctionalCatalog_(functionalCatalogRows_(tables));
+  if(changed){requestNewsClassification_(true);requestDashboardSnapshots_(true);}
   properties_().setProperty('FUNCTIONAL_CATALOG_SYNCED',new Date().toISOString());telemetry_('catalogo_funcional',Date.now()-started,'OK',changed?'Espejo actualizado desde el maestro de Drive':'Sin cambios en el maestro de Drive');return {source:'drive',changed};
  }catch(error){const detail=String(error.message).slice(0,180);telemetry_('catalogo_funcional',Date.now()-started,'Error',detail);return {source:'espejo',error:detail};}
 }

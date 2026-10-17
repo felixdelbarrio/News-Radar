@@ -30,7 +30,8 @@ function scheduledNewsletters_(){
 function newsletterReadyAt_(work){return properties_().getProperty('NEWSLETTER_REQUEST')&&settings_().newsletterEnabled&&!properties_().getProperty('TAXONOMY_QUARTER_REQUEST')&&!businessPipelinePending_(work)?Math.max(Date.now(),Number(properties_().getProperty('NEWSLETTER_NEXT')||0),Number(properties_().getProperty('NEWSLETTER_QUOTA_UNTIL')||0)):Infinity;}
 function queueQuarterlyTaxonomy_(period){
  const p=properties_();if(!period||p.getProperty('TAXONOMY_PERIOD')===period.to)return true;
- const request='quarterly:'+period.to;if(p.getProperty('TAXONOMY_QUARTER_REQUEST')!==request){p.setProperty('TAXONOMY_QUARTER_REQUEST',request);p.setProperty('TAXONOMY_REQUEST',request);ensureBackgroundWorker_();}return false;
+ const request='quarterly:'+period.to,active=taxonomyPending_()&&taxonomyJob_().request===request;
+ if(p.getProperty('TAXONOMY_QUARTER_REQUEST')!==request||!active&&p.getProperty('TAXONOMY_REQUEST')!==request){p.setProperty('TAXONOMY_QUARTER_REQUEST',request);p.setProperty('TAXONOMY_REQUEST',request);ensureBackgroundWorker_();}return false;
 }
 function deliverNewsletterBatch_(work,maxMs=BACKGROUND_WORK.sliceMs){
   const started=Date.now(),now=new Date(started),result={accepted:0,empty:0,duplicates:0,pending:0,state:'disabled'};

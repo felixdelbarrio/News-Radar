@@ -43,3 +43,23 @@ No cambia el número de lecturas de Sheets ni los totales devueltos. Estas muest
 ## Publicación
 
 Promovida a la implementación existente, versión 74, el 17 de octubre de 2026 a las 16:02 (Madrid). Se conservan la URL, ejecución por el propietario y acceso de dominio. El paquete publicado no incorpora las funciones temporales de auditoría y procesamiento.
+
+## Auditoría del histórico y medición directa
+
+Al finalizar la aplicación sobre el histórico real se conservan las 8.780 noticias y el mismo SHA-256 de su secuencia de identificadores. Hay 442 noticias admitidas en el ámbito empresarial: 220 con una pareja funcional y 222 visibles sin clasificación justificable; cero asignaciones múltiples. Se corrigen 231 etiquetas. La retirada de equivalencias genéricas de las Landing reduce asignaciones antes demasiado amplias; no se presenta esta reducción como mejora de cobertura. Tres registros dejan de cumplir la admisión digital, pero permanecen en la hoja Noticias.
+
+El modelo contiene 22 bloques, 322 funcionalidades oficiales y dos emergentes: 03.xx Pagos con stablecoins (103 evidencias) y 11.xx Cobro al Toque (una evidencia oficial). El espejo procede de Drive y las reglas persistidas contienen equivalencias, sin nombres funcionales duplicados. Las traducciones completan 692 nombres, con solo dos llamadas nuevas. Los tres manifiestos se comprueban vigentes tras terminar los trabajos.
+
+Las lecturas de la implementación 74 se registran en Telemetria. Con trabajos de fondo pausados y snapshots ya reconstruidos se observan:
+
+| Vista | Carga con RPC y red | Servidor | Snapshot |
+| --- | ---: | ---: | --- |
+| Novedades | 5.274 ms; primera lectura 9.590 ms | 1.653 ms; primera 6.112 ms | hit |
+| Noticias | 6.394 ms | 2.392 ms | hit |
+| Radar | 6.816 ms | 1.919 ms | hit |
+
+La referencia 3.4.0 de la misma sesión fue 14.913 / 11.832 / 11.152 ms, con 11.196 / 7.707 / 6.997 ms de servidor y snapshot miss. Mientras se reconstruía el histórico, 3.5.0 también registró cargas de Novedades de 13.883–17.068 ms con snapshot miss. Se conservan estas muestras para distinguir la mejora del camino de lectura de la variabilidad de Google; no son percentiles ni una comparación controlada de infraestructura. No hay medición de RAM de Apps Script.
+
+## Correcciones de revisión · PR 46 · 3.5.1
+
+Una revisión trimestral pendiente conserva su identidad cuando guardar reglas o refrescar el modelo sustituye su trabajo. La cola restaura solicitudes desplazadas y solo desbloquea el envío cuando termina la revisión del trimestre. La migración copia primero el último catálogo completo guardado al espejo técnico, con la misma función de escritura usada por Drive; después reduce las reglas a equivalencias. Así conserva funciones incorporadas al maestro aunque la primera lectura de Drive falle, también en instalaciones sin noticias. La migración no sobrescribe un espejo ya existente.

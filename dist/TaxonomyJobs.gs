@@ -21,14 +21,16 @@ function taxonomyPending_(){const job=taxonomyJob_();return Boolean(job&&job.sta
 function taxonomyReadyAt_(){const job=taxonomyJob_();return job&&job.state!=='Completada'?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
 function writeTaxonomyJob_(job){progressContextMemory_=undefined;properties_().setProperty('TAXONOMY_JOB',JSON.stringify(job));}
 function requestTaxonomy_(request=''){
+  request=properties_().getProperty('TAXONOMY_QUARTER_REQUEST')||request;
   const catalog=refreshFunctionalCatalog_();
   const total=Math.max(0,book_().getSheetByName('Noticias').getLastRow()-1),now=new Date().toISOString();
   writeTaxonomyJob_({request,catalog,id:Utilities.getUuid(),state:'Pendiente',phase:'scan',next:2,cursor:null,total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});
   ensureBackgroundWorker_();
 }
 function drainTaxonomyRequest_(){
-  const p=properties_(),day=p.getProperty('TAXONOMY_REQUEST');if(!day||taxonomyPending_())return;
-  if(taxonomyJob_()?.request!==day)requestTaxonomy_(day);p.deleteProperty('TAXONOMY_REQUEST');
+  const p=properties_(),day=p.getProperty('TAXONOMY_QUARTER_REQUEST')||p.getProperty('TAXONOMY_REQUEST');if(!day||taxonomyPending_()&&taxonomyJob_().request===day)return;
+  if(taxonomyPending_()&&!day.startsWith('quarterly:'))return;
+  if(taxonomyJob_()?.request!==day||day.startsWith('quarterly:'))requestTaxonomy_(day);p.deleteProperty('TAXONOMY_REQUEST');
 }
 function getTaxonomyStatus(){
   authorize_(true);return {newsRevision:properties_().getProperty('NEWS_REVISION')||'0',pageSize:settings_().pageSize,job:withJobProgress_('taxonomy',taxonomyJob_(),Boolean(properties_().getProperty('TAXONOMY_REQUEST'))),catalogUrl:settings_().taxonomyCatalogUrl,configurationRevision:configurationRevision_(),items:taxonomyCatalog_(),taxonomyTranslations:taxonomyTranslations_(),queued:Boolean(properties_().getProperty('TAXONOMY_REQUEST')),synced:properties_().getProperty('FUNCTIONAL_CATALOG_SYNCED')||'',scheduled:newsletterEnabled_(),timezone:settings_().timezone};
