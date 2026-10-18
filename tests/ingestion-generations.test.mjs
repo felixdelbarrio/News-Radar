@@ -9,16 +9,7 @@ function add(s,id='one',title='BBVA lanza pagos digitales para empresas'){
  c.append_('Noticias',[vm.runInContext('RADAR.sheets.Noticias',c).map(key=>row[key]||'')]);c.invalidateNews_();return row;
 }
 function snapshots(c){for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();}
-function drainMigration(c){for(let i=0;i<30&&c.ingestionMigrationPending_();i++)c.ingestionMigrationBatch_();assert.equal(c.ingestionMigrationPending_(),false);}
-test('el archivo de newsletters normaliza incidencias al publicar y conserva los originales y su contexto',()=>{
- const s=server(),c=s.c;add(s);const row=c.annotateNews_(c.rows_('Noticias'))[0];row.senales=['Indisponibilidad de servicio','Incidencia operativa'];const score=c.newsRelevance_(row),query={from:'2026-10-01',to:'2026-10-15',signal:'Indisponibilidad de servicio',search:'Indisponibilidad de servicio'};
- c.saveNewsletterEdition_('legacy','delivery','owner@bbva.com','Histórica',query,'es',[row]);c.completeNewsletterEdition_('legacy','Enviada');const original=JSON.stringify(s.sheets.get('NewsletterContenido').grid),before=c.newsletterEdition_('legacy','owner@bbva.com');snapshots(c);
- c.startIngestionMigration();drainMigration(c);assert.equal(c.newsletterStorageKey_('NewsletterContenido'),'NewsletterContenido');assert.equal(JSON.stringify(s.sheets.get('NewsletterContenido').grid),original);
- c.startIngestionMigration(false);drainMigration(c);assert.notEqual(c.newsletterStorageKey_('NewsletterContenido'),'NewsletterContenido');const after=c.newsletterEdition_('legacy','owner@bbva.com');assert.deepEqual(Array.from(after.items[0].senales),['Incidencia operativa']);assert.equal(after.query.signal,'Incidencia operativa');assert.equal(after.query.search,query.search);assert.equal(after.created,before.created);assert.equal(after.items[0].id,before.items[0].id);assert.equal(c.newsRelevance_(after.items[0]),score);assert.equal(JSON.stringify(s.sheets.get('NewsletterContenido').grid),original);
-});
-test('editar una newsletter después de la prueba exige repetirla antes de promover',()=>{
- const {c}=server();add({c});c.startIngestionMigration();drainMigration(c);c.markNewsletterArchiveEdited_();assert.throws(()=>c.startIngestionMigration(false),/primero una prueba/);
-});
+
 test('las claves fragmentadas de caché respetan el límite real con generaciones y UUID completos',()=>{
  const s=server(),c=s.c;let sequence=0;c.Utilities.getUuid=()=>String(++sequence).padStart(8,'0')+'-1234-1234-1234-123456789abc';const cache=c.CacheService.getScriptCache(),check=key=>assert.ok(key.length<=250,'Clave demasiado larga: '+key.length);
  c.CacheService.getScriptCache=()=>({get:key=>{check(key);return cache.get(key);},getAll:keys=>{keys.forEach(check);return cache.getAll(keys);},put:(key,value)=>{check(key);return cache.put(key,value);},putAll:values=>{Object.keys(values).forEach(check);return cache.putAll(values);},remove:key=>cache.remove(key)});
@@ -38,16 +29,11 @@ test('las tres vistas cambian mediante un único manifiesto y un fallo conserva 
  const s=server(),c=s.c;add(s);snapshots(c);const previous=s.properties.DATA_GENERATION;c.invalidateNews_();c.dashboardSnapshotBatch_();assert.equal(s.properties.DATA_GENERATION,previous);c.dashboardSnapshotBatch_();assert.equal(s.properties.DATA_GENERATION,previous);
  const sheet=s.sheets.get('DashboardSnapshots'),get=sheet.getRange;sheet.getRange=()=>{throw Error('Fallo de escritura');};assert.throws(()=>c.dashboardSnapshotBatch_(),/Fallo/);assert.equal(s.properties.DATA_GENERATION,previous);sheet.getRange=get;c.dashboardSnapshotBatch_();assert.notEqual(s.properties.DATA_GENERATION,previous);assert.equal(c.dashboardSnapshotsPending_(),false);
 });
-test('histórico: prueba obligatoria, copia verificada, reanudación e intercambio atómico con snapshots',()=>{
- const s=server(),c=s.c;for(let i=0;i<105;i++)add(s,String(i));snapshots(c);const source=c.newsStorageKey_(),original=JSON.stringify(c.rows_('Noticias'));assert.throws(()=>c.startIngestionMigration(false),/primero una prueba/);
- c.startIngestionMigration();c.ingestionMigrationBatch_();assert.equal(c.ingestionMigrationJob_().next,102);assert.equal(c.newsStorageKey_(),source);drainMigration(c);assert.equal(c.ingestionMigrationJob_().state,'Prueba completada');assert.equal(JSON.stringify(c.rows_('Noticias')),original);
- const job=c.startIngestionMigration(false);c.ingestionMigrationBatch_();const next=c.ingestionMigrationJob_().next;c.startIngestionMigration(false);assert.equal(c.ingestionMigrationJob_().next,next);drainMigration(c);assert.equal(c.ingestionMigrationJob_().state,'Completada');assert.equal(c.newsStorageKey_(),job.target);assert.equal(c.rows_('Noticias').length,105);assert.deepEqual(Array.from(c.rows_('Noticias'),row=>[row.id,row.url,row.fecha]),JSON.parse(original).map(row=>[row.id,row.url,row.fecha]));assert.ok(c.ingestionMigrationJob_().digest);assert.equal(s.sheets.get(job.backup).getLastRow(),106);assert.equal(c.dashboardSnapshotsPending_(),false);
-});
 test('clasificación diaria no expone lotes parciales y solo termina tras publicar las tres vistas',()=>{
  const s=server(),c=s.c;for(let i=0;i<105;i++)add(s,String(i));snapshots(c);const original=c.newsStorageKey_();c.requestNewsClassification_(true);c.newsClassificationBatch_();assert.equal(c.newsStorageKey_(),original);c.newsClassificationBatch_();assert.equal(c.classificationJob_().state,'Publicando');assert.equal(c.newsStorageKey_(),original);snapshots(c);assert.equal(c.classificationJob_().state,'Completada');assert.notEqual(c.newsStorageKey_(),original);assert.equal(c.dashboardSnapshotsPending_(),false);
 });
 test('rollback conserva el corpus y los tres snapshots anteriores tras publicar otra generación',()=>{
- const s=server(),c=s.c;add(s);snapshots(c);const previous=c.newsStorageKey_(),generation=c.dataGeneration_();c.startClassification();c.newsClassificationBatch_();snapshots(c);assert.notEqual(c.newsStorageKey_(),previous);assert.ok(s.properties.PREVIOUS_DATA_GENERATION);c.rollbackIngestionGeneration();assert.equal(c.newsStorageKey_(),previous);for(const view of ['briefing','news','radar']){assert.equal(c.dashboardSnapshotManifest_(view).generation,generation.snapshots[view].generation);c.verifyDashboardSnapshot_(view,c.dashboardSnapshotManifest_(view));}
+ const s=server(),c=s.c;add(s);snapshots(c);const previous=c.newsStorageKey_(),generation=c.dataGeneration_();c.startClassification();c.newsClassificationBatch_();snapshots(c);assert.notEqual(c.newsStorageKey_(),previous);assert.ok(s.properties.PREVIOUS_DATA_GENERATION);c.rollbackDataGeneration();assert.equal(c.newsStorageKey_(),previous);for(const view of ['briefing','news','radar']){assert.equal(c.dashboardSnapshotManifest_(view).generation,generation.snapshots[view].generation);c.verifyDashboardSnapshot_(view,c.dashboardSnapshotManifest_(view));}
 });
 test('la taxonomía observa candidatos indeterminados sin publicarlos como noticias',()=>{
  const s=server(),c=s.c,feed=c.feeds_().find(row=>row.kind==='rss'),title='Banco explora pagos con stablecoins',decision=c.classification_(c.searchText_(title),c.searchText_(title));const candidate={date:new TestDate('2026-10-10'),title,excerpt:'',url:'https://www.bbva.com/candidate',labels:{...decision.labels,digital:false,estado:'indeterminado'},entity:'BBVA',country:'España',language:'es',provenance:'rss:title'};
@@ -62,10 +48,6 @@ test('funciones secundarias requieren evidencia distinta, respetan el orden y no
  const {c}=server(),definitions=[{key:'01.01',palanca:'01.Pagos',subpalanca:'01.01.Pagos internacionales',terms:['pagos internacionales']},{key:'02.01',palanca:'02.Facturas',subpalanca:'02.01.Facturas electrónicas',terms:['facturas electronicas']},{key:'03.01',palanca:'03.Transferencias',subpalanca:'03.01.Transferencias',terms:['pagos internacionales']}],title='Banco lanza pagos internacionales y facturas electrónicas para empresas',result=c.taxonomyDecision(c.taxonomyText(title),definitions,title);
  assert.equal(result.matches.length,2);assert.equal(result.matches[0].row.key,'02.01');assert.equal(result.matches[1].row.key,'01.01');assert.ok(result.matches.every(row=>row.evidence.terms.length));
 });
-test('candidatos recuperables preservan su ID y no reaparecen al repetir la migración',()=>{
- const s=server(),c=s.c,feed=c.feeds_().find(row=>row.kind==='rss'),title='BBVA lanza pagos digitales para empresas',labels=c.classification_(c.searchText_(title),c.searchText_(title)).labels,item={date:new TestDate('2026-10-10'),title,excerpt:'',url:'https://www.bbva.com/recovered',labels:{...labels,digital:false,estado:'indeterminado'},entity:'BBVA',country:'España',language:'es',provenance:'rss:title'},record=c.candidateRecord_(item,feed,new TestDate(),'Admisión histórica insuficiente');
- c.persistCandidates_([record,record]);c.startIngestionMigration();drainMigration(c);assert.equal(c.ingestionMigrationJob_().recovered,1);assert.equal(c.rows_('Noticias').length,0);c.startIngestionMigration(false);drainMigration(c);assert.equal(c.rows_('Noticias').length,1);assert.equal(c.rows_('Noticias')[0].id,record[0]);c.startIngestionMigration();drainMigration(c);assert.equal(c.ingestionMigrationJob_().recovered,0);
-});
 test('el catálogo y sus asignaciones permanecen aislados hasta publicar una misma generación',()=>{
  const s=server(),c=s.c;add(s,'one','BBVA lanza autenticación biométrica para empresas');snapshots(c);const source=c.newsStorageKey_(),model=c.taxonomyStorageKey_();c.startTaxonomy();c.taxonomyBatch_();c.taxonomyBatch_();assert.equal(c.taxonomyJob_().phase,'tag');assert.equal(c.newsStorageKey_(),source);assert.equal(c.taxonomyStorageKey_(),model);c.taxonomyBatch_();assert.equal(c.taxonomyJob_().state,'Publicando');assert.equal(c.newsStorageKey_(),source);assert.equal(c.taxonomyStorageKey_(),model);snapshots(c);assert.equal(c.taxonomyJob_().state,'Completada');assert.notEqual(c.newsStorageKey_(),source);assert.notEqual(c.taxonomyStorageKey_(),model);assert.equal(c.dashboardSnapshotsPending_(),false);
 });
@@ -75,12 +57,6 @@ test('un fragmento preparado corrupto se reconstruye antes de cambiar el manifie
 test('la newsletter histórica conserva la relevancia de la generación que se guardó',()=>{
  const s=server(),c=s.c;add(s);const row=c.annotateNews_(c.rows_('Noticias'))[0],score=c.newsRelevance_(row);assert.ok(score>0);c.saveNewsletterEdition_('edition','delivery','owner@bbva.com','Prueba',{from:'2026-10-01',to:'2026-10-15'},'es',[row]);c.completeNewsletterEdition_('edition','Enviada');const edition=c.newsletterEdition_('edition','owner@bbva.com');assert.equal(c.newsRelevance_(edition.items[0]),score);
 });
-test('unificar incidencias migra la señal guardada sin modificar una búsqueda de texto del usuario',()=>{
- const s=server(),c=s.c,sheet=s.sheets.get('Configuracion'),stored=sheet.grid.find(row=>row[0]==='signals'),signals=JSON.parse(stored[1]),incident=signals.find(row=>row.group==='Problema');signals.push({...incident,name:'Indisponibilidad de servicio'});stored[1]=JSON.stringify(signals);const filters={signal:'Indisponibilidad de servicio',search:'Indisponibilidad de servicio',entity:'BBVA'};s.sheets.get('Suscripciones').grid.push(['one','owner@bbva.com','Prueba',JSON.stringify(filters),'all','true','2026-10-18','es']);c.unifyIncidentConfiguration_(sheet);const saved=JSON.parse(s.sheets.get('Suscripciones').grid[1][3]);assert.equal(saved.signal,'Incidencia operativa');assert.equal(saved.search,filters.search);assert.equal(saved.entity,filters.entity);assert.equal(JSON.parse(stored[1]).filter(row=>row.group==='Problema').length,1);
-});
-test('una prueba con metadatos inválidos bloquea la promoción sin eliminar el histórico',()=>{
- const s=server(),c=s.c;add(s);c.newsSheet_().grid[1][1]='fecha inválida';c.invalidateNews_();c.startIngestionMigration();drainMigration(c);assert.equal(c.ingestionMigrationJob_().invalid,1);assert.throws(()=>c.startIngestionMigration(false),/metadatos inválidos/);assert.equal(c.newsStorageKey_(),'Noticias');assert.equal(c.rows_('Noticias').length,1);
-});
 test('el descubrimiento deduplica URL entre histórico y candidatos incluso si cambian título o medio',()=>{
  const s=server(),c=s.c;add(s,'one','BBVA lanza pagos con stablecoins para empresas');add(s,'two','BBVA mejora pagos con stablecoins para empresas');const url=c.newsSheet_().grid[1][7];c.newsSheet_().grid[2][7]=url;c.invalidateNews_();const feed=c.feeds_().find(row=>row.kind==='rss'),title='BBVA incorpora pagos con stablecoins para empresas',labels=c.classification_(c.searchText_(title),c.searchText_(title)).labels;
  c.persistCandidates_([c.candidateRecord_({date:new TestDate('2026-10-10'),title,excerpt:'',url,labels,publisher:'Otro medio',entity:'BBVA',country:'España',language:'es',provenance:'rss:title'},feed,new TestDate(),'Contexto')]);c.startTaxonomy();for(let i=0;i<12&&c.taxonomyPending_();i++){if(c.taxonomyJob_().state==='Publicando')c.dashboardSnapshotBatch_();else c.taxonomyBatch_();}assert.equal(c.taxonomyJob_().documents,1);assert.equal(c.rows_('Noticias').length,2);
@@ -88,8 +64,19 @@ test('el descubrimiento deduplica URL entre histórico y candidatos incluso si c
 test('el cliente recibe una revisión nueva solo tras publicar los tres snapshots',()=>{
  const s=server(),c=s.c;add(s);snapshots(c);const before=c.getCollectionProgress().newsRevision;c.startClassification();c.newsClassificationBatch_();assert.equal(c.classificationJob_().state,'Publicando');assert.equal(c.getCollectionProgress().newsRevision,before);assert.equal(c.getClassificationStatus().newsRevision,before);c.dashboardSnapshotBatch_();c.dashboardSnapshotBatch_();assert.equal(c.getCollectionProgress().newsRevision,before);c.dashboardSnapshotBatch_();const after=c.getCollectionProgress().newsRevision;assert.notEqual(after,before);assert.equal(c.getClassificationStatus().newsRevision,after);assert.equal(c.getDashboard({view:'news',initial:true}).newsRevision,after);
 });
-test('recuperar candidatos conserva las restricciones originales de entidad y geografía de la consulta',()=>{
- const s=server(),c=s.c,feed=c.feeds_().find(row=>row.kind==='profile'&&row.entity==='BBVA'&&row.country==='España');assert.ok(feed);const reasons=[];
- for(const [index,entity] of ['HSBC','BBVA'].entries()){const raw={title:entity+' lanza una plataforma digital de pagos para empresas en México',url:'https://news.google.com/rss/articles/profile-'+index,date:'2026-10-10'},result=c.evaluate_(raw,feed,new TestDate());assert.ok(result.candidate);reasons.push(result.reason);c.persistCandidates_([c.candidateRecord_(result.candidate,feed,new TestDate(),result.reason)]);}
- assert.match(reasons[0],/entidad buscada/);assert.match(reasons[1],/Geografía distinta/);c.startIngestionMigration();drainMigration(c);assert.equal(c.ingestionMigrationJob_().recovered,0);assert.equal(c.rows_('Candidatos').length,2);assert.equal(c.rows_('Noticias').length,0);
+
+test('publicar precalienta las tres vistas y una evicción recupera el snapshot persistido',()=>{
+ const s=server(),c=s.c;add(s);snapshots(c);const sheet=s.sheets.get('DashboardSnapshots'),read=sheet.getRange;sheet.getRange=()=>{throw Error('Lectura fría de snapshot');};
+ for(const view of ['briefing','news','radar'])assert.equal(c.getDashboard({view,initial:true}).performance.snapshotHit,true);
+ sheet.getRange=read;s.cache.clear();assert.equal(c.getDashboard({view:'news',initial:true}).performance.snapshotHit,true);
+});
+test('metadatos operativos distinguen privilegios y no cachean la revisión publicada',()=>{
+ const s=server(),c=s.c;add(s);snapshots(c);const admin=c.dashboardOperation_(true),reader=c.dashboardOperation_(false);assert.ok(admin.sheetUrl);assert.equal(reader.sheetUrl,undefined);
+ const before=c.getDashboard({view:'news',initial:true}).newsRevision;c.invalidateNews_();snapshots(c);assert.notEqual(c.getDashboard({view:'news',initial:true}).newsRevision,before);
+});
+
+test('la limpieza retiene solo generaciones activas, rollback y trabajos pendientes',()=>{
+ const s=server(),c=s.c;add(s);snapshots(c);c.startClassification();c.newsClassificationBatch_();snapshots(c);const active=c.newsStorageKey_();
+ c.generationSheet_('Noticias_class_orphan',vm.runInContext('RADAR.sheets.Noticias',c));c.generationSheet_('Noticias_tax_pending',vm.runInContext('RADAR.sheets.Noticias',c));s.properties.TAXONOMY_JOB=JSON.stringify({state:'Pendiente',source:active,target:'Noticias_tax_pending'});
+ c.pruneNewsGenerations_();assert.ok(s.sheets.has(active));assert.ok(s.sheets.has('Noticias'));assert.ok(s.sheets.has('Noticias_tax_pending'));assert.equal(s.sheets.has('Noticias_class_orphan'),false);
 });
