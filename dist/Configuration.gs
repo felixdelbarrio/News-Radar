@@ -18,12 +18,16 @@ function addVocabularyTerms_(config){
     const row=rows.find(item=>item.name===addition.name);if(!row)continue;
     const removed=new Set((addition.remove||[]).map(searchText_)),terms=[...new Set([...row.terms.filter(term=>!removed.has(searchText_(term))),...addition.terms])];if(JSON.stringify(terms)!==JSON.stringify(row.terms)){row.terms=terms;changed=true;}
   }
+  for(const addition of CONFIGURATION_VOCABULARY_UPDATE.taxonomy||[]){
+    const row=config.taxonomy.flatMap(block=>block.functions).find(row=>row.id===addition.id);if(!row)continue;
+    const removed=new Set(addition.remove.map(searchText_)),terms=[...new Set([...row.terms.filter(term=>!removed.has(searchText_(term))),...addition.terms])];if(JSON.stringify(terms)!==JSON.stringify(row.terms)){row.terms=terms;changed=true;}
+  }
   return changed;
 }
 function updateVocabulary_(sheet){
   if(properties_().getProperty('VOCABULARY_VERSION')===CONFIGURATION_VOCABULARY_UPDATE.version)return false;
   const values=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues(),config=Object.fromEntries(values.map(([key,value])=>[key,JSON.parse(value)])),changed=addVocabularyTerms_(config);
-  if(changed)for(const key of ['relevanceRules','capabilities','searchLanguages'])sheet.getRange(values.findIndex(row=>row[0]===key)+2,2,1,1).setValues([[JSON.stringify(config[key])]]);
+  if(changed)for(const key of ['relevanceRules','capabilities','searchLanguages','taxonomy'])sheet.getRange(values.findIndex(row=>row[0]===key)+2,2,1,1).setValues([[JSON.stringify(config[key])]]);
   properties_().setProperty('VOCABULARY_VERSION',CONFIGURATION_VOCABULARY_UPDATE.version);return changed;
 }
 function initializeConfiguration(){

@@ -1,5 +1,17 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "El origen o las reglas de la generación han cambiado; reiniciando el job.": ["The generation source or rules changed; restarting the job.", "Veri neslinin kaynağı veya kuralları değişti; iş yeniden başlatılıyor."],
+  "Generación incompleta.": ["Incomplete generation.", "Veri nesli eksik."],
+  "El catálogo preparado ha cambiado.": ["The staged catalogue changed.", "Hazırlanan katalog değişti."],
+  "Generaciones mixtas durante la validación.": ["Mixed generations during validation.", "Doğrulama sırasında farklı veri nesilleri bulundu."],
+  "Catálogo funcional con IDs vacíos o duplicados.": ["Functional catalogue contains empty or duplicate IDs.", "İşlev kataloğunda boş veya yinelenen kimlikler var."],
+  "IDs inexistentes o duplicados.": ["Missing or duplicate IDs.", "Bulunamayan veya yinelenen kimlikler."],
+  "Generación del catálogo distinta.": ["Catalogue generation mismatch.", "Katalog veri nesli eşleşmiyor."],
+  "Asignación pendiente de reproceso.": ["Assignment requires reprocessing.", "Atamanın yeniden işlenmesi gerekiyor."],
+  "Evidencia o categoría principal incompleta.": ["Incomplete evidence or primary category.", "Kanıt veya birincil kategori eksik."],
+  "Evidencia individual no verificable.": ["Individual evidence cannot be verified.", "Bireysel kanıt doğrulanamıyor."],
+  "Evidencia secundaria solapada o genérica.": ["Secondary evidence overlaps or is generic.", "İkincil kanıt örtüşüyor veya çok genel."],
+
   "El archivo de newsletters ha cambiado; repite la prueba.": ["The newsletter archive changed; repeat the dry run.", "Bülten arşivi değişti; denemeyi tekrarlayın."],
   "La generación preparada ha cambiado; repite la prueba.": ["The staged generation changed; repeat the dry run.", "Hazırlanan veri nesli değişti; denemeyi tekrarlayın."],
   "Revisa los registros con metadatos inválidos antes de publicar.": ["Review records with invalid metadata before publishing.", "Yayımlamadan önce geçersiz meta verileri olan kayıtları inceleyin."],

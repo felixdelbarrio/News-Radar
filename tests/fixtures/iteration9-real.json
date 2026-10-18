@@ -1,0 +1,378 @@
+{
+  "source": "News Radar, lectura Apps Script del 18/10/2026 20:51 Europe/Madrid",
+  "referenceLabels": "Revisión técnica de ejemplos; no son etiquetas independientes de precisión/recall.",
+  "cases": [
+    {
+      "group": "positive",
+      "id": "1b278182-2a98-413f-9146-cae8689bdb9c",
+      "title": "App de Santander también falla en viernes de quincena; no se puede iniciar sesión",
+      "excerpt": "",
+      "reason": "matched",
+      "assignments": [
+        {
+          "id": "fa9ee92ed2fc064b1ba9b543",
+          "name": "19.22.Sesión",
+          "evidence": {
+            "id": "fa9ee92ed2fc064b1ba9b543",
+            "terms": [
+              "sesion"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        }
+      ]
+    },
+    {
+      "group": "positive",
+      "id": "11fe1b75-786b-4a1d-88e9-a4cb47d4cb01",
+      "title": "La app de Banco Santander no funciona: problemas al hacer Bizum e iniciar sesión",
+      "excerpt": "",
+      "reason": "matched",
+      "assignments": [
+        {
+          "id": "fa9ee92ed2fc064b1ba9b543",
+          "name": "19.22.Sesión",
+          "evidence": {
+            "id": "fa9ee92ed2fc064b1ba9b543",
+            "terms": [
+              "sesion"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        }
+      ]
+    },
+    {
+      "group": "positive",
+      "id": "de1fe5d2-4233-4f49-95b6-fa14a6d817c0",
+      "title": "CONTPAQi y Banorte buscan eficientar la gestión fiscal y contable en las PyMEs de México",
+      "excerpt": "",
+      "reason": "matched",
+      "assignments": [
+        {
+          "id": "ed0df57eb12870ebbb2b7873",
+          "name": "17.16.API Channel",
+          "evidence": {
+            "id": "ed0df57eb12870ebbb2b7873",
+            "terms": [
+              "contpaqi"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        }
+      ]
+    },
+    {
+      "group": "positive",
+      "id": "dd18f1a0-22b6-4c12-8f35-be9e22933f50",
+      "title": "Banorte y CONTPAQi se alían para que las PyMEs integren banca y contabilidad en tiempo real",
+      "excerpt": "",
+      "reason": "matched",
+      "assignments": [
+        {
+          "id": "ed0df57eb12870ebbb2b7873",
+          "name": "17.16.API Channel",
+          "evidence": {
+            "id": "ed0df57eb12870ebbb2b7873",
+            "terms": [
+              "contpaqi"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        }
+      ]
+    },
+    {
+      "group": "positive",
+      "id": "2f422ad0-5720-4713-9be4-f132aef3bcbc",
+      "title": "Banorte y Contpaqi forman alianza para impulsar digitalización de pymes en México",
+      "excerpt": "",
+      "reason": "matched",
+      "assignments": [
+        {
+          "id": "ed0df57eb12870ebbb2b7873",
+          "name": "17.16.API Channel",
+          "evidence": {
+            "id": "ed0df57eb12870ebbb2b7873",
+            "terms": [
+              "contpaqi"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        }
+      ]
+    },
+    {
+      "group": "positive",
+      "id": "9ed2f90f-b91a-4d6d-9ce6-d6368902b988",
+      "title": "Qonto lanza un producto para gestionar los pagos desde ChatGPT y entrará en el negocio del crédito en 2026",
+      "excerpt": "",
+      "reason": "matched",
+      "assignments": [
+        {
+          "id": "282e01633063ed3ff48c2eb4",
+          "name": "03.xx Pagos agénticos",
+          "evidence": {
+            "id": "282e01633063ed3ff48c2eb4",
+            "terms": [
+              "pagos desde chatgpt"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        }
+      ]
+    },
+    {
+      "group": "negative",
+      "id": "5c0f3b13-aa91-4438-942d-af2253fb34fc",
+      "title": "Daviplata se transforma en neobanco: trae nuevas tarjetas y rentabilidad al 8,25% en Colombia | El Colombiano",
+      "excerpt": "",
+      "reason": "insufficient",
+      "assignments": []
+    },
+    {
+      "group": "negative",
+      "id": "e472bf8d-e4b8-4a2b-a971-fac40b587844",
+      "title": "N26 broker opiniones España: Acciones, ETFs y cuenta remunerada",
+      "excerpt": "",
+      "reason": "insufficient",
+      "assignments": []
+    },
+    {
+      "group": "negative",
+      "id": "865939f6-5918-423b-99b8-ba7037f5fc22",
+      "title": "Pierpaolo Barbieri de Ualá explicó en X la diferencia entre FCI y cuenta remunerada",
+      "excerpt": "",
+      "reason": "insufficient",
+      "assignments": []
+    },
+    {
+      "group": "negative",
+      "id": "c7abfcc6-6dcd-45a9-b17c-ceb28a375229",
+      "title": "Davivienda también reportó problemas en sus servicios por falla global de AWS, el sistema en la nuve de Amazon",
+      "excerpt": "",
+      "reason": "insufficient",
+      "assignments": []
+    },
+    {
+      "group": "negative",
+      "id": "8b489c72-c51e-4bb5-a921-16efb25fda07",
+      "title": "Caída global de Amazon AWS paraliza Colombia: Bancolombia, Nequi y Davivienda quedaron fuera de servicio",
+      "excerpt": "",
+      "reason": "insufficient",
+      "assignments": []
+    },
+    {
+      "group": "negative",
+      "id": "2a4c132d-316c-41d5-9439-1fc7849f7c4d",
+      "title": "Esta es la razón por la que las app de Bancolombia, Davivienda, Daviplata y Nequi no funcionan hoy",
+      "excerpt": "",
+      "reason": "insufficient",
+      "assignments": []
+    },
+    {
+      "group": "multiple",
+      "id": "d5348ada-9c6a-480b-9c0d-b5dfd8ccd8cf",
+      "title": "HSBC prueba pagos con IA y depósitos tokenizados",
+      "excerpt": "",
+      "reason": "matched",
+      "assignments": [
+        {
+          "id": "49c479377f9fd132dcde7b6b",
+          "name": "02.xx Depósitos tokenizados",
+          "evidence": {
+            "id": "49c479377f9fd132dcde7b6b",
+            "terms": [
+              "depositos tokenizados"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        },
+        {
+          "id": "282e01633063ed3ff48c2eb4",
+          "name": "03.xx Pagos agénticos",
+          "evidence": {
+            "id": "282e01633063ed3ff48c2eb4",
+            "terms": [
+              "pagos con ia"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        }
+      ]
+    },
+    {
+      "group": "multiple",
+      "id": "df3080aa-09c1-4b32-b394-d3da497e9e44",
+      "title": "HSBC and Ant Digital test AI-agent payments with tokenized deposits",
+      "excerpt": "",
+      "reason": "matched",
+      "assignments": [
+        {
+          "id": "282e01633063ed3ff48c2eb4",
+          "name": "03.xx Pagos agénticos",
+          "evidence": {
+            "id": "282e01633063ed3ff48c2eb4",
+            "terms": [
+              "ai-agent payments"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        },
+        {
+          "id": "49c479377f9fd132dcde7b6b",
+          "name": "02.xx Depósitos tokenizados",
+          "evidence": {
+            "id": "49c479377f9fd132dcde7b6b",
+            "terms": [
+              "tokenized deposits"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        }
+      ]
+    },
+    {
+      "group": "multiple",
+      "id": "f53156f9-0762-4875-9970-dbac9ee0afc0",
+      "title": "HSBC prueba pagos de agentes de IA con depósitos tokenizados",
+      "excerpt": "",
+      "reason": "matched",
+      "assignments": [
+        {
+          "id": "49c479377f9fd132dcde7b6b",
+          "name": "02.xx Depósitos tokenizados",
+          "evidence": {
+            "id": "49c479377f9fd132dcde7b6b",
+            "terms": [
+              "depositos tokenizados"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        },
+        {
+          "id": "282e01633063ed3ff48c2eb4",
+          "name": "03.xx Pagos agénticos",
+          "evidence": {
+            "id": "282e01633063ed3ff48c2eb4",
+            "terms": [
+              "pagos de agentes de ia"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        }
+      ]
+    },
+    {
+      "group": "multiple",
+      "id": "0f3233be-a8f7-4990-9d5e-50579fb47697",
+      "title": "HSBC tests AI agent payments with tokenized deposits",
+      "excerpt": "",
+      "reason": "matched",
+      "assignments": [
+        {
+          "id": "282e01633063ed3ff48c2eb4",
+          "name": "03.xx Pagos agénticos",
+          "evidence": {
+            "id": "282e01633063ed3ff48c2eb4",
+            "terms": [
+              "ai agent payments"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        },
+        {
+          "id": "49c479377f9fd132dcde7b6b",
+          "name": "02.xx Depósitos tokenizados",
+          "evidence": {
+            "id": "49c479377f9fd132dcde7b6b",
+            "terms": [
+              "tokenized deposits"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        }
+      ]
+    },
+    {
+      "group": "multiple",
+      "id": "6dfaeca6-25ea-4b12-9a68-79068211df07",
+      "title": "HSBC, Ant Digital test AI-agent payments using tokenized deposits",
+      "excerpt": "",
+      "reason": "matched",
+      "assignments": [
+        {
+          "id": "282e01633063ed3ff48c2eb4",
+          "name": "03.xx Pagos agénticos",
+          "evidence": {
+            "id": "282e01633063ed3ff48c2eb4",
+            "terms": [
+              "ai-agent payments"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        },
+        {
+          "id": "49c479377f9fd132dcde7b6b",
+          "name": "02.xx Depósitos tokenizados",
+          "evidence": {
+            "id": "49c479377f9fd132dcde7b6b",
+            "terms": [
+              "tokenized deposits"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        }
+      ]
+    },
+    {
+      "group": "multiple",
+      "id": "c1272e08-b97f-4283-9c56-98cb3a2259b3",
+      "title": "HSBC Ant Digital Settle AI Agent Payments With Tokenized Deposits On Jovay Testnet",
+      "excerpt": "",
+      "reason": "matched",
+      "assignments": [
+        {
+          "id": "282e01633063ed3ff48c2eb4",
+          "name": "03.xx Pagos agénticos",
+          "evidence": {
+            "id": "282e01633063ed3ff48c2eb4",
+            "terms": [
+              "ai agent payments"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        },
+        {
+          "id": "49c479377f9fd132dcde7b6b",
+          "name": "02.xx Depósitos tokenizados",
+          "evidence": {
+            "id": "49c479377f9fd132dcde7b6b",
+            "terms": [
+              "tokenized deposits"
+            ],
+            "location": "headline",
+            "method": "literal"
+          }
+        }
+      ]
+    }
+  ]
+}
