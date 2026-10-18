@@ -1,3 +1,4 @@
+import {createLlmCategorization} from './features/llm-categorization.js';
 import {initializeDatePickers} from './features/date-picker.js';
 import {createJobMonitor,jobProgressHtml} from './features/job-monitor.js';
 import {browserCountry} from './core/browser-country.js';
@@ -36,14 +37,15 @@ const dashboards=new Map();
 const selectionKey=query=>JSON.stringify(Object.entries(query).filter(([,value])=>value!==''&&value!=null).sort(([a],[b])=>a.localeCompare(b)));
 const configuration = createConfiguration({run:action});
 const taxonomy=createTaxonomy({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='taxonomy'});
+const llmCategorization=createLlmCategorization({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='llm',onRevision:revision=>{if(state.data&&revision!==state.data.newsRevision){state.contentStale=true;dashboards.clear();}}});
 const subscriptions = createSubscriptions({run:action});
 const classification=createClassification({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='runs'});
 const maintenance=createJobMonitor({id:'maintenance',get:'getMaintenanceStatus',isActive:()=>navigation.current==='administration'&&administration.current==='runs',render({job}){$('maintenance-progress').innerHTML=job?jobProgressHtml(job,{total:job.total,done:job.reviewed,label:'Mantenimiento incremental',summary:job.reviewed+' revisados · '+job.corrected+' corregidos · '+job.consolidated+' consolidados · '+job.removed+' eliminados'}):'<p>Sin mantenimiento pendiente.</p>';}});
 const newsletterDelivery=createNewsletterDelivery({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='subscribers'});
 const languageSettings=createLanguageSettings({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='language'});
-const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onLanguage:()=>languageSettings.open(),onLeaveLanguage:()=>languageSettings.close(),onRuns:async()=>{const data=await loadRuns();if(data)await Promise.all([classification.open(data.classification),maintenance.open()]);},onLeaveRuns:()=>{classification.close();maintenance.close();},onLeaveSubscribers:()=>newsletterDelivery.close(),onTaxonomy:()=>taxonomy.open(),onLeaveTaxonomy:()=>taxonomy.close() });
+const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onLanguage:()=>languageSettings.open(),onLeaveLanguage:()=>languageSettings.close(),onRuns:async()=>{const data=await loadRuns();if(data)await Promise.all([classification.open(data.classification),maintenance.open()]);},onLeaveRuns:()=>{classification.close();maintenance.close();},onLeaveSubscribers:()=>newsletterDelivery.close(),onTaxonomy:()=>taxonomy.open(),onLeaveTaxonomy:()=>taxonomy.close(),onLlm:()=>llmCategorization.open(),onLeaveLlm:()=>llmCategorization.close() });
 const panel=createFilterPanel();
-const navigation = createNavigation({onPanel:view=>{if(view!=='administration'){classification.close();maintenance.close();newsletterDelivery.close();}++state.request;panel.show(view);if(state.data)collectionProgress.update(state.data);refreshLoading();}, onSelection:view=>{taxonomy.close();const changed=filters.show(view);if(state.ready&&(changed||state.contentStale||state.view!==view))load(true);}, onSubscriptions:()=>{taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
+const navigation = createNavigation({onPanel:view=>{if(view!=='administration'){llmCategorization.close();classification.close();maintenance.close();newsletterDelivery.close();}++state.request;panel.show(view);if(state.data)collectionProgress.update(state.data);refreshLoading();}, onSelection:view=>{taxonomy.close();const changed=filters.show(view);if(state.ready&&(changed||state.contentStale||state.view!==view))load(true);}, onSubscriptions:()=>{taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
 const filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
   track("filtro");
   load();
@@ -120,7 +122,7 @@ async function load(reuse=false) {
     }
   }
 }
-const actionControls="#classification-start,#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
+const actionControls="#llm-section button,#llm-section input,#llm-section select,#classification-start,#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
 async function action(fn, refresh = true) {
   if (state.busy) return;
   state.busy = true;

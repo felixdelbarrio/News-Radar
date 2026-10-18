@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {app} from './helpers/app.mjs';
-const order=['runs','taxonomy','language','subscribers','adoption','telemetry','sources','audit','configuration'];
+const order=['runs','taxonomy','llm','language','subscribers','adoption','telemetry','sources','audit','configuration'];
 test('la entrada abre Novedades y Administración abre Ejecuciones y el menú centralizado sitúa Suscripciones en segundo lugar',async t=>{
  const a=await app(t,{entry:''});assert.equal(a.find('#briefing-section').hidden,false);await a.click('[data-view="administration"]');
  assert.deepEqual([...a.find('#admin-tabs').children].map(button=>button.dataset.adminView),order);

@@ -48,3 +48,5 @@ section[data-loading="append"]>.loading{min-height:0}section[data-loading="appen
 .identity-label+.identity-label{margin-inline-start:var(--space-1)}
 
 .story-title{font:700 var(--text-l)/var(--line-l) var(--font-heading)}
+
+#llm-section pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}#llm-section p,#llm-section details{margin-block:var(--space-2)}#llm-section progress{width:100%;accent-color:var(--color-primary-bg-action)}
