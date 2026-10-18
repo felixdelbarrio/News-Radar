@@ -7,6 +7,10 @@ function startIngestionMigration(dryRun=true){
     const previous=ingestionMigrationJob_();if(ingestionMigrationPending_())return previous;
     if(!dryRun&&previous?.invalid>0)throw Error('Revisa los registros con metadatos inválidos antes de publicar.');
     if(!dryRun&&(!previous||previous.state!=='Prueba completada'||previous.revision!==classificationRulesRevision_()||previous.taxonomy!==taxonomyRulesRevision_()||previous.candidateRevision!==(properties_().getProperty('CANDIDATES_REVISION')||'0')||previous.source!==newsStorageKey_()||previous.newsletterVersion!==newsletterArchiveVersion_()||previous.corpus!==(properties_().getProperty('NEWS_CONTENT_REVISION')||'0')))throw Error('Ejecuta primero una prueba completa con las mismas reglas y corpus.');
+    if(!dryRun){
+      if(!previous.stageDigest||previous.stageDigest!==migrationStageDigest_(previous))throw Error('La generación preparada ha cambiado; repite la prueba.');
+      Object.assign(previous,{dryRun:false,state:'Publicando',phase:'snapshots',publicationStarted:new Date().toISOString()});writeIngestionMigrationJob_(previous);properties_().deleteProperty('DASHBOARD_SNAPSHOT_BUILD');requestDashboardSnapshots_(true);return previous;
+    }
     pruneNewsGenerations_();
     if(book_().getSheets().filter(sheet=>/^Noticias_backup_/.test(sheet.getName())).length>=4)throw Error('Archiva los backups verificados antes de crear otra migración.');
     const id=Utilities.getUuid().replace(/[^a-z0-9-]/gi,'').slice(0,36),source=newsStorageKey_(),candidates=candidateSheet_();
@@ -103,6 +107,18 @@ function migrateNewsletterArchiveBatch_(job){
   if(job.archiveIndex===NEWSLETTER_ARCHIVE_TABLES.length){
     if(job.invalid&&!job.dryRun)throw Error('Revisa los registros con metadatos inválidos antes de publicar.');
     job.phase=job.dryRun?'complete':'snapshots';job.state=job.dryRun?'Prueba completada':'Publicando';
+    if(job.dryRun)job.stageDigest=migrationStageDigest_(job);
     if(!job.dryRun){properties_().deleteProperty('DASHBOARD_SNAPSHOT_BUILD');requestDashboardSnapshots_(true);}
   }
+}
+
+function migrationStageDigest_(job){
+  let digest='';
+  for(const name of [job.target,...NEWSLETTER_ARCHIVE_TABLES.map(key=>job.newsletterTargets[key])]){
+    const sheet=book_().getSheetByName(name);if(!sheet)throw Error('La generación preparada ha cambiado; repite la prueba.');
+    const count=sheet.getLastRow(),width=name===job.target?RADAR.sheets.Noticias.length:RADAR.sheets[NEWSLETTER_ARCHIVE_TABLES.find(key=>job.newsletterTargets[key]===name)].length;
+    digest=sha256_(digest+JSON.stringify([name,count,width]));
+    for(let first=1;first<=count;first+=500)digest=sha256_(digest+JSON.stringify(sheet.getRange(first,1,Math.min(500,count-first+1),width).getDisplayValues()));
+  }
+  return digest;
 }

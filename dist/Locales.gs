@@ -1,6 +1,7 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
   "El archivo de newsletters ha cambiado; repite la prueba.": ["The newsletter archive changed; repeat the dry run.", "Bülten arşivi değişti; denemeyi tekrarlayın."],
+  "La generación preparada ha cambiado; repite la prueba.": ["The staged generation changed; repeat the dry run.", "Hazırlanan veri nesli değişti; denemeyi tekrarlayın."],
   "Revisa los registros con metadatos inválidos antes de publicar.": ["Review records with invalid metadata before publishing.", "Yayımlamadan önce geçersiz meta verileri olan kayıtları inceleyin."],
   "Archiva los backups verificados antes de crear otra migración.": ["Archive verified backups before creating another migration.", "Başka bir geçiş oluşturmadan önce doğrulanmış yedekleri arşivleyin."],
   "Publicando": ["Publishing", "Yayımlanıyor"],

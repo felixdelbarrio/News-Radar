@@ -857,24 +857,24 @@
       "radar cold": {
         "baseline": {
           "n": 4,
-          "p50Ms": 411.6,
-          "p95Ms": 426.6,
+          "p50Ms": 405.54999999999995,
+          "p95Ms": 445.3,
           "sheetReads": [
             3
           ],
-          "medianRetainedHeapBytes": 7092472.0,
+          "medianRetainedHeapBytes": 7090792.0,
           "totals": [
             3835
           ]
         },
         "current": {
           "n": 4,
-          "p50Ms": 289.75,
-          "p95Ms": 297.8,
+          "p50Ms": 278.15,
+          "p95Ms": 284.2,
           "sheetReads": [
             3
           ],
-          "medianRetainedHeapBytes": 3791960.0,
+          "medianRetainedHeapBytes": 3525572.0,
           "totals": [
             3835
           ]
@@ -883,24 +883,24 @@
       "briefing cold": {
         "baseline": {
           "n": 4,
-          "p50Ms": 170.05,
-          "p95Ms": 177.1,
+          "p50Ms": 165.35000000000002,
+          "p95Ms": 175.8,
           "sheetReads": [
             0
           ],
-          "medianRetainedHeapBytes": 270420.0,
+          "medianRetainedHeapBytes": 271316.0,
           "totals": [
             3835
           ]
         },
         "current": {
           "n": 4,
-          "p50Ms": 160.45,
-          "p95Ms": 169.3,
+          "p50Ms": 153.5,
+          "p95Ms": 165.7,
           "sheetReads": [
             0
           ],
-          "medianRetainedHeapBytes": 136628.0,
+          "medianRetainedHeapBytes": 115400.0,
           "totals": [
             3835
           ]
@@ -909,24 +909,24 @@
       "news cold": {
         "baseline": {
           "n": 4,
-          "p50Ms": 154.15,
-          "p95Ms": 158.2,
+          "p50Ms": 151.45,
+          "p95Ms": 156.2,
           "sheetReads": [
             0
           ],
-          "medianRetainedHeapBytes": 17624.0,
+          "medianRetainedHeapBytes": 17636.0,
           "totals": [
             3835
           ]
         },
         "current": {
           "n": 4,
-          "p50Ms": 150.8,
-          "p95Ms": 153.7,
+          "p50Ms": 147.55,
+          "p95Ms": 148.8,
           "sheetReads": [
             0
           ],
-          "medianRetainedHeapBytes": 29320.0,
+          "medianRetainedHeapBytes": 29136.0,
           "totals": [
             3835
           ]
@@ -935,24 +935,24 @@
       "news next page": {
         "baseline": {
           "n": 4,
-          "p50Ms": 2.25,
-          "p95Ms": 2.8,
+          "p50Ms": 2.1500000000000004,
+          "p95Ms": 2.3,
           "sheetReads": [
             1
           ],
-          "medianRetainedHeapBytes": 1280.0,
+          "medianRetainedHeapBytes": 2004.0,
           "totals": [
             3835
           ]
         },
         "current": {
           "n": 4,
-          "p50Ms": 1.4,
-          "p95Ms": 1.5,
+          "p50Ms": 1.3,
+          "p95Ms": 1.4,
           "sheetReads": [
             1
           ],
-          "medianRetainedHeapBytes": 20636.0,
+          "medianRetainedHeapBytes": 19960.0,
           "totals": [
             3835
           ]
@@ -966,19 +966,19 @@
           "sheetReads": [
             0
           ],
-          "medianRetainedHeapBytes": 26400.0,
+          "medianRetainedHeapBytes": 25816.0,
           "totals": [
             3835
           ]
         },
         "current": {
           "n": 4,
-          "p50Ms": 0.3,
+          "p50Ms": 0.25,
           "p95Ms": 0.3,
           "sheetReads": [
             0
           ],
-          "medianRetainedHeapBytes": -5528.0,
+          "medianRetainedHeapBytes": -5500.0,
           "totals": [
             3835
           ]
@@ -987,24 +987,24 @@
       "old period": {
         "baseline": {
           "n": 4,
-          "p50Ms": 25.8,
-          "p95Ms": 28.3,
+          "p50Ms": 25.5,
+          "p95Ms": 25.8,
           "sheetReads": [
             1
           ],
-          "medianRetainedHeapBytes": 454036.0,
+          "medianRetainedHeapBytes": 453732.0,
           "totals": [
             274
           ]
         },
         "current": {
           "n": 4,
-          "p50Ms": 19.15,
-          "p95Ms": 20.3,
+          "p50Ms": 18.4,
+          "p95Ms": 19.1,
           "sheetReads": [
             1
           ],
-          "medianRetainedHeapBytes": 256444.0,
+          "medianRetainedHeapBytes": 256440.0,
           "totals": [
             274
           ]
@@ -1013,24 +1013,24 @@
       "full history": {
         "baseline": {
           "n": 4,
-          "p50Ms": 3771.6000000000004,
-          "p95Ms": 3782.4,
+          "p50Ms": 3722.5,
+          "p95Ms": 3844.6,
           "sheetReads": [
             25
           ],
-          "medianRetainedHeapBytes": 7154080.0,
+          "medianRetainedHeapBytes": 7154324.0,
           "totals": [
             50000
           ]
         },
         "current": {
           "n": 4,
-          "p50Ms": 2769.95,
-          "p95Ms": 2838.9,
+          "p50Ms": 2678.6000000000004,
+          "p95Ms": 2683.5,
           "sheetReads": [
             25
           ],
-          "medianRetainedHeapBytes": 7150608.0,
+          "medianRetainedHeapBytes": 7140360.0,
           "totals": [
             50000
           ]
@@ -1046,27 +1046,27 @@
         "runs": [
           {
             "scenario": "radar cold",
-            "ms": 426.6,
+            "ms": 445.3,
             "sheetReads": 3,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 7348592
+            "retainedHeapBytes": 7348528
           },
           {
             "scenario": "briefing cold",
-            "ms": 177.1,
+            "ms": 175.8,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 352232
+            "retainedHeapBytes": 352160
           },
           {
             "scenario": "news cold",
-            "ms": 158.2,
+            "ms": 156.2,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 73432
+            "retainedHeapBytes": 56440
           },
           {
             "scenario": "news next page",
@@ -1074,7 +1074,7 @@
             "sheetReads": 1,
             "total": 3835,
             "cacheHit": true,
-            "retainedHeapBytes": 26432
+            "retainedHeapBytes": 2960
           },
           {
             "scenario": "news cache hit",
@@ -1082,23 +1082,23 @@
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": true,
-            "retainedHeapBytes": 28600
+            "retainedHeapBytes": 28480
           },
           {
             "scenario": "old period",
-            "ms": 26,
+            "ms": 25.7,
             "sheetReads": 1,
             "total": 274,
             "cacheHit": false,
-            "retainedHeapBytes": 448888
+            "retainedHeapBytes": 448384
           },
           {
             "scenario": "full history",
-            "ms": 3782.4,
+            "ms": 3844.6,
             "sheetReads": 25,
             "total": 50000,
             "cacheHit": false,
-            "retainedHeapBytes": 7148000
+            "retainedHeapBytes": 7148424
           }
         ]
       },
@@ -1110,35 +1110,35 @@
         "runs": [
           {
             "scenario": "radar cold",
-            "ms": 297.8,
+            "ms": 284.2,
             "sheetReads": 3,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 3995832
+            "retainedHeapBytes": 3714408
           },
           {
             "scenario": "briefing cold",
-            "ms": 169.3,
+            "ms": 165.7,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 225832
+            "retainedHeapBytes": 241448
           },
           {
             "scenario": "news cold",
-            "ms": 153.7,
+            "ms": 148.8,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 45528
+            "retainedHeapBytes": 42312
           },
           {
             "scenario": "news next page",
-            "ms": 1.5,
+            "ms": 1.4,
             "sheetReads": 1,
             "total": 3835,
             "cacheHit": true,
-            "retainedHeapBytes": 26280
+            "retainedHeapBytes": 26400
           },
           {
             "scenario": "news cache hit",
@@ -1146,23 +1146,23 @@
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": true,
-            "retainedHeapBytes": -8328
+            "retainedHeapBytes": -8600
           },
           {
             "scenario": "old period",
-            "ms": 19.2,
+            "ms": 18,
             "sheetReads": 1,
             "total": 274,
             "cacheHit": false,
-            "retainedHeapBytes": 260616
+            "retainedHeapBytes": 261312
           },
           {
             "scenario": "full history",
-            "ms": 2801.2,
+            "ms": 2683.5,
             "sheetReads": 25,
             "total": 50000,
             "cacheHit": false,
-            "retainedHeapBytes": 7140952
+            "retainedHeapBytes": 7151792
           }
         ]
       },
@@ -1174,35 +1174,35 @@
         "runs": [
           {
             "scenario": "radar cold",
-            "ms": 289.7,
+            "ms": 277.8,
             "sheetReads": 3,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 3792632
+            "retainedHeapBytes": 3526032
           },
           {
             "scenario": "briefing cold",
-            "ms": 159.3,
+            "ms": 153.8,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 115656
+            "retainedHeapBytes": 116104
           },
           {
             "scenario": "news cold",
-            "ms": 151.6,
+            "ms": 147.4,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 29416
+            "retainedHeapBytes": 29176
           },
           {
             "scenario": "news next page",
-            "ms": 1.5,
+            "ms": 1.3,
             "sheetReads": 1,
             "total": 3835,
             "cacheHit": true,
-            "retainedHeapBytes": 19824
+            "retainedHeapBytes": 19944
           },
           {
             "scenario": "news cache hit",
@@ -1214,19 +1214,19 @@
           },
           {
             "scenario": "old period",
-            "ms": 20.3,
+            "ms": 18.1,
             "sheetReads": 1,
             "total": 274,
             "cacheHit": false,
-            "retainedHeapBytes": 256432
+            "retainedHeapBytes": 256480
           },
           {
             "scenario": "full history",
-            "ms": 2838.9,
+            "ms": 2665.1,
             "sheetReads": 25,
             "total": 50000,
             "cacheHit": false,
-            "retainedHeapBytes": 7160264
+            "retainedHeapBytes": 7140608
           }
         ]
       },
@@ -1238,91 +1238,27 @@
         "runs": [
           {
             "scenario": "radar cold",
-            "ms": 410.7,
+            "ms": 405.4,
             "sheetReads": 3,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 7093656
+            "retainedHeapBytes": 7089768
           },
           {
             "scenario": "briefing cold",
-            "ms": 169,
+            "ms": 164.5,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 270792
+            "retainedHeapBytes": 272744
           },
           {
             "scenario": "news cold",
-            "ms": 154,
+            "ms": 151.1,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 16984
-          },
-          {
-            "scenario": "news next page",
-            "ms": 2.8,
-            "sheetReads": 1,
-            "total": 3835,
-            "cacheHit": true,
-            "retainedHeapBytes": -632
-          },
-          {
-            "scenario": "news cache hit",
-            "ms": 0.3,
-            "sheetReads": 0,
-            "total": 3835,
-            "cacheHit": true,
-            "retainedHeapBytes": 31136
-          },
-          {
-            "scenario": "old period",
-            "ms": 25.6,
-            "sheetReads": 1,
-            "total": 274,
-            "cacheHit": false,
-            "retainedHeapBytes": 457744
-          },
-          {
-            "scenario": "full history",
-            "ms": 3779.9,
-            "sheetReads": 25,
-            "total": 50000,
-            "cacheHit": false,
-            "retainedHeapBytes": 7160240
-          }
-        ]
-      },
-      {
-        "version": "baseline",
-        "baseline": "c32af357e270c4fb25167bfce7a6e06749376ad2",
-        "count": 50000,
-        "sample": 3,
-        "runs": [
-          {
-            "scenario": "radar cold",
-            "ms": 412.5,
-            "sheetReads": 3,
-            "total": 3835,
-            "cacheHit": false,
-            "retainedHeapBytes": 7091048
-          },
-          {
-            "scenario": "briefing cold",
-            "ms": 169.6,
-            "sheetReads": 0,
-            "total": 3835,
-            "cacheHit": false,
-            "retainedHeapBytes": 270048
-          },
-          {
-            "scenario": "news cold",
-            "ms": 153.3,
-            "sheetReads": 0,
-            "total": 3835,
-            "cacheHit": false,
-            "retainedHeapBytes": 18264
+            "retainedHeapBytes": 16872
           },
           {
             "scenario": "news next page",
@@ -1330,7 +1266,7 @@
             "sheetReads": 1,
             "total": 3835,
             "cacheHit": true,
-            "retainedHeapBytes": 1032
+            "retainedHeapBytes": 1048
           },
           {
             "scenario": "news cache hit",
@@ -1338,23 +1274,87 @@
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": true,
-            "retainedHeapBytes": 24200
+            "retainedHeapBytes": 24080
           },
           {
             "scenario": "old period",
-            "ms": 25.5,
+            "ms": 25.8,
             "sheetReads": 1,
             "total": 274,
             "cacheHit": false,
-            "retainedHeapBytes": 454024
+            "retainedHeapBytes": 457712
           },
           {
             "scenario": "full history",
-            "ms": 3758.2,
+            "ms": 3723.3,
             "sheetReads": 25,
             "total": 50000,
             "cacheHit": false,
-            "retainedHeapBytes": 6220168
+            "retainedHeapBytes": 7160312
+          }
+        ]
+      },
+      {
+        "version": "baseline",
+        "baseline": "c32af357e270c4fb25167bfce7a6e06749376ad2",
+        "count": 50000,
+        "sample": 3,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 403.8,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 7091016
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 164.9,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 269888
+          },
+          {
+            "scenario": "news cold",
+            "ms": 151,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 18400
+          },
+          {
+            "scenario": "news next page",
+            "ms": 2.1,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 3264
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 27552
+          },
+          {
+            "scenario": "old period",
+            "ms": 25.2,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 453384
+          },
+          {
+            "scenario": "full history",
+            "ms": 3707,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 6220136
           }
         ]
       },
@@ -1366,27 +1366,27 @@
         "runs": [
           {
             "scenario": "radar cold",
-            "ms": 289.8,
+            "ms": 277.8,
             "sheetReads": 3,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 3790552
+            "retainedHeapBytes": 3525112
           },
           {
             "scenario": "briefing cold",
-            "ms": 161.6,
+            "ms": 153.2,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 157600
+            "retainedHeapBytes": 114296
           },
           {
             "scenario": "news cold",
-            "ms": 150,
+            "ms": 146.7,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 29224
+            "retainedHeapBytes": 29096
           },
           {
             "scenario": "news next page",
@@ -1394,7 +1394,7 @@
             "sheetReads": 1,
             "total": 3835,
             "cacheHit": true,
-            "retainedHeapBytes": 19808
+            "retainedHeapBytes": 19976
           },
           {
             "scenario": "news cache hit",
@@ -1402,23 +1402,23 @@
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": true,
-            "retainedHeapBytes": -5104
+            "retainedHeapBytes": -5392
           },
           {
             "scenario": "old period",
-            "ms": 19.1,
+            "ms": 18.7,
             "sheetReads": 1,
             "total": 274,
             "cacheHit": false,
-            "retainedHeapBytes": 255768
+            "retainedHeapBytes": 256400
           },
           {
             "scenario": "full history",
-            "ms": 2728.4,
+            "ms": 2677.3,
             "sheetReads": 25,
             "total": 50000,
             "cacheHit": false,
-            "retainedHeapBytes": 7161040
+            "retainedHeapBytes": 7140112
           }
         ]
       },
@@ -1430,27 +1430,27 @@
         "runs": [
           {
             "scenario": "radar cold",
-            "ms": 285.5,
+            "ms": 278.5,
             "sheetReads": 3,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 3791288
+            "retainedHeapBytes": 3523784
           },
           {
             "scenario": "briefing cold",
-            "ms": 156.4,
+            "ms": 153,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 114400
+            "retainedHeapBytes": 114696
           },
           {
             "scenario": "news cold",
-            "ms": 148.1,
+            "ms": 147.7,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 8320
+            "retainedHeapBytes": 29072
           },
           {
             "scenario": "news next page",
@@ -1458,15 +1458,15 @@
             "sheetReads": 1,
             "total": 3835,
             "cacheHit": true,
-            "retainedHeapBytes": 21448
+            "retainedHeapBytes": 19912
           },
           {
             "scenario": "news cache hit",
-            "ms": 0.3,
+            "ms": 0.2,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": true,
-            "retainedHeapBytes": -5664
+            "retainedHeapBytes": -5608
           },
           {
             "scenario": "old period",
@@ -1474,15 +1474,15 @@
             "sheetReads": 1,
             "total": 274,
             "cacheHit": false,
-            "retainedHeapBytes": 256456
+            "retainedHeapBytes": 256288
           },
           {
             "scenario": "full history",
-            "ms": 2738.7,
+            "ms": 2679.9,
             "sheetReads": 25,
             "total": 50000,
             "cacheHit": false,
-            "retainedHeapBytes": 7139968
+            "retainedHeapBytes": 7119680
           }
         ]
       },
@@ -1494,27 +1494,27 @@
         "runs": [
           {
             "scenario": "radar cold",
-            "ms": 409.1,
+            "ms": 405.7,
             "sheetReads": 3,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 7091288
+            "retainedHeapBytes": 7090568
           },
           {
             "scenario": "briefing cold",
-            "ms": 170.5,
+            "ms": 165.8,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 269768
+            "retainedHeapBytes": 269240
           },
           {
             "scenario": "news cold",
-            "ms": 154.3,
+            "ms": 151.8,
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": false,
-            "retainedHeapBytes": 16896
+            "retainedHeapBytes": 16344
           },
           {
             "scenario": "news next page",
@@ -1522,7 +1522,7 @@
             "sheetReads": 1,
             "total": 3835,
             "cacheHit": true,
-            "retainedHeapBytes": 1528
+            "retainedHeapBytes": 1048
           },
           {
             "scenario": "news cache hit",
@@ -1530,27 +1530,29 @@
             "sheetReads": 0,
             "total": 3835,
             "cacheHit": true,
-            "retainedHeapBytes": 24200
+            "retainedHeapBytes": 24080
           },
           {
             "scenario": "old period",
-            "ms": 28.3,
+            "ms": 25.3,
             "sheetReads": 1,
             "total": 274,
             "cacheHit": false,
-            "retainedHeapBytes": 454048
+            "retainedHeapBytes": 454080
           },
           {
             "scenario": "full history",
-            "ms": 3763.3,
+            "ms": 3721.7,
             "sheetReads": 25,
             "total": 50000,
             "cacheHit": false,
-            "retainedHeapBytes": 7160160
+            "retainedHeapBytes": 7160224
           }
         ]
       }
-    ]
+    ],
+    "baselineRevision": "c32af357e270c4fb25167bfce7a6e06749376ad2",
+    "command": "node --expose-gc scripts/benchmark-news-paired.mjs --baseline=c32af357e270c4fb25167bfce7a6e06749376ad2"
   },
   "historicalTelemetry": {
     "source": "output/relevance-recovery/live-telemetry.json",
@@ -1589,8 +1591,8 @@
     "identityDigestBefore": "5476ac0eb207adc04c3eb051f17442b251bff102672ad0133f40b037b967bf33",
     "identityDigestAfter": "5476ac0eb207adc04c3eb051f17442b251bff102672ad0133f40b037b967bf33",
     "dryRun": {
-      "batches": 88,
-      "ms": 3854,
+      "batches": 90,
+      "ms": 4188,
       "job": {
         "id": "5",
         "dryRun": true,
@@ -1607,29 +1609,42 @@
         "revision": "f492f818f2dd97443539eb5941030394af8647ee0b808fff7fc62399cc08242b",
         "taxonomy": "6f8114d02dce44048abd5b827f804c767a330b84e0dea6b00ae2a65f27b60517",
         "candidateRevision": "0",
-        "corpus": "1792316133987-9irfqxukkkp",
+        "corpus": "1792332588025-oi3ig1ni3fo",
         "digest": "31b3a15b695eb1fbe4451650a4cb0ba4dd1c696c3b30d0d06091630f74d218a0",
         "classified": 8638,
         "invalid": 0,
         "recovered": 0,
-        "started": "2026-10-18T09:35:34.014Z",
+        "started": "2026-10-18T14:09:48.048Z",
         "pausedUntil": 0,
-        "updated": "2026-10-18T09:35:37.869Z",
-        "error": ""
+        "updated": "2026-10-18T14:09:52.237Z",
+        "error": "",
+        "archiveIndex": 2,
+        "archiveNext": 2,
+        "archiveChanged": 0,
+        "newsletterVersion": "0",
+        "newsletterTargets": {
+          "NewsletterContenido": "NewsletterContenido_gen_5",
+          "NewsletterEdiciones": "NewsletterEdiciones_gen_5"
+        },
+        "newsletterSources": {
+          "NewsletterContenido": "NewsletterContenido",
+          "NewsletterEdiciones": "NewsletterEdiciones"
+        },
+        "stageDigest": "beb01d897bf0090d7440443fbdcbd73e5923f3610c0835889a115db675fc675e"
       }
     },
     "promotedInMemory": {
-      "batches": 91,
-      "ms": 4613,
+      "batches": 3,
+      "ms": 522,
       "job": {
-        "id": "7",
+        "id": "5",
         "dryRun": false,
         "state": "Completada",
         "phase": "complete",
         "source": "Noticias",
-        "target": "Noticias_gen_7",
-        "backup": "Noticias_backup_7",
-        "candidateBackup": "Candidatos_backup_7",
+        "target": "Noticias_gen_5",
+        "backup": "Noticias_backup_5",
+        "candidateBackup": "Candidatos_backup_5",
         "next": 8640,
         "candidateNext": 2,
         "total": 8638,
@@ -1637,16 +1652,30 @@
         "revision": "f492f818f2dd97443539eb5941030394af8647ee0b808fff7fc62399cc08242b",
         "taxonomy": "6f8114d02dce44048abd5b827f804c767a330b84e0dea6b00ae2a65f27b60517",
         "candidateRevision": "0",
-        "corpus": "1792316133987-9irfqxukkkp",
+        "corpus": "1792332588025-oi3ig1ni3fo",
         "digest": "31b3a15b695eb1fbe4451650a4cb0ba4dd1c696c3b30d0d06091630f74d218a0",
         "classified": 8638,
         "invalid": 0,
         "recovered": 0,
-        "started": "2026-10-18T09:35:37.907Z",
+        "started": "2026-10-18T14:09:48.048Z",
         "pausedUntil": 0,
-        "updated": "2026-10-18T09:35:42.520Z",
+        "updated": "2026-10-18T14:09:52.887Z",
         "error": "",
-        "published": "2026-10-18T09:35:42.520Z"
+        "archiveIndex": 2,
+        "archiveNext": 2,
+        "archiveChanged": 0,
+        "newsletterVersion": "0",
+        "newsletterTargets": {
+          "NewsletterContenido": "NewsletterContenido_gen_5",
+          "NewsletterEdiciones": "NewsletterEdiciones_gen_5"
+        },
+        "newsletterSources": {
+          "NewsletterContenido": "NewsletterContenido",
+          "NewsletterEdiciones": "NewsletterEdiciones"
+        },
+        "stageDigest": "beb01d897bf0090d7440443fbdcbd73e5923f3610c0835889a115db675fc675e",
+        "publicationStarted": "2026-10-18T14:09:52.364Z",
+        "published": "2026-10-18T14:09:52.887Z"
       }
     },
     "states": {
@@ -1657,13 +1686,13 @@
     "snapshotsComplete": true,
     "snapshots": {
       "briefing": {
-        "revision": "b63868d7c2f0ba6822e3020643a1ac9d64c2770d2e5d4c943570b7f5f047ac83",
-        "generation": "11",
+        "revision": "d9a848e41a0b2cc816397488a147c2594e98d90ddd5a4b4497974f29b048bfd6",
+        "generation": "12",
         "slot": 0,
         "first": 2,
         "parts": 4,
         "digest": "231ba93561503c7358f3e1ee14590c0ab3d8ecbdf499e8fb2e7827ce34f006ac",
-        "generated": "2026-10-18T09:35:42.029Z",
+        "generated": "2026-10-18T14:09:52.478Z",
         "period": {
           "from": "2026-10-01",
           "to": "2026-10-15"
@@ -1671,13 +1700,13 @@
         "periodFallback": true
       },
       "news": {
-        "revision": "4b92ffdaf745e3eed53bce0caa050abf74af5f2938063d009bca9120dbbb6778",
-        "generation": "13",
+        "revision": "d374cc2be39c62ddc9510772cd5a22c0d78a57e933c2cdebc5a7bdb62f778cfd",
+        "generation": "14",
         "slot": 0,
         "first": 130,
         "parts": 20,
         "digest": "d3d2bb74ea0547bc672dead66a2fb96e077a7bc5797c82fa204afd9f11f838f2",
-        "generated": "2026-10-18T09:35:42.398Z",
+        "generated": "2026-10-18T14:09:52.780Z",
         "period": {
           "from": "2026-10-01",
           "to": "2026-12-31"
@@ -1685,13 +1714,13 @@
         "periodFallback": false
       },
       "radar": {
-        "revision": "db7a0589302c151632a738b0b8c99f46e638c428eb4bfa0dbe8a74b9f24f37b9",
-        "generation": "15",
+        "revision": "4d6afad668c57f218e8753fa7f1d82a028177661b35a8281c9fd3f623ac45398",
+        "generation": "16",
         "slot": 0,
         "first": 258,
         "parts": 2,
         "digest": "47981498cf2a00e7f02f8db1d69e64a3bacc8497ff4aa5f941abec0dc6ab1313",
-        "generated": "2026-10-18T09:35:42.516Z",
+        "generated": "2026-10-18T14:09:52.884Z",
         "period": {
           "from": "2026-01-01",
           "to": "2026-12-31"
@@ -1706,28 +1735,92 @@
     "auditEvents": 127267,
     "localHistoricalRows": 8638,
     "localUniqueIds": 8638,
-    "reconciliation": "El ZIP no contiene las filas originales de Noticias. La copia local es anterior y distinta; no permite identificar las tres filas discrepantes. No se interpretan los eventos de exclusión como artículos únicos ni como falsos negativos."
+    "reconciliation": "El libro real contiene tres filas vacías en posiciones 7767–7769. Se conservan en origen, backup y cuarentena. Las 8.861 filas reales se reconcilian como 8.858 noticias con identidad intacta y tres filas sin contenido. El ZIP no contiene el corpus original para demostrar individualmente que sean las mismas tres filas de su diferencia 8.835/8.832.",
+    "productionRowsBeforeMigration": 8861,
+    "productionPhysicalRows": 8861,
+    "productionValidArticles": 8858,
+    "productionEmptyRowsQuarantined": 3
   },
   "deployment": {
-    "promoted": false,
-    "productionMigrationExecuted": false,
-    "productionBackupVerified": false,
-    "productionLatencyMeasured": false,
-    "productionSmokeTestsExecuted": false,
-    "reason": "clasp show-authorized-user --json confirma loggedIn=false; el checkout no tiene .clasp.json. No se han ejecutado backup, migración, promoción ni smoke tests de producción.",
+    "promoted": true,
+    "productionMigrationExecuted": true,
+    "productionBackupVerified": true,
+    "productionLatencyMeasured": true,
+    "productionSmokeTestsExecuted": true,
+    "reason": "Publicación confirmada por la interfaz: versión 77 del 18 oct 2026, 16:22 Europe/Madrid. Misma URL e ID de implementación; funciones temporales retiradas antes de publicar. Migración completa con prueba, reconciliación y rollback verificado por lectura.",
     "claspAuthorization": {
       "loggedIn": false
-    }
+    },
+    "uploadedReportedByUser": true,
+    "releaseReportedByUser": "3.7.0",
+    "initializeConfigurationReportedByUser": "Completada con éxito",
+    "promotedReportedByUser": true,
+    "independentlyVerified": true,
+    "uploaded": true,
+    ".claspProjectConfigured": true,
+    "productionBackup": {
+      "url": "https://docs.google.com/spreadsheets/d/14SOeIgtoRiOWhZFpPWWEtpQZzyP09bU2yLhdMKD4d_Q/edit",
+      "at": "2026-10-18T13:51:45.698Z",
+      "sourceNewsRows": 8861,
+      "sourceAndBackupIdentityDigest": "57b261f7d3bd005b59692a6f2247478c4c3d64bd05c27e2553dcf2d880360edb"
+    },
+    "version": 77,
+    "previousVersion": 76,
+    "applicationVersion": "3.7.0",
+    "description": "3.7.0 · Migración verificada y promoción sin reproceso",
+    "executeAs": "USER_DEPLOYING",
+    "access": "DOMAIN",
+    "verifiedBy": "Apps Script UI: versión 77 confirmada; WebApp: Novedades, Noticias, Radar y lectura de edición anterior; auditoría directa en Apps Script sobre el libro real."
   },
   "pending": [
     "Revisión humana independiente: el golden set contiene juicios semánticos de Codex y no estima precisión/recall poblacionales.",
-    "Validar backup, migración, rollback, frescura de snapshots y smoke tests de Noticias, Novedades, Radar y newsletter en el despliegue autorizado.",
     "No hay texto original para los 220 eventos excluidos de la muestra ni para descartes anteriores no conservados.",
-    "Enriquecimiento añadido: metadatos RSS description y content:encoded, con fallback al titular. No se añade scraping externo ni un timeout HTTP configurable a UrlFetchApp; se conservan límites y reintentos de la recuperación existente."
+    "Enriquecimiento añadido: metadatos RSS description y content:encoded, con fallback al titular. No se añade scraping externo ni un timeout HTTP configurable a UrlFetchApp; se conservan límites y reintentos de la recuperación existente.",
+    "Los trabajos ordinarios de recuperación anual, traducción, taxonomía y mantenimiento anteriores se han reanudado; su cola no se ha vaciado ni se han alterado los horarios. La reclasificación equivalente se ha reconciliado con la migración ya publicada para evitar repetirla."
   ],
   "verification": {
     "baselineTests": 525,
-    "final": "pendiente de npm run verify"
+    "final": {
+      "command": "npm run verify",
+      "tests": 547,
+      "passed": 547,
+      "failed": 0,
+      "durationMs": 334961.150875,
+      "coverage": {
+        "lines": {
+          "total": 3317,
+          "covered": 3237,
+          "skipped": 0,
+          "pct": 97.58
+        },
+        "statements": {
+          "total": 8430,
+          "covered": 7755,
+          "skipped": 0,
+          "pct": 91.99
+        },
+        "functions": {
+          "total": 1786,
+          "covered": 1691,
+          "skipped": 0,
+          "pct": 94.68
+        },
+        "branches": {
+          "total": 7138,
+          "covered": 6169,
+          "skipped": 0,
+          "pct": 86.42
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      },
+      "diffCheck": "git diff --check: OK",
+      "releaseCheck": "npm run check y git diff --check: OK tras actualizar la evidencia"
+    }
   },
   "attachments": {
     "NewsRadar_Auditoria_Evidencias_20261018.zip": "596914aa6ba4cc35b3e0dd23f1ca914590cb981e73d2a947b0c4abb8d08aae96",
@@ -1819,6 +1912,7 @@
     "tests/newsletter-wow.test.mjs",
     "tests/pipeline-priority.test.mjs",
     "tests/pr46-regressions.test.mjs",
+    "tests/published-dependencies.test.mjs",
     "tests/radar.test.mjs",
     "tests/reading-intelligence.test.mjs",
     "tests/source-geography-translated-duplicates.test.mjs",
@@ -1834,5 +1928,1484 @@
     "Manifiesto único para corpus, catálogo y snapshots de Noticias, Novedades y Radar; verificación, conservación y reintentos.",
     "Migración por lotes con prueba previa obligatoria, checkpoint, backups verificados y rollback.",
     "Eliminada la lectura con recálculo de señales/relevancia/geografía y el recorrido empresarial paralelo para descubrimiento."
+  ],
+  "uploadPackage": {
+    "path": "output/ingestion-refactor-3.7.0/NewsRadar-3.7.0-AppsScript.zip",
+    "files": 66,
+    "sha256": "e7afd8ed487b0851cfc63c1d064541a416dd9feb4182e005c7014014bf8690a1",
+    "comparedByteForByteWithDist": true,
+    "deploymentVersion": 77
+  },
+  "productionValidation": {
+    "sourceRows": 8861,
+    "preMigrationSnapshotRevision": "cc1e5c3e821ba7d24d3520888d89a3003a2975d6baf85eab49a4edb9ee384285",
+    "baselineScope": "WebApp 3.7.0 antes de migrar los datos, snapshots anteriores válidos; 2 cargas observadas por vista. No es un A/B de versiones ni una estimación estable de p95. Datos de la tabla Telemetría de la aplicación, caché cliente miss y snapshot hit.",
+    "baselineSamples": {
+      "briefing": [
+        {
+          "clientMs": 8488,
+          "rpcMs": 8381,
+          "serverMs": 3045,
+          "newsMs": 775,
+          "metadataMs": 2103
+        },
+        {
+          "clientMs": 5270,
+          "rpcMs": 5168,
+          "serverMs": 975,
+          "newsMs": 216,
+          "metadataMs": 567
+        }
+      ],
+      "news": [
+        {
+          "clientMs": 7224,
+          "rpcMs": 7198,
+          "serverMs": 2153,
+          "newsMs": 1244,
+          "metadataMs": 653
+        },
+        {
+          "clientMs": 7510,
+          "rpcMs": 7441,
+          "serverMs": 2783,
+          "newsMs": 363,
+          "metadataMs": 2113
+        }
+      ],
+      "radar": [
+        {
+          "clientMs": 18168,
+          "rpcMs": 18079,
+          "serverMs": 13201,
+          "newsMs": 1779,
+          "metadataMs": 11136
+        },
+        {
+          "clientMs": 14452,
+          "rpcMs": 14406,
+          "serverMs": 10590,
+          "newsMs": 212,
+          "metadataMs": 10090
+        }
+      ]
+    },
+    "migrationDryRun": {
+      "id": "a4686ce5-5f9d-4b19-97d7-b8dce9f138a6",
+      "started": "2026-10-18T13:53:12.496Z",
+      "source": "Noticias",
+      "total": 8861,
+      "candidateTotal": 0,
+      "state": "Prueba completada",
+      "classifiedAtLastCheckpoint": 3000,
+      "invalidAtLastCheckpoint": 0,
+      "classified": 8861,
+      "invalidInitially": 3,
+      "completedAt": "2026-10-18T14:11:18.359Z"
+    },
+    "observedErrors": [
+      {
+        "operation": "prepare dry run",
+        "cause": "Timeout del servicio Hojas de cálculo durante creación de hoja",
+        "retry": "Inicio correcto en el segundo intento; corpus público sin cambios"
+      }
+    ],
+    "finalProof": {
+      "at": "2026-10-18T14:16:51.368Z",
+      "version": "3.7.0",
+      "durationMs": 36494,
+      "newsSheet": "Noticias_gen_a4686ce5-5f9d-4b19-97d7-b8dce9f138a6",
+      "identity": {
+        "count": 8858,
+        "digest": "a4dc1d0268c21094dc2df50e1d3a9ee8e07ad871e96609a5e67b6a963aed753d"
+      },
+      "states": {
+        "no relevante": 1320,
+        "indeterminado": 7044,
+        "relevante": 494
+      },
+      "versions": {
+        "3.7.0": 8858
+      },
+      "functionalModel": "f335231309218c0751b1d15d13af83aadf95b12f8d9b5604cfbf5f789a70dab3",
+      "classificationCoherent": true,
+      "archives": {
+        "NewsletterContenido": {
+          "rows": 1802,
+          "source": "NewsletterContenido",
+          "target": "NewsletterContenido_gen_a4686ce5-5f9d-4b19-97d7-b8dce9f138a6",
+          "verified": true
+        },
+        "NewsletterEdiciones": {
+          "rows": 25,
+          "source": "NewsletterEdiciones",
+          "target": "NewsletterEdiciones_gen_a4686ce5-5f9d-4b19-97d7-b8dce9f138a6",
+          "verified": true
+        }
+      },
+      "snapshots": {
+        "briefing": {
+          "revision": "fc51d97e339386a19bd96529fd977155ac16aef9fb0269c05bcfec8dfd90a639",
+          "generation": "c2faf7b8-6c5b-4ea6-8cd6-e75aaf14491e",
+          "slot": 0,
+          "first": 2,
+          "parts": 3,
+          "digest": "634ce0d7c19e0d6a96974da063bc54b358acc1cc4bc41d862c7e556e0c9b5e4c",
+          "generated": "2026-10-18T14:14:57.555Z",
+          "period": {
+            "from": "2026-10-16",
+            "to": "2026-10-31"
+          },
+          "periodFallback": false
+        },
+        "news": {
+          "revision": "8359cd4fdee6b777a2159d0d041ad2749bfd4e1b658394ff397f7bba76a01dd2",
+          "generation": "72d4d869-c8d6-45c8-b2fb-12b8c61c8df1",
+          "slot": 0,
+          "first": 130,
+          "parts": 21,
+          "digest": "a4a0c0582a8f12393d71cf28f34d4d2c71806eb374317a5fb368e12153ca6f3e",
+          "generated": "2026-10-18T14:15:08.608Z",
+          "period": {
+            "from": "2026-10-01",
+            "to": "2026-12-31"
+          },
+          "periodFallback": false
+        },
+        "radar": {
+          "revision": "b0ee22101ab0f0617f087be955304baf2fdeb570115d4ef0a11b383ccc38422f",
+          "generation": "a8500160-32b8-4a35-8c4a-f2450f3370d6",
+          "slot": 0,
+          "first": 258,
+          "parts": 2,
+          "digest": "de9605a302a13db2691b8a5fc96de758436889405948bf22c71f9cf529dd66e8",
+          "generated": "2026-10-18T14:15:14.247Z",
+          "period": {
+            "from": "2026-01-01",
+            "to": "2026-12-31"
+          },
+          "periodFallback": false
+        }
+      },
+      "snapshotsFresh": true,
+      "generationRevision": "d1619bae3957a4d76b0c5339cbc6ab33cb98eb868ad8f813eb657c03e5a071b3",
+      "rollbackReady": true,
+      "previousNewsSheet": "Noticias",
+      "backupUrl": "https://docs.google.com/spreadsheets/d/14SOeIgtoRiOWhZFpPWWEtpQZzyP09bU2yLhdMKD4d_Q/edit",
+      "migration": {
+        "id": "a4686ce5-5f9d-4b19-97d7-b8dce9f138a6",
+        "state": "Completada",
+        "classified": 8861,
+        "outputTotal": 8858,
+        "quarantined": 3,
+        "quarantineSheet": "Noticias_cuarentena_20261018",
+        "invalid": 0,
+        "archiveChanged": 1,
+        "preparedAndPublishedSameGeneration": true,
+        "published": "2026-10-18T14:15:15.857Z"
+      },
+      "classificationSupersededByMigration": true,
+      "classification": {
+        "state": "Completada",
+        "source": "Noticias_gen_a4686ce5-5f9d-4b19-97d7-b8dce9f138a6",
+        "target": null,
+        "total": 8858,
+        "next": 8860,
+        "classified": 8858,
+        "started": "2026-10-18T13:38:46.959Z",
+        "updated": "2026-10-18T13:50:02.738Z",
+        "pausedUntil": 0,
+        "error": ""
+      },
+      "taxonomy": {
+        "id": "6906db91-f143-447e-8f4a-b1bff9db563a",
+        "state": "Pendiente",
+        "phase": "scan",
+        "source": "Noticias",
+        "target": "Noticias_tax_6906db91-f143-447e-8f4a-b1bff9db563a",
+        "modelTarget": "Taxonomia_gen_6906db91-f143-447e-8f4a-b1bff9db563a",
+        "total": 8861,
+        "next": 2,
+        "processed": 0,
+        "started": "2026-10-18T13:39:05.822Z",
+        "updated": "2026-10-18T13:39:05.822Z"
+      },
+      "maintenance": {
+        "id": "a35f88e0-48d1-4e69-8070-b42b76bb5ed0",
+        "state": "Pendiente",
+        "phase": "news",
+        "source": "Noticias",
+        "target": "Noticias_maintenance_a35f88e0-48d1-4e69-8070-b42b76bb5ed0",
+        "total": 8861,
+        "next": 2,
+        "reviewed": 0,
+        "started": "2026-10-18T13:39:08.604Z",
+        "updated": "2026-10-18T13:39:08.604Z",
+        "pausedUntil": 0,
+        "error": ""
+      }
+    },
+    "workflowResumedAt": "2026-10-18T14:19:45.109Z",
+    "temporaryOperationsRemoved": true,
+    "quarantine": {
+      "sourceRows": [
+        7767,
+        7768,
+        7769
+      ],
+      "sourceSheet": "Noticias",
+      "destination": "Noticias_cuarentena_20261018",
+      "reason": "Filas sin ID, fecha, titular, URL, medio, entidad, fuente, idioma, captura ni contenido; solo país sin determinar y etiquetas vacías.",
+      "sourceRetained": true,
+      "sourceFullBackupRetained": true,
+      "validArticleIdentitiesPreserved": 8858,
+      "validArticleIdentityDigest": "a4dc1d0268c21094dc2df50e1d3a9ee8e07ad871e96609a5e67b6a963aed753d"
+    },
+    "smoke": {
+      "deploymentVersion": 77,
+      "at": "2026-10-18T14:28:48.007Z",
+      "briefing": {
+        "loaded": true,
+        "oldIncidentVisible": false,
+        "unifiedIncidentCount": 1
+      },
+      "news": {
+        "loaded": true,
+        "total": 180
+      },
+      "radar": {
+        "loaded": true,
+        "total": 474,
+        "entities": 54,
+        "publishers": 271,
+        "geographies": 26,
+        "functionallyAssigned": 138
+      },
+      "newsletter": {
+        "archivedEditionRead": true,
+        "summary": "18/10/26, 9:55 · Enviada · 2026-10-01 / 2026-10-15Resumen de lo recibido2026-10-01 / 2026-10-15 · 30 publicaciones · EspañaSantander amplía Getnet para gestionar pagos de comercios en más de 30 países europeosBBVA y otros 36 bancos lanzarán la stablecoin en euros Qivalis sobre EthereumStandard Chartered amplía su oferta de servicios de custodia de criptomonedas y activos tokenizados en Singapur: BTCPressWire analiza…"
+      },
+      "actions": "Solo lectura; no se invocaron funciones de envío de correo.",
+      "additionalCompleteCycles": 3,
+      "viewsLoadedInAdditionalCycles": 9,
+      "consoleErrorsObserved": 0
+    },
+    "additionalDeliveryObservation": "La historia de newsletters muestra tres ediciones adicionales a las 16:21–16:22. No se invocaron funciones de envío desde las pruebas de este agente; la autoría o disparador de esas entregas no se ha atribuido.",
+    "operationalEvidenceFiles": [
+      "output/ingestion-refactor-3.7.0/production-proof.json",
+      "output/ingestion-refactor-3.7.0/production-smoke.json",
+      "output/ingestion-refactor-3.7.0/Operations20261018.gs",
+      "output/ingestion-refactor-3.7.0/deployment-77.jpg"
+    ],
+    "latency": {
+      "scope": "Observaciones reales de la WebApp 3.7.0 con caché cliente miss y snapshot hit. Antes: snapshots antiguos, 2 observaciones por vista. Después: generación migrada, 5–7 observaciones por vista, incluidos tres ciclos completos adicionales. No es un A/B aleatorizado ni se garantiza igual estado de caché, carga de Google o usuarios. La submuestra version77 comienza a las 16:23 Europe/Madrid, después de confirmar su despliegue a las 16:22. Con n < 20, p95 por rango más próximo equivale al máximo observado; no estima un SLO.",
+      "summary": {
+        "beforeMigration": {
+          "radar": {
+            "n": 2,
+            "metrics": {
+              "clientMs": {
+                "p50": 16310.0,
+                "p95": 18168
+              },
+              "rpcMs": {
+                "p50": 16242.5,
+                "p95": 18079
+              },
+              "serverMs": {
+                "p50": 11895.5,
+                "p95": 13201
+              },
+              "newsMs": {
+                "p50": 995.5,
+                "p95": 1779
+              },
+              "metadataMs": {
+                "p50": 10613.0,
+                "p95": 11136
+              }
+            }
+          },
+          "news": {
+            "n": 2,
+            "metrics": {
+              "clientMs": {
+                "p50": 7367.0,
+                "p95": 7510
+              },
+              "rpcMs": {
+                "p50": 7319.5,
+                "p95": 7441
+              },
+              "serverMs": {
+                "p50": 2468.0,
+                "p95": 2783
+              },
+              "newsMs": {
+                "p50": 803.5,
+                "p95": 1244
+              },
+              "metadataMs": {
+                "p50": 1383.0,
+                "p95": 2113
+              }
+            }
+          },
+          "briefing": {
+            "n": 2,
+            "metrics": {
+              "clientMs": {
+                "p50": 6879.0,
+                "p95": 8488
+              },
+              "rpcMs": {
+                "p50": 6774.5,
+                "p95": 8381
+              },
+              "serverMs": {
+                "p50": 2010.0,
+                "p95": 3045
+              },
+              "newsMs": {
+                "p50": 495.5,
+                "p95": 775
+              },
+              "metadataMs": {
+                "p50": 1335.0,
+                "p95": 2103
+              }
+            }
+          }
+        },
+        "afterMigration": {
+          "briefing": {
+            "n": 7,
+            "metrics": {
+              "clientMs": {
+                "p50": 6541,
+                "p95": 9324
+              },
+              "rpcMs": {
+                "p50": 6436,
+                "p95": 9236
+              },
+              "serverMs": {
+                "p50": 1948,
+                "p95": 4209
+              },
+              "newsMs": {
+                "p50": 159,
+                "p95": 980
+              },
+              "metadataMs": {
+                "p50": 1587,
+                "p95": 3304
+              }
+            }
+          },
+          "radar": {
+            "n": 5,
+            "metrics": {
+              "clientMs": {
+                "p50": 5699,
+                "p95": 6695
+              },
+              "rpcMs": {
+                "p50": 5658,
+                "p95": 6624
+              },
+              "serverMs": {
+                "p50": 1397,
+                "p95": 2011
+              },
+              "newsMs": {
+                "p50": 578,
+                "p95": 1649
+              },
+              "metadataMs": {
+                "p50": 610,
+                "p95": 833
+              }
+            }
+          },
+          "news": {
+            "n": 5,
+            "metrics": {
+              "clientMs": {
+                "p50": 5923,
+                "p95": 6465
+              },
+              "rpcMs": {
+                "p50": 5891,
+                "p95": 6439
+              },
+              "serverMs": {
+                "p50": 1243,
+                "p95": 2748
+              },
+              "newsMs": {
+                "p50": 182,
+                "p95": 1164
+              },
+              "metadataMs": {
+                "p50": 629,
+                "p95": 1429
+              }
+            }
+          }
+        },
+        "version77": {
+          "briefing": {
+            "n": 5,
+            "metrics": {
+              "clientMs": {
+                "p50": 6541,
+                "p95": 9324
+              },
+              "rpcMs": {
+                "p50": 6436,
+                "p95": 9236
+              },
+              "serverMs": {
+                "p50": 1948,
+                "p95": 4201
+              },
+              "newsMs": {
+                "p50": 159,
+                "p95": 802
+              },
+              "metadataMs": {
+                "p50": 1587,
+                "p95": 3304
+              }
+            }
+          },
+          "radar": {
+            "n": 4,
+            "metrics": {
+              "clientMs": {
+                "p50": 5337.5,
+                "p95": 6695
+              },
+              "rpcMs": {
+                "p50": 5292.5,
+                "p95": 6624
+              },
+              "serverMs": {
+                "p50": 1267.0,
+                "p95": 2011
+              },
+              "newsMs": {
+                "p50": 322.5,
+                "p95": 1649
+              },
+              "metadataMs": {
+                "p50": 480.5,
+                "p95": 833
+              }
+            }
+          },
+          "news": {
+            "n": 4,
+            "metrics": {
+              "clientMs": {
+                "p50": 5274.5,
+                "p95": 6465
+              },
+              "rpcMs": {
+                "p50": 5241.0,
+                "p95": 6439
+              },
+              "serverMs": {
+                "p50": 1071.0,
+                "p95": 1994
+              },
+              "newsMs": {
+                "p50": 137.0,
+                "p95": 882
+              },
+              "metadataMs": {
+                "p50": 482.0,
+                "p95": 1429
+              }
+            }
+          }
+        }
+      },
+      "observations": [
+        {
+          "view": "briefing",
+          "atLocal": "18/10/26, 16:34",
+          "clientMs": 5678,
+          "rpcMs": 5587,
+          "serverMs": 1861,
+          "newsMs": 64,
+          "metadataMs": 1587,
+          "renderMs": 91,
+          "detail": "briefing; RPC 5587 ms; servidor 1861 ms; noticias 64 ms; render 91 ms; caché hit; preparación 210 ms; metadatos 1587 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "radar",
+          "atLocal": "18/10/26, 16:33",
+          "clientMs": 4890,
+          "rpcMs": 4846,
+          "serverMs": 544,
+          "newsMs": 38,
+          "metadataMs": 351,
+          "renderMs": 45,
+          "detail": "radar; RPC 4846 ms; servidor 544 ms; noticias 38 ms; render 45 ms; caché hit; preparación 155 ms; metadatos 351 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "news",
+          "atLocal": "18/10/26, 16:33",
+          "clientMs": 5923,
+          "rpcMs": 5891,
+          "serverMs": 899,
+          "newsMs": 92,
+          "metadataMs": 629,
+          "renderMs": 32,
+          "detail": "news; RPC 5891 ms; servidor 899 ms; noticias 92 ms; render 32 ms; caché hit; preparación 178 ms; metadatos 629 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "briefing",
+          "atLocal": "18/10/26, 16:33",
+          "clientMs": 4913,
+          "rpcMs": 4814,
+          "serverMs": 1230,
+          "newsMs": 39,
+          "metadataMs": 1029,
+          "renderMs": 99,
+          "detail": "briefing; RPC 4814 ms; servidor 1230 ms; noticias 39 ms; render 99 ms; caché hit; preparación 162 ms; metadatos 1029 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "radar",
+          "atLocal": "18/10/26, 16:33",
+          "clientMs": 3802,
+          "rpcMs": 3754,
+          "serverMs": 1137,
+          "newsMs": 67,
+          "metadataMs": 833,
+          "renderMs": 48,
+          "detail": "radar; RPC 3754 ms; servidor 1137 ms; noticias 67 ms; render 48 ms; caché hit; preparación 237 ms; metadatos 833 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "news",
+          "atLocal": "18/10/26, 16:33",
+          "clientMs": 6465,
+          "rpcMs": 6439,
+          "serverMs": 1994,
+          "newsMs": 182,
+          "metadataMs": 1429,
+          "renderMs": 24,
+          "detail": "news; RPC 6439 ms; servidor 1994 ms; noticias 182 ms; render 24 ms; caché hit; preparación 383 ms; metadatos 1429 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "radar",
+          "atLocal": "18/10/26, 16:32",
+          "clientMs": 5785,
+          "rpcMs": 5739,
+          "serverMs": 2011,
+          "newsMs": 1649,
+          "metadataMs": 232,
+          "renderMs": 46,
+          "detail": "radar; RPC 5739 ms; servidor 2011 ms; noticias 1649 ms; render 46 ms; caché hit; preparación 130 ms; metadatos 232 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "news",
+          "atLocal": "18/10/26, 16:32",
+          "clientMs": 4626,
+          "rpcMs": 4591,
+          "serverMs": 1243,
+          "newsMs": 882,
+          "metadataMs": 187,
+          "renderMs": 34,
+          "detail": "news; RPC 4591 ms; servidor 1243 ms; noticias 882 ms; render 34 ms; caché hit; preparación 174 ms; metadatos 187 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "briefing",
+          "atLocal": "18/10/26, 16:32",
+          "clientMs": 6541,
+          "rpcMs": 6436,
+          "serverMs": 1948,
+          "newsMs": 159,
+          "metadataMs": 1387,
+          "renderMs": 105,
+          "detail": "briefing; RPC 6436 ms; servidor 1948 ms; noticias 159 ms; render 105 ms; caché hit; preparación 402 ms; metadatos 1387 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "briefing",
+          "atLocal": "18/10/26, 16:31",
+          "clientMs": 9324,
+          "rpcMs": 9236,
+          "serverMs": 4201,
+          "newsMs": 802,
+          "metadataMs": 3304,
+          "renderMs": 87,
+          "detail": "briefing; RPC 9236 ms; servidor 4201 ms; noticias 802 ms; render 87 ms; caché hit; preparación 95 ms; metadatos 3304 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "radar",
+          "atLocal": "18/10/26, 16:26",
+          "clientMs": 6695,
+          "rpcMs": 6624,
+          "serverMs": 1397,
+          "newsMs": 578,
+          "metadataMs": 610,
+          "renderMs": 71,
+          "detail": "radar; RPC 6624 ms; servidor 1397 ms; noticias 578 ms; render 71 ms; caché hit; preparación 209 ms; metadatos 610 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "news",
+          "atLocal": "18/10/26, 16:23",
+          "clientMs": 4440,
+          "rpcMs": 4400,
+          "serverMs": 586,
+          "newsMs": 35,
+          "metadataMs": 335,
+          "renderMs": 40,
+          "detail": "news; RPC 4400 ms; servidor 586 ms; noticias 35 ms; render 40 ms; caché hit; preparación 216 ms; metadatos 335 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "briefing",
+          "atLocal": "18/10/26, 16:23",
+          "clientMs": 7726,
+          "rpcMs": 7629,
+          "serverMs": 2943,
+          "newsMs": 607,
+          "metadataMs": 2153,
+          "renderMs": 97,
+          "detail": "briefing; RPC 7629 ms; servidor 2943 ms; noticias 607 ms; render 97 ms; caché hit; preparación 183 ms; metadatos 2153 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "news",
+          "atLocal": "18/10/26, 16:20",
+          "clientMs": 6040,
+          "rpcMs": 5986,
+          "serverMs": 2748,
+          "newsMs": 1164,
+          "metadataMs": 1122,
+          "renderMs": 53,
+          "detail": "news; RPC 5986 ms; servidor 2748 ms; noticias 1164 ms; render 53 ms; caché hit; preparación 462 ms; metadatos 1122 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "radar",
+          "atLocal": "18/10/26, 16:19",
+          "clientMs": 5699,
+          "rpcMs": 5658,
+          "serverMs": 1618,
+          "newsMs": 724,
+          "metadataMs": 672,
+          "renderMs": 41,
+          "detail": "radar; RPC 5658 ms; servidor 1618 ms; noticias 724 ms; render 41 ms; caché hit; preparación 222 ms; metadatos 672 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "briefing",
+          "atLocal": "18/10/26, 16:18",
+          "clientMs": 4667,
+          "rpcMs": 4560,
+          "serverMs": 1040,
+          "newsMs": 39,
+          "metadataMs": 909,
+          "renderMs": 105,
+          "detail": "briefing; RPC 4560 ms; servidor 1040 ms; noticias 39 ms; render 105 ms; caché hit; preparación 92 ms; metadatos 909 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "briefing",
+          "atLocal": "18/10/26, 16:16",
+          "clientMs": 7982,
+          "rpcMs": 7870,
+          "serverMs": 4209,
+          "newsMs": 980,
+          "metadataMs": 2803,
+          "renderMs": 111,
+          "detail": "briefing; RPC 7870 ms; servidor 4209 ms; noticias 980 ms; render 111 ms; caché hit; preparación 426 ms; metadatos 2803 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "radar",
+          "atLocal": "18/10/26, 15:54",
+          "clientMs": 14452,
+          "rpcMs": 14406,
+          "serverMs": 10590,
+          "newsMs": 212,
+          "metadataMs": 10090,
+          "renderMs": 46,
+          "detail": "radar; RPC 14406 ms; servidor 10590 ms; noticias 212 ms; render 46 ms; caché hit; preparación 288 ms; metadatos 10090 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "radar",
+          "atLocal": "18/10/26, 15:53",
+          "clientMs": 18168,
+          "rpcMs": 18079,
+          "serverMs": 13201,
+          "newsMs": 1779,
+          "metadataMs": 11136,
+          "renderMs": 89,
+          "detail": "radar; RPC 18079 ms; servidor 13201 ms; noticias 1779 ms; render 89 ms; caché hit; preparación 286 ms; metadatos 11136 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "news",
+          "atLocal": "18/10/26, 15:52",
+          "clientMs": 7510,
+          "rpcMs": 7441,
+          "serverMs": 2783,
+          "newsMs": 363,
+          "metadataMs": 2113,
+          "renderMs": 67,
+          "detail": "news; RPC 7441 ms; servidor 2783 ms; noticias 363 ms; render 67 ms; caché hit; preparación 307 ms; metadatos 2113 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "news",
+          "atLocal": "18/10/26, 15:52",
+          "clientMs": 7224,
+          "rpcMs": 7198,
+          "serverMs": 2153,
+          "newsMs": 1244,
+          "metadataMs": 653,
+          "renderMs": 25,
+          "detail": "news; RPC 7198 ms; servidor 2153 ms; noticias 1244 ms; render 25 ms; caché hit; preparación 256 ms; metadatos 653 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "briefing",
+          "atLocal": "18/10/26, 15:50",
+          "clientMs": 5270,
+          "rpcMs": 5168,
+          "serverMs": 975,
+          "newsMs": 216,
+          "metadataMs": 567,
+          "renderMs": 101,
+          "detail": "briefing; RPC 5168 ms; servidor 975 ms; noticias 216 ms; render 101 ms; caché hit; preparación 192 ms; metadatos 567 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        },
+        {
+          "view": "briefing",
+          "atLocal": "18/10/26, 15:49",
+          "clientMs": 8488,
+          "rpcMs": 8381,
+          "serverMs": 3045,
+          "newsMs": 775,
+          "metadataMs": 2103,
+          "renderMs": 105,
+          "detail": "briefing; RPC 8381 ms; servidor 3045 ms; noticias 775 ms; render 105 ms; caché hit; preparación 167 ms; metadatos 2103 ms; caché cliente miss; snapshot hit; RPC compartida no; v3.7.0"
+        }
+      ],
+      "rawFile": "output/ingestion-refactor-3.7.0/production-dashboard-telemetry.json"
+    },
+    "remoteFilesMatchDist": true
+  },
+  "promotionPatchPerformance": {
+    "environment": "Comparación adicional contra el refactor ya integrado en 325aacc8136577b61eb7a2b677387be14af91215, no contra el estado previo c32af35. Cuatro pares locales; el parche solo cambia promoción y un literal de traducción. Mediana de histórico +3,2 % y p95 -4,4 %, con 25 lecturas en ambos; variación muestral que no demuestra una regresión del lector.",
+    "scenarios": {
+      "radar cold": {
+        "baseline": {
+          "n": 4,
+          "p50Ms": 452.1,
+          "p95Ms": 545.4,
+          "sheetReads": [
+            3
+          ],
+          "medianRetainedHeapBytes": 3526284.0,
+          "totals": [
+            3835
+          ]
+        },
+        "current": {
+          "n": 4,
+          "p50Ms": 337.3,
+          "p95Ms": 351.2,
+          "sheetReads": [
+            3
+          ],
+          "medianRetainedHeapBytes": 3524980.0,
+          "totals": [
+            3835
+          ]
+        }
+      },
+      "briefing cold": {
+        "baseline": {
+          "n": 4,
+          "p50Ms": 250.95,
+          "p95Ms": 301.7,
+          "sheetReads": [
+            0
+          ],
+          "medianRetainedHeapBytes": 130000.0,
+          "totals": [
+            3835
+          ]
+        },
+        "current": {
+          "n": 4,
+          "p50Ms": 239.7,
+          "p95Ms": 248.6,
+          "sheetReads": [
+            0
+          ],
+          "medianRetainedHeapBytes": 115492.0,
+          "totals": [
+            3835
+          ]
+        }
+      },
+      "news cold": {
+        "baseline": {
+          "n": 4,
+          "p50Ms": 202.95,
+          "p95Ms": 290.6,
+          "sheetReads": [
+            0
+          ],
+          "medianRetainedHeapBytes": 18928.0,
+          "totals": [
+            3835
+          ]
+        },
+        "current": {
+          "n": 4,
+          "p50Ms": 203.95,
+          "p95Ms": 214,
+          "sheetReads": [
+            0
+          ],
+          "medianRetainedHeapBytes": 29652.0,
+          "totals": [
+            3835
+          ]
+        }
+      },
+      "news next page": {
+        "baseline": {
+          "n": 4,
+          "p50Ms": 2.0,
+          "p95Ms": 2.9,
+          "sheetReads": [
+            1
+          ],
+          "medianRetainedHeapBytes": 16576.0,
+          "totals": [
+            3835
+          ]
+        },
+        "current": {
+          "n": 4,
+          "p50Ms": 1.75,
+          "p95Ms": 1.9,
+          "sheetReads": [
+            1
+          ],
+          "medianRetainedHeapBytes": 19896.0,
+          "totals": [
+            3835
+          ]
+        }
+      },
+      "news cache hit": {
+        "baseline": {
+          "n": 4,
+          "p50Ms": 0.45,
+          "p95Ms": 0.7,
+          "sheetReads": [
+            0
+          ],
+          "medianRetainedHeapBytes": 3992.0,
+          "totals": [
+            3835
+          ]
+        },
+        "current": {
+          "n": 4,
+          "p50Ms": 0.35,
+          "p95Ms": 0.4,
+          "sheetReads": [
+            0
+          ],
+          "medianRetainedHeapBytes": -5636.0,
+          "totals": [
+            3835
+          ]
+        }
+      },
+      "old period": {
+        "baseline": {
+          "n": 4,
+          "p50Ms": 36.45,
+          "p95Ms": 78.5,
+          "sheetReads": [
+            1
+          ],
+          "medianRetainedHeapBytes": 258476.0,
+          "totals": [
+            274
+          ]
+        },
+        "current": {
+          "n": 4,
+          "p50Ms": 30.8,
+          "p95Ms": 31.7,
+          "sheetReads": [
+            1
+          ],
+          "medianRetainedHeapBytes": 256160.0,
+          "totals": [
+            274
+          ]
+        }
+      },
+      "full history": {
+        "baseline": {
+          "n": 4,
+          "p50Ms": 3268.7,
+          "p95Ms": 3657.1,
+          "sheetReads": [
+            25
+          ],
+          "medianRetainedHeapBytes": 7126784.0,
+          "totals": [
+            50000
+          ]
+        },
+        "current": {
+          "n": 4,
+          "p50Ms": 3373.05,
+          "p95Ms": 3495.3,
+          "sheetReads": [
+            25
+          ],
+          "medianRetainedHeapBytes": 7140636.0,
+          "totals": [
+            50000
+          ]
+        }
+      }
+    },
+    "raw": [
+      {
+        "version": "baseline",
+        "baseline": "325aacc8136577b61eb7a2b677387be14af91215",
+        "count": 50000,
+        "sample": 1,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 385.8,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 3766280
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 236.1,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 253688
+          },
+          {
+            "scenario": "news cold",
+            "ms": 207.5,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 43992
+          },
+          {
+            "scenario": "news next page",
+            "ms": 2.3,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 31920
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.4,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 4960
+          },
+          {
+            "scenario": "old period",
+            "ms": 36.3,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 261152
+          },
+          {
+            "scenario": "full history",
+            "ms": 3657.1,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 7118112
+          }
+        ]
+      },
+      {
+        "version": "current",
+        "baseline": "325aacc8136577b61eb7a2b677387be14af91215",
+        "count": 50000,
+        "sample": 1,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 344,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 3714392
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 246.1,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 225776
+          },
+          {
+            "scenario": "news cold",
+            "ms": 214,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 45808
+          },
+          {
+            "scenario": "news next page",
+            "ms": 1.9,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 26384
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.4,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": -8600
+          },
+          {
+            "scenario": "old period",
+            "ms": 31,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 260880
+          },
+          {
+            "scenario": "full history",
+            "ms": 3346,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 7151696
+          }
+        ]
+      },
+      {
+        "version": "current",
+        "baseline": "325aacc8136577b61eb7a2b677387be14af91215",
+        "count": 50000,
+        "sample": 2,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 330.6,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 3524176
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 233.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 115984
+          },
+          {
+            "scenario": "news cold",
+            "ms": 202.4,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 29264
+          },
+          {
+            "scenario": "news next page",
+            "ms": 1.7,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 19912
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": -5392
+          },
+          {
+            "scenario": "old period",
+            "ms": 30.5,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 256224
+          },
+          {
+            "scenario": "full history",
+            "ms": 3360,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 7140568
+          }
+        ]
+      },
+      {
+        "version": "baseline",
+        "baseline": "325aacc8136577b61eb7a2b677387be14af91215",
+        "count": 50000,
+        "sample": 2,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 328.4,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 3524272
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 260.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 115880
+          },
+          {
+            "scenario": "news cold",
+            "ms": 290.6,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 8800
+          },
+          {
+            "scenario": "news next page",
+            "ms": 2.9,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 18368
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.5,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 6776
+          },
+          {
+            "scenario": "old period",
+            "ms": 36.6,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 255312
+          },
+          {
+            "scenario": "full history",
+            "ms": 3341.1,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 7145728
+          }
+        ]
+      },
+      {
+        "version": "baseline",
+        "baseline": "325aacc8136577b61eb7a2b677387be14af91215",
+        "count": 50000,
+        "sample": 3,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 518.4,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 3526064
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 301.7,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 144120
+          },
+          {
+            "scenario": "news cold",
+            "ms": 187.7,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 29056
+          },
+          {
+            "scenario": "news next page",
+            "ms": 1.7,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 13160
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 2752
+          },
+          {
+            "scenario": "old period",
+            "ms": 30.7,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 255800
+          },
+          {
+            "scenario": "full history",
+            "ms": 3178,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 6182912
+          }
+        ]
+      },
+      {
+        "version": "current",
+        "baseline": "325aacc8136577b61eb7a2b677387be14af91215",
+        "count": 50000,
+        "sample": 3,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 351.2,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 3524152
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 204,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 114968
+          },
+          {
+            "scenario": "news cold",
+            "ms": 188.2,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 30040
+          },
+          {
+            "scenario": "news next page",
+            "ms": 1.5,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 19880
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": -5664
+          },
+          {
+            "scenario": "old period",
+            "ms": 30.6,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 256096
+          },
+          {
+            "scenario": "full history",
+            "ms": 3386.1,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 7140704
+          }
+        ]
+      },
+      {
+        "version": "current",
+        "baseline": "325aacc8136577b61eb7a2b677387be14af91215",
+        "count": 50000,
+        "sample": 4,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 330,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 3525784
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 248.6,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 115000
+          },
+          {
+            "scenario": "news cold",
+            "ms": 205.5,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 11496
+          },
+          {
+            "scenario": "news next page",
+            "ms": 1.8,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 5024
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.4,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": -5608
+          },
+          {
+            "scenario": "old period",
+            "ms": 31.7,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 252456
+          },
+          {
+            "scenario": "full history",
+            "ms": 3495.3,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 7119840
+          }
+        ]
+      },
+      {
+        "version": "baseline",
+        "baseline": "325aacc8136577b61eb7a2b677387be14af91215",
+        "count": 50000,
+        "sample": 4,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 545.4,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 3526504
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 241.6,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 115160
+          },
+          {
+            "scenario": "news cold",
+            "ms": 198.4,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 8272
+          },
+          {
+            "scenario": "news next page",
+            "ms": 1.7,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 14784
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.7,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 3024
+          },
+          {
+            "scenario": "old period",
+            "ms": 78.5,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 290056
+          },
+          {
+            "scenario": "full history",
+            "ms": 3196.3,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 7135456
+          }
+        ]
+      }
+    ]
+  },
+  "repositoryIntegration": {
+    "refactorMergedByUserDuringTask": "325aacc8136577b61eb7a2b677387be14af91215",
+    "previousRevision": "c32af357e270c4fb25167bfce7a6e06749376ad2",
+    "prNumber": 48,
+    "finalDelta": "Promoción del staging verificado, traducción del rechazo por alteración, regresión y evidencias reales."
+  },
+  "finalUncommittedFiles": [
+    "README.md",
+    "dist/Client.html",
+    "dist/IngestionMigration.gs",
+    "dist/Locales.gs",
+    "docs/ingestion-refactor-20261018.json",
+    "src/server/news/IngestionMigration.gs",
+    "src/shared/locales.js",
+    "tests/ingestion-generations.test.mjs"
   ]
 }

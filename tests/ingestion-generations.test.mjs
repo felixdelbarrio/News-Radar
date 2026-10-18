@@ -10,6 +10,10 @@ function add(s,id='one',title='BBVA lanza pagos digitales para empresas'){
 }
 function snapshots(c){for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();}
 function drainMigration(c){for(let i=0;i<30&&c.ingestionMigrationPending_();i++)c.ingestionMigrationBatch_();assert.equal(c.ingestionMigrationPending_(),false);}
+test('la promoción reutiliza la generación probada y rechaza alteraciones del staging',()=>{
+ const s=server(),c=s.c;add(s);c.startIngestionMigration();drainMigration(c);const trial=c.ingestionMigrationJob_(),sheet=s.sheets.get(trial.target),original=sheet.grid[1][5];sheet.grid[1][5]='alterado';assert.throws(()=>c.startIngestionMigration(false),/generación preparada ha cambiado/);sheet.grid[1][5]=original;
+ const promoted=c.startIngestionMigration(false);assert.equal(promoted.id,trial.id);assert.equal(promoted.target,trial.target);assert.equal(promoted.backup,trial.backup);assert.equal(promoted.state,'Publicando');drainMigration(c);assert.equal(c.rows_('Noticias').length,1);
+});
 test('el archivo de newsletters normaliza incidencias al publicar y conserva los originales y su contexto',()=>{
  const s=server(),c=s.c;add(s);const row=c.annotateNews_(c.rows_('Noticias'))[0];row.senales=['Indisponibilidad de servicio','Incidencia operativa'];const score=c.newsRelevance_(row),query={from:'2026-10-01',to:'2026-10-15',signal:'Indisponibilidad de servicio',search:'Indisponibilidad de servicio'};
  c.saveNewsletterEdition_('legacy','delivery','owner@bbva.com','Histórica',query,'es',[row]);c.completeNewsletterEdition_('legacy','Enviada');const original=JSON.stringify(s.sheets.get('NewsletterContenido').grid),before=c.newsletterEdition_('legacy','owner@bbva.com');snapshots(c);
