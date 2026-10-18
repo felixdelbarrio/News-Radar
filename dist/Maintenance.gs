@@ -1,19 +1,21 @@
 const MAINTENANCE_TABLES=Object.freeze(['Auditoria','Telemetria','Ejecuciones','Adopcion','NewsletterEventos','NewsletterFeedback']);
 const MAINTENANCE_POLICY=Object.freeze({batchRows:100,retentionRows:200,maxMs:8000});
 function maintenanceJob_(){const raw=properties_().getProperty('MAINTENANCE_JOB');return raw?JSON.parse(raw):null;}
-function saveMaintenanceJob_(job){job.updated=new Date().toISOString();properties_().setProperty('MAINTENANCE_JOB',JSON.stringify(job));}
-function maintenance_(){
-  const previous=maintenanceJob_(),revision=classificationRulesRevision_()+':'+(properties_().getProperty('TAXONOMY_REVISION')||'0');if(previous&&previous.state!=='Completada'&&previous.revision===revision)return;
-  const total=Math.max(0,book_().getSheetByName('Noticias').getLastRow()-1),firstRow=previous?.revision===revision?Math.min(previous.total+2,total+2):2;
-  saveMaintenanceJob_({id:Utilities.getUuid(),revision,total,firstRow,cursor:null,next:2,phase:'news',state:'Pendiente',reviewed:0,corrected:0,consolidated:0,removed:0,table:0,position:2,started:new Date().toISOString(),pausedUntil:0,error:''});ensureBackgroundWorker_();
+function saveMaintenanceJob_(job){job.updated=new Date().toISOString();properties_().setProperty('MAINTENANCE_JOB',JSON.stringify(snapshotJob_('MAINTENANCE_JOB',job)));}
+function maintenance_(force=false){
+  const previous=maintenanceJob_(),revision=classificationRulesRevision_()+':'+(properties_().getProperty('TAXONOMY_REVISION')||'0');if(!force&&previous&&previous.state!=='Completada'&&previous.revision===revision)return;
+  const total=Math.max(0,newsSheet_().getLastRow()-1),firstRow=!force&&previous?.revision===revision?Math.min(previous.total+2,total+2):2;
+  const id=Utilities.getUuid();saveMaintenanceJob_({id,source:newsStorageKey_(),target:total?'Noticias_maintenance_'+id:null,corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',revision,total,firstRow,cursor:null,next:2,phase:'news',state:'Pendiente',reviewed:0,corrected:0,consolidated:0,removed:0,table:0,position:2,started:new Date().toISOString(),pausedUntil:0,error:''});ensureBackgroundWorker_();
 }
-function maintenanceReadyAt_(){const job=maintenanceJob_();return job&&job.state!=='Completada'?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
+function maintenanceReadyAt_(){const job=maintenanceJob_();return job&&!['Completada','Publicando'].includes(job.state)?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
 function getMaintenanceStatus(){authorize_(true);const job=maintenanceJob_();return {job:withJobProgress_('maintenance',job?{...job,total:Math.max(0,job.total-job.firstRow+2),processed:job.reviewed}:null),active:Boolean(job&&job.state!=='Completada')};}
 function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
-  const job=maintenanceJob_();if(!job||job.state==='Completada'||backgroundPaused_()||dailyCollectionPending_()||classificationPending_()||properties_().getProperty('DAILY_PIPELINE_REQUEST'))return;
+  const job=maintenanceJob_();if(!job||['Completada','Publicando'].includes(job.state)||backgroundPaused_()||dailyCollectionPending_()||classificationPending_()||properties_().getProperty('DAILY_PIPELINE_REQUEST'))return;
   const started=Date.now();let changed=false;
   try{
     if(job.journal)finishMaintenanceJournal_(job);
+    if(job.source!==newsStorageKey_()||job.corpus!==(properties_().getProperty('NEWS_CONTENT_REVISION')||'0')){maintenance_(true);return;}
+    if(job.target&&!book_().getSheetByName(job.target))newsSheet_().copyTo(book_()).setName(job.target);
     if(job.phase==='news'){
       const rows=newsWorkRows_(job,MAINTENANCE_POLICY.batchRows),dates=rows.map(row=>row.fecha).filter(day=>/^\d{4}-\d{2}-\d{2}$/.test(day)&&Number.isFinite(Date.parse(day))),updates=[];
       const from=dates.length?new Date(Date.parse(dates.at(-1))-COLLECTION_POLICY.duplicateDays*86400000).toISOString().slice(0,10):'',to=dates.length?new Date(Date.parse(dates[0])+COLLECTION_POLICY.duplicateDays*86400000).toISOString().slice(0,10):'';
@@ -22,7 +24,7 @@ function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
       let cursor=job.cursor,reviewed=0,corrected=0,consolidated=0;
       for(const row of rows){
         if(Date.now()-started>=maxMs||backgroundPaused_(true)||reviewed%20===0&&properties_().getProperty('DAILY_PIPELINE_REQUEST'))break;
-        const labels=classification_(searchText_(row.titular),searchText_(row.titular+' '+row.extracto)).labels,canonicalId=representatives.get(row._sheetRow),country=newsCountry_(row),saved=savedNewsLabels_(row.clasificacion);
+        const labels={...savedNewsLabels_(row.clasificacion)},canonicalId=representatives.get(row._sheetRow),country=newsCountry_(row),saved=savedNewsLabels_(row.clasificacion);
         if(canonicalId&&canonicalId!==row.id)labels.canonicalId=canonicalId;
         let correctedRow=false;
         const encoded=JSON.stringify(labels);if(encoded!==row.clasificacion){updates.push({row:row._sheetRow,column:12,value:encoded});correctedRow=true;}
@@ -33,7 +35,7 @@ function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
         }
         if(canonicalId&&canonicalId!==saved.canonicalId)consolidated++;if(correctedRow)corrected++;cursor=newsWorkCursor_(row);reviewed++;
       }
-      writeNewsCells_(updates);if(updates.length){SpreadsheetApp.flush();invalidateNews_(false);changed=true;}
+      newsSheetOverride_=job.target;try{writeNewsCells_(updates);}finally{newsSheetOverride_=undefined;}if(updates.length){SpreadsheetApp.flush();invalidateNews_(false);changed=true;}
       job.cursor=cursor;job.reviewed+=reviewed;job.corrected+=corrected;job.consolidated+=consolidated;
       if(rows.length===0||reviewed===rows.length&&rows.length<MAINTENANCE_POLICY.batchRows){job.phase='retention';job.position=2;}
     }else pruneEvents_(job);
@@ -98,4 +100,10 @@ function advanceMaintenanceTable_(job,cursors,name){
 }
 function invalidateMaintenanceCursor_(name,row){
   if(!MAINTENANCE_TABLES.includes(name))return;const cursors=JSON.parse(properties_().getProperty('RETENTION_CURSORS')||'{}');cursors[name]=Math.min(cursors[name]||2,Math.max(2,row));properties_().setProperty('RETENTION_CURSORS',JSON.stringify(cursors));
+}
+
+function drainMaintenanceRequest_(){
+  const p=properties_(),day=p.getProperty('MAINTENANCE_REQUEST');if(!day)return;
+  if(p.getProperty('MAINTENANCE_DAY')!==day){maintenance_();p.setProperty('MAINTENANCE_DAY',day);}
+  p.deleteProperty('MAINTENANCE_REQUEST');
 }

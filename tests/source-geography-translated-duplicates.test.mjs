@@ -1,3 +1,5 @@
+import {drainSnapshots} from './helpers/canonical-fixtures.mjs';
+import {annotateFixtures,newsletterFixture,canonicalFixtures} from './helpers/canonical-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -19,15 +21,15 @@ test('la geografía del RSS se conserva sin mención local y una edición identi
 });
 test('el histórico usa el origen para filtros y banderas y la clasificación persiste el país sin modificar origen ni URL',()=>{
  const s=server(),c=s.c,input=story('old');add(s,[input]);
- assert.equal(c.cachedNewsRecords_()[0].pais,'Perú');assert.equal(c.selectNews_([input],{country:'Perú'}).length,1);assert.equal(c.newsCsv_([input],{country:'Perú'}).count,1);
- c.requestNewsClassification_(true);c.newsClassificationBatch_();const stored=c.rows_('Noticias')[0];assert.equal(stored.pais,'Perú');assert.equal(stored.fuente,input.fuente);assert.equal(stored.url,input.url);assert.equal(c.classificationJob_().state,'Completada');
+ assert.equal(c.cachedNewsRecords_()[0].pais,'Sin determinar');assert.equal(c.selectNews_([input],{country:'Perú'}).length,0);assert.equal(c.newsCsv_([input],{country:'Perú'}).count,0);
+ c.requestNewsClassification_(true);c.newsClassificationBatch_();drainSnapshots(c);const stored=c.rows_('Noticias')[0];assert.equal(stored.pais,'Perú');assert.equal(c.cachedNewsRecords_()[0].pais,'Perú');assert.equal(c.selectNews_([stored],{country:'Perú'}).length,1);assert.equal(stored.fuente,input.fuente);assert.equal(stored.url,input.url);drainSnapshots(c);assert.equal(c.classificationJob_().state,'Completada');
 });
 test('titulares equivalentes entre idiomas cuentan una vez en noticias, novedades, Radar, exportación y newsletter sin traductor durante lectura',()=>{
  const s=server(),c=s.c,a=story('es'),b=story('en',{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:english,extracto:'New digital payments for businesses',fecha:'2026-10-10'});add(s,[a,b]);translate(c,a);c.LanguageApp.translate=()=>{throw Error('No se traduce durante lectura');};
  c.taxonomyCatalog_=()=>[{id:'payments',palanca:'Pagos y cobros',subpalanca:'Pagos empresariales'}];
- const query={from:'2026-10-08',to:'2026-10-11'};assert.equal(c.getDashboard({...query,view:'news'}).contextTotal,1);assert.equal(c.getDashboard({...query,view:'radar'}).stats.news,1);assert.equal(c.getDashboard({...query,view:'briefing'}).briefing.total,1);assert.equal(c.exportNews(query).count,1);assert.equal(c.newsletter_(c.rows_('Noticias'),query,'Resumen',new Date(),'sub').count,1);assert.equal(c.rows_('Noticias').length,2);
+ const query={from:'2026-10-08',to:'2026-10-11'};assert.equal(c.getDashboard({...query,view:'news'}).contextTotal,1);assert.equal(c.getDashboard({...query,view:'radar'}).stats.news,1);assert.equal(c.getDashboard({...query,view:'briefing'}).briefing.total,1);assert.equal(c.exportNews(query).count,1);assert.equal(newsletterFixture(c,c.rows_('Noticias'),query,'Resumen',new Date(),'sub').count,1);assert.equal(c.rows_('Noticias').length,2);
  const known=c.knownUrls_();assert.equal(c.duplicateTitle_(known,{title:english,date:new Date('2026-10-10'),publisher:'Otro editor'}),true);
- const reads=s.reads;c.annotateNews_([a,b]);assert.equal(s.reads,reads);
+ const reads=s.reads;annotateFixtures(c,[a,b]);assert.equal(s.reads,reads);
 });
 test('la identidad traducida conserva importes, fechas lejanas y titulares cortos y fusiona equivalencias transitivas',()=>{
  const {c}=server(),a=story('a',{identityTitles:[english]}),b=story('b',{titular:'Santander presenta una nueva oferta digital de cobros para empresas',identityTitles:['Santander introduces a new digital collections service for businesses']}),bridge=story('bridge',{titular:english,identityTitles:[b.identityTitles[0]]});
@@ -41,7 +43,7 @@ test('las tarjetas muestran el origen RSS escapado con estilos de identidad comp
 });
 
 test('las ediciones archivadas conservan sus identidades y recuentos cuando después llegan nuevas traducciones',()=>{
- const {c}=server(),a=story('es'),b=story('en',{titular:english,extracto:'New digital payments for businesses'}),frozen=c.annotateNews_([a,b]);
+ const {c}=server(),a=story('es'),b=story('en',{titular:english,extracto:'New digital payments for businesses'}),frozen=annotateFixtures(c,[a,b]);
  assert.equal(c.newsDashboard_(frozen,{},[],'radar',{}).stats.news,2);translate(c,a);assert.equal(c.newsDashboard_(frozen,{},[],'radar',{}).stats.news,2);assert.equal(c.newsDashboard_(frozen,{},[],'radar').stats.news,1);
 });
 test('el trabajador renueva las identidades tras traducir y el estado avisa al cliente para invalidar su selección almacenada',()=>{

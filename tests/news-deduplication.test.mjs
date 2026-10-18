@@ -1,3 +1,4 @@
+import {annotateFixtures,newsletterFixture,canonicalFixtures} from './helpers/canonical-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -10,8 +11,8 @@ test('ocho copias guardadas cuentan como una en Noticias, Novedades, mapa, Radar
  const s=server(),c=s.c;c.taxonomyCatalog_=()=>[{id:'finance',palanca:'Financiación',subpalanca:'Financiación empresarial'}];
  const copies=Array.from({length:8},(_,i)=>row(String(i),{entidad:i%2?'Santander Empresas':'Santander',titular:i%2?title.toUpperCase()+' — El Cronista':title+'!',extracto:i===3?'Nueva oferta de financiación empresarial para pymes':'',medio:i===7?'Otro editor':'El Cronista'}));copies[7].titular=title;
  add(s,copies);const query={from:'2026-10-06',to:'2026-10-12'},news=c.getDashboard({view:'news',...query}),radar=c.getDashboard({view:'radar',...query}),briefing=c.getDashboard({view:'briefing',...query});assert.equal(news.total,1);assert.equal(news.items[0].id,'3');assert.equal(briefing.briefing.total,1);assert.equal(radar.stats.news,1);assert.equal(radar.heatmap.total,1);assert.equal(radar.heatmap.tagged,1);assert.deepEqual(Array.from(radar.heatmap.entities[0].counts,pair=>pair[1]),[1,1]);assert.equal(c.exportNews(query).count,1);
- assert.equal(c.getDashboard({view:'news',source:'Otro editor',...query}).items[0].id,'7');assert.equal(c.newsletter_(copies,query,'Únicas',new Date(),'subscription').count,1);assert.equal(c.rows_('Noticias').length,8);
- assert.equal(c.uniqueNews_(c.annotateNews_(copies.slice().reverse()))[0].id,'3');
+ assert.equal(c.getDashboard({view:'news',source:'Otro editor',...query}).items[0].id,'7');assert.equal(newsletterFixture(c,copies,query,'Únicas',new Date(),'subscription').count,1);assert.equal(c.rows_('Noticias').length,8);
+ assert.equal(c.uniqueNews_(annotateFixtures(c,copies.slice().reverse()))[0].id,'3');
 });
 test('se conservan cifras y eventos diferentes; las atribuciones de país o entidad no multiplican publicaciones y titulares insuficientes; URL canónica evita copias con seguimiento',()=>{
  const {c}=server(),rows=[row('base'),row('amount',{titular:title.replace('300','400')}),row('country',{pais:'México'}),row('entity',{entidad:'BBVA'}),row('later',{fecha:'2026-10-12'}),row('short1',{titular:'Resultados',url:''}),row('short2',{titular:'Resultados',url:''})];assert.equal(c.uniqueNews_(rows).length,5);
@@ -29,7 +30,7 @@ test('erratas aproximadas se consolidan solo dentro del mismo país en vistas, C
  const s=server(),c=s.c,title='Santander lanza una plataforma digital de financiacion empresarial para nuevas empresas',base=row('base',{titular:title,extracto:'Pagos digitales para empresas'}),typo=row('typo',{titular:title.replace('financiacion','financiacoin'),extracto:'Pagos digitales para empresas'}),foreign={...typo,id:'foreign',url:'https://editor.test/foreign',pais:'México'};
  assert.equal(c.uniqueNews_([base,typo]).length,1);assert.equal(c.uniqueNews_([base,foreign]).length,2);
  add(s,[base,foreign]);const query={from:'2026-10-06',to:'2026-10-12'};
- assert.equal(c.getDashboard({...query,view:'radar'}).stats.news,2);assert.equal(c.getDashboard({...query,view:'briefing'}).contextTotal,2);assert.equal(c.getDashboard({...query,view:'news'}).contextTotal,2);assert.equal(c.exportNews(query).count,2);assert.equal(c.newsletter_([base,foreign],query,'Países',new Date(),'subscription').count,2);
+ assert.equal(c.getDashboard({...query,view:'radar'}).stats.news,2);assert.equal(c.getDashboard({...query,view:'briefing'}).contextTotal,2);assert.equal(c.getDashboard({...query,view:'news'}).contextTotal,2);assert.equal(c.exportNews(query).count,2);assert.equal(newsletterFixture(c,[base,foreign],query,'Países',new Date(),'subscription').count,2);
  const historical=server();add(historical,[base]);const known=historical.c.knownUrls_(),candidate={title:typo.titular,date:'2026-10-09',publisher:'El Cronista',entity:'Santander',country:'España'};
  assert.equal(c.duplicateTitle_(known,candidate),true);assert.equal(c.duplicateTitle_(known,{...candidate,country:'Perú'}),false);
  c.parseFeed_=()=>[{title:typo.titular,source:'El Cronista',url:'https://editor.test/peru',date:'2026-10-09T12:00:00Z',excerpt:'Pagos digitales para empresas en Perú'}];

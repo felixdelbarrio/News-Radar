@@ -1,3 +1,4 @@
+import {drainSnapshots} from './helpers/canonical-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -72,7 +73,7 @@ test('la siguiente ejecución repara el progreso si falló su última escritura 
  const s=server(),c=s.c;addJob(s,'daily','daily',1);const write=c.writeCollectionJob_;let interrupted=false;
  c.writeCollectionJob_=job=>{if(job.estado==='Completada'&&!interrupted){interrupted=true;throw Error('Escritura interrumpida');}write(job);};
  assert.throws(()=>c.backgroundTick_(),/interrumpida/);assert.equal(c.collectionJobs_()[0].estado,'En curso');assert.equal(c.rows_('Recopilacion')[0].estado,'Completada');
- c.UrlFetchApp.fetchAll=()=>{throw Error('No debe descargar otra vez');};c.backgroundTick_();assert.equal(c.collectionJobs_()[0].estado,'Completada');assert.equal(c.collectionJobs_()[0].pendientes,'0');assert.equal(c.collectionJobs_()[0].procesadas,'1');
+ c.UrlFetchApp.fetchAll=()=>{throw Error('No debe descargar otra vez');};c.backgroundTick_();drainSnapshots(c);assert.equal(c.collectionJobs_()[0].estado,'Completada');assert.equal(c.collectionJobs_()[0].pendientes,'0');assert.equal(c.collectionJobs_()[0].procesadas,'1');
 });
 test('los lanzamientos manual y programado comparten la solicitud diaria y rechazan duplicados activos',()=>{
  const s=server(),c=s.c;c.collectNow();const first=c.collectionRequests_()[0];assert.equal(first.kind,'daily');assert.deepEqual(first.range,c.collectionRecentRange_(new Date()));assert.throws(()=>c.collectNow(),/diaria en curso/);

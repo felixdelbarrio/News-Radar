@@ -29,7 +29,7 @@ function domainMatches_(url, domain) {
 let businessIndexMemory_;
 const newsRelevanceMemory_=new WeakMap();
 function newsRelevance_(row){
-  if(!newsRelevanceMemory_.has(row))newsRelevanceMemory_.set(row,digitalAssessment_(searchText_(row.titular),searchText_(row.titular+' '+row.extracto)).score);
+  if(!newsRelevanceMemory_.has(row))newsRelevanceMemory_.set(row,Number(savedNewsLabels_(row.clasificacion).score||0));
   return newsRelevanceMemory_.get(row);
 }
 function packNews_(row){return [row,newsRelevanceMemory_.get(row)??0];}
@@ -59,10 +59,11 @@ function digitalAssessment_(title,text,index=businessIndex_()){
   const capabilities=index.capabilities.filter(row=>row.pattern.test(text));
   const business=index.segments.some(row=>row.pattern.test(text.replace(/\bbusiness (?:days?|hours?)\b/g,' '))),channel=index.relevance.channel.test(text),shared=index.relevance.shared.test(title);
   if(!capabilities.length&&business&&channel&&index.cataloguePattern.test(text))capabilities.push(...index.catalogue.filter(row=>row.pattern.test(text)));
-  const signals=index.signals.filter(row=>row.pattern.test(row.scope==='headline'?title:text)&&(!row.exclude.length||!row.excludePattern.test(title))&&(!row.context.length||row.contextPattern.test(text))),change=signals.length>0,problem=signals.some(row=>row.group==='Problema'),editorial=index.relevance.editorial.test(title),excluded=index.relevance.corporate.test(title)||index.relevance.incidental.test(title)||!business&&index.relevance.retail.test(title);
+  const signals=index.signals.filter(row=>row.pattern.test(row.scope==='headline'?title:text)&&(!row.exclude.length||!row.excludePattern.test(title))&&(!row.context.length||row.contextPattern.test(text))),change=signals.length>0,problem=signals.some(row=>row.group==='Problema'),editorial=(index.relevance.editorial.test(title.replace(/\breport\b/g,' '))||index.relevance.editorial.test(title)&&!change),excluded=index.relevance.corporate.test(title)||index.relevance.incidental.test(title)||!business&&index.relevance.retail.test(text);
   const relevant=Boolean(capabilities.length&&!excluded&&!editorial&&(!problem||business||index.relevance.infrastructure.test(text))&&(business&&(channel||shared)&&(index.relevance.service.test(text)||headlineEntity_(headline,index))||shared&&(channel||change||index.relevance.infrastructure.test(title))));
   const score=relevant?4+Math.min(3,capabilities.length)+(business?2:0)+(change?2:0):0;
-  return {capabilities,score,channel,change,editorial,excluded,relevant,business,shared,signals:signals.map(row=>row.name)};
+  const evidence=(pattern,value)=>pattern.exec(value)?.[0]?.trim().slice(0,120)||'';
+  return {capabilities,score,channel,change,editorial,excluded,relevant,business,shared,signals:signals.map(row=>row.name),evidence:{segmento:index.segments.map(row=>evidence(row.pattern,text)).filter(Boolean).slice(0,3),canal:evidence(index.relevance.channel,text),capacidades:capabilities.slice(0,8).map(row=>({nombre:row.name,texto:evidence(row.pattern,text)})),senales:signals.map(row=>({nombre:row.name,texto:evidence(row.pattern,row.scope==='headline'?title:text)})),corporativa:evidence(index.relevance.corporate,title),retail:!business?evidence(index.relevance.retail,text):'',editorial:evidence(index.relevance.editorial,title)}};
 }
 function classification_(title,text,includeLabels=true){
   const index=businessIndex_(),assessment=digitalAssessment_(title,text,index);
@@ -96,8 +97,8 @@ function newsCountry_(row,index=businessIndex_()){
 function annotateNews_(rows){
   const index=businessIndex_(),taxonomy=new Map(taxonomyCatalog_().map(({id,palanca,subpalanca})=>[id,{id,palanca,subpalanca}]));
   return rows.map(row=>{
-    const catalog=index.entities.get(searchText_(row.entidad)),assignment=taxonomySaved_(row.taxonomia),classification=classification_(searchText_(row.titular),searchText_(row.titular+' '+row.extracto),false);
-    const annotated={...row,medio:publisherKey_(row.medio),pais:newsCountry_(row,index),...(assignment.evidence?{functionalEvidence:assignment.evidence}:{}),taxonomia:assignment.ids.map(id=>taxonomy.get(id)).filter(Boolean),etiquetas:savedNewsLabels_(row.clasificacion),entidad:catalog?.name||row.entidad,tipo:catalog?.type||'',segmentos:classification.segments,senales:classification.assessment.excluded?[]:classification.signals};newsRelevanceMemory_.set(annotated,classification.assessment.score);return annotated;
+    const catalog=index.entities.get(searchText_(row.entidad)),assignment=taxonomySaved_(row.taxonomia),classification=savedNewsLabels_(row.clasificacion),labels={digital:classification.digital,capacidades:classification.capacidades,...(classification.canonicalId?{canonicalId:classification.canonicalId}:{})};
+    const annotated={...row,clasificacion:JSON.stringify(labels),medio:publisherKey_(row.medio),pais:row.pais||settings_().unknownCountry,...(assignment.evidence?{functionalEvidence:assignment.evidence}:{}),taxonomia:assignment.ids.map(id=>taxonomy.get(id)).filter(Boolean),etiquetas:labels,entidad:catalog?.name||row.entidad,tipo:catalog?.type||'',segmentos:classification.segmentos||[],senales:classification.senales||[]};newsRelevanceMemory_.set(annotated,Number(classification.score||0));return annotated;
   });
 }
 function evaluate_(item, feed, now) {
@@ -111,16 +112,18 @@ function evaluate_(item, feed, now) {
   const excerpt=plainText_(item.excerpt).slice(0,1500),headline=searchText_(title),text=searchText_(title+' '+excerpt),index=businessIndex_();
   const entity=feed.entity==='Sector'?headlineEntity_(headline,index):index.entities.get(searchText_(feed.entity));
   const classification=classification_(headline,text);
-  if(feed.entity==='Sector'&&!entity)return {inRange:true,reason:'Sin entidad de seguimiento en el titular'};
-  if(feed.kind==='profile'&&entity&&!index.entityTerms.get(entity.name).some(alias=>phraseMatch_(text,alias)))return {inRange:true,reason:'Sin evidencia de la entidad buscada'};
+  const candidate={date,title,excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country:sourceCountry_(feed,index)||settings_().unknownCountry,language:item.language||feed.language||'',publisher:publisher||'',provenance:item.excerptSource||'rss:description'};
+  const reject=reason=>({inRange:true,reason,candidate});
+  if(feed.entity==='Sector'&&!entity)return reject('Sin entidad de seguimiento en el titular');
+  if(feed.kind==='profile'&&entity&&!index.entityTerms.get(entity.name).some(alias=>phraseMatch_(text,alias)))return reject('Sin evidencia de la entidad buscada');
   const geographyText=text;
   const countries=index.geographies.filter(geo=>geo.terms.some(term=>phraseMatch_(geographyText,term))).map(geo=>geo.name);
-  if(feed.kind==='profile'&&countries.length&&!countries.includes(feed.country))return {inRange:true,reason:'Geografía distinta de la búsqueda'};
-  if(!classification.labels.digital||!classification.labels.capacidades.some(name=>name.startsWith('Empresas: ')))return {inRange:true,reason:'Fuera de canal digital de Empresas e instituciones'};
+  if(feed.kind==='profile'&&countries.length&&!countries.includes(feed.country))return reject('Geografía distinta de la búsqueda');
+  if(!classification.labels.digital||!classification.labels.capacidades.some(name=>name.startsWith('Empresas: ')))return reject('Fuera de canal digital de Empresas e instituciones');
   const country=sourceCountry_(feed,index)||(countries.length===1?countries[0]:settings_().unknownCountry);
-  if(feed.capabilitySearch&&classification.assessment.excluded)return {inRange:true,reason:'Información corporativa sin novedad de canal digital'};
-  if(feed.capabilitySearch&&(!classification.assessment.capabilities.length||!classification.assessment.channel))return {inRange:true,reason:'Sin capacidad digital activa en contexto de canal'};
-  return {inRange:true,relevant:classification.labels.digital||(!classification.assessment.excluded&&classification.assessment.score>0),item:{date,title,excerpt:feed.kind==='profile'&&excerpt.startsWith(title)?'':excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country,language:item.language||feed.language||'',publisher:publisher||''}};
+  if(feed.capabilitySearch&&classification.assessment.excluded)return reject('Información corporativa sin novedad de canal digital');
+  if(feed.capabilitySearch&&(!classification.assessment.capabilities.length||!classification.assessment.channel))return reject('Sin capacidad digital activa en contexto de canal');
+  return {inRange:true,relevant:classification.labels.digital||(!classification.assessment.excluded&&classification.assessment.score>0),item:{date,title,excerpt:excerpt===title?'':excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country,language:item.language||feed.language||'',publisher:publisher||'',provenance:item.excerptSource||'rss:description'}};
 }
 function safeCell_(value) {
   return typeof value==='string' && /^[=+@-]/.test(value) ? "'"+value : value;

@@ -11,7 +11,7 @@ function newsScope_(row,query,entity,entityName=entityKey_){
 }
 function selectNews_(rows,query){
   const entity=query.entity?entityKey_(query.entity):'';
-  return selectAnnotatedNews_(annotateNews_(rows.filter(row=>newsScope_({...row,pais:newsCountry_(row)},query,entity))),query);
+  return selectAnnotatedNews_(annotateNews_(rows.filter(row=>newsScope_(row,query,entity))),query);
 }
 function selectAnnotatedNews_(rows,query,entityName=entityKey_,identities=false) {
   const q=searchText_(String(query.search||'').slice(0,160));

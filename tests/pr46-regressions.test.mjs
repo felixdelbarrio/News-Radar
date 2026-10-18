@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {storage} from './helpers/server.mjs';
 import {configurationDefaults} from '../scripts/configuration-defaults.mjs';
 function setup(){const s=storage();s.c.initializeConfiguration();return s;}
-function finish(c){for(let i=0;i<5&&c.taxonomyPending_();i++)c.taxonomyBatch_();assert.equal(c.taxonomyJob_().state,'Completada');}
+function finish(c){for(let i=0;i<10&&c.taxonomyPending_();i++){if(c.taxonomyJob_().state==='Publicando')c.dashboardSnapshotBatch_();else c.taxonomyBatch_();}assert.equal(c.taxonomyJob_().state,'Completada');}
 test('guardar reglas durante una revisión trimestral conserva la solicitud y libera los envíos al terminar',()=>{
  const {c,properties:p}=setup(),period={to:'2026-09-30'};c.settings_().newsletterEnabled=true;p.NEWSLETTER_REQUEST='true';c.queueQuarterlyTaxonomy_(period);c.drainTaxonomyRequest_();const previous=c.taxonomyJob_().id;
  const snapshot=JSON.parse(JSON.stringify(c.getConfiguration()));snapshot.config.taxonomy[0].terms.push('nuevo contexto');c.saveConfiguration(snapshot);assert.notEqual(c.taxonomyJob_().id,previous);assert.equal(c.taxonomyJob_().request,'quarterly:'+period.to);assert.equal(c.newsletterReadyAt_({jobs:[]}),Infinity);

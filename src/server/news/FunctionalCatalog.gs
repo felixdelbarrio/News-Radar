@@ -43,7 +43,8 @@ function functionalCatalog_(){
 function functionalConfiguration_(config){return {...config,taxonomy:functionalCatalogRules(functionalCatalog_(),config.taxonomy)};}
 function functionalConfigurationSettings_(config){return {...config,taxonomy:functionalRuleSettings(config.taxonomy)};}
 function writeFunctionalCatalog_(blocks){
- const catalogue=blocks.map(({name,functions})=>({name,functions:functions.map(({id,name,description})=>({id,name,description:description||''}))})),revision=sha256_(JSON.stringify(catalogue)),p=properties_();
+ const descriptions=new Map(FUNCTIONAL_CATALOG_SEED.flatMap(block=>block.functions.map(row=>[row.id,row])));
+ const catalogue=blocks.map(({name,functions})=>({name,functions:functions.map(({id,name,description})=>({id,name,description:description||(descriptions.get(id)?.name===name?descriptions.get(id).description:'')||''}))})),revision=sha256_(JSON.stringify(catalogue)),p=properties_();
  let sheet=book_().getSheetByName('CatalogoFuncional');if(revision===p.getProperty('FUNCTIONAL_CATALOG_REVISION')&&sheet?.getLastRow()>1)return false;
  if(!sheet){sheet=book_().insertSheet('CatalogoFuncional');sheet.getRange(1,1,1,4).setValues([RADAR.sheets.CatalogoFuncional]);sheet.setFrozenRows(1);}
  const rows=catalogue.flatMap(block=>block.functions.map(row=>[row.id,block.name,row.name,row.description])),count=sheet.getLastRow()-1;

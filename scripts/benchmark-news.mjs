@@ -3,12 +3,14 @@ import {benchmarkSource} from './benchmark-source.mjs';
 import {performance} from 'node:perf_hooks';
 import {storage} from '../tests/helpers/server.mjs';
 // Local V8 + in-memory Sheets adapter. These are NOT Apps Script measurements.
+let canonicalBenchmarkLabels;
+function benchmarkLabels(){if(canonicalBenchmarkLabels)return canonicalBenchmarkLabels;const {c}=storage();c.initializeConfiguration();const title='BBVA lanza pagos digitales para empresas',text=title+' Nueva funcionalidad de pagos digitales y tesorería para pymes.';return canonicalBenchmarkLabels=JSON.stringify(c.classification_(c.searchText_(title),c.searchText_(text)).labels);}
 export function benchmarkNews(count,sample,source){
- const s=storage(source),c=s.c;c.initializeConfiguration();
+ const labels=benchmarkLabels(),s=storage(source),c=s.c;c.initializeConfiguration();
  for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);
  const headers=vm.runInContext('RADAR.sheets.Noticias',c),grid=s.sheets.get('Noticias').grid;
  for(let i=0;i<count;i++){
-  const row={id:'n'+i,fecha:new Date(Date.UTC(2025,9,16)+Math.floor(i*365/count)*86400000).toISOString().slice(0,10),pais:'España',medio:'Editor',entidad:i%2?'BBVA':'Santander',titular:`BBVA lanza pagos digitales para empresas con producto ${i}`,extracto:'Nueva funcionalidad de pagos digitales y tesorería para pymes.',url:'https://editor.test/news/'+i,capturada:'2026-10-15T00:00:00Z',fuente:'Editor',idioma:'es',clasificacion:'{"digital":true,"generalista":false,"capacidades":["Empresas: Pagos"]}',taxonomia:'{"ids":[]}'};
+  const row={id:'n'+i,fecha:new Date(Date.UTC(2025,9,16)+Math.floor(i*365/count)*86400000).toISOString().slice(0,10),pais:'España',medio:'Editor',entidad:i%2?'BBVA':'Santander',titular:`BBVA lanza pagos digitales para empresas con producto ${i}`,extracto:'Nueva funcionalidad de pagos digitales y tesorería para pymes.',url:'https://editor.test/news/'+i,capturada:'2026-10-15T00:00:00Z',fuente:'Editor',idioma:'es',clasificacion:labels,taxonomia:'{"ids":[]}'};
   grid.push(headers.map(key=>row[key]||''));
  }
  const runs=[];

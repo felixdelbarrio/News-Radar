@@ -1,3 +1,4 @@
+import {annotateFixtures,newsletterFixture,canonicalFixtures} from './helpers/canonical-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -9,12 +10,12 @@ const story=(id,country,entity,theme='Pagos y cobros',date='2026-09-10')=>({id,p
 const query={view:'radar',country:'España',entity:'BBVA',segment:'Empresas e instituciones',coverage:'digital',from:'2026-01-01',to:'2026-12-31'};
 function corpus(){return [...Array.from({length:6},(_,i)=>story('local'+i,'España',i%2?'Santander':'BBVA',i<4?'Integración y automatización':'Pagos y cobros')),...Array.from({length:3},(_,i)=>story('group'+i,'México','BBVA')),story('turkey','Turquía','BBVA','Integración y automatización'),...Array.from({length:5},(_,i)=>story('market'+i,'Reino Unido','Revolut',i<4?'Pagos y cobros':'Integración y automatización')),story('unknown','Sin determinar','BBVA')];}
 test('el enlace anual conserva su ámbito al refinar filtros, lo muestra al lector y permite retirarlo',async t=>{
- const {c}=setup(),content=c.newsletter_(corpus(),query,'Cierre',new Date(),'sub','es','edition');c.saveNewsletterEdition_('edition','delivery','owner@bbva.com','Cierre',query,'es',content.evidence,content.editorial);c.completeNewsletterEdition_('edition','Enviada');
+ const {c}=setup(),content=newsletterFixture(c,corpus(),query,'Cierre',new Date(),'sub','es','edition');c.saveNewsletterEdition_('edition','delivery','owner@bbva.com','Cierre',query,'es',content.evidence,content.editorial);c.completeNewsletterEdition_('edition','Enviada');
  const params=Object.fromEntries(new URL(content.editorial.cards.find(row=>row.scope==='group').related).searchParams),requests=[],a=await app(t,{location:params,configure({w,data}){const original=w.RADAR_PREVIEW.call;w.RADAR_PREVIEW.call=async(method,payload)=>{if(method==='getDashboard'){requests.push(payload);return {...data,...JSON.parse(JSON.stringify(c.getDashboard(payload)))};}return original(method,payload);};}});
  assert.match(a.find('#active-filters').textContent,/Ámbito comparativo: El grupo en otras geografías/);await a.change('#filters [name="entity"]','BBVA');assert.equal(requests.at(-1).benchmark,'group');await a.click('#active-filters [data-remove-filter="benchmark"]');assert.equal(requests.at(-1).benchmark,undefined);assert.doesNotMatch(a.find('#active-filters').textContent,/Ámbito comparativo/);
 });
 test('la anual compara tres corpus disjuntos, normaliza las diferencias y abre sus evidencias exactas',()=>{
- const {c}=setup(),items=corpus(),content=c.newsletter_(items,query,'Cierre',new Date(),'sub','es','edition'),comparison=content.editorial.comparison,d=new JSDOM(content.html).window.document;
+ const {c}=setup(),items=corpus(),content=newsletterFixture(c,items,query,'Cierre',new Date(),'sub','es','edition'),comparison=content.editorial.comparison,d=new JSDOM(content.html).window.document;
  assert.equal(content.total,16);assert.equal(comparison.panels.local.total,6);assert.equal(comparison.panels.group.total,4);assert.equal(comparison.panels.market.total,5);assert.equal(comparison.unassigned,1);assert.equal(comparison.geographies[0].name,'México');assert.equal(comparison.geographies[0].total,3);
  const integration=comparison.contrasts.find(row=>row.name==='Integración y automatización');assert.equal(integration.local.count,4);assert.equal(integration.group.count,1);assert.equal(integration.market.count,1);assert.ok(Math.abs(integration.gap-(400/6-20))<.001);
  assert.deepEqual(Array.from(content.editorial.cards,row=>row.scope),['local','group','market']);assert.equal(d.querySelectorAll('.newsletter-comparison').length,1);assert.equal(d.querySelectorAll('.newsletter-report').length,4);assert.match(content.text,/47 puntos porcentuales/);assert.match(content.text,/Tres decisiones/);
@@ -24,11 +25,11 @@ test('la anual compara tres corpus disjuntos, normaliza las diferencias y abre s
 });
 test('la anual muestra ausencia de evidencia sin fabricar ceros comparativos y respeta el idioma y los filtros restantes',()=>{
  const {c}=setup(),items=[story('one','México','BBVA')];
- for(const language of ['es','en','tr']){const content=c.newsletter_(items,query,'Cierre',new Date(),'sub',language,'edition'),d=new JSDOM(content.html).window.document;assert.equal(content.editorial.comparison.panels.local.total,0);assert.equal(content.editorial.comparison.contrasts[0].gap,null);assert.match(d.querySelector('.newsletter-contrast').textContent,/—/);assert.doesNotMatch(content.html,/\{theme\}|\{gap\}|undefined|NaN/);if(language!=='es')assert.doesNotMatch(d.body.textContent,/El espejo del año|Tres decisiones para abrir/);}
- assert.equal(c.newsletter_(items,{...query,source:'Otro medio'},'Cierre',new Date(),'sub').count,0);
+ for(const language of ['es','en','tr']){const content=newsletterFixture(c,items,query,'Cierre',new Date(),'sub',language,'edition'),d=new JSDOM(content.html).window.document;assert.equal(content.editorial.comparison.panels.local.total,0);assert.equal(content.editorial.comparison.contrasts[0].gap,null);assert.match(d.querySelector('.newsletter-contrast').textContent,/—/);assert.doesNotMatch(content.html,/\{theme\}|\{gap\}|undefined|NaN/);if(language!=='es')assert.doesNotMatch(d.body.textContent,/El espejo del año|Tres decisiones para abrir/);}
+ assert.equal(newsletterFixture(c,items,{...query,source:'Otro medio'},'Cierre',new Date(),'sub').count,0);
 });
 test('la trimestral conserva el informe ejecutivo y muestra los tres meses del cierre',()=>{
- const {c}=setup(),items=['07','08','09'].map((month,i)=>story('quarter'+i,'España','BBVA','Pagos y cobros','2026-'+month+'-10')),content=c.newsletter_(items,{...query,entity:'',view:'news',from:'2026-07-01',to:'2026-09-30'},'Trimestre',new Date(),'sub');
+ const {c}=setup(),items=['07','08','09'].map((month,i)=>story('quarter'+i,'España','BBVA','Pagos y cobros','2026-'+month+'-10')),content=newsletterFixture(c,items,{...query,entity:'',view:'news',from:'2026-07-01',to:'2026-09-30'},'Trimestre',new Date(),'sub');
  const d=new JSDOM(content.html).window.document;assert.equal(content.editorial.cadence,'quarterly');assert.equal(content.editorial.comparison,null);assert.equal(d.querySelectorAll('.newsletter-quarters td').length,6);assert.deepEqual([...d.querySelector('.newsletter-quarters').querySelectorAll('strong')].map(row=>row.textContent),['1','1','1']);assert.match(content.text,/EL TRIMESTRE|trimestre/);assert.doesNotMatch(content.text,/El pulso del año|El espejo del año/);
 });
 test('las ventanas cubren quincenas naturales, años bisiestos, trimestres y cierres en la zona configurada',()=>{
