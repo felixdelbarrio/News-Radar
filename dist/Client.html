@@ -5,6 +5,18 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "El archivo de newsletters ha cambiado; repite la prueba.": ["The newsletter archive changed; repeat the dry run.", "B\xFClten ar\u015Fivi de\u011Fi\u015Fti; denemeyi tekrarlay\u0131n."],
+    "Revisa los registros con metadatos inv\xE1lidos antes de publicar.": ["Review records with invalid metadata before publishing.", "Yay\u0131mlamadan \xF6nce ge\xE7ersiz meta verileri olan kay\u0131tlar\u0131 inceleyin."],
+    "Archiva los backups verificados antes de crear otra migraci\xF3n.": ["Archive verified backups before creating another migration.", "Ba\u015Fka bir ge\xE7i\u015F olu\u015Fturmadan \xF6nce do\u011Frulanm\u0131\u015F yedekleri ar\u015Fivleyin."],
+    Publicando: ["Publishing", "Yay\u0131mlan\u0131yor"],
+    "Generaci\xF3n de clasificaci\xF3n incompleta.": ["Incomplete classification generation.", "S\u0131n\u0131fland\u0131rma nesli eksik."],
+    "Ejecuta primero una prueba completa con las mismas reglas y corpus.": ["First complete a dry run with the same rules and corpus.", "\xD6nce ayn\u0131 kurallar ve veri k\xFCmesiyle tam bir deneme \xE7al\u0131\u015Ft\u0131r\u0131n."],
+    "La verificaci\xF3n del backup o de la generaci\xF3n ha fallado.": ["Backup or generation verification failed.", "Yedek veya nesil do\u011Frulamas\u0131 ba\u015Far\u0131s\u0131z oldu."],
+    "El corpus o las reglas han cambiado; se bloquea la promoci\xF3n.": ["The corpus or rules changed; promotion is blocked.", "Veri k\xFCmesi veya kurallar de\u011Fi\u015Fti; yay\u0131mlama engellendi."],
+    "Reconciliaci\xF3n incompleta.": ["Incomplete reconciliation.", "Mutabakat eksik."],
+    "No hay generaci\xF3n anterior verificada.": ["No verified previous generation.", "Do\u011Frulanm\u0131\u015F \xF6nceki nesil yok."],
+    "Falta el hist\xF3rico anterior.": ["The previous history is missing.", "\xD6nceki ge\xE7mi\u015F eksik."],
+    "Generaci\xF3n anterior restaurada.": ["Previous generation restored.", "\xD6nceki nesil geri y\xFCklendi."],
     "Productos nuevos, mejoras, alianzas y problemas de servicio para seguir c\xF3mo evoluciona la banca digital de empresas.": ["New products, improvements, partnerships and service problems tracking the evolution of digital business banking.", "Dijital i\u015Fletme bankac\u0131l\u0131\u011F\u0131n\u0131n geli\u015Fimini izlemek i\xE7in yeni \xFCr\xFCnler, iyile\u015Ftirmeler, ortakl\u0131klar ve hizmet sorunlar\u0131."],
     "Incidencias publicadas en medios; consulta cada fuente para conocer su alcance, fecha y resoluci\xF3n.": ["Incidents reported in the media; check each source for their scope, date and resolution.", "Medyada bildirilen olaylar; kapsam, tarih ve \xE7\xF6z\xFCm i\xE7in her kayna\u011Fa bak\u0131n."],
     "Condici\xF3n funcional no v\xE1lida.": ["Invalid functional condition.", "Ge\xE7ersiz i\u015Flev ko\u015Fulu."],
@@ -16,7 +28,6 @@
     "Tipo de se\xF1al": ["Signal type", "Sinyal t\xFCr\xFC"],
     "Problema de servicio": ["Service problem", "Hizmet sorunu"],
     Problema: ["Problem", "Sorun"],
-    "Indisponibilidad de servicio": ["Service outage", "Hizmet kesintisi"],
     "Incidencia operativa": ["Operational incident", "\u0130\u015Flem sorunu"],
     "Por qu\xE9 est\xE1 clasificada aqu\xED": ["Why it is classified here", "Neden burada s\u0131n\u0131fland\u0131r\u0131ld\u0131"],
     "Coincidencia operativa directa": ["Direct operational match", "Do\u011Frudan i\u015Flem e\u015Fle\u015Fmesi"],
@@ -1770,7 +1781,7 @@
     let monitor = createJobMonitor({ id: "taxonomy", get: "getTaxonomyStatus", start: "startTaxonomy", run, isActive, onRevision, render(data) {
       let source = JSON.stringify([data.configurationRevision, data.catalogUrl]);
       source !== sourceSignature && (sourceSignature = source, revision = data.configurationRevision, $("taxonomy-catalog-url").value = data.catalogUrl || ""), $("taxonomy-catalog-status").textContent = data.job?.catalog?.error ? t("No se pudo revisar Drive; se utiliza el cat\xE1logo guardado. ") + data.job.catalog.error : data.synced ? t("\xDAltima lectura del maestro: {date}", { date: date(data.synced) }) : data.catalogUrl ? t("Se revisar\xE1 Drive al iniciar la actualizaci\xF3n.") : t("Se utiliza el cat\xE1logo guardado.");
-      let job = data.job, total = Number(job?.total || 0) * 2, done = Number(job?.processed || 0);
+      let job = data.job, total = Number(job?.workTotal ?? Number(job?.total || 0) * 2), done = Number(job?.processed || 0);
       $("taxonomy-schedule").textContent = t("Revisi\xF3n del cat\xE1logo antes de las newsletters trimestrales \xB7 {state}", { state: t(data.scheduled ? "Activada" : "Desactivada") }), $("taxonomy-progress").innerHTML = job ? jobProgressHtml(job, { total, done, label: "Progreso de cat\xE1logo global de funcionalidades", queued: data.queued, summary: t("{done}/{total} pasos de an\xE1lisis y etiquetado; {tagged} etiquetas actualizadas.", { done, total, tagged: job.tagged }) }) : '<p class="muted">' + t(data.queued ? "En cola" : "Sin actualizaciones del cat\xE1logo ejecutadas.") + "</p>";
       let next = JSON.stringify([data.items, data.pageSize, data.taxonomyTranslations, language]);
       next !== signature && (signature = next, items = data.items, pageSize = data.pageSize, filters5.options(recordOptions(items, ["palanca"])), render());

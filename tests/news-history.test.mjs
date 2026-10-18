@@ -1,3 +1,4 @@
+import {annotateFixtures,newsletterFixture,canonicalFixtures} from './helpers/canonical-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -53,7 +54,7 @@ test('identidad canónica y similitud acotada conservan importes, productos, neg
 test('plan de consolidación conserva originales y referencias de newsletters sin escrituras ni borrados',()=>{
  const s=server(),c=s.c,keys=vm.runInContext('RADAR.sheets.Noticias',c),a=article(1),b={...a,id:'copy',url:'https://other.test/duplicate'};
  s.sheets.get('Noticias').grid.push(...[a,b].map(row=>keys.map(key=>row[key]||'')));
- const frozen=c.annotateNews_([b]);c.saveNewsletterEdition_('edition','delivery','owner@bbva.com','Histórico',query,'es',frozen);c.completeNewsletterEdition_('edition','Enviada');
+ const frozen=annotateFixtures(c,[b]);c.saveNewsletterEdition_('edition','delivery','owner@bbva.com','Histórico',query,'es',frozen);c.completeNewsletterEdition_('edition','Enviada');
  const before=JSON.stringify([...s.sheets].map(([name,sheet])=>[name,sheet.grid])),plan=c.previewNewsDeduplication();assert.equal(plan.duplicates,1);assert.equal(plan.groups.length,1);assert.equal(plan.groups[0].duplicates.length,1);assert.ok(plan.groups[0].duplicates[0].url);assert.equal(JSON.stringify([...s.sheets].map(([name,sheet])=>[name,sheet.grid])),before);
  assert.equal(c.newsletterEdition_('edition','owner@bbva.com').items[0].id,'copy');
  s.setEmail('reader@bbva.com');assert.throws(()=>c.previewNewsDeduplication(),/no autorizado/);

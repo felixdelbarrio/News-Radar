@@ -1,3 +1,4 @@
+import {drainSnapshots} from './helpers/canonical-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -26,18 +27,18 @@ test('los filtros explícitos y la paginación no reciben el snapshot por defect
  const s=server(),c=s.c;add(s,'es','2026-10-10');build(s);
  for(const query of [{view:'news',entity:'Santander'},{view:'news',from:'2026-01-01',to:'2026-12-31'},{view:'news',page:1}])assert.equal(c.getDashboard(query).performance.snapshotHit,false);
 });
-test('cada revisión y el cambio de período invalidan snapshots sin devolver datos antiguos',()=>{
+test('cada revisión solicita publicación y conserva el último snapshot válido hasta completarla',()=>{
  const s=server(),c=s.c;add(s,'es','2026-10-10');build(s);const q=c.dashboardQuery_({view:'news',initial:true});
  for(const key of ['CONFIG_REVISION','NEWS_REVISION','TAXONOMY_REVISION','TAXONOMY_TRANSLATIONS_REVISION','TRANSLATIONS_REVISION:tr']){
-  const old=s.properties[key];s.properties[key]='changed';assert.equal(c.defaultDashboardSnapshot_('news',q,'es'),null);if(old===undefined)delete s.properties[key];else s.properties[key]=old;
+  const old=s.properties[key];s.properties[key]='changed';assert.ok(c.defaultDashboardSnapshot_('news',q,'es'));if(old===undefined)delete s.properties[key];else s.properties[key]=old;
  }
  assert.notEqual(c.dashboardSnapshotRevision_('news',new TestDate()),c.dashboardSnapshotRevision_('news',new TestDate('2027-01-01')));
 });
 test('un fragmento corrupto se descarta y solicita regeneración; nunca se publica una generación parcial',()=>{
  const s=server(),c=s.c;add(s,'es','2026-10-10');build(s);const manifest=c.dashboardSnapshotManifest_('news');s.sheets.get('DashboardSnapshots').grid[manifest.first-1][3]='corrupt';s.cache.clear();
  assert.equal(c.defaultDashboardSnapshot_('news',c.dashboardQuery_({view:'news',initial:true}),'es'),null);assert.equal(s.properties.DASHBOARD_SNAPSHOT_REQUEST,'pending');
- c.dashboardSnapshotManifest_=view=>view==='news'?{...manifest,revision:'invalid'}:null;c.dashboardSnapshotBatch_();
- const regenerated=JSON.parse(s.properties['DASHBOARD_SNAPSHOT:briefing']);assert.ok(regenerated.digest);
+ for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();
+ const regenerated=c.dashboardSnapshotManifest_('briefing');assert.ok(regenerated.digest);
 });
 test('los jobs completados solicitan snapshots y el watchdog recupera snapshots pendientes',()=>{
  const s=server(),c=s.c;assert.equal(c.backgroundStageComplete_('collection',{jobs:[{pendientes:1}]}),false);assert.equal(c.backgroundStageComplete_('collection',{jobs:[{pendientes:0}]}),true);
@@ -48,5 +49,5 @@ test('los jobs completados solicitan snapshots y el watchdog recupera snapshots 
 
 test('el trabajador genera las tres vistas al completar un job, conserva resultados y drena la petición',()=>{
  const s=server(),c=s.c;add(s,'es','2026-10-10');c.requestNewsClassification_(true);c.translationReadyAt_=()=>Infinity;c.taxonomyReadyAt_=()=>Infinity;c.taxonomyTranslationReadyAt_=()=>Infinity;c.newsletterReadyAt_=()=>Infinity;c.maintenanceReadyAt_=()=>Infinity;
- c.processBackground_(5);assert.equal(c.classificationJob_().state,'Completada');assert.equal(c.dashboardSnapshotsPending_(),false);assert.equal(s.properties.DASHBOARD_SNAPSHOT_REQUEST,undefined);for(const view of ['briefing','news','radar'])assert.equal(c.getDashboard({view,initial:true}).performance.snapshotHit,true);
+ c.processBackground_(5);drainSnapshots(c);assert.equal(c.classificationJob_().state,'Completada');assert.equal(c.dashboardSnapshotsPending_(),false);assert.equal(s.properties.DASHBOARD_SNAPSHOT_REQUEST,undefined);for(const view of ['briefing','news','radar'])assert.equal(c.getDashboard({view,initial:true}).performance.snapshotHit,true);
 });

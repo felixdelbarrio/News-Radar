@@ -1,7 +1,7 @@
-function newsRecordsKey_(){return 'news-records:'+sha256_(RADAR.version+'|'+configurationRevision_()+'|'+(properties_().getProperty('NEWS_RECORDS_REVISION')||'0'));}
+function newsRecordsKey_(){return 'news-records:'+sha256_(JSON.stringify([RADAR.version,newsStorageKey_(),taxonomyStorageKey_(),configurationRevision_(),properties_().getProperty('NEWS_RECORDS_REVISION')||'0']));}
 function newsRecordIndex_(){
-  const key='news-records:index:'+RADAR.version+':'+(properties_().getProperty('NEWS_CONTENT_REVISION')||'0'),cache=CacheService.getScriptCache(),cached=readDashboardCache_(cache,key);if(cached)return cached;
-  const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1,days=Object.create(null),entities=new Set(),sources=new Set();
+  const key='news-records:index:'+newsStorageKey_()+':'+RADAR.version+':'+(properties_().getProperty('NEWS_CONTENT_REVISION')||'0'),cache=CacheService.getScriptCache(),cached=readDashboardCache_(cache,key);if(cached)return cached;
+  const sheet=newsSheet_(),count=sheet.getLastRow()-1,days=Object.create(null),entities=new Set(),sources=new Set();
   if(count>0)sheet.getRange(2,2,count,4).getDisplayValues().forEach(([date,,source,entity],index)=>{
     const position=index+2,ranges=days[date]||(days[date]=[]),last=ranges.at(-1);
     if(last&&last[1]===position-1)last[1]=position;else ranges.push([position,position]);
@@ -34,7 +34,7 @@ function newsRowsForPeriod_(query={}){
 }
 function newsRowsAt_(positions,gap=8){
   if(!positions.length)return [];
-  const sheet=book_().getSheetByName('Noticias'),keys=RADAR.sheets.Noticias,result=[],wanted=new Set(positions);
+  const sheet=newsSheet_(),keys=RADAR.sheets.Noticias,result=[],wanted=new Set(positions);
   for(const [first,last] of sheetRowRanges_(positions,gap)){
     sheet.getRange(first,1,last-first+1,keys.length).getDisplayValues().forEach((values,index)=>{if(wanted.has(first+index))result.push({...Object.fromEntries(keys.map((key,i)=>[key,values[i]])),_sheetRow:first+index});});
   }

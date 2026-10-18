@@ -1,3 +1,4 @@
+import {annotateFixtures,newsletterFixture,canonicalFixtures} from './helpers/canonical-fixtures.mjs';
 import {configurationDefaults} from '../scripts/configuration-defaults.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -80,14 +81,14 @@ test('newsletters HTML y texto se generan por destinatario en tres idiomas sin t
 
 test('clasificación inglesa y turca reconoce productos, segmentos y exclusiones sin llamadas externas',()=>{
  const c=vm.createContext({});vm.runInContext(readServerScript('dist',true),c);c.taxonomyCatalog_=()=>[];c.savedArticleTranslations_=rows=>rows;c.translationIdentityRows_=rows=>rows;c.configuration_=()=>configurationDefaults();
- const rows=c.annotateNews_([{entidad:'BBVA',titular:'BBVA launches digital payments for businesses',extracto:''},{entidad:'BBVA',titular:'Garanti BBVA KOBİ için yeni hesap sunar',extracto:''},{entidad:'BBVA',titular:'Yeni hesap nedir: rehber',extracto:''}]);
+ const rows=annotateFixtures(c,[{entidad:'BBVA',titular:'BBVA launches digital payments for businesses',extracto:''},{entidad:'BBVA',titular:'Garanti BBVA KOBİ için yeni hesap sunar',extracto:''},{entidad:'BBVA',titular:'Yeni hesap nedir: rehber',extracto:''}]);
  assert.ok(rows[0].senales.includes('Lanzamiento de producto'));assert.ok(rows[1].senales.includes('Lanzamiento de producto'));assert.ok(rows[1].segmentos.includes('Empresas e instituciones'));assert.equal(rows[2].senales.length,0);assert.equal(c.searchText_('İŞ BANKACILIĞI'),c.searchText_('iş bankacılığı'));
 });
 
 test('la recopilación conserva inglés y turco y el idioma explícito o declarado por el RSS',()=>{
  const c=vm.createContext({Utilities:{DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(_,value)=>Array.from(createHash('sha256').update(value).digest()),getUuid:()=> 'id',formatDate:value=>value.toISOString().slice(0,10)}});vm.runInContext(readServerScript('dist',true),c);c.taxonomyCatalog_=()=>[];c.savedArticleTranslations_=rows=>rows;c.translationIdentityRows_=rows=>rows;const config=configurationDefaults();c.configuration_=()=>config;
  const values={title:'BBVA launches digital payments for businesses',link:'https://www.bbva.com/en/account/',pubDate:'2026-10-10T10:00:00Z',description:'An account for small businesses',source:''};
- c.XmlService={parse:()=>({getRootElement:()=>({getChild:()=>({getChildText:()=> 'en-US',getChildren:()=>[{getChildText:key=>values[key]}]})})})};
+ c.XmlService={getNamespace:value=>value,parse:()=>({getRootElement:()=>({getChild:()=>({getChildText:()=> 'en-US',getChildren:()=>[{getChildText:key=>values[key]}]})})})};
  const raw=c.parseFeed_('<rss/>')[0],feed={...config.feeds[0],language:'en'},now=new Date('2026-10-11T12:00:00Z'),item=c.evaluate_(raw,feed,now).item,record=c.newsRecord_(item,feed,now);
  assert.equal(record[5],values.title);assert.equal(record[6],values.description);assert.equal(record[10],'en-US');
  const trFeed=c.profileFeed_(config.geographies.find(row=>row.language==='tr'),config.entities[0]);assert.equal(trFeed.language,'tr');assert.match(trFeed.url,/hl=tr/);

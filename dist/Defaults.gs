@@ -165,7 +165,7 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
       {
         "id": "03.09",
         "name": "Pagos individuales cuentas VOSTRO",
-        "description": ""
+        "description": "Orden individual de pago con cargo a una cuenta VOSTRO de una entidad corresponsal. No comprende pagos internacionales genéricos sin referencia a VOSTRO."
       },
       {
         "id": "03.10",
@@ -230,12 +230,12 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
       {
         "id": "03.22",
         "name": "Pagos financiados - Individuales",
-        "description": ""
+        "description": "Financiación de una orden individual de pago empresarial; exige referencia explícita al anticipo o financiación del pago."
       },
       {
         "id": "03.23",
         "name": "Pagos financiados - Ficheros",
-        "description": ""
+        "description": "Financiación de pagos empresariales enviados por fichero o lote. Excluye una transferencia individual sin financiación."
       },
       {
         "id": "03.24",
@@ -275,7 +275,7 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
       {
         "id": "04.03",
         "name": "Nóminas - Contratación",
-        "description": ""
+        "description": "Contratación del servicio de nómina para una empresa. Se diferencia de enviar una nómina o consultar un pago ya realizado."
       },
       {
         "id": "04.04",
@@ -285,7 +285,7 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
       {
         "id": "04.05",
         "name": "Afiliación tarjetas beneficiacios nómina",
-        "description": ""
+        "description": "Afiliación de tarjetas de los beneficiarios al servicio de nómina de la empresa. No comprende una oferta general de tarjetas de particulares."
       },
       {
         "id": "04.06",
@@ -430,12 +430,12 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
       {
         "id": "05.24",
         "name": "Impuestos Autonómicos (ES)",
-        "description": ""
+        "description": "Pago de tributos de una comunidad autónoma española mediante canal empresarial. Requiere identificación del tributo o administración autonómica."
       },
       {
         "id": "05.25",
         "name": "Impuestos Municipales (ES)",
-        "description": ""
+        "description": "Pago de tributos municipales españoles mediante canal empresarial. Requiere referencia al impuesto o ayuntamiento, no a cualquier pago público."
       },
       {
         "id": "05.26",
@@ -605,7 +605,7 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
       {
         "id": "07.15",
         "name": "Devolución de recibos",
-        "description": ""
+        "description": "Devolución de recibos domiciliados desde una cuenta empresarial. Se diferencia de la devolución de una compra con tarjeta."
       },
       {
         "id": "07.16",
@@ -670,7 +670,7 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
       {
         "id": "08.09",
         "name": "Tarjeta Negocios / TKT (Administración)",
-        "description": ""
+        "description": "Administración de una tarjeta de negocios, incluidos controles y configuración. No comprende la mera contratación de crédito."
       },
       {
         "id": "08.10",
@@ -785,7 +785,7 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
       {
         "id": "08.32",
         "name": "Confirming Proveedores /Factoring electrónico proveedor / Crediproveedores - proveedor - CONSULTAS",
-        "description": ""
+        "description": "Consulta de operaciones de confirming o factoring por el proveedor beneficiario. Excluye contratación y consultas genéricas de financiación."
       },
       {
         "id": "08.33",
@@ -905,12 +905,12 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
       {
         "id": "09.13",
         "name": "Tarjetas Débito - Solicitud de nueva tarjeta",
-        "description": ""
+        "description": "Solicitud de una nueva tarjeta de débito para la empresa. No comprende tarjetas de crédito ni la operativa de una tarjeta existente."
       },
       {
         "id": "09.14",
         "name": "Tarjetas Débito - Operativa",
-        "description": ""
+        "description": "Operativa de una tarjeta de débito empresarial ya emitida. Se diferencia de la solicitud inicial y de tarjetas de crédito."
       },
       {
         "id": "09.15",
@@ -1050,12 +1050,12 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
       {
         "id": "11.03",
         "name": "Seguimiento",
-        "description": ""
+        "description": "Seguimiento de la actividad de los terminales de cobro del comercio. No comprende el seguimiento genérico de transferencias."
       },
       {
         "id": "11.04",
         "name": "Control de terminales",
-        "description": ""
+        "description": "Control y administración de terminales de cobro de un comercio. Excluye dispositivos informáticos sin función de aceptación de pagos."
       },
       {
         "id": "11.05",
@@ -1220,7 +1220,7 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
       {
         "id": "14.07",
         "name": "Gestión de Pólizas maestras",
-        "description": ""
+        "description": "Gestión de pólizas maestras de seguros empresariales. No comprende una póliza de crédito o financiación."
       },
       {
         "id": "14.08",
@@ -1285,7 +1285,7 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
       {
         "id": "15.11",
         "name": "Archivos encriptados (archivos cifrados)",
-        "description": ""
+        "description": "Intercambio de archivos cifrados en la operativa bancaria empresarial. No equivale a una referencia general a ciberseguridad."
       },
       {
         "id": "15.12",
@@ -1475,7 +1475,7 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
       {
         "id": "17.13",
         "name": "Límites",
-        "description": ""
+        "description": "Configuración o consulta de límites de operativa en el canal bancario empresarial. No comprende límites macroeconómicos ni una mención genérica a restricciones."
       },
       {
         "id": "17.14",
@@ -1490,7 +1490,7 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
       {
         "id": "17.16",
         "name": "API Channel",
-        "description": ""
+        "description": "Canal API para integrar servicios bancarios en sistemas de empresas. Exige referencia a la interfaz de integración, no a una app móvil genérica."
       },
       {
         "id": "17.17",
@@ -1721,7 +1721,7 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
   }
 ]);
 const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
-  "version": "3.6.0",
+  "version": "3.7.0",
   "relevanceRules": [
     {
       "name": "Evidencia de canal digital",
@@ -1731,7 +1731,9 @@ const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
         "bre-b",
         "instant transfers",
         "pasarela de pago",
-        "pasarelas de pago"
+        "pasarelas de pago",
+        "trends in",
+        "data shows"
       ]
     },
     {
@@ -1810,6 +1812,140 @@ const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
       "terms": [
         "payment processing",
         "procesamiento de pagos"
+      ]
+    },
+    {
+      "name": "Excluir información corporativa sin utilidad de canal",
+      "terms": [
+        "earnings",
+        "net profit",
+        "share price",
+        "stock price",
+        "stock and other",
+        "keeps buy",
+        "stock narrative",
+        "stocks to watch",
+        "look fully valued",
+        "yield that",
+        "forum & discussion",
+        "index ntr",
+        "price target",
+        "shares sold",
+        "shares bought",
+        "shares purchased",
+        "shares of",
+        "dividend*",
+        "dividendo*",
+        "cotizacion",
+        "recompra de acciones",
+        "capital notes",
+        "appoint*",
+        "nombramiento*",
+        "nombra",
+        "names new",
+        "nueva responsable",
+        "nuevo director",
+        "patrocinio",
+        "sponsorship",
+        "premio*",
+        "premiad*",
+        "premiara",
+        "mejor banco",
+        "recognised for",
+        "award*",
+        "pension*",
+        "jubilacion",
+        "quiniela",
+        "loteria",
+        "resultados financieros",
+        "ingresos de su negocio",
+        "beneficios del grupo",
+        "resultado neto",
+        "net income",
+        "quarterly results",
+        "acquires",
+        "para comprar la empresa",
+        "adquiere la empresa",
+        "compra de la compañía"
+      ]
+    },
+    {
+      "name": "Excluir guías genéricas sin movimiento de mercado",
+      "terms": [
+        "que es",
+        "que son",
+        "what is",
+        "what are",
+        "how to",
+        "guia de",
+        "guide to",
+        "como abrir",
+        "como activar",
+        "como solicitar",
+        "como invertir",
+        "como pagar",
+        "como retirar",
+        "usos reales",
+        "consejos para",
+        "tips for",
+        "why",
+        "por qué",
+        "cómo la",
+        "como la",
+        "survey",
+        "surveyed",
+        "study finds",
+        "report"
+      ]
+    },
+    {
+      "name": "Excluir consumo particular sin contexto empresarial",
+      "terms": [
+        "particulares",
+        "personal customers",
+        "personal finance",
+        "consumer lending",
+        "consumo*",
+        "cuotas",
+        "installments",
+        "descuentos",
+        "promocion especial",
+        "regalo",
+        "pago complementario",
+        "cash payments",
+        "payment offer",
+        "groups of customers",
+        "claim",
+        "beca*",
+        "bps",
+        "auh",
+        "pensionados",
+        "colpensiones",
+        "seniors",
+        "sueldo",
+        "prestamo personal",
+        "prestamos personales",
+        "casino",
+        "apuestas",
+        "hipoteca*",
+        "mortgage*",
+        "cuenta de ahorro*",
+        "cuenta ahorro*",
+        "ahorrar",
+        "ahorro",
+        "remunerada",
+        "rentabilidad",
+        "tae",
+        "cashback",
+        "nomina",
+        "jovenes",
+        "students",
+        "estudiantes",
+        "family",
+        "familiares",
+        "retirement",
+        "familiares y amigos",
+        "friends and family"
       ]
     }
   ],
@@ -3318,7 +3454,19 @@ const CONFIGURATION_DEFAULTS = {
         "mipyme",
         "mypes",
         "corporations",
-        "profesional independiente"
+        "profesional independiente",
+        "trade financing",
+        "import-export",
+        "company",
+        "companies",
+        "institución",
+        "instituciones",
+        "institution",
+        "institutions",
+        "organismos públicos",
+        "public sector",
+        "entreprise",
+        "impresa"
       ],
       "enabled": true
     }
@@ -3534,7 +3682,7 @@ const CONFIGURATION_DEFAULTS = {
       "group": "Novedad"
     },
     {
-      "name": "Indisponibilidad de servicio",
+      "name": "Incidencia operativa",
       "group": "Problema",
       "scope": "headline",
       "enabled": true,
@@ -3572,85 +3720,7 @@ const CONFIGURATION_DEFAULTS = {
         "caída la app",
         "caida la app",
         "app down",
-        "fallas en la app"
-      ],
-      "context": [
-        "app",
-        "canal",
-        "banca",
-        "banking",
-        "plataforma",
-        "portal",
-        "transferencia",
-        "transferencias",
-        "pago",
-        "pagos",
-        "cobro",
-        "cobros",
-        "payment",
-        "payments",
-        "checkout",
-        "terminal",
-        "merchant",
-        "business",
-        "empresa",
-        "empresas",
-        "pymes",
-        "sme",
-        "billetera",
-        "wallet",
-        "online",
-        "servicio",
-        "service",
-        "cuenta",
-        "account",
-        "işletme",
-        "ödeme",
-        "mobil",
-        "tarjeta*",
-        "card*",
-        "comercio*",
-        "merchant*",
-        "business*",
-        "bank*",
-        "sistema"
-      ],
-      "exclude": [
-        "precio de la acción",
-        "precio de las acciones",
-        "cotización",
-        "cotizacion",
-        "beneficio neto",
-        "resultados financieros",
-        "caída del crédito",
-        "caida del credito",
-        "caída de ingresos",
-        "caida de ingresos",
-        "shares fall",
-        "share price",
-        "stock price",
-        "net profit",
-        "quarterly results",
-        "riesgo de caída",
-        "riesgo de caida",
-        "simulacro",
-        "podría fallar",
-        "podria fallar",
-        "could fail",
-        "what to do if",
-        "qué hacer si",
-        "que hacer si",
-        "cómo solucionar",
-        "como solucionar",
-        "how to fix"
-      ]
-    },
-    {
-      "name": "Incidencia operativa",
-      "group": "Problema",
-      "scope": "headline",
-      "enabled": true,
-      "terms": [
+        "fallas en la app",
         "reporta fallas",
         "reportan fallas",
         "reportan problemas",
@@ -5011,7 +5081,11 @@ const CONFIGURATION_DEFAULTS = {
         "beneficios del grupo",
         "resultado neto",
         "net income",
-        "quarterly results"
+        "quarterly results",
+        "acquires",
+        "para comprar la empresa",
+        "adquiere la empresa",
+        "compra de la compañía"
       ],
       "enabled": true
     },
@@ -5061,7 +5135,9 @@ const CONFIGURATION_DEFAULTS = {
         "estudiantes",
         "family",
         "familiares",
-        "retirement"
+        "retirement",
+        "familiares y amigos",
+        "friends and family"
       ],
       "enabled": true
     },
@@ -5084,7 +5160,17 @@ const CONFIGURATION_DEFAULTS = {
         "como retirar",
         "usos reales",
         "consejos para",
-        "tips for"
+        "tips for",
+        "why",
+        "por qué",
+        "cómo la",
+        "como la",
+        "survey",
+        "surveyed",
+        "study finds",
+        "report",
+        "trends in",
+        "data shows"
       ],
       "enabled": true
     },

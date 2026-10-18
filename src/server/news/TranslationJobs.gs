@@ -1,14 +1,15 @@
 function translationJob_(){const value=properties_().getProperty('TRANSLATION_JOB');return value?JSON.parse(value):null;}
-function writeTranslationJob_(job){progressContextMemory_=undefined;properties_().setProperty('TRANSLATION_JOB',JSON.stringify(job));}
+function writeTranslationJob_(job){progressContextMemory_=undefined;properties_().setProperty('TRANSLATION_JOB',JSON.stringify(snapshotJob_('TRANSLATION_JOB',job)));}
 function installTranslationSchedule(){authorize_(true);properties_().setProperty('TRANSLATION_ENABLED','true');return getTranslationStatus();}
 function disableTranslationSchedule(){authorize_(true);properties_().setProperty('TRANSLATION_ENABLED','false');return getTranslationStatus();}
 function requestTranslations_(priority=false){properties_().setProperty('TRANSLATION_REQUEST',new Date().toISOString());if(priority)properties_().setProperty('TRANSLATION_PRIORITY_REQUEST','true');ensureBackgroundWorker_();}
 function startTranslations(){authorize_(true);requestTranslations_();return getTranslationStatus();}
-function getTranslationStatus(){authorize_(true);return {newsRevision:properties_().getProperty('NEWS_REVISION')||'0',scheduled:properties_().getProperty('TRANSLATION_ENABLED')!=='false',timezone:settings_().timezone,job:withJobProgress_('translation',translationJob_(),Boolean(properties_().getProperty('TRANSLATION_REQUEST'))),queued:Boolean(properties_().getProperty('TRANSLATION_REQUEST'))};}
+function getTranslationStatus(){authorize_(true);return {newsRevision:publishedNewsRevision_(),scheduled:properties_().getProperty('TRANSLATION_ENABLED')!=='false',timezone:settings_().timezone,job:withJobProgress_('translation',translationJob_(),Boolean(properties_().getProperty('TRANSLATION_REQUEST'))),queued:Boolean(properties_().getProperty('TRANSLATION_REQUEST'))};}
 function translationCandidates_(job){
   return businessNewsIndex_().rows.filter(row=>row.captured<=job.started&&(!job.cursor||row.fecha<job.cursor.fecha||row.fecha===job.cursor.fecha&&row.id<job.cursor.id)).sort((a,b)=>a.fecha===b.fecha?(a.id===b.id?0:a.id>b.id?-1:1):a.fecha>b.fecha?-1:1);
 }
 function translationBatch_(maxMs=TRANSLATION_WORK.maxMs){
+  if(translationJob_()?.state==='Publicando')return;
   const started=Date.now(),now=new Date(started),today=recordDay(now,settings_().timezone);let job;
   try{
     const paused=Number(properties_().getProperty('TRANSLATION_PAUSED_UNTIL')||0);if(paused>started)return;

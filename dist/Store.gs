@@ -25,7 +25,7 @@ function setupRadar() {
 }
 function rows_(sheet, limit, width=RADAR.sheets[sheet].length,period=null) {
   if(sheet==='Noticias'&&period){const rows=newsRowsForPeriod_(period);for(const row of rows)delete row._sheetRow;return rows;}
-  const s=book_().getSheetByName(sheet), count=s.getLastRow()-1;
+  const s=recordSheet_(sheet), count=s.getLastRow()-1;
   if (count<1) return [];
   const size=limit?Math.min(count,limit):count;
   const keys=RADAR.sheets[sheet].slice(0,width);
@@ -33,14 +33,15 @@ function rows_(sheet, limit, width=RADAR.sheets[sheet].length,period=null) {
 }
 function append_(name, rows) {
   if (!rows.length) return;
-  const s=book_().getSheetByName(name), start=s.getLastRow()+1, needed=start+rows.length-1;
+  if(NEWSLETTER_ARCHIVE_TABLES.includes(name))markNewsletterArchiveEdited_();
+  const s=recordSheet_(name), start=s.getLastRow()+1, needed=start+rows.length-1;
   if (needed>s.getMaxRows()) s.insertRowsAfter(s.getMaxRows(),needed-s.getMaxRows());
   const range=s.getRange(start,1,rows.length,rows[0].length);range.setNumberFormat('@').setValues(rows.map(r=>r.map(safeCell_)));
   if(name==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);
 }
 
 function rowsById_(name,ids,limit=Infinity){
-  const sheet=book_().getSheetByName(name),count=Math.min(Math.max(0,sheet.getLastRow()-1),limit),keys=RADAR.sheets[name],result=[];
+  const sheet=recordSheet_(name),count=Math.min(Math.max(0,sheet.getLastRow()-1),limit),keys=RADAR.sheets[name],result=[];
   if(!count||!ids.size)return result;
   const first=sheet.getLastRow()-count+1,positions=sheet.getRange(first,1,count,1).getDisplayValues().flatMap(([id],index)=>ids.has(id)?[first+index]:[]);
   let start=0;
@@ -69,18 +70,21 @@ function sheetRowRanges_(positions,gap=8){
 }
 
 function newsWorkRows_(job,limit){
-  const positions=[];
-  for(const [day,ranges] of Object.entries(newsRecordIndex_().days))for(const [first,last] of ranges)for(let row=first;row<=Math.min(last,job.total+1);row++){
-    if(row>=(job.firstRow||2)&&(!job.cursor||day<job.cursor.date||day===job.cursor.date&&row<job.cursor.row))positions.push({day,row});
+  const selected=[],days=newsRecordIndex_().days;
+  scan:for(const day of Object.keys(days).sort().reverse()){
+    if(job.cursor&&day>job.cursor.date)continue;
+    for(const [first,last] of days[day].slice().reverse())for(let row=Math.min(last,job.total+1);row>=Math.max(first,job.firstRow||2);row--){
+      if(job.cursor&&day===job.cursor.date&&row>=job.cursor.row)continue;
+      selected.push({day,row});if(selected.length>=limit)break scan;
+    }
   }
-  positions.sort((a,b)=>b.day.localeCompare(a.day)||b.row-a.row);
-  const selected=positions.slice(0,limit),rows=new Map(newsRowsAt_(selected.map(item=>item.row).sort((a,b)=>a-b),64).map(row=>[row._sheetRow,row]));
-  return selected.map(item=>rows.get(item.row));
+  const rows=new Map(newsRowsAt_(selected.map(item=>item.row).sort((a,b)=>a-b),64).map(row=>[row._sheetRow,row]));return selected.map(item=>rows.get(item.row));
 }
+
 function newsWorkCursor_(row){return {date:row.fecha,row:row._sheetRow};}
 
 function writeNewsCells_(updates){
-  const sheet=book_().getSheetByName('Noticias'),ordered=updates.slice().sort((a,b)=>a.column-b.column||a.row-b.row);
+  const sheet=newsSheet_(),ordered=updates.slice().sort((a,b)=>a.column-b.column||a.row-b.row);
   for(let start=0;start<ordered.length;){let end=start+1;while(end<ordered.length&&ordered[end].column===ordered[start].column&&ordered[end].row===ordered[end-1].row+1)end++;
     sheet.getRange(ordered[start].row,ordered[start].column,end-start,1).setNumberFormat('@').setValues(ordered.slice(start,end).map(item=>[item.value]));start=end;
   }
@@ -88,14 +92,28 @@ function writeNewsCells_(updates){
 
 // Shared membership index: translations and functional analysis only read business articles.
 function businessNewsIndex_(){
-  const sheet=book_().getSheetByName('Noticias'),count=Math.max(0,sheet.getLastRow()-1),job=classificationJob_();
-  const cache=CacheService.getScriptCache(),key='business-news-index:'+RADAR.version+':'+(properties_().getProperty('NEWS_CONTENT_REVISION')||'0')+':'+(job?.revision||'0')+':'+(job?.next||0)+':'+count,cached=readDashboardCache_(cache,key);if(cached)return cached;
+  const sheet=newsSheet_(),count=Math.max(0,sheet.getLastRow()-1),job=classificationJob_();
+  const cache=CacheService.getScriptCache(),key='business-news-index:'+newsStorageKey_()+':'+RADAR.version+':'+(properties_().getProperty('NEWS_CONTENT_REVISION')||'0')+':'+(job?.revision||'0')+':'+(job?.next||0)+':'+count,cached=readDashboardCache_(cache,key);if(cached)return cached;
   if(!count)return {rows:[],revision:sha256_('[]')};
   const labels=sheet.getRange(2,RADAR.sheets.Noticias.indexOf('clasificacion')+1,count,1).getDisplayValues(),dates=sheet.getRange(2,1,count,2).getDisplayValues(),captured=sheet.getRange(2,RADAR.sheets.Noticias.indexOf('capturada')+1,count,1).getDisplayValues();
   const rows=dates.flatMap(([id,fecha],index)=>id&&businessNews_({clasificacion:labels[index][0]})?[{id,fecha,captured:captured[index][0],row:index+2,priority:0}]:[]).sort((a,b)=>b.fecha.localeCompare(a.fecha)||b.row-a.row);
   const value={rows,revision:sha256_(JSON.stringify(rows.map(row=>[row.id,row.fecha,row.row])))};writeDashboardCache_(cache,key,value);return value;
 }
-function businessNewsWorkRows_(job,limit){
-  const selected=businessNewsIndex_().rows.filter(row=>row.row<=job.lastRow&&(!job.cursor||row.fecha<job.cursor.date||row.fecha===job.cursor.date&&row.row<job.cursor.row)).slice(0,limit),rows=new Map(newsRowsAt_(selected.map(row=>row.row).sort((a,b)=>a-b),64).map(row=>[row._sheetRow,row]));
-  return selected.map(row=>rows.get(row.row));
-}
+
+let newsSheetOverride_,taxonomySheetOverride_,dataGenerationMemory_;
+function dataGeneration_(){return dataGenerationMemory_||(dataGenerationMemory_=JSON.parse(properties_().getProperty('DATA_GENERATION')||'{}'));}
+function newsSheet_(){return book_().getSheetByName(newsSheetOverride_||dataGeneration_().newsSheet||'Noticias');}
+function newsStorageKey_(){return newsSheetOverride_||dataGeneration_().newsSheet||'Noticias';}
+
+function taxonomyStorageKey_(){return taxonomySheetOverride_||dataGeneration_().taxonomySheet||'Taxonomia';}
+function taxonomySheet_(){return book_().getSheetByName(taxonomyStorageKey_());}
+
+function publishedNewsRevision_(){return dataGeneration_().revision||properties_().getProperty('NEWS_REVISION')||'0';}
+
+const NEWSLETTER_ARCHIVE_TABLES=Object.freeze(['NewsletterContenido','NewsletterEdiciones']);
+function newsletterStorageKey_(name){return dataGeneration_().newsletterTables?.[name]||name;}
+function newsletterSheet_(name){return book_().getSheetByName(newsletterStorageKey_(name));}
+function newsletterArchiveVersion_(){return properties_().getProperty('NEWSLETTER_ARCHIVE_REVISION')||'0';}
+function newsletterArchiveKey_(){return JSON.stringify([newsletterArchiveVersion_(),NEWSLETTER_ARCHIVE_TABLES.map(newsletterStorageKey_)]);}
+function markNewsletterArchiveEdited_(){properties_().setProperty('NEWSLETTER_ARCHIVE_REVISION',Utilities.getUuid());}
+function recordSheet_(name){return name==='Noticias'?newsSheet_():name==='Taxonomia'?taxonomySheet_():NEWSLETTER_ARCHIVE_TABLES.includes(name)?newsletterSheet_(name):book_().getSheetByName(name);}

@@ -34,7 +34,7 @@ function queueScheduledCollection_(kind){
   }
 }
 function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
-  const started=Date.now(),news=[],audit=[],errors=[],newTasks=[];let evaluated=0,relevant=0,digital=0,duplicated=0,excluded=0,saturated=0,queued;
+  const started=Date.now(),news=[],audit=[],candidates=[],coverage=[],errors=[],newTasks=[];let evaluated=0,relevant=0,digital=0,duplicated=0,excluded=0,saturated=0,queued;
   try{
     if(!pending.length){
       const previous=new Map(jobs.map(job=>[job.id,JSON.stringify(job)]));collectionSnapshots_(tasks,jobs);
@@ -53,22 +53,23 @@ function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
       try{
         if(!feed){status='Omitida';audit.push([task.ciclo,now.toISOString(),task.fuente,task.url,status,'Fuente desactivada o eliminada']);}
         else{const response=responses[responseIndex++];if(response.error)throw response.error;
-          const result=ingestFeed_(feed,known,task.ciclo,now,response.response);news.push(...result.news);audit.push(...result.audit);count=result.evaluated;added=result.news.length;evaluated+=count;
+          const result=ingestFeed_(feed,known,task.ciclo,now,response.response);news.push(...result.news);audit.push(...result.audit);candidates.push(...result.candidates);coverage.push([task.ciclo,now.toISOString(),feed.name,feed.country||'',feed.range?.from||'',feed.range?.to||'',result.evaluated,result.inside,result.saturated?'sí':'no',result.saturated?splitCollectionFeed_(feed).length:0,'OK','']);count=result.evaluated;added=result.news.length;evaluated+=count;
           relevant+=result.relevant||0;digital+=result.digital||0;duplicated+=result.duplicated||0;excluded+=result.excluded||0;
           if(result.saturated){saturated++;
             const split=splitCollectionFeed_(feed);queued=queued||new Set(rows_('Recopilacion',undefined,3).map(row=>row.ciclo+'|'+row.url));
             for(const child of split)if(!queued.has(task.ciclo+'|'+child.url)&&!newTasks.some(row=>row[0]===task.ciclo&&row[2]===child.url))newTasks.push([task.ciclo,child.name,child.url,'Pendiente',0,'',0,0,'',child.range.to]);
             audit.push([task.ciclo,now.toISOString(),feed.name,feed.url,'Cobertura parcial',split.length?'Consulta saturada; dividida en dos períodos menores':'Consulta diaria saturada; el proveedor puede omitir publicaciones']);
           }}
-      }catch(e){error=String(e.message).slice(0,180);if(e.quota)attempts--;status=e.quota?'Reintento programado':(e.retryable||/HTTP (429|5\d\d)/.test(error))&&attempts<3?'Reintento programado':'Error';errors.push(task.fuente+': '+error);audit.push([task.ciclo,now.toISOString(),task.fuente,task.url,status,error]);}
+      }catch(e){error=String(e.message).slice(0,180);if(e.quota)attempts--;status=e.quota?'Reintento programado':(e.retryable||/HTTP (429|5\d\d)/.test(error))&&attempts<3?'Reintento programado':'Error';errors.push(task.fuente+': '+error);audit.push([task.ciclo,now.toISOString(),task.fuente,task.url,status,error]);coverage.push([task.ciclo,now.toISOString(),task.fuente,feed?.country||'',feed?.range?.from||'',feed?.range?.to||'',0,0,'',0,status,error]);}
       updates.set(task.row,[status,attempts,now.toISOString(),count,added,error]);
       Object.assign(task,{estado:status,actualizada:now.toISOString(),nuevas:added});
     }
     const processingMs=Date.now()-processingStarted,writeStarted=Date.now();
+    persistCandidates_(candidates,now);appendCoverage_(coverage);
     append_('Noticias',news);let sorted=false;
     append_('Auditoria',audit);append_('Recopilacion',newTasks);
     writeCollectionTasks_(pending,updates);
-    if((news.length||tasks.some(task=>Number(task.nuevas)>0))&&!newTasks.length&&tasks.every(task=>!['Pendiente','Reintento programado'].includes(task.estado))){const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1;if(count>1){if(classificationPending_())requestNewsClassification_(true);sheet.getRange(2,1,count,RADAR.sheets.Noticias.length).sort({column:2,ascending:true});sorted=true;}}
+    if((news.length||tasks.some(task=>Number(task.nuevas)>0))&&!newTasks.length&&tasks.every(task=>!['Pendiente','Reintento programado'].includes(task.estado))){const sheet=newsSheet_(),count=sheet.getLastRow()-1;if(count>1){if(classificationPending_())requestNewsClassification_(true);sheet.getRange(2,1,count,RADAR.sheets.Noticias.length).sort({column:2,ascending:true});sorted=true;}}
     if(news.length||sorted){SpreadsheetApp.flush();invalidateNews_();}
     if(news.some(row=>businessNews_(Object.fromEntries(RADAR.sheets.Noticias.map((key,index)=>[key,row[index]])))))requestTranslations_(true);
     append_('Ejecuciones',[...affected].map(id=>{const batch=pending.filter(task=>task.ciclo===id),rows=batch.map(task=>updates.get(task.row)),failures=rows.map(row=>row[5]).filter(Boolean);return [id,now.toISOString(),new Date().toISOString(),failures.length?'Parcial':'Completada',batch.length,rows.reduce((sum,row)=>sum+Number(row[3]),0),rows.reduce((sum,row)=>sum+Number(row[4]),0),failures.join(' | ')];}));

@@ -33,7 +33,7 @@ test('la quincenal conserva los literales y sus accesos abren Noticias con perí
 });
 test('la revisión trimestral termina antes de habilitar envíos y conserva sus solicitudes al reanudar',()=>{
  const {c,properties:p}=setup();c.settings_().newsletterEnabled=true;p.NEWSLETTER_REQUEST='true';const period={to:'2026-09-30'};assert.equal(c.queueQuarterlyTaxonomy_(period),false);assert.equal(c.newsletterReadyAt_({jobs:[]}),Infinity);c.drainTaxonomyRequest_();assert.equal(c.taxonomyJob_().request,'quarterly:2026-09-30');
- for(let i=0;i<4&&c.taxonomyPending_();i++)c.taxonomyBatch_();assert.equal(c.taxonomyJob_().state,'Completada');assert.equal(p.TAXONOMY_PERIOD,period.to);assert.equal(p.TAXONOMY_QUARTER_REQUEST,undefined);assert.equal(c.queueQuarterlyTaxonomy_(period),true);assert.ok(c.newsletterReadyAt_({jobs:[]})<=Date.now());assert.equal(p.DASHBOARD_SNAPSHOT_REQUEST,'ready');
+ for(let i=0;i<10&&c.taxonomyPending_();i++){if(c.taxonomyJob_().state==='Publicando')c.dashboardSnapshotBatch_();else c.taxonomyBatch_();}assert.equal(c.taxonomyJob_().state,'Completada');assert.equal(p.TAXONOMY_PERIOD,period.to);assert.equal(p.TAXONOMY_QUARTER_REQUEST,undefined);assert.equal(c.queueQuarterlyTaxonomy_(period),true);assert.ok(c.newsletterReadyAt_({jobs:[]})<=Date.now());assert.equal(p.DASHBOARD_SNAPSHOT_REQUEST,undefined);assert.equal(c.dashboardSnapshotsPending_(),false);
 });
 test('las pruebas administrativas llevan asunto de prueba y no contaminan el historial, y el vacío no se envía',()=>{
  const {c}=setup(),period=c.newsletterPeriod_('fortnightly',new Date()),input=[{...story('test','España','BBVA','API Channel'),fecha:period.from}],original=c.rows_;let rows=input,sent=0;

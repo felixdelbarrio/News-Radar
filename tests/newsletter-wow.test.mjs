@@ -1,3 +1,5 @@
+import {drainSnapshots} from './helpers/canonical-fixtures.mjs';
+import {annotateFixtures,newsletterFixture,canonicalFixtures} from './helpers/canonical-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -6,7 +8,7 @@ import {app,tick} from './helpers/app.mjs';
 const clean=value=>JSON.parse(JSON.stringify(value));
 function server(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);s.c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';return s;}
 function news(s,id='one',country='España',title='BBVA lanza pagos digitales para empresas'){
- return s.c.annotateNews_([{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id,fecha:'2026-09-10',pais:country,entidad:'BBVA',medio:'Editor',titular:title,extracto:'El servicio permite gestionar pagos digitales, permisos y cobros desde la app para empresas.',url:'https://example.com/'+id,idioma:'es',fuente:'Editor',capturada:'2026-09-10T00:00:00Z'}])[0];
+ return annotateFixtures(s.c,[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id,fecha:'2026-09-10',pais:country,entidad:'BBVA',medio:'Editor',titular:title,extracto:'El servicio permite gestionar pagos digitales, permisos y cobros desde la app para empresas.',url:'https://example.com/'+id,idioma:'es',fuente:'Editor',capturada:'2026-09-10T00:00:00Z'}])[0];
 }
 function edition(s,id='edition',items=[news(s)],view='news'){
  const c=s.c,query={view,from:'2026-09-01',to:'2026-09-30',segment:'Empresas e instituciones'},content=c.newsletterContent_(items,query,'Selección',new Date(),'subscription','es',id);
@@ -58,14 +60,14 @@ test('traducción y categorización de Empresas preceden a la recuperación anua
 });
 test('la traducción prioriza Empresas digital antes de Retail más reciente sin repetir variantes guardadas',()=>{
  const s=server(),c=s.c,business=news(s,'business'),retail=news(s,'retail','España','BBVA lanza una app de ahorro y tarjeta para particulares');business.etiquetas={generalista:true,digital:true,capacidades:['Empresas: Pagos']};retail.etiquetas={generalista:true,digital:true,capacidades:['Retail: Ahorro']};business.clasificacion=JSON.stringify(business.etiquetas);retail.clasificacion=JSON.stringify(retail.etiquetas);retail.fecha='2026-09-20';add(s,'Noticias',retail);add(s,'Noticias',business);
- const calls=[];c.LanguageApp={translate:html=>{calls.push(html);return html;}};c.requestTranslations_(true);c.translationBatch_();assert.match(calls[0],/pagos digitales para empresas/);assert.equal(c.translationJob_().state,'Completada');c.requestTranslations_();c.translationBatch_();assert.equal(calls.length,3);
+ const calls=[];c.LanguageApp={translate:html=>{calls.push(html);return html;}};c.requestTranslations_(true);c.translationBatch_();assert.match(calls[0],/pagos digitales para empresas/);drainSnapshots(c);assert.equal(c.translationJob_().state,'Completada');c.requestTranslations_();c.translationBatch_();assert.equal(calls.length,3);
 });
 test('una cuota diaria suspende ambos traductores y no se pierde la solicitud prioritaria',()=>{
  const s=server(),c=s.c,row=news(s);row.clasificacion=JSON.stringify(row.etiquetas);add(s,'Noticias',row);let calls=0;c.LanguageApp={translate(){calls++;throw Error('Service invoked too many times for one day: translate');}};
  c.requestTranslations_(true);c.translationBatch_();c.requestTranslations_(true);c.translationBatch_();c.startTaxonomyTranslations();c.taxonomyTranslationBatch_();assert.equal(calls,1);assert.ok(c.translationReadyAt_()>Date.now());assert.ok(c.taxonomyTranslationReadyAt_()>Date.now());assert.ok(s.properties.TRANSLATION_PRIORITY_REQUEST);
 });
 test('una solicitud recibida durante la traducción persiste para incorporar el siguiente contenido',()=>{
- const s=server(),c=s.c;add(s,'Noticias',news(s));c.requestTranslations_();c.LanguageApp={translate:html=>{s.properties.TRANSLATION_REQUEST=new Date(Date.now()+1000).toISOString();return html;}};c.translationBatch_();assert.ok(s.properties.TRANSLATION_REQUEST);assert.equal(c.translationJob_().state,'Completada');
+ const s=server(),c=s.c;add(s,'Noticias',news(s));c.requestTranslations_();c.LanguageApp={translate:html=>{s.properties.TRANSLATION_REQUEST=new Date(Date.now()+1000).toISOString();return html;}};c.translationBatch_();assert.ok(s.properties.TRANSLATION_REQUEST);drainSnapshots(c);assert.equal(c.translationJob_().state,'Completada');
 });
 test('la cola lee estados solo de trabajos activos y conserva posiciones físicas discontinuas',()=>{
  const s=server(),c=s.c;add(s,'Recargas',{id:'done',tipo:'annual',estado:'Parcial',total:1000,pendientes:0});add(s,'Recargas',{id:'active',tipo:'daily',estado:'Pendiente',total:2,pendientes:2});

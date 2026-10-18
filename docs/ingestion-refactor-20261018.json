@@ -1,0 +1,1838 @@
+{
+  "date": "2026-10-18",
+  "release": "3.7.0",
+  "baselineRevision": "c32af357e270c4fb25167bfce7a6e06749376ad2",
+  "branchAtStart": "develop, idéntica a origin/develop tras git fetch",
+  "quality": {
+    "baselineRevision": "c32af357e270c4fb25167bfce7a6e06749376ad2",
+    "scope": "Muestra semántica local de 26 textos; sin revisión humana doble ni inferencia poblacional.",
+    "sourceSampleRows": 331,
+    "excludedSampleRowsWithoutOriginalText": 220,
+    "baseline": {
+      "evaluable": 22,
+      "tp": 9,
+      "fp": 5,
+      "fn": 0,
+      "tn": 8,
+      "precision": 0.6428571428571429,
+      "recall": 1,
+      "segmentErrors": 3,
+      "segmentTotal": 16,
+      "functionCorrect": 2,
+      "functionTotal": 2,
+      "abstentions": 0,
+      "rows": [
+        {
+          "id": "6e7628b2-9e4b-42d3-9399-066589aeff03",
+          "stratum": "digital / extracto",
+          "title": "BBVA participa en una iniciativa de Swift para facilitar los pagos internacionales con el número de móvil o email",
+          "excerpt": "La entidad participa en una nueva iniciativa internacional para permitir que familiares y amigos envíen dinero entre países utilizando identificadores sencillos, como un número de teléfono o una dirección de correo electrónico. El proyecto busca conectar sistemas de pagos domésticos como Bizum en España, PayID en Australia, Pix en Brasil o UPI en India a través de la red global de Swift. Esta iniciativa da un paso más al poner el foco en la sencillez para el usuario: no solo hacer que el dinero llegue más rápido, sino también facilitar la forma de enviarlo.",
+          "url": "https://www.bbva.com/es/empresas/bbva-participa-en-una-iniciativa-de-swift-para-facilitar-los-pagos-internacionales-con-el-numero-de-movil-o-email/",
+          "relevant": false,
+          "business": false,
+          "function": null,
+          "rationale": "El extracto describe remesas entre familiares y amigos.",
+          "predicted": true,
+          "businessPredicted": false,
+          "functions": [
+            "03.13"
+          ],
+          "state": "no registrado"
+        },
+        {
+          "id": "200b9328-a884-4fd2-9112-e2597ad7a286",
+          "stratum": "digital / extracto",
+          "title": "Why global workers are driving demand for stablecoin payouts",
+          "excerpt": "Platforms like DoorDash, Meta, and Deel already enable stablecoin payouts for global workers. We surveyed 2,300 workers in 20 countries to see what's driving stablecoin demand, where the opportunity is highest, and how other platforms can adapt.",
+          "url": "https://stripe.com/blog/why-global-workers-are-driving-demand-for-stablecoin-payouts",
+          "relevant": false,
+          "business": true,
+          "function": null,
+          "rationale": "Encuesta y análisis de demanda; no acredita un lanzamiento.",
+          "predicted": true,
+          "businessPredicted": false,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "72ef4ee7-16dd-4af4-9555-494096a5a764",
+          "stratum": "digital / extracto",
+          "title": "El trader algorítmico: cómo la IA redefine la mesa de tesorería",
+          "excerpt": "El bullicio de las salas de mercados ha dado paso a la precisión del dato. Hoy, las mesas de tesorería operan como centros de alta tecnología donde procesar información en milisegundos marca la diferencia. En BBVA, la inteligencia artificial actúa como un potenciador del talento humano: los equipos se apoyan en modelos avanzados para analizar volúmenes masivos de datos, optimizar precios y agilizar la ejecución. La máquina asume el cálculo en tiempo real, permitiendo al profesional concentrarse en su verdadero valor: el juicio estratégico y el control.",
+          "url": "https://www.bbva.com/es/empresas/el-trader-algoritmico-como-la-ia-redefine-la-mesa-de-tesoreria/",
+          "relevant": false,
+          "business": true,
+          "function": null,
+          "rationale": "Artículo explicativo sobre trading; no acredita cambio de canal.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [
+            "12.07"
+          ],
+          "state": "no registrado"
+        },
+        {
+          "id": "244b6137-5890-4ea9-a6dc-a2288d7618a0",
+          "stratum": "digital / extracto",
+          "title": "Vivid chooses Wise Platform for international SME payments",
+          "excerpt": "As demand for cross-border payments surges among its European small and medium-sized businesses (SMEs), Vivid, one of Europe's fastest-growing digital business financial platforms, has selected Wise Platform, Wise’s global payments infrastructure for banks and enterprises, to launch fast, transparent and seamless international payments for its business customers.",
+          "url": "https://www.finextra.com/pressarticle/111248/vivid-chooses-wise-platform-for-international-sme-payments",
+          "relevant": true,
+          "business": true,
+          "function": "03.13",
+          "rationale": "Integración y lanzamiento explícitos de pagos internacionales para pymes.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [
+            "03.13"
+          ],
+          "state": "no registrado"
+        },
+        {
+          "id": "43210697-d781-45b0-b089-b8a4a417da4e",
+          "stratum": "digital / extracto",
+          "title": "Stripe and Plasma team on multi-currency stablecoin cards",
+          "excerpt": "Stripe and Plasma today announced a collaboration to launch multi-currency stablecoin cards, making it easier for people and businesses to spend across currencies and markets.",
+          "url": "https://www.finextra.com/pressarticle/111319/stripe-and-plasma-team-on-multi-currency-stablecoin-cards",
+          "relevant": true,
+          "business": true,
+          "function": null,
+          "rationale": "Anuncio de colaboración para tarjetas stablecoin con uso empresarial explícito.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "c78c2a35-1a19-45d4-87d0-7a8fe6b67f73",
+          "stratum": "digital / extracto",
+          "title": "OUSD is now the default stablecoin on Stripe",
+          "excerpt": "Open USD (OUSD), a stablecoin built for global money movement, is now available across Stripe. Businesses can use OUSD to manage funds, make payments, and offer new financial services.",
+          "url": "https://stripe.com/blog/ousd-now-live-on-stripe",
+          "relevant": true,
+          "business": true,
+          "function": null,
+          "rationale": "Disponibilidad de stablecoin para empresas que gestionan fondos y pagos.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "66ba4ffe-6e1a-4574-80e0-04e0042d6b09",
+          "stratum": "digital / extracto",
+          "title": "BBVA México y San Pedro Garza García acuerdan impulsar el financiamiento y la digitalización de las empresas locales",
+          "excerpt": "BBVA México y el Municipio de San Pedro Garza García firmaron un convenio de colaboración para facilitar a las empresas locales el acceso a financiamiento, servicios bancarios y herramientas digitales que contribuyan a fortalecer su operación y capacidad de crecimiento.",
+          "url": "https://www.bbva.com/es/mx/bbva-mexico-y-san-pedro-garza-garcia-acuerdan-impulsar-el-financiamiento-y-la-digitalizacion-de-las-empresas-locales/",
+          "relevant": null,
+          "business": true,
+          "function": null,
+          "rationale": "Convenio de financiación y digitalización sin detalle suficiente del canal.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "8eb22292-51f0-4566-97e1-27a890a8d8e0",
+          "stratum": "digital / extracto",
+          "title": "Symphony by Wix connects to Stripe's Link digital wallet",
+          "excerpt": "Wix.com Ltd. (NASDAQ: WIX), today announced that Symphony by Wix, the standalone multi-agent system for small and medium-sized businesses and solopreneurs, now connects to Link, Stripe’s digital wallet.",
+          "url": "https://www.finextra.com/pressarticle/111293/symphony-by-wix-connects-to-stripes-link-digital-wallet",
+          "relevant": true,
+          "business": true,
+          "function": null,
+          "rationale": "Nueva integración de wallet con plataforma para pequeñas empresas.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "bbaf7d49-c0c7-4eba-97ee-d67d40ebe626",
+          "stratum": "digital / extracto",
+          "title": "BBVA lanza ‘Cobro al Toque’ para facilitar el acceso de soluciones de cobro a las Pymes",
+          "excerpt": "BBVA lanza ‘Cobro al Toque’, una solución que permite convertir un smartphone en un punto de venta móvil y recibir pagos sin necesidad de contar con un POS físico. Basada en el modelo Tap to Phone, está dirigida a emprendedores, trabajadores independientes y pequeños negocios que buscan ampliar las alternativas para recibir pagos de manera sencilla.",
+          "url": "https://www.bbva.com/es/pe/empresas/bbva-lanza-cobro-al-toque-para-facilitar-el-acceso-de-soluciones-de-cobro-a-las-pymes/",
+          "relevant": true,
+          "business": true,
+          "function": null,
+          "rationale": "Lanzamiento explícito de cobro móvil para pymes.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "0abb00b4-aac6-4d72-954c-70b10f383dd8",
+          "stratum": "digital / extracto",
+          "title": "BBVA joins Meta-backed Personal Agent Protocol initiative",
+          "excerpt": "BBVA has become the first European bank to join the Personal Agent Protocol (Poppy) initiative to help develop a common protocol that enables secure interactions between artificial intelligence (AI) agents and businesses.",
+          "url": "https://www.finextra.com/pressarticle/111261/bbva-joins-meta-backed-personal-agent-protocol-initiative",
+          "relevant": null,
+          "business": null,
+          "function": null,
+          "rationale": "Protocolo de agentes sin alcance empresarial acreditado en el texto disponible.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "e1663034-ebda-4592-a68e-0d4624399414",
+          "stratum": "digital / sin_extracto",
+          "title": "Business News | 99% of Indian Entrepreneurs Are Reshaping Their Businesses for AI: HSBC Report",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxQei10WWxUUDFkbjJxNTdKNy1QV01aWlJkbXc0Zk5ldTFHRzVnQUs5VVNCdnU3bnZrX1N4Nl83ZkZTZ1FIOTVpdkxxa1JwTlFJSkp1NUNfUjFuRWJoNVNrNFhhU1U0QVpSUXMxZnBRNjdaOEZjUV80OVhKeG43aWQ0OXhiYlg3bE9BNm04dVg4QmU0TWkzdWdSdVJsSTAxVTd0WGhjWE9EbVVSUmlLVGhkUmkwUDJKcEdZQ3Q3aEF4LUhIeXg5YnhCaHpVaGZJenBPYUNLczJod9IB3AFBVV95cUxQakxlZXAzY2Q5eWNWWjVIaE9PclhpUldFMGtXN1MtZTJwU052TWFDT0ppOVNJb2t6aW9OR2VySDZqc1gtRUtWMEtEYjBjR2I0N0pvZlBHbThraUh5LUhvb2pPS3RPMFhSZndhVFNZM2liYWpFazVaY1JDczhZVGd5VGdHVm9CaTZzWEFqQ0tEWmJxWS1iaGVZWnBmUXlhbXFBZGM5N3Y4MmxoWG9VekJSRk05MWhBSmhWN0Nfc1JXR0tfS05YQnhmVDhWTjRfVjhDdDhNZTFlTmF5MWVT?oc=5",
+          "relevant": false,
+          "business": true,
+          "function": null,
+          "rationale": "Informe sobre adopción de IA; no acredita novedad de canal bancario.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "3fcec6a1-e94f-4157-a66a-6001bc6f9524",
+          "stratum": "digital / sin_extracto",
+          "title": "Stripe cierra acuerdo de más de US$7.000 millones para comprar la empresa de IA OpenRouter",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxQRk9NUzFiRG1Wa2NCbHlPSnE5c0pXRnlncUlybkFNOF9ZMFFDNWZMLW1vWVJTb1lTUGFjdWRTZUFRZU9LWE5PekhieEVLQ1IzSWFHT3RDeFJGT3Rid3FvcXM5Y1V3cC1TYmpfX3ptVzg2WlhjZWtZLWowQUpjekZuSUdCbWw3aGpSbnF5eFlsNFowNjkyWXREWWlxV2RZUmsxakJFMWdyT1V0dnZXNFEtdURJaHlwZlhZQVVVZHVJRGhlLTBUXy1yemtFQVgzWWtyZkItdVln?oc=5",
+          "relevant": false,
+          "business": null,
+          "function": null,
+          "rationale": "Adquisición corporativa; no acredita novedad de canal.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "cbf18fa2-4b76-454d-a556-a4b108db7c84",
+          "stratum": "digital / sin_extracto",
+          "title": "Maybank launches upgraded Maybank2E platform to strengthen regional business banking",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxQYlQ3STU1UzVkdkpodXVDS0p4Vno4XzlBRjB5bFp1S19HTnUtQ2MtU0cyVGsxVW9rei1hcklkcjJZdUpFa2ZyVzY1NTlpQWtndHJTdEZkYXhvQ3kxb2VSS0xreVlmdGJnVHZ3Y25pWW8wUTdIckFyMEZtVExYa1JPOTVRelZvVE5IbEVteENKZFFCckNlcHFXNjlkT1gtcnhQNHc4TUQteUJoMlB4elUtUVN4UnF2QUpnQzNlNmFld9IBxAFBVV95cUxOcjlmTHFyWnhsLXJiLTRYNUY2V21wd0MzUFBXbWZfYVlPcF9Hc0pma1FvZWZqU3hwazBmNTZwMWZ4VWlELXVwYXVvZkliTlhKajFvRlhNWkx0cmd5dHdhbU5uWTlTT0pDdTljZVVkb1h6bDROMG9KVEN4WlJNSE50ak1WVEFta3hCRXMxUXpkUTNUSmd0Q0hJT3lhNG13eUdzLV9WQUtMbHhGeERWaFFkcmhtSWptR0ROQU56dER2eTFUQ2FC?oc=5",
+          "relevant": true,
+          "business": true,
+          "function": null,
+          "rationale": "Mejora explícita de plataforma de banca empresarial.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "10ef765e-0ca2-4f1d-8cee-ac7dd6f71982",
+          "stratum": "digital / sin_extracto",
+          "title": "Revolut partners Akahu on open banking credit cards",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxOajhDTWVhNVNVME5zX3RvbFJDMlllZWVDT0s5eFJSbnN4UWd5LV9OeS1GMTFYUVVOMjU0aTF0QVg5ajdXbWZCM21WRWw5WWwyUGFObm03cWZWRzF0dzVRRzdxNUkzNUxRRFIxSHFIeF9FSGVOdEsxZFQ3cmhYdDFyWFJWMm9wdw?oc=5",
+          "relevant": null,
+          "business": null,
+          "function": null,
+          "rationale": "Tarjetas de crédito sin segmento acreditado en el titular.",
+          "predicted": true,
+          "businessPredicted": false,
+          "functions": [
+            "17.16"
+          ],
+          "state": "no registrado"
+        },
+        {
+          "id": "38b25c85-a482-45df-a311-bcf8d3bb973d",
+          "stratum": "digital / sin_extracto",
+          "title": "ATP incorpora Mercado Pago para facilitar el pago de impuestos provinciales",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNQVNybjVHd2dHaWlSVUZZWFcxaGFIUXBzMTJseHBVSFdVX3JPWjVtYUR6b3VOb3hPNHVTYlNlQXI4QzNxbWxNYTdsVDl6OXNXMm9HVm9TV1NQY3NVVTVTcEN0TXJ1anM4QzRQZ08tUWt2UFFTcnhsN1hKVnNWa3VMVEpQR2FfVjlwVW11bUJ0MWo0SEFmQkl6ZF8wMWd1Y3pzUzMyaTVYVUQ4MmdU?oc=5",
+          "relevant": null,
+          "business": null,
+          "function": null,
+          "rationale": "Pago de impuestos provinciales: falta contexto del segmento y canal.",
+          "predicted": true,
+          "businessPredicted": false,
+          "functions": [
+            "05.23"
+          ],
+          "state": "no registrado"
+        },
+        {
+          "id": "e614500f-f55d-4e60-8d5d-cf2359e34afb",
+          "stratum": "digital / sin_extracto",
+          "title": "Stablecoin Payments: Inside Citi & Coinbase’s New Checkout",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTE5rSk9DVEoyU1YxV0tsbU8wMHpmX2hhNk8xTkw0aHROaG1oWkVwUThSdGZqWnAxcW1KaTdBbVlrV013bEVORWlQSWt0TjVZZlZlenhpWkF1dkUxNmY3U212OTU0dGFpa2RueS1CYlMtTzloRTVUMnpnNmtueWxER2c?oc=5",
+          "relevant": true,
+          "business": null,
+          "function": null,
+          "rationale": "Nuevo checkout de pagos con stablecoins, infraestructura compartida.",
+          "predicted": true,
+          "businessPredicted": false,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "e7c287b4-c6c2-43e3-af47-2db42da3cfb5",
+          "stratum": "digital / sin_extracto",
+          "title": "Nam A Bank partners with JPMorgan Chase: Enhancing international payment capabilities and import-export trade financing",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMi6AFBVV95cUxPMmlWUExaamIteFkwSlcyaGFCVFZQNTBfdE10aEVMWm9zRkJTOUpHU3ZLN1l2dzdXSkJxQWc1V2JHbmplWW5BWWR1bHd2YTBuT2xIU09PYm5Rci16SW81MkY5Ull3a2RuR0hkUG15MkNHMUVzckJ6REYtSnpnVHdkeWZ3LU1fS3BVa2tkckVRYU1VQnR5ckFWLVA0SEpJX3RxUzBSNVMzc3h2QjFxNldOTG94V1J6WUdybmYxZFU5ZUpFb2M3YU4zai1UNXh3aFN5T08xSER3NXItU3otTC15S2NyenlEYnBf?oc=5",
+          "relevant": true,
+          "business": true,
+          "function": null,
+          "rationale": "Alianza para pagos internacionales y financiación del comercio exterior.",
+          "predicted": true,
+          "businessPredicted": false,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "56616a18-bb3a-4387-a3b7-6d60fbe73742",
+          "stratum": "digital / sin_extracto",
+          "title": "Bank of America to roll out new real-time cross-border payments solution",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQUlhxdFphb1lzRXhQWndXZkFMWGFxMFVxTVZXVmg4eHRoWGc4Z0d4bDllVG9BVEs3R0lMR3c2a3p2RWV3MXhHcHhVOFRsTzIwU0R1ZzZHcFRCRmdpTzBZa2NTb1cxZ2N2RHQ3MVhfMmQwRW54Y3UyODhDVXBGU254Sy1TNWJ0MF9uTmJTNUx1a2plZTJ5WVk2Y0VCblRpWjVWLVFJUnlLcVZld1ZxS1dybnBqemRDeUR1cjVvY29zbFFFYmVtWEdmZ2h3?oc=5",
+          "relevant": true,
+          "business": null,
+          "function": "03.13",
+          "rationale": "Despliegue de solución de pagos transfronterizos en tiempo real.",
+          "predicted": true,
+          "businessPredicted": false,
+          "functions": [
+            "03.13"
+          ],
+          "state": "no registrado"
+        },
+        {
+          "id": "cce1f14e-7536-47aa-8eab-0d36bbc522a2",
+          "stratum": "no_digital / extracto",
+          "title": "New trends in global card fraud: How 3D Secure and regional mandates are affecting risk",
+          "excerpt": "We analyzed billions of transactions on Stripe from January 2022 to March 2026 to understand how card fraud patterns differ by region and country, what's driving those differences, and how businesses can respond.",
+          "url": "https://stripe.com/blog/new-trends-in-global-card-fraud-how-3d-secure-and-regional-mandates-are-affecting-risk",
+          "relevant": false,
+          "business": true,
+          "function": null,
+          "rationale": "Análisis de patrones de fraude en transacciones históricas, sin anuncio de producto.",
+          "predicted": false,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "ff112b3d-3d7e-4da5-a9e4-a96e97263ea3",
+          "stratum": "no_digital / extracto",
+          "title": "Nubank appoints Circle's Sarah Wilson chief legal officer",
+          "excerpt": "Nubank, the largest digital bank in Latin America, today announced the appointment of Sarah Wilson as Chief Legal Officer (CLO), effective September 28th.",
+          "url": "https://www.finextra.com/pressarticle/110952/nubank-appoints-circles--sarah-wilson-chief-legal-officer",
+          "relevant": false,
+          "business": null,
+          "function": null,
+          "rationale": "Nombramiento de una directora jurídica.",
+          "predicted": false,
+          "businessPredicted": false,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "32a9173e-7b70-426c-9aeb-4c4ca4bccb58",
+          "stratum": "no_digital / extracto",
+          "title": "SaaS platforms are surging despite the SaaSpocalypse",
+          "excerpt": "The SaaSpocalypse was a useful warning for the software industry, but SaaS platforms that help businesses run core operations are more deeply embedded. New platform businesses on Stripe are up 182% year over year.",
+          "url": "https://stripe.com/blog/saas-platforms-are-surging-despite-the-saaspocalypse",
+          "relevant": false,
+          "business": true,
+          "function": null,
+          "rationale": "Análisis de la evolución de plataformas SaaS; no describe cambio bancario de canal.",
+          "predicted": false,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "92b44d09-887d-4995-814b-a1838c9e0c65",
+          "stratum": "no_digital / extracto",
+          "title": "¿Qué es VERI*FACTU y cómo afecta a empresas y autónomos?",
+          "excerpt": "VERI*FACTU es una modalidad de los sistemas informáticos de facturación que permite remitir automáticamente a la Agencia Tributaria los registros de facturación. El nuevo marco exige que estos sistemas garanticen, entre otros requisitos, la integridad, trazabilidad e inalterabilidad de los registros.",
+          "url": "https://www.bbva.com/es/es/empresas/como-funciona-el-sistema-verifactu-y-como-va-a-afectar-a-empresas-y-autonomos/",
+          "relevant": false,
+          "business": true,
+          "function": null,
+          "rationale": "Artículo educativo sobre una obligación de facturación.",
+          "predicted": false,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "9900ef58-c09e-4145-af38-3ec388f120eb",
+          "stratum": "no_digital / sin_extracto",
+          "title": "People Moves: Nambawan Super, PNG Business Coalition for Women, ANZ PNG, Internal Revenue Commission",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxOWk16U20tQ1R6MWtBekpsOGhrZW9GRFl6VFJST2EzZWFobDM1UDV4azdYU0Q1djdRdjVlaUo1VHhGLUFKTzRDaDdjbHVfY3dYNlNOdDB1ckUzY0FqRFZjdU9hcHZGLWQwdi1ST296bElNbWFZZlEtd3dHRzJLWmJNSVdzaUVRZnBLSWhhVDFNZFdrZXlvTTFiMUU1eDdBWGdfY3A0V2c4ck11ZlV1N2M1aHRqd0VnU0ZJYU84OGVKdUtBNkJucEJwUXZ0X0J4cmc?oc=5",
+          "relevant": false,
+          "business": null,
+          "function": null,
+          "rationale": "Resumen de nombramientos de personas.",
+          "predicted": false,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "c3f016f9-2a35-40e4-8894-09a165513701",
+          "stratum": "no_digital / sin_extracto",
+          "title": "Why Central Ohio companies turn to First Commonwealth Bank for more than banking",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxQVFZPaWMtcDdtTDVMUk82cW82SElJRWpMY1NnV0FWaGkxUDlYMTBYU2lqLVpUOE9oZV9vS09kb1pCbWE4ck8wbnN3ZlgyaTl3UTNmVVNEbjNfVmM0OVI1ZXJjZ2Vac2RFOEd0NGZLS0VHalI4aFNOeVpKdXdjSjQ0MnNFZkVCaTBwY2dlamhLcW9YWks5N0NQWFhCTXFSZw?oc=5",
+          "relevant": false,
+          "business": true,
+          "function": null,
+          "rationale": "Artículo explicativo sobre relaciones empresariales con un banco.",
+          "predicted": false,
+          "businessPredicted": false,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "d501e8e0-0afb-4f1b-8386-d71a6a992e84",
+          "stratum": "no_digital / sin_extracto",
+          "title": "HDFC Bank shares climb 0.84% as Q2 results loom; sellers still dominate",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxONWRydlhHRDhYNEsybFppdmJCT256UEZOUlRRLVc3ODRRanhaX0xBdjJPVjNMR2dfMzU1ZDBqSkNWNkQwMGt0cVRYOExTOUVOOWZrTXpNdWRKOFpGa0RFMFRwTUs1RTVVaHFwWmRvOUxzb2VhRGhlRk1tdEhiMW5Zc2gtSGNUZVh3QkZPYWJhUDhIcEFuUXp4bmJidGxNa3ZGWG9mSVQxX1RYNkJTT2NQUEprYWVhZURXdWRlOGFZOHg2bGRETnV3ZmV6LXlSZjN3aTNuTXRVVjPSAd8BQVVfeXFMTkpOSFA5ZXJ3cEtLWlZYT2dyRXFDZm9mUC1YQXA0a3NlNU04SW1XbFVkaDk5UmlfM0dKN0hnczdnMTJvOW0yTWpsdzhtOG1UQlR3Y1BFWldvVnJHdFhJbjRYR3BsRG9WQmNNT3lvSmxpT3h2bDhoUmxrUmhWRUt2eVIwUF9FbGVsQUd5Sm1FeU5LcU5rWkhUT2UzNHZTVVJWZWk1d0xhd3ZhRUMwclBXdjMxN254Q0Vta1JRNE5WZlZaUW5DZDJtaWFMSVYxUUFnbGw3MU9qbWw3VnBqUlZfaw?oc=5",
+          "relevant": false,
+          "business": null,
+          "function": null,
+          "rationale": "Cotización bursátil y resultados trimestrales.",
+          "predicted": false,
+          "businessPredicted": false,
+          "functions": [],
+          "state": "no registrado"
+        },
+        {
+          "id": "c000788b-26ca-4cc1-a178-c7234407f4cf",
+          "stratum": "no_digital / sin_extracto",
+          "title": "Millennium BCP faz provisões de 40,6 milhões para créditos na Polónia",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQa2VIY01MZmotU1pvSEd6RHF0ZE0wU2Y2MHZZdGVaU1cwbFM0eTNvWnVXMEM4b2Nyb2ttRDR1aENwMWk3M2V6SUUzYzRiMXN4dXh5Y1JCLUVVUkVKQVdWMks1UmpYTHl3cUo5Yld6Rm1NeWVBbF9wYjZyRjZNeVhZaTNtQlo1NmEyUnl5OXZIQk51ZUx3NmtUZUFsM3Q0eEo2ckRlQ3d4TnE4RkE4a01LLUNxYmJnUGNR?oc=5",
+          "relevant": false,
+          "business": null,
+          "function": null,
+          "rationale": "Provisiones contables de una cartera crediticia; no es una funcionalidad de canal.",
+          "predicted": false,
+          "businessPredicted": false,
+          "functions": [],
+          "state": "no registrado"
+        }
+      ]
+    },
+    "current": {
+      "evaluable": 22,
+      "tp": 9,
+      "fp": 0,
+      "fn": 0,
+      "tn": 13,
+      "precision": 1,
+      "recall": 1,
+      "segmentErrors": 1,
+      "segmentTotal": 16,
+      "functionCorrect": 2,
+      "functionTotal": 2,
+      "abstentions": 4,
+      "rows": [
+        {
+          "id": "6e7628b2-9e4b-42d3-9399-066589aeff03",
+          "stratum": "digital / extracto",
+          "title": "BBVA participa en una iniciativa de Swift para facilitar los pagos internacionales con el número de móvil o email",
+          "excerpt": "La entidad participa en una nueva iniciativa internacional para permitir que familiares y amigos envíen dinero entre países utilizando identificadores sencillos, como un número de teléfono o una dirección de correo electrónico. El proyecto busca conectar sistemas de pagos domésticos como Bizum en España, PayID en Australia, Pix en Brasil o UPI en India a través de la red global de Swift. Esta iniciativa da un paso más al poner el foco en la sencillez para el usuario: no solo hacer que el dinero llegue más rápido, sino también facilitar la forma de enviarlo.",
+          "url": "https://www.bbva.com/es/empresas/bbva-participa-en-una-iniciativa-de-swift-para-facilitar-los-pagos-internacionales-con-el-numero-de-movil-o-email/",
+          "relevant": false,
+          "business": false,
+          "function": null,
+          "rationale": "El extracto describe remesas entre familiares y amigos.",
+          "predicted": false,
+          "businessPredicted": false,
+          "functions": [
+            "03.13"
+          ],
+          "state": "no relevante"
+        },
+        {
+          "id": "200b9328-a884-4fd2-9112-e2597ad7a286",
+          "stratum": "digital / extracto",
+          "title": "Why global workers are driving demand for stablecoin payouts",
+          "excerpt": "Platforms like DoorDash, Meta, and Deel already enable stablecoin payouts for global workers. We surveyed 2,300 workers in 20 countries to see what's driving stablecoin demand, where the opportunity is highest, and how other platforms can adapt.",
+          "url": "https://stripe.com/blog/why-global-workers-are-driving-demand-for-stablecoin-payouts",
+          "relevant": false,
+          "business": true,
+          "function": null,
+          "rationale": "Encuesta y análisis de demanda; no acredita un lanzamiento.",
+          "predicted": false,
+          "businessPredicted": false,
+          "functions": [],
+          "state": "no relevante"
+        },
+        {
+          "id": "72ef4ee7-16dd-4af4-9555-494096a5a764",
+          "stratum": "digital / extracto",
+          "title": "El trader algorítmico: cómo la IA redefine la mesa de tesorería",
+          "excerpt": "El bullicio de las salas de mercados ha dado paso a la precisión del dato. Hoy, las mesas de tesorería operan como centros de alta tecnología donde procesar información en milisegundos marca la diferencia. En BBVA, la inteligencia artificial actúa como un potenciador del talento humano: los equipos se apoyan en modelos avanzados para analizar volúmenes masivos de datos, optimizar precios y agilizar la ejecución. La máquina asume el cálculo en tiempo real, permitiendo al profesional concentrarse en su verdadero valor: el juicio estratégico y el control.",
+          "url": "https://www.bbva.com/es/empresas/el-trader-algoritmico-como-la-ia-redefine-la-mesa-de-tesoreria/",
+          "relevant": false,
+          "business": true,
+          "function": null,
+          "rationale": "Artículo explicativo sobre trading; no acredita cambio de canal.",
+          "predicted": false,
+          "businessPredicted": true,
+          "functions": [
+            "12.07"
+          ],
+          "state": "no relevante"
+        },
+        {
+          "id": "244b6137-5890-4ea9-a6dc-a2288d7618a0",
+          "stratum": "digital / extracto",
+          "title": "Vivid chooses Wise Platform for international SME payments",
+          "excerpt": "As demand for cross-border payments surges among its European small and medium-sized businesses (SMEs), Vivid, one of Europe's fastest-growing digital business financial platforms, has selected Wise Platform, Wise’s global payments infrastructure for banks and enterprises, to launch fast, transparent and seamless international payments for its business customers.",
+          "url": "https://www.finextra.com/pressarticle/111248/vivid-chooses-wise-platform-for-international-sme-payments",
+          "relevant": true,
+          "business": true,
+          "function": "03.13",
+          "rationale": "Integración y lanzamiento explícitos de pagos internacionales para pymes.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [
+            "03.13"
+          ],
+          "state": "relevante"
+        },
+        {
+          "id": "43210697-d781-45b0-b089-b8a4a417da4e",
+          "stratum": "digital / extracto",
+          "title": "Stripe and Plasma team on multi-currency stablecoin cards",
+          "excerpt": "Stripe and Plasma today announced a collaboration to launch multi-currency stablecoin cards, making it easier for people and businesses to spend across currencies and markets.",
+          "url": "https://www.finextra.com/pressarticle/111319/stripe-and-plasma-team-on-multi-currency-stablecoin-cards",
+          "relevant": true,
+          "business": true,
+          "function": null,
+          "rationale": "Anuncio de colaboración para tarjetas stablecoin con uso empresarial explícito.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "relevante"
+        },
+        {
+          "id": "c78c2a35-1a19-45d4-87d0-7a8fe6b67f73",
+          "stratum": "digital / extracto",
+          "title": "OUSD is now the default stablecoin on Stripe",
+          "excerpt": "Open USD (OUSD), a stablecoin built for global money movement, is now available across Stripe. Businesses can use OUSD to manage funds, make payments, and offer new financial services.",
+          "url": "https://stripe.com/blog/ousd-now-live-on-stripe",
+          "relevant": true,
+          "business": true,
+          "function": null,
+          "rationale": "Disponibilidad de stablecoin para empresas que gestionan fondos y pagos.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "relevante"
+        },
+        {
+          "id": "66ba4ffe-6e1a-4574-80e0-04e0042d6b09",
+          "stratum": "digital / extracto",
+          "title": "BBVA México y San Pedro Garza García acuerdan impulsar el financiamiento y la digitalización de las empresas locales",
+          "excerpt": "BBVA México y el Municipio de San Pedro Garza García firmaron un convenio de colaboración para facilitar a las empresas locales el acceso a financiamiento, servicios bancarios y herramientas digitales que contribuyan a fortalecer su operación y capacidad de crecimiento.",
+          "url": "https://www.bbva.com/es/mx/bbva-mexico-y-san-pedro-garza-garcia-acuerdan-impulsar-el-financiamiento-y-la-digitalizacion-de-las-empresas-locales/",
+          "relevant": null,
+          "business": true,
+          "function": null,
+          "rationale": "Convenio de financiación y digitalización sin detalle suficiente del canal.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "relevante"
+        },
+        {
+          "id": "8eb22292-51f0-4566-97e1-27a890a8d8e0",
+          "stratum": "digital / extracto",
+          "title": "Symphony by Wix connects to Stripe's Link digital wallet",
+          "excerpt": "Wix.com Ltd. (NASDAQ: WIX), today announced that Symphony by Wix, the standalone multi-agent system for small and medium-sized businesses and solopreneurs, now connects to Link, Stripe’s digital wallet.",
+          "url": "https://www.finextra.com/pressarticle/111293/symphony-by-wix-connects-to-stripes-link-digital-wallet",
+          "relevant": true,
+          "business": true,
+          "function": null,
+          "rationale": "Nueva integración de wallet con plataforma para pequeñas empresas.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "relevante"
+        },
+        {
+          "id": "bbaf7d49-c0c7-4eba-97ee-d67d40ebe626",
+          "stratum": "digital / extracto",
+          "title": "BBVA lanza ‘Cobro al Toque’ para facilitar el acceso de soluciones de cobro a las Pymes",
+          "excerpt": "BBVA lanza ‘Cobro al Toque’, una solución que permite convertir un smartphone en un punto de venta móvil y recibir pagos sin necesidad de contar con un POS físico. Basada en el modelo Tap to Phone, está dirigida a emprendedores, trabajadores independientes y pequeños negocios que buscan ampliar las alternativas para recibir pagos de manera sencilla.",
+          "url": "https://www.bbva.com/es/pe/empresas/bbva-lanza-cobro-al-toque-para-facilitar-el-acceso-de-soluciones-de-cobro-a-las-pymes/",
+          "relevant": true,
+          "business": true,
+          "function": null,
+          "rationale": "Lanzamiento explícito de cobro móvil para pymes.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "relevante"
+        },
+        {
+          "id": "0abb00b4-aac6-4d72-954c-70b10f383dd8",
+          "stratum": "digital / extracto",
+          "title": "BBVA joins Meta-backed Personal Agent Protocol initiative",
+          "excerpt": "BBVA has become the first European bank to join the Personal Agent Protocol (Poppy) initiative to help develop a common protocol that enables secure interactions between artificial intelligence (AI) agents and businesses.",
+          "url": "https://www.finextra.com/pressarticle/111261/bbva-joins-meta-backed-personal-agent-protocol-initiative",
+          "relevant": null,
+          "business": null,
+          "function": null,
+          "rationale": "Protocolo de agentes sin alcance empresarial acreditado en el texto disponible.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "relevante"
+        },
+        {
+          "id": "e1663034-ebda-4592-a68e-0d4624399414",
+          "stratum": "digital / sin_extracto",
+          "title": "Business News | 99% of Indian Entrepreneurs Are Reshaping Their Businesses for AI: HSBC Report",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxQei10WWxUUDFkbjJxNTdKNy1QV01aWlJkbXc0Zk5ldTFHRzVnQUs5VVNCdnU3bnZrX1N4Nl83ZkZTZ1FIOTVpdkxxa1JwTlFJSkp1NUNfUjFuRWJoNVNrNFhhU1U0QVpSUXMxZnBRNjdaOEZjUV80OVhKeG43aWQ0OXhiYlg3bE9BNm04dVg4QmU0TWkzdWdSdVJsSTAxVTd0WGhjWE9EbVVSUmlLVGhkUmkwUDJKcEdZQ3Q3aEF4LUhIeXg5YnhCaHpVaGZJenBPYUNLczJod9IB3AFBVV95cUxQakxlZXAzY2Q5eWNWWjVIaE9PclhpUldFMGtXN1MtZTJwU052TWFDT0ppOVNJb2t6aW9OR2VySDZqc1gtRUtWMEtEYjBjR2I0N0pvZlBHbThraUh5LUhvb2pPS3RPMFhSZndhVFNZM2liYWpFazVaY1JDczhZVGd5VGdHVm9CaTZzWEFqQ0tEWmJxWS1iaGVZWnBmUXlhbXFBZGM5N3Y4MmxoWG9VekJSRk05MWhBSmhWN0Nfc1JXR0tfS05YQnhmVDhWTjRfVjhDdDhNZTFlTmF5MWVT?oc=5",
+          "relevant": false,
+          "business": true,
+          "function": null,
+          "rationale": "Informe sobre adopción de IA; no acredita novedad de canal bancario.",
+          "predicted": false,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no relevante"
+        },
+        {
+          "id": "3fcec6a1-e94f-4157-a66a-6001bc6f9524",
+          "stratum": "digital / sin_extracto",
+          "title": "Stripe cierra acuerdo de más de US$7.000 millones para comprar la empresa de IA OpenRouter",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxQRk9NUzFiRG1Wa2NCbHlPSnE5c0pXRnlncUlybkFNOF9ZMFFDNWZMLW1vWVJTb1lTUGFjdWRTZUFRZU9LWE5PekhieEVLQ1IzSWFHT3RDeFJGT3Rid3FvcXM5Y1V3cC1TYmpfX3ptVzg2WlhjZWtZLWowQUpjekZuSUdCbWw3aGpSbnF5eFlsNFowNjkyWXREWWlxV2RZUmsxakJFMWdyT1V0dnZXNFEtdURJaHlwZlhZQVVVZHVJRGhlLTBUXy1yemtFQVgzWWtyZkItdVln?oc=5",
+          "relevant": false,
+          "business": null,
+          "function": null,
+          "rationale": "Adquisición corporativa; no acredita novedad de canal.",
+          "predicted": false,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no relevante"
+        },
+        {
+          "id": "cbf18fa2-4b76-454d-a556-a4b108db7c84",
+          "stratum": "digital / sin_extracto",
+          "title": "Maybank launches upgraded Maybank2E platform to strengthen regional business banking",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxQYlQ3STU1UzVkdkpodXVDS0p4Vno4XzlBRjB5bFp1S19HTnUtQ2MtU0cyVGsxVW9rei1hcklkcjJZdUpFa2ZyVzY1NTlpQWtndHJTdEZkYXhvQ3kxb2VSS0xreVlmdGJnVHZ3Y25pWW8wUTdIckFyMEZtVExYa1JPOTVRelZvVE5IbEVteENKZFFCckNlcHFXNjlkT1gtcnhQNHc4TUQteUJoMlB4elUtUVN4UnF2QUpnQzNlNmFld9IBxAFBVV95cUxOcjlmTHFyWnhsLXJiLTRYNUY2V21wd0MzUFBXbWZfYVlPcF9Hc0pma1FvZWZqU3hwazBmNTZwMWZ4VWlELXVwYXVvZkliTlhKajFvRlhNWkx0cmd5dHdhbU5uWTlTT0pDdTljZVVkb1h6bDROMG9KVEN4WlJNSE50ak1WVEFta3hCRXMxUXpkUTNUSmd0Q0hJT3lhNG13eUdzLV9WQUtMbHhGeERWaFFkcmhtSWptR0ROQU56dER2eTFUQ2FC?oc=5",
+          "relevant": true,
+          "business": true,
+          "function": null,
+          "rationale": "Mejora explícita de plataforma de banca empresarial.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "relevante"
+        },
+        {
+          "id": "10ef765e-0ca2-4f1d-8cee-ac7dd6f71982",
+          "stratum": "digital / sin_extracto",
+          "title": "Revolut partners Akahu on open banking credit cards",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxOajhDTWVhNVNVME5zX3RvbFJDMlllZWVDT0s5eFJSbnN4UWd5LV9OeS1GMTFYUVVOMjU0aTF0QVg5ajdXbWZCM21WRWw5WWwyUGFObm03cWZWRzF0dzVRRzdxNUkzNUxRRFIxSHFIeF9FSGVOdEsxZFQ3cmhYdDFyWFJWMm9wdw?oc=5",
+          "relevant": null,
+          "business": null,
+          "function": null,
+          "rationale": "Tarjetas de crédito sin segmento acreditado en el titular.",
+          "predicted": true,
+          "businessPredicted": false,
+          "functions": [
+            "17.16"
+          ],
+          "state": "relevante"
+        },
+        {
+          "id": "38b25c85-a482-45df-a311-bcf8d3bb973d",
+          "stratum": "digital / sin_extracto",
+          "title": "ATP incorpora Mercado Pago para facilitar el pago de impuestos provinciales",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNQVNybjVHd2dHaWlSVUZZWFcxaGFIUXBzMTJseHBVSFdVX3JPWjVtYUR6b3VOb3hPNHVTYlNlQXI4QzNxbWxNYTdsVDl6OXNXMm9HVm9TV1NQY3NVVTVTcEN0TXJ1anM4QzRQZ08tUWt2UFFTcnhsN1hKVnNWa3VMVEpQR2FfVjlwVW11bUJ0MWo0SEFmQkl6ZF8wMWd1Y3pzUzMyaTVYVUQ4MmdU?oc=5",
+          "relevant": null,
+          "business": null,
+          "function": null,
+          "rationale": "Pago de impuestos provinciales: falta contexto del segmento y canal.",
+          "predicted": true,
+          "businessPredicted": false,
+          "functions": [
+            "05.23"
+          ],
+          "state": "relevante"
+        },
+        {
+          "id": "e614500f-f55d-4e60-8d5d-cf2359e34afb",
+          "stratum": "digital / sin_extracto",
+          "title": "Stablecoin Payments: Inside Citi & Coinbase’s New Checkout",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTE5rSk9DVEoyU1YxV0tsbU8wMHpmX2hhNk8xTkw0aHROaG1oWkVwUThSdGZqWnAxcW1KaTdBbVlrV013bEVORWlQSWt0TjVZZlZlenhpWkF1dkUxNmY3U212OTU0dGFpa2RueS1CYlMtTzloRTVUMnpnNmtueWxER2c?oc=5",
+          "relevant": true,
+          "business": null,
+          "function": null,
+          "rationale": "Nuevo checkout de pagos con stablecoins, infraestructura compartida.",
+          "predicted": true,
+          "businessPredicted": false,
+          "functions": [],
+          "state": "relevante"
+        },
+        {
+          "id": "e7c287b4-c6c2-43e3-af47-2db42da3cfb5",
+          "stratum": "digital / sin_extracto",
+          "title": "Nam A Bank partners with JPMorgan Chase: Enhancing international payment capabilities and import-export trade financing",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMi6AFBVV95cUxPMmlWUExaamIteFkwSlcyaGFCVFZQNTBfdE10aEVMWm9zRkJTOUpHU3ZLN1l2dzdXSkJxQWc1V2JHbmplWW5BWWR1bHd2YTBuT2xIU09PYm5Rci16SW81MkY5Ull3a2RuR0hkUG15MkNHMUVzckJ6REYtSnpnVHdkeWZ3LU1fS3BVa2tkckVRYU1VQnR5ckFWLVA0SEpJX3RxUzBSNVMzc3h2QjFxNldOTG94V1J6WUdybmYxZFU5ZUpFb2M3YU4zai1UNXh3aFN5T08xSER3NXItU3otTC15S2NyenlEYnBf?oc=5",
+          "relevant": true,
+          "business": true,
+          "function": null,
+          "rationale": "Alianza para pagos internacionales y financiación del comercio exterior.",
+          "predicted": true,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "relevante"
+        },
+        {
+          "id": "56616a18-bb3a-4387-a3b7-6d60fbe73742",
+          "stratum": "digital / sin_extracto",
+          "title": "Bank of America to roll out new real-time cross-border payments solution",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQUlhxdFphb1lzRXhQWndXZkFMWGFxMFVxTVZXVmg4eHRoWGc4Z0d4bDllVG9BVEs3R0lMR3c2a3p2RWV3MXhHcHhVOFRsTzIwU0R1ZzZHcFRCRmdpTzBZa2NTb1cxZ2N2RHQ3MVhfMmQwRW54Y3UyODhDVXBGU254Sy1TNWJ0MF9uTmJTNUx1a2plZTJ5WVk2Y0VCblRpWjVWLVFJUnlLcVZld1ZxS1dybnBqemRDeUR1cjVvY29zbFFFYmVtWEdmZ2h3?oc=5",
+          "relevant": true,
+          "business": null,
+          "function": "03.13",
+          "rationale": "Despliegue de solución de pagos transfronterizos en tiempo real.",
+          "predicted": true,
+          "businessPredicted": false,
+          "functions": [
+            "03.13"
+          ],
+          "state": "relevante"
+        },
+        {
+          "id": "cce1f14e-7536-47aa-8eab-0d36bbc522a2",
+          "stratum": "no_digital / extracto",
+          "title": "New trends in global card fraud: How 3D Secure and regional mandates are affecting risk",
+          "excerpt": "We analyzed billions of transactions on Stripe from January 2022 to March 2026 to understand how card fraud patterns differ by region and country, what's driving those differences, and how businesses can respond.",
+          "url": "https://stripe.com/blog/new-trends-in-global-card-fraud-how-3d-secure-and-regional-mandates-are-affecting-risk",
+          "relevant": false,
+          "business": true,
+          "function": null,
+          "rationale": "Análisis de patrones de fraude en transacciones históricas, sin anuncio de producto.",
+          "predicted": false,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no relevante"
+        },
+        {
+          "id": "ff112b3d-3d7e-4da5-a9e4-a96e97263ea3",
+          "stratum": "no_digital / extracto",
+          "title": "Nubank appoints Circle's Sarah Wilson chief legal officer",
+          "excerpt": "Nubank, the largest digital bank in Latin America, today announced the appointment of Sarah Wilson as Chief Legal Officer (CLO), effective September 28th.",
+          "url": "https://www.finextra.com/pressarticle/110952/nubank-appoints-circles--sarah-wilson-chief-legal-officer",
+          "relevant": false,
+          "business": null,
+          "function": null,
+          "rationale": "Nombramiento de una directora jurídica.",
+          "predicted": false,
+          "businessPredicted": false,
+          "functions": [],
+          "state": "no relevante"
+        },
+        {
+          "id": "32a9173e-7b70-426c-9aeb-4c4ca4bccb58",
+          "stratum": "no_digital / extracto",
+          "title": "SaaS platforms are surging despite the SaaSpocalypse",
+          "excerpt": "The SaaSpocalypse was a useful warning for the software industry, but SaaS platforms that help businesses run core operations are more deeply embedded. New platform businesses on Stripe are up 182% year over year.",
+          "url": "https://stripe.com/blog/saas-platforms-are-surging-despite-the-saaspocalypse",
+          "relevant": false,
+          "business": true,
+          "function": null,
+          "rationale": "Análisis de la evolución de plataformas SaaS; no describe cambio bancario de canal.",
+          "predicted": false,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "indeterminado"
+        },
+        {
+          "id": "92b44d09-887d-4995-814b-a1838c9e0c65",
+          "stratum": "no_digital / extracto",
+          "title": "¿Qué es VERI*FACTU y cómo afecta a empresas y autónomos?",
+          "excerpt": "VERI*FACTU es una modalidad de los sistemas informáticos de facturación que permite remitir automáticamente a la Agencia Tributaria los registros de facturación. El nuevo marco exige que estos sistemas garanticen, entre otros requisitos, la integridad, trazabilidad e inalterabilidad de los registros.",
+          "url": "https://www.bbva.com/es/es/empresas/como-funciona-el-sistema-verifactu-y-como-va-a-afectar-a-empresas-y-autonomos/",
+          "relevant": false,
+          "business": true,
+          "function": null,
+          "rationale": "Artículo educativo sobre una obligación de facturación.",
+          "predicted": false,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no relevante"
+        },
+        {
+          "id": "9900ef58-c09e-4145-af38-3ec388f120eb",
+          "stratum": "no_digital / sin_extracto",
+          "title": "People Moves: Nambawan Super, PNG Business Coalition for Women, ANZ PNG, Internal Revenue Commission",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxOWk16U20tQ1R6MWtBekpsOGhrZW9GRFl6VFJST2EzZWFobDM1UDV4azdYU0Q1djdRdjVlaUo1VHhGLUFKTzRDaDdjbHVfY3dYNlNOdDB1ckUzY0FqRFZjdU9hcHZGLWQwdi1ST296bElNbWFZZlEtd3dHRzJLWmJNSVdzaUVRZnBLSWhhVDFNZFdrZXlvTTFiMUU1eDdBWGdfY3A0V2c4ck11ZlV1N2M1aHRqd0VnU0ZJYU84OGVKdUtBNkJucEJwUXZ0X0J4cmc?oc=5",
+          "relevant": false,
+          "business": null,
+          "function": null,
+          "rationale": "Resumen de nombramientos de personas.",
+          "predicted": false,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "indeterminado"
+        },
+        {
+          "id": "c3f016f9-2a35-40e4-8894-09a165513701",
+          "stratum": "no_digital / sin_extracto",
+          "title": "Why Central Ohio companies turn to First Commonwealth Bank for more than banking",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxQVFZPaWMtcDdtTDVMUk82cW82SElJRWpMY1NnV0FWaGkxUDlYMTBYU2lqLVpUOE9oZV9vS09kb1pCbWE4ck8wbnN3ZlgyaTl3UTNmVVNEbjNfVmM0OVI1ZXJjZ2Vac2RFOEd0NGZLS0VHalI4aFNOeVpKdXdjSjQ0MnNFZkVCaTBwY2dlamhLcW9YWks5N0NQWFhCTXFSZw?oc=5",
+          "relevant": false,
+          "business": true,
+          "function": null,
+          "rationale": "Artículo explicativo sobre relaciones empresariales con un banco.",
+          "predicted": false,
+          "businessPredicted": true,
+          "functions": [],
+          "state": "no relevante"
+        },
+        {
+          "id": "d501e8e0-0afb-4f1b-8386-d71a6a992e84",
+          "stratum": "no_digital / sin_extracto",
+          "title": "HDFC Bank shares climb 0.84% as Q2 results loom; sellers still dominate",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxONWRydlhHRDhYNEsybFppdmJCT256UEZOUlRRLVc3ODRRanhaX0xBdjJPVjNMR2dfMzU1ZDBqSkNWNkQwMGt0cVRYOExTOUVOOWZrTXpNdWRKOFpGa0RFMFRwTUs1RTVVaHFwWmRvOUxzb2VhRGhlRk1tdEhiMW5Zc2gtSGNUZVh3QkZPYWJhUDhIcEFuUXp4bmJidGxNa3ZGWG9mSVQxX1RYNkJTT2NQUEprYWVhZURXdWRlOGFZOHg2bGRETnV3ZmV6LXlSZjN3aTNuTXRVVjPSAd8BQVVfeXFMTkpOSFA5ZXJ3cEtLWlZYT2dyRXFDZm9mUC1YQXA0a3NlNU04SW1XbFVkaDk5UmlfM0dKN0hnczdnMTJvOW0yTWpsdzhtOG1UQlR3Y1BFWldvVnJHdFhJbjRYR3BsRG9WQmNNT3lvSmxpT3h2bDhoUmxrUmhWRUt2eVIwUF9FbGVsQUd5Sm1FeU5LcU5rWkhUT2UzNHZTVVJWZWk1d0xhd3ZhRUMwclBXdjMxN254Q0Vta1JRNE5WZlZaUW5DZDJtaWFMSVYxUUFnbGw3MU9qbWw3VnBqUlZfaw?oc=5",
+          "relevant": false,
+          "business": null,
+          "function": null,
+          "rationale": "Cotización bursátil y resultados trimestrales.",
+          "predicted": false,
+          "businessPredicted": false,
+          "functions": [],
+          "state": "indeterminado"
+        },
+        {
+          "id": "c000788b-26ca-4cc1-a178-c7234407f4cf",
+          "stratum": "no_digital / sin_extracto",
+          "title": "Millennium BCP faz provisões de 40,6 milhões para créditos na Polónia",
+          "excerpt": "",
+          "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQa2VIY01MZmotU1pvSEd6RHF0ZE0wU2Y2MHZZdGVaU1cwbFM0eTNvWnVXMEM4b2Nyb2ttRDR1aENwMWk3M2V6SUUzYzRiMXN4dXh5Y1JCLUVVUkVKQVdWMks1UmpYTHl3cUo5Yld6Rm1NeWVBbF9wYjZyRjZNeVhZaTNtQlo1NmEyUnl5OXZIQk51ZUx3NmtUZUFsM3Q0eEo2ckRlQ3d4TnE4RkE4a01LLUNxYmJnUGNR?oc=5",
+          "relevant": false,
+          "business": null,
+          "function": null,
+          "rationale": "Provisiones contables de una cartera crediticia; no es una funcionalidad de canal.",
+          "predicted": false,
+          "businessPredicted": false,
+          "functions": [],
+          "state": "indeterminado"
+        }
+      ]
+    }
+  },
+  "catalogue": {
+    "blocks": 22,
+    "functions": 322,
+    "missingDescriptionsBefore": 18,
+    "missingDescriptionsAfter": 0
+  },
+  "pairedLocalPerformance": {
+    "environment": "Node 24.1.0; adaptador Sheets en memoria; 50.000 filas canónicas idénticas para ambos lectores; orden alternado; 4 repeticiones por versión, con GC explícito. Mediana y p95 por rango más próximo: con n=4, p95 equivale al máximo. No mide latencia de Apps Script, CPU real ni cuotas de red.",
+    "scenarios": {
+      "radar cold": {
+        "baseline": {
+          "n": 4,
+          "p50Ms": 411.6,
+          "p95Ms": 426.6,
+          "sheetReads": [
+            3
+          ],
+          "medianRetainedHeapBytes": 7092472.0,
+          "totals": [
+            3835
+          ]
+        },
+        "current": {
+          "n": 4,
+          "p50Ms": 289.75,
+          "p95Ms": 297.8,
+          "sheetReads": [
+            3
+          ],
+          "medianRetainedHeapBytes": 3791960.0,
+          "totals": [
+            3835
+          ]
+        }
+      },
+      "briefing cold": {
+        "baseline": {
+          "n": 4,
+          "p50Ms": 170.05,
+          "p95Ms": 177.1,
+          "sheetReads": [
+            0
+          ],
+          "medianRetainedHeapBytes": 270420.0,
+          "totals": [
+            3835
+          ]
+        },
+        "current": {
+          "n": 4,
+          "p50Ms": 160.45,
+          "p95Ms": 169.3,
+          "sheetReads": [
+            0
+          ],
+          "medianRetainedHeapBytes": 136628.0,
+          "totals": [
+            3835
+          ]
+        }
+      },
+      "news cold": {
+        "baseline": {
+          "n": 4,
+          "p50Ms": 154.15,
+          "p95Ms": 158.2,
+          "sheetReads": [
+            0
+          ],
+          "medianRetainedHeapBytes": 17624.0,
+          "totals": [
+            3835
+          ]
+        },
+        "current": {
+          "n": 4,
+          "p50Ms": 150.8,
+          "p95Ms": 153.7,
+          "sheetReads": [
+            0
+          ],
+          "medianRetainedHeapBytes": 29320.0,
+          "totals": [
+            3835
+          ]
+        }
+      },
+      "news next page": {
+        "baseline": {
+          "n": 4,
+          "p50Ms": 2.25,
+          "p95Ms": 2.8,
+          "sheetReads": [
+            1
+          ],
+          "medianRetainedHeapBytes": 1280.0,
+          "totals": [
+            3835
+          ]
+        },
+        "current": {
+          "n": 4,
+          "p50Ms": 1.4,
+          "p95Ms": 1.5,
+          "sheetReads": [
+            1
+          ],
+          "medianRetainedHeapBytes": 20636.0,
+          "totals": [
+            3835
+          ]
+        }
+      },
+      "news cache hit": {
+        "baseline": {
+          "n": 4,
+          "p50Ms": 0.3,
+          "p95Ms": 0.3,
+          "sheetReads": [
+            0
+          ],
+          "medianRetainedHeapBytes": 26400.0,
+          "totals": [
+            3835
+          ]
+        },
+        "current": {
+          "n": 4,
+          "p50Ms": 0.3,
+          "p95Ms": 0.3,
+          "sheetReads": [
+            0
+          ],
+          "medianRetainedHeapBytes": -5528.0,
+          "totals": [
+            3835
+          ]
+        }
+      },
+      "old period": {
+        "baseline": {
+          "n": 4,
+          "p50Ms": 25.8,
+          "p95Ms": 28.3,
+          "sheetReads": [
+            1
+          ],
+          "medianRetainedHeapBytes": 454036.0,
+          "totals": [
+            274
+          ]
+        },
+        "current": {
+          "n": 4,
+          "p50Ms": 19.15,
+          "p95Ms": 20.3,
+          "sheetReads": [
+            1
+          ],
+          "medianRetainedHeapBytes": 256444.0,
+          "totals": [
+            274
+          ]
+        }
+      },
+      "full history": {
+        "baseline": {
+          "n": 4,
+          "p50Ms": 3771.6000000000004,
+          "p95Ms": 3782.4,
+          "sheetReads": [
+            25
+          ],
+          "medianRetainedHeapBytes": 7154080.0,
+          "totals": [
+            50000
+          ]
+        },
+        "current": {
+          "n": 4,
+          "p50Ms": 2769.95,
+          "p95Ms": 2838.9,
+          "sheetReads": [
+            25
+          ],
+          "medianRetainedHeapBytes": 7150608.0,
+          "totals": [
+            50000
+          ]
+        }
+      }
+    },
+    "raw": [
+      {
+        "version": "baseline",
+        "baseline": "c32af357e270c4fb25167bfce7a6e06749376ad2",
+        "count": 50000,
+        "sample": 1,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 426.6,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 7348592
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 177.1,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 352232
+          },
+          {
+            "scenario": "news cold",
+            "ms": 158.2,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 73432
+          },
+          {
+            "scenario": "news next page",
+            "ms": 2.3,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 26432
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 28600
+          },
+          {
+            "scenario": "old period",
+            "ms": 26,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 448888
+          },
+          {
+            "scenario": "full history",
+            "ms": 3782.4,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 7148000
+          }
+        ]
+      },
+      {
+        "version": "current",
+        "baseline": "c32af357e270c4fb25167bfce7a6e06749376ad2",
+        "count": 50000,
+        "sample": 1,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 297.8,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 3995832
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 169.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 225832
+          },
+          {
+            "scenario": "news cold",
+            "ms": 153.7,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 45528
+          },
+          {
+            "scenario": "news next page",
+            "ms": 1.5,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 26280
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.2,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": -8328
+          },
+          {
+            "scenario": "old period",
+            "ms": 19.2,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 260616
+          },
+          {
+            "scenario": "full history",
+            "ms": 2801.2,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 7140952
+          }
+        ]
+      },
+      {
+        "version": "current",
+        "baseline": "c32af357e270c4fb25167bfce7a6e06749376ad2",
+        "count": 50000,
+        "sample": 2,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 289.7,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 3792632
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 159.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 115656
+          },
+          {
+            "scenario": "news cold",
+            "ms": 151.6,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 29416
+          },
+          {
+            "scenario": "news next page",
+            "ms": 1.5,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 19824
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": -5392
+          },
+          {
+            "scenario": "old period",
+            "ms": 20.3,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 256432
+          },
+          {
+            "scenario": "full history",
+            "ms": 2838.9,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 7160264
+          }
+        ]
+      },
+      {
+        "version": "baseline",
+        "baseline": "c32af357e270c4fb25167bfce7a6e06749376ad2",
+        "count": 50000,
+        "sample": 2,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 410.7,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 7093656
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 169,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 270792
+          },
+          {
+            "scenario": "news cold",
+            "ms": 154,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 16984
+          },
+          {
+            "scenario": "news next page",
+            "ms": 2.8,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": -632
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 31136
+          },
+          {
+            "scenario": "old period",
+            "ms": 25.6,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 457744
+          },
+          {
+            "scenario": "full history",
+            "ms": 3779.9,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 7160240
+          }
+        ]
+      },
+      {
+        "version": "baseline",
+        "baseline": "c32af357e270c4fb25167bfce7a6e06749376ad2",
+        "count": 50000,
+        "sample": 3,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 412.5,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 7091048
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 169.6,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 270048
+          },
+          {
+            "scenario": "news cold",
+            "ms": 153.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 18264
+          },
+          {
+            "scenario": "news next page",
+            "ms": 2.2,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 1032
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 24200
+          },
+          {
+            "scenario": "old period",
+            "ms": 25.5,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 454024
+          },
+          {
+            "scenario": "full history",
+            "ms": 3758.2,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 6220168
+          }
+        ]
+      },
+      {
+        "version": "current",
+        "baseline": "c32af357e270c4fb25167bfce7a6e06749376ad2",
+        "count": 50000,
+        "sample": 3,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 289.8,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 3790552
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 161.6,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 157600
+          },
+          {
+            "scenario": "news cold",
+            "ms": 150,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 29224
+          },
+          {
+            "scenario": "news next page",
+            "ms": 1.3,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 19808
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": -5104
+          },
+          {
+            "scenario": "old period",
+            "ms": 19.1,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 255768
+          },
+          {
+            "scenario": "full history",
+            "ms": 2728.4,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 7161040
+          }
+        ]
+      },
+      {
+        "version": "current",
+        "baseline": "c32af357e270c4fb25167bfce7a6e06749376ad2",
+        "count": 50000,
+        "sample": 4,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 285.5,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 3791288
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 156.4,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 114400
+          },
+          {
+            "scenario": "news cold",
+            "ms": 148.1,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 8320
+          },
+          {
+            "scenario": "news next page",
+            "ms": 1.3,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 21448
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": -5664
+          },
+          {
+            "scenario": "old period",
+            "ms": 19.1,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 256456
+          },
+          {
+            "scenario": "full history",
+            "ms": 2738.7,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 7139968
+          }
+        ]
+      },
+      {
+        "version": "baseline",
+        "baseline": "c32af357e270c4fb25167bfce7a6e06749376ad2",
+        "count": 50000,
+        "sample": 4,
+        "runs": [
+          {
+            "scenario": "radar cold",
+            "ms": 409.1,
+            "sheetReads": 3,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 7091288
+          },
+          {
+            "scenario": "briefing cold",
+            "ms": 170.5,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 269768
+          },
+          {
+            "scenario": "news cold",
+            "ms": 154.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": false,
+            "retainedHeapBytes": 16896
+          },
+          {
+            "scenario": "news next page",
+            "ms": 2.1,
+            "sheetReads": 1,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 1528
+          },
+          {
+            "scenario": "news cache hit",
+            "ms": 0.3,
+            "sheetReads": 0,
+            "total": 3835,
+            "cacheHit": true,
+            "retainedHeapBytes": 24200
+          },
+          {
+            "scenario": "old period",
+            "ms": 28.3,
+            "sheetReads": 1,
+            "total": 274,
+            "cacheHit": false,
+            "retainedHeapBytes": 454048
+          },
+          {
+            "scenario": "full history",
+            "ms": 3763.3,
+            "sheetReads": 25,
+            "total": 50000,
+            "cacheHit": false,
+            "retainedHeapBytes": 7160160
+          }
+        ]
+      }
+    ]
+  },
+  "historicalTelemetry": {
+    "source": "output/relevance-recovery/live-telemetry.json",
+    "rows": 6837,
+    "from": "2026-10-09T09:41:36.588Z",
+    "to": "2026-10-16T07:23:05.958Z",
+    "scope": "Observaciones históricas anteriores a la auditoría, versión v3.1.0 en las últimas filas. Sin comparación con la versión nueva en producción. Solo estado OK.",
+    "operations": {
+      "dashboard": {
+        "n": 875,
+        "p50Ms": 6238.0,
+        "p95Ms": 16131.0
+      },
+      "recopilacion": {
+        "n": 2132,
+        "p50Ms": 5164.5,
+        "p95Ms": 16560.0
+      },
+      "clasificacion": {
+        "n": 578,
+        "p50Ms": 402.0,
+        "p95Ms": 3328.0
+      },
+      "taxonomia": {
+        "n": 581,
+        "p50Ms": 842.0,
+        "p95Ms": 3453.0
+      }
+    }
+  },
+  "migrationLocal": {
+    "scope": "Ensayo local en memoria; no escribe Google Sheets ni despliega Apps Script.",
+    "inputSha256": "7dafe6b0f369465bdeb5d7f830cd4e283c0de7d40d59d1b1e410c74e62629464",
+    "inputRows": 8638,
+    "outputRows": 8638,
+    "identityDigestBefore": "5476ac0eb207adc04c3eb051f17442b251bff102672ad0133f40b037b967bf33",
+    "identityDigestAfter": "5476ac0eb207adc04c3eb051f17442b251bff102672ad0133f40b037b967bf33",
+    "dryRun": {
+      "batches": 88,
+      "ms": 3854,
+      "job": {
+        "id": "5",
+        "dryRun": true,
+        "state": "Prueba completada",
+        "phase": "complete",
+        "source": "Noticias",
+        "target": "Noticias_gen_5",
+        "backup": "Noticias_backup_5",
+        "candidateBackup": "Candidatos_backup_5",
+        "next": 8640,
+        "candidateNext": 2,
+        "total": 8638,
+        "candidateTotal": 0,
+        "revision": "f492f818f2dd97443539eb5941030394af8647ee0b808fff7fc62399cc08242b",
+        "taxonomy": "6f8114d02dce44048abd5b827f804c767a330b84e0dea6b00ae2a65f27b60517",
+        "candidateRevision": "0",
+        "corpus": "1792316133987-9irfqxukkkp",
+        "digest": "31b3a15b695eb1fbe4451650a4cb0ba4dd1c696c3b30d0d06091630f74d218a0",
+        "classified": 8638,
+        "invalid": 0,
+        "recovered": 0,
+        "started": "2026-10-18T09:35:34.014Z",
+        "pausedUntil": 0,
+        "updated": "2026-10-18T09:35:37.869Z",
+        "error": ""
+      }
+    },
+    "promotedInMemory": {
+      "batches": 91,
+      "ms": 4613,
+      "job": {
+        "id": "7",
+        "dryRun": false,
+        "state": "Completada",
+        "phase": "complete",
+        "source": "Noticias",
+        "target": "Noticias_gen_7",
+        "backup": "Noticias_backup_7",
+        "candidateBackup": "Candidatos_backup_7",
+        "next": 8640,
+        "candidateNext": 2,
+        "total": 8638,
+        "candidateTotal": 0,
+        "revision": "f492f818f2dd97443539eb5941030394af8647ee0b808fff7fc62399cc08242b",
+        "taxonomy": "6f8114d02dce44048abd5b827f804c767a330b84e0dea6b00ae2a65f27b60517",
+        "candidateRevision": "0",
+        "corpus": "1792316133987-9irfqxukkkp",
+        "digest": "31b3a15b695eb1fbe4451650a4cb0ba4dd1c696c3b30d0d06091630f74d218a0",
+        "classified": 8638,
+        "invalid": 0,
+        "recovered": 0,
+        "started": "2026-10-18T09:35:37.907Z",
+        "pausedUntil": 0,
+        "updated": "2026-10-18T09:35:42.520Z",
+        "error": "",
+        "published": "2026-10-18T09:35:42.520Z"
+      }
+    },
+    "states": {
+      "relevante": 313,
+      "no relevante": 1320,
+      "indeterminado": 7005
+    },
+    "snapshotsComplete": true,
+    "snapshots": {
+      "briefing": {
+        "revision": "b63868d7c2f0ba6822e3020643a1ac9d64c2770d2e5d4c943570b7f5f047ac83",
+        "generation": "11",
+        "slot": 0,
+        "first": 2,
+        "parts": 4,
+        "digest": "231ba93561503c7358f3e1ee14590c0ab3d8ecbdf499e8fb2e7827ce34f006ac",
+        "generated": "2026-10-18T09:35:42.029Z",
+        "period": {
+          "from": "2026-10-01",
+          "to": "2026-10-15"
+        },
+        "periodFallback": true
+      },
+      "news": {
+        "revision": "4b92ffdaf745e3eed53bce0caa050abf74af5f2938063d009bca9120dbbb6778",
+        "generation": "13",
+        "slot": 0,
+        "first": 130,
+        "parts": 20,
+        "digest": "d3d2bb74ea0547bc672dead66a2fb96e077a7bc5797c82fa204afd9f11f838f2",
+        "generated": "2026-10-18T09:35:42.398Z",
+        "period": {
+          "from": "2026-10-01",
+          "to": "2026-12-31"
+        },
+        "periodFallback": false
+      },
+      "radar": {
+        "revision": "db7a0589302c151632a738b0b8c99f46e638c428eb4bfa0dbe8a74b9f24f37b9",
+        "generation": "15",
+        "slot": 0,
+        "first": 258,
+        "parts": 2,
+        "digest": "47981498cf2a00e7f02f8db1d69e64a3bacc8497ff4aa5f941abec0dc6ab1313",
+        "generated": "2026-10-18T09:35:42.516Z",
+        "period": {
+          "from": "2026-01-01",
+          "to": "2026-12-31"
+        },
+        "periodFallback": false
+      }
+    }
+  },
+  "denominators": {
+    "auditNonemptyRows": 8835,
+    "auditPreviouslyValidArticles": 8832,
+    "auditEvents": 127267,
+    "localHistoricalRows": 8638,
+    "localUniqueIds": 8638,
+    "reconciliation": "El ZIP no contiene las filas originales de Noticias. La copia local es anterior y distinta; no permite identificar las tres filas discrepantes. No se interpretan los eventos de exclusión como artículos únicos ni como falsos negativos."
+  },
+  "deployment": {
+    "promoted": false,
+    "productionMigrationExecuted": false,
+    "productionBackupVerified": false,
+    "productionLatencyMeasured": false,
+    "productionSmokeTestsExecuted": false,
+    "reason": "clasp show-authorized-user --json confirma loggedIn=false; el checkout no tiene .clasp.json. No se han ejecutado backup, migración, promoción ni smoke tests de producción.",
+    "claspAuthorization": {
+      "loggedIn": false
+    }
+  },
+  "pending": [
+    "Revisión humana independiente: el golden set contiene juicios semánticos de Codex y no estima precisión/recall poblacionales.",
+    "Validar backup, migración, rollback, frescura de snapshots y smoke tests de Noticias, Novedades, Radar y newsletter en el despliegue autorizado.",
+    "No hay texto original para los 220 eventos excluidos de la muestra ni para descartes anteriores no conservados.",
+    "Enriquecimiento añadido: metadatos RSS description y content:encoded, con fallback al titular. No se añade scraping externo ni un timeout HTTP configurable a UrlFetchApp; se conservan límites y reintentos de la recuperación existente."
+  ],
+  "verification": {
+    "baselineTests": 525,
+    "final": "pendiente de npm run verify"
+  },
+  "attachments": {
+    "NewsRadar_Auditoria_Evidencias_20261018.zip": "596914aa6ba4cc35b3e0dd23f1ca914590cb981e73d2a947b0c4abb8d08aae96",
+    "CODEX_NewsRadar_Refactor_Ingesta_Catalogacion.md": "55dbd5bf23d982ef7f25a0a73d6b05102fdb35576417b85cdae250307b0a8886"
+  },
+  "affectedFiles": [
+    "README.md",
+    "assets/configuration-defaults.json",
+    "assets/functional-catalogue.json",
+    "assets/vocabulary-update.json",
+    "dist/Background.gs",
+    "dist/Candidates.gs",
+    "dist/Classification.gs",
+    "dist/Client.html",
+    "dist/Collection.gs",
+    "dist/Config.gs",
+    "dist/Configuration.gs",
+    "dist/DashboardCache.gs",
+    "dist/DashboardSnapshots.gs",
+    "dist/Defaults.gs",
+    "dist/Feeds.gs",
+    "dist/FunctionalCatalog.gs",
+    "dist/Index.html",
+    "dist/IngestionMigration.gs",
+    "dist/Jobs.gs",
+    "dist/Locales.gs",
+    "dist/Maintenance.gs",
+    "dist/News.gs",
+    "dist/Reading.gs",
+    "dist/Rules.gs",
+    "dist/Selection.gs",
+    "dist/SnapshotJobs.gs",
+    "dist/Store.gs",
+    "dist/Taxonomy.gs",
+    "dist/TaxonomyJobs.gs",
+    "dist/TaxonomyTranslations.gs",
+    "dist/TranslationJobs.gs",
+    "docs/ingestion-refactor-20261018.json",
+    "scripts/benchmark-ingestion.mjs",
+    "scripts/benchmark-news.mjs",
+    "scripts/compare-collection.mjs",
+    "scripts/validate-ingestion-migration.mjs",
+    "src/client/features/taxonomy.js",
+    "src/server/briefing/Reading.gs",
+    "src/server/collection/Background.gs",
+    "src/server/collection/Candidates.gs",
+    "src/server/collection/Collection.gs",
+    "src/server/collection/Jobs.gs",
+    "src/server/config/Config.gs",
+    "src/server/config/Configuration.gs",
+    "src/server/metrics/Maintenance.gs",
+    "src/server/news/Classification.gs",
+    "src/server/news/DashboardCache.gs",
+    "src/server/news/DashboardSnapshots.gs",
+    "src/server/news/Feeds.gs",
+    "src/server/news/FunctionalCatalog.gs",
+    "src/server/news/IngestionMigration.gs",
+    "src/server/news/News.gs",
+    "src/server/news/Rules.gs",
+    "src/server/news/Selection.gs",
+    "src/server/news/SnapshotJobs.gs",
+    "src/server/news/TaxonomyJobs.gs",
+    "src/server/news/TaxonomyTranslations.gs",
+    "src/server/news/TranslationJobs.gs",
+    "src/server/storage/Store.gs",
+    "src/shared/locales.js",
+    "src/shared/taxonomy.js",
+    "tests/business-quality.test.mjs",
+    "tests/capabilities.test.mjs",
+    "tests/catalogue-refinements.test.mjs",
+    "tests/classification-jobs.test.mjs",
+    "tests/collection-jobs.test.mjs",
+    "tests/configuration.test.mjs",
+    "tests/dashboard-snapshots.test.mjs",
+    "tests/digital-classification.test.mjs",
+    "tests/fixtures/ingestion-golden.json",
+    "tests/functional-catalog.test.mjs",
+    "tests/helpers/canonical-fixtures.mjs",
+    "tests/helpers/server.mjs",
+    "tests/ingestion-generations.test.mjs",
+    "tests/iteration-6.test.mjs",
+    "tests/iteration-7.test.mjs",
+    "tests/locales.test.mjs",
+    "tests/mail.test.mjs",
+    "tests/news-deduplication.test.mjs",
+    "tests/news-history.test.mjs",
+    "tests/newsletter-comparison.test.mjs",
+    "tests/newsletter-layout.test.mjs",
+    "tests/newsletter-wow.test.mjs",
+    "tests/pipeline-priority.test.mjs",
+    "tests/pr46-regressions.test.mjs",
+    "tests/radar.test.mjs",
+    "tests/reading-intelligence.test.mjs",
+    "tests/source-geography-translated-duplicates.test.mjs",
+    "tests/taxonomy-translations.test.mjs",
+    "tests/taxonomy.test.mjs",
+    "tests/translations.test.mjs"
+  ],
+  "implementation": [
+    "Candidatos y cobertura acotados, deduplicados y trazables; metadatos RSS sin LLM.",
+    "Clasificación canónica persistida con segmento, canal, evento, relevancia, evidencia y revisión.",
+    "Catálogo existente con 18 descripciones completadas y hasta tres asignaciones con evidencia independiente.",
+    "Descubrimiento sobre todo el histórico y candidatos; catálogo, asignaciones y mantenimiento aislados hasta publicar.",
+    "Manifiesto único para corpus, catálogo y snapshots de Noticias, Novedades y Radar; verificación, conservación y reintentos.",
+    "Migración por lotes con prueba previa obligatoria, checkpoint, backups verificados y rollback.",
+    "Eliminada la lectura con recálculo de señales/relevancia/geografía y el recorrido empresarial paralelo para descubrimiento."
+  ]
+}

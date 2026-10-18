@@ -11,7 +11,7 @@ function getDashboard(query) {
   const metadataStarted=Date.now(),runs=dashboardRuns_(),metadata=dashboardMetadata_();
   const response={...content.data,
     ...(edition?{feedback:newsletterFeedback_(edition.id,session.email)}:{}),context:edition?{mode:'edition',id:edition.id,title:edition.title,editorial:edition.editorial,commentLimit:NEWSLETTER_EDITORIAL.commentChars,from:edition.query.from,to:edition.query.to,count:edition.items.length,language:edition.language}:{mode:'current',periodFallback},...metadata,taxonomyTranslations:edition?edition.names:metadata.taxonomyTranslations,initial,selection:query||{},defaults:dashboardQuery_({view,initial:true}),geographies:edition?.editorial?.geographies||metadata.geographies,applicationScope:edition?.editorial?.scope||metadata.applicationScope,
-    configurationRevision:configurationRevision_(),lastRun:runs.at(-1)?.fin||runs.at(-1)?.inicio||'',collection:collectionStatus_(),newsRevision:properties_().getProperty('NEWS_REVISION')||'0',sourceCount:feeds.length,daily:dailyScheduleStatus_(),admin:session.admin,
+    configurationRevision:configurationRevision_(),lastRun:runs.at(-1)?.fin||runs.at(-1)?.inicio||'',collection:collectionStatus_(),newsRevision:publishedNewsRevision_(),sourceCount:feeds.length,daily:dailyScheduleStatus_(),admin:session.admin,
     ...(session.admin?dashboardAdministration_():{})};
   return {...response,performance:{version:RADAR.version,serverMs:Date.now()-started,preparationMs,metadataMs:Date.now()-metadataStarted,newsMs,cacheHit:content.cacheHit,snapshotHit:Boolean(content.snapshotHit)}};
 }
@@ -56,10 +56,10 @@ function dashboardRuns_(){
 }
 
 function getRuns(query={}){authorize_(true);const records=administrativeRecords_('Ejecuciones',query,['estado','id'],['estado','errores','id'],'inicio'),jobs=new Map(collectionJobs_().map(job=>[job.id,job]));return {...records,collection:collectionStatus_(),classification:getClassificationStatus(),items:records.items.map(row=>({...row,tipo:jobs.get(row.id)?.tipo||'',desde:jobs.get(row.id)?.desde||'',hasta:jobs.get(row.id)?.hasta||''}))};}
-function getCollectionProgress(){authorize_();return {collection:collectionStatus_(),newsRevision:properties_().getProperty('NEWS_REVISION')||'0'};}
+function getCollectionProgress(){authorize_();return {collection:collectionStatus_(),newsRevision:publishedNewsRevision_()};}
 
 function dashboardMetadata_(){
-  const key='dashboard-metadata:'+RADAR.version+':'+sha256_(JSON.stringify([configurationRevision_(),properties_().getProperty('TAXONOMY_REVISION')||'0',properties_().getProperty('TAXONOMY_TRANSLATIONS_REVISION')||'0'])),cache=CacheService.getScriptCache(),cached=readDashboardCache_(cache,key);
+  const key='dashboard-metadata:'+taxonomyStorageKey_()+':'+RADAR.version+':'+sha256_(JSON.stringify([configurationRevision_(),properties_().getProperty('TAXONOMY_REVISION')||'0',properties_().getProperty('TAXONOMY_TRANSLATIONS_REVISION')||'0'])),cache=CacheService.getScriptCache(),cached=readDashboardCache_(cache,key);
   if(cached)return cached;
   const config=configuration_(),value={taxonomyTranslations:taxonomyTranslations_(),geographies:config.geographies,applicationScope:config.applicationScope,preferences:{timezone:config.settings.timezone,retentionDays:config.settings.retentionDays,eventLimit:config.settings.eventLimit,unknownCountry:config.settings.unknownCountry,dailyLabel:collectionScheduleLabel_()}};
   writeDashboardCache_(cache,key,value);return value;
@@ -71,7 +71,7 @@ function dashboardArticleFields_(data){
 }
 
 function dashboardCacheKey_(selection,view,language,edition=null){
-  return 'dashboard-fragments:'+RADAR.version+':'+sha256_(JSON.stringify([NEWS_CACHE.schema,configurationRevision_(),edition?edition.id:properties_().getProperty('NEWS_RECORDS_REVISION')||'0',view,selection,Object.keys(languageNames).map(code=>properties_().getProperty('TRANSLATIONS_REVISION:'+code)||'0'),language]));
+  return 'dashboard-fragments:'+newsStorageKey_()+':'+taxonomyStorageKey_()+':'+RADAR.version+':'+sha256_(JSON.stringify([NEWS_CACHE.schema,configurationRevision_(),edition?[edition.id,newsletterArchiveKey_()]:properties_().getProperty('NEWS_RECORDS_REVISION')||'0',view,selection,Object.keys(languageNames).map(code=>properties_().getProperty('TRANSLATIONS_REVISION:'+code)||'0'),language]));
 }
 
 function dashboardCatalogOptions_(data,feeds){

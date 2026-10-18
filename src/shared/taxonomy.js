@@ -1,5 +1,5 @@
 // Sparse statistics and bounded evidence; article bodies are never retained.
-export const TAXONOMY_POLICY=Object.freeze({version:'3.6.0',batchRows:100,maxMs:10000,maxCandidates:600,maxEmergingPerLever:3,minEmergingDocuments:3,minEmergingSources:2,maxTerms:24,checkpointRows:20,checkpointChars:40000,maxOverlapLinks:32,overlapContainment:.8,overlapSizeRatio:.5});
+export const TAXONOMY_POLICY=Object.freeze({version:'3.7.0',batchRows:100,maxMs:10000,maxCandidates:600,maxEmergingPerLever:3,minEmergingDocuments:3,minEmergingSources:2,maxTerms:24,checkpointRows:20,checkpointChars:40000,maxAssignments:3,maxOverlapLinks:32,overlapContainment:.8,overlapSizeRatio:.5});
 const definitionIndexes=new WeakMap(),taxonomyDefinitionMemory=new WeakMap(),rankingIndexes=new WeakMap();
 export function taxonomyText(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ı/g,'i');}
 const words=value=>taxonomyText(value).match(/[a-z][a-z0-9]+/g)||[];
@@ -40,7 +40,7 @@ function rankingIndex(definitions){
  index={weights,phrases,canonical,labels,contexts,norms,idf,blocks:new Map(definitions.filter(row=>!row.subpalanca).map(row=>[row.palanca,row]))};rankingIndexes.set(definitions,index);return index;
 }
 export function taxonomyDecision(text,definitions,headline=''){
- const index=rankingIndex(definitions),title=taxonomyText(headline),tokens=new Set(words(text).map(rankingWord)),titleWords=new Set(words(title).map(rankingWord));let best,second;
+ const index=rankingIndex(definitions),title=taxonomyText(headline),tokens=new Set(words(text).map(rankingWord)),titleWords=new Set(words(title).map(rankingWord));let best,second;const ranked=[];
  for(const row of definitions){
   if(!row.subpalanca)continue;
   if(row.context?.length&&!taxonomyTermCounts(text,row.context).size||row.exclude?.length&&taxonomyTermCounts(text,row.exclude).size)continue;
@@ -56,11 +56,22 @@ export function taxonomyDecision(text,definitions,headline=''){
   }
   const block=index.blocks.get(row.palanca);if(block&&taxonomyTermCounts(text,block.terms).size)score*=1.25;
   const evidence={terms:[...(titleCounts.size?titleCounts.keys():counts.size?counts.keys():shared)].slice(0,3),location:titleCounts.size?'headline':'text',method:counts.size?'literal':'description'},candidate={row,count,score,evidence};
+  ranked.push(candidate);
   if(!best||score>best.score||score===best.score&&row.subpalanca.localeCompare(best.row.subpalanca,'es')<0){second=best;best=candidate;}else if(!second||score>second.score)second=candidate;
  }
  const distinct=second&&best.row.subpalanca.replace(/^\d{2}\.(?:\d{2}|xx)[. ]*/, '')!==second.row.subpalanca.replace(/^\d{2}\.(?:\d{2}|xx)[. ]*/, '');
  const ambiguous=best?.evidence.method==='description'&&distinct&&second.score>=best.score*.85;
- return {matches:best&&!ambiguous?[best]:[],reason:ambiguous?'ambiguous':best?'matched':'insufficient'};
+ const matches=best&&!ambiguous?[best]:[];
+ if(matches.length){
+  const used=new Set(best.evidence.terms),ordered=ranked.filter(row=>row!==best).sort((a,b)=>b.score-a.score||a.row.subpalanca.localeCompare(b.row.subpalanca,'es'));
+  for(const candidate of ordered){
+   if(matches.length>=TAXONOMY_POLICY.maxAssignments)break;
+   const independent=candidate.evidence.method==='literal'&&candidate.score>=best.score*.35&&candidate.evidence.terms.some(term=>words(term).length>=2&&![...used].some(previous=>previous.includes(term)||term.includes(previous)));
+   if(!independent)continue;
+   matches.push(candidate);for(const term of candidate.evidence.terms)used.add(term);
+  }
+ }
+ return {matches,reason:ambiguous?'ambiguous':best?'matched':'insufficient'};
 }
 export function taxonomyMatches(text,definitions,headline=''){return taxonomyDecision(text,definitions,headline).matches;}
 export function taxonomyObserve(state,text,definitions,excludedWords,evidence='',options={}){

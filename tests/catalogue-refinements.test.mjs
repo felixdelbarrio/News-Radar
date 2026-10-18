@@ -13,7 +13,7 @@ test('la evidencia específica del titular produce una única pareja, incluso an
  assert.equal(taxonomyMatches('sin evidencia funcional',definitions).length,0);
 });
 test('cada nombre y código del catálogo conserva su identidad original en español',()=>{
- const s=storage(),c=s.c;c.initializeConfiguration();c.startTaxonomy();for(let i=0;i<5&&c.taxonomyPending_();i++)c.taxonomyBatch_();
+ const s=storage(),c=s.c;c.initializeConfiguration();c.startTaxonomy();for(let i=0;i<10&&c.taxonomyPending_();i++){if(c.taxonomyJob_().state==='Publicando')c.dashboardSnapshotBatch_();else c.taxonomyBatch_();}
  const names=c.taxonomyTranslations_().es;for(const block of config.taxonomy){assert.equal(names[block.name],block.name);for(const row of block.functions)assert.equal(names[row.id+'.'+row.name],row.id+'.'+row.name);}
  assert.equal(c.taxonomyLanguage_('es',{'16.Security Experience & Onboarding':'Seguridad'})('16.Security Experience & Onboarding'),'16.Security Experience & Onboarding');
 });

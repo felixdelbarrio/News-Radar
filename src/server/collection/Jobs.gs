@@ -47,6 +47,7 @@ function collectionSnapshots_(tasks,jobs,now=new Date()){
   for(const job of jobs){
     const count=counters.get(job.id);if(!count)continue;
     Object.assign(job,count,{estado:count.pendientes?(Number(job.pausa)>now.getTime()?'En pausa':'Pendiente'):count.fallidas?'Parcial':'Completada',fin:count.pendientes?'':job.fin||now.toISOString()});
+    if(!count.pendientes&&dashboardSnapshotsPending_()){job.estado='Publicando';job.fin='';requestDashboardSnapshots_(true);}
   }
   return jobs;
 }
