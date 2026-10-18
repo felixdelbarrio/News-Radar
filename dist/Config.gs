@@ -1,5 +1,5 @@
 const RADAR = Object.freeze({
-  version:'3.7.0',
+  version:'3.7.1',
   sheets:{
     Candidatos:['id','fecha','pais','entidad','titular','extracto','url','fuente','idioma','capturada','estado','motivo','procedencia','clasificacion'],
     Cobertura:['ejecucion','fecha','fuente','pais','desde','hasta','evaluadas','dentro','saturada','particiones','estado','error'],
