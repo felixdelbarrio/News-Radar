@@ -108,7 +108,7 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
       }
       state.candidateNext=next+read;writeTaxonomyCheckpoint_(job,state);job.documents=state.documents;job.candidatesProcessed=state.candidateNext-2;job.processed=job.total+job.candidatesProcessed;if(state.candidateNext>job.candidateTotal+1)job.phase='publish';
     }else if(job.phase==='publish'){
-      migrationSheet_(job.modelTarget,RADAR.sheets.Taxonomia);taxonomySheetOverride_=job.modelTarget;try{job.model=publishTaxonomy_(taxonomyCheckpoint_(job));}finally{taxonomySheetOverride_=undefined;}
+      generationSheet_(job.modelTarget,RADAR.sheets.Taxonomia);taxonomySheetOverride_=job.modelTarget;try{job.model=publishTaxonomy_(taxonomyCheckpoint_(job));}finally{taxonomySheetOverride_=undefined;}
       if(!book_().getSheetByName(job.target))newsSheet_().copyTo(book_()).setName(job.target);job.changed=job.model!==properties_().getProperty('TAXONOMY_APPLIED_MODEL')||job.rules!==properties_().getProperty('TAXONOMY_APPLIED_RULES');job.phase='tag';job.next=2;job.cursor=null;
     }else{
       taxonomySheetOverride_=job.modelTarget;let items;try{items=taxonomyCatalog_();}finally{taxonomySheetOverride_=undefined;}const rows=newsWorkRows_(job,TAXONOMY_POLICY.batchRows),updates=[];let next=job.next,cursor=job.cursor;

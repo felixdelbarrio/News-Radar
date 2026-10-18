@@ -37,20 +37,20 @@ function dashboardSnapshotLanguages_(data,view){
 // The worker holds the script lock. Publish the manifest last, using the inactive slot.
 function dashboardSnapshotBatch_(){
   try{
-  const migration=ingestionMigrationJob_(),job=migration?.phase==='snapshots'&&migration.state!=='Completada'&&migration.state!=='Cancelada'?migration:[classificationJob_(),taxonomyJob_(),maintenanceJob_()].find(job=>job?.state==='Publicando'&&job.target);
+  const job=[classificationJob_(),taxonomyJob_(),maintenanceJob_()].find(job=>job?.state==='Publicando'&&job.target);
   if(!job)return buildDashboardSnapshotBatch_();
   newsSheetOverride_=job.target;taxonomySheetOverride_=job.modelTarget;
   try{return buildDashboardSnapshotBatch_(job);}finally{newsSheetOverride_=undefined;taxonomySheetOverride_=undefined;}
   }catch(error){recordSnapshotFailure_(error);throw error;}
 }
 
-function buildDashboardSnapshotBatch_(migration=null){
+function buildDashboardSnapshotBatch_(job=null){
   const p=properties_().getProperties(),now=new Date(),signature=sha256_(JSON.stringify(DASHBOARD_SNAPSHOTS.views.map(view=>dashboardSnapshotRevision_(view,now,p))));
   let build=JSON.parse(p.DASHBOARD_SNAPSHOT_BUILD||'null');
   if(!build||build.signature!==signature)build={signature,manifests:{}};
-  if(!migration&&!dashboardSnapshotsPending_()){completeSnapshotJobs_();clearDashboardSnapshotRequest_();return false;}
+  if(!job&&!dashboardSnapshotsPending_()){completeSnapshotJobs_();clearDashboardSnapshotRequest_();return false;}
   const view=DASHBOARD_SNAPSHOTS.views.find(view=>!build.manifests[view]);
-  if(!view)return publishDashboardSnapshotSet_(build,migration);
+  if(!view)return publishDashboardSnapshotSet_(build,job);
   const started=Date.now(),revision=dashboardSnapshotRevision_(view),feeds=feeds_();let query=dashboardQuery_({view,initial:true}),rows=cachedNewsRecords_(query),data=dashboardSnapshotData_(rows,query,feeds,view),periodFallback=false;
   if((view==='briefing'?data.briefing.total:data.contextTotal)===0){query={...query,...dashboardPeriod_(view,new Date(),true)};rows=cachedNewsRecords_(query);data=dashboardSnapshotData_(rows,query,feeds,view);periodFallback=true;}
   const variants={'':dashboardSnapshotLanguages_(data,view)};
@@ -64,20 +64,19 @@ function buildDashboardSnapshotBatch_(migration=null){
   sheet.getRange(first,1,parts,4).setNumberFormat('@').setValues(Array.from({length:parts},(_,index)=>[view,generation,String(index),encoded.slice(index*DASHBOARD_SNAPSHOTS.chars,(index+1)*DASHBOARD_SNAPSHOTS.chars)]));SpreadsheetApp.flush();
   build.manifests[view]={revision,generation,slot,first,parts,digest:sha256_(encoded),generated:new Date().toISOString(),period,periodFallback};
   properties_().setProperty('DASHBOARD_SNAPSHOT_BUILD',JSON.stringify(build));
+  writeDashboardCache_(CacheService.getScriptCache(),'dashboard-snapshot:'+revision+':es:',{data:variants[''].es,period,periodFallback});
   telemetry_('dashboard-snapshot',Date.now()-started,'OK',view+'; '+period.from+' — '+period.to+'; anterior '+periodFallback+'; variantes '+Object.keys(variants).length+'; comprimido '+encoded.length+' caracteres');
-  if(DASHBOARD_SNAPSHOTS.views.every(view=>build.manifests[view]))publishDashboardSnapshotSet_(build,migration);return true;
+  if(DASHBOARD_SNAPSHOTS.views.every(view=>build.manifests[view]))publishDashboardSnapshotSet_(build,job);return true;
 }
 function clearDashboardSnapshotRequest_(){for(const key of ['DASHBOARD_SNAPSHOT_REQUEST','DASHBOARD_SNAPSHOT_REQUESTED_AT','DASHBOARD_SNAPSHOT_BUILD','DASHBOARD_SNAPSHOT_CORRUPT'])properties_().deleteProperty(key);}
-function publishDashboardSnapshotSet_(build,migration){
-  if(migration?.newsletterVersion!==undefined&&migration.newsletterVersion!==newsletterArchiveVersion_())throw Error('El archivo de newsletters ha cambiado; repite la prueba.');
+function publishDashboardSnapshotSet_(build,job){
   const signature=sha256_(JSON.stringify(DASHBOARD_SNAPSHOTS.views.map(view=>dashboardSnapshotRevision_(view))));
   if(build.signature!==signature)return true;
   for(const view of DASHBOARD_SNAPSHOTS.views)try{verifyDashboardSnapshot_(view,build.manifests[view]);}catch(error){delete build.manifests[view];properties_().setProperty('DASHBOARD_SNAPSHOT_BUILD',JSON.stringify(build));throw error;}
-  const previous=dataGeneration_(),generation={...previous,newsSheet:migration?.target||previous.newsSheet||'Noticias',...(migration?.modelTarget?{taxonomySheet:migration.modelTarget}:{}),...(migration?.newsletterTargets?{newsletterTables:migration.newsletterTargets}:{}),snapshots:build.manifests,revision:build.signature,published:new Date().toISOString()};
+  const previous=dataGeneration_(),generation={...previous,newsSheet:job?.target||previous.newsSheet||'Noticias',...(job?.modelTarget?{taxonomySheet:job.modelTarget}:{}),snapshots:build.manifests,revision:build.signature,published:new Date().toISOString()};
   // All view manifests and the historical corpus switch together. The previous slots remain intact.
-  if(migration&&previous.snapshots)savePreviousDataGeneration_(previous);
+  if(job&&previous.snapshots)savePreviousDataGeneration_(previous);
   properties_().setProperty('DATA_GENERATION',JSON.stringify(generation));dataGenerationMemory_=generation;
-  if(migration?.backup){migration.state='Completada';migration.phase='complete';migration.published=generation.published;writeIngestionMigrationJob_(migration);}
   clearDashboardSnapshotRequest_();completeSnapshotJobs_();return true;
 }
 function rebuildDashboardSnapshots(){authorize_(true);return withForegroundWrite_(()=>{properties_().setProperty('DASHBOARD_SNAPSHOT_CORRUPT','true');requestDashboardSnapshots_(true);return 'Snapshots de Novedades, Noticias y Radar en cola.';});}
@@ -90,11 +89,11 @@ function verifyDashboardSnapshot_(view,manifest){
   if(rows.some(([name,generation,part],index)=>name!==view||generation!==manifest.generation||Number(part)!==index)||sha256_(rows.map(row=>row[3]).join(''))!==manifest.digest)throw Error('Snapshot incompleto: '+view);return rows;
 }
 function savePreviousDataGeneration_(generation){
-  const sheet=migrationSheet_('DashboardSnapshotBackup',RADAR.sheets.DashboardSnapshots),snapshots={};let first=2;
-  for(const view of DASHBOARD_SNAPSHOTS.views){const manifest=generation.snapshots[view],rows=verifyDashboardSnapshot_(view,manifest);verifiedMigrationWrite_(sheet,first,rows);snapshots[view]={...manifest,sheet:'DashboardSnapshotBackup',first};first+=rows.length;}
+  const sheet=generationSheet_('DashboardSnapshotBackup',RADAR.sheets.DashboardSnapshots),snapshots={};let first=2;
+  for(const view of DASHBOARD_SNAPSHOTS.views){const manifest=generation.snapshots[view],rows=verifyDashboardSnapshot_(view,manifest);verifiedGenerationWrite_(sheet,first,rows);snapshots[view]={...manifest,sheet:'DashboardSnapshotBackup',first};first+=rows.length;}
   properties_().setProperty('PREVIOUS_DATA_GENERATION',JSON.stringify({...generation,snapshots}));
 }
-function rollbackIngestionGeneration(){
+function rollbackDataGeneration(){
   authorize_(true);return withForegroundWrite_(()=>{
     const raw=properties_().getProperty('PREVIOUS_DATA_GENERATION');if(!raw)throw Error('No hay generación anterior verificada.');
     const previous=JSON.parse(raw);if(!book_().getSheetByName(previous.newsSheet)||Object.values(previous.newsletterTables||{}).some(name=>!book_().getSheetByName(name)))throw Error('Falta el histórico anterior.');
@@ -103,12 +102,3 @@ function rollbackIngestionGeneration(){
   });
 }
 
-// Consume the previous release's manifests once, before its jobs are migrated.
-function adoptDashboardSnapshots_(){
-  if(properties_().getProperty('DATA_GENERATION'))return;
-  const p=properties_(),snapshots={};
-  for(const view of DASHBOARD_SNAPSHOTS.views){const raw=p.getProperty('DASHBOARD_SNAPSHOT:'+view);if(!raw)return;snapshots[view]=JSON.parse(raw);}
-  try{for(const view of DASHBOARD_SNAPSHOTS.views)verifyDashboardSnapshot_(view,snapshots[view]);}catch(error){console.warn(String(error.message));return;}
-  const generation={newsSheet:'Noticias',snapshots,revision:sha256_(JSON.stringify(snapshots)),published:new Date().toISOString()};p.setProperty('DATA_GENERATION',JSON.stringify(generation));dataGenerationMemory_=generation;
-  for(const view of DASHBOARD_SNAPSHOTS.views)p.deleteProperty('DASHBOARD_SNAPSHOT:'+view);
-}

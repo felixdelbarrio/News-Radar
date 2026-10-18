@@ -8,11 +8,10 @@ function getDashboard(query) {
   let content=snapshot?{data:snapshot.data,cacheHit:true,snapshotHit:true}:dashboardContent_(query||{},feeds,view,language,edition);
   if(!snapshot&&canFallback&&!periodFallback&&(view==='briefing'?content.data.briefing.total:content.data.total)===0){query={...query,...dashboardPeriod_(view,new Date(),true)};content=dashboardContent_(query,feeds,view,language);periodFallback=true;}
   const newsMs=Date.now()-contentStarted;
-  const metadataStarted=Date.now(),runs=dashboardRuns_(),metadata=dashboardMetadata_();
+  const metadataStarted=Date.now(),metadata=dashboardMetadata_(),operation=dashboardOperation_(session.admin);
   const response={...content.data,
     ...(edition?{feedback:newsletterFeedback_(edition.id,session.email)}:{}),context:edition?{mode:'edition',id:edition.id,title:edition.title,editorial:edition.editorial,commentLimit:NEWSLETTER_EDITORIAL.commentChars,from:edition.query.from,to:edition.query.to,count:edition.items.length,language:edition.language}:{mode:'current',periodFallback},...metadata,taxonomyTranslations:edition?edition.names:metadata.taxonomyTranslations,initial,selection:query||{},defaults:dashboardQuery_({view,initial:true}),geographies:edition?.editorial?.geographies||metadata.geographies,applicationScope:edition?.editorial?.scope||metadata.applicationScope,
-    configurationRevision:configurationRevision_(),lastRun:runs.at(-1)?.fin||runs.at(-1)?.inicio||'',collection:collectionStatus_(),newsRevision:publishedNewsRevision_(),sourceCount:feeds.length,daily:dailyScheduleStatus_(),admin:session.admin,
-    ...(session.admin?dashboardAdministration_():{})};
+    configurationRevision:configurationRevision_(),...operation,daily:dailyScheduleStatus_(),newsRevision:publishedNewsRevision_(),sourceCount:feeds.length,admin:session.admin};
   return {...response,performance:{version:RADAR.version,serverMs:Date.now()-started,preparationMs,metadataMs:Date.now()-metadataStarted,newsMs,cacheHit:content.cacheHit,snapshotHit:Boolean(content.snapshotHit)}};
 }
 function getAudit(query={}){authorize_(true);return administrativeRecords_('Auditoria',query,['fuente','resultado','ejecucion'],['fuente','resultado','motivo','url','ejecucion']);}
@@ -76,4 +75,10 @@ function dashboardCacheKey_(selection,view,language,edition=null){
 
 function dashboardCatalogOptions_(data,feeds){
   const index=newsRecordIndex_();data.entities=[...new Set([...index.entities.map(entityKey_),...feeds.map(feed=>entityKey_(feed.entity))])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));data.sources=[...new Set(index.sources.map(publisherKey_))].sort((a,b)=>a.localeCompare(b,'es'));
+}
+
+// Volatile status shares the existing 15-second freshness budget; publication revision stays live.
+function dashboardOperation_(admin){
+  const cache=CacheService.getScriptCache(),key='dashboard-operation:'+RADAR.version+':'+configurationRevision_()+':'+admin,cached=cache.get(key);if(cached)return JSON.parse(cached);
+  const runs=dashboardRuns_(),value={lastRun:runs.at(-1)?.fin||runs.at(-1)?.inicio||'',collection:collectionStatus_(),...(admin?dashboardAdministration_():{})};cacheJson_(key,value,15);return value;
 }
