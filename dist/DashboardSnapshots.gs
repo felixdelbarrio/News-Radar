@@ -4,7 +4,9 @@ function dashboardSnapshotRevision_(view,now=new Date(),p=properties_().getPrope
 }
 function dashboardSnapshotManifest_(view){const value=properties_().getProperty('DASHBOARD_SNAPSHOT:'+view);return value?JSON.parse(value):null;}
 function dashboardSnapshotsPending_(){const p=properties_().getProperties(),now=new Date();return DASHBOARD_SNAPSHOTS.views.some(view=>JSON.parse(p['DASHBOARD_SNAPSHOT:'+view]||'null')?.revision!==dashboardSnapshotRevision_(view,now,p));}
-function requestDashboardSnapshots_(ready=false){if(!dashboardSnapshotsPending_())return;const previous=properties_().getProperty('DASHBOARD_SNAPSHOT_REQUEST');if(previous&&(!ready||previous==='ready'))return;properties_().setProperty('DASHBOARD_SNAPSHOT_REQUEST',ready?'ready':'pending');ensureBackgroundWorker_();}
+function dashboardSnapshotsDue_(){const p=properties_().getProperties();return Boolean(p.DASHBOARD_SNAPSHOT_REQUEST&&(p.DASHBOARD_SNAPSHOT_REQUEST==='ready'||Date.now()-Number(p.DASHBOARD_SNAPSHOT_REQUESTED_AT||Date.now())>=DASHBOARD_SNAPSHOTS.refreshMs));}
+function invalidateDashboardSnapshots_(){const p=properties_();if(!p.getProperty('DASHBOARD_SNAPSHOT_REQUEST'))p.setProperty('DASHBOARD_SNAPSHOT_REQUEST','pending');if(!p.getProperty('DASHBOARD_SNAPSHOT_REQUESTED_AT'))p.setProperty('DASHBOARD_SNAPSHOT_REQUESTED_AT',String(Date.now()));}
+function requestDashboardSnapshots_(ready=false){if(!dashboardSnapshotsPending_())return;const previous=properties_().getProperty('DASHBOARD_SNAPSHOT_REQUEST');invalidateDashboardSnapshots_();if(previous&&(!ready||previous==='ready'))return;if(ready)properties_().setProperty('DASHBOARD_SNAPSHOT_REQUEST','ready');ensureBackgroundWorker_();}
 function defaultDashboardSnapshot_(view,query,language){
   if(!DASHBOARD_SNAPSHOTS.views.includes(view))return null;
   const defaults=dashboardQuery_({view,initial:true}),revision=dashboardSnapshotRevision_(view),manifest=dashboardSnapshotManifest_(view);
@@ -35,7 +37,7 @@ function dashboardSnapshotLanguages_(data,view){
 // The worker holds the script lock. Publish the manifest last, using the inactive slot.
 function dashboardSnapshotBatch_(){
   const p=properties_().getProperties(),now=new Date(),view=DASHBOARD_SNAPSHOTS.views.find(view=>JSON.parse(p['DASHBOARD_SNAPSHOT:'+view]||'null')?.revision!==dashboardSnapshotRevision_(view,now,p));
-  if(!view){properties_().deleteProperty('DASHBOARD_SNAPSHOT_REQUEST');return false;}
+  if(!view){properties_().deleteProperty('DASHBOARD_SNAPSHOT_REQUEST');properties_().deleteProperty('DASHBOARD_SNAPSHOT_REQUESTED_AT');return false;}
   const started=Date.now(),revision=dashboardSnapshotRevision_(view),feeds=feeds_();let query=dashboardQuery_({view,initial:true}),rows=cachedNewsRecords_(query),data=dashboardSnapshotData_(rows,query,feeds,view),periodFallback=false;
   if((view==='briefing'?data.briefing.total:data.contextTotal)===0){query={...query,...dashboardPeriod_(view,new Date(),true)};rows=cachedNewsRecords_(query);data=dashboardSnapshotData_(rows,query,feeds,view);periodFallback=true;}
   const variants={'':dashboardSnapshotLanguages_(data,view)};
@@ -49,7 +51,7 @@ function dashboardSnapshotBatch_(){
   sheet.getRange(first,1,parts,4).setNumberFormat('@').setValues(Array.from({length:parts},(_,index)=>[view,generation,String(index),encoded.slice(index*DASHBOARD_SNAPSHOTS.chars,(index+1)*DASHBOARD_SNAPSHOTS.chars)]));SpreadsheetApp.flush();
   properties_().setProperty('DASHBOARD_SNAPSHOT:'+view,JSON.stringify({revision,generation,slot,first,parts,digest:sha256_(encoded),generated:new Date().toISOString(),period,periodFallback}));
   telemetry_('dashboard-snapshot',Date.now()-started,'OK',view+'; '+period.from+' — '+period.to+'; anterior '+periodFallback+'; variantes '+Object.keys(variants).length+'; comprimido '+encoded.length+' caracteres');
-  if(!dashboardSnapshotsPending_())properties_().deleteProperty('DASHBOARD_SNAPSHOT_REQUEST');return true;
+  if(!dashboardSnapshotsPending_()){properties_().deleteProperty('DASHBOARD_SNAPSHOT_REQUEST');properties_().deleteProperty('DASHBOARD_SNAPSHOT_REQUESTED_AT');}return true;
 }
 function rebuildDashboardSnapshots(){authorize_(true);return withForegroundWrite_(()=>{for(const view of DASHBOARD_SNAPSHOTS.views)properties_().deleteProperty('DASHBOARD_SNAPSHOT:'+view);requestDashboardSnapshots_(true);return 'Snapshots de Novedades, Noticias y Radar en cola.';});}
 

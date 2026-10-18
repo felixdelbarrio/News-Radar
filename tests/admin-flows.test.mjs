@@ -14,7 +14,7 @@ test('catálogos preservan cambios al cambiar de categoría y permiten ordenar, 
  await a.click('#catalog-reload');assert.ok(a.calls.filter(r=>r.method==='getConfiguration').length>=3);
 });
 test('fuentes y novedades recorren formularios reales, recuperación y filtros de administración',async t=>{
- const a=await app(t);await a.click('[data-view="briefing"]');assert.match(a.find('#briefing-list').textContent,/BBVA lanza cuenta/);const reads=a.calls.length;await a.click('#briefing-signals .signal-card');assert.equal(a.calls.length,reads);
+ const a=await app(t);await a.click('[data-view="briefing"]');assert.match(a.find('#briefing-list').textContent,/BBVA lanza cuenta/);const reads=a.calls.length;await a.click('#briefing-signals .signal-card');assert.equal(a.calls.length,reads+1);assert.equal(a.calls.at(-1).query.signal,'Lanzamiento de producto');await a.click('[data-view="briefing"]');
  a.data.briefing={total:0,bySignal:[],items:[]};await a.click('[data-view="news"]');await a.click('[data-view="briefing"]');assert.match(a.find('#briefing-list').textContent,/No hay novedades/);
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="sources"]');await a.click('#source-tab-rss');await a.click('#add-source');assert.equal(a.find('#source-fields').children.length,2);await a.click('#add-source');assert.match(a.find('#message').textContent,/Máximo/);
  await a.click('#source-fields .source:last-child .remove-source');await a.submit('#sources-form');assert.equal(a.calls.find(r=>r.method==='saveFeeds').query.length,1);

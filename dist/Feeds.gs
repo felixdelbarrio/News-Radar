@@ -6,7 +6,7 @@ function parseFeed_(xml) {
   return items.map(item=>({title:item.getChildText('title'),url:item.getChildText('link'),date:item.getChildText('pubDate'),excerpt:item.getChildText('description'),source:item.getChildText('source'),language}));
 }
 function newsRecord_(item,feed,now) {
-  const record={id:Utilities.getUuid(),fecha:Utilities.formatDate(item.date,settings_().timezone,'yyyy-MM-dd'),pais:item.country||feed.country,medio:publisherKey_(item.publisher||(feed.kind==='profile'?'':feed.name)),entidad:item.entity||feed.entity,titular:item.title,extracto:item.excerpt,url:item.url,capturada:now.toISOString(),fuente:feed.name,idioma:item.language||feed.language||'',clasificacion:JSON.stringify(item.labels),taxonomia:JSON.stringify({fingerprint:taxonomyFingerprint_(item.title,item.excerpt),ids:taxonomyNewsIds_(item.title,item.excerpt)})};
+  const record={id:Utilities.getUuid(),fecha:Utilities.formatDate(item.date,settings_().timezone,'yyyy-MM-dd'),pais:item.country||feed.country,medio:publisherKey_(item.publisher||(feed.kind==='profile'?'':feed.name)),entidad:item.entity||feed.entity,titular:item.title,extracto:item.excerpt,url:item.url,capturada:now.toISOString(),fuente:feed.name,idioma:item.language||feed.language||'',clasificacion:JSON.stringify(item.labels),taxonomia:JSON.stringify(taxonomyRecord_(item.title,item.excerpt))};
   return RADAR.sheets.Noticias.map(key=>record[key]);
 }
 function ingestFeed_(feed,known,cycle,now,response) {

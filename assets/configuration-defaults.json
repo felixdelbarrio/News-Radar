@@ -1429,69 +1429,72 @@
     {
       "name": "Lanzamiento de producto",
       "terms": [
-        "lanza",
+        "lanza*",
         "lanzamiento",
         "estrena",
-        "presenta",
+        "presenta*",
         "nuevo",
         "nueva",
-        "launch",
-        "introduce",
+        "launch*",
+        "introduce*",
         "unveils",
         "yeni",
         "launches",
         "introduces",
         "unveil",
         "sunar",
-        "tanıt",
-        "başlat",
+        "tanıt*",
+        "başlat*",
         "piyasaya"
       ],
       "context": [
-        "cuenta",
-        "tarjeta",
-        "plataforma",
-        "producto",
-        "servicio",
-        "financia",
-        "préstamo",
-        "pago",
-        "depósito",
-        "hipoteca",
-        "app",
-        "account",
-        "card",
-        "product",
-        "loan",
-        "leasing",
-        "factoring",
-        "confirming",
-        "crédito",
-        "aval",
-        "seguro",
-        "inversión",
-        "fondo",
-        "monedero",
-        "wallet",
-        "terminal",
-        "tpv",
-        "programa",
-        "service",
-        "platform",
-        "payment",
-        "deposit",
-        "mortgage",
-        "insurance",
-        "investment",
-        "hesap",
-        "kart",
-        "ürün",
-        "hizmet",
-        "ödeme",
-        "kredi",
-        "mevduat",
-        "sigorta",
-        "yatırım"
+        "cuenta*",
+        "tarjeta*",
+        "plataforma*",
+        "producto*",
+        "servicio*",
+        "financia*",
+        "préstamo*",
+        "pago*",
+        "depósito*",
+        "hipoteca*",
+        "app*",
+        "account*",
+        "card*",
+        "product*",
+        "loan*",
+        "leasing*",
+        "factoring*",
+        "confirming*",
+        "crédito*",
+        "aval*",
+        "seguro*",
+        "inversión*",
+        "fondo*",
+        "monedero*",
+        "wallet*",
+        "terminal*",
+        "tpv*",
+        "programa*",
+        "service*",
+        "platform*",
+        "payment*",
+        "deposit*",
+        "mortgage*",
+        "insurance*",
+        "investment*",
+        "hesap*",
+        "kart*",
+        "ürün*",
+        "hizmet*",
+        "ödeme*",
+        "kredi*",
+        "mevduat*",
+        "sigorta*",
+        "yatırım*",
+        "digital*",
+        "kyb",
+        "flujo*"
       ],
       "enabled": true,
       "scope": "headline",
@@ -1513,7 +1516,8 @@
         "nasıl",
         "rehber",
         "ödül"
-      ]
+      ],
+      "group": "Novedad"
     },
     {
       "name": "Mejora de oferta",
@@ -1521,7 +1525,7 @@
         "amplía",
         "mejora",
         "renueva",
-        "incorpora",
+        "incorpora*",
         "reduce",
         "aumenta",
         "enhances",
@@ -1529,41 +1533,44 @@
         "improves",
         "upgrades",
         "extends",
-        "yenile",
-        "geliştir",
-        "genişlet",
-        "iyileştir"
+        "yenile*",
+        "geliştir*",
+        "genişlet*",
+        "iyileştir*"
       ],
       "context": [
-        "cuenta",
-        "tarjeta",
-        "producto",
-        "servicio",
-        "comisión",
-        "tipo",
-        "plataforma",
-        "pago",
-        "financia",
-        "account",
-        "card",
-        "product",
-        "service",
-        "platform",
-        "payment",
-        "loan",
-        "deposit",
-        "mortgage",
-        "insurance",
-        "investment",
-        "hesap",
-        "kart",
-        "ürün",
-        "hizmet",
-        "ödeme",
-        "kredi",
-        "mevduat",
-        "sigorta",
-        "yatırım"
+        "cuenta*",
+        "tarjeta*",
+        "producto*",
+        "servicio*",
+        "comisión*",
+        "tipo*",
+        "plataforma*",
+        "pago*",
+        "financia*",
+        "account*",
+        "card*",
+        "product*",
+        "service*",
+        "platform*",
+        "payment*",
+        "loan*",
+        "deposit*",
+        "mortgage*",
+        "insurance*",
+        "investment*",
+        "hesap*",
+        "kart*",
+        "ürün*",
+        "hizmet*",
+        "ödeme*",
+        "kredi*",
+        "mevduat*",
+        "sigorta*",
+        "yatırım*",
+        "digital*",
+        "kyb",
+        "flujo*"
       ],
       "enabled": true,
       "scope": "headline",
@@ -1585,7 +1592,8 @@
         "nasıl",
         "rehber",
         "ödül"
-      ]
+      ],
+      "group": "Novedad"
     },
     {
       "name": "Alianza estratégica",
@@ -1593,15 +1601,15 @@
         "alianza",
         "acuerdo",
         "partnership",
-        "acuerd",
+        "acuerd*",
         "colabora con",
         "colaboración",
         "partners with",
         "agreement",
         "iş birliği",
         "işbirliği",
-        "ortaklık",
-        "anlaşma"
+        "ortaklık*",
+        "anlaşma*"
       ],
       "context": [],
       "enabled": true,
@@ -1624,6 +1632,222 @@
         "nasıl",
         "rehber",
         "ödül"
+      ],
+      "group": "Novedad"
+    },
+    {
+      "name": "Indisponibilidad de servicio",
+      "group": "Problema",
+      "scope": "headline",
+      "enabled": true,
+      "terms": [
+        "no funciona*",
+        "fuera de servicio",
+        "indisponibilidad",
+        "interrupción del servicio",
+        "interrupcion del servicio",
+        "caída de",
+        "caida de",
+        "caída global",
+        "caida global",
+        "se cayó",
+        "se cayo",
+        "sufrió caída",
+        "sufrio caida",
+        "presenta fallas",
+        "presentan fallas",
+        "fallas masivas",
+        "outage",
+        "outages",
+        "goes down",
+        "is down",
+        "service disruption",
+        "service unavailable",
+        "unable to access",
+        "hizmet kesintisi",
+        "kesinti",
+        "erişilemiyor",
+        "serviço indisponível",
+        "fora do ar",
+        "queda do sistema",
+        "no pueden acceder",
+        "caída la app",
+        "caida la app",
+        "app down",
+        "fallas en la app"
+      ],
+      "context": [
+        "app",
+        "canal",
+        "banca",
+        "banking",
+        "plataforma",
+        "portal",
+        "transferencia",
+        "transferencias",
+        "pago",
+        "pagos",
+        "cobro",
+        "cobros",
+        "payment",
+        "payments",
+        "checkout",
+        "terminal",
+        "merchant",
+        "business",
+        "empresa",
+        "empresas",
+        "pymes",
+        "sme",
+        "billetera",
+        "wallet",
+        "online",
+        "servicio",
+        "service",
+        "cuenta",
+        "account",
+        "işletme",
+        "ödeme",
+        "mobil",
+        "tarjeta*",
+        "card*",
+        "comercio*",
+        "merchant*",
+        "business*",
+        "bank*",
+        "sistema"
+      ],
+      "exclude": [
+        "precio de la acción",
+        "precio de las acciones",
+        "cotización",
+        "cotizacion",
+        "beneficio neto",
+        "resultados financieros",
+        "caída del crédito",
+        "caida del credito",
+        "caída de ingresos",
+        "caida de ingresos",
+        "shares fall",
+        "share price",
+        "stock price",
+        "net profit",
+        "quarterly results",
+        "riesgo de caída",
+        "riesgo de caida",
+        "simulacro",
+        "podría fallar",
+        "podria fallar",
+        "could fail",
+        "what to do if",
+        "qué hacer si",
+        "que hacer si",
+        "cómo solucionar",
+        "como solucionar",
+        "how to fix"
+      ]
+    },
+    {
+      "name": "Incidencia operativa",
+      "group": "Problema",
+      "scope": "headline",
+      "enabled": true,
+      "terms": [
+        "reporta fallas",
+        "reportan fallas",
+        "reportan problemas",
+        "intermitencias",
+        "error en los pagos",
+        "errores en pagos",
+        "pagos rechazados",
+        "transferencias fallidas",
+        "transferencias bloqueadas",
+        "transferencias retrasadas",
+        "cobros duplicados",
+        "cargo duplicado",
+        "cobran doble",
+        "cobros indebidos",
+        "payment failures",
+        "failed payments",
+        "payments fail",
+        "duplicate charges",
+        "delayed payments",
+        "delayed transfers",
+        "payment error",
+        "transaction errors",
+        "ödeme hatası",
+        "transfer sorunu",
+        "pagamentos recusados"
+      ],
+      "context": [
+        "app",
+        "canal",
+        "banca",
+        "banking",
+        "plataforma",
+        "portal",
+        "transferencia",
+        "transferencias",
+        "pago",
+        "pagos",
+        "cobro",
+        "cobros",
+        "payment",
+        "payments",
+        "checkout",
+        "terminal",
+        "merchant",
+        "business",
+        "empresa",
+        "empresas",
+        "pymes",
+        "sme",
+        "billetera",
+        "wallet",
+        "online",
+        "servicio",
+        "service",
+        "cuenta",
+        "account",
+        "işletme",
+        "ödeme",
+        "mobil",
+        "tarjeta*",
+        "card*",
+        "comercio*",
+        "merchant*",
+        "business*",
+        "bank*",
+        "sistema"
+      ],
+      "exclude": [
+        "precio de la acción",
+        "precio de las acciones",
+        "cotización",
+        "cotizacion",
+        "beneficio neto",
+        "resultados financieros",
+        "caída del crédito",
+        "caida del credito",
+        "caída de ingresos",
+        "caida de ingresos",
+        "shares fall",
+        "share price",
+        "stock price",
+        "net profit",
+        "quarterly results",
+        "riesgo de caída",
+        "riesgo de caida",
+        "simulacro",
+        "podría fallar",
+        "podria fallar",
+        "could fail",
+        "what to do if",
+        "qué hacer si",
+        "que hacer si",
+        "cómo solucionar",
+        "como solucionar",
+        "how to fix"
       ]
     }
   ],
@@ -2396,7 +2620,11 @@
         "Quantum",
         "depósitos tokenizados",
         "pagos con stablecoins",
-        "agentes de ia"
+        "agentes de ia",
+        "indisponibilidad",
+        "intermitencias",
+        "fallas masivas",
+        "transferencias fallidas"
       ],
       "enabled": true
     },
@@ -2525,7 +2753,11 @@
         "cleareye",
         "payment gateway",
         "custody",
-        "model context protocol"
+        "model context protocol",
+        "outage",
+        "service disruption",
+        "payment failures",
+        "delayed payments"
       ],
       "enabled": true
     },
@@ -2542,7 +2774,11 @@
         "ürün",
         "lansman",
         "nakit yonetimi",
-        "mobil bankacilik"
+        "mobil bankacilik",
+        "hizmet kesintisi",
+        "kesinti",
+        "ödeme hatası",
+        "transfer sorunu"
       ],
       "enabled": true
     },
@@ -2585,7 +2821,10 @@
       "terms": [
         "banca digital",
         "conta digital",
-        "pagamentos digitais"
+        "pagamentos digitais",
+        "serviço indisponível",
+        "fora do ar",
+        "pagamentos recusados"
       ],
       "enabled": true
     },
@@ -2655,7 +2894,9 @@
         "nfc",
         "cashless",
         "datáfono",
-        "e-invoicing"
+        "e-invoicing",
+        "pasarela de pago",
+        "pasarelas de pago"
       ],
       "enabled": true
     },
@@ -2817,7 +3058,9 @@
         "swift",
         "stablecoin*",
         "tokenized deposits",
-        "tokenised deposits"
+        "tokenised deposits",
+        "payment processing",
+        "procesamiento de pagos"
       ],
       "enabled": true
     },
@@ -2971,22 +3214,6 @@
         "mantenimiento de",
         "mantenimiento la",
         "mantenimiento el",
-        "caida de",
-        "sufrio caida",
-        "presenta fallas",
-        "presentan fallas",
-        "reporta fallas",
-        "reportan fallas",
-        "reportan problemas",
-        "habrian problemas",
-        "fallas masivas",
-        "se cayo",
-        "colapsaron",
-        "caida global",
-        "falla global",
-        "no funciona*",
-        "goes down",
-        "outage",
         "suspendera*",
         "fraudulent",
         "sospechosos",
@@ -2999,10 +3226,6 @@
         "supremo condena",
         "mis-selling",
         "coupon payments",
-        "intermitencias",
-        "no podian",
-        "fuera de servicio",
-        "no se puede iniciar",
         "pagos a cardama",
         "falta de pagos"
       ],
@@ -3029,6 +3252,21 @@
             "corporate banking platform",
             "app itau empresas",
             "banca digital empresarial"
+          ],
+          "context": [
+            "dashboard",
+            "posición global",
+            "posicion global",
+            "visión integral",
+            "vision integral",
+            "vista global",
+            "posicion de productos",
+            "posición de productos",
+            "account overview",
+            "financial overview",
+            "product overview",
+            "aggregate",
+            "aggregated"
           ]
         }
       ],
@@ -3258,12 +3496,25 @@
           "terms": [
             "transferencias internacionales",
             "cross-border payments",
-            "international transfers"
+            "international transfers",
+            "international payments",
+            "pagos internacionales",
+            "cross border payments",
+            "international remittances",
+            "remesas internacionales",
+            "cross-border real-time payments",
+            "x-border real-time payments",
+            "cross border real time payments"
           ]
         },
         {
           "id": "03.14",
-          "terms": []
+          "terms": [
+            "transferencias masivas internacionales",
+            "international bulk payments",
+            "bulk international transfers",
+            "cross-border bulk payments"
+          ]
         },
         {
           "id": "03.15",
@@ -3330,6 +3581,15 @@
           "terms": [
             "swift gpi",
             "swift-gpi"
+          ],
+          "context": [
+            "tracking",
+            "trazabilidad",
+            "seguimiento",
+            "swift gpi",
+            "swift-gpi",
+            "payment trace",
+            "track transfers"
           ]
         }
       ],
@@ -3350,6 +3610,97 @@
             "stablecoin payouts",
             "stablecoin",
             "stablecoins"
+          ],
+          "context": [
+            "pago",
+            "pagos",
+            "payment",
+            "payments",
+            "settlement",
+            "liquidación",
+            "treasury",
+            "tesorería",
+            "merchant",
+            "comercio",
+            "tarjetas",
+            "cards",
+            "remesas",
+            "remittance",
+            "transfer",
+            "transferencias",
+            "checkout",
+            "payouts",
+            "accept stablecoins",
+            "aceptar stablecoins",
+            "conversion",
+            "interoperability"
+          ],
+          "exclude": [
+            "share price",
+            "stock price",
+            "net profit"
+          ]
+        },
+        {
+          "name": "Pagos agénticos",
+          "terms": [
+            "agentic payments",
+            "agentic payment",
+            "pagos agénticos",
+            "pagos agenticos",
+            "pago agéntico",
+            "pago agentico",
+            "pagos desde chatgpt",
+            "pago real con inteligencia artificial",
+            "agentes de pago",
+            "ai-agent payments",
+            "ai agent payments",
+            "pagos con ia",
+            "pagos de agentes de ia",
+            "pago real con un agente",
+            "pago real con inteligencia artificial"
+          ],
+          "context": [
+            "pago",
+            "pagos",
+            "payment",
+            "payments",
+            "checkout",
+            "transacción",
+            "transaction",
+            "micropayments"
+          ],
+          "exclude": [
+            "trading bots",
+            "price prediction"
+          ]
+        },
+        {
+          "name": "Pagos con moneda digital de banco central (CBDC)",
+          "terms": [
+            "digital rupee",
+            "rupia digital",
+            "digital euro payments",
+            "pagos con euro digital",
+            "cbdc payments",
+            "pagos con cbdc"
+          ],
+          "context": [
+            "pago",
+            "pagos",
+            "payments",
+            "payment",
+            "checkout",
+            "merchant",
+            "corporate",
+            "empresa",
+            "empresas",
+            "allowances",
+            "offline"
+          ],
+          "exclude": [
+            "price prediction",
+            "share price"
           ]
         }
       ]
@@ -3451,7 +3802,14 @@
         },
         {
           "id": "05.08",
-          "terms": []
+          "terms": [
+            "customs duty",
+            "customs tax",
+            "customs payments",
+            "impuestos aduanales",
+            "pago de aduanas",
+            "icegate"
+          ]
         },
         {
           "id": "05.09",
@@ -3511,7 +3869,11 @@
         },
         {
           "id": "05.23",
-          "terms": []
+          "terms": [
+            "impuestos provinciales",
+            "provincial tax",
+            "state tax payments"
+          ]
         },
         {
           "id": "05.24",
@@ -3590,6 +3952,14 @@
             "request to pay",
             "request-to-pay",
             "solicitud de pago"
+          ],
+          "context": [
+            "request to pay",
+            "request-to-pay",
+            "solicitud de pago",
+            "petición de pago",
+            "payment request",
+            "codi"
           ]
         },
         {
@@ -3830,6 +4200,15 @@
           "id": "08.13",
           "terms": [
             "click and pay"
+          ],
+          "context": [
+            "financiación",
+            "financiamiento",
+            "amortización",
+            "preautorizado",
+            "financing",
+            "credit line",
+            "loan"
           ]
         },
         {
@@ -4035,7 +4414,20 @@
         },
         {
           "id": "09.09",
-          "terms": []
+          "terms": [],
+          "context": [
+            "pago de tarjeta",
+            "pago de la tarjeta",
+            "pagar la tarjeta",
+            "pagar tarjeta",
+            "pago mínimo",
+            "saldar",
+            "deuda de tarjeta",
+            "card bill",
+            "credit card bill",
+            "card repayment",
+            "repay credit card"
+          ]
         },
         {
           "id": "09.10",
@@ -4232,10 +4624,22 @@
           "terms": [
             "contratacion tpv",
             "digital merchant onboarding",
-            "payment gateway",
-            "pasarela de pago",
-            "pasarelas de pago",
-            "stripe checkout"
+            "merchant acquiring onboarding",
+            "alta de comercio",
+            "afiliación de comercios"
+          ],
+          "context": [
+            "alta de comercio",
+            "afiliación",
+            "afiliacion",
+            "contratación",
+            "contratacion",
+            "merchant onboarding",
+            "merchant registration",
+            "merchant acquiring onboarding",
+            "new payment terminal",
+            "solicitar tpv",
+            "solicitud tpv"
           ]
         },
         {
@@ -4258,17 +4662,70 @@
         },
         {
           "id": "11.07",
-          "terms": []
+          "terms": [],
+          "context": [
+            "argentina",
+            "bbva smart"
+          ]
         }
       ],
       "emerging": [
         {
-          "name": "Cobro al Toque",
+          "name": "Cobro con móvil (SoftPOS)",
           "terms": [
             "cobro al toque",
-            "cobro al toque bbva"
+            "cobro al toque bbva",
+            "softpos",
+            "tap to phone",
+            "tap on phone",
+            "smartphone payment terminal",
+            "móvil como tpv",
+            "movil como tpv",
+            "tap-to-phone",
+            "tap-on-phone",
+            "phones into contactless payment terminals"
           ],
-          "primary": true
+          "primary": true,
+          "primaryTerms": [
+            "cobro al toque"
+          ],
+          "context": [
+            "cobro",
+            "cobros",
+            "merchant",
+            "comercio",
+            "terminal",
+            "phone",
+            "smartphone",
+            "móvil",
+            "tpv",
+            "accept payments",
+            "payment acceptance"
+          ]
+        },
+        {
+          "name": "Cobros biométricos en comercios",
+          "terms": [
+            "pay with smile",
+            "facial recognition checkout",
+            "facial recognition payments",
+            "biometric checkout",
+            "pagos biométricos",
+            "pagos biometricos",
+            "face pay"
+          ],
+          "context": [
+            "comercio",
+            "comercios",
+            "merchant",
+            "checkout",
+            "store",
+            "stores",
+            "terminal",
+            "pos",
+            "purchases",
+            "pay with smile"
+          ]
         }
       ]
     },
@@ -4586,6 +5043,18 @@
           "terms": [
             "comprobantes",
             "payment receipts"
+          ],
+          "context": [
+            "descarga",
+            "descargar",
+            "download",
+            "transaction receipt",
+            "comprobante de operación",
+            "comprobante de operacion",
+            "comprobante de transferencia",
+            "comprobante de pago",
+            "payment receipt",
+            "justificante bancario"
           ]
         }
       ],
@@ -4618,11 +5087,31 @@
             "biometric",
             "biometrics",
             "facial recognition"
+          ],
+          "context": [
+            "login",
+            "log in",
+            "log-in",
+            "inicio de sesión",
+            "iniciar sesión",
+            "acceso al canal",
+            "acceso a la app",
+            "sign in",
+            "sign-in",
+            "signing in",
+            "authentication",
+            "autenticación",
+            "passkey",
+            "sesión biométrica"
           ]
         },
         {
           "id": "16.02",
-          "terms": []
+          "terms": [],
+          "context": [
+            "coexistencia",
+            "coexistence"
+          ]
         },
         {
           "id": "16.03",
@@ -4643,7 +5132,14 @@
           "terms": [
             "firma electronica",
             "electronic signature",
-            "e-signature"
+            "e-signature",
+            "autorizar operaciones",
+            "autorización de pagos",
+            "autorizacion de pagos",
+            "payment authorization",
+            "approve transactions",
+            "transaction signing",
+            "biometric payment authorization"
           ]
         },
         {
@@ -4678,6 +5174,20 @@
             "kyb",
             "kyc",
             "onboarding"
+          ],
+          "context": [
+            "empresa",
+            "empresas",
+            "pymes",
+            "corporate",
+            "enterprise",
+            "sme",
+            "smes",
+            "business account",
+            "business banking",
+            "personas jurídicas",
+            "persona jurídica",
+            "sociedades"
           ]
         },
         {
@@ -4856,6 +5366,23 @@
             "agentes de inteligencia",
             "agenti e strumenti di ia",
             "agents d'ia"
+          ],
+          "context": [
+            "tesorería",
+            "treasury",
+            "cash management",
+            "banca digital",
+            "digital banking",
+            "corporate banking",
+            "asistente digital",
+            "banking assistant"
+          ],
+          "exclude": [
+            "credit assessments",
+            "corporate bankers",
+            "job cuts",
+            "ai summit",
+            "training"
           ]
         }
       ]
@@ -4999,7 +5526,11 @@
         },
         {
           "id": "19.20",
-          "terms": []
+          "terms": [],
+          "context": [
+            "coexistencia",
+            "coexistence"
+          ]
         },
         {
           "id": "19.21",
@@ -5058,6 +5589,12 @@
           "terms": [
             "quantum",
             "analitica cualitativa"
+          ],
+          "exclude": [
+            "quantum computing",
+            "computación cuántica",
+            "ordenador cuántico",
+            "quantum computer"
           ]
         },
         {

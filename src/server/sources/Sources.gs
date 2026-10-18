@@ -50,7 +50,7 @@ function capabilitySearchTerms_(geo,entity){
   const capabilities=businessIndex_().capabilities,catalogue=catalogueSearchRows_();
   if(!capabilities.length&&!catalogue.length)return [];
   const seed=[entity.name,geo.code].join('|'),day=Math.floor(Date.parse(recordDay(new Date(),settings_().timezone))/86400000),hash=[...seed].reduce((sum,char)=>sum*31+char.charCodeAt(0),0)>>>0;
-  const terms=new Set(),base=new Set(collectionSearchTerms_(geo).map(searchText_)),limit=COLLECTION_POLICY.capabilityTerms;
+  const terms=new Set(),base=new Set(collectionSearchTerms_(geo).map(searchText_)),limit=COLLECTION_POLICY.capabilityTerms,problems=configuration_().signals.filter(row=>row.enabled&&row.group==='Problema').map(row=>({terms:row.terms.map(term=>term.replace(/\*/g,''))})),reserve=problems.length?1:0;
   const add=(rows,budget)=>{
     if(!rows.length)return;const offset=(hash+day*budget)%rows.length;
     for(let i=0,added=0;i<rows.length&&added<budget;i++){
@@ -59,7 +59,7 @@ function capabilitySearchTerms_(geo,entity){
     }
   };
   const priorities=catalogue.filter(row=>row.priority>0).sort((a,b)=>b.priority-a.priority||a.key.localeCompare(b.key));
-  add(priorities,priorities.length?1:0);add(catalogue,Math.ceil(limit/2)-terms.size);add(capabilities,limit-terms.size);
+  add(priorities,priorities.length?1:0);add(catalogue,Math.ceil((limit-reserve)/2)-terms.size);add(capabilities,limit-reserve-terms.size);add(problems,limit-terms.size);
   return [...terms];
 }
 function defaultFeeds_(range) {

@@ -20,7 +20,7 @@ test('las descripciones permiten reconocer la operativa y una landing necesita e
 });
 test('un producto concreto admite una noticia oficial; una mención aislada de un tercero no lo crea',()=>{
  const headline='BBVA lanza ‘Cobro al Toque’ para facilitar soluciones de cobro a las pymes',text=taxonomyText(headline+' Un smartphone se convierte en punto de venta móvil con Tap to Phone.');
- for(const primary of [false,true]){const state={documents:0,candidates:{}};taxonomyObserve(state,text,definitions,new Set(),'BBVA',{headline,primary});const emerging=taxonomyBuild(state).filter(row=>row.origin==='tf-idf');assert.equal(emerging.length,primary?1:0);if(primary){assert.equal(emerging[0].subpalanca,'11.xx Cobro al Toque');assert.equal(taxonomyMatches(text,taxonomyBuild(state),headline)[0].row.subpalanca,'11.xx Cobro al Toque');}}
+ for(const primary of [false,true]){const state={documents:0,candidates:{}};taxonomyObserve(state,text,definitions,new Set(),'BBVA',{headline,primary});const emerging=taxonomyBuild(state).filter(row=>row.origin==='tf-idf');assert.equal(emerging.length,primary?1:0);if(primary){assert.equal(emerging[0].subpalanca,'11.xx Cobro con móvil (SoftPOS)');assert.equal(taxonomyMatches(text,taxonomyBuild(state),headline)[0].row.subpalanca,'11.xx Cobro con móvil (SoftPOS)');}}
  const {c}=setup();assert.equal(c.taxonomyPrimarySource_({url:'https://www.bbva.com/es/empresas/producto/',entidad:'BBVA'}),true);assert.equal(c.taxonomyPrimarySource_({url:'https://news.google.com/rss/articles/third-party',entidad:'BBVA',medio:'BBVA'}),false);
 });
 test('la quincenal conserva los literales y sus accesos abren Noticias con período y evidencias exactas',()=>{

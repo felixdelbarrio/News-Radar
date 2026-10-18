@@ -5,6 +5,28 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Productos nuevos, mejoras, alianzas y problemas de servicio para seguir c\xF3mo evoluciona la banca digital de empresas.": ["New products, improvements, partnerships and service problems tracking the evolution of digital business banking.", "Dijital i\u015Fletme bankac\u0131l\u0131\u011F\u0131n\u0131n geli\u015Fimini izlemek i\xE7in yeni \xFCr\xFCnler, iyile\u015Ftirmeler, ortakl\u0131klar ve hizmet sorunlar\u0131."],
+    "Incidencias publicadas en medios; consulta cada fuente para conocer su alcance, fecha y resoluci\xF3n.": ["Incidents reported in the media; check each source for their scope, date and resolution.", "Medyada bildirilen olaylar; kapsam, tarih ve \xE7\xF6z\xFCm i\xE7in her kayna\u011Fa bak\u0131n."],
+    "Condici\xF3n funcional no v\xE1lida.": ["Invalid functional condition.", "Ge\xE7ersiz i\u015Flev ko\u015Fulu."],
+    "Contexto operativo requerido": ["Required operational context", "Gerekli i\u015Flem ba\u011Flam\u0131"],
+    "Excluir coincidencias": ["Exclude matches", "E\u015Fle\u015Fmeleri hari\xE7 tut"],
+    "Productos concretos de fuente oficial": ["Specific products from an official source", "Resm\xEE kaynaktan somut \xFCr\xFCnler"],
+    "Se\xF1ales de negocio": ["Business signals", "\u0130\u015F sinyalleri"],
+    "Se\xF1al de negocio": ["Business signal", "\u0130\u015F sinyali"],
+    "Tipo de se\xF1al": ["Signal type", "Sinyal t\xFCr\xFC"],
+    "Problema de servicio": ["Service problem", "Hizmet sorunu"],
+    Problema: ["Problem", "Sorun"],
+    "Indisponibilidad de servicio": ["Service outage", "Hizmet kesintisi"],
+    "Incidencia operativa": ["Operational incident", "\u0130\u015Flem sorunu"],
+    "Por qu\xE9 est\xE1 clasificada aqu\xED": ["Why it is classified here", "Neden burada s\u0131n\u0131fland\u0131r\u0131ld\u0131"],
+    "Coincidencia operativa directa": ["Direct operational match", "Do\u011Frudan i\u015Flem e\u015Fle\u015Fmesi"],
+    "Contexto descriptivo del cat\xE1logo": ["Catalogue description context", "Katalog a\xE7\u0131klamas\u0131 ba\u011Flam\u0131"],
+    "Titular y extracto": ["Headline and excerpt", "Ba\u015Fl\u0131k ve \xF6zet"],
+    "No hay novedades de producto en esta selecci\xF3n.": ["No product updates in this selection.", "Bu se\xE7imde \xFCr\xFCn yenili\u011Fi yok."],
+    "No se han detectado noticias de problemas de servicio en esta selecci\xF3n.": ["No service problem news detected in this selection.", "Bu se\xE7imde hizmet sorunu haberi tespit edilmedi."],
+    "LANZAMIENTOS, ALIANZAS Y PROBLEMAS DE SERVICIO": ["LAUNCHES, PARTNERSHIPS AND SERVICE PROBLEMS", "LANSMANLAR, ORTAKLIKLAR VE H\u0130ZMET SORUNLARI"],
+    "Novedades de producto": ["Product updates", "\xDCr\xFCn yenilikleri"],
+    "Problemas de servicio": ["Service problems", "Hizmet sorunlar\u0131"],
     "\xDAltima lectura del maestro: {date}": ["Last master read: {date}", "Ana katalo\u011Fun son okunma tarihi: {date}"],
     "Equivalencias y conceptos emergentes de News Radar. Los c\xF3digos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aqu\xED. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios.": ["News Radar aliases and emerging concepts. Official codes, names and descriptions are read from the Drive master and cannot be edited here. Specific products can use one official source; trends require three articles and two publishers.", "News Radar e\u015Fde\u011Ferleri ve yeni kavramlar\u0131. Resm\xEE kodlar, adlar ve a\xE7\u0131klamalar Drive ana katalo\u011Fundan okunur ve burada d\xFCzenlenmez. Somut \xFCr\xFCnler i\xE7in bir resm\xEE kaynak yeterlidir; e\u011Filimler \xFC\xE7 haber ve iki yay\u0131nc\u0131 gerektirir."],
     "Maestro de Drive de solo lectura. News Radar conserva un espejo para clasificar y a\xF1ade \xFAnicamente funcionalidades .xx sin equivalente justificable en el cat\xE1logo.": ["Read-only Drive master. News Radar keeps a mirror for classification and only adds .xx functionalities without a defensible catalogue equivalent.", "Drive ana katalo\u011Fu salt okunurdur. News Radar s\u0131n\u0131fland\u0131rma i\xE7in bir ayna tutar ve yaln\u0131zca katalogda gerek\xE7elendirilebilir e\u015Fde\u011Feri olmayan .xx i\u015Flevlerini ekler."],
@@ -2132,13 +2154,28 @@
       ]
     },
     signals: {
-      label: "Novedades y lanzamientos",
+      label: "Se\xF1ales de negocio",
       help: "Se exige se\xF1al y contexto de producto. headline busca la se\xF1al solo en el titular; fullText incluye el extracto. Las exclusiones siempre se aplican al titular. Listas separadas por punto y coma.",
       fields: [
         [
           "name",
-          "Novedad",
+          "Se\xF1al de negocio",
           "text"
+        ],
+        [
+          "group",
+          "Tipo de se\xF1al",
+          "choice",
+          [
+            [
+              "Novedad",
+              "Novedad"
+            ],
+            [
+              "Problema",
+              "Problema de servicio"
+            ]
+          ]
         ],
         [
           "terms",
@@ -2376,7 +2413,7 @@
         if (category === "applicationScope")
           config.applicationScope = [...$("catalog-fields").querySelectorAll("[data-scope]")].map((group) => ({ name: group.dataset.scope, countries: [...group.querySelectorAll("[data-country]:checked")].map((input2) => input2.dataset.country) }));
         else if (category === "taxonomy") {
-          let list = (input2) => input2.value.split(";").map((value) => value.trim()).filter(Boolean), records = (block, selector) => [...block.querySelectorAll(selector)].map((row) => Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input2) => [input2.dataset.key, input2.dataset.key === "primary" ? input2.checked : input2.dataset.key === "terms" ? list(input2) : input2.value.trim()])));
+          let list = (input2) => input2.value.split(";").map((value) => value.trim()).filter(Boolean), records = (block, selector) => [...block.querySelectorAll(selector)].map((row) => Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input2) => [input2.dataset.key, input2.dataset.key === "primary" ? input2.checked : input2.dataset.list === "true" ? list(input2) : input2.value.trim()])));
           config.taxonomy = [...$("catalog-fields").children].map((block) => ({ name: block.querySelector('[data-key="name"]').value.trim(), terms: list(block.querySelector('[data-key="terms"]')), emerging: records(block, "[data-emerging]"), functions: records(block, "[data-function]") }));
         } else if (category === "settings")
           for (let input2 of $("catalog-fields").querySelectorAll("[data-key]")) config.settings[input2.dataset.key] = input2.type === "checkbox" ? input2.checked : input2.type === "number" ? Number(input2.value) : input2.dataset.list === "true" ? input2.value.split(";").map((value) => value.trim()).filter(Boolean) : input2.value;
@@ -2388,7 +2425,7 @@
     function render() {
       let meta = admin_schema_default[category];
       if ($("capability-toolbar").hidden = category !== "capabilities", $("catalog-help").textContent = meta.help, $("catalog-add").hidden = ["settings", "applicationScope", "taxonomy"].includes(category), category === "taxonomy") {
-        $("catalog-fields").innerHTML = config.taxonomy.map((block, index) => `<details class="catalog-row"><summary><strong>${escape(block.name)}</strong><span>${block.functions.length}</span></summary><div class="catalog-grid">${fields([["name", "Bloque funcional", "readonly"], ["terms", "Equivalencias del bloque", "list"]], block)}</div>${block.functions.map((row) => `<div class="catalog-grid" data-function>${fields([["id", "C\xF3digo", "readonly"], ["name", "Funcionalidad / Sub Operativa", "readonly"], ["terms", "Equivalencias de b\xFAsqueda", "list"]], row)}</div>`).join("")}<h3>${t("Conceptos emergentes admitidos")}</h3><button type="button" class="button" data-add-emerging="${index}">${t("A\xF1adir concepto emergente")}</button>${block.emerging.map((row) => `<div class="catalog-grid" data-emerging>${fields([["name", "Funcionalidad / Sub Operativa", "text"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["primary", "Producto concreto respaldado por fuente oficial", "boolean"]], row)}<button type="button" class="button" data-remove-emerging>${t("Eliminar")}</button></div>`).join("")}</details>`).join("");
+        $("catalog-fields").innerHTML = config.taxonomy.map((block, index) => `<details class="catalog-row"><summary><strong>${escape(block.name)}</strong><span>${block.functions.length}</span></summary><div class="catalog-grid">${fields([["name", "Bloque funcional", "readonly"], ["terms", "Equivalencias del bloque", "list"]], block)}</div>${block.functions.map((row) => `<div class="catalog-grid" data-function>${fields([["id", "C\xF3digo", "readonly"], ["name", "Funcionalidad / Sub Operativa", "readonly"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"]], row)}</div>`).join("")}<h3>${t("Conceptos emergentes admitidos")}</h3><button type="button" class="button" data-add-emerging="${index}">${t("A\xF1adir concepto emergente")}</button>${block.emerging.map((row) => `<div class="catalog-grid" data-emerging>${fields([["name", "Funcionalidad / Sub Operativa", "text"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"], ["primaryTerms", "Productos concretos de fuente oficial", "list"], ["primary", "Producto concreto respaldado por fuente oficial", "boolean"]], row)}<button type="button" class="button" data-remove-emerging>${t("Eliminar")}</button></div>`).join("")}</details>`).join("");
         return;
       }
       $("catalog-fields").innerHTML = category === "applicationScope" ? config.applicationScope.map((scope) => `<fieldset class="catalog-group scope-group" data-scope="${escape(scope.name)}"><legend>${escape(scope.name)}</legend><div class="scope-countries">${config.geographies.map((country) => `<label class="scope-country"><input type="checkbox" data-country="${escape(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${escape(country.name)}</span></label>`).join("")}</div></fieldset>`).join("") : category === "settings" ? admin_schema_default.settings.groups.map((group) => `<fieldset class="catalog-group"><legend>${escape(group.label)}</legend><div class="catalog-settings">${group.keys.map((key) => {
@@ -2464,21 +2501,30 @@
   function articleTitle(row) {
     return '<h3 class="story-title" data-original><a class="story-link" href="' + escape(validUrl(row.url)) + '" target="_blank" rel="noopener noreferrer">' + escape(row.titular) + "</a></h3>";
   }
+  function articleEvidence(row) {
+    let evidence = row.functionalEvidence;
+    return evidence?.terms?.length ? '<details class="article-original"><summary>' + escape(t("Por qu\xE9 est\xE1 clasificada aqu\xED")) + "</summary><p>" + escape(t(evidence.method === "literal" ? "Coincidencia operativa directa" : "Contexto descriptivo del cat\xE1logo")) + " \xB7 " + escape(t(evidence.location === "headline" ? "Titular" : "Titular y extracto")) + "</p><p data-original>" + evidence.terms.map(escape).join(" \xB7 ") + "</p></details>" : "";
+  }
   function articleContent(row, selection = {}, novelty = !1) {
-    return articleHeader(row, articleTitle(row)) + (row.extracto ? "<p data-original>" + escape(row.extracto) + "</p>" : "") + articleOriginal(row) + '<div class="article-metadata"><div class="news-meta">' + articleTags(row, selection, novelty) + '</div><div class="news-meta">' + articleDate(row) + newsPublisher(row) + "</div></div>";
+    return articleHeader(row, articleTitle(row)) + (row.extracto ? "<p data-original>" + escape(row.extracto) + "</p>" : "") + articleOriginal(row) + articleEvidence(row) + '<div class="article-metadata"><div class="news-meta">' + articleTags(row, selection, novelty) + '</div><div class="news-meta">' + articleDate(row) + newsPublisher(row) + "</div></div>";
   }
 
   // src/client/features/briefing.js
-  function createBriefing() {
-    let briefing2, groups = [], active = "", selection = {}, tabs = createGeographyTabs("briefing-geographies", "briefing-list", (name) => {
+  function createBriefing({ onExplore }) {
+    let briefing2, groups = [], active = "", selection = {}, problemSignals = /* @__PURE__ */ new Set(), tabs = createGeographyTabs("briefing-geographies", "briefing-list", (name) => {
       active = name, paint2();
     });
     function paint2() {
       let group = groups.find((row) => row.name === active), stats = group || briefing2;
-      tabs.render(groups, active), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: briefing2.total }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<article class="signal-card"><strong>${row.total}</strong><span>${escape(row.name)}</span></article>`).join(""), $("briefing-list").innerHTML = (group?.entities.flatMap((entity) => entity.items) || []).map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa la entidad, la geograf\xEDa o el per\xEDodo. Las noticias sin novedades de producto est\xE1n disponibles en Noticias.</p></div>', $("briefing-limit").hidden = !group || stats.total <= group.items.length;
+      tabs.render(groups, active), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: briefing2.total }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" ${row.total ? "" : "disabled"} data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(t(row.name))}</span></button>`).join("");
+      let rows = group?.entities.flatMap((entity) => entity.items) || [], problem = (row) => row.senales.some((name) => problemSignals.has(name)), cards = (items) => items.map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join(""), issues = rows.filter(problem), updates = rows.filter((row) => !problem(row));
+      $("briefing-list").innerHTML = cards(updates) || '<div class="panel empty"><h3>' + t("No hay novedades de producto en esta selecci\xF3n.") + "</h3></div>", $("briefing-problems").innerHTML = cards(issues) || '<div class="panel empty"><p>' + t("No se han detectado noticias de problemas de servicio en esta selecci\xF3n.") + "</p></div>", $("briefing-limit").hidden = !group || stats.total <= group.items.length;
     }
-    return { render(data) {
-      selection = data.selection || {}, briefing2 = data.briefing || { total: 0, bySignal: [], geographies: [], items: [] };
+    return $("briefing-signals").addEventListener("click", (event) => {
+      let button = event.target.closest("[data-signal]");
+      button && onExplore({ ...selection, country: "", newsGeography: active, signal: button.dataset.signal, page: 0 });
+    }), { render(data) {
+      selection = data.selection || {}, problemSignals = new Set(data.problemSignals || []), briefing2 = data.briefing || { total: 0, bySignal: [], geographies: [], items: [] };
       let stats = new Map(briefing2.geographies.map((row) => [row.name, row]));
       groups = noveltyGroups(briefing2.items, applicationGeography(data.applicationScope, data.selection?.segment)).map((group) => ({ ...group, ...stats.get(group.name) })), groups.some((row) => row.name === active) || (active = browserCountry(groups.map((row) => row.name)) || groups[0]?.name || ""), paint2();
     } };
@@ -2694,7 +2740,7 @@
       $("filter-description").textContent = "Edita los criterios y pulsa Aplicar filtros para actualizar los resultados.";
     }
     layout();
-    let chipLabels = { benchmark: "\xC1mbito comparativo", search: "B\xFAsqueda", country: "Geograf\xEDa", entity: "Entidad", source: "Medio", type: "Tipo de entidad", signal: "Novedad", palanca: "Bloque funcional", subpalanca: "Funcionalidad / Sub Operativa", from: "Fecha desde", to: "Fecha hasta" };
+    let chipLabels = { benchmark: "\xC1mbito comparativo", search: "B\xFAsqueda", country: "Geograf\xEDa", entity: "Entidad", source: "Medio", type: "Tipo de entidad", signal: "Se\xF1al de negocio", palanca: "Bloque funcional", subpalanca: "Funcionalidad / Sub Operativa", from: "Fecha desde", to: "Fecha hasta" };
     function renderChips() {
       let target = $("active-filters"), values = Object.entries(chipLabels).filter(([name]) => applied[name]);
       target.hidden = !values.length, target.innerHTML = values.map(([name, label]) => {
@@ -2790,7 +2836,7 @@
         initialized.add(view), form.elements[name].value = value, filterChanged({ type: "change" });
       },
       apply: (query, notify = !0) => {
-        initialized.add(view);
+        initialized.add(view), Object.hasOwn(query, "newsGeography") && (newsGeography = query.newsGeography);
         for (let input2 of form.elements) if (input2.name) {
           let value = query[input2.name] || "";
           value && input2.tagName === "SELECT" && options(input2.name, [value]), input2.value = value;
@@ -3067,7 +3113,7 @@
     state.ready && (changed || state.contentStale || state.view !== view) && load(!0);
   }, onSubscriptions: () => (taxonomy.close(), subscriptions.open()), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
-  } }), reading = createReadingContext({ onCurrent: () => filters4.current(), run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing(), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters4.setGeography(name));
+  } }), reading = createReadingContext({ onCurrent: () => filters4.current(), run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing({ onExplore: (query) => navigateSelection("news", query) }), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters4.setGeography(name));
   function navigateSelection(view, query) {
     filters4.show(view), filters4.apply(query, !1), state.contentStale = !0, track("filtro"), navigation.show(view);
   }

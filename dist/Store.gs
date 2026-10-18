@@ -85,3 +85,17 @@ function writeNewsCells_(updates){
     sheet.getRange(ordered[start].row,ordered[start].column,end-start,1).setNumberFormat('@').setValues(ordered.slice(start,end).map(item=>[item.value]));start=end;
   }
 }
+
+// Shared membership index: translations and functional analysis only read business articles.
+function businessNewsIndex_(){
+  const sheet=book_().getSheetByName('Noticias'),count=Math.max(0,sheet.getLastRow()-1),job=classificationJob_();
+  const cache=CacheService.getScriptCache(),key='business-news-index:'+RADAR.version+':'+(properties_().getProperty('NEWS_CONTENT_REVISION')||'0')+':'+(job?.revision||'0')+':'+(job?.next||0)+':'+count,cached=readDashboardCache_(cache,key);if(cached)return cached;
+  if(!count)return {rows:[],revision:sha256_('[]')};
+  const labels=sheet.getRange(2,RADAR.sheets.Noticias.indexOf('clasificacion')+1,count,1).getDisplayValues(),dates=sheet.getRange(2,1,count,2).getDisplayValues(),captured=sheet.getRange(2,RADAR.sheets.Noticias.indexOf('capturada')+1,count,1).getDisplayValues();
+  const rows=dates.flatMap(([id,fecha],index)=>id&&businessNews_({clasificacion:labels[index][0]})?[{id,fecha,captured:captured[index][0],row:index+2,priority:0}]:[]).sort((a,b)=>b.fecha.localeCompare(a.fecha)||b.row-a.row);
+  const value={rows,revision:sha256_(JSON.stringify(rows.map(row=>[row.id,row.fecha,row.row])))};writeDashboardCache_(cache,key,value);return value;
+}
+function businessNewsWorkRows_(job,limit){
+  const selected=businessNewsIndex_().rows.filter(row=>row.row<=job.lastRow&&(!job.cursor||row.fecha<job.cursor.date||row.fecha===job.cursor.date&&row.row<job.cursor.row)).slice(0,limit),rows=new Map(newsRowsAt_(selected.map(row=>row.row).sort((a,b)=>a-b),64).map(row=>[row._sheetRow,row]));
+  return selected.map(row=>rows.get(row.row));
+}

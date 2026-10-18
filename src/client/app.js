@@ -50,7 +50,7 @@ const filters = createFilters({ onInvalidate: () => ++state.request, onChange: (
 } });
 const reading=createReadingContext({onCurrent:()=>filters.current(),run:action});
 const heatmap=createTaxonomyHeatmap({onExplore:query=>navigateSelection('news',query)});
-const briefing=createBriefing();
+const briefing=createBriefing({onExplore:query=>navigateSelection('news',query)});
 const newsTabs=createGeographyTabs('news-geographies','news-list',name=>filters.setGeography(name));
 function navigateSelection(view,query){filters.show(view);filters.apply(query,false);state.contentStale=true;track('filtro');navigation.show(view);}
 const radar=createRadar({onSource:source=>navigateSelection('news',{...state.data.selection,source}),onCountry:country=>navigateSelection('news',{...state.data.selection,country}),onEntity:entity=>navigateSelection('news',{...state.data.selection,entity})});

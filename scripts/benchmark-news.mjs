@@ -12,10 +12,10 @@ export function benchmarkNews(count,sample,source){
   grid.push(headers.map(key=>row[key]||''));
  }
  const runs=[];
- for(const [scenario,view,page] of [['radar cold','radar',0],['news cold','news',0],['news next page','news',1],['news cache hit','news',1],['old period','news',0],['full history','news',0]]){
+ for(const [scenario,view,page] of [['radar cold','radar',0],['briefing cold','briefing',0],['news cold','news',0],['news next page','news',1],['news cache hit','news',1],['old period','news',0],['full history','news',0]]){
   const query=scenario==='full history'?{from:'2025-10-16',to:'2026-10-15',page}:scenario==='old period'?{from:'2025-10-16',to:'2025-10-17',page}:{from:'2026-09-18',to:'2026-10-15',page};
-  const reads=s.reads,start=performance.now(),result=c.dashboardContent_(query,[],view,'es');
-  runs.push({scenario,ms:Math.round((performance.now()-start)*10)/10,sheetReads:s.reads-reads,total:result.data.total,cacheHit:result.cacheHit});
+  globalThis.gc?.();const heapBefore=process.memoryUsage().heapUsed,reads=s.reads,start=performance.now(),result=c.dashboardContent_(query,[],view,'es'),ms=Math.round((performance.now()-start)*10)/10;globalThis.gc?.();
+  runs.push({scenario,ms,sheetReads:s.reads-reads,total:result.data.total,cacheHit:result.cacheHit,retainedHeapBytes:globalThis.gc?process.memoryUsage().heapUsed-heapBefore:null});
  }
  return runs;
 }

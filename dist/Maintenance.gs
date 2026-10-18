@@ -28,7 +28,7 @@ function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
         const encoded=JSON.stringify(labels);if(encoded!==row.clasificacion){updates.push({row:row._sheetRow,column:12,value:encoded});correctedRow=true;}
         if(country!==row.pais){updates.push({row:row._sheetRow,column:3,value:country});correctedRow=true;}
         if(businessNews_({clasificacion:encoded})){
-          const taxonomy={fingerprint:taxonomyFingerprint_(row.titular,row.extracto),ids:taxonomyNewsIds_(row.titular,row.extracto)};
+          const taxonomy=taxonomyRecord_(row.titular,row.extracto);
           if(JSON.stringify(taxonomy)!==row.taxonomia){updates.push({row:row._sheetRow,column:13,value:JSON.stringify(taxonomy)});correctedRow=true;}
         }
         if(canonicalId&&canonicalId!==saved.canonicalId)consolidated++;if(correctedRow)corrected++;cursor=newsWorkCursor_(row);reviewed++;
