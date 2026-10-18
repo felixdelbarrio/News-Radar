@@ -1,0 +1,201 @@
+{
+  "generatedAt": "2026-10-16T20:27:15.861Z",
+  "baseline": "e3ea37dbed046bca76f357b2584c3b9f81b3c2ae",
+  "measurement": "Local V8, frozen source samples; excludes Google network, Apps Script quotas and RSS retrieval.",
+  "corpus": 368,
+  "runs": [
+    {
+      "version": "HEAD",
+      "accepted": 8,
+      "medianCpuMs": 12.929542000000083
+    },
+    {
+      "version": "3.3.0",
+      "accepted": 8,
+      "medianCpuMs": 14.6584170000001
+    }
+  ],
+  "preserved": 8,
+  "lost": [],
+  "added": [],
+  "taxonomy": {
+    "cpuMs": 11.651332999999795,
+    "documents": 8,
+    "candidates": 5,
+    "checkpointBytes": 2194,
+    "classified": 8,
+    "emerging": []
+  },
+  "catalog": {
+    "blocks": 22,
+    "functions": 322,
+    "characters": 29111,
+    "configurationBytes": 67175,
+    "duplicateNames": [
+      [
+        "convenio cee - cobranza empresarial especializada",
+        [
+          "07.13",
+          "07.14"
+        ]
+      ],
+      [
+        "login con coexistencia",
+        [
+          "16.02",
+          "19.20"
+        ]
+      ],
+      [
+        "espacios comerciales (opcion de menu \"contratar\")",
+        [
+          "17.03",
+          "21.01"
+        ]
+      ]
+    ],
+    "sharedPrefixes": [
+      {
+        "code": "13",
+        "names": [
+          "13.Salud financiera",
+          "13.Sostenibilidad"
+        ]
+      }
+    ],
+    "coverage": [
+      {
+        "name": "01.Home",
+        "functions": 1,
+        "withAliases": 1,
+        "news": 0
+      },
+      {
+        "name": "02.Cuentas",
+        "functions": 21,
+        "withAliases": 7,
+        "news": 1
+      },
+      {
+        "name": "03.Pagos - Transf. y traspasos",
+        "functions": 27,
+        "withAliases": 7,
+        "news": 5
+      },
+      {
+        "name": "04.Pagos - Nóminas",
+        "functions": 9,
+        "withAliases": 2,
+        "news": 0
+      },
+      {
+        "name": "05.Pagos - Impuestos",
+        "functions": 27,
+        "withAliases": 2,
+        "news": 0
+      },
+      {
+        "name": "06.Pagos - Servicios y otros",
+        "functions": 15,
+        "withAliases": 5,
+        "news": 0
+      },
+      {
+        "name": "07.Cobros",
+        "functions": 18,
+        "withAliases": 3,
+        "news": 0
+      },
+      {
+        "name": "08.Financiación",
+        "functions": 42,
+        "withAliases": 18,
+        "news": 2
+      },
+      {
+        "name": "09.Tarjetas",
+        "functions": 23,
+        "withAliases": 3,
+        "news": 0
+      },
+      {
+        "name": "10.Comercio Exterior",
+        "functions": 14,
+        "withAliases": 6,
+        "news": 0
+      },
+      {
+        "name": "11.Adquirencia / TPVs",
+        "functions": 7,
+        "withAliases": 2,
+        "news": 1
+      },
+      {
+        "name": "12.Inversión y Mercados",
+        "functions": 15,
+        "withAliases": 4,
+        "news": 0
+      },
+      {
+        "name": "13.Salud financiera",
+        "functions": 3,
+        "withAliases": 3,
+        "news": 0
+      },
+      {
+        "name": "13.Sostenibilidad",
+        "functions": 1,
+        "withAliases": 1,
+        "news": 0
+      },
+      {
+        "name": "14.Seguros",
+        "functions": 8,
+        "withAliases": 3,
+        "news": 0
+      },
+      {
+        "name": "15.Otros",
+        "functions": 18,
+        "withAliases": 7,
+        "news": 0
+      },
+      {
+        "name": "16.Security Experience & Onboarding",
+        "functions": 17,
+        "withAliases": 10,
+        "news": 0
+      },
+      {
+        "name": "17.Enablers",
+        "functions": 16,
+        "withAliases": 7,
+        "news": 1
+      },
+      {
+        "name": "18.Herramientas Empleados",
+        "functions": 6,
+        "withAliases": 2,
+        "news": 0
+      },
+      {
+        "name": "19.Core",
+        "functions": 24,
+        "withAliases": 6,
+        "news": 0
+      },
+      {
+        "name": "20.Venta Digital",
+        "functions": 8,
+        "withAliases": 7,
+        "news": 0
+      },
+      {
+        "name": "21.Funcionalidad transversal",
+        "functions": 2,
+        "withAliases": 1,
+        "news": 0
+      }
+    ]
+  }
+}

@@ -12,7 +12,8 @@ export function articleTags(row,selection={},novelty=false){
   return newsCoverage(row)+newsTaxonomy(row)+[...new Set(values)].map(value=>'<span class="badge" data-original>'+escape(t(value))+'</span>').join('');
 }
 export function articleDate(row){return '<time datetime="'+escape(row.fecha)+'">'+escape(t('Publicado'))+': '+escape(formatCalendarDay(row.fecha,language))+'</time>';}
-export function articleTitle(row){return '<h3 data-original><a class="story-link" href="'+escape(validUrl(row.url))+'" target="_blank" rel="noopener noreferrer">'+escape(row.titular)+'</a></h3>';}
+export function articleTitle(row){return '<h3 class="story-title" data-original><a class="story-link" href="'+escape(validUrl(row.url))+'" target="_blank" rel="noopener noreferrer">'+escape(row.titular)+'</a></h3>';}
+export function articleEvidence(row){const evidence=row.functionalEvidence;return evidence?.terms?.length?'<details class="article-original"><summary>'+escape(t('Por qué está clasificada aquí'))+'</summary><p>'+escape(t(evidence.method==='literal'?'Coincidencia operativa directa':'Contexto descriptivo del catálogo'))+' · '+escape(t(evidence.location==='headline'?'Titular':'Titular y extracto'))+'</p><p data-original>'+evidence.terms.map(escape).join(' · ')+'</p></details>':'';}
 export function articleContent(row,selection={},novelty=false){
-  return articleHeader(row,articleTitle(row))+(row.extracto?'<p data-original>'+escape(row.extracto)+'</p>':'')+articleOriginal(row)+'<div class="article-metadata"><div class="news-meta">'+articleTags(row,selection,novelty)+'</div><div class="news-meta">'+articleDate(row)+newsPublisher(row)+'</div></div>';
+  return articleHeader(row,articleTitle(row))+(row.extracto?'<p data-original>'+escape(row.extracto)+'</p>':'')+articleOriginal(row)+articleEvidence(row)+'<div class="article-metadata"><div class="news-meta">'+articleTags(row,selection,novelty)+'</div><div class="news-meta">'+articleDate(row)+newsPublisher(row)+'</div></div>';
 }

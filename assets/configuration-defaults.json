@@ -52,7 +52,8 @@
     "newsletterSender": "news-radar.group@bbva.com",
     "newsletterSenderName": "News Radar · BBVA Empresas",
     "newsletterDailyLimit": 100,
-    "newsletterAppUrl": ""
+    "newsletterAppUrl": "",
+    "taxonomyCatalogUrl": "https://docs.google.com/spreadsheets/d/1hsFp-ZiiSsSt_ka73oKAWFlHEySdmJM_IrkBmK6YfH8/edit?gid=1593939800#gid=1593939800"
   },
   "entities": [
     {
@@ -1419,7 +1420,19 @@
         "mipyme",
         "mypes",
         "corporations",
-        "profesional independiente"
+        "profesional independiente",
+        "trade financing",
+        "import-export",
+        "company",
+        "companies",
+        "institución",
+        "instituciones",
+        "institution",
+        "institutions",
+        "organismos públicos",
+        "public sector",
+        "entreprise",
+        "impresa"
       ],
       "enabled": true
     }
@@ -1428,69 +1441,72 @@
     {
       "name": "Lanzamiento de producto",
       "terms": [
-        "lanza",
+        "lanza*",
         "lanzamiento",
         "estrena",
-        "presenta",
+        "presenta*",
         "nuevo",
         "nueva",
-        "launch",
-        "introduce",
+        "launch*",
+        "introduce*",
         "unveils",
         "yeni",
         "launches",
         "introduces",
         "unveil",
         "sunar",
-        "tanıt",
-        "başlat",
+        "tanıt*",
+        "başlat*",
         "piyasaya"
       ],
       "context": [
-        "cuenta",
-        "tarjeta",
-        "plataforma",
-        "producto",
-        "servicio",
-        "financia",
-        "préstamo",
-        "pago",
-        "depósito",
-        "hipoteca",
-        "app",
-        "account",
-        "card",
-        "product",
-        "loan",
-        "leasing",
-        "factoring",
-        "confirming",
-        "crédito",
-        "aval",
-        "seguro",
-        "inversión",
-        "fondo",
-        "monedero",
-        "wallet",
-        "terminal",
-        "tpv",
-        "programa",
-        "service",
-        "platform",
-        "payment",
-        "deposit",
-        "mortgage",
-        "insurance",
-        "investment",
-        "hesap",
-        "kart",
-        "ürün",
-        "hizmet",
-        "ödeme",
-        "kredi",
-        "mevduat",
-        "sigorta",
-        "yatırım"
+        "cuenta*",
+        "tarjeta*",
+        "plataforma*",
+        "producto*",
+        "servicio*",
+        "financia*",
+        "préstamo*",
+        "pago*",
+        "depósito*",
+        "hipoteca*",
+        "app*",
+        "account*",
+        "card*",
+        "product*",
+        "loan*",
+        "leasing*",
+        "factoring*",
+        "confirming*",
+        "crédito*",
+        "aval*",
+        "seguro*",
+        "inversión*",
+        "fondo*",
+        "monedero*",
+        "wallet*",
+        "terminal*",
+        "tpv*",
+        "programa*",
+        "service*",
+        "platform*",
+        "payment*",
+        "deposit*",
+        "mortgage*",
+        "insurance*",
+        "investment*",
+        "hesap*",
+        "kart*",
+        "ürün*",
+        "hizmet*",
+        "ödeme*",
+        "kredi*",
+        "mevduat*",
+        "sigorta*",
+        "yatırım*",
+        "digital*",
+        "kyb",
+        "flujo*"
       ],
       "enabled": true,
       "scope": "headline",
@@ -1512,7 +1528,8 @@
         "nasıl",
         "rehber",
         "ödül"
-      ]
+      ],
+      "group": "Novedad"
     },
     {
       "name": "Mejora de oferta",
@@ -1520,7 +1537,7 @@
         "amplía",
         "mejora",
         "renueva",
-        "incorpora",
+        "incorpora*",
         "reduce",
         "aumenta",
         "enhances",
@@ -1528,41 +1545,44 @@
         "improves",
         "upgrades",
         "extends",
-        "yenile",
-        "geliştir",
-        "genişlet",
-        "iyileştir"
+        "yenile*",
+        "geliştir*",
+        "genişlet*",
+        "iyileştir*"
       ],
       "context": [
-        "cuenta",
-        "tarjeta",
-        "producto",
-        "servicio",
-        "comisión",
-        "tipo",
-        "plataforma",
-        "pago",
-        "financia",
-        "account",
-        "card",
-        "product",
-        "service",
-        "platform",
-        "payment",
-        "loan",
-        "deposit",
-        "mortgage",
-        "insurance",
-        "investment",
-        "hesap",
-        "kart",
-        "ürün",
-        "hizmet",
-        "ödeme",
-        "kredi",
-        "mevduat",
-        "sigorta",
-        "yatırım"
+        "cuenta*",
+        "tarjeta*",
+        "producto*",
+        "servicio*",
+        "comisión*",
+        "tipo*",
+        "plataforma*",
+        "pago*",
+        "financia*",
+        "account*",
+        "card*",
+        "product*",
+        "service*",
+        "platform*",
+        "payment*",
+        "loan*",
+        "deposit*",
+        "mortgage*",
+        "insurance*",
+        "investment*",
+        "hesap*",
+        "kart*",
+        "ürün*",
+        "hizmet*",
+        "ödeme*",
+        "kredi*",
+        "mevduat*",
+        "sigorta*",
+        "yatırım*",
+        "digital*",
+        "kyb",
+        "flujo*"
       ],
       "enabled": true,
       "scope": "headline",
@@ -1584,7 +1604,8 @@
         "nasıl",
         "rehber",
         "ödül"
-      ]
+      ],
+      "group": "Novedad"
     },
     {
       "name": "Alianza estratégica",
@@ -1592,15 +1613,15 @@
         "alianza",
         "acuerdo",
         "partnership",
-        "acuerd",
+        "acuerd*",
         "colabora con",
         "colaboración",
         "partners with",
         "agreement",
         "iş birliği",
         "işbirliği",
-        "ortaklık",
-        "anlaşma"
+        "ortaklık*",
+        "anlaşma*"
       ],
       "context": [],
       "enabled": true,
@@ -1623,6 +1644,144 @@
         "nasıl",
         "rehber",
         "ödül"
+      ],
+      "group": "Novedad"
+    },
+    {
+      "name": "Incidencia operativa",
+      "group": "Problema",
+      "scope": "headline",
+      "enabled": true,
+      "terms": [
+        "no funciona*",
+        "fuera de servicio",
+        "indisponibilidad",
+        "interrupción del servicio",
+        "interrupcion del servicio",
+        "caída de",
+        "caida de",
+        "caída global",
+        "caida global",
+        "se cayó",
+        "se cayo",
+        "sufrió caída",
+        "sufrio caida",
+        "presenta fallas",
+        "presentan fallas",
+        "fallas masivas",
+        "outage",
+        "outages",
+        "goes down",
+        "is down",
+        "service disruption",
+        "service unavailable",
+        "unable to access",
+        "hizmet kesintisi",
+        "kesinti",
+        "erişilemiyor",
+        "serviço indisponível",
+        "fora do ar",
+        "queda do sistema",
+        "no pueden acceder",
+        "caída la app",
+        "caida la app",
+        "app down",
+        "fallas en la app",
+        "reporta fallas",
+        "reportan fallas",
+        "reportan problemas",
+        "intermitencias",
+        "error en los pagos",
+        "errores en pagos",
+        "pagos rechazados",
+        "transferencias fallidas",
+        "transferencias bloqueadas",
+        "transferencias retrasadas",
+        "cobros duplicados",
+        "cargo duplicado",
+        "cobran doble",
+        "cobros indebidos",
+        "payment failures",
+        "failed payments",
+        "payments fail",
+        "duplicate charges",
+        "delayed payments",
+        "delayed transfers",
+        "payment error",
+        "transaction errors",
+        "ödeme hatası",
+        "transfer sorunu",
+        "pagamentos recusados"
+      ],
+      "context": [
+        "app",
+        "canal",
+        "banca",
+        "banking",
+        "plataforma",
+        "portal",
+        "transferencia",
+        "transferencias",
+        "pago",
+        "pagos",
+        "cobro",
+        "cobros",
+        "payment",
+        "payments",
+        "checkout",
+        "terminal",
+        "merchant",
+        "business",
+        "empresa",
+        "empresas",
+        "pymes",
+        "sme",
+        "billetera",
+        "wallet",
+        "online",
+        "servicio",
+        "service",
+        "cuenta",
+        "account",
+        "işletme",
+        "ödeme",
+        "mobil",
+        "tarjeta*",
+        "card*",
+        "comercio*",
+        "merchant*",
+        "business*",
+        "bank*",
+        "sistema"
+      ],
+      "exclude": [
+        "precio de la acción",
+        "precio de las acciones",
+        "cotización",
+        "cotizacion",
+        "beneficio neto",
+        "resultados financieros",
+        "caída del crédito",
+        "caida del credito",
+        "caída de ingresos",
+        "caida de ingresos",
+        "shares fall",
+        "share price",
+        "stock price",
+        "net profit",
+        "quarterly results",
+        "riesgo de caída",
+        "riesgo de caida",
+        "simulacro",
+        "podría fallar",
+        "podria fallar",
+        "could fail",
+        "what to do if",
+        "qué hacer si",
+        "que hacer si",
+        "cómo solucionar",
+        "como solucionar",
+        "how to fix"
       ]
     }
   ],
@@ -2175,6 +2334,95 @@
           "transfers"
         ],
         "enabled": true
+      },
+      {
+        "name": "Nóminas digitales",
+        "terms": [
+          "nominas digitales",
+          "payroll",
+          "real-time payroll",
+          "nominas en tiempo real"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Impuestos y pagos de servicios",
+        "terms": [
+          "pago de impuestos",
+          "tax payments",
+          "bill payments",
+          "pago de servicios",
+          "request to pay",
+          "request-to-pay"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Adquirencia y terminales",
+        "terms": [
+          "adquirencia",
+          "merchant acquiring",
+          "tpv",
+          "softpos",
+          "tap to phone",
+          "commerce 360"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Inversión y depósitos de empresa",
+        "terms": [
+          "depositos a plazo",
+          "term deposit",
+          "fondos de inversion",
+          "investment funds",
+          "securities custody",
+          "custodia de valores"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Sostenibilidad y salud financiera",
+        "terms": [
+          "huella de carbono",
+          "carbon footprint",
+          "salud financiera",
+          "financial health"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Seguros digitales de empresa",
+        "terms": [
+          "ciberseguro",
+          "cyber insurance",
+          "seguros para empresas",
+          "business insurance"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Capacidades de venta digital",
+        "terms": [
+          "retargeting",
+          "deeplink",
+          "deep link",
+          "quantum",
+          "a/b testing",
+          "campaign attribution"
+        ],
+        "enabled": true
+      },
+      {
+        "name": "Pagos con activos digitales",
+        "terms": [
+          "stablecoin",
+          "stablecoins",
+          "tokenized payments",
+          "pagos tokenizados",
+          "tokenised payments"
+        ],
+        "enabled": true
       }
     ]
   },
@@ -2290,7 +2538,27 @@
         "limites de tarjetas",
         "dispositivos",
         "seguridad",
-        "linea de credito"
+        "linea de credito",
+        "nominas digitales",
+        "pago de impuestos",
+        "adquirencia",
+        "depositos a plazo",
+        "huella de carbono",
+        "salud financiera",
+        "ciberseguro",
+        "stablecoins",
+        "request to pay",
+        "deeplink",
+        "pagos vostro",
+        "cuentas vostro",
+        "Quantum",
+        "depósitos tokenizados",
+        "pagos con stablecoins",
+        "agentes de ia",
+        "indisponibilidad",
+        "intermitencias",
+        "fallas masivas",
+        "transferencias fallidas"
       ],
       "enabled": true
     },
@@ -2394,7 +2662,36 @@
         "spending controls",
         "card limits",
         "devices",
-        "security"
+        "security",
+        "payroll",
+        "tax payments",
+        "merchant acquiring",
+        "term deposit",
+        "carbon footprint",
+        "financial health",
+        "cyber insurance",
+        "stablecoin",
+        "request to pay",
+        "deep link",
+        "vostro payments",
+        "vostro accounts",
+        "Quantum",
+        "tokenized deposits",
+        "tokenised deposits",
+        "stablecoin payouts",
+        "stablecoin payments",
+        "ai agents",
+        "personal agent protocol",
+        "trade finance automation",
+        "automate trade finance",
+        "cleareye",
+        "payment gateway",
+        "custody",
+        "model context protocol",
+        "outage",
+        "service disruption",
+        "payment failures",
+        "delayed payments"
       ],
       "enabled": true
     },
@@ -2411,7 +2708,11 @@
         "ürün",
         "lansman",
         "nakit yonetimi",
-        "mobil bankacilik"
+        "mobil bankacilik",
+        "hizmet kesintisi",
+        "kesinti",
+        "ödeme hatası",
+        "transfer sorunu"
       ],
       "enabled": true
     },
@@ -2454,7 +2755,10 @@
       "terms": [
         "banca digital",
         "conta digital",
-        "pagamentos digitais"
+        "pagamentos digitais",
+        "serviço indisponível",
+        "fora do ar",
+        "pagamentos recusados"
       ],
       "enabled": true
     },
@@ -2524,7 +2828,9 @@
         "nfc",
         "cashless",
         "datáfono",
-        "e-invoicing"
+        "e-invoicing",
+        "pasarela de pago",
+        "pasarelas de pago"
       ],
       "enabled": true
     },
@@ -2588,7 +2894,20 @@
         "swift",
         "stablecoin*",
         "tokenized deposits",
-        "tokenised deposits"
+        "tokenised deposits",
+        "nominas",
+        "payroll",
+        "impuestos",
+        "tax",
+        "adquirencia",
+        "depositos",
+        "deposit",
+        "seguros",
+        "insurance",
+        "huella de carbono",
+        "carbon footprint",
+        "stablecoin",
+        "stablecoins"
       ],
       "enabled": true
     },
@@ -2637,7 +2956,14 @@
         "cybersecurity",
         "biometri*",
         "passkey*",
-        "rcs"
+        "rcs",
+        "request to pay",
+        "cyber insurance",
+        "ciberseguro",
+        "stablecoin",
+        "stablecoins",
+        "retargeting",
+        "deeplink"
       ],
       "enabled": true
     },
@@ -2666,7 +2992,9 @@
         "swift",
         "stablecoin*",
         "tokenized deposits",
-        "tokenised deposits"
+        "tokenised deposits",
+        "payment processing",
+        "procesamiento de pagos"
       ],
       "enabled": true
     },
@@ -2719,7 +3047,11 @@
         "beneficios del grupo",
         "resultado neto",
         "net income",
-        "quarterly results"
+        "quarterly results",
+        "acquires",
+        "para comprar la empresa",
+        "adquiere la empresa",
+        "compra de la compañía"
       ],
       "enabled": true
     },
@@ -2769,7 +3101,9 @@
         "estudiantes",
         "family",
         "familiares",
-        "retirement"
+        "retirement",
+        "familiares y amigos",
+        "friends and family"
       ],
       "enabled": true
     },
@@ -2792,7 +3126,17 @@
         "como retirar",
         "usos reales",
         "consejos para",
-        "tips for"
+        "tips for",
+        "why",
+        "por qué",
+        "cómo la",
+        "como la",
+        "survey",
+        "surveyed",
+        "study finds",
+        "report",
+        "trends in",
+        "data shows"
       ],
       "enabled": true
     },
@@ -2820,22 +3164,6 @@
         "mantenimiento de",
         "mantenimiento la",
         "mantenimiento el",
-        "caida de",
-        "sufrio caida",
-        "presenta fallas",
-        "presentan fallas",
-        "reporta fallas",
-        "reportan fallas",
-        "reportan problemas",
-        "habrian problemas",
-        "fallas masivas",
-        "se cayo",
-        "colapsaron",
-        "caida global",
-        "falla global",
-        "no funciona*",
-        "goes down",
-        "outage",
         "suspendera*",
         "fraudulent",
         "sospechosos",
@@ -2848,14 +3176,2430 @@
         "supremo condena",
         "mis-selling",
         "coupon payments",
-        "intermitencias",
-        "no podian",
-        "fuera de servicio",
-        "no se puede iniciar",
         "pagos a cardama",
         "falta de pagos"
       ],
       "enabled": true
+    }
+  ],
+  "taxonomy": [
+    {
+      "name": "01.Home",
+      "terms": [
+        "dashboard",
+        "posicion global",
+        "home banking"
+      ],
+      "functions": [
+        {
+          "id": "01.01",
+          "terms": [
+            "posicion global",
+            "financial dashboard",
+            "dashboard",
+            "home banking",
+            "digital banking solution",
+            "corporate banking platform",
+            "app itau empresas",
+            "banca digital empresarial"
+          ],
+          "context": [
+            "dashboard",
+            "posición global",
+            "posicion global",
+            "visión integral",
+            "vision integral",
+            "vista global",
+            "posicion de productos",
+            "posición de productos",
+            "account overview",
+            "financial overview",
+            "product overview",
+            "aggregate",
+            "aggregated"
+          ]
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "02.Cuentas",
+      "terms": [
+        "cuentas",
+        "accounts",
+        "cash management",
+        "tesoreria",
+        "liquidez",
+        "conciliacion",
+        "cash pooling",
+        "reconciliation",
+        "cuenta",
+        "account",
+        "liquidity",
+        "treasury"
+      ],
+      "functions": [
+        {
+          "id": "02.01",
+          "terms": [
+            "landing de cuentas",
+            "dashboard de cuentas",
+            "visión integral de cuentas",
+            "aggregate accounts"
+          ]
+        },
+        {
+          "id": "02.02",
+          "terms": [
+            "movimientos de cuenta",
+            "account transactions"
+          ]
+        },
+        {
+          "id": "02.03",
+          "terms": [
+            "estado de cuenta",
+            "account statement"
+          ]
+        },
+        {
+          "id": "02.04",
+          "terms": []
+        },
+        {
+          "id": "02.05",
+          "terms": [
+            "camt053",
+            "camt.053",
+            "cuaderno 43"
+          ]
+        },
+        {
+          "id": "02.06",
+          "terms": [
+            "multicash",
+            "bai-2"
+          ]
+        },
+        {
+          "id": "02.07",
+          "terms": []
+        },
+        {
+          "id": "02.08",
+          "terms": []
+        },
+        {
+          "id": "02.09",
+          "terms": [
+            "cash pooling",
+            "centralizacion de cuentas"
+          ]
+        },
+        {
+          "id": "02.10",
+          "terms": []
+        },
+        {
+          "id": "02.11",
+          "terms": [
+            "agregacion de cuentas",
+            "account aggregation",
+            "multibank"
+          ]
+        },
+        {
+          "id": "02.12",
+          "terms": []
+        },
+        {
+          "id": "02.13",
+          "terms": []
+        },
+        {
+          "id": "02.14",
+          "terms": [
+            "segunda cuenta",
+            "additional account"
+          ]
+        },
+        {
+          "id": "02.15",
+          "terms": []
+        },
+        {
+          "id": "02.16",
+          "terms": []
+        },
+        {
+          "id": "02.17",
+          "terms": []
+        },
+        {
+          "id": "02.18",
+          "terms": []
+        },
+        {
+          "id": "02.19",
+          "terms": []
+        },
+        {
+          "id": "02.20",
+          "terms": []
+        },
+        {
+          "id": "02.21",
+          "terms": []
+        }
+      ],
+      "emerging": [
+        {
+          "name": "Depósitos tokenizados",
+          "terms": [
+            "depositos tokenizados",
+            "deposito tokenizado",
+            "tokenized deposits",
+            "tokenised deposits",
+            "tokenized deposit",
+            "tokenised deposit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03.Pagos - Transf. y traspasos",
+      "terms": [
+        "pagos",
+        "payments",
+        "transferencias",
+        "transfers",
+        "stablecoin",
+        "stablecoins",
+        "remesas",
+        "remittances"
+      ],
+      "functions": [
+        {
+          "id": "03.01",
+          "terms": [
+            "landing de pagos",
+            "dashboard de pagos",
+            "visión integral de pagos",
+            "aggregate payments"
+          ]
+        },
+        {
+          "id": "03.02",
+          "terms": []
+        },
+        {
+          "id": "03.03",
+          "terms": []
+        },
+        {
+          "id": "03.04",
+          "terms": []
+        },
+        {
+          "id": "03.05",
+          "terms": []
+        },
+        {
+          "id": "03.06",
+          "terms": [
+            "transferencias masivas",
+            "bulk transfers",
+            "bulk payments"
+          ]
+        },
+        {
+          "id": "03.07",
+          "terms": []
+        },
+        {
+          "id": "03.08",
+          "terms": []
+        },
+        {
+          "id": "03.09",
+          "terms": [
+            "pagos vostro",
+            "vostro payments",
+            "cuentas vostro",
+            "vostro accounts"
+          ]
+        },
+        {
+          "id": "03.10",
+          "terms": []
+        },
+        {
+          "id": "03.11",
+          "terms": []
+        },
+        {
+          "id": "03.12",
+          "terms": []
+        },
+        {
+          "id": "03.13",
+          "terms": [
+            "transferencias internacionales",
+            "cross-border payments",
+            "international transfers",
+            "international payments",
+            "pagos internacionales",
+            "cross border payments",
+            "international remittances",
+            "remesas internacionales",
+            "cross-border real-time payments",
+            "x-border real-time payments",
+            "cross border real time payments"
+          ]
+        },
+        {
+          "id": "03.14",
+          "terms": [
+            "transferencias masivas internacionales",
+            "international bulk payments",
+            "bulk international transfers",
+            "cross-border bulk payments"
+          ]
+        },
+        {
+          "id": "03.15",
+          "terms": []
+        },
+        {
+          "id": "03.16",
+          "terms": [
+            "pago a proveedores",
+            "supplier payments"
+          ]
+        },
+        {
+          "id": "03.17",
+          "terms": []
+        },
+        {
+          "id": "03.18",
+          "terms": [
+            "pagos programados",
+            "scheduled payments",
+            "recurring payments"
+          ]
+        },
+        {
+          "id": "03.19",
+          "terms": []
+        },
+        {
+          "id": "03.20",
+          "terms": []
+        },
+        {
+          "id": "03.21",
+          "terms": [
+            "transferencias en streaming"
+          ]
+        },
+        {
+          "id": "03.22",
+          "terms": []
+        },
+        {
+          "id": "03.23",
+          "terms": []
+        },
+        {
+          "id": "03.24",
+          "terms": []
+        },
+        {
+          "id": "03.25",
+          "terms": [
+            "iniciacion de pagos",
+            "payment initiation"
+          ]
+        },
+        {
+          "id": "03.26",
+          "terms": []
+        },
+        {
+          "id": "03.27",
+          "terms": [
+            "swift gpi",
+            "swift-gpi"
+          ],
+          "context": [
+            "tracking",
+            "trazabilidad",
+            "seguimiento",
+            "swift gpi",
+            "swift-gpi",
+            "payment trace",
+            "track transfers"
+          ]
+        }
+      ],
+      "emerging": [
+        {
+          "name": "Pagos con stablecoins",
+          "terms": [
+            "pagos con stablecoins",
+            "pagos en stablecoins",
+            "pagos con stablecoin",
+            "pagos stablecoins",
+            "stablecoin payments",
+            "stablecoin payment",
+            "payments with stablecoins",
+            "stablecoins payments",
+            "transferencias con stablecoins",
+            "stablecoin transfers",
+            "stablecoin payouts",
+            "stablecoin",
+            "stablecoins"
+          ],
+          "context": [
+            "pago",
+            "pagos",
+            "payment",
+            "payments",
+            "settlement",
+            "liquidación",
+            "treasury",
+            "tesorería",
+            "merchant",
+            "comercio",
+            "tarjetas",
+            "cards",
+            "remesas",
+            "remittance",
+            "transfer",
+            "transferencias",
+            "checkout",
+            "payouts",
+            "accept stablecoins",
+            "aceptar stablecoins",
+            "conversion",
+            "interoperability"
+          ],
+          "exclude": [
+            "share price",
+            "stock price",
+            "net profit"
+          ]
+        },
+        {
+          "name": "Pagos agénticos",
+          "terms": [
+            "agentic payments",
+            "agentic payment",
+            "pagos agénticos",
+            "pagos agenticos",
+            "pago agéntico",
+            "pago agentico",
+            "pagos desde chatgpt",
+            "pago real con inteligencia artificial",
+            "agentes de pago",
+            "ai-agent payments",
+            "ai agent payments",
+            "pagos con ia",
+            "pagos de agentes de ia",
+            "pago real con un agente",
+            "pago real con inteligencia artificial"
+          ],
+          "context": [
+            "pago",
+            "pagos",
+            "payment",
+            "payments",
+            "checkout",
+            "transacción",
+            "transaction",
+            "micropayments"
+          ],
+          "exclude": [
+            "trading bots",
+            "price prediction"
+          ]
+        },
+        {
+          "name": "Pagos con moneda digital de banco central (CBDC)",
+          "terms": [
+            "digital rupee",
+            "rupia digital",
+            "digital euro payments",
+            "pagos con euro digital",
+            "cbdc payments",
+            "pagos con cbdc"
+          ],
+          "context": [
+            "pago",
+            "pagos",
+            "payments",
+            "payment",
+            "checkout",
+            "merchant",
+            "corporate",
+            "empresa",
+            "empresas",
+            "allowances",
+            "offline"
+          ],
+          "exclude": [
+            "price prediction",
+            "share price"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04.Pagos - Nóminas",
+      "terms": [
+        "nominas",
+        "payroll",
+        "salarios"
+      ],
+      "functions": [
+        {
+          "id": "04.01",
+          "terms": [
+            "nóminas en tiempo real",
+            "dashboard de nóminas en tiempo real",
+            "visión integral de nóminas en tiempo real",
+            "aggregate payroll"
+          ]
+        },
+        {
+          "id": "04.02",
+          "terms": [
+            "tracking de nominas",
+            "payroll tracking"
+          ]
+        },
+        {
+          "id": "04.03",
+          "terms": []
+        },
+        {
+          "id": "04.04",
+          "terms": []
+        },
+        {
+          "id": "04.05",
+          "terms": []
+        },
+        {
+          "id": "04.06",
+          "terms": []
+        },
+        {
+          "id": "04.07",
+          "terms": []
+        },
+        {
+          "id": "04.08",
+          "terms": []
+        },
+        {
+          "id": "04.09",
+          "terms": []
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "05.Pagos - Impuestos",
+      "terms": [
+        "impuestos",
+        "tax payments",
+        "tributos",
+        "cfdi"
+      ],
+      "functions": [
+        {
+          "id": "05.01",
+          "terms": [
+            "datos fiscales",
+            "tax information"
+          ]
+        },
+        {
+          "id": "05.02",
+          "terms": []
+        },
+        {
+          "id": "05.03",
+          "terms": []
+        },
+        {
+          "id": "05.04",
+          "terms": []
+        },
+        {
+          "id": "05.05",
+          "terms": []
+        },
+        {
+          "id": "05.06",
+          "terms": []
+        },
+        {
+          "id": "05.07",
+          "terms": []
+        },
+        {
+          "id": "05.08",
+          "terms": [
+            "customs duty",
+            "customs tax",
+            "customs payments",
+            "impuestos aduanales",
+            "pago de aduanas",
+            "icegate"
+          ]
+        },
+        {
+          "id": "05.09",
+          "terms": []
+        },
+        {
+          "id": "05.10",
+          "terms": []
+        },
+        {
+          "id": "05.11",
+          "terms": []
+        },
+        {
+          "id": "05.12",
+          "terms": []
+        },
+        {
+          "id": "05.13",
+          "terms": []
+        },
+        {
+          "id": "05.14",
+          "terms": []
+        },
+        {
+          "id": "05.15",
+          "terms": []
+        },
+        {
+          "id": "05.16",
+          "terms": []
+        },
+        {
+          "id": "05.17",
+          "terms": []
+        },
+        {
+          "id": "05.18",
+          "terms": []
+        },
+        {
+          "id": "05.19",
+          "terms": []
+        },
+        {
+          "id": "05.20",
+          "terms": []
+        },
+        {
+          "id": "05.21",
+          "terms": []
+        },
+        {
+          "id": "05.22",
+          "terms": []
+        },
+        {
+          "id": "05.23",
+          "terms": [
+            "impuestos provinciales",
+            "provincial tax",
+            "state tax payments"
+          ]
+        },
+        {
+          "id": "05.24",
+          "terms": []
+        },
+        {
+          "id": "05.25",
+          "terms": []
+        },
+        {
+          "id": "05.26",
+          "terms": [
+            "impuestos masivos",
+            "bulk tax payments"
+          ]
+        },
+        {
+          "id": "05.27",
+          "terms": []
+        }
+      ],
+      "emerging": [
+        {
+          "name": "Pagos de impuestos F24 / I24",
+          "terms": [
+            "pagamenti f24",
+            "pagamenti f24 e i24",
+            "impuestos f24",
+            "f24 tax",
+            "f24 e i24",
+            "f24 e tasso"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06.Pagos - Servicios y otros",
+      "terms": [
+        "pago de servicios",
+        "bill payments",
+        "cheques",
+        "checks",
+        "request to pay"
+      ],
+      "functions": [
+        {
+          "id": "06.01",
+          "terms": [
+            "pagos individuales cie o servicios/recibos no domicilados",
+            "dashboard de pagos individuales cie o servicios/recibos no domicilados",
+            "visión integral de pagos individuales cie o servicios/recibos no domicilados",
+            "aggregate payments"
+          ]
+        },
+        {
+          "id": "06.02",
+          "terms": []
+        },
+        {
+          "id": "06.03",
+          "terms": [
+            "pse pagos"
+          ]
+        },
+        {
+          "id": "06.04",
+          "terms": []
+        },
+        {
+          "id": "06.05",
+          "terms": []
+        },
+        {
+          "id": "06.06",
+          "terms": [
+            "request to pay",
+            "request-to-pay",
+            "solicitud de pago"
+          ],
+          "context": [
+            "request to pay",
+            "request-to-pay",
+            "solicitud de pago",
+            "petición de pago",
+            "payment request",
+            "codi"
+          ]
+        },
+        {
+          "id": "06.07",
+          "terms": []
+        },
+        {
+          "id": "06.08",
+          "terms": []
+        },
+        {
+          "id": "06.09",
+          "terms": [
+            "mandatos sepa",
+            "sepa mandates"
+          ]
+        },
+        {
+          "id": "06.10",
+          "terms": []
+        },
+        {
+          "id": "06.11",
+          "terms": []
+        },
+        {
+          "id": "06.12",
+          "terms": [
+            "contratacion de domiciliaciones"
+          ]
+        },
+        {
+          "id": "06.13",
+          "terms": []
+        },
+        {
+          "id": "06.14",
+          "terms": []
+        },
+        {
+          "id": "06.15",
+          "terms": [
+            "echeqs pago"
+          ]
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "07.Cobros",
+      "terms": [
+        "cobros",
+        "collections",
+        "recaudacion",
+        "direct debit"
+      ],
+      "functions": [
+        {
+          "id": "07.01",
+          "terms": [
+            "landing de cobros",
+            "dashboard de cobros",
+            "visión integral de cobros",
+            "aggregate collections"
+          ]
+        },
+        {
+          "id": "07.02",
+          "terms": [
+            "adeudos directos",
+            "direct debit",
+            "debito automatico"
+          ]
+        },
+        {
+          "id": "07.03",
+          "terms": []
+        },
+        {
+          "id": "07.04",
+          "terms": []
+        },
+        {
+          "id": "07.05",
+          "terms": []
+        },
+        {
+          "id": "07.06",
+          "terms": []
+        },
+        {
+          "id": "07.07",
+          "terms": []
+        },
+        {
+          "id": "07.08",
+          "terms": []
+        },
+        {
+          "id": "07.09",
+          "terms": []
+        },
+        {
+          "id": "07.10",
+          "terms": [
+            "transferencias nacionales recibidas"
+          ]
+        },
+        {
+          "id": "07.11",
+          "terms": [
+            "transferencias internacionales recibidas"
+          ]
+        },
+        {
+          "id": "07.12",
+          "terms": []
+        },
+        {
+          "id": "07.13",
+          "terms": []
+        },
+        {
+          "id": "07.14",
+          "terms": []
+        },
+        {
+          "id": "07.15",
+          "terms": []
+        },
+        {
+          "id": "07.16",
+          "terms": []
+        },
+        {
+          "id": "07.17",
+          "terms": []
+        },
+        {
+          "id": "07.18",
+          "terms": []
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "08.Financiación",
+      "terms": [
+        "financiacion",
+        "financing",
+        "lending",
+        "credito",
+        "credit",
+        "prestamo",
+        "loan",
+        "factoring",
+        "confirming",
+        "leasing",
+        "financiamiento",
+        "financiamientos",
+        "creditos",
+        "prestamos",
+        "loans",
+        "credits"
+      ],
+      "functions": [
+        {
+          "id": "08.01",
+          "terms": [
+            "landing de financiación",
+            "dashboard de financiación",
+            "visión integral de financiación",
+            "aggregate financing"
+          ]
+        },
+        {
+          "id": "08.02",
+          "terms": [
+            "credito virtual",
+            "virtual credit"
+          ]
+        },
+        {
+          "id": "08.03",
+          "terms": []
+        },
+        {
+          "id": "08.04",
+          "terms": []
+        },
+        {
+          "id": "08.05",
+          "terms": []
+        },
+        {
+          "id": "08.06",
+          "terms": [
+            "fastcash",
+            "fast cash"
+          ]
+        },
+        {
+          "id": "08.07",
+          "terms": []
+        },
+        {
+          "id": "08.08",
+          "terms": []
+        },
+        {
+          "id": "08.09",
+          "terms": []
+        },
+        {
+          "id": "08.10",
+          "terms": [
+            "linea de credito digital",
+            "digital credit line",
+            "ocdl"
+          ]
+        },
+        {
+          "id": "08.11",
+          "terms": [
+            "cupo rotativo",
+            "revolving credit"
+          ]
+        },
+        {
+          "id": "08.12",
+          "terms": [
+            "prestamo empresarial",
+            "business loan",
+            "credito simple"
+          ]
+        },
+        {
+          "id": "08.13",
+          "terms": [
+            "click and pay"
+          ],
+          "context": [
+            "financiación",
+            "financiamiento",
+            "amortización",
+            "preautorizado",
+            "financing",
+            "credit line",
+            "loan"
+          ]
+        },
+        {
+          "id": "08.14",
+          "terms": []
+        },
+        {
+          "id": "08.15",
+          "terms": []
+        },
+        {
+          "id": "08.16",
+          "terms": [
+            "anticipo confirming",
+            "reverse factoring advances"
+          ]
+        },
+        {
+          "id": "08.17",
+          "terms": [
+            "crediproveedor pyme"
+          ]
+        },
+        {
+          "id": "08.18",
+          "terms": []
+        },
+        {
+          "id": "08.19",
+          "terms": [
+            "descuento mercantil"
+          ]
+        },
+        {
+          "id": "08.20",
+          "terms": []
+        },
+        {
+          "id": "08.21",
+          "terms": [
+            "leasing"
+          ]
+        },
+        {
+          "id": "08.22",
+          "terms": [
+            "renting"
+          ]
+        },
+        {
+          "id": "08.23",
+          "terms": []
+        },
+        {
+          "id": "08.24",
+          "terms": [
+            "simulador de credito"
+          ]
+        },
+        {
+          "id": "08.25",
+          "terms": [
+            "prestamo tpv",
+            "merchant cash advance"
+          ]
+        },
+        {
+          "id": "08.26",
+          "terms": []
+        },
+        {
+          "id": "08.27",
+          "terms": []
+        },
+        {
+          "id": "08.28",
+          "terms": [
+            "prestamo online negocio",
+            "online business loan"
+          ]
+        },
+        {
+          "id": "08.29",
+          "terms": [
+            "credito pyme digital"
+          ]
+        },
+        {
+          "id": "08.30",
+          "terms": []
+        },
+        {
+          "id": "08.31",
+          "terms": [
+            "credito digital flexible"
+          ]
+        },
+        {
+          "id": "08.32",
+          "terms": []
+        },
+        {
+          "id": "08.33",
+          "terms": [
+            "solicitud de aval",
+            "digital bank guarantee"
+          ]
+        },
+        {
+          "id": "08.34",
+          "terms": []
+        },
+        {
+          "id": "08.35",
+          "terms": []
+        },
+        {
+          "id": "08.36",
+          "terms": []
+        },
+        {
+          "id": "08.37",
+          "terms": []
+        },
+        {
+          "id": "08.38",
+          "terms": []
+        },
+        {
+          "id": "08.39",
+          "terms": []
+        },
+        {
+          "id": "08.40",
+          "terms": []
+        },
+        {
+          "id": "08.41",
+          "terms": [
+            "factoring digital",
+            "invoice financing",
+            "descuento de facturas"
+          ]
+        },
+        {
+          "id": "08.42",
+          "terms": []
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "09.Tarjetas",
+      "terms": [
+        "tarjetas",
+        "cards",
+        "card",
+        "wallet",
+        "wallets",
+        "gestion de gastos",
+        "expense management"
+      ],
+      "functions": [
+        {
+          "id": "09.01",
+          "terms": [
+            "landing de tarjetas/ listado de tarjetas",
+            "dashboard de tarjetas/ listado de tarjetas",
+            "visión integral de tarjetas/ listado de tarjetas",
+            "aggregate cards"
+          ]
+        },
+        {
+          "id": "09.02",
+          "terms": []
+        },
+        {
+          "id": "09.03",
+          "terms": []
+        },
+        {
+          "id": "09.04",
+          "terms": []
+        },
+        {
+          "id": "09.05",
+          "terms": []
+        },
+        {
+          "id": "09.06",
+          "terms": [
+            "bloquear tarjeta de credito",
+            "credit card freeze"
+          ]
+        },
+        {
+          "id": "09.07",
+          "terms": []
+        },
+        {
+          "id": "09.08",
+          "terms": []
+        },
+        {
+          "id": "09.09",
+          "terms": [],
+          "context": [
+            "pago de tarjeta",
+            "pago de la tarjeta",
+            "pagar la tarjeta",
+            "pagar tarjeta",
+            "pago mínimo",
+            "saldar",
+            "deuda de tarjeta",
+            "card bill",
+            "credit card bill",
+            "card repayment",
+            "repay credit card"
+          ]
+        },
+        {
+          "id": "09.10",
+          "terms": [
+            "bloquear tarjeta de debito",
+            "debit card freeze"
+          ]
+        },
+        {
+          "id": "09.11",
+          "terms": []
+        },
+        {
+          "id": "09.12",
+          "terms": []
+        },
+        {
+          "id": "09.13",
+          "terms": []
+        },
+        {
+          "id": "09.14",
+          "terms": []
+        },
+        {
+          "id": "09.15",
+          "terms": []
+        },
+        {
+          "id": "09.16",
+          "terms": []
+        },
+        {
+          "id": "09.17",
+          "terms": []
+        },
+        {
+          "id": "09.18",
+          "terms": []
+        },
+        {
+          "id": "09.19",
+          "terms": []
+        },
+        {
+          "id": "09.20",
+          "terms": [
+            "cvv dinamico",
+            "dynamic cvv"
+          ]
+        },
+        {
+          "id": "09.21",
+          "terms": []
+        },
+        {
+          "id": "09.22",
+          "terms": []
+        },
+        {
+          "id": "09.23",
+          "terms": []
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "10.Comercio Exterior",
+      "terms": [
+        "comercio exterior",
+        "trade finance",
+        "divisas",
+        "foreign exchange",
+        "swift"
+      ],
+      "functions": [
+        {
+          "id": "10.01",
+          "terms": [
+            "carta de credito de exportacion",
+            "export letter of credit"
+          ]
+        },
+        {
+          "id": "10.02",
+          "terms": [
+            "carta de credito de importacion",
+            "import letter of credit"
+          ]
+        },
+        {
+          "id": "10.03",
+          "terms": []
+        },
+        {
+          "id": "10.04",
+          "terms": [
+            "financiacion de importaciones",
+            "export finance"
+          ]
+        },
+        {
+          "id": "10.05",
+          "terms": [
+            "cambio de divisas",
+            "foreign exchange",
+            "currency exchange"
+          ]
+        },
+        {
+          "id": "10.06",
+          "terms": []
+        },
+        {
+          "id": "10.07",
+          "terms": [
+            "digital trade loan",
+            "digital trade finance",
+            "trade finance platform"
+          ]
+        },
+        {
+          "id": "10.08",
+          "terms": []
+        },
+        {
+          "id": "10.09",
+          "terms": []
+        },
+        {
+          "id": "10.10",
+          "terms": []
+        },
+        {
+          "id": "10.11",
+          "terms": []
+        },
+        {
+          "id": "10.12",
+          "terms": [
+            "t-cambio"
+          ]
+        },
+        {
+          "id": "10.13",
+          "terms": []
+        },
+        {
+          "id": "10.14",
+          "terms": []
+        }
+      ],
+      "emerging": [
+        {
+          "name": "Automatización documental de trade finance",
+          "terms": [
+            "automate trade finance",
+            "trade finance automation",
+            "trade finance overhaul",
+            "ai across trade finance",
+            "ai deal for trade finance",
+            "cleareye"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "11.Adquirencia / TPVs",
+      "terms": [
+        "adquirencia",
+        "acquiring",
+        "tpv",
+        "pos",
+        "checkout",
+        "merchant services",
+        "softpos",
+        "tap to phone",
+        "tap to pay",
+        "punto de venta móvil",
+        "cobro al toque"
+      ],
+      "functions": [
+        {
+          "id": "11.01",
+          "terms": [
+            "landing tpvs (reportería tpvs)",
+            "dashboard de tpvs (reportería tpvs)",
+            "visión integral de tpvs (reportería tpvs)",
+            "aggregate terminals"
+          ]
+        },
+        {
+          "id": "11.02",
+          "terms": [
+            "contratacion tpv",
+            "digital merchant onboarding",
+            "merchant acquiring onboarding",
+            "alta de comercio",
+            "afiliación de comercios"
+          ],
+          "context": [
+            "alta de comercio",
+            "afiliación",
+            "afiliacion",
+            "contratación",
+            "contratacion",
+            "merchant onboarding",
+            "merchant registration",
+            "merchant acquiring onboarding",
+            "new payment terminal",
+            "solicitar tpv",
+            "solicitud tpv"
+          ]
+        },
+        {
+          "id": "11.03",
+          "terms": []
+        },
+        {
+          "id": "11.04",
+          "terms": []
+        },
+        {
+          "id": "11.05",
+          "terms": []
+        },
+        {
+          "id": "11.06",
+          "terms": [
+            "commerce 360"
+          ]
+        },
+        {
+          "id": "11.07",
+          "terms": [],
+          "context": [
+            "argentina",
+            "bbva smart"
+          ]
+        }
+      ],
+      "emerging": [
+        {
+          "name": "Cobro con móvil (SoftPOS)",
+          "terms": [
+            "cobro al toque",
+            "cobro al toque bbva",
+            "softpos",
+            "tap to phone",
+            "tap on phone",
+            "smartphone payment terminal",
+            "móvil como tpv",
+            "movil como tpv",
+            "tap-to-phone",
+            "tap-on-phone",
+            "phones into contactless payment terminals"
+          ],
+          "primary": true,
+          "primaryTerms": [
+            "cobro al toque"
+          ],
+          "context": [
+            "cobro",
+            "cobros",
+            "merchant",
+            "comercio",
+            "terminal",
+            "phone",
+            "smartphone",
+            "móvil",
+            "tpv",
+            "accept payments",
+            "payment acceptance"
+          ]
+        },
+        {
+          "name": "Cobros biométricos en comercios",
+          "terms": [
+            "pay with smile",
+            "facial recognition checkout",
+            "facial recognition payments",
+            "biometric checkout",
+            "pagos biométricos",
+            "pagos biometricos",
+            "face pay"
+          ],
+          "context": [
+            "comercio",
+            "comercios",
+            "merchant",
+            "checkout",
+            "store",
+            "stores",
+            "terminal",
+            "pos",
+            "purchases",
+            "pay with smile"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "12.Inversión y Mercados",
+      "terms": [
+        "inversion",
+        "investment",
+        "deposito",
+        "deposit",
+        "ahorro",
+        "savings",
+        "inversiones",
+        "investments",
+        "depositos",
+        "deposits"
+      ],
+      "functions": [
+        {
+          "id": "12.01",
+          "terms": [
+            "inversión libre patrimonial",
+            "dashboard de inversión libre patrimonial",
+            "visión integral de inversión libre patrimonial",
+            "aggregate investments"
+          ]
+        },
+        {
+          "id": "12.02",
+          "terms": []
+        },
+        {
+          "id": "12.03",
+          "terms": []
+        },
+        {
+          "id": "12.04",
+          "terms": [
+            "depositos a plazo",
+            "term deposit",
+            "time deposit"
+          ]
+        },
+        {
+          "id": "12.05",
+          "terms": [
+            "fondos de inversion",
+            "investment funds"
+          ]
+        },
+        {
+          "id": "12.06",
+          "terms": []
+        },
+        {
+          "id": "12.07",
+          "terms": [
+            "mercados globales",
+            "global markets",
+            "mesa de tesoreria",
+            "trading desk",
+            "trading algoritmico",
+            "trader algoritmico",
+            "algorithmic trading"
+          ]
+        },
+        {
+          "id": "12.08",
+          "terms": []
+        },
+        {
+          "id": "12.09",
+          "terms": []
+        },
+        {
+          "id": "12.10",
+          "terms": [
+            "custodia de valores",
+            "securities custody",
+            "custody",
+            "custodia"
+          ]
+        },
+        {
+          "id": "12.11",
+          "terms": []
+        },
+        {
+          "id": "12.12",
+          "terms": []
+        },
+        {
+          "id": "12.13",
+          "terms": [
+            "broker"
+          ]
+        },
+        {
+          "id": "12.14",
+          "terms": []
+        },
+        {
+          "id": "12.15",
+          "terms": []
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "13.Salud financiera",
+      "terms": [
+        "salud financiera",
+        "financial health",
+        "financial analysis"
+      ],
+      "functions": [
+        {
+          "id": "13.02",
+          "terms": [
+            "finanzas inteligentes",
+            "factura empresarial"
+          ]
+        },
+        {
+          "id": "13.03",
+          "terms": [
+            "analisis financiero",
+            "financial analysis"
+          ]
+        },
+        {
+          "id": "13.04",
+          "terms": [
+            "salud financiera",
+            "financial health"
+          ]
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "13.Sostenibilidad",
+      "terms": [
+        "sostenibilidad",
+        "sustainability",
+        "carbon footprint"
+      ],
+      "functions": [
+        {
+          "id": "13.01",
+          "terms": [
+            "huella de carbono",
+            "carbon footprint"
+          ]
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "14.Seguros",
+      "terms": [
+        "seguros",
+        "insurance",
+        "ciberseguro"
+      ],
+      "functions": [
+        {
+          "id": "14.01",
+          "terms": [
+            "landing de seguros",
+            "dashboard de seguros",
+            "visión integral de seguros",
+            "aggregate insurance"
+          ]
+        },
+        {
+          "id": "14.02",
+          "terms": [
+            "ciberseguro",
+            "ciber seguro",
+            "cyber insurance"
+          ]
+        },
+        {
+          "id": "14.03",
+          "terms": []
+        },
+        {
+          "id": "14.04",
+          "terms": [
+            "autoseguro pyme"
+          ]
+        },
+        {
+          "id": "14.05",
+          "terms": []
+        },
+        {
+          "id": "14.06",
+          "terms": []
+        },
+        {
+          "id": "14.07",
+          "terms": []
+        },
+        {
+          "id": "14.08",
+          "terms": [
+            "seguro vida ley"
+          ]
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "15.Otros",
+      "terms": [
+        "ficheros",
+        "files",
+        "documentos",
+        "documents",
+        "multiempresa",
+        "self-service"
+      ],
+      "functions": [
+        {
+          "id": "15.01",
+          "terms": [
+            "agenda de beneficiarios",
+            "beneficiary management"
+          ]
+        },
+        {
+          "id": "15.02",
+          "terms": []
+        },
+        {
+          "id": "15.03",
+          "terms": []
+        },
+        {
+          "id": "15.04",
+          "terms": []
+        },
+        {
+          "id": "15.05",
+          "terms": [
+            "fideicomisos",
+            "trust management"
+          ]
+        },
+        {
+          "id": "15.06",
+          "terms": [
+            "expediente digital",
+            "gestion documental",
+            "document management"
+          ]
+        },
+        {
+          "id": "15.07",
+          "terms": []
+        },
+        {
+          "id": "15.08",
+          "terms": []
+        },
+        {
+          "id": "15.09",
+          "terms": []
+        },
+        {
+          "id": "15.10",
+          "terms": []
+        },
+        {
+          "id": "15.11",
+          "terms": [
+            "archivos cifrados",
+            "encrypted files"
+          ]
+        },
+        {
+          "id": "15.12",
+          "terms": []
+        },
+        {
+          "id": "15.13",
+          "terms": [
+            "mis conversaciones",
+            "secure messaging"
+          ]
+        },
+        {
+          "id": "15.14",
+          "terms": []
+        },
+        {
+          "id": "15.15",
+          "terms": []
+        },
+        {
+          "id": "15.16",
+          "terms": [
+            "multiempresa",
+            "multi-company"
+          ]
+        },
+        {
+          "id": "15.18",
+          "terms": []
+        },
+        {
+          "id": "15.19",
+          "terms": [
+            "comprobantes",
+            "payment receipts"
+          ],
+          "context": [
+            "descarga",
+            "descargar",
+            "download",
+            "transaction receipt",
+            "comprobante de operación",
+            "comprobante de operacion",
+            "comprobante de transferencia",
+            "comprobante de pago",
+            "payment receipt",
+            "justificante bancario"
+          ]
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "16.Security Experience & Onboarding",
+      "terms": [
+        "seguridad",
+        "security",
+        "fraud",
+        "fraude",
+        "identidad",
+        "identity",
+        "onboarding",
+        "autenticacion",
+        "authentication",
+        "biometria",
+        "biometric",
+        "firma",
+        "signature"
+      ],
+      "functions": [
+        {
+          "id": "16.01",
+          "terms": [
+            "login biometrico",
+            "biometria",
+            "biometricos",
+            "biometric",
+            "biometrics",
+            "facial recognition"
+          ],
+          "context": [
+            "login",
+            "log in",
+            "log-in",
+            "inicio de sesión",
+            "iniciar sesión",
+            "acceso al canal",
+            "acceso a la app",
+            "sign in",
+            "sign-in",
+            "signing in",
+            "authentication",
+            "autenticación",
+            "passkey",
+            "sesión biométrica"
+          ]
+        },
+        {
+          "id": "16.02",
+          "terms": [],
+          "context": [
+            "coexistencia",
+            "coexistence"
+          ]
+        },
+        {
+          "id": "16.03",
+          "terms": [
+            "recuperar contrasena",
+            "password recovery"
+          ]
+        },
+        {
+          "id": "16.04",
+          "terms": [
+            "consentimientos",
+            "consent management"
+          ]
+        },
+        {
+          "id": "16.05",
+          "terms": [
+            "firma electronica",
+            "electronic signature",
+            "e-signature",
+            "autorizar operaciones",
+            "autorización de pagos",
+            "autorizacion de pagos",
+            "payment authorization",
+            "approve transactions",
+            "transaction signing",
+            "biometric payment authorization"
+          ]
+        },
+        {
+          "id": "16.06",
+          "terms": [
+            "firmas pendientes",
+            "pending approvals"
+          ]
+        },
+        {
+          "id": "16.07",
+          "terms": []
+        },
+        {
+          "id": "16.08",
+          "terms": [
+            "softtoken",
+            "softoken",
+            "soft token"
+          ]
+        },
+        {
+          "id": "16.09",
+          "terms": []
+        },
+        {
+          "id": "16.10",
+          "terms": [
+            "onboarding digital",
+            "digital onboarding",
+            "onboarding empresas",
+            "kyb",
+            "kyc",
+            "onboarding"
+          ],
+          "context": [
+            "empresa",
+            "empresas",
+            "pymes",
+            "corporate",
+            "enterprise",
+            "sme",
+            "smes",
+            "business account",
+            "business banking",
+            "personas jurídicas",
+            "persona jurídica",
+            "sociedades"
+          ]
+        },
+        {
+          "id": "16.11",
+          "terms": [
+            "firma diferida"
+          ]
+        },
+        {
+          "id": "16.12",
+          "terms": []
+        },
+        {
+          "id": "16.13",
+          "terms": [
+            "firma out of band",
+            "out-of-band signing"
+          ]
+        },
+        {
+          "id": "16.14",
+          "terms": [
+            "login out of band"
+          ]
+        },
+        {
+          "id": "16.15",
+          "terms": []
+        },
+        {
+          "id": "16.16",
+          "terms": []
+        },
+        {
+          "id": "16.17",
+          "terms": []
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "17.Enablers",
+      "terms": [
+        "api",
+        "apis",
+        "erp",
+        "open banking",
+        "automatizacion",
+        "automation",
+        "inteligencia artificial",
+        "artificial intelligence",
+        "ia",
+        "ai",
+        "asistente",
+        "assistant",
+        "chatbot",
+        "embedded finance",
+        "notifications",
+        "omnicanal",
+        "omnichannel"
+      ],
+      "functions": [
+        {
+          "id": "17.01",
+          "terms": [
+            "preguntas frecuentes",
+            "faqs"
+          ]
+        },
+        {
+          "id": "17.02",
+          "terms": []
+        },
+        {
+          "id": "17.03",
+          "terms": []
+        },
+        {
+          "id": "17.04",
+          "terms": [
+            "notificaciones",
+            "notifications"
+          ]
+        },
+        {
+          "id": "17.05",
+          "terms": []
+        },
+        {
+          "id": "17.06",
+          "terms": [
+            "roles y permisos",
+            "user permissions",
+            "multiusuario",
+            "multi-level approvals"
+          ]
+        },
+        {
+          "id": "17.07",
+          "terms": []
+        },
+        {
+          "id": "17.09",
+          "terms": [
+            "mensajeria a beneficiarios"
+          ]
+        },
+        {
+          "id": "17.10",
+          "terms": []
+        },
+        {
+          "id": "17.11",
+          "terms": []
+        },
+        {
+          "id": "17.12",
+          "terms": [
+            "auditoria del canal",
+            "channel audit"
+          ]
+        },
+        {
+          "id": "17.13",
+          "terms": []
+        },
+        {
+          "id": "17.14",
+          "terms": []
+        },
+        {
+          "id": "17.15",
+          "terms": [
+            "h2h",
+            "host to host",
+            "host-to-host"
+          ]
+        },
+        {
+          "id": "17.16",
+          "terms": [
+            "api bancaria",
+            "banking api",
+            "open banking",
+            "open finance",
+            "api",
+            "apis",
+            "integracion erp",
+            "erp integration",
+            "mcp",
+            "model context protocol",
+            "embedded finance",
+            "contpaqi",
+            "integracion contable",
+            "accounting integration"
+          ]
+        },
+        {
+          "id": "17.17",
+          "terms": []
+        }
+      ],
+      "emerging": [
+        {
+          "name": "Agentes de IA",
+          "terms": [
+            "agentes de ia",
+            "agente de inteligencia artificial",
+            "agentes de inteligencia artificial",
+            "ai agents",
+            "ai agent",
+            "ai-agent",
+            "ai-agent rail",
+            "agentic ai",
+            "personal agent protocol",
+            "agentes de inteligencia",
+            "agenti e strumenti di ia",
+            "agents d'ia"
+          ],
+          "context": [
+            "tesorería",
+            "treasury",
+            "cash management",
+            "banca digital",
+            "digital banking",
+            "corporate banking",
+            "asistente digital",
+            "banking assistant"
+          ],
+          "exclude": [
+            "credit assessments",
+            "corporate bankers",
+            "job cuts",
+            "ai summit",
+            "training"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "18.Herramientas empleados",
+      "terms": [
+        "helpdesk",
+        "monitor funcional"
+      ],
+      "functions": [
+        {
+          "id": "18.01",
+          "terms": [
+            "helpdesk"
+          ]
+        },
+        {
+          "id": "18.02",
+          "terms": []
+        },
+        {
+          "id": "18.03",
+          "terms": [
+            "monitor funcional"
+          ]
+        },
+        {
+          "id": "18.04",
+          "terms": []
+        },
+        {
+          "id": "18.05",
+          "terms": []
+        },
+        {
+          "id": "18.06",
+          "terms": []
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "19.Core",
+      "terms": [
+        "accesibilidad",
+        "accessibility",
+        "navegacion",
+        "navigation",
+        "sesion",
+        "session"
+      ],
+      "functions": [
+        {
+          "id": "19.01",
+          "terms": []
+        },
+        {
+          "id": "19.02",
+          "terms": []
+        },
+        {
+          "id": "19.03",
+          "terms": []
+        },
+        {
+          "id": "19.04",
+          "terms": []
+        },
+        {
+          "id": "19.05",
+          "terms": []
+        },
+        {
+          "id": "19.06",
+          "terms": []
+        },
+        {
+          "id": "19.07",
+          "terms": []
+        },
+        {
+          "id": "19.08",
+          "terms": [
+            "multiidioma",
+            "multilingual"
+          ]
+        },
+        {
+          "id": "19.09",
+          "terms": [
+            "cacheado de datos"
+          ]
+        },
+        {
+          "id": "19.10",
+          "terms": [
+            "modo demo",
+            "demo mode"
+          ]
+        },
+        {
+          "id": "19.11",
+          "terms": []
+        },
+        {
+          "id": "19.12",
+          "terms": []
+        },
+        {
+          "id": "19.13",
+          "terms": []
+        },
+        {
+          "id": "19.14",
+          "terms": [
+            "semaas"
+          ]
+        },
+        {
+          "id": "19.15",
+          "terms": []
+        },
+        {
+          "id": "19.16",
+          "terms": []
+        },
+        {
+          "id": "19.17",
+          "terms": []
+        },
+        {
+          "id": "19.18",
+          "terms": [
+            "feature toggles"
+          ]
+        },
+        {
+          "id": "19.19",
+          "terms": []
+        },
+        {
+          "id": "19.20",
+          "terms": [],
+          "context": [
+            "coexistencia",
+            "coexistence"
+          ]
+        },
+        {
+          "id": "19.21",
+          "terms": [
+            "accesibilidad",
+            "accessibility"
+          ]
+        },
+        {
+          "id": "19.22",
+          "terms": []
+        },
+        {
+          "id": "19.23",
+          "terms": []
+        },
+        {
+          "id": "19.24",
+          "terms": []
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "20.Venta Digital",
+      "terms": [
+        "venta digital",
+        "digital sales",
+        "personalizacion",
+        "personalization",
+        "personalisation",
+        "retargeting",
+        "quantum",
+        "deeplink"
+      ],
+      "functions": [
+        {
+          "id": "20.01",
+          "terms": []
+        },
+        {
+          "id": "20.02",
+          "terms": [
+            "retargeting"
+          ]
+        },
+        {
+          "id": "20.03",
+          "terms": [
+            "analitica de navegacion",
+            "web analytics"
+          ]
+        },
+        {
+          "id": "20.04",
+          "terms": [
+            "quantum",
+            "analitica cualitativa"
+          ],
+          "exclude": [
+            "quantum computing",
+            "computación cuántica",
+            "ordenador cuántico",
+            "quantum computer"
+          ]
+        },
+        {
+          "id": "20.05",
+          "terms": [
+            "deeplink",
+            "deep link",
+            "deep linking"
+          ]
+        },
+        {
+          "id": "20.06",
+          "terms": [
+            "f30v"
+          ]
+        },
+        {
+          "id": "20.07",
+          "terms": [
+            "tracking code",
+            "campaign attribution"
+          ]
+        },
+        {
+          "id": "20.08",
+          "terms": [
+            "personalizacion",
+            "personalization",
+            "personalisation",
+            "a/b testing"
+          ]
+        }
+      ],
+      "emerging": []
+    },
+    {
+      "name": "21.Funcionalidad transversal",
+      "terms": [
+        "feedback",
+        "customer feedback"
+      ],
+      "functions": [
+        {
+          "id": "21.01",
+          "terms": []
+        },
+        {
+          "id": "21.02",
+          "terms": [
+            "feedback de cliente",
+            "customer feedback"
+          ]
+        }
+      ],
+      "emerging": []
     }
   ]
 }

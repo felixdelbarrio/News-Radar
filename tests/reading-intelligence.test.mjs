@@ -1,3 +1,4 @@
+import {annotateFixtures,newsletterFixture,canonicalFixtures} from './helpers/canonical-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -11,9 +12,18 @@ function server(){
 function raw(id,entity='BBVA',date='2026-02-12'){return {id,entidad:entity,fecha:date,titular:entity+' lanza pagos digitales para empresas',extracto:'Nueva plataforma de pagos y cobros para empresas',url:'https://example.com/'+id,medio:'Editor',pais:'España',fuente:'Editor',idioma:'es',clasificacion:JSON.stringify({digital:true,generalista:true,capacidades:["Empresas: Pagos"]}),taxonomia:''};}
 function add(s,rows){const keys=vm.runInContext('RADAR.sheets.Noticias',s.c);s.sheets.get('Noticias').grid.push(...rows.map(row=>keys.map(key=>row[key]||'')));}
 function own(s,id='one',filters={entity:'BBVA'}){s.c.saveSubscription({id:undefined,name:'Mi selección '+id,periodicity:'fortnightly',active:true,filters});const rows=s.c.subscriptionRows_('owner@bbva.com');return rows.at(-1);}
-function edition(s,id='edition-one',items){const rows=items||s.c.annotateNews_([raw('one'),raw('two','Santander')]);s.c.saveNewsletterEdition_(id,'delivery-one','owner@bbva.com','Pagos de febrero',{from:'2026-02-01',to:'2026-02-28'},'en',rows);s.c.completeNewsletterEdition_(id,'Enviada');return rows;}
+function edition(s,id='edition-one',items){const rows=items||annotateFixtures(s.c,[raw('one'),raw('two','Santander')]);s.c.saveNewsletterEdition_(id,'delivery-one','owner@bbva.com','Pagos de febrero',{from:'2026-02-01',to:'2026-02-28'},'en',rows);s.c.completeNewsletterEdition_(id,'Enviada');return rows;}
+test('una edición conserva el bloque sin suboperativa sin ofrecerlo como funcionalidad ni corromper su traducción',()=>{
+ const s=server(),c=s.c,rows=annotateFixtures(c,[raw('child'),raw('parent','Santander')]),block='01.Home',child='01.01.Dashboard';
+ rows[0].taxonomia=[{id:'child',palanca:block,subpalanca:child}];rows[1].taxonomia=[{id:'parent',palanca:block,subpalanca:''}];
+ c.taxonomyTranslations_=()=>({en:{[block]:'Home',[child]:'Dashboard'}});edition(s,'parent-only',rows);
+ const saved=c.newsletterEdition_('parent-only','owner@bbva.com');assert.equal(saved.names.en[block],'Home');assert.equal(saved.names.en[block+' › '+child],'Home › Dashboard');assert.equal(Object.hasOwn(saved.names.en,''),false);
+ const query={view:'news',edition:'parent-only',initial:true},data=c.getDashboard(query);
+ assert.deepEqual([...data.palanca],[block]);assert.deepEqual([...data.subpalanca],[block+' › '+child]);assert.equal(data.total,2);
+ assert.equal(c.getDashboard({...query,palanca:block}).total,2);const filtered=c.getDashboard({...query,subpalanca:data.subpalanca[0]});assert.equal(filtered.total,1);assert.equal(filtered.items[0].id,'child');
+});
 test('la edición abre solo lo enviado, conserva período y etiquetas tras eliminar noticias y cambiar configuración; protege la identidad',()=>{
- const s=server(),c=s.c,rows=c.annotateNews_([raw('one'),raw('two','Santander')]);rows[0].taxonomia=[{id:'old',palanca:'Pagos y cobros',subpalanca:'Pagos archivados'}];edition(s,'edition-one',rows);
+ const s=server(),c=s.c,rows=annotateFixtures(c,[raw('one'),raw('two','Santander')]);rows[0].taxonomia=[{id:'old',palanca:'Pagos y cobros',subpalanca:'Pagos archivados'}];edition(s,'edition-one',rows);
  add(s,[raw('new','BBVA',new Date().toISOString().slice(0,10))]);const data=c.getDashboard({view:'briefing',edition:'edition-one',initial:true,language:'en'});
  assert.equal(data.briefing.total,2);assert.equal(data.context.count,2);assert.equal(data.selection.from,'2026-02-01');assert.equal(data.selection.to,'2026-02-28');assert.equal(data.briefing.items[0].id,'one');assert.equal(data.subpalanca.includes('Pagos y cobros › Pagos archivados'),true);
  s.sheets.get('Noticias').grid.splice(1);c.invalidateNews_();const news=c.getDashboard({view:'news',edition:'edition-one',initial:true});assert.equal(news.total,2);assert.equal(news.items[0].taxonomia[0].id,'old');assert.ok(news.items.every(row=>row.id!=='new'));
@@ -21,7 +31,7 @@ test('la edición abre solo lo enviado, conserva período y etiquetas tras elimi
  s.setEmail('other@bbva.com');assert.throws(()=>c.getDashboard({view:'news',edition:'edition-one',initial:true}),/no disponible/);assert.throws(()=>c.exportNews({view:'news',edition:'edition-one'}),/no disponible/);assert.throws(()=>c.newsletterEdition_('../invalid','owner@bbva.com'),/no disponible/);
 });
 test('los enlaces incluyen la edición y la gestión y baja conservan su destino; una edición sin envío aceptado no se muestra',()=>{
- const s=server(),c=s.c;c.configuration_().settings.newsletterAppUrl='https://script.google.com/macros/s/test/exec';const content=c.newsletter_( [raw('one')],{from:'2026-02-01',to:'2026-02-28'},'Canal',new Date(),'subscription','en','edition-one');
+ const s=server(),c=s.c;c.configuration_().settings.newsletterAppUrl='https://script.google.com/macros/s/test/exec';const content=newsletterFixture(c, [raw('one')],{from:'2026-02-01',to:'2026-02-28'},'Canal',new Date(),'subscription','en','edition-one');
  assert.match(content.html,/\?edition=edition-one/);assert.match(content.text,/\?edition=edition-one/);assert.match(content.html,/\?view=subscriptions/);assert.match(content.html,/unsubscribe=subscription/);
  c.saveNewsletterEdition_('pending','delivery','owner@bbva.com','Pendiente',{},'es',content.items);assert.throws(()=>c.newsletterEdition_('pending','owner@bbva.com'),/no disponible/);c.completeNewsletterEdition_('pending','No enviado');assert.throws(()=>c.newsletterEdition_('pending','owner@bbva.com'),/no disponible/);
 });
@@ -70,5 +80,5 @@ test('la primera newsletter empresarial no impone el tema Empresas y pymes; igno
  assert.equal(c.subscriptionQuery_({...c.subscriptionRows_('owner@bbva.com')[0],periodicidad:'fortnightly'},new Date()).topic,undefined);assert.equal(JSON.parse(s.sheets.get('Suscripciones').grid[1][3]).topic,'Empresas y pymes');
  c.saveSubscription({id:first.id,name:'Empresas guardada',periodicity:'fortnightly',filters});assert.equal(JSON.parse(s.sheets.get('Suscripciones').grid[1][3]).topic,undefined);
  c.saveSubscription({id:first.id,name:'Financiación',periodicity:'fortnightly',filters:{...filters,topic:'Financiación'}});assert.equal(c.getDashboard({view:'briefing',initial:true}).selection.topic,undefined);
- const rows=c.annotateNews_([news]);rows[0].tema='Empresas y pymes';c.saveNewsletterEdition_('edition-business','delivery-business','owner@bbva.com','Empresas archivadas',{...filters,...range},'es',rows);c.completeNewsletterEdition_('edition-business','Enviada');const archived=c.getDashboard({view:'briefing',initial:true,edition:'edition-business'});assert.equal(archived.selection.topic,undefined);assert.equal(archived.briefing.total,1);
+ const rows=annotateFixtures(c,[news]);rows[0].tema='Empresas y pymes';c.saveNewsletterEdition_('edition-business','delivery-business','owner@bbva.com','Empresas archivadas',{...filters,...range},'es',rows);c.completeNewsletterEdition_('edition-business','Enviada');const archived=c.getDashboard({view:'briefing',initial:true,edition:'edition-business'});assert.equal(archived.selection.topic,undefined);assert.equal(archived.briefing.total,1);
 });

@@ -1,24 +1,26 @@
-function dashboardSnapshotRevision_(view,now=new Date()){
-  const p=properties_().getProperties(),period=dashboardPeriod_(view,now);
-  return sha256_(JSON.stringify([RADAR.version,NEWS_CACHE.schema,view,p.CONFIG_REVISION||'0',p.NEWS_REVISION||'0',p.TAXONOMY_REVISION||'0',p.TAXONOMY_TRANSLATIONS_REVISION||'0',Object.keys(languageNames).map(code=>p['TRANSLATIONS_REVISION:'+code]||'0'),period]));
+function dashboardSnapshotRevision_(view,now=new Date(),p=properties_().getProperties()){
+  const period=dashboardPeriod_(view,now);
+  return sha256_(JSON.stringify([RADAR.version,NEWS_CACHE.schema,newsStorageKey_(),taxonomyStorageKey_(),view,p.CONFIG_REVISION||'0',p.NEWS_REVISION||'0',p.TAXONOMY_REVISION||'0',p.TAXONOMY_TRANSLATIONS_REVISION||'0',Object.keys(languageNames).map(code=>p['TRANSLATIONS_REVISION:'+code]||'0'),period]));
 }
-function dashboardSnapshotManifest_(view){const value=properties_().getProperty('DASHBOARD_SNAPSHOT:'+view);return value?JSON.parse(value):null;}
-function dashboardSnapshotsPending_(){return DASHBOARD_SNAPSHOTS.views.some(view=>dashboardSnapshotManifest_(view)?.revision!==dashboardSnapshotRevision_(view));}
-function requestDashboardSnapshots_(ready=false){if(!dashboardSnapshotsPending_())return;const previous=properties_().getProperty('DASHBOARD_SNAPSHOT_REQUEST');if(previous&&(!ready||previous==='ready'))return;properties_().setProperty('DASHBOARD_SNAPSHOT_REQUEST',ready?'ready':'pending');ensureBackgroundWorker_();}
+function dashboardSnapshotManifest_(view){return dataGeneration_().snapshots?.[view]||null;}
+function dashboardSnapshotsPending_(){const p=properties_().getProperties(),now=new Date();return Boolean(p.DASHBOARD_SNAPSHOT_CORRUPT)||DASHBOARD_SNAPSHOTS.views.some(view=>dashboardSnapshotManifest_(view)?.revision!==dashboardSnapshotRevision_(view,now,p));}
+function dashboardSnapshotsDue_(){const p=properties_().getProperties();return Boolean(p.DASHBOARD_SNAPSHOT_REQUEST&&(p.DASHBOARD_SNAPSHOT_REQUEST==='ready'||Date.now()-Number(p.DASHBOARD_SNAPSHOT_REQUESTED_AT||Date.now())>=DASHBOARD_SNAPSHOTS.refreshMs));}
+function invalidateDashboardSnapshots_(){const p=properties_();if(!p.getProperty('DASHBOARD_SNAPSHOT_REQUEST'))p.setProperty('DASHBOARD_SNAPSHOT_REQUEST','pending');if(!p.getProperty('DASHBOARD_SNAPSHOT_REQUESTED_AT'))p.setProperty('DASHBOARD_SNAPSHOT_REQUESTED_AT',String(Date.now()));}
+function requestDashboardSnapshots_(ready=false){if(!dashboardSnapshotsPending_())return;const previous=properties_().getProperty('DASHBOARD_SNAPSHOT_REQUEST');invalidateDashboardSnapshots_();if(previous&&(!ready||previous==='ready'))return;if(ready)properties_().setProperty('DASHBOARD_SNAPSHOT_REQUEST','ready');ensureBackgroundWorker_();}
 function defaultDashboardSnapshot_(view,query,language){
   if(!DASHBOARD_SNAPSHOTS.views.includes(view))return null;
   const defaults=dashboardQuery_({view,initial:true}),revision=dashboardSnapshotRevision_(view),manifest=dashboardSnapshotManifest_(view);
   if(manifest?.periodFallback&&query.from===manifest.period.from&&query.to===manifest.period.to)Object.assign(defaults,manifest.period);
   if(Object.entries(query).some(([key,value])=>value!==''&&value!=null&&key!=='newsGeography'&&!(key==='page'&&Number(value)===0)&&value!==defaults[key]))return null;
-  if(manifest?.revision!==revision){requestDashboardSnapshots_();return null;}
-  const cache=CacheService.getScriptCache(),key='dashboard-snapshot:'+revision+':'+language+':'+(query.newsGeography||''),cached=readDashboardCache_(cache,key);if(cached)return cached;
+  if(manifest?.revision!==revision){requestDashboardSnapshots_();if(!manifest)return null;}
+  const cache=CacheService.getScriptCache(),key='dashboard-snapshot:'+manifest.revision+':'+language+':'+(query.newsGeography||''),cached=readDashboardCache_(cache,key);if(cached)return cached;
   try{
-    const rows=book_().getSheetByName('DashboardSnapshots')?.getRange(manifest.first,1,manifest.parts,4).getDisplayValues();
+    const rows=book_().getSheetByName(manifest.sheet||'DashboardSnapshots')?.getRange(manifest.first,1,manifest.parts,4).getDisplayValues();
     if(!rows||rows.some(([name,generation,part],index)=>name!==view||generation!==manifest.generation||Number(part)!==index))throw Error('Fragmentos incompletos');
     const encoded=rows.map(row=>row[3]).join('');if(sha256_(encoded)!==manifest.digest)throw Error('Contenido incompleto');
     const bundle=JSON.parse(Utilities.ungzip(Utilities.newBlob(Utilities.base64Decode(encoded),'application/gzip')).getDataAsString()),variants=Object.hasOwn(bundle.variants,query.newsGeography)?bundle.variants[query.newsGeography]:bundle.variants[''],data=variants[view==='radar'?'es':language];
     const value={data,period:bundle.period,periodFallback:bundle.periodFallback};writeDashboardCache_(cache,key,value);return value;
-  }catch(error){console.warn('Snapshot '+view+': '+String(error.message||error));if(dashboardSnapshotManifest_(view)?.generation===manifest.generation)properties_().deleteProperty('DASHBOARD_SNAPSHOT:'+view);requestDashboardSnapshots_();return null;}
+  }catch(error){console.warn('Snapshot '+view+': '+String(error.message||error));properties_().setProperty('DASHBOARD_SNAPSHOT_CORRUPT','true');requestDashboardSnapshots_();return null;}
 }
 function dashboardSnapshotData_(rows,query,feeds,view){
   const data=newsDashboard_(rows,query,feeds,view);dashboardCatalogOptions_(data,feeds);return data;
@@ -34,8 +36,21 @@ function dashboardSnapshotLanguages_(data,view){
 }
 // The worker holds the script lock. Publish the manifest last, using the inactive slot.
 function dashboardSnapshotBatch_(){
-  const view=DASHBOARD_SNAPSHOTS.views.find(view=>dashboardSnapshotManifest_(view)?.revision!==dashboardSnapshotRevision_(view));
-  if(!view){properties_().deleteProperty('DASHBOARD_SNAPSHOT_REQUEST');return false;}
+  try{
+  const migration=ingestionMigrationJob_(),job=migration?.phase==='snapshots'&&migration.state!=='Completada'&&migration.state!=='Cancelada'?migration:[classificationJob_(),taxonomyJob_(),maintenanceJob_()].find(job=>job?.state==='Publicando'&&job.target);
+  if(!job)return buildDashboardSnapshotBatch_();
+  newsSheetOverride_=job.target;taxonomySheetOverride_=job.modelTarget;
+  try{return buildDashboardSnapshotBatch_(job);}finally{newsSheetOverride_=undefined;taxonomySheetOverride_=undefined;}
+  }catch(error){recordSnapshotFailure_(error);throw error;}
+}
+
+function buildDashboardSnapshotBatch_(migration=null){
+  const p=properties_().getProperties(),now=new Date(),signature=sha256_(JSON.stringify(DASHBOARD_SNAPSHOTS.views.map(view=>dashboardSnapshotRevision_(view,now,p))));
+  let build=JSON.parse(p.DASHBOARD_SNAPSHOT_BUILD||'null');
+  if(!build||build.signature!==signature)build={signature,manifests:{}};
+  if(!migration&&!dashboardSnapshotsPending_()){completeSnapshotJobs_();clearDashboardSnapshotRequest_();return false;}
+  const view=DASHBOARD_SNAPSHOTS.views.find(view=>!build.manifests[view]);
+  if(!view)return publishDashboardSnapshotSet_(build,migration);
   const started=Date.now(),revision=dashboardSnapshotRevision_(view),feeds=feeds_();let query=dashboardQuery_({view,initial:true}),rows=cachedNewsRecords_(query),data=dashboardSnapshotData_(rows,query,feeds,view),periodFallback=false;
   if((view==='briefing'?data.briefing.total:data.contextTotal)===0){query={...query,...dashboardPeriod_(view,new Date(),true)};rows=cachedNewsRecords_(query);data=dashboardSnapshotData_(rows,query,feeds,view);periodFallback=true;}
   const variants={'':dashboardSnapshotLanguages_(data,view)};
@@ -47,10 +62,53 @@ function dashboardSnapshotBatch_(){
   const previous=dashboardSnapshotManifest_(view),slot=previous?.slot===0?1:0,first=2+(DASHBOARD_SNAPSHOTS.views.indexOf(view)*2+slot)*DASHBOARD_SNAPSHOTS.parts,generation=Utilities.getUuid(),needed=first+parts-1;
   if(needed>sheet.getMaxRows())sheet.insertRowsAfter(sheet.getMaxRows(),needed-sheet.getMaxRows());
   sheet.getRange(first,1,parts,4).setNumberFormat('@').setValues(Array.from({length:parts},(_,index)=>[view,generation,String(index),encoded.slice(index*DASHBOARD_SNAPSHOTS.chars,(index+1)*DASHBOARD_SNAPSHOTS.chars)]));SpreadsheetApp.flush();
-  properties_().setProperty('DASHBOARD_SNAPSHOT:'+view,JSON.stringify({revision,generation,slot,first,parts,digest:sha256_(encoded),generated:new Date().toISOString(),period,periodFallback}));
+  build.manifests[view]={revision,generation,slot,first,parts,digest:sha256_(encoded),generated:new Date().toISOString(),period,periodFallback};
+  properties_().setProperty('DASHBOARD_SNAPSHOT_BUILD',JSON.stringify(build));
   telemetry_('dashboard-snapshot',Date.now()-started,'OK',view+'; '+period.from+' — '+period.to+'; anterior '+periodFallback+'; variantes '+Object.keys(variants).length+'; comprimido '+encoded.length+' caracteres');
-  if(!dashboardSnapshotsPending_())properties_().deleteProperty('DASHBOARD_SNAPSHOT_REQUEST');return true;
+  if(DASHBOARD_SNAPSHOTS.views.every(view=>build.manifests[view]))publishDashboardSnapshotSet_(build,migration);return true;
 }
-function rebuildDashboardSnapshots(){authorize_(true);return withForegroundWrite_(()=>{for(const view of DASHBOARD_SNAPSHOTS.views)properties_().deleteProperty('DASHBOARD_SNAPSHOT:'+view);requestDashboardSnapshots_(true);return 'Snapshots de Novedades, Noticias y Radar en cola.';});}
+function clearDashboardSnapshotRequest_(){for(const key of ['DASHBOARD_SNAPSHOT_REQUEST','DASHBOARD_SNAPSHOT_REQUESTED_AT','DASHBOARD_SNAPSHOT_BUILD','DASHBOARD_SNAPSHOT_CORRUPT'])properties_().deleteProperty(key);}
+function publishDashboardSnapshotSet_(build,migration){
+  if(migration?.newsletterVersion!==undefined&&migration.newsletterVersion!==newsletterArchiveVersion_())throw Error('El archivo de newsletters ha cambiado; repite la prueba.');
+  const signature=sha256_(JSON.stringify(DASHBOARD_SNAPSHOTS.views.map(view=>dashboardSnapshotRevision_(view))));
+  if(build.signature!==signature)return true;
+  for(const view of DASHBOARD_SNAPSHOTS.views)try{verifyDashboardSnapshot_(view,build.manifests[view]);}catch(error){delete build.manifests[view];properties_().setProperty('DASHBOARD_SNAPSHOT_BUILD',JSON.stringify(build));throw error;}
+  const previous=dataGeneration_(),generation={...previous,newsSheet:migration?.target||previous.newsSheet||'Noticias',...(migration?.modelTarget?{taxonomySheet:migration.modelTarget}:{}),...(migration?.newsletterTargets?{newsletterTables:migration.newsletterTargets}:{}),snapshots:build.manifests,revision:build.signature,published:new Date().toISOString()};
+  // All view manifests and the historical corpus switch together. The previous slots remain intact.
+  if(migration&&previous.snapshots)savePreviousDataGeneration_(previous);
+  properties_().setProperty('DATA_GENERATION',JSON.stringify(generation));dataGenerationMemory_=generation;
+  if(migration?.backup){migration.state='Completada';migration.phase='complete';migration.published=generation.published;writeIngestionMigrationJob_(migration);}
+  clearDashboardSnapshotRequest_();completeSnapshotJobs_();return true;
+}
+function rebuildDashboardSnapshots(){authorize_(true);return withForegroundWrite_(()=>{properties_().setProperty('DASHBOARD_SNAPSHOT_CORRUPT','true');requestDashboardSnapshots_(true);return 'Snapshots de Novedades, Noticias y Radar en cola.';});}
 
-function dashboardSnapshotsReady_(work){return !classificationPending_()&&!dailyCollectionPending_(work)&&!properties_().getProperty('DAILY_PIPELINE_REQUEST')&&dashboardSnapshotsPending_();}
+function dashboardSnapshotsReady_(work){return (!classificationPending_()||snapshotJobsPending_())&&!dailyCollectionPending_(work)&&!properties_().getProperty('DAILY_PIPELINE_REQUEST')&&dashboardSnapshotsPending_();}
+
+function verifyDashboardSnapshot_(view,manifest){
+  if(!manifest)throw Error('Falta snapshot de '+view);
+  const rows=book_().getSheetByName(manifest.sheet||'DashboardSnapshots').getRange(manifest.first,1,manifest.parts,4).getDisplayValues();
+  if(rows.some(([name,generation,part],index)=>name!==view||generation!==manifest.generation||Number(part)!==index)||sha256_(rows.map(row=>row[3]).join(''))!==manifest.digest)throw Error('Snapshot incompleto: '+view);return rows;
+}
+function savePreviousDataGeneration_(generation){
+  const sheet=migrationSheet_('DashboardSnapshotBackup',RADAR.sheets.DashboardSnapshots),snapshots={};let first=2;
+  for(const view of DASHBOARD_SNAPSHOTS.views){const manifest=generation.snapshots[view],rows=verifyDashboardSnapshot_(view,manifest);verifiedMigrationWrite_(sheet,first,rows);snapshots[view]={...manifest,sheet:'DashboardSnapshotBackup',first};first+=rows.length;}
+  properties_().setProperty('PREVIOUS_DATA_GENERATION',JSON.stringify({...generation,snapshots}));
+}
+function rollbackIngestionGeneration(){
+  authorize_(true);return withForegroundWrite_(()=>{
+    const raw=properties_().getProperty('PREVIOUS_DATA_GENERATION');if(!raw)throw Error('No hay generación anterior verificada.');
+    const previous=JSON.parse(raw);if(!book_().getSheetByName(previous.newsSheet)||Object.values(previous.newsletterTables||{}).some(name=>!book_().getSheetByName(name)))throw Error('Falta el histórico anterior.');
+    for(const view of DASHBOARD_SNAPSHOTS.views)verifyDashboardSnapshot_(view,previous.snapshots[view]);
+    properties_().setProperty('DATA_GENERATION',raw);dataGenerationMemory_=previous;clearDashboardSnapshotRequest_();return 'Generación anterior restaurada.';
+  });
+}
+
+// Consume the previous release's manifests once, before its jobs are migrated.
+function adoptDashboardSnapshots_(){
+  if(properties_().getProperty('DATA_GENERATION'))return;
+  const p=properties_(),snapshots={};
+  for(const view of DASHBOARD_SNAPSHOTS.views){const raw=p.getProperty('DASHBOARD_SNAPSHOT:'+view);if(!raw)return;snapshots[view]=JSON.parse(raw);}
+  try{for(const view of DASHBOARD_SNAPSHOTS.views)verifyDashboardSnapshot_(view,snapshots[view]);}catch(error){console.warn(String(error.message));return;}
+  const generation={newsSheet:'Noticias',snapshots,revision:sha256_(JSON.stringify(snapshots)),published:new Date().toISOString()};p.setProperty('DATA_GENERATION',JSON.stringify(generation));dataGenerationMemory_=generation;
+  for(const view of DASHBOARD_SNAPSHOTS.views)p.deleteProperty('DASHBOARD_SNAPSHOT:'+view);
+}

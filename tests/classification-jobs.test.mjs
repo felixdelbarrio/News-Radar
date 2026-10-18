@@ -1,3 +1,4 @@
+import {drainSnapshots} from './helpers/canonical-fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -16,26 +17,26 @@ test('clasificación se encola tras la recopilación diaria y la solicitud sobre
  const {c,properties}=server();c.enableDaily();c.initializeConfiguration();assert.equal(c.scheduledTriggers_('dailyClassification_').length,0);
  const config=JSON.parse(JSON.stringify(c.getConfiguration()));config.config.settings.dailyHour=8;config.config.settings.timezone='Europe/Istanbul';c.saveConfiguration(config);c.workWake_();assert.equal(c.scheduledTriggers_('dailyRadar_')[0].hour,8);assert.equal(c.scheduledTriggers_('dailyRadar_')[0].timezone,'Europe/Istanbul');
  const locks=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};c.dailyRadar_();assert.ok(properties.DAILY_PIPELINE_REQUEST);assert.equal(c.processBackground_().busy,true);assert.ok(properties.DAILY_PIPELINE_REQUEST);c.LockService=locks;
- for(let i=0;i<6;i++){c.processBackground_();if(properties.DAILY_PIPELINE_DAY&&c.classificationJob_()?.total===250&&c.classificationJob_()?.state==='Completada')break;}assert.equal(properties.CLASSIFICATION_REQUEST,undefined);assert.equal(c.getClassificationStatus().job.state,'Completada');assert.equal(c.getClassificationStatus().job.processed,250);
+ for(let i=0;i<6;i++){c.processBackground_();if(properties.DAILY_PIPELINE_DAY&&c.classificationJob_()?.total===250&&c.classificationJob_()?.state==='Completada')break;}assert.equal(properties.CLASSIFICATION_REQUEST,undefined);drainSnapshots(c);assert.equal(c.getClassificationStatus().job.state,'Completada');assert.equal(c.getClassificationStatus().job.processed,250);
  const started=c.classificationJob_().started;c.dailyRadar_();c.processBackground_();assert.equal(c.classificationJob_().started,started);
 });
 test('diaria y clasificación preceden a anual; los trabajos usan el mismo bloqueo',()=>{
  const s=server(450),c=s.c;c.startClassification();addCollection(s,'annual','annual',50);addCollection(s,'daily','daily',7);c.requestTranslations_();const order=[],collect=c.collectionBatch_,classify=c.newsClassificationBatch_;
  c.collectionBatch_=work=>{if(work.pending.length)order.push(work.pending[0].ciclo);return collect(work);};c.translationBatch_=()=>order.push('translation');c.newsClassificationBatch_=ms=>{order.push('classification');return classify(ms);};
  c.processBackground_();assert.deepEqual(order,['daily','daily','daily']);assert.equal(c.getClassificationStatus().job.processed,0);
- c.processBackground_();assert.deepEqual(order.slice(3),['classification','classification','classification']);assert.equal(c.getClassificationStatus().job.processed,300);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
+ drainSnapshots(c);c.processBackground_();assert.deepEqual(order.slice(3),['classification','classification','classification']);assert.equal(c.getClassificationStatus().job.processed,300);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
 });
 test('una diaria llegada durante clasificación se atiende en el siguiente lote, bajo el mismo bloqueo',()=>{
  const s=server(),c=s.c;c.startClassification();const order=[],classify=c.newsClassificationBatch_,collect=c.collectionBatch_;c.newsClassificationBatch_=ms=>{order.push('classification');classify(ms);c.requestDailyCollection_();};c.collectionBatch_=work=>{if(work.pending.length)order.push('daily');return collect(work);};c.processBackground_(2);assert.deepEqual(order,['classification','daily']);assert.equal(c.classificationJob_().next,102);
 });
 test('ejecución manual administrativa conserva cursor activo y progreso final; reejecución no vuelve a escribir etiquetas',()=>{
- const s=server(),c=s.c;c.startClassification();c.newsClassificationBatch_();assert.equal(c.getClassificationStatus().job.processed,100);const job=JSON.stringify(c.classificationJob_());c.startClassification();assert.equal(JSON.stringify(c.classificationJob_()),job);c.processBackground_();const status=c.getClassificationStatus();assert.equal(status.job.state,'Completada');assert.equal(status.job.processed,250);assert.equal(status.job.classified,250);assert.equal(status.job.digital,250);
+ const s=server(),c=s.c;c.startClassification();c.newsClassificationBatch_();assert.equal(c.getClassificationStatus().job.processed,100);const job=JSON.stringify(c.classificationJob_());c.startClassification();assert.equal(JSON.stringify(c.classificationJob_()),job);c.processBackground_();drainSnapshots(c);const status=c.getClassificationStatus();assert.equal(status.job.state,'Completada');assert.equal(status.job.processed,250);assert.equal(status.job.classified,250);assert.equal(status.job.digital,250);
  c.startClassification();c.processBackground_();assert.equal(c.getClassificationStatus().job.classified,0);assert.equal(c.getClassificationStatus().job.processed,250);for(let i=0;i<3;i++)c.processBackground_();assert.equal(c.scheduledTriggers_('backgroundTick_').length,0);
  s.setEmail('reader@bbva.com');assert.throws(()=>c.startClassification(),/administrador/);assert.throws(()=>c.getClassificationStatus(),/administrador/);
 });
 test('error de Sheets conserva cursor, pausa y reintenta después; no monopoliza el trabajador',()=>{
  const s=server(),c=s.c;c.startClassification();const sheet=s.sheets.get('Noticias'),range=sheet.getRange;sheet.getRange=()=>{throw Error('Sheets temporalmente no disponible');};c.processBackground_();assert.equal(c.classificationJob_().next,2);assert.equal(c.classificationJob_().state,'En pausa');assert.match(c.getClassificationStatus().job.error,/Sheets/);assert.ok(c.scheduledTriggers_('backgroundTick_')[0].delay>60000);
- sheet.getRange=range;c.startClassification();assert.equal(c.classificationJob_().pausedUntil,0);c.processBackground_();assert.equal(c.classificationJob_().state,'Completada');assert.equal(c.getClassificationStatus().job.processed,250);
+ sheet.getRange=range;c.startClassification();assert.equal(c.classificationJob_().pausedUntil,0);c.processBackground_();drainSnapshots(c);assert.equal(c.classificationJob_().state,'Completada');assert.equal(c.getClassificationStatus().job.processed,250);
 });
 test('barra real muestra progreso y errores, lanza manualmente y consulta solo mientras la pantalla está activa',async t=>{
  const timers=new Map();const a=await app(t,{configure:({w,replies})=>{w.setTimeout=(fn,ms)=>{const id=timers.size+1;timers.set(id,{fn,ms});return id;};w.clearTimeout=id=>timers.delete(id);replies.getClassificationStatus={scheduled:true,hour:5,minute:30,timezone:'Europe/Madrid',job:null};}});

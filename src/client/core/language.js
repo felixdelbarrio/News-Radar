@@ -11,6 +11,7 @@ export function setTaxonomyTranslations(value){
 }
 export function t(value,values){
   if(values)return formatText(value,values,language);
+  if(language==='es'&&/^\d{2}\./.test(String(value)))return value;
   const names=taxonomyNames[language];return names&&Object.hasOwn(names,value)?names[value]:translateText(value,language);
 }
 export function setLanguage(value){

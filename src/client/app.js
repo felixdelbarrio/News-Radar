@@ -50,7 +50,7 @@ const filters = createFilters({ onInvalidate: () => ++state.request, onChange: (
 } });
 const reading=createReadingContext({onCurrent:()=>filters.current(),run:action});
 const heatmap=createTaxonomyHeatmap({onExplore:query=>navigateSelection('news',query)});
-const briefing=createBriefing();
+const briefing=createBriefing({onExplore:query=>navigateSelection('news',query)});
 const newsTabs=createGeographyTabs('news-geographies','news-list',name=>filters.setGeography(name));
 function navigateSelection(view,query){filters.show(view);filters.apply(query,false);state.contentStale=true;track('filtro');navigation.show(view);}
 const radar=createRadar({onSource:source=>navigateSelection('news',{...state.data.selection,source}),onCountry:country=>navigateSelection('news',{...state.data.selection,country}),onEntity:entity=>navigateSelection('news',{...state.data.selection,entity})});
@@ -165,7 +165,7 @@ if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
 async function startApplication(params={}){
   if(params.edition){
     state.attribution=params.edition;const view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;
-    filters.show(view);navigation.show(view);state.ready=true;filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca,subpalanca:params.subpalanca,benchmark:params.benchmark});return;
+    filters.show(view);navigation.show(view);state.ready=true;filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca,subpalanca:params.subpalanca,benchmark:params.benchmark,newsGeography:params.newsGeography});return;
   }
   try{
     if(params.view==='subscriptions'){state.data=await call('getDashboard',{view:'subscriptions'});renderApplicationShell(state.data);state.ready=true;await navigation.show('subscriptions');}

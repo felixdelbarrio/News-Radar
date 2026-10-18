@@ -3,20 +3,21 @@ function parseFeed_(xml) {
   if(!channel)throw Error('Se requiere RSS 2.0 con channel/item.');
   const items=channel.getChildren('item'),language=feedLanguage(channel.getChildText('language'));
   if(items.length>settings_().maxItems)throw Error('Feed demasiado grande (máximo '+settings_().maxItems+' entradas).');
-  return items.map(item=>({title:item.getChildText('title'),url:item.getChildText('link'),date:item.getChildText('pubDate'),excerpt:item.getChildText('description'),source:item.getChildText('source'),language}));
+  return items.map(item=>{const description=item.getChildText('description'),content=description?'':item.getChildText('encoded',XmlService.getNamespace('http://purl.org/rss/1.0/modules/content/'));return {title:item.getChildText('title'),url:item.getChildText('link'),date:item.getChildText('pubDate'),excerpt:description||content||'',excerptSource:description?'rss:description':content?'rss:content:encoded':'rss:title',source:item.getChildText('source'),language};});
 }
 function newsRecord_(item,feed,now) {
-  const record={id:Utilities.getUuid(),fecha:Utilities.formatDate(item.date,settings_().timezone,'yyyy-MM-dd'),pais:item.country||feed.country,medio:publisherKey_(item.publisher||(feed.kind==='profile'?'':feed.name)),entidad:item.entity||feed.entity,titular:item.title,extracto:item.excerpt,url:item.url,capturada:now.toISOString(),fuente:feed.name,idioma:item.language||feed.language||'',clasificacion:JSON.stringify(item.labels),taxonomia:JSON.stringify({fingerprint:taxonomyFingerprint_(item.title,item.excerpt),ids:taxonomyNewsIds_(item.title,item.excerpt)})};
+  const record={id:Utilities.getUuid(),fecha:Utilities.formatDate(item.date,settings_().timezone,'yyyy-MM-dd'),pais:item.country||feed.country,medio:publisherKey_(item.publisher||(feed.kind==='profile'?'':feed.name)),entidad:item.entity||feed.entity,titular:item.title,extracto:item.excerpt,url:item.url,capturada:now.toISOString(),fuente:feed.name,idioma:item.language||feed.language||'',clasificacion:JSON.stringify({...item.labels,procedencia:{fuente:feed.name,url:item.url,extracto:item.provenance||'rss:description'}}),taxonomia:JSON.stringify(taxonomyRecord_(item.title,item.excerpt))};
   return RADAR.sheets.Noticias.map(key=>record[key]);
 }
 function ingestFeed_(feed,known,cycle,now,response) {
   if(response.getResponseCode()!==200)throw Error('HTTP '+response.getResponseCode());
   const xml=response.getContentText();if(xml.length>settings_().maxFeedBytes)throw Error('Feed excede el tamaño máximo permitido.');
-  const items=parseFeed_(xml),news=[],audit=[],date=now.toISOString();let excluded=0,duplicated=0,inside=0,relevant=0,digital=0;const reasons={};
+  const items=parseFeed_(xml),news=[],audit=[],candidates=[],date=now.toISOString();let excluded=0,duplicated=0,inside=0,relevant=0,digital=0;const reasons={};
   known.titles=known.titles||new Map();
   for(const raw of items){
     const result=evaluate_(raw,feed,now),item=result.item;
     if(result.inRange)inside++;
+    if(result.candidate)candidates.push(candidateRecord_(result.candidate,feed,now,result.reason));
     let state='Excluida',reason=result.reason;
     if(item){
       if(result.relevant)relevant++;
@@ -28,10 +29,10 @@ function ingestFeed_(feed,known,cycle,now,response) {
     if(state==='Incluida'||(state==='Duplicada'?duplicated<=3:reasons[reason]<=3))audit.push([cycle,date,feed.name,item?.url||String(raw.url||''),state,reason]);
   }
   audit.push([cycle,date,feed.name,feed.url,'Fuente consultada',items.length+' evaluadas; '+news.length+' nuevas; '+excluded+' excluidas; '+duplicated+' duplicadas; '+relevant+' relevantes; '+inside+' dentro del período; motivos '+JSON.stringify(reasons)+((feed.kind==='profile'||feed.domain==='news.google.com')&&items.length>=COLLECTION_POLICY.providerLimit?'; posible límite del proveedor: cobertura parcial':'')]);
-  return {news,audit,evaluated:items.length,relevant,digital,duplicated,excluded,saturated:(feed.kind==='profile'||feed.domain==='news.google.com')&&items.length>=COLLECTION_POLICY.providerLimit&&inside>=COLLECTION_POLICY.providerLimit*COLLECTION_POLICY.saturationRatio};
+  return {news,audit,candidates,inside,evaluated:items.length,relevant,digital,duplicated,excluded,saturated:(feed.kind==='profile'||feed.domain==='news.google.com')&&items.length>=COLLECTION_POLICY.providerLimit&&inside>=COLLECTION_POLICY.providerLimit*COLLECTION_POLICY.saturationRatio};
 }
 function knownUrls_() {
-  const sheet=book_().getSheetByName('Noticias'),count=sheet.getLastRow()-1,known=new Set();known.titles=new Map();
+  const sheet=newsSheet_(),count=sheet.getLastRow()-1,known=new Set();known.titles=new Map();
   if(count>0)for(const row of translationIdentityRows_(sheet.getRange(2,2,count,7).getDisplayValues().map(row=>({fecha:row[0],pais:row[1],medio:row[2],entidad:row[3],titular:row[4],extracto:row[5],url:row[6]})))){
     const url=newsUrlIdentity_(row.url);if(url)known.add(url);
     if(Number.isFinite(Date.parse(row.fecha)))for(const title of [row.titular,...(row.identityTitles||[])])rememberTitle_(known,{date:row.fecha,title,publisher:publisherKey_(row.medio),entity:row.entidad,country:row.pais});

@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import {app,tick} from './helpers/app.mjs';
 import {storage} from './helpers/server.mjs';
 
-test('KPIs informativos no añaden filtros y el panel cierra con sus tres acciones',async t=>{
+test('Señales abren Noticias con filtro y el panel cierra con sus tres acciones',async t=>{
  const a=await app(t),reads=a.calls.length;
- assert.equal(a.find('#briefing-signals').querySelectorAll('button,[tabindex],[data-signal]').length,0);
- await a.click('#briefing-signals .signal-card');assert.equal(a.calls.length,reads);
+ assert.equal(a.find('#briefing-signals').querySelectorAll('button[data-signal]').length,1);
+ await a.click('#briefing-signals .signal-card');assert.equal(a.calls.length,reads+1);assert.equal(a.calls.at(-1).query.signal,'Lanzamiento de producto');await a.click('[data-view="briefing"]');
  assert.equal(a.find('.selection-toolbar').parentElement,a.find('#briefing-section .reading-hero'));
  for(const selector of ['#restore-filters','#all-filters','#apply-filters']){
   await a.click('#open-filters');assert.equal(a.find('#filters-dialog').open,true);

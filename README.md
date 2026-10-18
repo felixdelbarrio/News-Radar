@@ -1,3 +1,5 @@
+> Revisión 3.5.1: [Iteración 7](docs/iteration-7-3.5.0.md), maestro de Drive de solo lectura, clasificación por descripción y newsletters vinculadas a su edición.
+
 # BBVA Empresas · News Radar
 
 WebApp de Google Apps Script con Google Sheets como almacén, sin dependencias de ejecución ni claves API.
@@ -31,7 +33,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.0.5`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.5.1`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -71,7 +73,7 @@ Apps Script comparte un espacio global entre sus archivos `.gs`; las funciones i
 
 Los imports ES del cliente se empaquetan con esbuild, usado solo durante el desarrollo. No hay dependencias de ejecución. Exportar no vuelve a cargar el dashboard. Los formularios de fuentes se reconstruyen únicamente cuando cambia su configuración. El empaquetado elimina exports sin uso; el formateador de fechas se reutiliza en vez de crearse para cada fila. CodeQL analiza los módulos originales del cliente y copias `.js` de cada archivo de servidor.
 
-El build conserva los módulos de servidor separados: actualmente genera 59 archivos, incluidos los cuatro HTML y el manifiesto. Las hojas operativas son Noticias, Auditoria, Ejecuciones, Recopilacion, Telemetria, Adopcion, Configuracion, Suscripciones y NewsletterEnvios.
+El build conserva los módulos de servidor separados: actualmente genera 62 archivos, incluidos los cuatro HTML y el manifiesto. Las hojas operativas son Noticias, Auditoria, Ejecuciones, Recopilacion, Telemetria, Adopcion, Configuracion, Suscripciones y NewsletterEnvios.
 
 ## Configuración de negocio en Sheets
 
@@ -494,3 +496,31 @@ El país configurado del RSS se conserva incluso sin una mención local en el ti
 ## Agrupamiento geográfico — 3.0.5
 
 Las noticias sin país se incluyen en Otras geografías, junto con los países fuera del ámbito de seguimiento. Noticias, Novedades y newsletters comparten nombre, agrupamiento y orden. Se conserva el país original para auditoría; la revisión no reinicia la clasificación en curso. Véase [validación y publicación](docs/optimization-3.0.5.md).
+
+## Taxonomía funcional · 3.3.0
+
+El catálogo global de Empresas e instituciones aporta 22 bloques funcionales y 322 funcionalidades / sub operativas. Sus códigos, nombres, equivalencias y conceptos emergentes admitidos se guardan en las reglas de negocio de Sheets. TF-IDF solo publica propuestas .xx dentro de esos bloques, con recurrencia y medios independientes. Administración → Taxonomía permite configurar la URL del catálogo de Drive; inicialmente se utiliza el Excel aportado. Se amplía el vocabulario de recuperación sin multiplicar peticiones ni eliminar noticias.
+
+Véase [análisis, decisiones, rendimiento y publicación](docs/functional-taxonomy-3.3.0.md) y el [inventario de las 322 funcionalidades](docs/functional-taxonomy-3.3.0-catalog.md). Publicación: versión 72 de la implementación existente, con el paquete completo validado de 3.3.0.
+
+## Ingesta y catalogación · 3.7.0
+
+Los candidatos editoriales válidos que no se publican se conservan por URL canónica en `Candidatos`, con texto disponible, procedencia, estado, motivo y revisión de reglas. Se limitan a 10.000 filas y 90 días. `Cobertura` registra fuente, país, ventana, saturación, particiones y errores, con un máximo de 20.000 observaciones. RSS admite `content:encoded` cuando falta descripción; los extractos que incluyen el titular y contenido adicional dejan de eliminarse. No hay llamadas a LLM ni scraping externo nuevo.
+
+La clasificación persistida separa segmento, canal, evento, relevancia y evidencia. Las lecturas usan esos valores, sin recalcular señales con otras reglas. Se conserva el contrato de etiquetas del cliente y se evita duplicar metadatos internos en caché. Las incidencias se unifican en **Incidencia operativa**, también en configuración y suscripciones. Se completan 18 descripciones del catálogo existente. La asignación funcional admite hasta tres funciones con evidencia distinta y orden determinista; el descubrimiento analiza todo el histórico y los candidatos recuperables, sin considerarlos automáticamente publicables ni contar consultas como medios independientes.
+
+La reclasificación, el catálogo funcional y el mantenimiento preparan hojas aisladas. La geografía, las señales y la relevancia se leen del resultado persistido; las ediciones de newsletter conservan la puntuación capturada. Un único manifiesto `DATA_GENERATION` publica el corpus y los tres snapshots al terminar. Los jobs permanecen `Publicando` hasta esa barrera; un error conserva la generación válida. Se verifica el contenido escrito y se guarda una copia de los snapshots y el corpus anterior para rollback. Las generaciones temporales sobrantes se eliminan conservando las referencias activas y de recuperación; se limita la creación de backups históricos a cuatro hasta su archivado por el operador.
+
+Entradas administrativas para operar en un entorno previamente autorizado y respaldado, sin nuevas pantallas:
+
+- `startIngestionMigration(true)` prepara una prueba por lotes; `getIngestionMigrationStatus()` expone su checkpoint y recuentos. El trabajador existente la continúa. No cambia la generación activa.
+- Solo tras `Prueba completada`, sin metadatos inválidos ni cambios de corpus, candidatos o reglas, `startIngestionMigration(false)` permite preparar y publicar el histórico con las mismas reglas y corpus, incluidos candidatos recuperables. Conserva IDs, fechas, enlaces, capturas y backups verificados por lectura.
+- Si cambia el corpus o las reglas, se bloquea la promoción. `cancelIngestionMigration()` conserva las copias y permite iniciar otra prueba.
+- `rollbackIngestionGeneration()` comprueba y restaura el corpus y los tres snapshots anteriores.
+- `initializeConfiguration()` consume una sola vez los manifiestos de snapshots de la versión anterior y migra la categoría de incidencias. La migración histórica normaliza esa señal también en las ediciones de newsletter y sus filtros, mediante copias publicadas con el mismo manifiesto; conserva los originales, el texto de búsqueda, las fechas y la puntuación capturada. Una edición concurrente invalida la prueba y bloquea la promoción.
+
+Las claves de caché incorporan las generaciones mediante hash para respetar el [límite de 250 caracteres de CacheService](https://developers.google.com/apps-script/reference/cache/cache), incluso con UUID completos y fragmentación.
+
+No se ha ejecutado migración ni promoción en producción. El ensayo local sobre la copia anterior de 8.638 noticias conserva todas sus identidades y publica los tres snapshots en memoria. No reconcilia las 8.835/8.832 filas de la auditoría: el ZIP contiene inventarios y muestra, no esas filas originales. Los descartes sin titular o URL originales no se pueden recuperar desde los agregados de auditoría.
+
+[Resultados reproducibles, métricas y límites](docs/ingestion-refactor-20261018.json). `node scripts/benchmark-ingestion.mjs --baseline=<revisión>` compara el golden set con la revisión indicada (HEAD por defecto); `node --expose-gc scripts/benchmark-news-paired.mjs` compara lecturas con 50.000 registros; `node scripts/validate-ingestion-migration.mjs --input=<Noticias.json> --output=<informe.json>` ensaya una copia local sin acceder a Google Sheets. El golden set tiene 26 textos de cuatro estratos, 22 referencias de relevancia evaluables y cuatro casos inciertos; requiere revisión humana independiente antes de usarlo como evidencia de calidad de producción. No se certifican latencias ni cuotas del despliegue nuevo.

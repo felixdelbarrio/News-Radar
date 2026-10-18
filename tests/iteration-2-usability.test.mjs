@@ -5,7 +5,7 @@ import {storage} from './helpers/server.mjs';
 
 test('opción vacía y respuesta sin resultados conservan Colombia, señal y chips',async t=>{
  const a=await app(t,{configure({data}){data.selection={country:'Colombia',signal:'Lanzamiento de producto'};data.countries=['Colombia'];data.briefing.items[0].pais='Colombia';data.briefing.bySignal.push({name:'Mejora de oferta',total:0});}});
- const before=a.calls.length,empty=a.find('#briefing-signals .signal-card:last-child');assert.equal(empty.tagName,'ARTICLE');empty.click();await tick();assert.equal(a.calls.length,before);assert.match(a.find('#active-filters').textContent,/Colombia/);
+ const before=a.calls.length,empty=a.find('#briefing-signals .signal-card:last-child');assert.equal(empty.tagName,'BUTTON');assert.equal(empty.disabled,true);empty.click();await tick();assert.equal(a.calls.length,before);assert.match(a.find('#active-filters').textContent,/Colombia/);
  a.data.countries=[];a.data.briefing.items=[];a.data.briefing.geographies=[];a.data.briefing.total=0;
  await a.click('#open-filters');await a.submit('#filters');assert.match(a.find('#active-filters').textContent,/Colombia/);assert.match(a.find('#active-filters').textContent,/Lanzamiento de producto/);assert.equal(a.find('#filters [name="country"]').value,'Colombia');
 });

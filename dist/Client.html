@@ -5,6 +5,82 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "El archivo de newsletters ha cambiado; repite la prueba.": ["The newsletter archive changed; repeat the dry run.", "B\xFClten ar\u015Fivi de\u011Fi\u015Fti; denemeyi tekrarlay\u0131n."],
+    "Revisa los registros con metadatos inv\xE1lidos antes de publicar.": ["Review records with invalid metadata before publishing.", "Yay\u0131mlamadan \xF6nce ge\xE7ersiz meta verileri olan kay\u0131tlar\u0131 inceleyin."],
+    "Archiva los backups verificados antes de crear otra migraci\xF3n.": ["Archive verified backups before creating another migration.", "Ba\u015Fka bir ge\xE7i\u015F olu\u015Fturmadan \xF6nce do\u011Frulanm\u0131\u015F yedekleri ar\u015Fivleyin."],
+    Publicando: ["Publishing", "Yay\u0131mlan\u0131yor"],
+    "Generaci\xF3n de clasificaci\xF3n incompleta.": ["Incomplete classification generation.", "S\u0131n\u0131fland\u0131rma nesli eksik."],
+    "Ejecuta primero una prueba completa con las mismas reglas y corpus.": ["First complete a dry run with the same rules and corpus.", "\xD6nce ayn\u0131 kurallar ve veri k\xFCmesiyle tam bir deneme \xE7al\u0131\u015Ft\u0131r\u0131n."],
+    "La verificaci\xF3n del backup o de la generaci\xF3n ha fallado.": ["Backup or generation verification failed.", "Yedek veya nesil do\u011Frulamas\u0131 ba\u015Far\u0131s\u0131z oldu."],
+    "El corpus o las reglas han cambiado; se bloquea la promoci\xF3n.": ["The corpus or rules changed; promotion is blocked.", "Veri k\xFCmesi veya kurallar de\u011Fi\u015Fti; yay\u0131mlama engellendi."],
+    "Reconciliaci\xF3n incompleta.": ["Incomplete reconciliation.", "Mutabakat eksik."],
+    "No hay generaci\xF3n anterior verificada.": ["No verified previous generation.", "Do\u011Frulanm\u0131\u015F \xF6nceki nesil yok."],
+    "Falta el hist\xF3rico anterior.": ["The previous history is missing.", "\xD6nceki ge\xE7mi\u015F eksik."],
+    "Generaci\xF3n anterior restaurada.": ["Previous generation restored.", "\xD6nceki nesil geri y\xFCklendi."],
+    "Productos nuevos, mejoras, alianzas y problemas de servicio para seguir c\xF3mo evoluciona la banca digital de empresas.": ["New products, improvements, partnerships and service problems tracking the evolution of digital business banking.", "Dijital i\u015Fletme bankac\u0131l\u0131\u011F\u0131n\u0131n geli\u015Fimini izlemek i\xE7in yeni \xFCr\xFCnler, iyile\u015Ftirmeler, ortakl\u0131klar ve hizmet sorunlar\u0131."],
+    "Incidencias publicadas en medios; consulta cada fuente para conocer su alcance, fecha y resoluci\xF3n.": ["Incidents reported in the media; check each source for their scope, date and resolution.", "Medyada bildirilen olaylar; kapsam, tarih ve \xE7\xF6z\xFCm i\xE7in her kayna\u011Fa bak\u0131n."],
+    "Condici\xF3n funcional no v\xE1lida.": ["Invalid functional condition.", "Ge\xE7ersiz i\u015Flev ko\u015Fulu."],
+    "Contexto operativo requerido": ["Required operational context", "Gerekli i\u015Flem ba\u011Flam\u0131"],
+    "Excluir coincidencias": ["Exclude matches", "E\u015Fle\u015Fmeleri hari\xE7 tut"],
+    "Productos concretos de fuente oficial": ["Specific products from an official source", "Resm\xEE kaynaktan somut \xFCr\xFCnler"],
+    "Se\xF1ales de negocio": ["Business signals", "\u0130\u015F sinyalleri"],
+    "Se\xF1al de negocio": ["Business signal", "\u0130\u015F sinyali"],
+    "Tipo de se\xF1al": ["Signal type", "Sinyal t\xFCr\xFC"],
+    "Problema de servicio": ["Service problem", "Hizmet sorunu"],
+    Problema: ["Problem", "Sorun"],
+    "Incidencia operativa": ["Operational incident", "\u0130\u015Flem sorunu"],
+    "Por qu\xE9 est\xE1 clasificada aqu\xED": ["Why it is classified here", "Neden burada s\u0131n\u0131fland\u0131r\u0131ld\u0131"],
+    "Coincidencia operativa directa": ["Direct operational match", "Do\u011Frudan i\u015Flem e\u015Fle\u015Fmesi"],
+    "Contexto descriptivo del cat\xE1logo": ["Catalogue description context", "Katalog a\xE7\u0131klamas\u0131 ba\u011Flam\u0131"],
+    "Titular y extracto": ["Headline and excerpt", "Ba\u015Fl\u0131k ve \xF6zet"],
+    "No hay novedades de producto en esta selecci\xF3n.": ["No product updates in this selection.", "Bu se\xE7imde \xFCr\xFCn yenili\u011Fi yok."],
+    "No se han detectado noticias de problemas de servicio en esta selecci\xF3n.": ["No service problem news detected in this selection.", "Bu se\xE7imde hizmet sorunu haberi tespit edilmedi."],
+    "LANZAMIENTOS, ALIANZAS Y PROBLEMAS DE SERVICIO": ["LAUNCHES, PARTNERSHIPS AND SERVICE PROBLEMS", "LANSMANLAR, ORTAKLIKLAR VE H\u0130ZMET SORUNLARI"],
+    "Novedades de producto": ["Product updates", "\xDCr\xFCn yenilikleri"],
+    "Problemas de servicio": ["Service problems", "Hizmet sorunlar\u0131"],
+    "\xDAltima lectura del maestro: {date}": ["Last master read: {date}", "Ana katalo\u011Fun son okunma tarihi: {date}"],
+    "Equivalencias y conceptos emergentes de News Radar. Los c\xF3digos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aqu\xED. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios.": ["News Radar aliases and emerging concepts. Official codes, names and descriptions are read from the Drive master and cannot be edited here. Specific products can use one official source; trends require three articles and two publishers.", "News Radar e\u015Fde\u011Ferleri ve yeni kavramlar\u0131. Resm\xEE kodlar, adlar ve a\xE7\u0131klamalar Drive ana katalo\u011Fundan okunur ve burada d\xFCzenlenmez. Somut \xFCr\xFCnler i\xE7in bir resm\xEE kaynak yeterlidir; e\u011Filimler \xFC\xE7 haber ve iki yay\u0131nc\u0131 gerektirir."],
+    "Maestro de Drive de solo lectura. News Radar conserva un espejo para clasificar y a\xF1ade \xFAnicamente funcionalidades .xx sin equivalente justificable en el cat\xE1logo.": ["Read-only Drive master. News Radar keeps a mirror for classification and only adds .xx functionalities without a defensible catalogue equivalent.", "Drive ana katalo\u011Fu salt okunurdur. News Radar s\u0131n\u0131fland\u0131rma i\xE7in bir ayna tutar ve yaln\u0131zca katalogda gerek\xE7elendirilebilir e\u015Fde\u011Feri olmayan .xx i\u015Flevlerini ekler."],
+    "El maestro debe ser un documento distinto del libro de News Radar.": ["The master must be a different document from the News Radar workbook.", "Ana katalog, News Radar \xE7al\u0131\u015Fma kitab\u0131ndan farkl\u0131 bir belge olmal\u0131d\u0131r."],
+    "Se utiliza el \xFAltimo espejo del cat\xE1logo.": ["The latest catalogue mirror is used.", "Katalo\u011Fun son aynas\u0131 kullan\u0131l\u0131r."],
+    "Descripci\xF3n funcional no v\xE1lida.": ["Invalid functional description.", "\u0130\u015Flev a\xE7\u0131klamas\u0131 ge\xE7ersiz."],
+    "Los c\xF3digos y nombres oficiales se actualizan exclusivamente desde el cat\xE1logo maestro.": ["Official codes and names are updated exclusively from the master catalogue.", "Resm\xEE kodlar ve adlar yaln\u0131zca ana katalogdan g\xFCncellenir."],
+    "Revisi\xF3n del cat\xE1logo antes de las newsletters trimestrales \xB7 {state}": ["Catalogue review before quarterly newsletters \xB7 {state}", "\xDC\xE7 ayl\u0131k b\xFCltenlerden \xF6nce katalog incelemesi \xB7 {state}"],
+    "Mirada internacional": ["International outlook", "Uluslararas\u0131 g\xF6r\xFCn\xFCm"],
+    "Trending topics en {country}.": ["Trending topics in {country}.", "{country} i\xE7in \xF6ne \xE7\u0131kan konular."],
+    "{count} noticias m\xE1s en este \xE1mbito": ["{count} more articles for this scope", "Bu kapsamda {count} haber daha"],
+    "1 noticia m\xE1s en este \xE1mbito": ["1 more article for this scope", "Bu kapsamda 1 haber daha"],
+    "\xDAnica noticia para este \xE1mbito": ["Only article for this scope", "Bu kapsam i\xE7in tek haber"],
+    "Noticia seleccionada": ["Selected article", "Se\xE7ilen haber"],
+    "Otra Funcionalidad / sub operativa destacada": ["Another featured functionality / sub-operation", "\xD6ne \xE7\u0131kan ba\u015Fka bir i\u015Flev / alt i\u015Flem"],
+    "Otra Funcionalidad / sub operativa, destacada en {country}": ["Another featured functionality / sub-operation in {country}", "{country} i\xE7in \xF6ne \xE7\u0131kan ba\u015Fka bir i\u015Flev / alt i\u015Flem"],
+    "Funcionalidad / sub operativa, m\xE1s relevante": ["Most relevant functionality / sub-operation", "En ilgili i\u015Flev / alt i\u015Flem"],
+    "Producto concreto respaldado por fuente oficial": ["Specific product supported by an official source", "Resm\xEE kaynakla desteklenen somut \xFCr\xFCn"],
+    PRUEBA: ["TEST", "TEST"],
+    "Cat\xE1logo maestro (Drive)": ["Master catalogue (Drive)", "Ana katalog (Drive)"],
+    Descripci\u00F3n: ["Description", "A\xE7\u0131klama"],
+    "Sin clasificaci\xF3n funcional justificable": ["No defensible functional classification", "Gerek\xE7elendirilebilir i\u015Flevsel s\u0131n\u0131fland\u0131rma yok"],
+    "Se utiliza el cat\xE1logo guardado.": ["The saved catalogue is used.", "Kay\u0131tl\u0131 katalog kullan\u0131l\u0131r."],
+    "A\xF1adir concepto emergente": ["Add emerging concept", "Yeni kavram ekle"],
+    "Concepto emergente no v\xE1lido.": ["Invalid emerging concept.", "Yeni kavram ge\xE7ersiz."],
+    "{blocks} bloques funcionales \xB7 {functions} funcionalidades / sub operativas": ["{blocks} functional blocks \xB7 {functions} functionalities / sub-operations", "{blocks} i\u015Flevsel blok \xB7 {functions} i\u015Flev / alt i\u015Flem"],
+    "Cat\xE1logo global de Empresas e instituciones. TF-IDF solo propone funcionalidades .xx dentro de los bloques existentes, con evidencia recurrente y sin duplicar el cat\xE1logo.": ["Global business and institutional catalog. TF-IDF only proposes .xx functionalities within existing blocks, with recurring evidence and without duplicating the catalog.", "K\xFCresel i\u015Fletme ve kurum katalo\u011Fu. TF-IDF yaln\u0131zca mevcut bloklar i\xE7inde, tekrarlanan kan\u0131tlarla ve katalo\u011Fu yinelemeden .xx i\u015Flevleri \xF6nerir."],
+    "Cat\xE1logo global de funcionalidades en Drive": ["Global functionality catalog in Drive", "Drive k\xFCresel i\u015Flev katalo\u011Fu"],
+    "Guardar fuente del cat\xE1logo": ["Save catalog source", "Katalog kayna\u011F\u0131n\u0131 kaydet"],
+    "Cat\xE1logo global de Soluciones Funcionales y Capacidades canal. Los bloques son cerrados para TF-IDF. Edita equivalencias de lenguaje; la fuente de Drive se configura en Cat\xE1logo global de funcionalidades. Las propuestas .xx requieren evidencia recurrente de varias fuentes.": ["Global Functional Solutions and Channel Capabilities catalog. TF-IDF cannot create blocks. Edit language equivalents; configure the Drive source in Global functionality catalogue. The .xx proposals require recurring evidence from multiple sources.", "K\xFCresel \u0130\u015Flevsel \xC7\xF6z\xFCmler ve Kanal Yetenekleri katalo\u011Fu. TF-IDF blok olu\u015Fturamaz. Dil e\u015Fde\u011Ferlerini d\xFCzenleyin; Drive kayna\u011F\u0131n\u0131 K\xFCresel i\u015Flev katalo\u011Fu b\xF6l\xFCm\xFCnde ayarlay\u0131n. .xx \xF6nerileri birden fazla kaynaktan tekrarlanan kan\u0131t gerektirir."],
+    "Se revisar\xE1 Drive al iniciar la actualizaci\xF3n.": ["Drive will be checked when the update starts.", "G\xFCncelleme ba\u015Flad\u0131\u011F\u0131nda Drive denetlenecek."],
+    "No se pudo revisar Drive; se utiliza el cat\xE1logo guardado. ": ["Could not check Drive; using the saved catalog. ", "Drive denetlenemedi; kaydedilen katalog kullan\u0131l\u0131yor. "],
+    "Fuente del cat\xE1logo funcional no v\xE1lida.": ["Invalid functional catalog source.", "\u0130\u015Flev katalo\u011Fu kayna\u011F\u0131 ge\xE7ersiz."],
+    "Define los bloques funcionales del cat\xE1logo.": ["Define the functional blocks in the catalog.", "Katalogdaki i\u015Flevsel bloklar\u0131 tan\u0131mlay\u0131n."],
+    "Bloque funcional no v\xE1lido o duplicado.": ["Invalid or duplicate functional block.", "Ge\xE7ersiz veya yinelenen i\u015Flevsel blok."],
+    "El cat\xE1logo funcional excede los l\xEDmites de almacenamiento.": ["The functional catalog exceeds storage limits.", "\u0130\u015Flev katalo\u011Fu depolama s\u0131n\u0131rlar\u0131n\u0131 a\u015F\u0131yor."],
+    "No se encuentran las columnas del cat\xE1logo funcional.": ["Functional catalog columns could not be found.", "\u0130\u015Flev katalo\u011Fu s\xFCtunlar\u0131 bulunamad\u0131."],
+    "Cat\xE1logo incompleto: faltan Financiaci\xF3n o Venta Digital.": ["Incomplete catalog: Financing or Digital Sales is missing.", "Eksik katalog: Finansman veya Dijital Sat\u0131\u015F bulunamad\u0131."],
+    "Cat\xE1logo de reglas de negocio; revisi\xF3n de Drive desactivada.": ["Business rules catalog; Drive checking is disabled.", "\u0130\u015F kurallar\u0131 katalo\u011Fu; Drive denetimi kapal\u0131."],
+    "Inicializa la configuraci\xF3n de cat\xE1logo global de funcionalidades.": ["Initialize the global functionality catalogue configuration.", "K\xFCresel i\u015Flev katalo\u011Fu yap\u0131land\u0131rmas\u0131n\u0131 ba\u015Flat\u0131n."],
+    C\u00F3digo: ["Code", "Kod"],
+    "Equivalencias del bloque": ["Block equivalents", "Blok e\u015Fde\u011Ferleri"],
+    "Equivalencias de b\xFAsqueda": ["Search equivalents", "Arama e\u015Fde\u011Ferleri"],
     "Snapshots de Novedades, Noticias y Radar en cola.": ["Updates, News and Radar snapshots queued.", "G\xFCncellemeler, Haberler ve Radar anl\u0131k g\xF6r\xFCnt\xFCleri kuyru\u011Fa al\u0131nd\u0131."],
     "Ya existe una suscripci\xF3n para ese correo.": ["This email already has a subscription.", "Bu e-posta i\xE7in zaten bir abonelik var."],
     "Contexto de Empresas e instituciones, pymes y aut\xF3nomos. T\xE9rminos separados por punto y coma; * al final de una palabra admite sus variantes. Las capacidades transversales pueden ser relevantes aunque el titular no mencione el segmento.": ["Business and institutional context, including SMEs and self-employed users. Separate terms with semicolons; a trailing * matches word variants. Shared capabilities can be relevant even if the headline does not mention the segment.", "KOB\u0130 ve serbest \xE7al\u0131\u015Fanlar dahil i\u015Fletme ve kurum ba\u011Flam\u0131. Terimleri noktal\u0131 virg\xFClle ay\u0131r\u0131n; s\xF6zc\xFCk sonundaki * t\xFCrevleri e\u015Fle\u015Ftirir. Ba\u015Fl\u0131k segmentten s\xF6z etmese de ortak yetenekler ilgili olabilir."],
@@ -50,7 +126,7 @@
     "Compactaci\xF3n pendiente: el resumen no coincide. No se eliminaron m\xE1s filas.": ["Compaction pending: summary mismatch. No further rows were deleted.", "S\u0131k\u0131\u015Ft\u0131rma bekliyor: \xF6zet e\u015Fle\u015Fmiyor. Ba\u015Fka sat\u0131r silinmedi."],
     "Compactaci\xF3n pendiente: cambi\xF3 el resumen previsto.": ["Compaction pending: the expected summary changed.", "S\u0131k\u0131\u015Ft\u0131rma bekliyor: beklenen \xF6zet de\u011Fi\u015Fti."],
     "Compactaci\xF3n pendiente: la posici\xF3n final cambi\xF3.": ["Compaction pending: the final position changed.", "S\u0131k\u0131\u015Ft\u0131rma bekliyor: son konum de\u011Fi\u015Fti."],
-    "Registro de taxonom\xEDa demasiado grande.": ["Taxonomy record is too large.", "Taksonomi kayd\u0131 \xE7ok b\xFCy\xFCk."],
+    "Registro de cat\xE1logo global de funcionalidades demasiado grande.": ["Global functionality catalogue record is too large.", "K\xFCresel i\u015Flev katalo\u011Fu kayd\u0131 \xE7ok b\xFCy\xFCk."],
     "Recibe Mi Newsletter": ["Receive My Newsletter", "B\xFCltenime abone olun"],
     "Novedades quincenales, balance trimestral y radar anual. Canal digital de Empresas e instituciones. La suscripci\xF3n no cambia tus pantallas.": ["Fortnightly updates, quarterly review and annual radar. Digital channels for businesses and institutions. Subscribing does not change your screens.", "\u0130ki haftal\u0131k geli\u015Fmeler, \xFC\xE7 ayl\u0131k de\u011Ferlendirme ve y\u0131ll\u0131k radar. \u0130\u015Fletmeler ve kurumlar i\xE7in dijital kanallar. Abonelik ekranlar\u0131n\u0131z\u0131 de\u011Fi\u015Ftirmez."],
     "Mes anterior": ["Previous month", "\xD6nceki ay"],
@@ -74,17 +150,17 @@
     "{visible} de {total} grupos": ["{visible} of {total} groups", "{total} gruptan {visible} tanesi"],
     "El trabajo activo a\xFAn no ha liberado el bloqueo. Vuelve a intentarlo cuando termine su llamada en curso.": ["The active job has not released the lock yet. Try again after its current call finishes.", "Etkin i\u015F kilidi hen\xFCz b\u0131rakmad\u0131. Mevcut \xE7a\u011Fr\u0131 tamamland\u0131ktan sonra tekrar deneyin."],
     "No se ha enviado la prueba: no hay noticias disponibles con estos filtros en el per\xEDodo.": ["The test was not sent: no stories are available with these filters in the period.", "Test g\xF6nderilmedi: bu filtrelerle d\xF6nem i\xE7inde haber bulunmuyor."],
-    "Las palancas con m\xE1s cobertura fueron {themes}: {count} noticias cada una ({share}% del corpus).": ["The most covered themes were {themes}: {count} stories each ({share}% of the corpus).", "En \xE7ok haber yap\u0131lan temalar {themes}: her biri {count} haber (derlemin %{share} kadar\u0131)."],
+    "Los bloques funcionales con m\xE1s cobertura fueron {themes}: {count} noticias cada uno ({share}% del corpus).": ["The most covered functional blocks were {themes}: {count} stories each ({share}% of the corpus).", "En \xE7ok haber yap\u0131lan temalar {themes}: her biri {count} haber (derlemin %{share} kadar\u0131)."],
     "La mayor concentraci\xF3n de cobertura est\xE1 en {themes}. \xBFC\xF3mo se refleja en las prioridades de tu canal?": ["Coverage is most concentrated in {themes}. How does this reflect in your channel priorities?", "Haberler en \xE7ok {themes} temalar\u0131nda yo\u011Funla\u015F\u0131yor. Bu, kanal\u0131n\u0131z\u0131n \xF6nceliklerine nas\u0131l yans\u0131yor?"],
     "Noticias: {count} \xB7 Entidades: {entities}": ["Stories: {count} \xB7 Institutions: {entities}", "Haber: {count} \xB7 Kurum: {entities}"],
     "Geograf\xEDas: {count}": ["Geographies: {count}", "Co\u011Frafya: {count}"],
     "Noticias en {country}: {local} \xB7 Mirada global: {global}": ["Stories in {country}: {local} \xB7 Global perspective: {global}", "{country} haberleri: {local} \xB7 K\xFCresel bak\u0131\u015F: {global}"],
-    "Noticias en la selecci\xF3n: {count} \xB7 Subpalancas destacadas: {themes}": ["Stories in the selection: {count} \xB7 Featured subthemes: {themes}", "Se\xE7imdeki haber: {count} \xB7 \xD6ne \xE7\u0131kan alt tema: {themes}"],
-    "Noticias en la selecci\xF3n: {count} \xB7 Palancas destacadas: {themes}": ["Stories in the selection: {count} \xB7 Featured themes: {themes}", "Se\xE7imdeki haber: {count} \xB7 \xD6ne \xE7\u0131kan tema: {themes}"],
+    "Noticias en la selecci\xF3n: {count} \xB7 Funcionalidades / Sub Operativas destacadas: {themes}": ["Stories in the selection: {count} \xB7 Featured functionalities / sub-operations: {themes}", "Se\xE7imdeki haber: {count} \xB7 \xD6ne \xE7\u0131kan alt tema: {themes}"],
+    "Noticias en la selecci\xF3n: {count} \xB7 Bloques funcionales destacados: {themes}": ["Stories in the selection: {count} \xB7 Featured functional blocks: {themes}", "Se\xE7imdeki haber: {count} \xB7 \xD6ne \xE7\u0131kan tema: {themes}"],
     "Qu\xE9 ha marcado tu canal y d\xF3nde mirar ahora.": ["What shaped your channel and where to look next.", "Kanal\u0131n\u0131z\u0131 ne \u015Fekillendirdi ve \u015Fimdi nereye bakmal\u0131."],
     "Mirada global": ["Global perspective", "K\xFCresel bak\u0131\u015F"],
-    "{theme} fue la palanca con m\xE1s noticias: {count}, el {share}% del corpus.": ["{theme} was the most covered theme: {count} stories, {share}% of the corpus.", "En \xE7ok haber yap\u0131lan tema {theme}: {count} haber, derlemin %{share} kadar\u0131."],
-    "La selecci\xF3n no tiene noticias clasificadas por palanca.": ["The selection has no stories classified by theme.", "Se\xE7imde temaya g\xF6re s\u0131n\u0131fland\u0131r\u0131lm\u0131\u015F haber yok."],
+    "{theme} fue el bloque funcional con m\xE1s noticias: {count}, el {share}% del corpus.": ["{theme} was the most covered functional block: {count} stories, {share}% of the corpus.", "En \xE7ok haber yap\u0131lan tema {theme}: {count} haber, derlemin %{share} kadar\u0131."],
+    "La selecci\xF3n no tiene noticias clasificadas por bloque funcional.": ["The selection has no stories classified by functional block.", "Se\xE7imde temaya g\xF6re s\u0131n\u0131fland\u0131r\u0131lm\u0131\u015F haber yok."],
     "{entity} figura entre las entidades con mayor presencia. Noticias: {count}. Su foco: {theme}.": ["{entity} is among the most covered institutions: {count} stories. Its focus: {theme}.", "{entity} en \xE7ok haber yap\u0131lan kurumlar aras\u0131nda: {count} haber. Oda\u011F\u0131: {theme}."],
     "Geograf\xEDas identificadas": ["Identified geographies", "Belirlenmi\u015F co\u011Frafyalar"],
     "Movimientos de la quincena": ["The fortnight\u2019s developments", "On be\u015F g\xFCn\xFCn geli\u015Fmeleri"],
@@ -96,9 +172,9 @@
     "Novedades concretas para revisar esta quincena.": ["Concrete developments to review this fortnight.", "Bu on be\u015F g\xFCnde incelenecek somut geli\u015Fmeler."],
     "Tu geograf\xEDa, el grupo y el mercado: decisiones para el pr\xF3ximo a\xF1o.": ["Your geography, the group and the market: decisions for next year.", "Co\u011Frafyan\u0131z, grup ve pazar: gelecek y\u0131l i\xE7in kararlar."],
     "EL TRIMESTRE EN CIFRAS": ["THE QUARTER IN NUMBERS", "RAKAMLARLA \xC7EYREK"],
-    "Las palancas que marcaron el trimestre": ["The themes that shaped the quarter", "\xC7eyre\u011Fe damga vuran temalar"],
+    "Los bloques funcionales que marcaron el trimestre": ["The functional blocks that shaped the quarter", "\xC7eyre\u011Fe damga vuran temalar"],
     "El pulso del trimestre": ["The quarter\u2019s pulse", "\xC7eyre\u011Fin nabz\u0131"],
-    "Ejemplos de las palancas con m\xE1s actividad registrada durante el trimestre.": ["Examples of the themes with the most recorded activity during the quarter.", "\xC7eyrek boyunca en fazla faaliyet kaydedilen temalardan \xF6rnekler."],
+    "Ejemplos de los bloques funcionales con m\xE1s actividad registrada durante el trimestre.": ["Examples of the functional blocks with the most recorded activity during the quarter.", "\xC7eyrek boyunca en fazla faaliyet kaydedilen temalardan \xF6rnekler."],
     "El grupo en otras geograf\xEDas": ["The group in other geographies", "Di\u011Fer co\u011Frafyalarda grup"],
     "El mercado internacional": ["The international market", "Uluslararas\u0131 pazar"],
     "CIERRE ESTRAT\xC9GICO": ["STRATEGIC YEAR-END REVIEW", "STRATEJ\u0130K YIL SONU DE\u011EERLEND\u0130RMES\u0130"],
@@ -108,7 +184,7 @@
     Mercado: ["Market", "Pazar"],
     Diferencia: ["Difference", "Fark"],
     pp: ["pp", "y\xFCzde puan"],
-    "Compara el peso de las palancas en tu geograf\xEDa, el grupo y el mercado. Estas son las mayores diferencias dentro de sus respectivos corpus.": ["Compare the weight of themes in your geography, the group and the market. These are the largest differences within their respective corpora.", "Co\u011Frafyan\u0131z ve pazar farkl\u0131 yo\u011Funluklarda haber al\u0131yor. Bunlar kendi haber k\xFCmeleri i\xE7indeki en b\xFCy\xFCk yay\u0131n a\u011F\u0131rl\u0131\u011F\u0131 farklar\u0131d\u0131r."],
+    "Compara el peso de los bloques funcionales en tu geograf\xEDa, el grupo y el mercado. Estas son las mayores diferencias dentro de sus respectivos corpus.": ["Compare the weight of functional blocks in your geography, the group and the market. These are the largest differences within their respective corpora.", "Co\u011Frafyan\u0131z ve pazar farkl\u0131 yo\u011Funluklarda haber al\u0131yor. Bunlar kendi haber k\xFCmeleri i\xE7indeki en b\xFCy\xFCk yay\u0131n a\u011F\u0131rl\u0131\u011F\u0131 farklar\u0131d\u0131r."],
     "La cobertura disponible no permite una comparaci\xF3n completa entre tu geograf\xEDa y el mercado. Los \xE1mbitos sin noticias se indican sin atribuirles menor actividad.": ["Available coverage does not support a complete comparison between your geography and the market. Areas with no news are shown without implying less activity.", "Mevcut kapsam co\u011Frafyan\u0131z ve pazar aras\u0131nda tam kar\u015F\u0131la\u015Ft\u0131rmaya izin vermiyor. Habersiz alanlar daha az faaliyet ima edilmeden g\xF6sterilir."],
     "En {theme}, tu geograf\xEDa concentra el {local}% de sus noticias, frente al {market}% del mercado internacional: {gap} puntos porcentuales de diferencia editorial.": ["For {theme}, your geography accounts for {local}% of its stories, versus {market}% in the international market: an editorial difference of {gap} percentage points.", "{theme} i\xE7in co\u011Frafyan\u0131zdaki haberlerin pay\u0131 %{local}, uluslararas\u0131 pazarda %{market}: yay\u0131n a\u011F\u0131rl\u0131\u011F\u0131nda {gap} y\xFCzde puan fark."],
     "Porcentajes dentro de cada corpus; diferencia local menos mercado, en puntos porcentuales. Sin evidencia se muestra \u2014. No mide adopci\xF3n ni inversi\xF3n.": ["Percentages within each corpus; local minus market difference in percentage points. No evidence is shown as \u2014. This does not measure adoption or investment.", "Her haber k\xFCmesi i\xE7indeki y\xFCzdeler; yerel eksi pazar fark\u0131 y\xFCzde puan cinsindendir. Kan\u0131t yoksa \u2014 g\xF6sterilir. Benimseme veya yat\u0131r\u0131m\u0131 \xF6l\xE7mez."],
@@ -123,31 +199,31 @@
     "Geograf\xEDa no identificada en {count} noticias.": ["Geography unidentified in {count} stories.", "{count} haberde co\u011Frafya belirlenmemi\u015F."],
     "\xBFQu\xE9 temas de tu canal necesitan m\xE1s evidencia para decidir?": ["Which channel themes need more evidence before deciding?", "Karar vermeden \xF6nce kanal\u0131n\u0131z\u0131n hangi temalar\u0131 daha fazla kan\u0131t gerektiriyor?"],
     "EL A\xD1O EN CIFRAS": ["THE YEAR IN NUMBERS", "RAKAMLARLA YIL"],
-    "Las palancas que marcaron el a\xF1o": ["The themes that shaped the year", "Y\u0131l\u0131 \u015Fekillendiren temalar"],
+    "Los bloques funcionales que marcaron el a\xF1o": ["The functional blocks that shaped the year", "Y\u0131l\u0131 \u015Fekillendiren temalar"],
     "Qui\xE9n ocup\xF3 la conversaci\xF3n": ["Who led the conversation", "Konu\u015Fmalarda kim \xF6ne \xE7\u0131kt\u0131"],
     "Noticias y porcentaje del corpus. Los temas de una entidad pueden solaparse.": ["Stories and percentage of the corpus. An institution\u2019s themes may overlap.", "Haberler ve derlem y\xFCzdesi. Bir kurumun temalar\u0131 \xF6rt\xFC\u015Febilir."],
     "El pulso del a\xF1o": ["The pulse of the year", "Y\u0131l\u0131n nabz\u0131"],
-    "Presencia en las fuentes y filtros de esta edici\xF3n; no mide cuota de mercado. Una noticia puede pertenecer a varias palancas.": ["Presence within this edition\u2019s sources and filters; it does not measure market share. A story may belong to several themes.", "Bu say\u0131n\u0131n kaynak ve filtrelerindeki g\xF6r\xFCn\xFCrl\xFCk; pazar pay\u0131n\u0131 \xF6l\xE7mez. Bir haber birden \xE7ok temaya ait olabilir."],
-    "Ejemplos de las palancas con m\xE1s actividad registrada durante el a\xF1o.": ["Examples of themes with the most recorded activity during the year.", "Y\u0131l boyunca en \xE7ok faaliyet kaydedilen temalardan \xF6rnekler."],
-    "1 noticia m\xE1s en esta subpalanca": ["1 more story in this subtheme", "Bu alt temada 1 haber daha"],
-    "{count} noticias m\xE1s en esta subpalanca": ["{count} more stories in this subtheme", "Bu alt temada {count} haber daha"],
-    "Un ejemplo de esta subpalanca": ["An example of this subtheme", "Bu alt temadan bir \xF6rnek"],
-    "\xDAnica noticia de esta subpalanca en la selecci\xF3n": ["The only story in this subtheme in the selection", "Se\xE7imde bu alt temadaki tek haber"],
-    "Las subpalancas que mueven el sector": ["The subthemes shaping the sector", "Sekt\xF6r\xFC \u015Fekillendiren alt temalar"],
-    "Una noticia de ejemplo por subpalanca; descubre el resto de la actividad.": ["One example story per subtheme; explore the remaining activity.", "Her alt tema i\xE7in bir \xF6rnek haber; di\u011Fer faaliyetleri ke\u015Ffedin."],
+    "Presencia en las fuentes y filtros de esta edici\xF3n; no mide cuota de mercado. Una noticia puede pertenecer a varios bloques funcionales.": ["Presence within this edition\u2019s sources and filters; it does not measure market share. A story may belong to several functional blocks.", "Bu say\u0131n\u0131n kaynak ve filtrelerindeki g\xF6r\xFCn\xFCrl\xFCk; pazar pay\u0131n\u0131 \xF6l\xE7mez. Bir haber birden \xE7ok temaya ait olabilir."],
+    "Ejemplos de los bloques funcionales con m\xE1s actividad registrada durante el a\xF1o.": ["Examples of functional blocks with the most recorded activity during the year.", "Y\u0131l boyunca en \xE7ok faaliyet kaydedilen temalardan \xF6rnekler."],
+    "1 noticia m\xE1s en esta funcionalidad / sub operativa": ["1 more story in this functionality / sub-operation", "Bu alt temada 1 haber daha"],
+    "{count} noticias m\xE1s en esta funcionalidad / sub operativa": ["{count} more stories in this functionality / sub-operation", "Bu alt temada {count} haber daha"],
+    "Un ejemplo de esta funcionalidad / sub operativa": ["An example of this functionality / sub-operation", "Bu alt temadan bir \xF6rnek"],
+    "\xDAnica noticia de esta funcionalidad / sub operativa en la selecci\xF3n": ["The only story in this functionality / sub-operation in the selection", "Se\xE7imde bu alt temadaki tek haber"],
+    "Las funcionalidades / sub operativas que mueven el sector": ["The functionalities / sub-operations shaping the sector", "Sekt\xF6r\xFC \u015Fekillendiren alt temalar"],
+    "Una noticia de ejemplo por funcionalidad / sub operativa; descubre el resto de la actividad.": ["One example story per functionality / sub-operation; explore the remaining activity.", "Her alt tema i\xE7in bir \xF6rnek haber; di\u011Fer faaliyetleri ke\u015Ffedin."],
     "Noticias del sector": ["Sector news", "Sekt\xF6r haberleri"],
-    "1 noticia m\xE1s en esta palanca": ["1 more story in this theme", "Bu temada 1 haber daha"],
-    "{count} noticias m\xE1s en esta palanca": ["{count} more stories in this theme", "Bu temada {count} haber daha"],
-    "Un ejemplo de esta palanca": ["An example of this theme", "Bu temadan bir \xF6rnek"],
-    "\xDAnica noticia de esta palanca en la selecci\xF3n": ["The only story in this theme in the selection", "Se\xE7imde bu temadaki tek haber"],
+    "1 noticia m\xE1s en este bloque funcional": ["1 more story in this functional block", "Bu temada 1 haber daha"],
+    "{count} noticias m\xE1s en este bloque funcional": ["{count} more stories in this functional block", "Bu temada {count} haber daha"],
+    "Un ejemplo de este bloque funcional": ["An example of this functional block", "Bu temadan bir \xF6rnek"],
+    "\xDAnica noticia de este bloque funcional en la selecci\xF3n": ["The only story in this functional block in the selection", "Se\xE7imde bu temadaki tek haber"],
     "TU GEOGRAF\xCDA": ["YOUR GEOGRAPHY", "CO\u011ERAFYANIZ"],
     "MIRADA INTERNACIONAL": ["INTERNATIONAL PERSPECTIVE", "ULUSLARARASI BAKI\u015E"],
     "MIRADA GLOBAL": ["GLOBAL PERSPECTIVE", "K\xDCRESEL BAKI\u015E"],
     "Tendencias globales": ["Global trends", "K\xFCresel e\u011Filimler"],
-    "Las palancas que mueven el sector": ["The themes shaping the sector", "Sekt\xF6r\xFC \u015Fekillendiren temalar"],
+    "Los bloques funcionales que mueven el sector": ["The functional blocks shaping the sector", "Sekt\xF6r\xFC \u015Fekillendiren temalar"],
     "Actividad en la geograf\xEDa seleccionada.": ["Activity in your selected geography.", "Se\xE7ti\u011Finiz co\u011Frafyadaki faaliyetler."],
     "Se\xF1ales del conjunto del sector para ampliar la perspectiva.": ["Signals across the sector to broaden the perspective.", "Bak\u0131\u015F a\xE7\u0131s\u0131n\u0131 geni\u015Fletmek i\xE7in sekt\xF6r genelindeki sinyaller."],
-    "Una noticia de ejemplo por palanca; descubre el resto de la actividad.": ["One example story per theme; explore the remaining activity.", "Her tema i\xE7in bir \xF6rnek haber; di\u011Fer faaliyetleri ke\u015Ffedin."],
+    "Una noticia de ejemplo por bloque funcional; descubre el resto de la actividad.": ["One example story per functional block; explore the remaining activity.", "Her tema i\xE7in bir \xF6rnek haber; di\u011Fer faaliyetleri ke\u015Ffedin."],
     "Sin noticias en {country} con estos filtros. La mirada internacional recoge la actividad disponible.": ["No stories in {country} with these filters. The international perspective covers the available activity.", "Bu filtrelerle {country} i\xE7in haber yok. Uluslararas\u0131 bak\u0131\u015F mevcut faaliyetleri kapsar."],
     "Per\xEDodo consultado: {from} a {to}": ["Selected period: {from} to {to}", "Se\xE7ili d\xF6nem: {from} - {to}"],
     "Las fechas delimitan el per\xEDodo consultado. Puedes editarlas aqu\xED o desde sus etiquetas.": ["Dates define the selected period. Edit them here or from their tags.", "Tarihler se\xE7ili d\xF6nemi belirler. Buradan veya etiketlerinden d\xFCzenleyebilirsiniz."],
@@ -229,13 +305,13 @@
     "Noticias por geograf\xEDa": ["News by geography", "Co\u011Frafyaya g\xF6re haberler"],
     "Las claves del mes": ["This month\u2019s key stories", "Ay\u0131n \xF6ne \xE7\u0131kanlar\u0131"],
     "Noticias analizadas": ["News analysed", "Analiz edilen haberler"],
-    "Palancas activas": ["Active themes", "Etkin temalar"],
-    "Palancas que marcan el a\xF1o": ["Themes shaping the year", "Y\u0131la y\xF6n veren temalar"],
-    "Presencia en noticias por categor\xEDa. Una noticia puede pertenecer a varias palancas.": ["News presence by category. An article may belong to several themes.", "Kategoriye g\xF6re haber say\u0131s\u0131. Bir haber birden fazla temaya ait olabilir."],
+    "Bloques funcionales activos": ["Active functional blocks", "Etkin temalar"],
+    "Bloques funcionales que marcan el a\xF1o": ["functional blocks shaping the year", "Y\u0131la y\xF6n veren temalar"],
+    "Presencia en noticias por categor\xEDa. Una noticia puede pertenecer a varios bloques funcionales.": ["News presence by category. An article may belong to several functional blocks.", "Kategoriye g\xF6re haber say\u0131s\u0131. Bir haber birden fazla temaya ait olabilir."],
     "Ver m\xE1s": ["See more", "Daha fazlas\u0131"],
-    "Palanca destacada": ["Leading theme", "\xD6ne \xE7\u0131kan tema"],
-    "en esta palanca": ["in this theme", "bu temada"],
-    "Una noticia por geograf\xEDa, de la palanca con m\xE1s presencia en el per\xEDodo.": ["One story per geography from the most covered theme in the period.", "Her co\u011Frafya i\xE7in d\xF6nemde en \xE7ok yer alan temadan bir haber."],
+    "Bloque funcional destacado": ["Leading functional block", "\xD6ne \xE7\u0131kan tema"],
+    "en este bloque funcional": ["in this functional block", "bu temada"],
+    "Una noticia por geograf\xEDa, de el bloque funcional con m\xE1s presencia en el per\xEDodo.": ["One story per geography from the most covered functional block in the period.", "Her co\u011Frafya i\xE7in d\xF6nemde en \xE7ok yer alan temadan bir haber."],
     "Entidad con mayor presencia": ["Entity with the most coverage", "En \xE7ok haber yap\u0131lan kurulu\u015F"],
     "Evoluci\xF3n trimestral": ["Quarterly activity", "\xC7eyreklik geli\u015Fim"],
     Trimestre: ["Quarter", "\xC7eyrek"],
@@ -273,26 +349,26 @@
     "N\xFAmero de noticias": ["Number of articles", "Haber say\u0131s\u0131"],
     "Porcentaje del grupo": ["Share within the group", "Grup i\xE7indeki oran"],
     "Selecciona una celda para leer las noticias que la sustentan, conservando el per\xEDodo y tu selecci\xF3n.": ["Select a cell to read its supporting articles, keeping your period and selection.", "D\xF6nemi ve se\xE7iminizi koruyarak ilgili haberleri okumak i\xE7in bir h\xFCcre se\xE7in."],
-    "Mapa de calor de taxonom\xEDa": ["Taxonomy heatmap", "Taksonomi \u0131s\u0131 haritas\u0131"],
+    "Mapa de calor de cat\xE1logo global de funcionalidades": ["Global functionality catalogue heatmap", "K\xFCresel i\u015Flev katalo\u011Fu \u0131s\u0131 haritas\u0131"],
     "Grupos anteriores": ["Previous groups", "\xD6nceki gruplar"],
     "Grupos siguientes": ["Next groups", "Sonraki gruplar"],
     "Categor\xEDas anteriores": ["Previous categories", "\xD6nceki konular"],
     "Categor\xEDas siguientes": ["Next categories", "Sonraki konular"],
-    "Cada noticia puede tener varias etiquetas. Los porcentajes describen noticias del grupo, no cuota de mercado ni inversi\xF3n. La geograf\xEDa indica el pa\xEDs registrado en la noticia.": ["An article may have several labels. Percentages describe articles within each group, not market share or investment. Geography is the country recorded for the article.", "Bir haberin birden fazla etiketi olabilir. Y\xFCzdeler pazar pay\u0131n\u0131 veya yat\u0131r\u0131m\u0131 de\u011Fil, gruptaki haberleri g\xF6sterir. Co\u011Frafya, haberde kay\u0131tl\u0131 \xFClkedir."],
-    "{tagged}/{total} noticias con taxonom\xEDa; {missing} sin catalogar.": ["{tagged}/{total} articles with taxonomy; {missing} unclassified.", "{tagged}/{total} haber taksonomiyle etiketli; {missing} s\u0131n\u0131fland\u0131r\u0131lmam\u0131\u015F."],
-    "Palancas y subpalancas por entidad y geograf\xEDa": ["Themes and subthemes by entity and geography", "Kurum ve co\u011Frafyaya g\xF6re konu\u015Fma konular\u0131"],
+    "Cada noticia con clasificaci\xF3n funcional tiene un bloque y una funcionalidad. Los porcentajes describen noticias del grupo, no cuota de mercado ni inversi\xF3n. La geograf\xEDa indica el pa\xEDs registrado en la noticia.": ["Each functionally classified article has one block and one functionality. Percentages describe articles within each group, not market share or investment. Geography is the country recorded for the article.", "\u0130\u015Flevsel olarak s\u0131n\u0131fland\u0131r\u0131lm\u0131\u015F her haberin bir blo\u011Fu ve bir i\u015Flevi vard\u0131r. Y\xFCzdeler pazar pay\u0131n\u0131 veya yat\u0131r\u0131m\u0131 de\u011Fil, gruptaki haberleri g\xF6sterir. Co\u011Frafya, haberde kay\u0131tl\u0131 \xFClkedir."],
+    "{tagged}/{total} noticias con cat\xE1logo global de funcionalidades; {missing} sin catalogar.": ["{tagged}/{total} articles with global functionality catalogue; {missing} unclassified.", "{tagged}/{total} haber k\xFCresel i\u015Flev katalo\u011Fuyle etiketli; {missing} s\u0131n\u0131fland\u0131r\u0131lmam\u0131\u015F."],
+    "Bloques funcionales y funcionalidades / sub operativas por entidad y geograf\xEDa": ["Functional blocks and functionalities / sub-operations by entity and geography", "Kurum ve co\u011Frafyaya g\xF6re konu\u015Fma konular\u0131"],
     "{count} noticias": ["{count} articles", "{count} haber"],
     "{group} \xB7 {topic}: {count} noticias ({share} %). Ver noticias.": ["{group} \xB7 {topic}: {count} articles ({share} %). View articles.", "{group} \xB7 {topic}: {count} haber (% {share}). Haberleri g\xF6r\xFCnt\xFCle."],
     "No hay noticias catalogadas en esta selecci\xF3n.": ["No classified articles in this selection.", "Bu se\xE7imde s\u0131n\u0131fland\u0131r\u0131lm\u0131\u015F haber yok."],
     "Grupos {page}/{pages}": ["Groups {page}/{pages}", "Gruplar {page}/{pages}"],
     "Categor\xEDas {page}/{pages}": ["Categories {page}/{pages}", "Konular {page}/{pages}"],
     "La categor\xEDa m\xE1s presente es {topic}, en {count} noticias.": ["The most frequent category is {topic}, in {count} articles.", "En s\u0131k konu {topic}, {count} haberde yer al\u0131yor."],
-    "Traducci\xF3n de taxonom\xEDa": ["Taxonomy translation", "Taksonomi \xE7evirisi"],
-    "Las palancas y subpalancas se traducen autom\xE1ticamente al finalizar la actualizaci\xF3n de la taxonom\xEDa. Se reutilizan los nombres ya traducidos. La recuperaci\xF3n diaria tiene prioridad.": ["Levers and sublevers are translated automatically after the taxonomy update finishes. Existing name translations are reused. Daily collection has priority.", "Taksonomi g\xFCncellemesi tamamland\u0131\u011F\u0131nda ana ve alt ba\u015Fl\u0131klar otomatik \xE7evrilir. Mevcut ad \xE7evirileri yeniden kullan\u0131l\u0131r. G\xFCnl\xFCk toplama \xF6nceliklidir."],
-    "Traducir taxonom\xEDa pendiente": ["Translate pending taxonomy", "Bekleyen taksonomiyi \xE7evir"],
-    "Progreso de traducci\xF3n de taxonom\xEDa": ["Taxonomy translation progress", "Taksonomi \xE7eviri ilerlemesi"],
+    "Traducci\xF3n de cat\xE1logo global de funcionalidades": ["Global functionality catalogue translation", "K\xFCresel i\u015Flev katalo\u011Fu \xE7evirisi"],
+    "Los nombres originales del cat\xE1logo se conservan en espa\xF1ol. Al completar la actualizaci\xF3n se preparan las traducciones al ingl\xE9s y al turco, reutilizando las ya disponibles. La recuperaci\xF3n diaria tiene prioridad.": ["Original catalogue names are preserved in Spanish. After the update, English and Turkish translations are prepared, reusing those already available. Daily collection takes priority.", "Katalo\u011Fun \xF6zg\xFCn adlar\u0131 \u0130spanyolcada korunur. G\xFCncellemeden sonra mevcut \xE7eviriler yeniden kullan\u0131larak \u0130ngilizce ve T\xFCrk\xE7e \xE7eviriler haz\u0131rlan\u0131r. G\xFCnl\xFCk haber toplama \xF6nceliklidir."],
+    "Traducir cat\xE1logo global de funcionalidades pendiente": ["Translate pending global functionality catalogue", "Bekleyen k\xFCresel i\u015Flev katalo\u011Fuyi \xE7evir"],
+    "Progreso de traducci\xF3n de cat\xE1logo global de funcionalidades": ["Global functionality catalogue translation progress", "K\xFCresel i\u015Flev katalo\u011Fu \xE7eviri ilerlemesi"],
     "{done}/{total} nombres revisados; {translated} traducciones guardadas.": ["{done}/{total} names reviewed; {translated} translations saved.", "{done}/{total} ad incelendi; {translated} \xE7eviri kaydedildi."],
-    "Sin traducciones de taxonom\xEDa ejecutadas.": ["No taxonomy translations have run.", "Hen\xFCz taksonomi \xE7evirisi yap\u0131lmad\u0131."],
+    "Sin traducciones de cat\xE1logo global de funcionalidades ejecutadas.": ["No global functionality catalogue translations have run.", "Hen\xFCz k\xFCresel i\u015Flev katalo\u011Fu \xE7evirisi yap\u0131lmad\u0131."],
     "Clasificaci\xF3n de noticias": ["News classification", "Haber s\u0131n\u0131fland\u0131rmas\u0131"],
     "Clasificar noticias": ["Classify news", "Haberleri s\u0131n\u0131fland\u0131r"],
     "Progreso de env\xEDos planificados": ["Scheduled delivery progress", "Planlanan g\xF6nderimlerin ilerlemesi"],
@@ -584,7 +660,7 @@
     "Prioridades y programaci\xF3n actualizadas.": ["Priorities and scheduling updated.", "\xD6ncelikler ve zamanlama g\xFCncellendi."],
     "1 publicaci\xF3n": ["1 publication", "1 yay\u0131n"],
     "Clasificaci\xF3n diaria tras completar la recopilaci\xF3n \xB7 {state}": ["Daily classification after collection \xB7 {state}", "Haber toplama sonras\u0131nda g\xFCnl\xFCk s\u0131n\u0131fland\u0131rma \xB7 {state}"],
-    "Taxonom\xEDa tras completar las newsletters trimestrales \xB7 {state}": ["Taxonomy after quarterly newsletter delivery \xB7 {state}", "\xDC\xE7 ayl\u0131k b\xFClten g\xF6nderimi sonras\u0131nda taksonomi \xB7 {state}"],
+    "Cat\xE1logo global de funcionalidades tras completar las newsletters trimestrales \xB7 {state}": ["Global functionality catalogue after quarterly newsletter delivery \xB7 {state}", "\xDC\xE7 ayl\u0131k b\xFClten g\xF6nderimi sonras\u0131nda k\xFCresel i\u015Flev katalo\u011Fu \xB7 {state}"],
     "Traducci\xF3n diaria tras completar la clasificaci\xF3n \xB7 {state}": ["Daily translation after classification \xB7 {state}", "S\u0131n\u0131fland\u0131rma sonras\u0131nda g\xFCnl\xFCk \xE7eviri \xB7 {state}"],
     "M\xE1s filtros": ["More filters", "Di\u011Fer filtreler"],
     "Exportar selecci\xF3n": ["Export selection", "Se\xE7imi d\u0131\u015Fa aktar"],
@@ -629,22 +705,21 @@
     "Cobertura del hist\xF3rico": ["Historical coverage", "Ge\xE7mi\u015F kapsam\u0131"],
     "El \xFAltimo a\xF1o se consulta por semanas; las consultas saturadas se dividen autom\xE1ticamente hasta llegar a un d\xEDa. Los RSS de editores aportan solo el hist\xF3rico que mantengan disponible; la recuperaci\xF3n no garantiza cobertura completa.": ["The last year is queried by week; saturated queries are split automatically down to a day. Publishers' RSS feeds provide only the history they retain; recovery does not guarantee complete coverage.", "Son y\u0131l haftal\u0131k olarak taran\u0131r; dolan sorgular otomatik olarak bir g\xFCne kadar b\xF6l\xFCn\xFCr. Yay\u0131nc\u0131lar\u0131n RSS ak\u0131\u015Flar\u0131 yaln\u0131zca saklad\u0131klar\u0131 ge\xE7mi\u015Fi sa\u011Flar; tarama tam kapsam\u0131 garanti etmez."],
     "Google News RSS": ["Google News RSS", "Google News RSS"],
-    Taxonom\u00EDa: ["Taxonomy", "Taksonomi"],
-    Palanca: ["Lever", "Ana kategori"],
-    Subpalanca: ["Sublever", "Alt kategori"],
-    "Actualizar taxonom\xEDa": ["Update taxonomy", "Taksonomiyi g\xFCncelle"],
-    "Palancas y subpalancas de canales digitales de Empresas y Retail, generadas con TF-IDF y reglas de negocio sobre las noticias disponibles.": ["Levers and sublevers for business and retail digital channels, generated with TF-IDF and business rules from available articles.", "Mevcut haberlerden TF-IDF ve i\u015F kurallar\u0131yla olu\u015Fturulan kurumsal ve bireysel dijital kanal kategorileri."],
+    "Cat\xE1logo global de funcionalidades": ["Global functionality catalogue", "K\xFCresel i\u015Flev katalo\u011Fu"],
+    "Bloque funcional": ["Functional block", "\u0130\u015Flevsel blok"],
+    "Funcionalidad / Sub Operativa": ["Functionality / Sub-operation", "\u0130\u015Flev / Alt i\u015Flem"],
+    "Conceptos emergentes admitidos": ["Allowed emerging concepts", "\u0130zin verilen yeni kavramlar"],
+    "Actualizar cat\xE1logo global de funcionalidades": ["Update global functionality catalogue", "K\xFCresel i\u015Flev katalo\u011Fuyi g\xFCncelle"],
     T\u00E9rminos: ["Terms", "Terimler"],
     Origen: ["Origin", "Kaynak"],
     "Reglas de negocio": ["Business rules", "\u0130\u015F kurallar\u0131"],
-    "Palanca, subpalanca o t\xE9rmino": ["Lever, sublever or term", "Ana kategori, alt kategori veya terim"],
-    "Sin taxonom\xEDa disponible. Ejecuta el job para generarla.": ["No taxonomy available. Run the job to generate it.", "Taksonomi mevcut de\u011Fil. Olu\u015Fturmak i\xE7in g\xF6revi \xE7al\u0131\u015Ft\u0131r\u0131n."],
-    "{palancas} palancas \xB7 {subpalancas} subpalancas": ["{palancas} levers \xB7 {subpalancas} sublevers", "{palancas} ana kategori \xB7 {subpalancas} alt kategori"],
-    "Progreso de taxonom\xEDa": ["Taxonomy progress", "Taksonomi ilerlemesi"],
+    "Bloque funcional, funcionalidad / sub operativa o t\xE9rmino": ["Functional block, functionality / sub-operation or term", "Ana kategori, alt kategori veya terim"],
+    "Sin cat\xE1logo global de funcionalidades disponible. Ejecuta el job para generarlo.": ["No global functionality catalogue available. Run the job to generate it.", "K\xFCresel i\u015Flev katalo\u011Fu mevcut de\u011Fil. Olu\u015Fturmak i\xE7in g\xF6revi \xE7al\u0131\u015Ft\u0131r\u0131n."],
+    "Progreso de cat\xE1logo global de funcionalidades": ["Global functionality catalogue progress", "K\xFCresel i\u015Flev katalo\u011Fu ilerlemesi"],
     "{done}/{total} pasos de an\xE1lisis y etiquetado; {tagged} etiquetas actualizadas.": ["{done}/{total} analysis and tagging steps; {tagged} labels updated.", "{done}/{total} analiz ve etiketleme ad\u0131m\u0131; {tagged} etiket g\xFCncellendi."],
-    "Sin taxonom\xEDas ejecutadas.": ["No taxonomy jobs run.", "\xC7al\u0131\u015Ft\u0131r\u0131lan taksonomi g\xF6revi yok."],
-    "Filtro de taxonom\xEDa no disponible.": ["Taxonomy filter unavailable.", "Taksonomi filtresi kullan\u0131lam\u0131yor."],
-    "La taxonom\xEDa se ejecuta en Google Apps Script.": ["Taxonomy runs in Google Apps Script.", "Taksonomi Google Apps Script \xFCzerinde \xE7al\u0131\u015F\u0131r."],
+    "Sin actualizaciones del cat\xE1logo ejecutadas.": ["No global functionality catalogue jobs run.", "\xC7al\u0131\u015Ft\u0131r\u0131lan k\xFCresel i\u015Flev katalo\u011Fu g\xF6revi yok."],
+    "Filtro de cat\xE1logo global de funcionalidades no disponible.": ["Global functionality catalogue filter unavailable.", "K\xFCresel i\u015Flev katalo\u011Fu filtresi kullan\u0131lam\u0131yor."],
+    "El cat\xE1logo global de funcionalidades se ejecuta en Google Apps Script.": ["Global functionality catalogue runs in Google Apps Script.", "K\xFCresel i\u015Flev katalo\u011Fu Google Apps Script \xFCzerinde \xE7al\u0131\u015F\u0131r."],
     "Seguridad e identidad": ["Security and identity", "G\xFCvenlik ve kimlik"],
     "Integraci\xF3n y automatizaci\xF3n": ["Integration and automation", "Entegrasyon ve otomasyon"],
     "Pagos y cobros": ["Payments and collections", "\xD6demeler ve tahsilatlar"],
@@ -1170,6 +1245,7 @@
   }
   function t(value, values) {
     if (values) return formatText(value, values, language);
+    if (language === "es" && /^\d{2}\./.test(String(value))) return value;
     let names = taxonomyNames[language];
     return names && Object.hasOwn(names, value) ? names[value] : translateText(value, language);
   }
@@ -1202,10 +1278,13 @@
 
   // src/shared/taxonomy-path.js
   function taxonomyPath(row) {
-    return row.palanca + " \u203A " + row.subpalanca;
+    return row.subpalanca ? row.palanca + " \u203A " + row.subpalanca : row.palanca;
   }
   function taxonomySubLabel(value) {
     return String(value || "").split(" \u203A ").slice(1).join(" \u203A ") || String(value || "");
+  }
+  function taxonomyDisplayLabel(value) {
+    return taxonomySubLabel(value).replace(/^\d{2}\.(?:\d{2}\.|xx\s+)?\s*/, "");
   }
   function taxonomyChoices(paths, selection = {}) {
     let rows = paths.map((value) => ({ value, palanca: value.split(" \u203A ")[0], subpalanca: taxonomySubLabel(value) }));
@@ -1222,13 +1301,14 @@
     $("message").textContent = text, $("message").classList.toggle("error", error), $("message").hidden = !1;
   }
   function newsPublisher(row, logo = !0) {
-    return '<span class="identity-label">Medio: ' + (row.medio ? "<span data-original>" + escape(row.medio) + "</span>" : "No indicado") + (logo ? identityMark("publishers", row.medio, escape) : "") + "</span>" + (row.fuente ? '<span class="identity-label">' + t("Origen RSS") + ": <span data-original>" + escape(row.fuente) + "</span></span>" : "");
+    return '<span class="identity-label">Medio: ' + (row.medio ? "<span data-original>" + escape(row.medio) + "</span>" : "No indicado") + (logo ? identityMark("publishers", row.medio, escape) : "") + "</span> " + (row.fuente ? '<span class="identity-label">' + t("Origen RSS") + ": <span data-original>" + escape(row.fuente) + "</span></span>" : "");
   }
   function newsTaxonomy(row, selection = {}) {
+    if (!row.taxonomia?.some((item) => item.palanca && item.subpalanca)) return '<span class="badge" data-original>' + escape(t("Sin clasificaci\xF3n funcional justificable")) + "</span>";
     let parents = /* @__PURE__ */ new Set(), children = /* @__PURE__ */ new Set();
     for (let item of row.taxonomia || [])
-      item.palanca !== selection.palanca && parents.add(item.palanca), item.subpalanca !== taxonomySubLabel(selection.subpalanca) && children.add(item.subpalanca);
-    return [...parents].map((value) => '<span class="badge" data-original>' + escape(t("Palanca") + ": " + t(value)) + "</span>").join("") + [...children].map((value) => '<span class="badge" data-original>' + escape(t("Subpalanca") + ": " + t(value)) + "</span>").join("");
+      item.palanca !== selection.palanca && parents.add(item.palanca), item.subpalanca && item.subpalanca !== taxonomySubLabel(selection.subpalanca) && children.add(item.subpalanca);
+    return [...parents].map((value) => '<span class="badge" data-original>' + escape(t(value)) + "</span>").join("") + [...children].map((value) => '<span class="badge" data-original>' + escape(t(value)) + "</span>").join("");
   }
   function newsCoverage(row) {
     return row.etiquetas?.digital ? '<span class="badge">' + t("Canal digital") + "</span>" : "";
@@ -1571,7 +1651,7 @@
       let axis = $("heatmap-axis").value, level = $("heatmap-level").value, mode = $("heatmap-measure").value, page = heatmapPage(data, axis, level, rowPage, columnPage);
       rowPage = page.rowPage, columnPage = page.columnPage;
       let label = (node) => node.level === "palanca" ? t(node.palanca) : t(node.subpalanca), number = new Intl.NumberFormat(language);
-      $("heatmap-summary").textContent = t("{tagged}/{total} noticias con taxonom\xEDa; {missing} sin catalogar.", { tagged: data.tagged, total: data.total, missing: data.total - data.tagged }), $("heatmap-table").innerHTML = page.columns.length ? "<table><caption>" + t("Palancas y subpalancas por entidad y geograf\xEDa") + '</caption><thead><tr><th scope="col">' + t(axis === "entities" ? "Entidad" : "Geograf\xEDa") + "</th>" + page.columns.map((node) => '<th scope="col" data-original>' + escape(label(node)) + "</th>").join("") + "</tr></thead><tbody>" + page.rows.map((row, index) => '<tr><th scope="row" data-original>' + identityMark(axis, row.name, escape) + escape(t(row.name)) + "<small>" + escape(t("{count} noticias", { count: row.total })) + "</small></th>" + page.columns.map((node) => {
+      $("heatmap-summary").textContent = t("{tagged}/{total} noticias con cat\xE1logo global de funcionalidades; {missing} sin catalogar.", { tagged: data.tagged, total: data.total, missing: data.total - data.tagged }), $("heatmap-table").innerHTML = page.columns.length ? "<table><caption>" + t("Bloques funcionales y funcionalidades / sub operativas por entidad y geograf\xEDa") + '</caption><thead><tr><th scope="col">' + t(axis === "entities" ? "Entidad" : "Geograf\xEDa") + "</th>" + page.columns.map((node) => '<th scope="col" data-original>' + escape(label(node)) + "</th>").join("") + "</tr></thead><tbody>" + page.rows.map((row, index) => '<tr><th scope="row" data-original>' + identityMark(axis, row.name, escape) + escape(t(row.name)) + "<small>" + escape(t("{count} noticias", { count: row.total })) + "</small></th>" + page.columns.map((node) => {
         let count = row.counts.get(node.index) || 0, value = heatmapValue(count, row.total, mode, page.max), text = t("{group} \xB7 {topic}: {count} noticias ({share} %). Ver noticias.", { group: t(row.name), topic: label(node), count, share: value.share });
         return '<td><button type="button" class="heat-cell heat-' + value.level + '" data-row="' + index + '" data-node="' + node.index + '" aria-label="' + escape(text) + '" title="' + escape(text) + '"' + (count ? "" : " disabled") + '><span class="heat-cell-topic" aria-hidden="true">' + escape(label(node)) + "</span><span>" + escape(mode === "share" ? value.share + " %" : number.format(count)) + "</span></button></td>";
       }).join("") + "</tr>").join("") + "</tbody></table>" : '<p class="muted">' + t("No hay noticias catalogadas en esta selecci\xF3n.") + "</p>", $("heatmap-rows-label").textContent = t("{visible} de {total} grupos", { visible: page.rows.length, total: data[axis].length }), $("heatmap-columns-label").textContent = t("Categor\xEDas {page}/{pages}", { page: page.pages.columns ? columnPage + 1 : 0, pages: page.pages.columns }), $("heatmap-rows-next").disabled = rowPage + 1 >= page.pages.rows;
@@ -1648,7 +1728,7 @@
     function options(values) {
       return values.map((value) => {
         let [key, label] = Array.isArray(value) ? value : [value, value];
-        return '<option value="' + escape(key) + '">' + escape(displayRecord(label, language)) + "</option>";
+        return "<option" + (/^\d{2}\./.test(label) ? ' data-catalog-name="' + escape(label) + '"' : "") + ' value="' + escape(key) + '">' + escape(/^\d{2}\./.test(label) ? taxonomyDisplayLabel(t(label)) : displayRecord(label, language)) + "</option>";
       }).join("");
     }
     function change() {
@@ -1676,7 +1756,7 @@
       for (let [key, list] of Object.entries(values)) {
         if (!fields.some(([field]) => field === key)) continue;
         let input2 = $(id + "-" + key), value = input2.value;
-        input2.innerHTML = '<option value="">Todos</option>' + options(list), input2.value = list.some((item) => String(Array.isArray(item) ? item[0] : item) === value) ? value : "";
+        input2.innerHTML = '<option value="">Todos</option>' + options([...list].sort((a, b) => taxonomyDisplayLabel(t(String(Array.isArray(a) ? a[1] : a))).localeCompare(taxonomyDisplayLabel(t(String(Array.isArray(b) ? b[1] : b))), language))), input2.value = list.some((item) => String(Array.isArray(item) ? item[0] : item) === value) ? value : "";
       }
     }, page(data) {
       page = data.page;
@@ -1687,17 +1767,26 @@
 
   // src/client/features/taxonomy.js
   function createTaxonomy({ run, isActive, onRevision }) {
-    let items = [], pageSize, signature = "", filters5 = createRecordFilters("taxonomy", [["palanca", "Palanca"]], render, { placeholder: "Palanca, subpalanca o t\xE9rmino" });
+    let items = [], pageSize, signature = "", sourceSignature = "", revision;
+    $("taxonomy-source-form").addEventListener("submit", (event) => {
+      event.preventDefault(), run(async () => {
+        message(await call("saveTaxonomySource", { url: $("taxonomy-catalog-url").value.trim(), revision })), await monitor.open();
+      });
+    });
+    let filters5 = createRecordFilters("taxonomy", [["palanca", "Bloque funcional"]], render, { placeholder: "Bloque funcional, funcionalidad / sub operativa o t\xE9rmino" });
     function render() {
-      let query = filters5.query(), page = recordPage(filterRecords(items, query, ["palanca"], ["palanca", "subpalanca", "terminos", "segmentos"]), query, pageSize);
-      $("taxonomy-body").innerHTML = page.items.map((row) => `<tr><td data-original>${escape(t(row.palanca))}</td><td><strong data-original>${escape(t(row.subpalanca))}</strong></td><td>${escape(row.segmentos.join(" \xB7 "))}</td><td>${row.noticias}</td><td data-original>${escape(row.terminos.join(" \xB7 "))}</td><td>${escape(row.origen === "tf-idf" ? "TF-IDF" : t("Reglas de negocio"))}</td></tr>`).join("") || '<tr><td colspan="6">' + t("Sin taxonom\xEDa disponible. Ejecuta el job para generarla.") + "</td></tr>", filters5.page(page), $("taxonomy-count").textContent = t("{palancas} palancas \xB7 {subpalancas} subpalancas", { palancas: new Set(items.map((row) => row.palanca)).size, subpalancas: items.length });
+      let query = filters5.query(), page = recordPage(filterRecords(items, query, ["palanca"], ["palanca", "subpalanca", "terminos", "segmentos", "descripcion"]), query, pageSize);
+      $("taxonomy-body").innerHTML = page.items.map((row) => `<tr><td data-original>${escape(t(row.palanca))}</td><td><strong data-original>${escape(t(row.subpalanca))}</strong></td><td>${escape(row.segmentos.join(" \xB7 "))}</td><td>${row.noticias}</td><td data-original>${escape(row.terminos.join(" \xB7 "))}</td><td data-original>${row.descripcion ? `<details><summary>${escape(t("Descripci\xF3n"))}</summary>${escape(row.descripcion)}</details>` : ""}</td><td>${escape(row.origen === "tf-idf" ? "TF-IDF" : t("Cat\xE1logo maestro (Drive)"))}</td></tr>`).join("") || '<tr><td colspan="7">' + t("Sin cat\xE1logo global de funcionalidades disponible. Ejecuta el job para generarlo.") + "</td></tr>", filters5.page(page), $("taxonomy-count").textContent = t("{blocks} bloques funcionales \xB7 {functions} funcionalidades / sub operativas", { blocks: new Set(items.map((row) => row.palanca)).size, functions: items.filter((row) => row.subpalanca).length });
     }
-    return createJobMonitor({ id: "taxonomy", get: "getTaxonomyStatus", start: "startTaxonomy", run, isActive, onRevision, render(data) {
-      let job = data.job, total = Number(job?.total || 0) * 2, done = Number(job?.processed || 0);
-      $("taxonomy-schedule").textContent = t("Taxonom\xEDa tras completar las newsletters trimestrales \xB7 {state}", { state: t(data.scheduled ? "Activada" : "Desactivada") }), $("taxonomy-progress").innerHTML = job ? jobProgressHtml(job, { total, done, label: "Progreso de taxonom\xEDa", queued: data.queued, summary: t("{done}/{total} pasos de an\xE1lisis y etiquetado; {tagged} etiquetas actualizadas.", { done, total, tagged: job.tagged }) }) : '<p class="muted">' + t(data.queued ? "En cola" : "Sin taxonom\xEDas ejecutadas.") + "</p>";
+    let monitor = createJobMonitor({ id: "taxonomy", get: "getTaxonomyStatus", start: "startTaxonomy", run, isActive, onRevision, render(data) {
+      let source = JSON.stringify([data.configurationRevision, data.catalogUrl]);
+      source !== sourceSignature && (sourceSignature = source, revision = data.configurationRevision, $("taxonomy-catalog-url").value = data.catalogUrl || ""), $("taxonomy-catalog-status").textContent = data.job?.catalog?.error ? t("No se pudo revisar Drive; se utiliza el cat\xE1logo guardado. ") + data.job.catalog.error : data.synced ? t("\xDAltima lectura del maestro: {date}", { date: date(data.synced) }) : data.catalogUrl ? t("Se revisar\xE1 Drive al iniciar la actualizaci\xF3n.") : t("Se utiliza el cat\xE1logo guardado.");
+      let job = data.job, total = Number(job?.workTotal ?? Number(job?.total || 0) * 2), done = Number(job?.processed || 0);
+      $("taxonomy-schedule").textContent = t("Revisi\xF3n del cat\xE1logo antes de las newsletters trimestrales \xB7 {state}", { state: t(data.scheduled ? "Activada" : "Desactivada") }), $("taxonomy-progress").innerHTML = job ? jobProgressHtml(job, { total, done, label: "Progreso de cat\xE1logo global de funcionalidades", queued: data.queued, summary: t("{done}/{total} pasos de an\xE1lisis y etiquetado; {tagged} etiquetas actualizadas.", { done, total, tagged: job.tagged }) }) : '<p class="muted">' + t(data.queued ? "En cola" : "Sin actualizaciones del cat\xE1logo ejecutadas.") + "</p>";
       let next = JSON.stringify([data.items, data.pageSize, data.taxonomyTranslations, language]);
       next !== signature && (signature = next, items = data.items, pageSize = data.pageSize, filters5.options(recordOptions(items, ["palanca"])), render());
     } });
+    return monitor;
   }
 
   // assets/app-config.json
@@ -1711,7 +1800,7 @@
     },
     adminViews: {
       runs: "Ejecuciones",
-      taxonomy: "Taxonom\xEDa",
+      taxonomy: "Cat\xE1logo global de funcionalidades",
       language: "Idioma",
       subscribers: "Suscripciones",
       adoption: "Adopci\xF3n",
@@ -1735,7 +1824,7 @@
     let articles = createJobMonitor({ id: "translation", get: "getTranslationStatus", start: "startTranslations", run, isActive, onRevision, render(data) {
       scheduled = data.scheduled, $("translation-toggle").textContent = t(scheduled ? "Desactivar traducci\xF3n diaria" : "Activar traducci\xF3n diaria"), $("translation-schedule").textContent = t("Traducci\xF3n diaria tras completar la clasificaci\xF3n \xB7 {state}", { state: t(scheduled ? "Activada" : "Desactivada") }), progress("translation", data, "Progreso de traducci\xF3n", "{done}/{total} noticias revisadas; {translated} traducciones guardadas.", "Sin traducciones programadas ejecutadas.");
     } }), taxonomy2 = createJobMonitor({ id: "taxonomy-translation", get: "getTaxonomyTranslationStatus", start: "startTaxonomyTranslations", run, isActive, onRevision, render(data) {
-      progress("taxonomy-translation", data, "Progreso de traducci\xF3n de taxonom\xEDa", "{done}/{total} nombres revisados; {translated} traducciones guardadas.", "Sin traducciones de taxonom\xEDa ejecutadas.");
+      progress("taxonomy-translation", data, "Progreso de traducci\xF3n de cat\xE1logo global de funcionalidades", "{done}/{total} nombres revisados; {translated} traducciones guardadas.", "Sin traducciones de cat\xE1logo global de funcionalidades ejecutadas.");
     } });
     return $("translation-toggle").addEventListener("click", () => run(async () => {
       await call(scheduled ? "disableTranslationSchedule" : "installTranslationSchedule"), await articles.open();
@@ -2076,13 +2165,28 @@
       ]
     },
     signals: {
-      label: "Novedades y lanzamientos",
+      label: "Se\xF1ales de negocio",
       help: "Se exige se\xF1al y contexto de producto. headline busca la se\xF1al solo en el titular; fullText incluye el extracto. Las exclusiones siempre se aplican al titular. Listas separadas por punto y coma.",
       fields: [
         [
           "name",
-          "Novedad",
+          "Se\xF1al de negocio",
           "text"
+        ],
+        [
+          "group",
+          "Tipo de se\xF1al",
+          "choice",
+          [
+            [
+              "Novedad",
+              "Novedad"
+            ],
+            [
+              "Problema",
+              "Problema de servicio"
+            ]
+          ]
         ],
         [
           "terms",
@@ -2299,6 +2403,10 @@
           "boolean"
         ]
       ]
+    },
+    taxonomy: {
+      label: "Cat\xE1logo global de funcionalidades",
+      help: "Equivalencias y conceptos emergentes de News Radar. Los c\xF3digos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aqu\xED. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios."
     }
   };
 
@@ -2315,16 +2423,23 @@
       if (config)
         if (category === "applicationScope")
           config.applicationScope = [...$("catalog-fields").querySelectorAll("[data-scope]")].map((group) => ({ name: group.dataset.scope, countries: [...group.querySelectorAll("[data-country]:checked")].map((input2) => input2.dataset.country) }));
-        else if (category === "settings")
+        else if (category === "taxonomy") {
+          let list = (input2) => input2.value.split(";").map((value) => value.trim()).filter(Boolean), records = (block, selector) => [...block.querySelectorAll(selector)].map((row) => Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input2) => [input2.dataset.key, input2.dataset.key === "primary" ? input2.checked : input2.dataset.list === "true" ? list(input2) : input2.value.trim()])));
+          config.taxonomy = [...$("catalog-fields").children].map((block) => ({ name: block.querySelector('[data-key="name"]').value.trim(), terms: list(block.querySelector('[data-key="terms"]')), emerging: records(block, "[data-emerging]"), functions: records(block, "[data-function]") }));
+        } else if (category === "settings")
           for (let input2 of $("catalog-fields").querySelectorAll("[data-key]")) config.settings[input2.dataset.key] = input2.type === "checkbox" ? input2.checked : input2.type === "number" ? Number(input2.value) : input2.dataset.list === "true" ? input2.value.split(";").map((value) => value.trim()).filter(Boolean) : input2.value;
         else setEntries([...$("catalog-fields").children].map((row) => Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input2) => [input2.dataset.key, input2.type === "checkbox" ? input2.checked : input2.dataset.list === "true" ? input2.value.split(";").map((value) => value.trim()).filter(Boolean) : input2.value]))));
     }
     function fields(fields2, row) {
-      return fields2.map(([key, label, type, choices]) => `<label>${escape(label)}${type === "choice" ? `<select data-key="${key}">${choices.map(([value, label2]) => `<option value="${escape(value)}" ${row[key] === value ? "selected" : ""}>${escape(label2)}</option>`).join("")}</select>` : type === "boolean" ? `<input type="checkbox" data-key="${key}" ${row[key] ? "checked" : ""}>` : `<input data-key="${key}" ${type === "list" ? 'data-list="true"' : ""} type="${type === "number" ? "number" : "text"}" value="${escape(type === "list" ? (row[key] || []).join("; ") : row[key] ?? "")}">`}</label>`).join("");
+      return fields2.map(([key, label, type, choices]) => `<label>${escape(label)}${type === "choice" ? `<select data-key="${key}">${choices.map(([value, label2]) => `<option value="${escape(value)}" ${row[key] === value ? "selected" : ""}>${escape(label2)}</option>`).join("")}</select>` : type === "boolean" ? `<input type="checkbox" data-key="${key}" ${row[key] ? "checked" : ""}>` : `<input data-key="${key}" ${type === "list" ? 'data-list="true"' : ""} type="${type === "number" ? "number" : "text"}" ${type === "readonly" ? "readonly" : ""} value="${escape(type === "list" ? (row[key] || []).join("; ") : row[key] ?? "")}">`}</label>`).join("");
     }
     function render() {
       let meta = admin_schema_default[category];
-      $("capability-toolbar").hidden = category !== "capabilities", $("catalog-help").textContent = meta.help, $("catalog-add").hidden = ["settings", "applicationScope"].includes(category), $("catalog-fields").innerHTML = category === "applicationScope" ? config.applicationScope.map((scope) => `<fieldset class="catalog-group scope-group" data-scope="${escape(scope.name)}"><legend>${escape(scope.name)}</legend><div class="scope-countries">${config.geographies.map((country) => `<label class="scope-country"><input type="checkbox" data-country="${escape(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${escape(country.name)}</span></label>`).join("")}</div></fieldset>`).join("") : category === "settings" ? admin_schema_default.settings.groups.map((group) => `<fieldset class="catalog-group"><legend>${escape(group.label)}</legend><div class="catalog-settings">${group.keys.map((key) => {
+      if ($("capability-toolbar").hidden = category !== "capabilities", $("catalog-help").textContent = meta.help, $("catalog-add").hidden = ["settings", "applicationScope", "taxonomy"].includes(category), category === "taxonomy") {
+        $("catalog-fields").innerHTML = config.taxonomy.map((block, index) => `<details class="catalog-row"><summary><strong>${escape(block.name)}</strong><span>${block.functions.length}</span></summary><div class="catalog-grid">${fields([["name", "Bloque funcional", "readonly"], ["terms", "Equivalencias del bloque", "list"]], block)}</div>${block.functions.map((row) => `<div class="catalog-grid" data-function>${fields([["id", "C\xF3digo", "readonly"], ["name", "Funcionalidad / Sub Operativa", "readonly"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"]], row)}</div>`).join("")}<h3>${t("Conceptos emergentes admitidos")}</h3><button type="button" class="button" data-add-emerging="${index}">${t("A\xF1adir concepto emergente")}</button>${block.emerging.map((row) => `<div class="catalog-grid" data-emerging>${fields([["name", "Funcionalidad / Sub Operativa", "text"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"], ["primaryTerms", "Productos concretos de fuente oficial", "list"], ["primary", "Producto concreto respaldado por fuente oficial", "boolean"]], row)}<button type="button" class="button" data-remove-emerging>${t("Eliminar")}</button></div>`).join("")}</details>`).join("");
+        return;
+      }
+      $("catalog-fields").innerHTML = category === "applicationScope" ? config.applicationScope.map((scope) => `<fieldset class="catalog-group scope-group" data-scope="${escape(scope.name)}"><legend>${escape(scope.name)}</legend><div class="scope-countries">${config.geographies.map((country) => `<label class="scope-country"><input type="checkbox" data-country="${escape(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${escape(country.name)}</span></label>`).join("")}</div></fieldset>`).join("") : category === "settings" ? admin_schema_default.settings.groups.map((group) => `<fieldset class="catalog-group"><legend>${escape(group.label)}</legend><div class="catalog-settings">${group.keys.map((key) => {
         let value = config.settings[key];
         return fields([[key, admin_schema_default.settings.labels[key], Array.isArray(value) ? "list" : typeof value == "number" ? "number" : typeof value == "boolean" ? "boolean" : "text"]], config.settings);
       }).join("")}</div></fieldset>`).join("") : entries().map((row) => `<details class="catalog-row" ${row.name ? "" : "open"}><summary><strong>${escape(row.name || "Nueva entrada")}</strong><span>${escape(row.type || "")} \xB7 ${row.enabled ? "Activa" : "Inactiva"}</span></summary><div class="catalog-grid">${fields(meta.fields, row)}</div><div class="actions"><button type="button" class="button" data-move="-1">Subir</button><button type="button" class="button" data-move="1">Bajar</button><button type="button" class="button" data-remove>Eliminar</button></div></details>`).join("");
@@ -2332,6 +2447,16 @@
     return $("catalog-category").innerHTML = Object.entries(admin_schema_default).map(([key, meta]) => `<option value="${key}">${escape(meta.label)}</option>`).join(""), $("catalog-category").addEventListener("change", () => {
       readFields(), category = $("catalog-category").value, render();
     }), $("catalog-fields").addEventListener("click", (event) => {
+      let add = event.target.closest("[data-add-emerging]");
+      if (add) {
+        readFields(), config.taxonomy[Number(add.dataset.addEmerging)].emerging.push({ name: "", terms: [] }), render();
+        return;
+      }
+      let emerging = event.target.closest("[data-remove-emerging]");
+      if (emerging) {
+        emerging.closest("[data-emerging]").remove();
+        return;
+      }
       let remove = event.target.closest("[data-remove]");
       remove && remove.closest(".catalog-row").remove();
       let move = event.target.closest("[data-move]");
@@ -2385,23 +2510,32 @@
     return '<time datetime="' + escape(row.fecha) + '">' + escape(t("Publicado")) + ": " + escape(formatCalendarDay(row.fecha, language)) + "</time>";
   }
   function articleTitle(row) {
-    return '<h3 data-original><a class="story-link" href="' + escape(validUrl(row.url)) + '" target="_blank" rel="noopener noreferrer">' + escape(row.titular) + "</a></h3>";
+    return '<h3 class="story-title" data-original><a class="story-link" href="' + escape(validUrl(row.url)) + '" target="_blank" rel="noopener noreferrer">' + escape(row.titular) + "</a></h3>";
+  }
+  function articleEvidence(row) {
+    let evidence = row.functionalEvidence;
+    return evidence?.terms?.length ? '<details class="article-original"><summary>' + escape(t("Por qu\xE9 est\xE1 clasificada aqu\xED")) + "</summary><p>" + escape(t(evidence.method === "literal" ? "Coincidencia operativa directa" : "Contexto descriptivo del cat\xE1logo")) + " \xB7 " + escape(t(evidence.location === "headline" ? "Titular" : "Titular y extracto")) + "</p><p data-original>" + evidence.terms.map(escape).join(" \xB7 ") + "</p></details>" : "";
   }
   function articleContent(row, selection = {}, novelty = !1) {
-    return articleHeader(row, articleTitle(row)) + (row.extracto ? "<p data-original>" + escape(row.extracto) + "</p>" : "") + articleOriginal(row) + '<div class="article-metadata"><div class="news-meta">' + articleTags(row, selection, novelty) + '</div><div class="news-meta">' + articleDate(row) + newsPublisher(row) + "</div></div>";
+    return articleHeader(row, articleTitle(row)) + (row.extracto ? "<p data-original>" + escape(row.extracto) + "</p>" : "") + articleOriginal(row) + articleEvidence(row) + '<div class="article-metadata"><div class="news-meta">' + articleTags(row, selection, novelty) + '</div><div class="news-meta">' + articleDate(row) + newsPublisher(row) + "</div></div>";
   }
 
   // src/client/features/briefing.js
-  function createBriefing() {
-    let briefing2, groups = [], active = "", selection = {}, tabs = createGeographyTabs("briefing-geographies", "briefing-list", (name) => {
+  function createBriefing({ onExplore }) {
+    let briefing2, groups = [], active = "", selection = {}, problemSignals = /* @__PURE__ */ new Set(), tabs = createGeographyTabs("briefing-geographies", "briefing-list", (name) => {
       active = name, paint2();
     });
     function paint2() {
       let group = groups.find((row) => row.name === active), stats = group || briefing2;
-      tabs.render(groups, active), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: briefing2.total }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<article class="signal-card"><strong>${row.total}</strong><span>${escape(row.name)}</span></article>`).join(""), $("briefing-list").innerHTML = (group?.entities.flatMap((entity) => entity.items) || []).map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join("") || '<div class="panel empty"><h2>No hay novedades detectadas en esta selecci\xF3n.</h2><p>Ampl\xEDa la entidad, la geograf\xEDa o el per\xEDodo. Las noticias sin novedades de producto est\xE1n disponibles en Noticias.</p></div>', $("briefing-limit").hidden = !group || stats.total <= group.items.length;
+      tabs.render(groups, active), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: briefing2.total }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" ${row.total ? "" : "disabled"} data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(t(row.name))}</span></button>`).join("");
+      let rows = group?.entities.flatMap((entity) => entity.items) || [], problem = (row) => row.senales.some((name) => problemSignals.has(name)), cards = (items) => items.map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join(""), issues = rows.filter(problem), updates = rows.filter((row) => !problem(row));
+      $("briefing-list").innerHTML = cards(updates) || '<div class="panel empty"><h3>' + t("No hay novedades de producto en esta selecci\xF3n.") + "</h3></div>", $("briefing-problems").innerHTML = cards(issues) || '<div class="panel empty"><p>' + t("No se han detectado noticias de problemas de servicio en esta selecci\xF3n.") + "</p></div>", $("briefing-limit").hidden = !group || stats.total <= group.items.length;
     }
-    return { render(data) {
-      selection = data.selection || {}, briefing2 = data.briefing || { total: 0, bySignal: [], geographies: [], items: [] };
+    return $("briefing-signals").addEventListener("click", (event) => {
+      let button = event.target.closest("[data-signal]");
+      button && onExplore({ ...selection, country: "", newsGeography: active, signal: button.dataset.signal, page: 0 });
+    }), { render(data) {
+      selection = data.selection || {}, problemSignals = new Set(data.problemSignals || []), briefing2 = data.briefing || { total: 0, bySignal: [], geographies: [], items: [] };
       let stats = new Map(briefing2.geographies.map((row) => [row.name, row]));
       groups = noveltyGroups(briefing2.items, applicationGeography(data.applicationScope, data.selection?.segment)).map((group) => ({ ...group, ...stats.get(group.name) })), groups.some((row) => row.name === active) || (active = browserCountry(groups.map((row) => row.name)) || groups[0]?.name || ""), paint2();
     } };
@@ -2593,8 +2727,10 @@
     changed === "palanca" && subpalanca && (subpalanca = taxonomyChoices(paths, { palanca: parent.value }).subpalanca.find((value) => taxonomySubLabel(value) === taxonomySubLabel(subpalanca)) || ""), changed === "subpalanca" && parent.value && !taxonomyChoices(paths, { subpalanca: child.value }).palanca.includes(parent.value) && (parent.value = "");
     let choices = taxonomyChoices(paths, { palanca: parent.value, subpalanca });
     for (let [name, values] of Object.entries(choices)) {
-      let input2 = form.elements[name], current = name === "subpalanca" ? subpalanca : input2.value, signature = JSON.stringify(values);
-      input2.dataset.options !== signature && (input2.dataset.options = signature, input2.innerHTML = '<option value="">' + t("Todos") + "</option>" + values.map((value) => '<option value="' + escape(value) + '">' + escape(name === "subpalanca" ? taxonomySubLabel(value) : value) + "</option>").join("")), input2.value = values.includes(current) ? current : "";
+      let label = (value) => taxonomyDisplayLabel(t(name === "subpalanca" ? taxonomySubLabel(value) : value));
+      values.sort((a, b) => label(a).localeCompare(label(b), language));
+      let input2 = form.elements[name], current = name === "subpalanca" ? subpalanca : input2.value, signature = JSON.stringify([language, values]);
+      input2.dataset.options !== signature && (input2.dataset.options = signature, input2.innerHTML = '<option value="">' + t("Todos") + "</option>" + values.map((value) => '<option data-catalog-name="' + escape(name === "subpalanca" ? taxonomySubLabel(value) : value) + '" value="' + escape(value) + '">' + escape(label(value)) + "</option>").join("")), input2.value = values.includes(current) ? current : "";
     }
   }
 
@@ -2615,11 +2751,11 @@
       $("filter-description").textContent = "Edita los criterios y pulsa Aplicar filtros para actualizar los resultados.";
     }
     layout();
-    let chipLabels = { benchmark: "\xC1mbito comparativo", search: "B\xFAsqueda", country: "Geograf\xEDa", entity: "Entidad", source: "Medio", type: "Tipo de entidad", signal: "Novedad", palanca: "Palanca", subpalanca: "Subpalanca", from: "Fecha desde", to: "Fecha hasta" };
+    let chipLabels = { benchmark: "\xC1mbito comparativo", search: "B\xFAsqueda", country: "Geograf\xEDa", entity: "Entidad", source: "Medio", type: "Tipo de entidad", signal: "Se\xF1al de negocio", palanca: "Bloque funcional", subpalanca: "Funcionalidad / Sub Operativa", from: "Fecha desde", to: "Fecha hasta" };
     function renderChips() {
       let target = $("active-filters"), values = Object.entries(chipLabels).filter(([name]) => applied[name]);
       target.hidden = !values.length, target.innerHTML = values.map(([name, label]) => {
-        let raw = applied[name], value = name === "benchmark" ? newsletterComparisonLabels[raw] : name === "coverage" ? coverageOptions[raw] : ["from", "to"].includes(name) ? formatCalendarDay(raw, language) : name === "subpalanca" ? taxonomySubLabel(raw) : raw, original = ["search", "entity", "source"].includes(name), text = t(label) + ": " + (original ? value : t(value));
+        let raw = applied[name], value = name === "benchmark" ? raw === "international" ? "Mirada internacional" : newsletterComparisonLabels[raw] : name === "coverage" ? coverageOptions[raw] : ["from", "to"].includes(name) ? formatCalendarDay(raw, language) : name === "subpalanca" ? taxonomySubLabel(raw) : raw, original = ["search", "entity", "source"].includes(name), text = ["palanca", "subpalanca"].includes(name) ? t(value) : t(label) + ": " + (original ? value : t(value));
         return ["from", "to"].includes(name) ? '<button type="button" class="filter-chip" data-original data-edit-filter="' + name + '" aria-label="' + escape(t("Editar") + " " + text) + '"><span>' + escape(text) + "</span></button>" : '<button type="button" class="filter-chip" data-original data-remove-filter="' + name + '" aria-label="' + escape(t("Quitar")) + " " + escape(text) + '"><span>' + escape(text) + '</span><span aria-hidden="true">\xD7</span></button>';
       }).join("");
     }
@@ -2711,7 +2847,7 @@
         initialized.add(view), form.elements[name].value = value, filterChanged({ type: "change" });
       },
       apply: (query, notify = !0) => {
-        initialized.add(view);
+        initialized.add(view), Object.hasOwn(query, "newsGeography") && (newsGeography = query.newsGeography);
         for (let input2 of form.elements) if (input2.name) {
           let value = query[input2.name] || "";
           value && input2.tagName === "SELECT" && options(input2.name, [value]), input2.value = value;
@@ -2907,17 +3043,23 @@
       }
       return;
     }
-    if (!(root.nodeType !== 1 || root.matches(excluded))) {
-      if (root.tagName === "TABLE" && root.closest(".table-wrap") && root.setAttribute("role", "table"), root.tagName === "TR" && root.closest(".table-wrap") && root.parentElement.tagName === "TBODY") {
-        let headings = root.closest("table").tHead?.rows[0]?.cells;
-        for (let [index, cell] of [...root.cells].entries()) cell.colSpan === 1 && headings?.[index] && (cell.dataset.label = t(headings[index].textContent));
+    if (root.nodeType === 1) {
+      if (root.dataset.catalogName) {
+        root.textContent = taxonomyDisplayLabel(t(root.dataset.catalogName));
+        return;
       }
-      root.tagName === "OPTION" && !root.hasAttribute("value") && root.setAttribute("value", root.value);
-      for (let key of attributes) if (root.hasAttribute(key)) {
-        let value = root.getAttribute(key), translated = localized(root, key, value);
-        value !== translated && root.setAttribute(key, translated);
+      if (!root.matches(excluded)) {
+        if (root.tagName === "TABLE" && root.closest(".table-wrap") && root.setAttribute("role", "table"), root.tagName === "TR" && root.closest(".table-wrap") && root.parentElement.tagName === "TBODY") {
+          let headings = root.closest("table").tHead?.rows[0]?.cells;
+          for (let [index, cell] of [...root.cells].entries()) cell.colSpan === 1 && headings?.[index] && (cell.dataset.label = t(headings[index].textContent));
+        }
+        root.tagName === "OPTION" && !root.hasAttribute("value") && root.setAttribute("value", root.value);
+        for (let key of attributes) if (root.hasAttribute(key)) {
+          let value = root.getAttribute(key), translated = localized(root, key, value);
+          value !== translated && root.setAttribute(key, translated);
+        }
+        for (let node of root.childNodes) localize(node);
       }
-      for (let node of root.childNodes) localize(node);
     }
   }
   function initializeLocalization() {
@@ -2982,7 +3124,7 @@
     state.ready && (changed || state.contentStale || state.view !== view) && load(!0);
   }, onSubscriptions: () => (taxonomy.close(), subscriptions.open()), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
-  } }), reading = createReadingContext({ onCurrent: () => filters4.current(), run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing(), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters4.setGeography(name));
+  } }), reading = createReadingContext({ onCurrent: () => filters4.current(), run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing({ onExplore: (query) => navigateSelection("news", query) }), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters4.setGeography(name));
   function navigateSelection(view, query) {
     filters4.show(view), filters4.apply(query, !1), state.contentStale = !0, track("filtro"), navigation.show(view);
   }
@@ -3050,7 +3192,7 @@
     if (params.edition) {
       state.attribution = params.edition;
       let view = ["news", "briefing", "radar"].includes(params.view) ? params.view : defaultView;
-      filters4.show(view), navigation.show(view), state.ready = !0, filters4.useEdition(params.edition, { country: params.country, entity: params.entity, palanca: params.palanca, subpalanca: params.subpalanca, benchmark: params.benchmark });
+      filters4.show(view), navigation.show(view), state.ready = !0, filters4.useEdition(params.edition, { country: params.country, entity: params.entity, palanca: params.palanca, subpalanca: params.subpalanca, benchmark: params.benchmark, newsGeography: params.newsGeography });
       return;
     }
     try {

@@ -93,13 +93,28 @@
     ]
   },
   "signals": {
-    "label": "Novedades y lanzamientos",
+    "label": "Señales de negocio",
     "help": "Se exige señal y contexto de producto. headline busca la señal solo en el titular; fullText incluye el extracto. Las exclusiones siempre se aplican al titular. Listas separadas por punto y coma.",
     "fields": [
       [
         "name",
-        "Novedad",
+        "Señal de negocio",
         "text"
+      ],
+      [
+        "group",
+        "Tipo de señal",
+        "choice",
+        [
+          [
+            "Novedad",
+            "Novedad"
+          ],
+          [
+            "Problema",
+            "Problema de servicio"
+          ]
+        ]
       ],
       [
         "terms",
@@ -316,5 +331,9 @@
         "boolean"
       ]
     ]
+  },
+  "taxonomy": {
+    "label": "Catálogo global de funcionalidades",
+    "help": "Equivalencias y conceptos emergentes de News Radar. Los códigos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aquí. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios."
   }
 }

@@ -7,7 +7,7 @@ function newsletterItemKeys_(row){
 function newsletterSentContent_(deliveries){
   const recipients=new Map();
   for(const delivery of deliveries){
-    if(!delivery.suscripcion||!['Enviada','Enviando','Revisar'].includes(delivery.estado))continue;
+    if(String(delivery.id||'').startsWith('prueba:')||!delivery.suscripcion||!['Enviada','Enviando','Revisar'].includes(delivery.estado))continue;
     const email=newsletterEmail_(delivery.correo),keys=JSON.parse(delivery.contenido||'[]');
     if(!Array.isArray(keys)||keys.some(key=>!/^(url|text):[a-f0-9]{64}$/.test(key)))throw Error('Registro de contenido no válido. Revisa el envío '+delivery.id+' antes de continuar.');
     if(!recipients.has(email))recipients.set(email,new Set());for(const key of keys)recipients.get(email).add(key);
