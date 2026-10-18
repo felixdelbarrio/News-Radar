@@ -27,7 +27,7 @@ test('la recuperación detecta alias y sufijo del editor contra las noticias gua
 });
 
 test('erratas aproximadas se consolidan solo dentro del mismo país en vistas, CSV, newsletter e ingesta',()=>{
- const s=server(),c=s.c,title='Santander lanza una plataforma digital de financiacion empresarial para nuevas empresas',base=row('base',{titular:title,extracto:'Pagos digitales para empresas'}),typo=row('typo',{titular:title.replace('financiacion','financiacoin'),extracto:'Pagos digitales para empresas'}),foreign={...typo,id:'foreign',url:'https://editor.test/foreign',pais:'México'};
+ const s=server(),c=s.c,title='Santander lanza una plataforma digital de financiacion empresarial para nuevas empresas',base=row('base',{titular:title,extracto:'Pagos digitales para empresas',taxonomia:JSON.stringify({ids:[]})}),typo=row('typo',{titular:title.replace('financiacion','financiacoin'),extracto:'Pagos digitales para empresas',taxonomia:JSON.stringify({ids:[]})}),foreign={...typo,id:'foreign',url:'https://editor.test/foreign',pais:'México'};
  assert.equal(c.uniqueNews_([base,typo]).length,1);assert.equal(c.uniqueNews_([base,foreign]).length,2);
  add(s,[base,foreign]);const query={from:'2026-10-06',to:'2026-10-12'};
  assert.equal(c.getDashboard({...query,view:'radar'}).stats.news,2);assert.equal(c.getDashboard({...query,view:'briefing'}).contextTotal,2);assert.equal(c.getDashboard({...query,view:'news'}).contextTotal,2);assert.equal(c.exportNews(query).count,2);assert.equal(newsletterFixture(c,[base,foreign],query,'Países',new Date(),'subscription').count,2);

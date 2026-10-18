@@ -23,7 +23,7 @@ function requestNewsClassification_(force=false){
   pruneNewsGenerations_();
   const now=new Date(),source=newsStorageKey_(),target='Noticias_class_'+Utilities.getUuid(),total=Math.max(0,newsSheet_().getLastRow()-1);
   if(total)generationSheet_(target,RADAR.sheets.Noticias);
-  writeClassificationJob_({source,target:total?target:null,corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',next:2,cursor:null,total,revision:classificationRulesRevision_(),version:CLASSIFICATION_WORK.rulesVersion,state:total?'Pendiente':'Completada',started:now.toISOString(),updated:now.toISOString(),day:recordDay(now,settings_().timezone),classified:0,digital:0});
+  writeClassificationJob_({source,taxonomySource:taxonomyStorageKey_(),target:total?target:null,corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',next:2,cursor:null,total,revision:classificationRulesRevision_(),version:CLASSIFICATION_WORK.rulesVersion,state:total?'Pendiente':'Completada',started:now.toISOString(),updated:now.toISOString(),day:recordDay(now,settings_().timezone),classified:0,digital:0});
   if(total)ensureBackgroundWorker_();
 }
 function drainClassificationRequest_(){
@@ -48,7 +48,7 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
   const started=Date.now();let read=0,classified=0,digital=0;
   try{
     const keys=RADAR.sheets.Noticias,revision=classificationRulesRevision_();
-    if(job.revision!==revision||job.source!==newsStorageKey_()||job.corpus!==(properties_().getProperty('NEWS_CONTENT_REVISION')||'0')){requestNewsClassification_(true);return;}
+    if(job.revision!==revision||job.taxonomySource!==taxonomyStorageKey_()||job.source!==newsStorageKey_()||job.corpus!==(properties_().getProperty('NEWS_CONTENT_REVISION')||'0')){requestNewsClassification_(true);return;}
     const rows=newsWorkRows_(job,CLASSIFICATION_WORK.batchRows),staged=[];let countriesChanged=0,cursor=job.cursor;
     for(const row of rows){
       if(Date.now()-started>=maxMs||backgroundPaused_(true)||read%20===0&&properties_().getProperty('DAILY_PIPELINE_REQUEST'))break;

@@ -1721,7 +1721,7 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
   }
 ]);
 const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
-  "version": "3.7.0",
+  "version": "3.7.2",
   "relevanceRules": [
     {
       "name": "Evidencia de canal digital",
@@ -2028,6 +2028,19 @@ const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
         "service disruption",
         "payment failures",
         "delayed payments"
+      ]
+    }
+  ],
+  "taxonomy": [
+    {
+      "id": "17.16",
+      "remove": [
+        "contpaqi"
+      ],
+      "terms": [
+        "integren banca y contabilidad",
+        "integracion banca y contabilidad",
+        "integra banca y contabilidad"
       ]
     }
   ]
@@ -7324,9 +7337,11 @@ const CONFIGURATION_DEFAULTS = {
             "mcp",
             "model context protocol",
             "embedded finance",
-            "contpaqi",
             "integracion contable",
-            "accounting integration"
+            "accounting integration",
+            "integren banca y contabilidad",
+            "integracion banca y contabilidad",
+            "integra banca y contabilidad"
           ]
         },
         {
