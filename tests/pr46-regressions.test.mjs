@@ -4,16 +4,8 @@ import {storage} from './helpers/server.mjs';
 import {configurationDefaults} from '../scripts/configuration-defaults.mjs';
 function setup(){const s=storage();s.c.initializeConfiguration();return s;}
 function finish(c){for(let i=0;i<10&&c.taxonomyPending_();i++){if(c.taxonomyJob_().state==='Publicando')c.dashboardSnapshotBatch_();else c.taxonomyBatch_();}assert.equal(c.taxonomyJob_().state,'Completada');}
-test('guardar reglas durante una revisión trimestral conserva la solicitud y libera los envíos al terminar',()=>{
- const {c,properties:p}=setup(),period={to:'2026-09-30'};c.settings_().newsletterEnabled=true;p.NEWSLETTER_REQUEST='true';c.queueQuarterlyTaxonomy_(period);c.drainTaxonomyRequest_();const previous=c.taxonomyJob_().id;
- const snapshot=JSON.parse(JSON.stringify(c.getConfiguration()));snapshot.config.taxonomy[0].terms.push('nuevo contexto');c.saveConfiguration(snapshot);assert.notEqual(c.taxonomyJob_().id,previous);assert.equal(c.taxonomyJob_().request,'quarterly:'+period.to);assert.equal(c.newsletterReadyAt_({jobs:[]}),Infinity);
- finish(c);assert.equal(p.TAXONOMY_QUARTER_REQUEST,undefined);assert.equal(p.TAXONOMY_PERIOD,period.to);assert.ok(c.newsletterReadyAt_({jobs:[]})<=Date.now());
-});
-test('el trabajador recupera una revisión trimestral desplazada aunque falte la solicitud en cola',()=>{
- const {c,properties:p}=setup(),period={to:'2026-09-30'},request='quarterly:'+period.to;c.queueQuarterlyTaxonomy_(period);c.drainTaxonomyRequest_();
- c.writeTaxonomyJob_({...c.taxonomyJob_(),request:'manual'});delete p.TAXONOMY_REQUEST;assert.equal(c.queueQuarterlyTaxonomy_(period),false);assert.equal(p.TAXONOMY_REQUEST,request);c.drainTaxonomyRequest_();assert.equal(c.taxonomyJob_().request,request);
- c.writeTaxonomyJob_({...c.taxonomyJob_(),request:'manual'});delete p.TAXONOMY_REQUEST;c.drainTaxonomyRequest_();assert.equal(c.taxonomyJob_().request,request);c.writeTaxonomyJob_({...c.taxonomyJob_(),state:'Completada',request:'manual'});delete p.TAXONOMY_REQUEST;assert.equal(c.backgroundQueued_({jobs:[]}),true);c.drainTaxonomyRequest_();finish(c);assert.equal(c.queueQuarterlyTaxonomy_(period),true);assert.equal(p.TAXONOMY_QUARTER_REQUEST,undefined);
-});
+test('newsletters no solicitan reconstrucción trimestral',()=>{const {c,properties:p}=setup();c.settings_().newsletterEnabled=true;p.NEWSLETTER_REQUEST='true';assert.equal(c.queueQuarterlyTaxonomy_,undefined);assert.notEqual(c.newsletterReadyAt_({jobs:[]}),Infinity);});
+test('newsletters no solicitan reconstrucción trimestral',()=>{const {c,properties:p}=setup();c.settings_().newsletterEnabled=true;p.NEWSLETTER_REQUEST='true';assert.equal(c.queueQuarterlyTaxonomy_,undefined);assert.notEqual(c.newsletterReadyAt_({jobs:[]}),Infinity);});
 for(const news of [false,true])test('la migración conserva el último maestro guardado sin Drive, '+(news?'con noticias':'sin noticias'),()=>{
  const {c,sheets,properties:p}=setup(),blocks=configurationDefaults().taxonomy;blocks.find(block=>block.name.startsWith('08.')).functions.push({id:'08.99',name:'Operativa incorporada al maestro',description:'Descripción guardada antes de la migración.',terms:['servicio propio']});
  sheets.get('Configuracion').grid.find(row=>row[0]==='taxonomy')[1]=JSON.stringify(blocks);p.CATALOG_VERSION='3.4.0';delete p.FUNCTIONAL_CATALOG_REVISION;

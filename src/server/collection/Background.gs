@@ -45,7 +45,7 @@ function requestDailyPipeline_(){
 function drainDailyPipeline_(){
   const p=properties_(),day=p.getProperty('DAILY_PIPELINE_REQUEST');if(!day)return;
   if(p.getProperty('DAILY_PIPELINE_DAY')!==day){
-    queueScheduledCollection_('daily');p.setProperty('CLASSIFICATION_REQUEST',day);p.setProperty('DAILY_TRANSLATION_REQUEST',day);p.setProperty('DAILY_PIPELINE_DAY',day);
+    queueScheduledCollection_('daily');p.setProperty('CLASSIFICATION_REQUEST',day);p.setProperty('DAILY_TRANSLATION_REQUEST',day);p.setProperty('DAILY_PIPELINE_DAY',day);p.setProperty('CATALOG_SYNC_REQUEST',day);
     if(newsletterEnabled_())requestNewsletterDelivery_();
   }
   if(p.getProperty('DAILY_PIPELINE_REQUEST')===day)p.deleteProperty('DAILY_PIPELINE_REQUEST');
@@ -66,14 +66,16 @@ function backgroundTask_(work,daily){
   const blocked=dailyCollectionPending_(work)||properties_().getProperty('DAILY_PIPELINE_REQUEST');
   if(!blocked&&classificationReadyAt_()<=Date.now())return 'classification';
   if(!blocked&&!classificationPending_()&&dashboardSnapshotsDue_())return 'snapshot';
+  if(!blocked&&!classificationPending_()&&!taxonomyPending_()&&Number(properties_().getProperty('BACKGROUND_PRIORITY_BURST')||0)>=3){if(maintenanceReadyAt_()<=Date.now())return 'maintenance';if(work.pending.length)return 'collection';}
   if(!blocked&&!classificationPending_()&&!properties_().getProperty('CLASSIFICATION_REQUEST')){
-    if(businessTranslationPending_()&&translationReadyAt_()<=Date.now())return 'translation';
+    if(translationReadyAt_()<=Date.now())return 'translation';
     if(newsletterReadyAt_(work)<=Date.now())return 'newsletter';
+    if(properties_().getProperty('CATALOG_SYNC_REQUEST'))return 'catalogSync';
     if(taxonomyReadyAt_()<=Date.now())return 'taxonomy';
     if(taxonomyTranslationReadyAt_()<=Date.now())return 'taxonomyTranslation';
   }
-  const available={collection:work.pending.length>0,translation:!blocked&&!classificationPending_()&&translationReadyAt_()<=Date.now(),maintenance:!blocked&&!classificationPending_()&&maintenanceReadyAt_()<=Date.now()},order=['collection','translation','maintenance'],last=order.indexOf(properties_().getProperty('BACKGROUND_LAST'));
-  for(let i=1;i<=order.length;i++){const task=order[(last+i)%order.length];if(available[task])return task;}return '';
+  if(!blocked&&!classificationPending_()&&maintenanceReadyAt_()<=Date.now())return 'maintenance';
+  return work.pending.length?'collection':'';
 }
 function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
   if(backgroundPaused_()){deferBackgroundWork_('background');return {added:0,errors:[],paused:true};}
@@ -94,6 +96,7 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
       if(task==='snapshot')dashboardSnapshotBatch_();
       else if(task==='maintenance')maintenanceBatch_(Math.min(MAINTENANCE_POLICY.maxMs,remaining));
       else if(task==='newsletter')deliverNewsletterBatch_(work,remaining);
+      else if(task==='catalogSync'){const synced=refreshFunctionalCatalog_();if(synced.changed&&!taxonomyPending_())requestTaxonomy_('catalog-change');properties_().deleteProperty('CATALOG_SYNC_REQUEST');}
       else if(task==='taxonomyTranslation')taxonomyTranslationBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
       else if(task==='taxonomy')taxonomyBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
       else if(task==='classification')newsClassificationBatch_(Math.min(CLASSIFICATION_WORK.maxMs,remaining));
@@ -103,7 +106,7 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
         if(daily&&work.jobs.some(job=>job.id===work.pending[0].ciclo&&job.estado==='Completada')&&properties_().getProperty('MAINTENANCE_DAY')!==day){maintenance_();properties_().setProperty('MAINTENANCE_DAY',day);}
       }
       if(task!=='snapshot'&&backgroundStageComplete_(task,work,collectionJob))requestDashboardSnapshots_(true);
-      knownRevision=properties_().getProperty('NEWS_REVISION');properties_().setProperty('BACKGROUND_LAST',task);
+      knownRevision=properties_().getProperty('NEWS_REVISION');properties_().setProperty('BACKGROUND_LAST',task);if(task!=='snapshot')properties_().setProperty('BACKGROUND_PRIORITY_BURST',String(['translation','newsletter','catalogSync','taxonomyTranslation'].includes(task)?Number(properties_().getProperty('BACKGROUND_PRIORITY_BURST')||0)+1:0));
     }
     completed=true;return {...collectionStatus_(null,work?.jobs),added,errors};
   }finally{
@@ -122,14 +125,14 @@ function initializeBackgroundSchedules_(){
   if(p.getProperty('DAILY_ENABLED')==='true')replaceCollectionSchedule_();else scheduledTriggers_('dailyRadar_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   if(p.getProperty('TRANSLATION_ENABLED')!=='false')p.setProperty('TRANSLATION_ENABLED','true');
   if(settings_().newsletterEnabled)replaceDailySchedule_('scheduledNewsletters_',settings_().dailyHour);else scheduledTriggers_('scheduledNewsletters_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
-  if(dashboardSnapshotsPending_()||Number.isFinite(taxonomyTranslationReadyAt_())||taxonomyPending_()||p.getProperty('TAXONOMY_REQUEST')||p.getProperty('TAXONOMY_QUARTER_REQUEST')||classificationPending_()||p.getProperty('CLASSIFICATION_REQUEST')||collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_())||Number.isFinite(newsletterReadyAt_()))ensureBackgroundWorker_();
+  if(dashboardSnapshotsPending_()||Number.isFinite(taxonomyTranslationReadyAt_())||taxonomyPending_()||p.getProperty('TAXONOMY_REQUEST')||p.getProperty('CATALOG_SYNC_REQUEST')||classificationPending_()||p.getProperty('CLASSIFICATION_REQUEST')||collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_())||Number.isFinite(newsletterReadyAt_()))ensureBackgroundWorker_();
 }
 function updateOperationalSchedule(){authorize_(true);return withForegroundWrite_(()=>{initializeBackgroundSchedules_();return 'Prioridades y programación actualizadas.';});}
 
 function backgroundWatchdog_(){
   const p=properties_(),values=p.getProperties();if(backgroundPaused_())return;
   if(Object.entries(values).some(([key,value])=>key.startsWith('WORK_PENDING:')&&value==='true')){workWake_();return;}
-  if(!dashboardSnapshotsPending_()&&!values.BACKGROUND_PENDING&&!['MAINTENANCE_REQUEST','DAILY_PIPELINE_REQUEST','CLASSIFICATION_REQUEST','DAILY_TRANSLATION_REQUEST','TRANSLATION_REQUEST','TAXONOMY_REQUEST','TAXONOMY_QUARTER_REQUEST','TAXONOMY_TRANSLATION_REQUEST'].some(key=>values[key])&&!(values.NEWSLETTER_REQUEST&&settings_().newsletterEnabled)&&!Number.isFinite(maintenanceReadyAt_()))return;
+  if(!dashboardSnapshotsPending_()&&!values.BACKGROUND_PENDING&&!['MAINTENANCE_REQUEST','DAILY_PIPELINE_REQUEST','CLASSIFICATION_REQUEST','DAILY_TRANSLATION_REQUEST','TRANSLATION_REQUEST','TAXONOMY_REQUEST','CATALOG_SYNC_REQUEST','TAXONOMY_TRANSLATION_REQUEST'].some(key=>values[key])&&!(values.NEWSLETTER_REQUEST&&settings_().newsletterEnabled)&&!Number.isFinite(maintenanceReadyAt_()))return;
   if(scheduledTriggers_('backgroundTick_').length&&Number(p.getProperty('BACKGROUND_NEXT'))>Date.now()-BACKGROUND_WORK.maxMs*2)return;
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return;
   try{
@@ -140,7 +143,7 @@ function backgroundWatchdog_(){
 }
 
 function backgroundQueued_(work){
-  const p=properties_();return Boolean(p.getProperty('MAINTENANCE_REQUEST')||p.getProperty('DAILY_PIPELINE_REQUEST')||collectionRequests_().length||!dailyCollectionPending_(work)&&!classificationPending_()&&(p.getProperty('CLASSIFICATION_REQUEST')||p.getProperty('DAILY_TRANSLATION_REQUEST'))||!businessPipelinePending_(work)&&(p.getProperty('TAXONOMY_REQUEST')&&!taxonomyPending_()||p.getProperty('TAXONOMY_QUARTER_REQUEST')&&(!taxonomyPending_()||taxonomyJob_().request!==p.getProperty('TAXONOMY_QUARTER_REQUEST'))));
+  const p=properties_();return Boolean(p.getProperty('CATALOG_SYNC_REQUEST')||p.getProperty('MAINTENANCE_REQUEST')||p.getProperty('DAILY_PIPELINE_REQUEST')||collectionRequests_().length||!dailyCollectionPending_(work)&&!classificationPending_()&&(p.getProperty('CLASSIFICATION_REQUEST')||p.getProperty('DAILY_TRANSLATION_REQUEST'))||!businessPipelinePending_(work)&&(p.getProperty('TAXONOMY_REQUEST')&&!taxonomyPending_()));
 }
 
 function backgroundStageComplete_(task,work,collectionJob){

@@ -23,7 +23,7 @@ function requestNewsClassification_(force=false){
   pruneNewsGenerations_();
   const now=new Date(),source=newsStorageKey_(),target='Noticias_class_'+Utilities.getUuid(),total=Math.max(0,newsSheet_().getLastRow()-1);
   if(total)generationSheet_(target,RADAR.sheets.Noticias);
-  writeClassificationJob_({source,target:total?target:null,corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',next:2,cursor:null,total,revision:classificationRulesRevision_(),version:CLASSIFICATION_WORK.rulesVersion,state:total?'Pendiente':'Completada',started:now.toISOString(),updated:now.toISOString(),day:recordDay(now,settings_().timezone),classified:0,digital:0});
+  writeClassificationJob_({source,taxonomySource:taxonomyStorageKey_(),target:total?target:null,corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',next:2,cursor:null,total,revision:classificationRulesRevision_(),version:CLASSIFICATION_WORK.rulesVersion,state:total?'Pendiente':'Completada',started:now.toISOString(),updated:now.toISOString(),day:recordDay(now,settings_().timezone),classified:0,digital:0});
   if(total)ensureBackgroundWorker_();
 }
 function drainClassificationRequest_(){
@@ -48,14 +48,14 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
   const started=Date.now();let read=0,classified=0,digital=0;
   try{
     const keys=RADAR.sheets.Noticias,revision=classificationRulesRevision_();
-    if(job.revision!==revision||job.source!==newsStorageKey_()||job.corpus!==(properties_().getProperty('NEWS_CONTENT_REVISION')||'0')){requestNewsClassification_(true);return;}
+    if(job.revision!==revision||job.taxonomySource!==taxonomyStorageKey_()||job.source!==newsStorageKey_()||job.corpus!==(properties_().getProperty('NEWS_CONTENT_REVISION')||'0')){requestNewsClassification_(true);return;}
     const rows=newsWorkRows_(job,CLASSIFICATION_WORK.batchRows),staged=[];let countriesChanged=0,cursor=job.cursor;
     for(const row of rows){
       if(Date.now()-started>=maxMs||backgroundPaused_(true)||read%20===0&&properties_().getProperty('DAILY_PIPELINE_REQUEST'))break;
-      const saved=savedNewsLabels_(row.clasificacion),labels={...classification_(searchText_(row.titular),searchText_(row.titular+' '+row.extracto)).labels,...(saved.canonicalId?{canonicalId:saved.canonicalId}:{}),...(saved.procedencia?{procedencia:saved.procedencia}:{})},value=JSON.stringify(labels),country=newsCountry_(row);
+      const saved=savedNewsLabels_(row.clasificacion),sufficient=saved.schema===1&&saved.version===CLASSIFICATION_WORK.rulesVersion&&saved.revision===revision&&saved.contentHash===sha256_(JSON.stringify([searchText_(row.titular),searchText_(row.titular+' '+row.extracto)])),labels={...(sufficient?saved:classification_(searchText_(row.titular),searchText_(row.titular+' '+row.extracto)).labels),...(saved.canonicalId?{canonicalId:saved.canonicalId}:{}),...(saved.procedencia?{procedencia:saved.procedencia}:{})},value=JSON.stringify(labels),country=newsCountry_(row);
       if(value!==row.clasificacion)classified++;
       if(country!==row.pais)countriesChanged++;
-      staged.push({row:row._sheetRow,values:keys.map(key=>key==='clasificacion'?value:key==='pais'?country:key==='taxonomia'?JSON.stringify(taxonomyRecord_(row.titular,row.extracto)):row[key])});
+      staged.push({row:row._sheetRow,values:keys.map(key=>key==='clasificacion'?value:key==='pais'?country:key==='taxonomia'?JSON.stringify(necessaryTaxonomyRecord_(row)):row[key])});
       if(labels.digital)digital++;cursor=newsWorkCursor_(row);read++;
     }
     const targetSheet=book_().getSheetByName(job.target);writeStagedNewsRows_(targetSheet,staged);
@@ -66,4 +66,9 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
   }catch(error){
     Object.assign(job,{state:'En pausa',error:String(error.message).slice(0,180),updated:new Date().toISOString(),pausedUntil:Date.now()+(serviceQuotaPause_(error)||settings_().retryMinutes*60000)});writeClassificationJob_(job);telemetry_('clasificacion',Date.now()-started,'Error',job.error);
   }
+}
+
+function necessaryTaxonomyRecord_(row,items=taxonomyCatalog_()){
+ const saved=taxonomySaved_(row.taxonomia);
+ try{validateTaxonomyAssignment_(saved,items,row.id,true,row);return JSON.parse(row.taxonomia);}catch(_){return taxonomyRecord_(row.titular,row.extracto,items);}
 }

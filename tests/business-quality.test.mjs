@@ -20,7 +20,7 @@ test('incidencias reales del canal empresarial se recuperan y el ruido de bolsa,
  assert.equal(classify('BBVA mejora la banca digital para empresas').signals.includes('Indisponibilidad de servicio'),false);
 });
 test('una mención de IA no crea pagos agénticos; un producto oficial mantiene evidencia específica',()=>{
- for(const [title,primary,expected] of [['BBVA lanza Cobro al Toque para cobros con smartphone',true,true],['Banco lanza softpos para cobros con smartphone',true,false],['Banco usa AI-powered payments en su plataforma',true,false]]){const state={documents:0,candidates:{}};taxonomyObserve(state,taxonomyText(title),definitions,new Set(),'Banco',{headline:title,primary});assert.equal(taxonomyBuild(state).some(row=>row.origin==='tf-idf'),expected,title);}
+ for(const [title,primary,expected] of [['BBVA lanza Cobro al Toque para cobros con smartphone',true,false],['Banco lanza softpos para cobros con smartphone',true,false],['Banco usa AI-powered payments en su plataforma',true,false]]){const state={documents:0,candidates:{}};taxonomyObserve(state,taxonomyText(title),definitions,new Set(),'Banco',{headline:title,primary});assert.equal(taxonomyBuild(state).some(row=>row.origin==='tf-idf'),expected,title);}
 });
 test('la clasificación persistida conserva evidencia y la lectura no vuelve a ejecutar el motor funcional',()=>{
  const {c,sheets}=storage();c.initializeConfiguration();c.startTaxonomy();while(c.taxonomyPending_()){if(c.taxonomyJob_().state==='Publicando')c.dashboardSnapshotBatch_();else c.taxonomyBatch_();}const title='Banco amplía pagos VOSTRO para empresas',record=c.taxonomyRecord_(title,'');assert.equal(record.ids.length,1);assert.equal(record.evidence.method,'literal');
@@ -41,7 +41,7 @@ test('Novedades separa problemas y el contador abre Noticias con señal, geograf
 });
 test('las palabras de los nombres de entidades no vetan conceptos funcionales independientes',()=>{
  const {c}=storage();c.initializeConfiguration();const config=c.configuration_(),excluded=new Set(config.entities.flatMap(row=>[row.name,...row.aliases]).map(taxonomyText)),state={documents:0,candidates:{}},title='ANZ completes cross-border tokenised deposit payments';
- for(let i=0;i<3;i++)taxonomyObserve(state,taxonomyText(title),taxonomyDefinitions(config.taxonomy),excluded,'Medio '+i,{headline:title});assert.ok(taxonomyBuild(state).some(row=>row.subpalanca==='02.xx Depósitos tokenizados'));
+ for(let i=0;i<3;i++)taxonomyObserve(state,taxonomyText(title),taxonomyDefinitions(config.taxonomy),excluded,'Medio '+i,{headline:title});assert.ok(taxonomyBuild(state).some(row=>row.subpalanca==='02.xx Otros'));
 });
 test('invalidar noticias o configuración inicia la espera una sola vez y conserva una publicación lista',()=>{
  const {c,properties:p}=storage();c.initializeConfiguration();delete p.DASHBOARD_SNAPSHOT_REQUESTED_AT;c.invalidateNews_();const first=p.DASHBOARD_SNAPSHOT_REQUESTED_AT;assert.ok(Number(first)>0);c.invalidateConfiguration_();assert.equal(p.DASHBOARD_SNAPSHOT_REQUESTED_AT,first);c.requestDashboardSnapshots_(true);c.invalidateNews_();assert.equal(p.DASHBOARD_SNAPSHOT_REQUEST,'ready');assert.equal(p.DASHBOARD_SNAPSHOT_REQUESTED_AT,first);
@@ -51,7 +51,7 @@ test('las búsquedas reservan cobertura a incidencias sin multiplicar las consul
 });
 test('las equivalencias internacionales respetan la operativa masiva y una CBDC no se confunde con stablecoins',()=>{
  assert.equal(decide('Bank launches international payments for businesses').matches[0]?.row.key,'03.13');assert.equal(decide('Bank launches international bulk payments for businesses').matches[0]?.row.key,'03.14');
- const title='HDFC Bank launches Digital Rupee for corporate payments',state={documents:0,candidates:{}};for(let i=0;i<3;i++)taxonomyObserve(state,taxonomyText(title),definitions,new Set(),'Medio '+i,{headline:title});const match=taxonomyDecision(taxonomyText(title),taxonomyBuild(state),title).matches[0];assert.equal(match?.row.subpalanca,'03.xx Pagos con moneda digital de banco central (CBDC)');
+ const title='HDFC Bank launches Digital Rupee for corporate payments',state={documents:0,candidates:{}};for(let i=0;i<3;i++)taxonomyObserve(state,taxonomyText(title),definitions,new Set(),'Medio '+i,{headline:title});const match=taxonomyDecision(taxonomyText(title),taxonomyBuild(state),title).matches[0];assert.equal(match?.row.subpalanca,'03.xx Otros');
 });
 test('las equivalencias fiscales identifican la operación y no confunden pagos genéricos con SIPARE',()=>{
  assert.equal(decide('ATP incorpora Mercado Pago para facilitar el pago de impuestos provinciales').matches[0]?.row.key,'05.23');assert.equal(decide('DBS Bank India enables online payments of customs duty through ICEGATE').matches[0]?.row.key,'05.08');assert.equal(decide('Bank of America to launch cross-border real-time payments').matches[0]?.row.key,'03.13');

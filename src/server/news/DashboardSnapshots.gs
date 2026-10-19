@@ -1,9 +1,9 @@
 function dashboardSnapshotRevision_(view,now=new Date(),p=properties_().getProperties()){
   const period=dashboardPeriod_(view,now);
-  return sha256_(JSON.stringify([RADAR.version,NEWS_CACHE.schema,newsStorageKey_(),taxonomyStorageKey_(),view,p.CONFIG_REVISION||'0',p.NEWS_REVISION||'0',p.TAXONOMY_REVISION||'0',p.TAXONOMY_TRANSLATIONS_REVISION||'0',Object.keys(languageNames).map(code=>p['TRANSLATIONS_REVISION:'+code]||'0'),period]));
+  return sha256_(JSON.stringify([RADAR.version,llmRevision_(),NEWS_CACHE.schema,newsStorageKey_(),taxonomyStorageKey_(),view,p.CONFIG_REVISION||'0',p.NEWS_REVISION||'0',p.TAXONOMY_REVISION||'0',p.TAXONOMY_TRANSLATIONS_REVISION||'0',Object.keys(languageNames).map(code=>p['TRANSLATIONS_REVISION:'+code]||'0'),period]));
 }
 function dashboardSnapshotManifest_(view){return dataGeneration_().snapshots?.[view]||null;}
-function dashboardSnapshotsPending_(){const p=properties_().getProperties(),now=new Date();return Boolean(p.DASHBOARD_SNAPSHOT_CORRUPT)||DASHBOARD_SNAPSHOTS.views.some(view=>dashboardSnapshotManifest_(view)?.revision!==dashboardSnapshotRevision_(view,now,p));}
+function dashboardSnapshotsPending_(){if(llmJob_()?.state==='Publicando'&&!llmStateOverride_)return true;const p=properties_().getProperties(),now=new Date();return snapshotJobsPending_()||Boolean(p.DASHBOARD_SNAPSHOT_CORRUPT)||DASHBOARD_SNAPSHOTS.views.some(view=>dashboardSnapshotManifest_(view)?.revision!==dashboardSnapshotRevision_(view,now,p));}
 function dashboardSnapshotsDue_(){const p=properties_().getProperties();return Boolean(p.DASHBOARD_SNAPSHOT_REQUEST&&(p.DASHBOARD_SNAPSHOT_REQUEST==='ready'||Date.now()-Number(p.DASHBOARD_SNAPSHOT_REQUESTED_AT||Date.now())>=DASHBOARD_SNAPSHOTS.refreshMs));}
 function invalidateDashboardSnapshots_(){const p=properties_();if(!p.getProperty('DASHBOARD_SNAPSHOT_REQUEST'))p.setProperty('DASHBOARD_SNAPSHOT_REQUEST','pending');if(!p.getProperty('DASHBOARD_SNAPSHOT_REQUESTED_AT'))p.setProperty('DASHBOARD_SNAPSHOT_REQUESTED_AT',String(Date.now()));}
 function requestDashboardSnapshots_(ready=false){if(!dashboardSnapshotsPending_())return;const previous=properties_().getProperty('DASHBOARD_SNAPSHOT_REQUEST');invalidateDashboardSnapshots_();if(previous&&(!ready||previous==='ready'))return;if(ready)properties_().setProperty('DASHBOARD_SNAPSHOT_REQUEST','ready');ensureBackgroundWorker_();}
@@ -38,10 +38,11 @@ function dashboardSnapshotLanguages_(data,view){
 function dashboardSnapshotBatch_(){
   try{
   const job=[classificationJob_(),taxonomyJob_(),maintenanceJob_()].find(job=>job?.state==='Publicando'&&job.target);
-  if(!job)return buildDashboardSnapshotBatch_();
+  if(!job)return llmJob_()?.state==='Publicando'?llmSnapshotBatch_():buildDashboardSnapshotBatch_();
+  if(!validateSnapshotJob_(job))return true;
   newsSheetOverride_=job.target;taxonomySheetOverride_=job.modelTarget;
   try{return buildDashboardSnapshotBatch_(job);}finally{newsSheetOverride_=undefined;taxonomySheetOverride_=undefined;}
-  }catch(error){recordSnapshotFailure_(error);throw error;}
+  }catch(error){recordSnapshotFailure_(error);if(error.restartJob){const job=[classificationJob_(),taxonomyJob_(),maintenanceJob_()].find(job=>job?.state==='Publicando'&&job.target);if(job?.modelTarget)requestTaxonomy_(job.request);else if(job?.target.startsWith('Noticias_class_'))requestNewsClassification_(true);else if(job)maintenance_(true);return true;}throw error;}
 }
 
 function buildDashboardSnapshotBatch_(job=null){
@@ -72,12 +73,13 @@ function clearDashboardSnapshotRequest_(){for(const key of ['DASHBOARD_SNAPSHOT_
 function publishDashboardSnapshotSet_(build,job){
   const signature=sha256_(JSON.stringify(DASHBOARD_SNAPSHOTS.views.map(view=>dashboardSnapshotRevision_(view))));
   if(build.signature!==signature)return true;
+  if(job&&!job.llm)assertSnapshotJobSource_(job);
   for(const view of DASHBOARD_SNAPSHOTS.views)try{verifyDashboardSnapshot_(view,build.manifests[view]);}catch(error){delete build.manifests[view];properties_().setProperty('DASHBOARD_SNAPSHOT_BUILD',JSON.stringify(build));throw error;}
-  const previous=dataGeneration_(),generation={...previous,newsSheet:job?.target||previous.newsSheet||'Noticias',...(job?.modelTarget?{taxonomySheet:job.modelTarget}:{}),snapshots:build.manifests,revision:build.signature,published:new Date().toISOString()};
+  const previous=dataGeneration_(),generation={...previous,...(job?.categorization?{categorization:job.categorization}:{}),newsSheet:job?.target||previous.newsSheet||'Noticias',...(job?.modelTarget?{taxonomySheet:job.modelTarget}:{}),snapshots:build.manifests,revision:build.signature,published:new Date().toISOString()};
   // All view manifests and the historical corpus switch together. The previous slots remain intact.
   if(job&&previous.snapshots)savePreviousDataGeneration_(previous);
   properties_().setProperty('DATA_GENERATION',JSON.stringify(generation));dataGenerationMemory_=generation;
-  clearDashboardSnapshotRequest_();completeSnapshotJobs_();return true;
+  clearDashboardSnapshotRequest_();completeSnapshotJobs_(job);if(job?.llm){const llm=llmJob_();properties_().setProperty('LLM_JOB',JSON.stringify({...llm,state:'Completada',progress:100,error:'',published:generation.published}));}return true;
 }
 function rebuildDashboardSnapshots(){authorize_(true);return withForegroundWrite_(()=>{properties_().setProperty('DASHBOARD_SNAPSHOT_CORRUPT','true');requestDashboardSnapshots_(true);return 'Snapshots de Novedades, Noticias y Radar en cola.';});}
 

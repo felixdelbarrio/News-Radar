@@ -1,4 +1,4 @@
-function newsRecordsKey_(){return 'news-records:'+sha256_(JSON.stringify([RADAR.version,newsStorageKey_(),taxonomyStorageKey_(),configurationRevision_(),properties_().getProperty('NEWS_RECORDS_REVISION')||'0']));}
+function newsRecordsKey_(){return 'news-records:'+sha256_(JSON.stringify([RADAR.version,llmRevision_(),newsStorageKey_(),taxonomyStorageKey_(),configurationRevision_(),properties_().getProperty('NEWS_RECORDS_REVISION')||'0']));}
 function newsRecordIndex_(){
   const key='news-records:index:'+newsStorageKey_()+':'+RADAR.version+':'+(properties_().getProperty('NEWS_CONTENT_REVISION')||'0'),cache=CacheService.getScriptCache(),cached=readDashboardCache_(cache,key);if(cached)return cached;
   const sheet=newsSheet_(),count=sheet.getLastRow()-1,days=Object.create(null),entities=new Set(),sources=new Set();

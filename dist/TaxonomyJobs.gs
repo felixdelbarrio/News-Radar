@@ -8,7 +8,7 @@ function taxonomyCatalog_(){
   if(!cached)cacheJson_(key,items,21600);taxonomyMemory_={revision,items};return items;
 }
 function taxonomyOptions_(){const rows=taxonomyCatalog_();return {palanca:[...new Set(rows.map(row=>row.palanca))],subpalanca:rows.filter(row=>row.subpalanca).map(taxonomyPath)};}
-function taxonomySaved_(value){try{const data=JSON.parse(value||'{}');return {fingerprint:data.fingerprint||'',ids:Array.isArray(data.ids)?data.ids:[],evidence:data.evidence||null,reason:data.reason||''};}catch(_){return {fingerprint:'',ids:[]};}}
+function taxonomySaved_(value){try{const data=JSON.parse(value||'{}');return {...data,invalid:Boolean(value)&&(!Array.isArray(data.ids)||data.ids.some(id=>typeof id!=='string')),fingerprint:data.fingerprint||'',ids:Array.isArray(data.ids)?data.ids:[],evidence:data.evidence||null,reason:data.reason||''};}catch(_){return {fingerprint:'',ids:[],invalid:Boolean(value)};}}
 function taxonomyFingerprint_(title,excerpt){return sha256_(JSON.stringify([title,excerpt]));}
 function taxonomyRecord_(title,excerpt,items=taxonomyCatalog_()){
  const fingerprint=taxonomyFingerprint_(title,excerpt),text=taxonomyText(title+' '+excerpt);
@@ -16,24 +16,22 @@ function taxonomyRecord_(title,excerpt,items=taxonomyCatalog_()){
  const model=taxonomyMatchingMemory_.get(items),metadata={fingerprint,version:TAXONOMY_POLICY.version,model:model.revision};
  if(!items.length||!taxonomyEligible_(searchText_(title),text))return {...metadata,ids:[],reason:'insufficient'};
  const decision=taxonomyDecision(text,model.rows,title),match=decision.matches[0];
- return {...metadata,ids:decision.matches.map(match=>match.row.id),reason:decision.reason,...(match?{evidence:{...match.evidence,assignments:decision.matches.map(({row,evidence})=>({id:row.id,...evidence}))}}:{})};
+ return {...metadata,ids:decision.matches.map(match=>match.row.id),primary:match?.row.id||'',reason:decision.reason,...(match?{evidence:{...match.evidence,assignments:decision.matches.map(({row,evidence})=>({id:row.id,...evidence}))}}:{})};
 }
 function taxonomyJob_(){const raw=properties_().getProperty('TAXONOMY_JOB');return raw?JSON.parse(raw):null;}
 function taxonomyPending_(){const job=taxonomyJob_();return Boolean(job&&job.state!=='Completada');}
 function taxonomyReadyAt_(){const job=taxonomyJob_();return job&&!['Completada','Publicando'].includes(job.state)?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
 function writeTaxonomyJob_(job){progressContextMemory_=undefined;properties_().setProperty('TAXONOMY_JOB',JSON.stringify(snapshotJob_('TAXONOMY_JOB',job)));}
 function requestTaxonomy_(request=''){
-  request=properties_().getProperty('TAXONOMY_QUARTER_REQUEST')||request;
   const catalog=refreshFunctionalCatalog_();
   const lastRow=newsSheet_().getLastRow(),candidateTotal=Math.max(0,candidateSheet_().getLastRow()-1),total=Math.max(0,lastRow-1),now=new Date().toISOString();
-  const id=Utilities.getUuid();
-  writeTaxonomyJob_({request,catalog,id,source:newsStorageKey_(),target:'Noticias_tax_'+id,modelTarget:'Taxonomia_gen_'+id,state:'Pendiente',phase:'scan',next:2,cursor:null,candidateTotal,candidateRevision:properties_().getProperty('CANDIDATES_REVISION')||'0',total,workTotal:total*2+candidateTotal,lastRow,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});
+  const id=Utilities.getUuid(),canonical=request==='canonical:'+TAXONOMY_POLICY.version,scanWork=canonical?0:total+candidateTotal;
+  writeTaxonomyJob_({request,catalog,id,source:newsStorageKey_(),target:'Noticias_tax_'+id,modelTarget:'Taxonomia_gen_'+id,state:'Pendiente',phase:canonical?'publish':'scan',scanWork,next:2,cursor:null,candidateTotal,candidateRevision:properties_().getProperty('CANDIDATES_REVISION')||'0',total,workTotal:total+scanWork,lastRow,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});
   ensureBackgroundWorker_();
 }
 function drainTaxonomyRequest_(){
-  const p=properties_(),day=p.getProperty('TAXONOMY_QUARTER_REQUEST')||p.getProperty('TAXONOMY_REQUEST');if(!day||taxonomyPending_()&&taxonomyJob_().request===day)return;
-  if(taxonomyPending_()&&!day.startsWith('quarterly:'))return;
-  if(taxonomyJob_()?.request!==day||day.startsWith('quarterly:'))requestTaxonomy_(day);p.deleteProperty('TAXONOMY_REQUEST');
+ const p=properties_(),request=p.getProperty('TAXONOMY_REQUEST');if(!request||taxonomyPending_())return;
+ requestTaxonomy_(request);p.deleteProperty('TAXONOMY_REQUEST');
 }
 function getTaxonomyStatus(){
   authorize_(true);return {newsRevision:publishedNewsRevision_(),pageSize:settings_().pageSize,job:withJobProgress_('taxonomy',taxonomyJob_(),Boolean(properties_().getProperty('TAXONOMY_REQUEST'))),catalogUrl:settings_().taxonomyCatalogUrl,configurationRevision:configurationRevision_(),items:taxonomyCatalog_(),taxonomyTranslations:taxonomyTranslations_(),queued:Boolean(properties_().getProperty('TAXONOMY_REQUEST')),synced:properties_().getProperty('FUNCTIONAL_CATALOG_SYNCED')||'',scheduled:newsletterEnabled_(),timezone:settings_().timezone};
@@ -65,7 +63,7 @@ function taxonomyCheckpointChunks_(entries,maxRows=Infinity){
 function taxonomyModelRevision_(items){return sha256_(JSON.stringify(items.map(row=>[row.id,row.palanca,row.subpalanca,row.segmentos,row.terminos,row.descripcion,row.condiciones])));}
 function publishTaxonomy_(state){
   taxonomySeed(state,taxonomyDefinitions(configuration_().taxonomy));
-  const items=taxonomyBuild(state).map(row=>({id:sha256_(row.key).slice(0,24),palanca:row.palanca,subpalanca:row.subpalanca,segmentos:row.segments,terminos:row.terms,noticias:row.df,peso:row.peso,origen:row.origin,descripcion:row.description||'',context:row.context||[],exclude:row.exclude||[],condiciones:JSON.stringify({context:row.context||[],exclude:row.exclude||[]})}));
+  const items=taxonomyBuild(state).map(row=>({id:sha256_(row.key).slice(0,24),palanca:row.palanca,subpalanca:row.subpalanca,segmentos:row.segments,terminos:row.terms,noticias:row.df,peso:row.peso,origen:/\.xx Otros$/.test(row.subpalanca)?'local':row.origin,descripcion:row.description||'',context:row.context||[],exclude:row.exclude||[],condiciones:JSON.stringify({context:row.context||[],exclude:row.exclude||[],...(row.emerging?{emerging:row.emerging}:{})})}));
   const revision=sha256_(JSON.stringify(items));
   if(revision===properties_().getProperty('TAXONOMY_REVISION')&&taxonomySheet_().getLastRow()>1){taxonomyMemory_={revision,items};return taxonomyModelRevision_(items);}
   const sheet=taxonomySheet_(),previous=Math.max(0,sheet.getLastRow()-1),keys=RADAR.sheets.Taxonomia;
@@ -114,17 +112,18 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
       taxonomySheetOverride_=job.modelTarget;let items;try{items=taxonomyCatalog_();}finally{taxonomySheetOverride_=undefined;}const rows=newsWorkRows_(job,TAXONOMY_POLICY.batchRows),updates=[];let next=job.next,cursor=job.cursor;
       for(const row of rows){
         if(Date.now()-started>=maxMs||backgroundPaused_(true)||(next-job.next)%20===0&&properties_().getProperty('DAILY_PIPELINE_REQUEST'))break;
-        const saved=taxonomySaved_(row.taxonomia),fingerprint=taxonomyFingerprint_(row.titular,row.extracto);
-        if(job.changed||saved.fingerprint!==fingerprint||!saved.reason){
+        const saved=taxonomySaved_(row.taxonomia);let valid=true;
+        try{validateTaxonomyAssignment_(saved,items,row.id,true,row);}catch(_){valid=false;}
+        if(job.changed||!valid){
           const record=taxonomyRecord_(row.titular,row.extracto,items),value=JSON.stringify(record);if(value!==row.taxonomia)updates.push({row:row._sheetRow,column:column+1,value});
         }
         cursor=newsWorkCursor_(row);next++;
       }
-      newsSheetOverride_=job.target;try{writeNewsCells_(updates);}finally{newsSheetOverride_=undefined;}written=updates.length>0;if(written)SpreadsheetApp.flush();job.tagged+=updates.length;job.cursor=cursor;job.next=next;job.processed=job.total+job.candidateTotal+Math.min(job.total,job.next-2);
+      newsSheetOverride_=job.target;try{writeNewsCells_(updates);}finally{newsSheetOverride_=undefined;}written=updates.length>0;if(written)SpreadsheetApp.flush();job.tagged+=updates.length;job.cursor=cursor;job.next=next;job.processed=(job.scanWork??job.total+job.candidateTotal)+Math.min(job.total,job.next-2);
       if(job.next>job.total+1){job.state='Completada';properties_().setProperty('TAXONOMY_APPLIED_MODEL',job.model);properties_().setProperty('TAXONOMY_APPLIED_RULES',job.rules);properties_().setProperty('TAXONOMY_EVALUATED_CORPUS',job.corpus);}
     }
     Object.assign(job,{state:job.state==='Completada'?'Completada':'En curso',updated:new Date().toISOString(),error:'',pausedUntil:0});writeTaxonomyJob_(job);
-    if(job.state==='Completada'){if(job.request?.startsWith('quarterly:')){properties_().setProperty('TAXONOMY_PERIOD',job.request.slice(10));properties_().deleteProperty('TAXONOMY_QUARTER_REQUEST');}requestTaxonomyTranslations_();requestDashboardSnapshots_(true);}
+    if(job.state==='Completada'){requestTaxonomyTranslations_();requestDashboardSnapshots_(true);}
     telemetry_('taxonomia',Date.now()-started,'OK',job.phase+'; '+job.processed+'/'+job.workTotal+' revisadas; '+job.tagged+' etiquetas actualizadas');
   }catch(error){Object.assign(job,{state:'En pausa',error:String(error.message).slice(0,180),updated:new Date().toISOString(),pausedUntil:Date.now()+(serviceQuotaPause_(error)||settings_().retryMinutes*60000)});writeTaxonomyJob_(job);telemetry_('taxonomia',Date.now()-started,'Error',job.error);}
   finally{if(written)invalidateNews_(false);}
@@ -138,4 +137,35 @@ function observeTaxonomyRow_(state,row,definitions,excluded,publisher){
   if(urlKey)state.titles[urlKey]=[];
   if(identity){days.push(identity.day);state.titles[key]=days;}
   if(taxonomyEligible_(searchText_(row.titular),text))taxonomyObserve(state,text,definitions,excluded,publisher,{headline:row.titular,primary:taxonomyPrimarySource_(row)});
+}
+
+const taxonomyValidationMemory_=new WeakMap();
+function taxonomyValidationIndex_(items){
+  if(!taxonomyValidationMemory_.has(items)){
+    const ids=new Set();for(const item of items){if(!item.id||ids.has(item.id))throw Error('Catálogo funcional con IDs vacíos o duplicados.');ids.add(item.id);}
+    let model;taxonomyValidationMemory_.set(items,{ids,byId:new Map(items.map(item=>[item.id,item])),get model(){return model||(model=taxonomyModelRevision_(items));}});
+  }
+  return taxonomyValidationMemory_.get(items);
+}
+function validateTaxonomyAssignment_(saved,items,id,strict=true,row=null){
+  const index=taxonomyValidationIndex_(items),fail=message=>{throw Error('Integridad taxonómica ['+id+']: '+message);};
+  if(saved.invalid||new Set(saved.ids).size!==saved.ids.length||saved.ids.some(value=>!index.ids.has(value)))fail('IDs inexistentes o duplicados.');
+  if((strict||saved.model)&&saved.model!==index.model)fail('Generación del catálogo distinta.');
+  if(!strict)return;
+  if(saved.version!==TAXONOMY_POLICY.version||!saved.reason||row&&saved.fingerprint!==taxonomyFingerprint_(row.titular,row.extracto))fail('Asignación pendiente de reproceso.');
+  const assignments=saved.evidence?.assignments||[];
+  if(saved.ids.length>TAXONOMY_POLICY.maxAssignments||assignments.length!==saved.ids.length||saved.ids.some((value,i)=>assignments[i]?.id!==value)||saved.ids.length&&saved.primary!==saved.ids[0])fail('Evidencia o categoría principal incompleta.');
+  const text=row?taxonomyText(row.titular+' '+row.extracto):'',used=[];
+  for(const evidence of assignments){
+    if(!Array.isArray(evidence.terms)||!evidence.terms.length||!['literal','description'].includes(evidence.method)||row&&evidence.terms.some(term=>!taxonomyTermCounts(text,[term]).size))fail('Evidencia individual no verificable.');
+    if(used.length&&!taxonomyIndependentEvidence(evidence,used))fail('Evidencia secundaria solapada o genérica.');
+    used.push(...evidence.terms);
+  }
+}
+
+function upgradeCanonicalTaxonomy(){
+ authorize_(true);return withForegroundWrite_(()=>{
+  if(properties_().getProperty('CANONICAL_TAXONOMY_VERSION')!==TAXONOMY_POLICY.version&&!taxonomyPending_())requestTaxonomy_('canonical:'+TAXONOMY_POLICY.version);
+  return getTaxonomyStatus();
+ });
 }

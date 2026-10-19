@@ -8,13 +8,13 @@ const config=configurationDefaults(),blocks=config.taxonomy;
 test('el Excel aporta 322 códigos únicos, 22 bloques y conserva las dos etiquetas del prefijo 13',()=>{
  const rows=blocks.flatMap(block=>block.functions);assert.equal(rows.length,322);assert.equal(new Set(rows.map(row=>row.id)).size,322);assert.equal(blocks.length,22);assert.equal(blocks.filter(block=>block.name.startsWith('13.')).length,2);
  assert.equal(blocks.find(block=>block.name==='08.Financiación').functions.find(row=>row.id==='08.02').name,'Crédito Virtual');assert.equal(blocks.find(block=>block.name==='20.Venta Digital').functions.find(row=>row.id==='20.04').name,'Quantum');
- const state={documents:0,candidates:{}};taxonomySeed(state,taxonomyDefinitions(blocks));const model=taxonomyBuild(state);assert.equal(model.filter(row=>row.subpalanca).length,322);assert.ok(model.every(row=>row.df===0));
+ const state={documents:0,candidates:{}};taxonomySeed(state,taxonomyDefinitions(blocks));const model=taxonomyBuild(state);assert.equal(model.filter(row=>row.subpalanca).length,344);assert.ok(model.every(row=>row.df===0));
 });
 test('ningún TF-IDF crea bloques, duplica biometría o convierte adjetivos y verbos recurrentes en funciones',()=>{
  const definitions=taxonomyDefinitions(blocks),state={documents:0,candidates:{}};
  for(let i=0;i<6;i++)taxonomyObserve(state,'pagos crecen pagos novedosos pagos biometricos con quantum pagos con stablecoins',definitions,new Set(),'Editor '+i);
  const emerging=taxonomyBuild(state).filter(row=>row.origin==='tf-idf');assert.ok(emerging.length<=1);assert.ok(emerging.every(row=>row.subpalanca.startsWith('03.xx ')&&row.palanca.startsWith('03.')));
- const independent={documents:0,candidates:{}};for(let i=0;i<4;i++)taxonomyObserve(independent,'pagos con stablecoins',definitions,new Set(),'Editor '+i);assert.equal(taxonomyBuild(independent).filter(row=>row.origin==='tf-idf').length,1);
+ const independent={documents:0,candidates:{}};for(let i=0;i<4;i++)taxonomyObserve(independent,'pagos con stablecoins',definitions,new Set(),'Editor '+i);assert.equal(taxonomyBuild(independent).filter(row=>row.origin==='tf-idf').length,0);
  const single={documents:0,candidates:{}};for(let i=0;i<20;i++)taxonomyObserve(single,'pagos con stablecoins',definitions,new Set(),'Mismo editor');assert.equal(taxonomyBuild(single).filter(row=>row.origin==='tf-idf').length,0);
 });
 test('las revisiones de Drive interpretan ambas estructuras, ignoran referencias XX y preservan equivalencias',()=>{
@@ -36,7 +36,7 @@ test('la revisión de Drive actualiza el espejo y conserva solo equivalencias en
 });
 test('el trabajo reanudado conserva estadísticas de las primeras 100 noticias y publica todas las funciones',()=>{
  const {c,sheets}=storage();c.initializeConfiguration();for(let i=0;i<130;i++)sheets.get('Noticias').grid.push([String(i),'2026-10-10','España','Editor '+i,'BBVA','BBVA lanza pagos con stablecoins '+i,'Nueva operativa para empresas','https://example.com/'+i,'','Editor '+i,'es','{"digital":true,"capacidades":["Empresas: Pagos"]}','']);
- c.startTaxonomy();c.taxonomyBatch_();const job=c.taxonomyJob_(),first=c.taxonomyCheckpoint_(job);assert.equal(first.documents,100);assert.ok(Object.keys(first.candidates).length<10);c.taxonomyBatch_();const last=c.taxonomyCheckpoint_(c.taxonomyJob_());assert.equal(last.documents,130);assert.equal(last.candidates['03.Pagos - Transf. y traspasos|pagos con stablecoins'].df,130);
+ c.startTaxonomy();c.taxonomyBatch_();const job=c.taxonomyJob_(),first=c.taxonomyCheckpoint_(job);assert.equal(first.documents,100);assert.ok(Object.keys(first.candidates).length<10);c.taxonomyBatch_();const last=c.taxonomyCheckpoint_(c.taxonomyJob_());assert.equal(last.documents,130);assert.equal(last.candidates['03.Pagos - Transf. y traspasos|Otros'].df,130);
  for(let i=0;i<10&&c.taxonomyPending_();i++){if(c.taxonomyJob_().state==='Publicando')c.dashboardSnapshotBatch_();else c.taxonomyBatch_();}assert.equal(c.taxonomyJob_().state,'Completada');assert.ok(c.taxonomyCatalog_().some(row=>row.subpalanca.startsWith('03.xx ')));assert.equal(c.taxonomyCatalog_().filter(row=>row.subpalanca&&row.origen==='regla').length,322);
  assert.ok(!c.taxonomyTranslationNames_().includes(''));const names=c.taxonomyTranslations_().es;assert.equal(names['08.Financiación'],'08.Financiación');assert.equal(names['08.Financiación › 08.02.Crédito Virtual'],'08.Financiación › 08.02.Crédito Virtual');
 });

@@ -1,0 +1,313 @@
+{
+  "version": "3.10.0",
+  "deploymentVersion": 85,
+  "applicationUrl": "https://script.google.com/a/macros/bbva.com/s/AKfycbxpg3fwOGwS3Q5oQcjB1xTWd2J1F1-wfW0R5zM0rkR37Qvq589-8PtRcu2FP-HDEQKG/exec",
+  "before": {
+    "version": "3.9.0",
+    "measurements": [
+      {
+        "round": 0,
+        "view": "briefing",
+        "version": "3.9.0",
+        "serverMs": 3089,
+        "preparationMs": 114,
+        "metadataMs": 2318,
+        "newsMs": 657,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 18,
+        "contextTotal": 18
+      },
+      {
+        "round": 0,
+        "view": "news",
+        "version": "3.9.0",
+        "serverMs": 1272,
+        "preparationMs": 13,
+        "metadataMs": 102,
+        "newsMs": 1156,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 2,
+        "contextTotal": 186
+      },
+      {
+        "round": 0,
+        "view": "radar",
+        "version": "3.9.0",
+        "serverMs": 526,
+        "preparationMs": 11,
+        "metadataMs": 84,
+        "newsMs": 431,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 513,
+        "contextTotal": 513
+      },
+      {
+        "round": 1,
+        "view": "briefing",
+        "version": "3.9.0",
+        "serverMs": 129,
+        "preparationMs": 14,
+        "metadataMs": 82,
+        "newsMs": 33,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 18,
+        "contextTotal": 18
+      },
+      {
+        "round": 1,
+        "view": "news",
+        "version": "3.9.0",
+        "serverMs": 151,
+        "preparationMs": 9,
+        "metadataMs": 116,
+        "newsMs": 26,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 2,
+        "contextTotal": 186
+      },
+      {
+        "round": 1,
+        "view": "radar",
+        "version": "3.9.0",
+        "serverMs": 126,
+        "preparationMs": 13,
+        "metadataMs": 82,
+        "newsMs": 31,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 513,
+        "contextTotal": 513
+      },
+      {
+        "round": 2,
+        "view": "briefing",
+        "version": "3.9.0",
+        "serverMs": 136,
+        "preparationMs": 16,
+        "metadataMs": 78,
+        "newsMs": 42,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 18,
+        "contextTotal": 18
+      },
+      {
+        "round": 2,
+        "view": "news",
+        "version": "3.9.0",
+        "serverMs": 110,
+        "preparationMs": 11,
+        "metadataMs": 71,
+        "newsMs": 28,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 2,
+        "contextTotal": 186
+      },
+      {
+        "round": 2,
+        "view": "radar",
+        "version": "3.9.0",
+        "serverMs": 103,
+        "preparationMs": 9,
+        "metadataMs": 65,
+        "newsMs": 29,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 513,
+        "contextTotal": 513
+      }
+    ],
+    "firstExport": {
+      "ms": 8917,
+      "count": 525,
+      "bytes": 5984402,
+      "done": false
+    },
+    "snapshotPending": false
+  },
+  "after": {
+    "version": "3.10.0",
+    "measurements": [
+      {
+        "round": 0,
+        "view": "briefing",
+        "version": "3.10.0",
+        "serverMs": 5444,
+        "preparationMs": 2590,
+        "metadataMs": 2745,
+        "newsMs": 109,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 18,
+        "contextTotal": 18
+      },
+      {
+        "round": 0,
+        "view": "news",
+        "version": "3.10.0",
+        "serverMs": 340,
+        "preparationMs": 17,
+        "metadataMs": 239,
+        "newsMs": 84,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 2,
+        "contextTotal": 186
+      },
+      {
+        "round": 0,
+        "view": "radar",
+        "version": "3.10.0",
+        "serverMs": 273,
+        "preparationMs": 19,
+        "metadataMs": 185,
+        "newsMs": 69,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 513,
+        "contextTotal": 513
+      },
+      {
+        "round": 1,
+        "view": "briefing",
+        "version": "3.10.0",
+        "serverMs": 304,
+        "preparationMs": 17,
+        "metadataMs": 201,
+        "newsMs": 86,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 18,
+        "contextTotal": 18
+      },
+      {
+        "round": 1,
+        "view": "news",
+        "version": "3.10.0",
+        "serverMs": 278,
+        "preparationMs": 33,
+        "metadataMs": 145,
+        "newsMs": 100,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 2,
+        "contextTotal": 186
+      },
+      {
+        "round": 1,
+        "view": "radar",
+        "version": "3.10.0",
+        "serverMs": 297,
+        "preparationMs": 18,
+        "metadataMs": 213,
+        "newsMs": 66,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 513,
+        "contextTotal": 513
+      },
+      {
+        "round": 2,
+        "view": "briefing",
+        "version": "3.10.0",
+        "serverMs": 235,
+        "preparationMs": 17,
+        "metadataMs": 164,
+        "newsMs": 54,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 18,
+        "contextTotal": 18
+      },
+      {
+        "round": 2,
+        "view": "news",
+        "version": "3.10.0",
+        "serverMs": 280,
+        "preparationMs": 34,
+        "metadataMs": 182,
+        "newsMs": 64,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 2,
+        "contextTotal": 186
+      },
+      {
+        "round": 2,
+        "view": "radar",
+        "version": "3.10.0",
+        "serverMs": 294,
+        "preparationMs": 17,
+        "metadataMs": 193,
+        "newsMs": 84,
+        "cacheHit": true,
+        "snapshotHit": true,
+        "total": 513,
+        "contextTotal": 513
+      }
+    ],
+    "valid": 1,
+    "pending": 8896,
+    "versions": [
+      2
+    ],
+    "snapshots": [
+      {
+        "view": "briefing",
+        "valid": true
+      },
+      {
+        "view": "news",
+        "valid": true
+      },
+      {
+        "view": "radar",
+        "valid": true
+      }
+    ],
+    "snapshotPending": false
+  },
+  "bundleMeasuredInAppsScript": {
+    "version": "3.10.0",
+    "ms": 39136,
+    "bytes": 8881625,
+    "counts": [
+      1000,
+      1000,
+      1000,
+      1000,
+      1000,
+      1000,
+      1000,
+      1000,
+      896
+    ],
+    "revision": "409f31d145cbe07d5db3b5b774eb482cfff1199e0cd7f7ce8e38c5d65d676baa",
+    "catalogRevision": "06363efc385bd287557c78b7221c437a76900f7abf322c36c8767e1376a5859e",
+    "taxonomyRevision": "68bf1b0c14d40965614f907d68b261ba22c476ebf58bc2e25e24009825a2ba11",
+    "snapshotPending": false
+  },
+  "schemaConversion": {
+    "converted": 1,
+    "legacy": 1,
+    "valid": 1,
+    "pending": 8896,
+    "state": "Completada",
+    "versions": [
+      2
+    ],
+    "snapshotPending": false
+  },
+  "backgroundResumed": true,
+  "notes": [
+    "Server readings use the actual Apps Script project; timings vary with service latency and cache state.",
+    "Bundle size was measured by executing the same writer in Apps Script; the independently audited local reconstruction has identical size.",
+    "Published browser measurements will be added after deployment verification."
+  ]
+}

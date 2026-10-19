@@ -1,4 +1,4 @@
-> Revisión 3.5.1: [Iteración 7](docs/iteration-7-3.5.0.md), maestro de Drive de solo lectura, clasificación por descripción y newsletters vinculadas a su edición.
+> Revisión 3.11.0: [Clasificación canónica](docs/canonical-3.11.0.md), fallback determinista, Otros locales por bloque y newsletters sin reconstrucción trimestral.
 
 # BBVA Empresas · News Radar
 
@@ -33,7 +33,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.5.1`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.11.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -525,3 +525,12 @@ La migración real se publicó el 18/10/2026 a las 16:15 Europe/Madrid, tras cre
 Las generaciones activas, el rollback y las referencias de trabajos pendientes determinan qué hojas se conservan. Los backups de migración, la cuarentena y el staging huérfano se archivaron en una copia completa verificada antes de retirarlos del libro operativo. La pestaña vacía `Preferencias` también se retiró. `Noticias` y los archivos originales de newsletters siguen siendo necesarios para restaurar la generación anterior; no son las tablas activas.
 
 Los emblemas de cabecera se dimensionan desde el token compartido (64 px en escritorio, altura de control en móvil), con columnas que permiten ajustar el título. Administración distribuye las acciones verticalmente y los filtros en dos columnas en móvil. Los snapshots precalientan la selección predeterminada en español al construirse; la caché es prescindible y su evicción recupera los datos persistidos. La publicación sigue verificando los tres snapshots antes de completar los jobs. Los metadatos operativos comparten una caché de 15 segundos, con privilegios separados; la revisión publicada y el estado de programación se consultan en cada respuesta.
+
+## Integridad taxonómica y enlaces de edición · 3.7.2
+
+La publicación valida todo el corpus preparado contra su catálogo, reglas y evidencias antes de activar Noticias, Novedades y Radar. Los fallos mantienen la generación anterior y el checkpoint; el reproceso también repara asignaciones corruptas con huellas intactas. Las etiquetas secundarias requieren un discriminante propio. «Ver esta edición» conserva el periodo y selecciona la pestaña geográfica sin aplicar el filtro de país. [Resultados y publicación de Iteración 9](docs/iteration-9-3.7.2.md).
+
+
+## Evidencia y revisión LLM offline · 3.9.0
+
+El contrato v2 admite evidencia del cuerpo público consultado manualmente en ChatGPT, con URL del editor, fecha y pasaje literal. Distingue clasificación, abstención y noticia fuera de alcance; permite reprocesar y corregir con control de revisión sin sobrescribir el determinista. Las propuestas `.xx` se incluyen agrupadas en la descarga única para revisión externa y no publican categorías. Los resultados guardados se han convertido al esquema v2; las lecturas e importaciones aceptan exclusivamente este esquema. La generación anterior permanece activa hasta verificar los tres snapshots. [Cambios, pruebas, métricas y bloqueos de producción](docs/iteration-11-3.9.0.md).

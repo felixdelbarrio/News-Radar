@@ -56,7 +56,7 @@ test('el feedback actualizado conserva su retención mientras elimina otro regis
 });
 test('traducción y categorización de Empresas preceden a la recuperación anual; los demás trabajos ceden entre lotes',()=>{
  const s=server(),c=s.c,work={pending:[{ciclo:'annual'}],jobs:[{id:'annual',tipo:'annual'}]};c.classificationReadyAt_=()=>0;assert.equal(c.backgroundTask_(work,false),'classification');c.classificationReadyAt_=()=>Infinity;
- c.requestTranslations_(true);assert.equal(c.backgroundTask_(work,false),'translation');s.properties.TRANSLATION_PRIORITY_REQUEST='';c.taxonomyReadyAt_=()=>0;assert.equal(c.backgroundTask_(work,false),'taxonomy');assert.equal(c.backgroundTask_(work,true),'collection');
+ c.requestTranslations_(true);assert.equal(c.backgroundTask_(work,false),'translation');s.properties.TRANSLATION_PRIORITY_REQUEST='';c.translationReadyAt_=()=>Infinity;c.taxonomyReadyAt_=()=>0;assert.equal(c.backgroundTask_(work,false),'taxonomy');assert.equal(c.backgroundTask_(work,true),'collection');
 });
 test('la traducción prioriza Empresas digital antes de Retail más reciente sin repetir variantes guardadas',()=>{
  const s=server(),c=s.c,business=news(s,'business'),retail=news(s,'retail','España','BBVA lanza una app de ahorro y tarjeta para particulares');business.etiquetas={generalista:true,digital:true,capacidades:['Empresas: Pagos']};retail.etiquetas={generalista:true,digital:true,capacidades:['Retail: Ahorro']};business.clasificacion=JSON.stringify(business.etiquetas);retail.clasificacion=JSON.stringify(retail.etiquetas);retail.fecha='2026-09-20';add(s,'Noticias',retail);add(s,'Noticias',business);
