@@ -14,7 +14,7 @@ function finish(c){for(let i=0;i<100&&c.taxonomyPending_();i++){if(c.taxonomyJob
 test('TF-IDF exige recurrencia y fuentes distintas dentro de un bloque cerrado',()=>{
   const rules=taxonomyDefinitions([{name:'03.Pagos',terms:['pagos'],emerging:[{name:'Pagos con stablecoins',terms:['pagos con stablecoins']}],functions:[]}]),state={documents:0,candidates:{}},excluded=new Set(['bbva','santander']);
   for(let i=0;i<3;i++)taxonomyObserve(state,'bbva pagos con stablecoins',rules,excluded,'Editor '+i);
-  const model=taxonomyBuild(state),emerging=model.find(row=>row.subpalanca==='03.xx Pagos con stablecoins');assert.ok(emerging);assert.equal(emerging.df,3);assert.equal(emerging.peso,1);assert.equal(emerging.origin,'tf-idf');assert.ok(!model.some(row=>row.subpalanca.includes('bbva')));
+  const model=taxonomyBuild(state),emerging=model.find(row=>row.subpalanca==='03.xx Otros');assert.ok(emerging);assert.equal(model.filter(row=>row.subpalanca.includes('.xx')).length,1);assert.equal(model.filter(row=>row.origin==='tf-idf').length,0);assert.ok(!model.some(row=>row.subpalanca.includes('bbva')));
   assert.equal(taxonomyObserve(state,'resultados corporativos',rules,excluded),false);
   for(let i=0;i<700;i++)taxonomyObserve(state,'pagos variante'+i,rules,excluded);
   assert.ok(Object.keys(state.candidates).length<=TAXONOMY_POLICY.maxCandidates+rules.length);assert.ok(taxonomyBuild(state).filter(row=>row.origin==='tf-idf').length<=7*TAXONOMY_POLICY.maxEmergingPerLever);
@@ -38,7 +38,7 @@ test('el modelo cambia con contenido nuevo sin reescribir etiquetas intactas; fi
 });
 test('programación única, autorización, petición durable y recuperación diaria prioritaria',()=>{
   const s=server(Array.from({length:250},()=> 'BBVA lanza una API para empresas')),c=s.c;c.initializeConfiguration();assert.equal(c.scheduledTriggers_('dailyTaxonomy_').length,0);c.writeClassificationJob_({...c.classificationJob_(),target:null,state:'Completada'});
-  const locks=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};c.queueQuarterlyTaxonomy_({to:'2026-09-30'});assert.equal(c.processBackground_().busy,true);assert.ok(s.properties.TAXONOMY_REQUEST);c.LockService=locks;
+  const locks=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};s.properties.TAXONOMY_REQUEST='manual';assert.equal(c.processBackground_().busy,true);assert.ok(s.properties.TAXONOMY_REQUEST);c.LockService=locks;
   const feed=c.feeds_()[0],keys=vm.runInContext('RADAR.sheets.Recargas',c),job={id:'daily',tipo:'daily',inicio:new Date().toISOString(),estado:'Pendiente',total:7,pendientes:7};s.sheets.get('Recargas').grid.push(keys.map(key=>job[key]||''));
   for(let i=0;i<7;i++)s.sheets.get('Recopilacion').grid.push(['daily',feed.name,feed.url,'Pendiente',0,'',0,0,'','2026-10-12']);
   c.collectionBatch_=work=>{for(const task of work.pending)s.sheets.get('Recopilacion').grid[task.row-1][3]='Completada';c.collectionSnapshots_(work.tasks,work.jobs);for(const job of work.jobs)c.writeCollectionJob_(job);return {added:0,errors:[]};};

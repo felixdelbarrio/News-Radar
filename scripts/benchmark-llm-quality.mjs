@@ -8,8 +8,11 @@ if(!Number.isSafeInteger(total)||total<1||total>50000)throw Error('Use 1–50000
 const git=args=>execFileSync('git',args,{cwd:root,encoding:'utf8'}).trim(),commit=git(['rev-parse','--verify',baselineRef+'^{commit}']);
 const baselineSource=git(['ls-tree','--name-only',commit,'dist/']).split('\n').filter(file=>file.endsWith('.gs')).map(file=>git(['show',commit+':'+file])).join('\n');
 function measure(version,stage,s,operation){
- const reads=s.reads,start=performance.now(),heap=process.memoryUsage().heapUsed,value=operation();
- measurements.push({version,stage,ms:Math.round((performance.now()-start)*10)/10,reads:s.reads-reads,heapDeltaMiB:Math.round((process.memoryUsage().heapUsed-heap)/1024/1024*10)/10});return value;
+ const reads=s.reads,start=performance.now(),heap=process.memoryUsage().heapUsed,originals=[],seen=new Set(),insert=s.book.insertSheet;let writes=0;
+ const observe=sheet=>{if(seen.has(sheet))return sheet;seen.add(sheet);const get=sheet.getRange;originals.push([sheet,get]);sheet.getRange=(...args)=>{const range=get(...args),set=range.setValues;range.setValues=(...values)=>{writes++;return set(...values);};return range;};return sheet;};
+ s.book.getSheets().forEach(observe);s.book.insertSheet=(...args)=>observe(insert(...args));
+ try{const value=operation();measurements.push({version,stage,ms:Math.round((performance.now()-start)*10)/10,reads:s.reads-reads,writes,heapDeltaMiB:Math.round((process.memoryUsage().heapUsed-heap)/1024/1024*10)/10});return value;}
+ finally{s.book.insertSheet=insert;for(const [sheet,get] of originals)sheet.getRange=get;}
 }
 function finish(c){for(let i=0;i<10&&c.llmJob_()?.state==='Publicando';i++)c.dashboardSnapshotBatch_();if(c.llmJob_()?.state!=='Completada')throw Error('Publication incomplete.');}
 const states=[];
@@ -20,10 +23,10 @@ for(const source of [baselineSource,undefined]){
  measure(version,'snapshots:deterministic',s,()=>{for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();});
  const rows=c.rows_('Noticias');measure(version,'effective:deterministic',s,()=>c.annotateNews_(rows));
  const archive=measure(version,'export:first-zip',s,()=>c.exportLlmPending());
- const context=c.llmContext_(),id=c.taxonomyCatalog_().find(row=>row.subpalanca.includes('17.01.')).id,schemaVersion=context.schemaVersion;
+ const context=c.llmContext_(),id=c.taxonomyCatalog_().find(row=>row.subpalanca.includes('16.01.')).id,schemaVersion=context.schemaVersion;
  const results=rows.slice(0,250).map(row=>({newsId:row.id,contentHash:c.llmArticle_(row).contentHash,catalogRevision:context.catalogRevision,taxonomyRevision:context.taxonomyRevision,schemaVersion,ids:[id],primary:id,evidence:[{id,quote:'login biométrico',...(schemaVersion===2?{source:'article'}:{})}],status:'classified',...(schemaVersion===2?{sources:[],proposals:[],replaces:''}:{})}));
  measure(version,'import:classified',s,()=>c.importLlmResults({name:'results.json',base64:Buffer.from(JSON.stringify({schemaVersion,results})).toString('base64')}));finish(c);
- const state=c.getLlmCategorization();c.saveLlmCategorization({projectUrl:state.projectUrl,mode:'llm',revision:state.revision});measure(version,'snapshots:llm',s,()=>finish(c));
+ const state=c.getLlmCategorization();if(state.mode!==undefined)c.saveLlmCategorization({projectUrl:state.projectUrl,mode:'llm',revision:state.revision});measure(version,'snapshots:llm',s,()=>finish(c));
  measure(version,'effective:llm',s,()=>c.annotateNews_(rows));
  for(const view of ['briefing','news','radar']){
   s.cache.clear();measure(version,'read:cold:'+view,s,()=>c.getDashboard({view,initial:true}));measure(version,'read:warm:'+view,s,()=>c.getDashboard({view,initial:true}));

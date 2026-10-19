@@ -30,7 +30,7 @@ for(const [name,source]of [['baseline-3.7.2',oldSource],['new-deterministic',und
   const archive=measure('export:first-zip',s,()=>c.exportLlmPending());
   const context=c.llmContext_(),result=rows.slice(0,250).map(row=>({newsId:row.id,contentHash:c.llmArticle_(row).contentHash,catalogRevision:context.catalogRevision,taxonomyRevision:context.taxonomyRevision,schemaVersion:2,sources:[],proposals:[],replaces:'',ids:[],primary:'',evidence:[],status:'insufficient_evidence'}));
   measure('import:250-synthetic-empty-results',s,()=>c.importLlmResults({name:'results.json',base64:Buffer.from(JSON.stringify({schemaVersion:2,results:result})).toString('base64')}));
-  for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();const state=c.getLlmCategorization();c.saveLlmCategorization({projectUrl:state.projectUrl,mode:'llm',revision:state.revision});measure('new-llm:snapshots',s,()=>{for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();});
+  for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();const state=c.getLlmCategorization();if(state.mode!==undefined)c.saveLlmCategorization({projectUrl:state.projectUrl,mode:'llm',revision:state.revision});measure('new-llm:snapshots',s,()=>{for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();});
   for(const view of views)measure('new-llm:'+view,s,()=>c.getDashboard({view,initial:true}));
   console.log(JSON.stringify({environment:'Node.js local Sheets emulator; synthetic duplicated headlines; not production',baseline:{commit:baselineCommit,version:baselineVersion},currentVersion:vm.runInContext('RADAR.version',c),total,valid:c.getLlmCategorization().valid,pending:c.getLlmCategorization().pending,firstZip:{count:archive.count,bytes:archive.files.reduce((sum,file)=>sum+Buffer.byteLength(file.text),0),done:archive.done},measurements},null,2));
  }

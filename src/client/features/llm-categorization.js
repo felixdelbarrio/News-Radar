@@ -5,10 +5,10 @@ import {call} from '../core/api.js';
 export function createLlmCategorization({run,isActive,onRevision,refreshSelects}){
  let state,timer,closed=true,transferring=false;
  function render(data){
-  state=data;$('llm-project-url').value=data.projectUrl;$('llm-open-project').href=data.projectUrl;$('llm-mode').value=data.mode;
+  state=data;$('llm-project-url').value=data.projectUrl;$('llm-open-project').href=data.projectUrl;
   $('llm-count').textContent=t('{valid} válidas / {pending} pendientes / {total} total · {percent} %',data);$('llm-progress').value=data.percent;
   $('llm-instructions').textContent=data.instructions;
-  $('llm-job').textContent=data.job?`${t(data.job.state)}${data.job.state==='Publicando'?' · '+data.job.progress+' %':''}${data.job.error?' · '+data.job.error:''}`:'';
+  $('llm-job').textContent=data.job?`${t(data.job.state)}${data.job.state==='Publicando'?' · '+data.job.progress+' %':''}${data.job.error?' · '+data.job.error:''}${data.job.reviewRequired?' · '+t('Revisión editorial necesaria'):''}`:'';
   const pending=data.job?.state==='Publicando';for(const el of [$('llm-settings-form').querySelector('button[type=submit]'),$('llm-import')]){el.disabled=pending;el.dataset.jobActive=String(pending);}
   if(data.classified!==undefined)$('llm-count').textContent+=' · '+t('{classified} clasificadas · {abstained} sin evidencia · {outOfScope} fuera de alcance',data);
   refreshSelects();
@@ -27,7 +27,7 @@ export function createLlmCategorization({run,isActive,onRevision,refreshSelects}
  async function open(){closed=false;render(await call('getLlmCategorization'));}
  function close(){closed=true;clearTimeout(timer);}
  $('llm-project-url').addEventListener('input',()=>{const value=$('llm-project-url').value; if(/^https:\/\/chatgpt\.com\/g\/g-p-[a-zA-Z0-9-]+\/?$/.test(value))$('llm-open-project').href=value;else $('llm-open-project').removeAttribute('href');});
- $('llm-settings-form').addEventListener('submit',event=>{event.preventDefault();run(async()=>{render(await call('saveLlmCategorization',{projectUrl:$('llm-project-url').value.trim(),mode:$('llm-mode').value,revision:state.revision}));message('Configuración guardada.');},false);});
+ $('llm-settings-form').addEventListener('submit',event=>{event.preventDefault();run(async()=>{render(await call('saveLlmCategorization',{projectUrl:$('llm-project-url').value.trim(),revision:state.revision}));message('Configuración guardada.');},false);});
  $('llm-download').addEventListener('click',()=>run(()=>transfer(async()=>{
   progress(t('Preparando descarga'),0);
   let cursor=2,revision,count=0,done=false;const selection=$('llm-export-selection').value,encoder=new TextEncoder(),zip=llmBundleWriter(text=>encoder.encode(text));

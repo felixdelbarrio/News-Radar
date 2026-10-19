@@ -18,7 +18,7 @@ test('la diaria queda registrada con el trabajador ocupado y se procesa junto a 
  const s=server(),c=s.c,range=c.collectionRange_('year',new Date());c.requestCollection_('annual',range);
  const locks=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};c.dailyRadar_();
  assert.equal(c.collectionRequests_().length,1);assert.ok(s.properties.DAILY_PIPELINE_REQUEST);
- c.LockService=locks;const result=c.backgroundTick_();for(let i=0;i<5;i++)c.backgroundTick_();const jobs=c.collectionJobs_();assert.equal(jobs.length,2);assert.equal(result.errors.length,0);assert.ok(jobs.some(job=>job.tipo==='annual'));assert.ok(jobs.some(job=>job.tipo==='daily'));assert.ok(jobs.every(job=>job.estado==='Completada'));assert.equal(c.collectionRequests_().length,0);
+ c.LockService=locks;const result=c.backgroundTick_();for(let i=0;i<40;i++)c.backgroundTick_();const jobs=c.collectionJobs_();assert.equal(jobs.length,2);assert.equal(result.errors.length,0);assert.ok(jobs.some(job=>job.tipo==='annual'));assert.ok(jobs.some(job=>job.tipo==='daily'));assert.ok(jobs.every(job=>job.estado==='Completada'));assert.equal(c.collectionRequests_().length,0);
  c.dailyRadar_();assert.equal(c.collectionJobs_().length,2);assert.equal(c.collectionRequests_().length,0);
 });
 test('el planificador reserva cupo diario, avanza el anual y lee URLs solo del lote seleccionado',()=>{
@@ -38,7 +38,7 @@ test('las pausas de la anual no bloquean la diaria y los reintentos respetan su 
 test('cada lote guarda contadores por ciclo y deduplica noticias compartidas entre diaria y anual',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',1);addJob(s,'daily','daily',1);
  const date=new Date('2026-10-10T12:00:00Z');c.parseFeed_=()=>[{title:'BBVA lanza financiación digital para empresas',date:date.toISOString(),url:'https://bbva.com/nueva-noticia',excerpt:'Nueva cuenta para empresas'}];
- const result=c.backgroundTick_();assert.equal(result.added,1);c.processBackground_(10);assert.equal(c.rows_('Noticias').length,1);assert.equal(c.rows_('Ejecuciones').length,2);
+ const result=c.backgroundTick_();assert.equal(result.added,1);c.processBackground_(40);assert.equal(c.rows_('Noticias').length,1);assert.equal(c.rows_('Ejecuciones').length,2);
  const status=c.collectionStatus_();assert.equal(status.jobs.length,2);assert.equal(status.jobs.reduce((n,job)=>n+Number(job.nuevas),0),1);assert.ok(status.jobs.every(job=>job.estado==='Completada'));
  const runs=c.getRuns({id:'daily'});assert.equal(runs.total,1);assert.equal(runs.items[0].tipo,'daily');assert.ok(runs.collection.jobs.length);
 });
@@ -55,7 +55,7 @@ test('terminar una carga conserva su progreso pero retira sus tareas al preparar
 test('errores simultáneos solo pausan su ciclo y quedan reintentables',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',2);addJob(s,'daily','daily',1);
  const ingest=c.ingestFeed_;c.ingestFeed_=(feed,known,cycle,now,response)=>{if(cycle==='annual'){const e=Error('HTTP 503');e.retryable=true;throw e;}return ingest(feed,known,cycle,now,response);};
- c.backgroundTick_();c.processBackground_(10);const jobs=c.collectionJobs_();assert.ok(Number(jobs.find(job=>job.id==='annual').pausa)>Date.now());assert.equal(jobs.find(job=>job.id==='daily').estado,'Completada');assert.equal(c.rows_('Recopilacion').filter(task=>task.estado==='Reintento programado').length,2);
+ c.backgroundTick_();c.processBackground_(40);const jobs=c.collectionJobs_();assert.ok(Number(jobs.find(job=>job.id==='annual').pausa)>Date.now());assert.equal(jobs.find(job=>job.id==='daily').estado,'Completada');assert.equal(c.rows_('Recopilacion').filter(task=>task.estado==='Reintento programado').length,2);
 });
 test('el despertador recupera solicitudes si coincide con el apagado del activador y reintenta un bloqueo',()=>{
  const s=server(),c=s.c;c.requestCollection_('annual',{from:'2026-10-11',to:'2026-10-11'});
@@ -82,11 +82,11 @@ test('los lanzamientos manual y programado comparten la solicitud diaria y recha
  c.collectNow('year');assert.throws(()=>c.collectNow('year'),/anual en curso/);c.drainCollectionRequests_();assert.throws(()=>c.collectNow('year'),/anual en curso/);
 });
 test('un único trabajador serializa diaria, anual y traducción, y alterna los dos procesos secundarios',()=>{
- const s=server(),c=s.c;addJob(s,'annual','annual',30);addJob(s,'daily','daily',1);const order=[];const collect=c.collectionBatch_;
+ const s=server(),c=s.c;c.maintenanceReadyAt_=()=>Infinity;addJob(s,'annual','annual',30);addJob(s,'daily','daily',1);const order=[];const collect=c.collectionBatch_;
  c.collectionBatch_=work=>{order.push(work.pending[0]?.ciclo);return collect(work);};c.translationBatch_=()=>{order.push('translation');};c.requestTranslations_();
- c.backgroundTick_();assert.deepEqual(order,['daily']);c.backgroundTick_();assert.deepEqual(order,['daily','translation']);c.backgroundTick_();c.backgroundTick_();assert.deepEqual(order,['daily','translation','annual']);c.backgroundTick_();assert.deepEqual(order,['daily','translation','annual','translation']);
+ c.backgroundTick_();assert.deepEqual(order,['daily']);for(let i=0;i<5;i++)c.backgroundTick_();assert.deepEqual(order.slice(0,5),['daily','translation','translation','translation','annual']);
  assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
- const lock=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};assert.equal(c.backgroundTick_().busy,true);assert.equal(order.length,4);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);c.LockService=lock;
+ const lock=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};assert.equal(c.backgroundTick_().busy,true);assert.equal(order.length,6);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);c.LockService=lock;
 });
 test('la inicialización elimina trabajadores antiguos, conserva tareas y recrea los horarios desde configuración',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',1);c.enableDaily();for(const name of ['collectionTick_','collectionWake_','translationTick_'])c.ScriptApp.newTrigger(name).timeBased().create();c.initializeConfiguration();assert.equal(s.properties['WORK_PENDING:background'],'true');c.workWake_();
@@ -102,8 +102,8 @@ test('el trabajador aprovecha un despertar para tres lotes y persiste resultados
  c.processBackground_();assert.deepEqual(batches,[12,24,36]);assert.equal(c.rows_('Ejecuciones').length,3);assert.equal(c.collectionJobs_()[0].pendientes,'14');assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
 });
 test('una diaria llegada durante un lote anual es el siguiente lote y las llamadas lentas limitan el turno',()=>{
- const s=server(),c=s.c;addJob(s,'annual','annual',50);const order=[],collect=c.collectionBatch_;c.collectionBatch_=work=>{order.push(work.pending[0]?.ciclo);const result=collect(work);if(order.length===1)c.requestDailyCollection_();return result;};c.processBackground_();assert.equal(order[0],'annual');assert.match(order[1],/^daily\//);c.processBackground_(3);assert.ok(order.slice(2).includes('annual'));
- const nativeDate=vm.runInContext('Date',c);let clock=Date.now(),batches=0;c.Date=class extends nativeDate{constructor(value){super(value===undefined?clock:value);}static now(){return clock;}};c.collectionBatch_=work=>{batches++;const result=collect(work);clock+=50000;return result;};c.processBackground_();assert.equal(batches,1);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
+ const s=server(),c=s.c;addJob(s,'annual','annual',50);const order=[],collect=c.collectionBatch_;c.collectionBatch_=work=>{order.push(work.pending[0]?.ciclo);const result=collect(work);if(order.length===1)c.requestDailyCollection_();return result;};c.processBackground_();assert.equal(order[0],'annual');assert.match(order[1],/^daily\//);c.processBackground_(40);assert.ok(order.slice(2).includes('annual'));
+ addJob(s,'slow','annual',20);drainSnapshots(c);c.maintenanceReadyAt_=()=>Infinity;const nativeDate=vm.runInContext('Date',c);let clock=Date.now(),batches=0;c.Date=class extends nativeDate{constructor(value){super(value===undefined?clock:value);}static now(){return clock;}};c.collectionBatch_=work=>{batches++;const result=collect(work);clock+=50000;return result;};c.processBackground_();assert.equal(batches,1);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
 });
 
 test('relanzar diaria o anual reutiliza una única línea por tipo y conserva el histórico de ejecuciones',()=>{

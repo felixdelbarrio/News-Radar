@@ -69,7 +69,7 @@ function classification_(title,text,includeLabels=true){
   const index=businessIndex_(),assessment=digitalAssessment_(title,text,index);
   const signals=assessment.signals;
   const segments=assessment.relevant?[sectorNewsDefaults.segment]:index.segments.filter(row=>row.pattern.test(text)).map(row=>row.name);
-  return {signals,assessment,segments,labels:includeLabels?newsLabels_(assessment):undefined};
+  return {signals,assessment,segments,labels:includeLabels?{...newsLabels_(assessment),contentHash:sha256_(JSON.stringify([title,text]))}:undefined};
 }
 let sourceGeographyMemory_;
 function sourceCountry_(feed,index=businessIndex_()){
@@ -98,8 +98,9 @@ function annotateNews_(rows){
   const index=businessIndex_(),items=taxonomyCatalog_(),taxonomy=new Map(items.map(({id,palanca,subpalanca})=>[id,{id,palanca,subpalanca}]));
   return rows.map(row=>{
     const catalog=index.entities.get(searchText_(row.entidad)),assignment=effectiveTaxonomyAssignment_(row,items),classification=savedNewsLabels_(row.clasificacion),labels={digital:classification.digital,capacidades:classification.capacidades,...(classification.canonicalId?{canonicalId:classification.canonicalId}:{})};
+    if(assignment.editorialExcluded)return null;
     const annotated={...row,clasificacion:JSON.stringify(labels),medio:publisherKey_(row.medio),pais:row.pais||settings_().unknownCountry,...(assignment.evidence?{functionalEvidence:assignment.evidence}:{}),taxonomia:assignment.ids.map(id=>taxonomy.get(id)),etiquetas:labels,entidad:catalog?.name||row.entidad,tipo:catalog?.type||'',segmentos:classification.segmentos||[],senales:classification.senales||[]};newsRelevanceMemory_.set(annotated,Number(classification.score||0));return annotated;
-  });
+  }).filter(Boolean);
 }
 function evaluate_(item, feed, now) {
   const publisher=plainText_(item.source),rawTitle=plainText_(item.title);
