@@ -9,6 +9,7 @@
   "adminViews": {
     "runs": "Ejecuciones",
     "taxonomy": "Catálogo global de funcionalidades",
+    "llm": "Categorización LLM",
     "language": "Idioma",
     "subscribers": "Suscripciones",
     "adoption": "Adopción",

@@ -5,6 +5,42 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Categorizaci\xF3n LLM": ["LLM categorization", "LLM s\u0131n\u0131fland\u0131rmas\u0131"],
+    "Clasificaci\xF3n offline en un proyecto GPT. Descarga los pendientes, procesa los lotes y vuelve a importar los JSON o ZIP_STORED. Las noticias sin resultado v\xE1lido conservan la clasificaci\xF3n determinista.": ["Offline classification in a GPT project. Download pending articles, process the batches and import JSON or ZIP_STORED results. Articles without valid results retain deterministic classification.", "Bir GPT projesinde \xE7evrimd\u0131\u015F\u0131 s\u0131n\u0131fland\u0131rma. Bekleyen haberleri indirin, gruplar\u0131 i\u015Fleyin ve JSON veya ZIP_STORED sonu\xE7lar\u0131n\u0131 i\xE7e aktar\u0131n. Ge\xE7erli sonucu olmayan haberler kural tabanl\u0131 s\u0131n\u0131fland\u0131rmay\u0131 korur."],
+    "Proyecto GPT": ["GPT project", "GPT projesi"],
+    "Selecci\xF3n de categor\xEDas": ["Category selection", "Kategori se\xE7imi"],
+    Determinista: ["Deterministic", "Kural tabanl\u0131"],
+    "LLM con fallback": ["LLM with fallback", "Kural tabanl\u0131 yedek ile LLM"],
+    "Abrir proyecto": ["Open project", "Projeyi a\xE7"],
+    "Copiar instrucciones": ["Copy instructions", "Talimatlar\u0131 kopyala"],
+    "Descargar pendientes": ["Download pending articles", "Bekleyenleri indir"],
+    "Importar resultados": ["Import results", "Sonu\xE7lar\u0131 i\xE7e aktar"],
+    "M\xE1ximo 250 resultados y 2 MiB por importaci\xF3n. ZIP sin compresi\xF3n (ZIP_STORED), sin carpetas ni archivos extra. Puedes importar JSON por lote si la interfaz de ChatGPT no permite usar ZIP. El progreso se actualiza tras publicar los snapshots de las tres vistas.": ["Up to 250 results and 2 MiB per import. Uncompressed ZIP (ZIP_STORED), without folders or extra files. Import JSON by batch if the ChatGPT interface does not support ZIP. Progress updates after snapshots for all three views are published.", "Her i\xE7e aktarmada en fazla 250 sonu\xE7 ve 2 MiB. Klas\xF6r veya ek dosya i\xE7ermeyen s\u0131k\u0131\u015Ft\u0131r\u0131lmam\u0131\u015F ZIP (ZIP_STORED). ChatGPT aray\xFCz\xFC ZIP desteklemiyorsa grup ba\u015F\u0131na JSON i\xE7e aktar\u0131n. \u0130lerleme, \xFC\xE7 g\xF6r\xFCn\xFCm\xFCn anl\u0131k g\xF6r\xFCnt\xFCleri yay\u0131mland\u0131ktan sonra g\xFCncellenir."],
+    "Instrucciones y alternativa JSON": ["Instructions and JSON alternative", "Talimatlar ve JSON se\xE7ene\u011Fi"],
+    "Progreso de categorizaci\xF3n LLM": ["LLM categorization progress", "LLM s\u0131n\u0131fland\u0131rma ilerlemesi"],
+    "Configuraci\xF3n guardada.": ["Settings saved.", "Ayarlar kaydedildi."],
+    "Instrucciones copiadas.": ["Instructions copied.", "Talimatlar kopyaland\u0131."],
+    "La descarga no ha avanzado.": ["The download has not advanced.", "\u0130ndirme ilerlemedi."],
+    "Selecciona JSON o ZIP de hasta 2 MiB.": ["Select JSON or ZIP up to 2 MiB.", "En fazla 2 MiB JSON veya ZIP se\xE7in."],
+    "ID LLM duplicado.": ["Duplicate LLM ID.", "Yinelenen LLM kimli\u011Fi."],
+    "Introduce la URL HTTPS de un proyecto GPT en chatgpt.com.": ["Enter the HTTPS URL of a GPT project on chatgpt.com.", "chatgpt.com \xFCzerindeki bir GPT projesinin HTTPS adresini girin."],
+    "Modo LLM no v\xE1lido.": ["Invalid LLM mode.", "Ge\xE7ersiz LLM modu."],
+    "La categorizaci\xF3n ha cambiado. Recarga la pesta\xF1a.": ["Categorization changed. Reload the tab.", "S\u0131n\u0131fland\u0131rma de\u011Fi\u015Fti. Sekmeyi yenileyin."],
+    "Los pendientes han cambiado. Reinicia la descarga.": ["Pending articles changed. Restart the download.", "Bekleyen haberler de\u011Fi\u015Fti. \u0130ndirmeyi yeniden ba\u015Flat\u0131n."],
+    "Cursor de exportaci\xF3n no v\xE1lido.": ["Invalid export cursor.", "Ge\xE7ersiz d\u0131\u015Fa aktarma konumu."],
+    "Cat\xE1logo o noticia demasiado grande para exportar.": ["Catalogue or article too large to export.", "Katalog veya haber d\u0131\u015Fa aktarmak i\xE7in \xE7ok b\xFCy\xFCk."],
+    "Los pendientes han cambiado durante la descarga. Reintenta.": ["Pending articles changed during download. Try again.", "Bekleyen haberler indirme s\u0131ras\u0131nda de\u011Fi\u015Fti. Tekrar deneyin."],
+    "Archivo base64 no v\xE1lido.": ["Invalid base64 file.", "Ge\xE7ersiz base64 dosyas\u0131."],
+    "Importaci\xF3n superior a 2 MiB.": ["Import exceeds 2 MiB.", "\u0130\xE7e aktarma 2 MiB s\u0131n\u0131r\u0131n\u0131 a\u015F\u0131yor."],
+    "Importa un ZIP_STORED o JSON.": ["Import ZIP_STORED or JSON.", "ZIP_STORED veya JSON i\xE7e aktar\u0131n."],
+    "JSON corrupto.": ["Corrupt JSON.", "Bozuk JSON."],
+    "Lote vac\xEDo, esquema o l\xEDmite de resultados no v\xE1lido.": ["Empty batch, invalid schema or result limit.", "Bo\u015F grup, ge\xE7ersiz \u015Fema veya sonu\xE7 s\u0131n\u0131r\u0131."],
+    "M\xE1ximo 250 resultados por importaci\xF3n.": ["Up to 250 results per import.", "Her i\xE7e aktarmada en fazla 250 sonu\xE7."],
+    "La generaci\xF3n LLM sigue public\xE1ndose. Espera a que termine.": ["The LLM generation is still being published. Wait for completion.", "LLM veri nesli h\xE2l\xE2 yay\u0131mlan\u0131yor. Tamamlanmas\u0131n\u0131 bekleyin."],
+    "{valid} v\xE1lidas / {pending} pendientes / {total} total \xB7 {percent} %": ["{valid} valid / {pending} pending / {total} total \xB7 {percent} %", "{valid} ge\xE7erli / {pending} bekleyen / {total} toplam \xB7 %{percent}"],
+    "{count} pendientes exportadas. La descarga no modifica su estado.": ["{count} pending articles exported. Downloading does not change their status.", "{count} bekleyen haber d\u0131\u015Fa aktar\u0131ld\u0131. \u0130ndirme durumlar\u0131n\u0131 de\u011Fi\u015Ftirmez."],
+    "{imported} resultados preparados \xB7 {duplicates} duplicados.": ["{imported} results staged \xB7 {duplicates} duplicates.", "{imported} sonu\xE7 haz\u0131rland\u0131 \xB7 {duplicates} yinelenen."],
+    "Publicaci\xF3n pendiente: {error}": ["Publication pending: {error}", "Yay\u0131mlama bekliyor: {error}"],
     "El origen o las reglas de la generaci\xF3n han cambiado; reiniciando el job.": ["The generation source or rules changed; restarting the job.", "Veri neslinin kayna\u011F\u0131 veya kurallar\u0131 de\u011Fi\u015Fti; i\u015F yeniden ba\u015Flat\u0131l\u0131yor."],
     "Generaci\xF3n incompleta.": ["Incomplete generation.", "Veri nesli eksik."],
     "El cat\xE1logo preparado ha cambiado.": ["The staged catalogue changed.", "Haz\u0131rlanan katalog de\u011Fi\u015Fti."],
@@ -1329,51 +1365,6 @@
     return values.map(([label, value, note]) => `<article class="metric"><p class="eyebrow">${escape(label)}</p><strong>${escape(value ?? "\u2014")}</strong><span class="small muted">${escape(note)}</span></article>`).join("");
   }
 
-  // src/client/features/date-picker.js
-  var dialog, input, month, focused, iso = (date2) => date2.toISOString().slice(0, 10), day = (value) => /* @__PURE__ */ new Date(value + "T12:00:00Z");
-  function paint() {
-    let title = new Intl.DateTimeFormat(language, { month: "long", year: "numeric", timeZone: "UTC" }).format(month), weekday = new Intl.DateTimeFormat(language, { weekday: "short", timeZone: "UTC" }), label = new Intl.DateTimeFormat(language, { dateStyle: "full", timeZone: "UTC" }), start = new Date(month);
-    start.setUTCDate(1 - (month.getUTCDay() + 6) % 7), dialog.innerHTML = '<div class="calendar-heading"><button type="button" class="button" data-month="-1" aria-label="' + escape(t("Mes anterior")) + '">\u2039</button><h2 id="calendar-title" aria-live="polite">' + escape(title) + '</h2><button type="button" class="button" data-month="1" aria-label="' + escape(t("Mes siguiente")) + '">\u203A</button></div><div class="calendar-grid" role="grid" aria-labelledby="calendar-title"><div role="row">' + Array.from({ length: 7 }, (_, i) => {
-      let date2 = new Date(start);
-      return date2.setUTCDate(date2.getUTCDate() + i), '<span role="columnheader">' + escape(weekday.format(date2)) + "</span>";
-    }).join("") + "</div>" + Array.from({ length: 6 }, (_, week) => '<div role="row">' + Array.from({ length: 7 }, (_2, weekday2) => {
-      let date2 = new Date(start);
-      date2.setUTCDate(date2.getUTCDate() + week * 7 + weekday2);
-      let value = iso(date2);
-      return '<button type="button" role="gridcell" data-day="' + value + '" aria-label="' + escape(label.format(date2)) + '" aria-selected="' + (value === input.value) + '" tabindex="' + (value === focused ? 0 : -1) + '" class="' + (date2.getUTCMonth() !== month.getUTCMonth() ? "calendar-adjacent" : "") + '">' + date2.getUTCDate() + "</button>";
-    }).join("") + "</div>").join("") + '</div><div class="actions"><button type="button" class="button" data-calendar-close>' + escape(t("Cancelar")) + "</button></div>", dialog.querySelector('[data-day="' + focused + '"]')?.focus();
-  }
-  function openDatePicker(target) {
-    input = target, focused = input.value || (/* @__PURE__ */ new Date()).toLocaleDateString("sv-SE"), month = day(focused), month.setUTCDate(1), dialog || (dialog = document.createElement("dialog"), dialog.className = "calendar-dialog", dialog.setAttribute("aria-labelledby", "calendar-title"), document.body.append(dialog), dialog.addEventListener("click", (event) => {
-      let date2 = event.target.closest("[data-day]");
-      if (date2)
-        input.value = date2.dataset.day, input.dispatchEvent(new Event("input", { bubbles: !0 })), input.dispatchEvent(new Event("change", { bubbles: !0 })), dialog.close(), input.focus();
-      else if (event.target.closest("[data-calendar-close]") || event.target === dialog)
-        dialog.close(), input.focus();
-      else {
-        let button = event.target.closest("[data-month]");
-        button && (month.setUTCMonth(month.getUTCMonth() + Number(button.dataset.month)), focused = iso(month), paint());
-      }
-    }), dialog.addEventListener("keydown", (event) => {
-      let cell = event.target.closest("[data-day]");
-      if (!cell) return;
-      let date2 = day(cell.dataset.day), offsets = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7, Home: -(date2.getUTCDay() + 6) % 7, End: 6 - (date2.getUTCDay() + 6) % 7 };
-      if (Object.hasOwn(offsets, event.key)) date2.setUTCDate(date2.getUTCDate() + offsets[event.key]);
-      else if (["PageUp", "PageDown"].includes(event.key)) {
-        let desired = date2.getUTCDate();
-        date2.setUTCDate(1), date2.setUTCMonth(date2.getUTCMonth() + (event.key === "PageUp" ? -1 : 1) * (event.shiftKey ? 12 : 1)), date2.setUTCDate(Math.min(desired, new Date(Date.UTC(date2.getUTCFullYear(), date2.getUTCMonth() + 1, 0)).getUTCDate()));
-      } else return;
-      event.preventDefault(), focused = iso(date2), month = day(focused), month.setUTCDate(1), paint();
-    })), paint(), dialog.showModal(), dialog.querySelector('[data-day="' + focused + '"]')?.focus();
-  }
-  function initializeDatePickers() {
-    document.addEventListener("click", (event) => {
-      event.target.matches("input[type=date]") && (event.preventDefault(), openDatePicker(event.target));
-    }), document.addEventListener("keydown", (event) => {
-      event.target.matches("input[type=date]") && event.altKey && event.key === "ArrowDown" && (event.preventDefault(), openDatePicker(event.target));
-    });
-  }
-
   // src/client/core/loading.js
   var activity = /* @__PURE__ */ new Map(), loaded = /* @__PURE__ */ new WeakSet();
   function activePanel() {
@@ -1433,6 +1424,109 @@
       }), response;
     }
     return new Promise((resolve, reject) => google.script.run.withSuccessHandler((data) => resolve(receive(data))).withFailureHandler((error) => reject(Error(t(error.message || String(error)))))[method](...args));
+  }
+
+  // src/client/features/llm-categorization.js
+  function createLlmCategorization({ run, isActive, onRevision, refreshSelects: refreshSelects2 }) {
+    let state2, timer, closed = !0;
+    function render(data) {
+      state2 = data, $("llm-project-url").value = data.projectUrl, $("llm-open-project").href = data.projectUrl, $("llm-mode").value = data.mode, $("llm-count").textContent = t("{valid} v\xE1lidas / {pending} pendientes / {total} total \xB7 {percent} %", data), $("llm-progress").value = data.percent, $("llm-instructions").textContent = data.instructions, $("llm-job").textContent = data.job ? `${t(data.job.state)}${data.job.error ? " \xB7 " + data.job.error : ""}` : "";
+      let pending = data.job?.state === "Publicando";
+      for (let el of [$("llm-settings-form").querySelector("button[type=submit]"), $("llm-import")])
+        el.disabled = pending, el.dataset.jobActive = String(pending);
+      refreshSelects2(), onRevision && onRevision(data.newsRevision), clearTimeout(timer), !closed && pending && (timer = setTimeout(() => {
+        isActive() && open().catch((error) => {
+          message(error.message, !0), close();
+        });
+      }, 5e3));
+    }
+    async function open() {
+      closed = !1, render(await call("getLlmCategorization"));
+    }
+    function close() {
+      closed = !0, clearTimeout(timer);
+    }
+    $("llm-project-url").addEventListener("input", () => {
+      let value = $("llm-project-url").value;
+      /^https:\/\/chatgpt\.com\/g\/g-p-[a-zA-Z0-9-]+\/?$/.test(value) ? $("llm-open-project").href = value : $("llm-open-project").removeAttribute("href");
+    }), $("llm-settings-form").addEventListener("submit", (event) => {
+      event.preventDefault(), run(async () => {
+        render(await call("saveLlmCategorization", { projectUrl: $("llm-project-url").value.trim(), mode: $("llm-mode").value, revision: state2.revision })), message("Configuraci\xF3n guardada.");
+      }, !1);
+    }), $("llm-copy-instructions").addEventListener("click", () => run(async () => {
+      await navigator.clipboard.writeText(state2.instructions), message("Instrucciones copiadas.");
+    }, !1));
+    function download(base64, name) {
+      let bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)), url = URL.createObjectURL(new Blob([bytes], { type: "application/zip" })), a = document.createElement("a");
+      a.href = url, a.download = name, a.click(), setTimeout(() => URL.revokeObjectURL(url), 1e3);
+    }
+    return $("llm-download").addEventListener("click", () => run(async () => {
+      let cursor = 2, revision, count = 0, done = !1;
+      for (; !done; ) {
+        let result = await call("exportLlmPending", { cursor, ...revision ? { revision } : {} });
+        if (result.base64 && download(result.base64, result.name), result.cursor <= cursor && !result.done) throw Error("La descarga no ha avanzado.");
+        cursor = result.cursor, revision = result.revision, done = result.done, count += result.count;
+      }
+      message(t("{count} pendientes exportadas. La descarga no modifica su estado.", { count }));
+    }, !1)), $("llm-import").addEventListener("change", () => run(async () => {
+      let files = Array.from($("llm-import").files);
+      $("llm-import").value = "";
+      for (let file of files) {
+        if (!/\.(json|zip)$/i.test(file.name) || file.size > state2.limits.importBytes) throw Error("Selecciona JSON o ZIP de hasta 2 MiB.");
+        let bytes = new Uint8Array(await file.arrayBuffer()), binary = "";
+        for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+        let result = await call("importLlmResults", { name: file.name, base64: btoa(binary) });
+        for (render(result), message(t("{imported} resultados preparados \xB7 {duplicates} duplicados.", result)); state2.job?.state === "Publicando"; ) {
+          if (state2.job.error) throw Error(t("Publicaci\xF3n pendiente: {error}", { error: state2.job.error }));
+          await new Promise((resolve) => setTimeout(resolve, 5e3)), render(await call("getLlmCategorization"));
+        }
+      }
+    }, !1)), { open, close };
+  }
+
+  // src/client/features/date-picker.js
+  var dialog, input, month, focused, iso = (date2) => date2.toISOString().slice(0, 10), day = (value) => /* @__PURE__ */ new Date(value + "T12:00:00Z");
+  function paint() {
+    let title = new Intl.DateTimeFormat(language, { month: "long", year: "numeric", timeZone: "UTC" }).format(month), weekday = new Intl.DateTimeFormat(language, { weekday: "short", timeZone: "UTC" }), label = new Intl.DateTimeFormat(language, { dateStyle: "full", timeZone: "UTC" }), start = new Date(month);
+    start.setUTCDate(1 - (month.getUTCDay() + 6) % 7), dialog.innerHTML = '<div class="calendar-heading"><button type="button" class="button" data-month="-1" aria-label="' + escape(t("Mes anterior")) + '">\u2039</button><h2 id="calendar-title" aria-live="polite">' + escape(title) + '</h2><button type="button" class="button" data-month="1" aria-label="' + escape(t("Mes siguiente")) + '">\u203A</button></div><div class="calendar-grid" role="grid" aria-labelledby="calendar-title"><div role="row">' + Array.from({ length: 7 }, (_, i) => {
+      let date2 = new Date(start);
+      return date2.setUTCDate(date2.getUTCDate() + i), '<span role="columnheader">' + escape(weekday.format(date2)) + "</span>";
+    }).join("") + "</div>" + Array.from({ length: 6 }, (_, week) => '<div role="row">' + Array.from({ length: 7 }, (_2, weekday2) => {
+      let date2 = new Date(start);
+      date2.setUTCDate(date2.getUTCDate() + week * 7 + weekday2);
+      let value = iso(date2);
+      return '<button type="button" role="gridcell" data-day="' + value + '" aria-label="' + escape(label.format(date2)) + '" aria-selected="' + (value === input.value) + '" tabindex="' + (value === focused ? 0 : -1) + '" class="' + (date2.getUTCMonth() !== month.getUTCMonth() ? "calendar-adjacent" : "") + '">' + date2.getUTCDate() + "</button>";
+    }).join("") + "</div>").join("") + '</div><div class="actions"><button type="button" class="button" data-calendar-close>' + escape(t("Cancelar")) + "</button></div>", dialog.querySelector('[data-day="' + focused + '"]')?.focus();
+  }
+  function openDatePicker(target) {
+    input = target, focused = input.value || (/* @__PURE__ */ new Date()).toLocaleDateString("sv-SE"), month = day(focused), month.setUTCDate(1), dialog || (dialog = document.createElement("dialog"), dialog.className = "calendar-dialog", dialog.setAttribute("aria-labelledby", "calendar-title"), document.body.append(dialog), dialog.addEventListener("click", (event) => {
+      let date2 = event.target.closest("[data-day]");
+      if (date2)
+        input.value = date2.dataset.day, input.dispatchEvent(new Event("input", { bubbles: !0 })), input.dispatchEvent(new Event("change", { bubbles: !0 })), dialog.close(), input.focus();
+      else if (event.target.closest("[data-calendar-close]") || event.target === dialog)
+        dialog.close(), input.focus();
+      else {
+        let button = event.target.closest("[data-month]");
+        button && (month.setUTCMonth(month.getUTCMonth() + Number(button.dataset.month)), focused = iso(month), paint());
+      }
+    }), dialog.addEventListener("keydown", (event) => {
+      let cell = event.target.closest("[data-day]");
+      if (!cell) return;
+      let date2 = day(cell.dataset.day), offsets = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7, Home: -(date2.getUTCDay() + 6) % 7, End: 6 - (date2.getUTCDay() + 6) % 7 };
+      if (Object.hasOwn(offsets, event.key)) date2.setUTCDate(date2.getUTCDate() + offsets[event.key]);
+      else if (["PageUp", "PageDown"].includes(event.key)) {
+        let desired = date2.getUTCDate();
+        date2.setUTCDate(1), date2.setUTCMonth(date2.getUTCMonth() + (event.key === "PageUp" ? -1 : 1) * (event.shiftKey ? 12 : 1)), date2.setUTCDate(Math.min(desired, new Date(Date.UTC(date2.getUTCFullYear(), date2.getUTCMonth() + 1, 0)).getUTCDate()));
+      } else return;
+      event.preventDefault(), focused = iso(date2), month = day(focused), month.setUTCDate(1), paint();
+    })), paint(), dialog.showModal(), dialog.querySelector('[data-day="' + focused + '"]')?.focus();
+  }
+  function initializeDatePickers() {
+    document.addEventListener("click", (event) => {
+      event.target.matches("input[type=date]") && (event.preventDefault(), openDatePicker(event.target));
+    }), document.addEventListener("keydown", (event) => {
+      event.target.matches("input[type=date]") && event.altKey && event.key === "ArrowDown" && (event.preventDefault(), openDatePicker(event.target));
+    });
   }
 
   // src/shared/progress-state.js
@@ -1813,6 +1907,7 @@
     adminViews: {
       runs: "Ejecuciones",
       taxonomy: "Cat\xE1logo global de funcionalidades",
+      llm: "Categorizaci\xF3n LLM",
       language: "Idioma",
       subscribers: "Suscripciones",
       adoption: "Adopci\xF3n",
@@ -2701,11 +2796,11 @@
   }
 
   // src/client/features/administration.js
-  function createAdministration({ isAdmin, track: track2, onConfiguration, onSubscribers, onLanguage, onLeaveLanguage, onRuns, onLeaveRuns, onLeaveSubscribers, onTaxonomy, onLeaveTaxonomy }) {
+  function createAdministration({ isAdmin, track: track2, onConfiguration, onSubscribers, onLanguage, onLeaveLanguage, onRuns, onLeaveRuns, onLeaveSubscribers, onTaxonomy, onLeaveTaxonomy, onLlm, onLeaveLlm }) {
     let current = Object.keys(config_default.adminViews)[0];
     async function open(view = Object.keys(config_default.adminViews)[0]) {
       if (!(!isAdmin() || !(view in config_default.adminViews))) {
-        current === "language" && view !== current && onLeaveLanguage(), current === "runs" && view !== current && onLeaveRuns(), current === "subscribers" && view !== current && onLeaveSubscribers(), current === "taxonomy" && view !== current && onLeaveTaxonomy(), current = view, track2("vista");
+        current === "language" && view !== current && onLeaveLanguage(), current === "runs" && view !== current && onLeaveRuns(), current === "subscribers" && view !== current && onLeaveSubscribers(), current === "taxonomy" && view !== current && onLeaveTaxonomy(), current === "llm" && view !== current && onLeaveLlm(), current = view, track2("vista");
         for (let name of Object.keys(config_default.adminViews)) $(name + "-section").hidden = name !== view;
         if ($("admin-tabs").querySelectorAll("[data-admin-view]").forEach((button) => {
           button.setAttribute("aria-selected", String(button.dataset.adminView === view)), button.tabIndex = button.dataset.adminView === view ? 0 : -1;
@@ -2714,7 +2809,7 @@
         } catch (error) {
           message(error.message || String(error), !0);
         }
-        view === "taxonomy" && await onTaxonomy(), view === "language" && await onLanguage(), view === "runs" && await onRuns(), view === "audit" && await loadAudit(), (view === "telemetry" || view === "adoption") && await loadMetrics(view, () => current === view && !$("administration-section").hidden);
+        view === "llm" && await onLlm(), view === "taxonomy" && await onTaxonomy(), view === "language" && await onLanguage(), view === "runs" && await onRuns(), view === "audit" && await loadAudit(), (view === "telemetry" || view === "adoption") && await loadMetrics(view, () => current === view && !$("administration-section").hidden);
       }
     }
     return $("admin-tabs").addEventListener("click", (event) => {
@@ -3121,15 +3216,17 @@
   initializeLocalization();
   var refreshSelects = initializeSearchableSelects();
   initializeDatePickers();
-  var state = { data: null, request: 0, busy: !1, contentStale: !1, attribution: "", view: null, ready: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data, getAttribution: () => state.attribution && state.data?.context?.id === state.attribution ? state.attribution : "" }), { track, flush } = usage, dashboards = /* @__PURE__ */ new Map(), selectionKey = (query) => JSON.stringify(Object.entries(query).filter(([, value]) => value !== "" && value != null).sort(([a], [b]) => a.localeCompare(b))), configuration = createConfiguration({ run: action }), taxonomy = createTaxonomy({ run: action, isActive: () => navigation.current === "administration" && administration.current === "taxonomy" }), subscriptions = createSubscriptions({ run: action }), classification = createClassification({ run: action, isActive: () => navigation.current === "administration" && administration.current === "runs" }), maintenance = createJobMonitor({ id: "maintenance", get: "getMaintenanceStatus", isActive: () => navigation.current === "administration" && administration.current === "runs", render({ job }) {
+  var state = { data: null, request: 0, busy: !1, contentStale: !1, attribution: "", view: null, ready: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data, getAttribution: () => state.attribution && state.data?.context?.id === state.attribution ? state.attribution : "" }), { track, flush } = usage, dashboards = /* @__PURE__ */ new Map(), selectionKey = (query) => JSON.stringify(Object.entries(query).filter(([, value]) => value !== "" && value != null).sort(([a], [b]) => a.localeCompare(b))), configuration = createConfiguration({ run: action }), taxonomy = createTaxonomy({ run: action, isActive: () => navigation.current === "administration" && administration.current === "taxonomy" }), llmCategorization = createLlmCategorization({ run: action, refreshSelects, isActive: () => navigation.current === "administration" && administration.current === "llm", onRevision: (revision) => {
+    state.data && revision !== state.data.newsRevision && (state.contentStale = !0, dashboards.clear());
+  } }), subscriptions = createSubscriptions({ run: action }), classification = createClassification({ run: action, isActive: () => navigation.current === "administration" && administration.current === "runs" }), maintenance = createJobMonitor({ id: "maintenance", get: "getMaintenanceStatus", isActive: () => navigation.current === "administration" && administration.current === "runs", render({ job }) {
     $("maintenance-progress").innerHTML = job ? jobProgressHtml(job, { total: job.total, done: job.reviewed, label: "Mantenimiento incremental", summary: job.reviewed + " revisados \xB7 " + job.corrected + " corregidos \xB7 " + job.consolidated + " consolidados \xB7 " + job.removed + " eliminados" }) : "<p>Sin mantenimiento pendiente.</p>";
   } }), newsletterDelivery = createNewsletterDelivery({ run: action, isActive: () => navigation.current === "administration" && administration.current === "subscribers" }), languageSettings = createLanguageSettings({ run: action, isActive: () => navigation.current === "administration" && administration.current === "language" }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]), onLanguage: () => languageSettings.open(), onLeaveLanguage: () => languageSettings.close(), onRuns: async () => {
     let data = await loadRuns();
     data && await Promise.all([classification.open(data.classification), maintenance.open()]);
   }, onLeaveRuns: () => {
     classification.close(), maintenance.close();
-  }, onLeaveSubscribers: () => newsletterDelivery.close(), onTaxonomy: () => taxonomy.open(), onLeaveTaxonomy: () => taxonomy.close() }), panel = createFilterPanel(), navigation = createNavigation({ onPanel: (view) => {
-    view !== "administration" && (classification.close(), maintenance.close(), newsletterDelivery.close()), ++state.request, panel.show(view), state.data && collectionProgress.update(state.data), refreshLoading();
+  }, onLeaveSubscribers: () => newsletterDelivery.close(), onTaxonomy: () => taxonomy.open(), onLeaveTaxonomy: () => taxonomy.close(), onLlm: () => llmCategorization.open(), onLeaveLlm: () => llmCategorization.close() }), panel = createFilterPanel(), navigation = createNavigation({ onPanel: (view) => {
+    view !== "administration" && (llmCategorization.close(), classification.close(), maintenance.close(), newsletterDelivery.close()), ++state.request, panel.show(view), state.data && collectionProgress.update(state.data), refreshLoading();
   }, onSelection: (view) => {
     taxonomy.close();
     let changed = filters4.show(view);
@@ -3172,7 +3269,7 @@
         request3 === state.request && (track("error"), message(error.message || String(error), !0));
       }
   }
-  var actionControls = "#classification-start,#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
+  var actionControls = "#llm-section button,#llm-section input,#llm-section select,#classification-start,#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
   async function action(fn, refresh = !0) {
     if (!state.busy) {
       state.busy = !0, sources.setBusy(!0), recoveryControls.setBusy(!0), document.querySelectorAll(actionControls).forEach((el) => el.disabled = !0);

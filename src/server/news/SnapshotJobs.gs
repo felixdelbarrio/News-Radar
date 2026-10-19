@@ -5,7 +5,7 @@ function snapshotJob_(key,job){
   const pending=JSON.parse(properties_().getProperty('SNAPSHOT_JOBS')||'[]');if(!pending.includes(key))pending.push(key);
   properties_().setProperty('SNAPSHOT_JOBS',JSON.stringify(pending));requestDashboardSnapshots_(true);return {...job,state:'Publicando'};
 }
-function snapshotJobsPending_(){return JSON.parse(properties_().getProperty('SNAPSHOT_JOBS')||'[]').length>0;}
+function snapshotJobsPending_(){return llmJob_()?.state==='Publicando'||JSON.parse(properties_().getProperty('SNAPSHOT_JOBS')||'[]').length>0;}
 function completeSnapshotJobs_(publishedJob=null){
   const p=properties_(),pending=JSON.parse(p.getProperty('SNAPSHOT_JOBS')||'[]');
   const remaining=[];
