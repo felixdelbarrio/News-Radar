@@ -1,11 +1,17 @@
 // Local Sheets emulator: these measurements do not estimate Apps Script quotas or latency.
-import fs from 'node:fs';
 import vm from 'node:vm';
 import {execFileSync} from 'node:child_process';
 import {storage} from '../tests/helpers/server.mjs';
+import {root} from './source.mjs';
 const total=Number(process.argv[2]||8863),views=['briefing','news','radar'];
-const oldFiles=execFileSync('git',['ls-tree','--name-only','HEAD','dist/'],{encoding:'utf8'}).trim().split('\n').filter(file=>file.endsWith('.gs'));
-const oldSource=oldFiles.map(file=>execFileSync('git',['show','HEAD:'+file],{encoding:'utf8'})).join('\n');
+// Pin the last 3.7.2 commit: HEAD changes when the implementation is committed.
+const baselineRef=process.argv[3]||'b915ebc5bb4cafd449017ccbbfbece74f5e0a1a9';
+const git=args=>execFileSync('git',args,{cwd:root,encoding:'utf8'}).trim();
+const baselineCommit=git(['rev-parse','--verify',baselineRef+'^{commit}']);
+const oldFiles=git(['ls-tree','--name-only',baselineCommit,'dist/']).split('\n').filter(file=>file.endsWith('.gs'));
+const oldSource=oldFiles.map(file=>git(['show',baselineCommit+':'+file])).join('\n');
+const baselineVersion=vm.runInNewContext(git(['show',baselineCommit+':dist/Config.gs'])+';RADAR.version');
+if(baselineVersion!=='3.7.2')throw Error('The benchmark baseline must be version 3.7.2; got '+baselineVersion);
 const measurements=[];
 function prepare(source){
  const s=storage(source),c=s.c;c.initializeConfiguration();c.publishTaxonomy_({documents:0,candidates:{}});
@@ -26,6 +32,6 @@ for(const [name,source]of [['baseline-3.7.2',oldSource],['new-deterministic',und
   measure('import:250-synthetic-empty-results',s,()=>c.importLlmResults({name:'results.json',base64:Buffer.from(JSON.stringify({schemaVersion:1,results:result})).toString('base64')}));
   for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();const state=c.getLlmCategorization();c.saveLlmCategorization({projectUrl:state.projectUrl,mode:'llm',revision:state.revision});measure('new-llm:snapshots',s,()=>{for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();});
   for(const view of views)measure('new-llm:'+view,s,()=>c.getDashboard({view,initial:true}));
-  console.log(JSON.stringify({environment:'Node.js local Sheets emulator; synthetic duplicated headlines; not production',total,valid:c.getLlmCategorization().valid,pending:c.getLlmCategorization().pending,firstZip:{count:archive.count,bytes:Buffer.from(archive.base64,'base64').length,done:archive.done},measurements},null,2));
+  console.log(JSON.stringify({environment:'Node.js local Sheets emulator; synthetic duplicated headlines; not production',baseline:{commit:baselineCommit,version:baselineVersion},currentVersion:vm.runInContext('RADAR.version',c),total,valid:c.getLlmCategorization().valid,pending:c.getLlmCategorization().pending,firstZip:{count:archive.count,bytes:Buffer.from(archive.base64,'base64').length,done:archive.done},measurements},null,2));
  }
 }

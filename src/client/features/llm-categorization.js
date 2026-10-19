@@ -1,14 +1,15 @@
 import {t} from '../core/language.js';
 import {$,message} from '../core/dom.js';
 import {call} from '../core/api.js';
-export function createLlmCategorization({run,isActive,onRevision}){
+export function createLlmCategorization({run,isActive,onRevision,refreshSelects}){
  let state,timer,closed=true;
  function render(data){
   state=data;$('llm-project-url').value=data.projectUrl;$('llm-open-project').href=data.projectUrl;$('llm-mode').value=data.mode;
   $('llm-count').textContent=t('{valid} válidas / {pending} pendientes / {total} total · {percent} %',data);$('llm-progress').value=data.percent;
   $('llm-instructions').textContent=data.instructions;
   $('llm-job').textContent=data.job?`${t(data.job.state)}${data.job.error?' · '+data.job.error:''}`:'';
-  const pending=data.job?.state==='Publicando';for(const el of [$('llm-settings-form').querySelector('button'),$('llm-import')]){el.disabled=pending;el.dataset.jobActive=String(pending);}
+  const pending=data.job?.state==='Publicando';for(const el of [$('llm-settings-form').querySelector('button[type=submit]'),$('llm-import')]){el.disabled=pending;el.dataset.jobActive=String(pending);}
+  refreshSelects();
   if(onRevision)onRevision(data.newsRevision);
   clearTimeout(timer);if(!closed&&pending)timer=setTimeout(()=>{if(isActive())open().catch(error=>{message(error.message,true);close();});},5000);
  }

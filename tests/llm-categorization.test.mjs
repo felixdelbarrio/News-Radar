@@ -101,6 +101,38 @@ test('nueva pestaña de administración guarda, copia y refleja progreso sin cam
  const status={total:10,valid:2,pending:8,percent:20,projectUrl:LLM_OFFLINE.projectUrl,mode:'deterministic',revision:'0',instructions:'Solo los lotes proporcionados',job:null,limits:{importBytes:2097152}};let copied;
  const a=await app(t,{configure({w,replies}){replies.getLlmCategorization=status;replies.saveLlmCategorization={...status,mode:'llm',job:{state:'Publicando'}};w.navigator.clipboard={writeText:async text=>{copied=text;}};}});
  await a.click('[data-view="administration"]');await a.click('#admin-tab-llm');assert.equal(a.find('#llm-section').hidden,false);assert.match(a.find('#llm-count').textContent,/2 válidas \/ 8 pendientes \/ 10 total/);assert.equal(a.find('#llm-open-project').href,status.projectUrl);await a.click('#llm-copy-instructions');assert.equal(copied,status.instructions);
- await a.change('#llm-mode','llm');await a.submit('#llm-settings-form');assert.equal(a.calls.find(row=>row.method==='saveLlmCategorization').query.mode,'llm');assert.match(a.find('#llm-job').textContent,/Publicando/);assert.equal(a.find('#llm-import').disabled,true);
+ await a.change('#llm-mode','llm');await a.submit('#llm-settings-form');assert.equal(a.calls.find(row=>row.method==='saveLlmCategorization').query.mode,'llm');assert.match(a.find('#llm-job').textContent,/Publicando/);assert.equal(a.find('#llm-import').disabled,true);assert.equal(a.find('#llm-settings-form button[type=submit]').disabled,true);
  await a.click('#admin-tab-runs');assert.equal(a.find('#llm-section').hidden,true);
+});
+
+test('el cierre de otra generación no hace perder prioridad al job LLM frente al histórico anual',()=>{
+ const s=setup(),c=s.c;c.importLlmResults(payload([result(c)]));
+ delete s.properties.DASHBOARD_SNAPSHOT_REQUEST;delete s.properties.DASHBOARD_SNAPSHOT_REQUESTED_AT;
+ assert.equal(c.snapshotJobsPending_(),true);assert.equal(c.backgroundTask_({jobs:[],pending:[{}]},false),'snapshot');
+ finish(c);assert.equal(c.snapshotJobsPending_(),false);
+ assert.equal(c.backgroundTask_({jobs:[],pending:[{}]},false),'collection');
+});
+
+test('la etiqueta visible del selector LLM refleja el modo persistido al abrir la pestaña',async t=>{
+ const a=await app(t,{configure({replies}){replies.getLlmCategorization={total:2,valid:1,pending:1,percent:50,projectUrl:LLM_OFFLINE.projectUrl,mode:'llm',revision:'published',instructions:'Solo los lotes proporcionados',job:{state:'Completada'},limits:{importBytes:2097152}};}});
+ await a.click('[data-view="administration"]');await a.click('#admin-tab-llm');
+ assert.equal(a.find('#llm-mode').closest('.searchable-select').querySelector('summary').textContent,'LLM con fallback');
+});
+
+test('las citas LLM primarias llegan a la explicación visible y conservan las secundarias',async t=>{
+ const {c}=setup();c.newsSheet_().grid[1][6]='Pagos inmediatos para empresas';c.invalidateNews_();
+ const r=result(c),secondary=c.taxonomyCatalog_().find(row=>row.id!==r.primary).id;
+ r.ids.push(secondary);r.evidence.push({id:secondary,quote:'Pagos inmediatos'});
+ c.importLlmResults(payload([r]));finish(c);mode(c,'llm');finish(c);
+ const row=c.annotateNews_(c.rows_('Noticias'))[0],evidence=row.functionalEvidence;
+ assert.deepEqual(Array.from(evidence.terms),['login biométrico']);assert.equal(evidence.method,'literal');assert.equal(evidence.location,'headline');
+ assert.equal(evidence.assignments.length,2);assert.equal(evidence.assignments[1].location,'text');assert.equal(evidence.assignments[1].terms[0],'Pagos inmediatos');
+ const a=await app(t,{configure({data}){data.briefing.items=JSON.parse(JSON.stringify([row]));data.briefing.total=1;}});
+ assert.match(a.find('.novelty-card').textContent,/Por qué está clasificada aquí/);assert.match(a.find('.novelty-card details').textContent,/Coincidencia operativa directa · Titular/);assert.match(a.find('.novelty-card details').textContent,/login biométrico/);
+});
+
+test('la explicación LLM identifica las citas del extracto y no inventa evidencia para resultados vacíos',()=>{
+ const {c}=setup();c.newsSheet_().grid[1][6]='Pagos inmediatos para empresas';c.invalidateNews_();
+ const r=result(c);r.evidence[0].quote='Pagos inmediatos';c.importLlmResults(payload([r,result(c,'news-1',true)]));finish(c);mode(c,'llm');finish(c);
+ const rows=c.annotateNews_(c.rows_('Noticias'));assert.equal(rows[0].functionalEvidence.location,'text');assert.equal(rows[0].functionalEvidence.terms[0],'Pagos inmediatos');assert.equal(rows[1].functionalEvidence.terms,undefined);assert.equal(rows[1].functionalEvidence.assignments.length,0);
 });

@@ -1,0 +1,111 @@
+{
+  "environment": "Node.js local Sheets emulator; synthetic duplicated headlines; not production",
+  "total": 8863,
+  "valid": 250,
+  "pending": 8613,
+  "firstZip": {
+    "count": 550,
+    "bytes": 5794274,
+    "done": false
+  },
+  "measurements": [
+    {
+      "label": "baseline-3.7.2:snapshots",
+      "ms": 1095.7,
+      "heapDeltaMiB": 107.9,
+      "reads": 19,
+      "writes": 6
+    },
+    {
+      "label": "baseline-3.7.2:briefing",
+      "ms": 38.2,
+      "heapDeltaMiB": -53.2,
+      "reads": 0,
+      "writes": 0
+    },
+    {
+      "label": "baseline-3.7.2:news",
+      "ms": 1.5,
+      "heapDeltaMiB": 1.6,
+      "reads": 0,
+      "writes": 0
+    },
+    {
+      "label": "baseline-3.7.2:radar",
+      "ms": 1.3,
+      "heapDeltaMiB": 1.5,
+      "reads": 0,
+      "writes": 0
+    },
+    {
+      "label": "new-deterministic:snapshots",
+      "ms": 1031.6,
+      "heapDeltaMiB": 25.6,
+      "reads": 19,
+      "writes": 6
+    },
+    {
+      "label": "new-deterministic:briefing",
+      "ms": 37.8,
+      "heapDeltaMiB": 11.7,
+      "reads": 0,
+      "writes": 0
+    },
+    {
+      "label": "new-deterministic:news",
+      "ms": 1.5,
+      "heapDeltaMiB": 1.6,
+      "reads": 0,
+      "writes": 0
+    },
+    {
+      "label": "new-deterministic:radar",
+      "ms": 1.2,
+      "heapDeltaMiB": 1.5,
+      "reads": 0,
+      "writes": 0
+    },
+    {
+      "label": "export:first-zip",
+      "ms": 829.1,
+      "heapDeltaMiB": 129.5,
+      "reads": 3,
+      "writes": 1
+    },
+    {
+      "label": "import:250-synthetic-empty-results",
+      "ms": 39.2,
+      "heapDeltaMiB": 37.7,
+      "reads": 39,
+      "writes": 1
+    },
+    {
+      "label": "new-llm:snapshots",
+      "ms": 1124.4,
+      "heapDeltaMiB": 63.3,
+      "reads": 26,
+      "writes": 9
+    },
+    {
+      "label": "new-llm:briefing",
+      "ms": 1.5,
+      "heapDeltaMiB": 1.6,
+      "reads": 0,
+      "writes": 0
+    },
+    {
+      "label": "new-llm:news",
+      "ms": 1.3,
+      "heapDeltaMiB": 1.5,
+      "reads": 0,
+      "writes": 0
+    },
+    {
+      "label": "new-llm:radar",
+      "ms": 1.3,
+      "heapDeltaMiB": 1.6,
+      "reads": 0,
+      "writes": 0
+    }
+  ]
+}

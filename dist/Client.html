@@ -1427,14 +1427,14 @@
   }
 
   // src/client/features/llm-categorization.js
-  function createLlmCategorization({ run, isActive, onRevision }) {
+  function createLlmCategorization({ run, isActive, onRevision, refreshSelects: refreshSelects2 }) {
     let state2, timer, closed = !0;
     function render(data) {
       state2 = data, $("llm-project-url").value = data.projectUrl, $("llm-open-project").href = data.projectUrl, $("llm-mode").value = data.mode, $("llm-count").textContent = t("{valid} v\xE1lidas / {pending} pendientes / {total} total \xB7 {percent} %", data), $("llm-progress").value = data.percent, $("llm-instructions").textContent = data.instructions, $("llm-job").textContent = data.job ? `${t(data.job.state)}${data.job.error ? " \xB7 " + data.job.error : ""}` : "";
       let pending = data.job?.state === "Publicando";
-      for (let el of [$("llm-settings-form").querySelector("button"), $("llm-import")])
+      for (let el of [$("llm-settings-form").querySelector("button[type=submit]"), $("llm-import")])
         el.disabled = pending, el.dataset.jobActive = String(pending);
-      onRevision && onRevision(data.newsRevision), clearTimeout(timer), !closed && pending && (timer = setTimeout(() => {
+      refreshSelects2(), onRevision && onRevision(data.newsRevision), clearTimeout(timer), !closed && pending && (timer = setTimeout(() => {
         isActive() && open().catch((error) => {
           message(error.message, !0), close();
         });
@@ -3216,7 +3216,7 @@
   initializeLocalization();
   var refreshSelects = initializeSearchableSelects();
   initializeDatePickers();
-  var state = { data: null, request: 0, busy: !1, contentStale: !1, attribution: "", view: null, ready: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data, getAttribution: () => state.attribution && state.data?.context?.id === state.attribution ? state.attribution : "" }), { track, flush } = usage, dashboards = /* @__PURE__ */ new Map(), selectionKey = (query) => JSON.stringify(Object.entries(query).filter(([, value]) => value !== "" && value != null).sort(([a], [b]) => a.localeCompare(b))), configuration = createConfiguration({ run: action }), taxonomy = createTaxonomy({ run: action, isActive: () => navigation.current === "administration" && administration.current === "taxonomy" }), llmCategorization = createLlmCategorization({ run: action, isActive: () => navigation.current === "administration" && administration.current === "llm", onRevision: (revision) => {
+  var state = { data: null, request: 0, busy: !1, contentStale: !1, attribution: "", view: null, ready: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data, getAttribution: () => state.attribution && state.data?.context?.id === state.attribution ? state.attribution : "" }), { track, flush } = usage, dashboards = /* @__PURE__ */ new Map(), selectionKey = (query) => JSON.stringify(Object.entries(query).filter(([, value]) => value !== "" && value != null).sort(([a], [b]) => a.localeCompare(b))), configuration = createConfiguration({ run: action }), taxonomy = createTaxonomy({ run: action, isActive: () => navigation.current === "administration" && administration.current === "taxonomy" }), llmCategorization = createLlmCategorization({ run: action, refreshSelects, isActive: () => navigation.current === "administration" && administration.current === "llm", onRevision: (revision) => {
     state.data && revision !== state.data.newsRevision && (state.contentStale = !0, dashboards.clear());
   } }), subscriptions = createSubscriptions({ run: action }), classification = createClassification({ run: action, isActive: () => navigation.current === "administration" && administration.current === "runs" }), maintenance = createJobMonitor({ id: "maintenance", get: "getMaintenanceStatus", isActive: () => navigation.current === "administration" && administration.current === "runs", render({ job }) {
     $("maintenance-progress").innerHTML = job ? jobProgressHtml(job, { total: job.total, done: job.reviewed, label: "Mantenimiento incremental", summary: job.reviewed + " revisados \xB7 " + job.corrected + " corregidos \xB7 " + job.consolidated + " consolidados \xB7 " + job.removed + " eliminados" }) : "<p>Sin mantenimiento pendiente.</p>";

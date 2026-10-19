@@ -27,7 +27,10 @@ function llmValid_(saved,row,context=llmContext_()){
 // One resolver for dashboards, filters, CSV, aggregations and newly composed newsletters.
 function effectiveTaxonomyAssignment_(row,items=taxonomyCatalog_()){
  if(llmState_().mode==='llm'){
-  const saved=llmIndex_().get(row.id);if(llmValid_(saved,row))return {ids:saved.ids,primary:saved.primary,evidence:{assignments:saved.evidence.map(e=>({id:e.id,terms:[e.quote],method:'literal'}))}};
+  const saved=llmIndex_().get(row.id);if(llmValid_(saved,row)){
+   const assignments=saved.evidence.map(e=>({id:e.id,terms:[e.quote],method:'literal',location:(row.titular||'').includes(e.quote)?'headline':'text'}));
+   return {ids:saved.ids,primary:saved.primary,evidence:{...assignments[0],assignments}};
+  }
  }
  const saved=taxonomySaved_(row.taxonomia);validateTaxonomyAssignment_(saved,items,row.id,false);return saved;
 }

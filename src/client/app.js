@@ -37,7 +37,7 @@ const dashboards=new Map();
 const selectionKey=query=>JSON.stringify(Object.entries(query).filter(([,value])=>value!==''&&value!=null).sort(([a],[b])=>a.localeCompare(b)));
 const configuration = createConfiguration({run:action});
 const taxonomy=createTaxonomy({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='taxonomy'});
-const llmCategorization=createLlmCategorization({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='llm',onRevision:revision=>{if(state.data&&revision!==state.data.newsRevision){state.contentStale=true;dashboards.clear();}}});
+const llmCategorization=createLlmCategorization({run:action,refreshSelects,isActive:()=>navigation.current==='administration'&&administration.current==='llm',onRevision:revision=>{if(state.data&&revision!==state.data.newsRevision){state.contentStale=true;dashboards.clear();}}});
 const subscriptions = createSubscriptions({run:action});
 const classification=createClassification({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='runs'});
 const maintenance=createJobMonitor({id:'maintenance',get:'getMaintenanceStatus',isActive:()=>navigation.current==='administration'&&administration.current==='runs',render({job}){$('maintenance-progress').innerHTML=job?jobProgressHtml(job,{total:job.total,done:job.reviewed,label:'Mantenimiento incremental',summary:job.reviewed+' revisados · '+job.corrected+' corregidos · '+job.consolidated+' consolidados · '+job.removed+' eliminados'}):'<p>Sin mantenimiento pendiente.</p>';}});
