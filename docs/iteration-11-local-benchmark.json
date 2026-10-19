@@ -1,0 +1,198 @@
+{
+  "environment": "Node.js Sheets emulator; synthetic duplicated headlines; one observation per stage; heap delta includes GC; not production or semantic quality",
+  "baseline": {
+    "commit": "0ba392b12212c698e8cc273555b60a35fb84137f"
+  },
+  "states": [
+    {
+      "version": "3.8.2",
+      "schemaVersion": 1,
+      "valid": 250,
+      "total": 8863,
+      "firstZip": {
+        "count": 550,
+        "bytes": 5799774
+      }
+    },
+    {
+      "version": "3.9.0",
+      "schemaVersion": 2,
+      "valid": 250,
+      "total": 8863,
+      "firstZip": {
+        "count": 550,
+        "bytes": 5872595
+      }
+    }
+  ],
+  "measurements": [
+    {
+      "version": "3.8.2",
+      "stage": "snapshots:deterministic",
+      "ms": 1018.9,
+      "reads": 19,
+      "heapDeltaMiB": 61.6
+    },
+    {
+      "version": "3.8.2",
+      "stage": "effective:deterministic",
+      "ms": 44.3,
+      "reads": 0,
+      "heapDeltaMiB": 28.4
+    },
+    {
+      "version": "3.8.2",
+      "stage": "export:first-zip",
+      "ms": 721.2,
+      "reads": 3,
+      "heapDeltaMiB": 110.2
+    },
+    {
+      "version": "3.8.2",
+      "stage": "import:classified",
+      "ms": 29.1,
+      "reads": 39,
+      "heapDeltaMiB": 42.9
+    },
+    {
+      "version": "3.8.2",
+      "stage": "snapshots:llm",
+      "ms": 1377.3,
+      "reads": 26,
+      "heapDeltaMiB": 12.5
+    },
+    {
+      "version": "3.8.2",
+      "stage": "effective:llm",
+      "ms": 91.2,
+      "reads": 1,
+      "heapDeltaMiB": 36.4
+    },
+    {
+      "version": "3.8.2",
+      "stage": "read:cold:briefing",
+      "ms": 69.3,
+      "reads": 1,
+      "heapDeltaMiB": 13.3
+    },
+    {
+      "version": "3.8.2",
+      "stage": "read:warm:briefing",
+      "ms": 2.3,
+      "reads": 0,
+      "heapDeltaMiB": 1.6
+    },
+    {
+      "version": "3.8.2",
+      "stage": "read:cold:news",
+      "ms": 12.6,
+      "reads": 1,
+      "heapDeltaMiB": 7.2
+    },
+    {
+      "version": "3.8.2",
+      "stage": "read:warm:news",
+      "ms": 2.1,
+      "reads": 0,
+      "heapDeltaMiB": 1.6
+    },
+    {
+      "version": "3.8.2",
+      "stage": "read:cold:radar",
+      "ms": 13.5,
+      "reads": 1,
+      "heapDeltaMiB": -59.7
+    },
+    {
+      "version": "3.8.2",
+      "stage": "read:warm:radar",
+      "ms": 1.4,
+      "reads": 0,
+      "heapDeltaMiB": 1.6
+    },
+    {
+      "version": "3.9.0",
+      "stage": "snapshots:deterministic",
+      "ms": 1184.9,
+      "reads": 19,
+      "heapDeltaMiB": 12.8
+    },
+    {
+      "version": "3.9.0",
+      "stage": "effective:deterministic",
+      "ms": 44.6,
+      "reads": 0,
+      "heapDeltaMiB": 28.5
+    },
+    {
+      "version": "3.9.0",
+      "stage": "export:first-zip",
+      "ms": 637.8,
+      "reads": 3,
+      "heapDeltaMiB": 232.6
+    },
+    {
+      "version": "3.9.0",
+      "stage": "import:classified",
+      "ms": 36.4,
+      "reads": 39,
+      "heapDeltaMiB": -68.1
+    },
+    {
+      "version": "3.9.0",
+      "stage": "snapshots:llm",
+      "ms": 928.7,
+      "reads": 26,
+      "heapDeltaMiB": 74.5
+    },
+    {
+      "version": "3.9.0",
+      "stage": "effective:llm",
+      "ms": 63.7,
+      "reads": 1,
+      "heapDeltaMiB": -19.2
+    },
+    {
+      "version": "3.9.0",
+      "stage": "read:cold:briefing",
+      "ms": 36.1,
+      "reads": 1,
+      "heapDeltaMiB": 13.2
+    },
+    {
+      "version": "3.9.0",
+      "stage": "read:warm:briefing",
+      "ms": 1.4,
+      "reads": 0,
+      "heapDeltaMiB": 1.5
+    },
+    {
+      "version": "3.9.0",
+      "stage": "read:cold:news",
+      "ms": 7.8,
+      "reads": 1,
+      "heapDeltaMiB": 7.2
+    },
+    {
+      "version": "3.9.0",
+      "stage": "read:warm:news",
+      "ms": 1.2,
+      "reads": 0,
+      "heapDeltaMiB": 1.6
+    },
+    {
+      "version": "3.9.0",
+      "stage": "read:cold:radar",
+      "ms": 7.1,
+      "reads": 1,
+      "heapDeltaMiB": 6.6
+    },
+    {
+      "version": "3.9.0",
+      "stage": "read:warm:radar",
+      "ms": 1.2,
+      "reads": 0,
+      "heapDeltaMiB": 1.5
+    }
+  ]
+}

@@ -5,6 +5,19 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Selecci\xF3n de exportaci\xF3n no v\xE1lida.": ["Invalid export selection.", "Ge\xE7ersiz d\u0131\u015Fa aktarma se\xE7imi."],
+    "Propuestas demasiado grandes para una descarga; revisa la hoja de categorizaci\xF3n.": ["Proposals exceed the download limit; review the categorization sheet.", "\xD6neriler indirme s\u0131n\u0131r\u0131n\u0131 a\u015F\u0131yor; s\u0131n\u0131fland\u0131rma sayfas\u0131n\u0131 inceleyin."],
+    "Una abstenci\xF3n expl\xEDcita v\xE1lida deja la noticia sin asignaci\xF3n en modo LLM.": ["A valid explicit abstention leaves the article unassigned in LLM mode.", "Ge\xE7erli bir a\xE7\u0131k \xE7ekimserlik, LLM modunda haberi s\u0131n\u0131fland\u0131r\u0131lmam\u0131\u015F b\u0131rak\u0131r."],
+    "Noticias que exportar": ["Articles to export", "D\u0131\u015Fa aktar\u0131lacak haberler"],
+    "Pendientes y abstenciones": ["Pending and abstained articles", "Bekleyen ve \xE7ekimser kal\u0131nan haberler"],
+    "Todas para revisi\xF3n": ["All articles for review", "\u0130nceleme i\xE7in t\xFCm haberler"],
+    "Descargar lotes": ["Download batches", "Gruplar\u0131 indir"],
+    "Descargar propuestas para revisi\xF3n": ["Download proposals for review", "\u0130nceleme i\xE7in \xF6nerileri indir"],
+    "Evidencia web aportada": ["Submitted web evidence", "Sunulan web kan\u0131t\u0131"],
+    "Texto del editor": ["Publisher text", "Yay\u0131nc\u0131 metni"],
+    "{classified} clasificadas \xB7 {abstained} sin evidencia \xB7 {outOfScope} fuera de alcance": ["{classified} classified \xB7 {abstained} insufficient evidence \xB7 {outOfScope} out of scope", "{classified} s\u0131n\u0131fland\u0131r\u0131lm\u0131\u015F \xB7 {abstained} yetersiz kan\u0131t \xB7 {outOfScope} kapsam d\u0131\u015F\u0131"],
+    "{count} noticias exportadas. La descarga no modifica su estado.": ["{count} articles exported. Downloading does not change their status.", "{count} haber d\u0131\u015Fa aktar\u0131ld\u0131. \u0130ndirme durumlar\u0131n\u0131 de\u011Fi\u015Ftirmez."],
+    "{count} propuestas para revisi\xF3n. No se han publicado categor\xEDas.": ["{count} proposals for review. No categories have been published.", "\u0130nceleme i\xE7in {count} \xF6neri. Hi\xE7bir kategori yay\u0131mlanmad\u0131."],
     "Categorizaci\xF3n LLM": ["LLM categorization", "LLM s\u0131n\u0131fland\u0131rmas\u0131"],
     "Clasificaci\xF3n offline en un proyecto GPT. Descarga los pendientes, procesa los lotes y vuelve a importar los JSON o ZIP_STORED. Las noticias sin resultado v\xE1lido conservan la clasificaci\xF3n determinista.": ["Offline classification in a GPT project. Download pending articles, process the batches and import JSON or ZIP_STORED results. Articles without valid results retain deterministic classification.", "Bir GPT projesinde \xE7evrimd\u0131\u015F\u0131 s\u0131n\u0131fland\u0131rma. Bekleyen haberleri indirin, gruplar\u0131 i\u015Fleyin ve JSON veya ZIP_STORED sonu\xE7lar\u0131n\u0131 i\xE7e aktar\u0131n. Ge\xE7erli sonucu olmayan haberler kural tabanl\u0131 s\u0131n\u0131fland\u0131rmay\u0131 korur."],
     "Proyecto GPT": ["GPT project", "GPT projesi"],
@@ -13,7 +26,6 @@
     "LLM con fallback": ["LLM with fallback", "Kural tabanl\u0131 yedek ile LLM"],
     "Abrir proyecto": ["Open project", "Projeyi a\xE7"],
     "Copiar instrucciones": ["Copy instructions", "Talimatlar\u0131 kopyala"],
-    "Descargar pendientes": ["Download pending articles", "Bekleyenleri indir"],
     "Importar resultados": ["Import results", "Sonu\xE7lar\u0131 i\xE7e aktar"],
     "M\xE1ximo 250 resultados y 2 MiB por importaci\xF3n. ZIP sin compresi\xF3n (ZIP_STORED), sin carpetas ni archivos extra. Puedes importar JSON por lote si la interfaz de ChatGPT no permite usar ZIP. El progreso se actualiza tras publicar los snapshots de las tres vistas.": ["Up to 250 results and 2 MiB per import. Uncompressed ZIP (ZIP_STORED), without folders or extra files. Import JSON by batch if the ChatGPT interface does not support ZIP. Progress updates after snapshots for all three views are published.", "Her i\xE7e aktarmada en fazla 250 sonu\xE7 ve 2 MiB. Klas\xF6r veya ek dosya i\xE7ermeyen s\u0131k\u0131\u015Ft\u0131r\u0131lmam\u0131\u015F ZIP (ZIP_STORED). ChatGPT aray\xFCz\xFC ZIP desteklemiyorsa grup ba\u015F\u0131na JSON i\xE7e aktar\u0131n. \u0130lerleme, \xFC\xE7 g\xF6r\xFCn\xFCm\xFCn anl\u0131k g\xF6r\xFCnt\xFCleri yay\u0131mland\u0131ktan sonra g\xFCncellenir."],
     "Instrucciones y alternativa JSON": ["Instructions and JSON alternative", "Talimatlar ve JSON se\xE7ene\u011Fi"],
@@ -38,7 +50,6 @@
     "M\xE1ximo 250 resultados por importaci\xF3n.": ["Up to 250 results per import.", "Her i\xE7e aktarmada en fazla 250 sonu\xE7."],
     "La generaci\xF3n LLM sigue public\xE1ndose. Espera a que termine.": ["The LLM generation is still being published. Wait for completion.", "LLM veri nesli h\xE2l\xE2 yay\u0131mlan\u0131yor. Tamamlanmas\u0131n\u0131 bekleyin."],
     "{valid} v\xE1lidas / {pending} pendientes / {total} total \xB7 {percent} %": ["{valid} valid / {pending} pending / {total} total \xB7 {percent} %", "{valid} ge\xE7erli / {pending} bekleyen / {total} toplam \xB7 %{percent}"],
-    "{count} pendientes exportadas. La descarga no modifica su estado.": ["{count} pending articles exported. Downloading does not change their status.", "{count} bekleyen haber d\u0131\u015Fa aktar\u0131ld\u0131. \u0130ndirme durumlar\u0131n\u0131 de\u011Fi\u015Ftirmez."],
     "{imported} resultados preparados \xB7 {duplicates} duplicados.": ["{imported} results staged \xB7 {duplicates} duplicates.", "{imported} sonu\xE7 haz\u0131rland\u0131 \xB7 {duplicates} yinelenen."],
     "Publicaci\xF3n pendiente: {error}": ["Publication pending: {error}", "Yay\u0131mlama bekliyor: {error}"],
     "El origen o las reglas de la generaci\xF3n han cambiado; reiniciando el job.": ["The generation source or rules changed; restarting the job.", "Veri neslinin kayna\u011F\u0131 veya kurallar\u0131 de\u011Fi\u015Fti; i\u015F yeniden ba\u015Flat\u0131l\u0131yor."],
@@ -1434,7 +1445,7 @@
       let pending = data.job?.state === "Publicando";
       for (let el of [$("llm-settings-form").querySelector("button[type=submit]"), $("llm-import")])
         el.disabled = pending, el.dataset.jobActive = String(pending);
-      refreshSelects2(), onRevision && onRevision(data.newsRevision), clearTimeout(timer), !closed && pending && (timer = setTimeout(() => {
+      data.classified !== void 0 && ($("llm-count").textContent += " \xB7 " + t("{classified} clasificadas \xB7 {abstained} sin evidencia \xB7 {outOfScope} fuera de alcance", data)), refreshSelects2(), onRevision && onRevision(data.newsRevision), clearTimeout(timer), !closed && pending && (timer = setTimeout(() => {
         isActive() && open().catch((error) => {
           message(error.message, !0), close();
         });
@@ -1457,17 +1468,20 @@
       await navigator.clipboard.writeText(state2.instructions), message("Instrucciones copiadas.");
     }, !1));
     function download(base64, name) {
-      let bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)), url = URL.createObjectURL(new Blob([bytes], { type: "application/zip" })), a = document.createElement("a");
+      let bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)), url = URL.createObjectURL(new Blob([bytes], { type: name.endsWith(".json") ? "application/json" : "application/zip" })), a = document.createElement("a");
       a.href = url, a.download = name, a.click(), setTimeout(() => URL.revokeObjectURL(url), 1e3);
     }
     return $("llm-download").addEventListener("click", () => run(async () => {
-      let cursor = 2, revision, count = 0, done = !1;
+      let cursor = 2, revision, count = 0, done = !1, selection = $("llm-export-selection").value;
       for (; !done; ) {
-        let result = await call("exportLlmPending", { cursor, ...revision ? { revision } : {} });
+        let result = await call("exportLlmPending", { cursor, selection, ...revision ? { revision } : {} });
         if (result.base64 && download(result.base64, result.name), result.cursor <= cursor && !result.done) throw Error("La descarga no ha avanzado.");
         cursor = result.cursor, revision = result.revision, done = result.done, count += result.count;
       }
-      message(t("{count} pendientes exportadas. La descarga no modifica su estado.", { count }));
+      message(t("{count} noticias exportadas. La descarga no modifica su estado.", { count }));
+    }, !1)), $("llm-proposals").addEventListener("click", () => run(async () => {
+      let result = await call("exportLlmProposals");
+      download(result.base64, result.name), message(t("{count} propuestas para revisi\xF3n. No se han publicado categor\xEDas.", result));
     }, !1)), $("llm-import").addEventListener("change", () => run(async () => {
       let files = Array.from($("llm-import").files);
       $("llm-import").value = "";
@@ -2621,7 +2635,7 @@
   }
   function articleEvidence(row) {
     let evidence = row.functionalEvidence;
-    return evidence?.terms?.length ? '<details class="article-original"><summary>' + escape(t("Por qu\xE9 est\xE1 clasificada aqu\xED")) + "</summary><p>" + escape(t(evidence.method === "literal" ? "Coincidencia operativa directa" : "Contexto descriptivo del cat\xE1logo")) + " \xB7 " + escape(t(evidence.location === "headline" ? "Titular" : "Titular y extracto")) + "</p><p data-original>" + evidence.terms.map(escape).join(" \xB7 ") + "</p></details>" : "";
+    return evidence?.terms?.length ? '<details class="article-original"><summary>' + escape(t("Por qu\xE9 est\xE1 clasificada aqu\xED")) + "</summary><p>" + escape(t(evidence.method === "external" ? "Evidencia web aportada" : evidence.method === "literal" ? "Coincidencia operativa directa" : "Contexto descriptivo del cat\xE1logo")) + " \xB7 " + escape(t(evidence.location === "web" ? "Texto del editor" : evidence.location === "headline" ? "Titular" : "Titular y extracto")) + "</p><p data-original>" + evidence.terms.map(escape).join(" \xB7 ") + "</p>" + (evidence.url ? '<p><a href="' + escape(evidence.url) + '" target="_blank" rel="noopener noreferrer">' + escape(evidence.url) + "</a> \xB7 " + escape(evidence.retrievedAt) + "</p>" : "") + "</details>" : "";
   }
   function articleContent(row, selection = {}, novelty = !1) {
     return articleHeader(row, articleTitle(row)) + (row.extracto ? "<p data-original>" + escape(row.extracto) + "</p>" : "") + articleOriginal(row) + articleEvidence(row) + '<div class="article-metadata"><div class="news-meta">' + articleTags(row, selection, novelty) + '</div><div class="news-meta">' + articleDate(row) + newsPublisher(row) + "</div></div>";
