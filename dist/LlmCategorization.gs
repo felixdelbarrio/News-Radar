@@ -16,13 +16,13 @@ function llmIndex_(){
  const state=llmState_();if(llmIndexMemory_?.sheet===state.sheet)return llmIndexMemory_.index;
  const index=new Map(),sheet=state.sheet?book_().getSheetByName(state.sheet):null,keys=RADAR.sheets.CategorizacionLLM;
  if(sheet?.getLastRow()>1)for(const values of sheet.getRange(2,1,sheet.getLastRow()-1,keys.length).getDisplayValues()){
-  const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]]));try{row.schemaVersion=Number(row.schemaVersion);for(const key of ['ids','evidence',...(row.schemaVersion===2?['sources','proposals']:[])])row[key]=JSON.parse(row[key]);if(row.schemaVersion===1)for(const key of ['sources','proposals','replaces'])delete row[key];if(index.has(row.newsId))throw Error('ID LLM duplicado.');index.set(row.newsId,row);}catch(_){index.set(row.newsId,null);}
+  const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]]));try{row.schemaVersion=Number(row.schemaVersion);for(const key of ['ids','evidence','sources','proposals'])row[key]=JSON.parse(row[key]);if(index.has(row.newsId))throw Error('ID LLM duplicado.');index.set(row.newsId,row);}catch(_){index.set(row.newsId,null);}
  }
  llmIndexMemory_={sheet:state.sheet,index};return index;
 }
 function llmValid_(saved,row,context=llmContext_()){
  if(!saved)return false;const {updatedAt,...result}=saved;
- try{llmValidateResult(result,llmArticle_(row),{...context,allowLegacy:true});return true;}catch(_){return false;}
+ try{llmValidateResult(result,llmArticle_(row),context);return true;}catch(_){return false;}
 }
 // One resolver for dashboards, filters, CSV, aggregations and newly composed newsletters.
 function effectiveTaxonomyAssignment_(row,items=taxonomyCatalog_()){
@@ -61,27 +61,28 @@ function exportLlmPending(payload={}){
  if(payload.revision&&payload.revision!==signature)throw Error('Los pendientes han cambiado. Reinicia la descarga.');
  const cursor=payload.cursor??2;if(!Number.isSafeInteger(cursor)||cursor<2||cursor>newsSheet_().getLastRow()+1)throw Error('Cursor de exportación no válido.');
  const context=llmContext_(),index=llmIndex_(),instructions=llmInstructions(context.maxAssignments),manifest={schemaVersion:LLM_OFFLINE.schemaVersion,catalogRevision:context.catalogRevision,taxonomyRevision:context.taxonomyRevision,maxAssignments:context.maxAssignments,sourceRevision:signature},base={manifest,functionalCatalog:functionalCatalog_(),taxonomy:taxonomyCatalog_().map(row=>({id:row.id,palanca:row.palanca,subpalanca:row.subpalanca,descripcion:row.descripcion||'',aliases:row.terminos||[],conditions:row.condiciones||'',context:row.context||[],exclude:row.exclude||[]})),rules:instructions,resultSchema:llmResultSchema(context.maxAssignments)};
- const baseText=JSON.stringify(base),baseBytes=llmUtf8(baseText).length;
- const files=[{name:'manifest.json',text:JSON.stringify(manifest)},{name:'instructions.md',text:instructions}];let articles=[],next=cursor,count=0,size=baseBytes+llmUtf8(instructions).length+1000,stop=false;
- const flush=()=>{if(!articles.length)return;files.push({name:'batch-'+String(files.length-1).padStart(4,'0')+'.json',text:baseText.slice(0,-1)+',"articles":'+JSON.stringify(articles)+'}'});count+=articles.length;articles=[];};
+ const files=[{name:'manifest.json',text:JSON.stringify(manifest)},{name:'context.json',text:JSON.stringify(base)},{name:'instructions.md',text:instructions}];
+ const review=cursor===2?{name:'proposals.json',text:JSON.stringify(llmProposals_(context,index))}:null,batches=[];
+ let articles=[],next=cursor,count=0,size=files.reduce((sum,file)=>sum+llmUtf8(file.text).length+file.name.length+100,review?llmUtf8(review.text).length:0),stop=false;
+ const flush=()=>{if(!articles.length)return;batches.push(JSON.stringify({schemaVersion:LLM_OFFLINE.schemaVersion,sourceRevision:signature,articles}));count+=articles.length;articles=[];};
+ if(size>LLM_OFFLINE.archiveBytes)throw Error('Catálogo o noticia demasiado grande para exportar.');
  const sheet=newsSheet_(),keys=RADAR.sheets.Noticias;
- for(let first=cursor;first<=sheet.getLastRow()&&!stop;first+=250){
-  const values=sheet.getRange(first,1,Math.min(250,sheet.getLastRow()-first+1),keys.length).getDisplayValues();
+ for(let first=cursor;first<=Math.min(sheet.getLastRow(),cursor+LLM_OFFLINE.exportRows-1)&&!stop;first+=250){
+  const values=sheet.getRange(first,1,Math.min(250,sheet.getLastRow()-first+1,cursor+LLM_OFFLINE.exportRows-first),keys.length).getDisplayValues();
   for(let i=0;i<values.length;i++){
    const row=Object.fromEntries(keys.map((key,n)=>[key,values[i][n]]));next=first+i;
    const saved=index.get(row.id),valid=llmValid_(saved,row,context);if(selection==='all'||!valid||selection==='abstentions'&&saved.status!=='classified'){
-    const article={...llmArticle_(row),previousResultHash:saved?llmResultHash_(saved):''},bytes=llmUtf8(JSON.stringify(article)).length+1+(articles.length?0:baseBytes+200);
+    const article={...llmArticle_(row),previousResultHash:saved?llmResultHash_(saved):''},bytes=llmUtf8(JSON.stringify(article)).length+200;
     if(size+bytes>LLM_OFFLINE.archiveBytes){if(!count&&!articles.length)throw Error('Catálogo o noticia demasiado grande para exportar.');stop=true;break;}
     size+=bytes;articles.push(article);if(articles.length===LLM_OFFLINE.batchRows)flush();
    }
    next++;
   }
  }
- flush();if(signature!==sha256_(llmExportSignature_()+':'+selection))throw Error('Los pendientes han cambiado durante la descarga. Reintenta.');
- const bytes=count?llmZip(files):[];telemetry_('llm-export',Date.now()-started,'OK',count+' noticias; '+selection+'; '+bytes.length+' bytes');
- return {revision:signature,cursor:next,done:next>sheet.getLastRow(),count,name:'news-radar-llm-'+cursor+'.zip',base64:bytes.length?llmBase64_(bytes):''};
+ flush();batches.forEach((text,index)=>files.push({name:(index+1)+'_'+batches.length+'.json',text}));if(signature!==sha256_(llmExportSignature_()+':'+selection))throw Error('Los pendientes han cambiado durante la descarga. Reintenta.');
+ telemetry_('llm-export',Date.now()-started,'OK',count+' noticias; '+selection+'; '+size+' bytes');
+ return {revision:signature,cursor:next,done:next>sheet.getLastRow(),count,progress:Math.round((next-2)/Math.max(1,sheet.getLastRow()-1)*100),files,review};
 }
-function llmBase64_(bytes){for(let i=0;i<bytes.length;i++)if(bytes[i]>127)bytes[i]-=256;return Utilities.base64Encode(bytes);}
 function llmParseImport_(payload){
  llmExact(payload,['name','base64'],'Archivo');llmString(payload.name,150,'Nombre');llmString(payload.base64,Math.ceil(LLM_OFFLINE.importBytes/3)*4,'Archivo');
  if(!/^[A-Za-z0-9+/]*={0,2}$/.test(payload.base64))throw Error('Archivo base64 no válido.');
@@ -121,28 +122,32 @@ function importLlmResults(payload){
  });
 }
 function llmCanonicalValue_(value){return Array.isArray(value)?value.map(llmCanonicalValue_):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(key=>[key,llmCanonicalValue_(value[key])])):value;}
-function llmCanonicalResult_(result){return Object.fromEntries(['newsId','contentHash','catalogRevision','taxonomyRevision','schemaVersion','ids','primary','evidence','status',...(result.schemaVersion===2?['sources','proposals','replaces']:[])].map(key=>[key,llmCanonicalValue_(result[key])]));}
+function llmCanonicalResult_(result){return Object.fromEntries(['newsId','contentHash','catalogRevision','taxonomyRevision','schemaVersion','ids','primary','evidence','status','sources','proposals','replaces'].map(key=>[key,llmCanonicalValue_(result[key])]));}
 function llmResultHash_(result){return sha256_(JSON.stringify(llmCanonicalResult_(result)));}
-// Review-only export: this endpoint never changes the operational catalog or taxonomy.
-function exportLlmProposals(){
- authorize_(true);const groups=new Map(),context=llmContext_(),index=llmIndex_();let bytes=0;
- llmPublishedRows_(row=>{const saved=index.get(row.id);if(!llmValid_(saved,row,context))return;for(const proposal of saved.proposals||[]){
+// Review-only data is included once in the unified export.
+function llmProposals_(context,index){
+ const groups=new Map();let bytes=0;
+ if([...index.values()].some(saved=>saved?.proposals?.length))llmPublishedRows_(row=>{const saved=index.get(row.id);if(!saved?.proposals?.length||!llmValid_(saved,row,context))return;for(const proposal of saved.proposals){
   const key=proposal.block+':'+llmConcept(proposal.name);if(!groups.has(key))groups.set(key,{concept:key,block:proposal.block,code:proposal.code,name:proposal.name,status:'review_only',articles:[]});
   const article={newsId:row.id,url:row.url,justification:proposal.justification,equivalents:proposal.equivalents,evidence:proposal.evidence,sources:saved.sources};bytes+=llmUtf8(JSON.stringify(article)).length+500;if(bytes>LLM_OFFLINE.archiveBytes)throw Error('Propuestas demasiado grandes para una descarga; revisa la hoja de categorización.');groups.get(key).articles.push(article);
  }});
- const proposals=[...groups.values()].sort((a,b)=>a.concept.localeCompare(b.concept)),text=JSON.stringify({schemaVersion:LLM_OFFLINE.schemaVersion,catalogRevision:context.catalogRevision,taxonomyRevision:context.taxonomyRevision,proposals});
- if(llmUtf8(text).length>LLM_OFFLINE.archiveBytes)throw Error('Propuestas demasiado grandes para una descarga; revisa la hoja de categorización.');
- return {name:'news-radar-llm-proposals.json',base64:llmBase64_(llmUtf8(text)),count:proposals.length};
+ const proposals=[...groups.values()].sort((a,b)=>a.concept.localeCompare(b.concept)),report={schemaVersion:LLM_OFFLINE.schemaVersion,catalogRevision:context.catalogRevision,taxonomyRevision:context.taxonomyRevision,proposals};
+ if(llmUtf8(JSON.stringify(report)).length>LLM_OFFLINE.archiveBytes)throw Error('Propuestas demasiado grandes para una descarga; revisa la hoja de categorización.');
+ return report;
 }
 function llmQueuePublication_(state){
- const job={id:Utilities.getUuid(),state:'Publicando',categorization:state,started:new Date().toISOString(),error:''};
+ const job={id:Utilities.getUuid(),state:'Publicando',progress:0,categorization:state,started:new Date().toISOString(),error:''};
  properties_().setProperty('LLM_JOB',JSON.stringify(job));
  try{requestDashboardSnapshots_(true);ensureBackgroundWorker_();}catch(error){job.error=String(error.message).slice(0,180);properties_().setProperty('LLM_JOB',JSON.stringify(job));throw error;}
 }
 function llmSnapshotBatch_(){
  const job=llmJob_();if(job?.state!=='Publicando')return false;
  llmStateOverride_=job.categorization;
- try{return buildDashboardSnapshotBatch_({llm:true,categorization:job.categorization});}catch(error){job.error=String(error.message).slice(0,180);properties_().setProperty('LLM_JOB',JSON.stringify(job));throw error;}
+ try{
+  const worked=buildDashboardSnapshotBatch_({llm:true,categorization:job.categorization}),current=llmJob_();
+  if(current.state==='Publicando'){const build=JSON.parse(properties_().getProperty('DASHBOARD_SNAPSHOT_BUILD')||'{}');current.progress=Math.round(Object.keys(build.manifests||{}).length/DASHBOARD_SNAPSHOTS.views.length*100);properties_().setProperty('LLM_JOB',JSON.stringify(current));}
+  return worked;
+ }catch(error){job.error=String(error.message).slice(0,180);properties_().setProperty('LLM_JOB',JSON.stringify(job));throw error;}
  finally{llmStateOverride_=undefined;llmIndexMemory_=undefined;}
 }
 

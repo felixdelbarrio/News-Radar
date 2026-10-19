@@ -28,6 +28,6 @@ for(const source of [baselineSource,undefined]){
  for(const view of ['briefing','news','radar']){
   s.cache.clear();measure(version,'read:cold:'+view,s,()=>c.getDashboard({view,initial:true}));measure(version,'read:warm:'+view,s,()=>c.getDashboard({view,initial:true}));
  }
- states.push({version,schemaVersion,valid:c.getLlmCategorization().valid,total,firstZip:{count:archive.count,bytes:Buffer.from(archive.base64,'base64').length}});
+ states.push({version,schemaVersion,valid:c.getLlmCategorization().valid,total,firstZip:{count:archive.count,bytes:archive.files?archive.files.reduce((sum,file)=>sum+Buffer.byteLength(file.text),0):Buffer.from(archive.base64,'base64').length}});
 }
 console.log(JSON.stringify({environment:'Node.js Sheets emulator; synthetic duplicated headlines; one observation per stage; heap delta includes GC; not production or semantic quality',baseline:{commit},states,measurements},null,2));

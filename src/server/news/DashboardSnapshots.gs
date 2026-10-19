@@ -79,7 +79,7 @@ function publishDashboardSnapshotSet_(build,job){
   // All view manifests and the historical corpus switch together. The previous slots remain intact.
   if(job&&previous.snapshots)savePreviousDataGeneration_(previous);
   properties_().setProperty('DATA_GENERATION',JSON.stringify(generation));dataGenerationMemory_=generation;
-  clearDashboardSnapshotRequest_();completeSnapshotJobs_(job);if(job?.llm){const llm=llmJob_();properties_().setProperty('LLM_JOB',JSON.stringify({...llm,state:'Completada',error:'',published:generation.published}));}return true;
+  clearDashboardSnapshotRequest_();completeSnapshotJobs_(job);if(job?.llm){const llm=llmJob_();properties_().setProperty('LLM_JOB',JSON.stringify({...llm,state:'Completada',progress:100,error:'',published:generation.published}));}return true;
 }
 function rebuildDashboardSnapshots(){authorize_(true);return withForegroundWrite_(()=>{properties_().setProperty('DASHBOARD_SNAPSHOT_CORRUPT','true');requestDashboardSnapshots_(true);return 'Snapshots de Novedades, Noticias y Radar en cola.';});}
 

@@ -64,7 +64,7 @@ ${previewDelay?`if(method!=='recordEvents')await new Promise(resolve=>setTimeout
  if(method==='getNewsletterHistory'){authorize_();return {...recordPage([],q),options:{},limit:settings_().eventLimit,limited:false};}
  if(method==='getRuns') {authorize_();return {...recordPage([],q),options:{},collection:{jobs:[]},classification:{scheduled:false,queued:false,job:null},limit:settings_().eventLimit,limited:false};}
  if(method==='getLlmCategorization'){authorize_();return {mode:'deterministic',revision:'0',total:rows.length,valid:0,pending:rows.length,percent:0,projectUrl:'https://chatgpt.com/g/g-p-6ad52125ec4881a4857081893e339cd5',instructions:'Vista local. El flujo offline opera en Apps Script.',job:null,limits:{importBytes:2097152,importRows:250}};}
- if(['saveLlmCategorization','exportLlmPending','exportLlmProposals','importLlmResults'].includes(method))throw Error('El flujo offline requiere el libro real en Apps Script.');
+ if(['saveLlmCategorization','exportLlmPending','importLlmResults'].includes(method))throw Error('El flujo offline requiere el libro real en Apps Script.');
  if(method==='getTaxonomyStatus'){authorize_();return {scheduled:false,hour:settings_().dailyHour,minute:45,timezone:settings_().timezone,job:null,items:taxonomyCatalog_(),catalogUrl:settings_().taxonomyCatalogUrl,configurationRevision:configurationRevision_()};}
  if(method==='startTaxonomy'){authorize_();throw Error('El catálogo global de funcionalidades se ejecuta en Google Apps Script.');}
  if(method==='getClassificationStatus') {authorize_();return {scheduled:false,hour:settings_().dailyHour,timezone:settings_().timezone,job:null};}
