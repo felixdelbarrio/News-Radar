@@ -1,4 +1,4 @@
-> Revisión 3.7.2: [Iteración 9](docs/iteration-9-3.7.2.md), validación taxonómica antes de publicar, histórico verificado y enlaces a la pestaña de la edición.
+> Revisión 3.10.0: [Descarga única y progreso LLM](docs/iteration-12-3.10.0.md), ZIP autónomos numerados, porcentaje de transferencia y publicación verificada de las tres vistas.
 
 # BBVA Empresas · News Radar
 
@@ -33,7 +33,7 @@ Se versiona `dist/` para comparar la distribución de cada release en GitHub. Se
 
 ## Versión de publicación
 
-La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.7.2`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
+La versión de la release vive únicamente en **`src/server/config/Config.gs`**, en `RADAR.version` (actualmente `3.10.0`). Es metadato de la distribución, no una configuración de negocio de Sheets. Actualizarla antes de publicar: `1.0.1` para correcciones, `1.1.0` para funcionalidades compatibles y `2.0.0` para cambios incompatibles. Se admite un sufijo de prerelease, por ejemplo `1.1.0-rc.1`.
 
 Después de cambiar código o versión, ejecutar `make build check-dist verify` e incluir `dist/` junto con las fuentes en el mismo commit de la rama de trabajo. El build copia `Config.gs` sin alterar su versión y la indica en su salida. Para publicar en Apps Script, copiar el contenido de esa distribución; un tag `v1.0.0` puede identificar el mismo commit en GitHub.
 
@@ -529,3 +529,8 @@ Los emblemas de cabecera se dimensionan desde el token compartido (64 px en escr
 ## Integridad taxonómica y enlaces de edición · 3.7.2
 
 La publicación valida todo el corpus preparado contra su catálogo, reglas y evidencias antes de activar Noticias, Novedades y Radar. Los fallos mantienen la generación anterior y el checkpoint; el reproceso también repara asignaciones corruptas con huellas intactas. Las etiquetas secundarias requieren un discriminante propio. «Ver esta edición» conserva el periodo y selecciona la pestaña geográfica sin aplicar el filtro de país. [Resultados y publicación de Iteración 9](docs/iteration-9-3.7.2.md).
+
+
+## Evidencia y revisión LLM offline · 3.9.0
+
+El contrato v2 admite evidencia del cuerpo público consultado manualmente en ChatGPT, con URL del editor, fecha y pasaje literal. Distingue clasificación, abstención y noticia fuera de alcance; permite reprocesar y corregir con control de revisión sin sobrescribir el determinista. Las propuestas `.xx` se incluyen agrupadas en la descarga única para revisión externa y no publican categorías. Los resultados guardados se han convertido al esquema v2; las lecturas e importaciones aceptan exclusivamente este esquema. La generación anterior permanece activa hasta verificar los tres snapshots. [Cambios, pruebas, métricas y bloqueos de producción](docs/iteration-11-3.9.0.md).

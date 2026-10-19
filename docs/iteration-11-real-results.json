@@ -1,0 +1,164 @@
+{
+  "archive": "news-radar-results-2.zip",
+  "sha256": "a04073548a2279bf7a60cfaf05021445af24efb5d962573583ec76b9e2d35269",
+  "files": 21,
+  "results": 525,
+  "uniqueNewsIds": 525,
+  "statuses": {
+    "insufficient_evidence": 523,
+    "classified": 2
+  },
+  "assigned": 2,
+  "assignments": 2,
+  "evidence": 2,
+  "catalogRevisions": [
+    "06363efc385bd287557c78b7221c437a76900f7abf322c36c8767e1376a5859e"
+  ],
+  "taxonomyRevisions": [
+    "68bf1b0c14d40965614f907d68b261ba22c476ebf58bc2e25e24009825a2ba11"
+  ],
+  "invalidShape": 0,
+  "multiAssigned": 0,
+  "classifiedPercent": 0.381,
+  "abstainedPercent": 99.619,
+  "reconciliation": {
+    "matched": 525,
+    "missing": 0,
+    "hashMismatch": 0,
+    "invalidIds": 0,
+    "unverifiable": 0,
+    "detClassified": 4,
+    "detMulti": 0,
+    "same": 523,
+    "strata": {
+      "abstention:det-empty": 521,
+      "abstention:det-assigned": 2,
+      "positive": 2
+    }
+  },
+  "sample": [
+    {
+      "stratum": "abstention:det-empty",
+      "newsId": "5c0f3b13-aa91-4438-942d-af2253fb34fc",
+      "title": "Daviplata se transforma en neobanco: trae nuevas tarjetas y rentabilidad al 8,25% en Colombia | El Colombiano",
+      "excerpt": "",
+      "llm": [],
+      "deterministic": [],
+      "evidence": [],
+      "review": "Consumer neobank/cards/yield headline, no stated enterprise operation. Do not force business functionality."
+    },
+    {
+      "stratum": "abstention:det-empty",
+      "newsId": "4103c735-15b7-4f9f-b8e5-144c45041686",
+      "title": "COFE Y BROU: como identificar si tu empresa ya cuenta con el convenio activo necesario para marzo",
+      "excerpt": "",
+      "llm": [],
+      "deterministic": [],
+      "evidence": [],
+      "review": "Company agreement is mentioned but the operation and channel are unclear without article text."
+    },
+    {
+      "stratum": "abstention:det-empty",
+      "newsId": "9a9d6fe4-1685-49df-b278-d9ca319cd5e4",
+      "title": "Banco Santander lidera la transformación de la banca privada con tres servicios pioneros en España",
+      "excerpt": "",
+      "llm": [],
+      "deterministic": [],
+      "evidence": [],
+      "review": "Private banking headline, no concrete enterprise operation stated."
+    },
+    {
+      "stratum": "abstention:det-empty",
+      "newsId": "87afe027-ac71-4b12-a24f-c5616a15d107",
+      "title": "Santander restringe el crédito en Argentina y lo dispensa solo a empresas con liquidez por los altos tipos",
+      "excerpt": "",
+      "llm": [],
+      "deterministic": [],
+      "evidence": [],
+      "review": "Corporate credit policy; digital channel functionality is not stated."
+    },
+    {
+      "stratum": "abstention:det-assigned",
+      "newsId": "1b278182-2a98-413f-9146-cae8689bdb9c",
+      "title": "App de Santander también falla en viernes de quincena; no se puede iniciar sesión",
+      "excerpt": "",
+      "llm": [],
+      "deterministic": [
+        "19.22.Sesión"
+      ],
+      "evidence": [],
+      "review": "Operational incident, but enterprise scope is absent in the headline. Abstention is defensible; deterministic Session alone does not prove business scope."
+    },
+    {
+      "stratum": "abstention:det-assigned",
+      "newsId": "11fe1b75-786b-4a1d-88e9-a4cb47d4cb01",
+      "title": "La app de Banco Santander no funciona: problemas al hacer Bizum e iniciar sesión",
+      "excerpt": "",
+      "llm": [],
+      "deterministic": [
+        "19.22.Sesión"
+      ],
+      "evidence": [],
+      "review": "Retail/Bizum incident with no explicit enterprise scope. Abstention avoids claiming a business banking capability."
+    },
+    {
+      "stratum": "positive",
+      "newsId": "dd18f1a0-22b6-4c12-8f35-be9e22933f50",
+      "title": "Banorte y CONTPAQi se alían para que las PyMEs integren banca y contabilidad en tiempo real",
+      "excerpt": "",
+      "llm": [
+        "17.16.API Channel"
+      ],
+      "deterministic": [
+        "17.16.API Channel"
+      ],
+      "evidence": [
+        {
+          "id": "ed0df57eb12870ebbb2b7873",
+          "quote": "integren banca y contabilidad"
+        }
+      ],
+      "review": "Business scope and accounting integration supported. The exact API Channel category is consistent with the published alias, but the headline does not explicitly name an API; needs body evidence for a stricter channel judgment. Do not invent API facts."
+    },
+    {
+      "stratum": "positive",
+      "newsId": "9ed2f90f-b91a-4d6d-9ce6-d6368902b988",
+      "title": "Qonto lanza un producto para gestionar los pagos desde ChatGPT y entrará en el negocio del crédito en 2026",
+      "excerpt": "",
+      "llm": [
+        "03.xx Pagos agénticos"
+      ],
+      "deterministic": [
+        "03.xx Pagos agénticos"
+      ],
+      "evidence": [
+        {
+          "id": "282e01633063ed3ff48c2eb4",
+          "quote": "pagos desde ChatGPT"
+        }
+      ],
+      "review": "Business payment operation through ChatGPT is explicit; the existing published agentic payments concept fits the stated operation. No new proposal is created."
+    }
+  ],
+  "sampleSelection": "All 2 positives, both abstentions with deterministic assignment, 4 evenly spaced abstentions without deterministic assignment. No multiple-assignment outputs exist. Review of original headline and catalog; not an independent gold standard.",
+  "referenceSnapshot": "Google Sheets Excel download on 2026-10-19; Apps Script confirmed active Noticias_tax_f67f8602-6c15-438e-97ac-aa6f8ddf49b8, taxonomy revision 68bf1b0c14d40965614f907d68b261ba22c476ebf58bc2e25e24009825a2ba11 and catalog revision 06363efc385bd287557c78b7221c437a76900f7abf322c36c8767e1376a5859e.",
+  "proposals": 0,
+  "activeCorpusRows": 8897,
+  "catalogRevisionMatchesProduction": true,
+  "taxonomyRevisionMatchesProduction": true,
+  "serverValidation": {
+    "results": 525,
+    "valid": 525,
+    "errors": [],
+    "revision": "83d4886e3d53b03ed80a7dbf5900284ac0649c030dcc11302e4c32dafe4dbe4e"
+  },
+  "wholeArchiveImportLimits": {
+    "schemaVersion": 1,
+    "requiresNewV2Export": true,
+    "files": 21,
+    "maxFilesPerImport": 20,
+    "results": 525,
+    "maxResultsPerImport": 250,
+    "wholeArchiveAccepted": false
+  }
+}
