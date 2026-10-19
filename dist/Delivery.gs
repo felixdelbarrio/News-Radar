@@ -27,12 +27,7 @@ function scheduledNewsletters_(){
   if(backgroundPaused_()){deferBackgroundWork_('newsletter');return;}
   if(dailyScheduleStatus_())requestDailyPipeline_();requestNewsletterDelivery_();
 }
-function newsletterReadyAt_(work){return properties_().getProperty('NEWSLETTER_REQUEST')&&settings_().newsletterEnabled&&!properties_().getProperty('TAXONOMY_QUARTER_REQUEST')&&!businessPipelinePending_(work)?Math.max(Date.now(),Number(properties_().getProperty('NEWSLETTER_NEXT')||0),Number(properties_().getProperty('NEWSLETTER_QUOTA_UNTIL')||0)):Infinity;}
-function queueQuarterlyTaxonomy_(period){
- const p=properties_();if(!period||p.getProperty('TAXONOMY_PERIOD')===period.to)return true;
- const request='quarterly:'+period.to,active=taxonomyPending_()&&taxonomyJob_().request===request;
- if(p.getProperty('TAXONOMY_QUARTER_REQUEST')!==request||!active&&p.getProperty('TAXONOMY_REQUEST')!==request){p.setProperty('TAXONOMY_QUARTER_REQUEST',request);p.setProperty('TAXONOMY_REQUEST',request);ensureBackgroundWorker_();}return false;
-}
+function newsletterReadyAt_(work){return properties_().getProperty('NEWSLETTER_REQUEST')&&settings_().newsletterEnabled&&!businessPipelinePending_(work)?Math.max(Date.now(),Number(properties_().getProperty('NEWSLETTER_NEXT')||0),Number(properties_().getProperty('NEWSLETTER_QUOTA_UNTIL')||0)):Infinity;}
 function deliverNewsletterBatch_(work,maxMs=BACKGROUND_WORK.sliceMs){
   const started=Date.now(),now=new Date(started),result={accepted:0,empty:0,duplicates:0,pending:0,state:'disabled'};
   if(backgroundPaused_()){deferBackgroundWork_('newsletter');return {...result,state:'configuration_pause'};}
@@ -44,7 +39,6 @@ function deliverNewsletterBatch_(work,maxMs=BACKGROUND_WORK.sliceMs){
     const deliveries=rows_('NewsletterEnvios'),{due,periods}=newsletterDeliveryPlan_(new Date(),deliveries);
     result.pending=due.length;result.state='no_due';
     if(!due.length){properties_().deleteProperty('NEWSLETTER_REQUEST');return result;}
-    if(due.some(item=>item.row.periodicidad==='quarterly')&&!queueQuarterlyTaxonomy_(periods.get('quarterly'))){ensureNewsletterContinuation_();return {...result,state:'catalogue_review'};}
     let remaining=settings_().newsletterBatch,quota=newsletterBudget_(deliveries,now);
     if(!quota){requestNewsletterDelivery_(newsletterQuotaReset_(deliveries,now)-Date.now());return {...result,state:'limit'};}
     let sender;

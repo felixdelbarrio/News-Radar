@@ -19,7 +19,7 @@ test('traduce cada nombre único a los idiomas soportados, reutiliza resultados 
   assert.equal(c.taxonomyTranslations_().tr['Pagos y cobros › Pagos biometricos'],'Ödemeler ve tahsilatlar › tr Pagos biometricos');
   assert.equal(JSON.stringify(c.newsSheet_().grid),news);assert.equal(JSON.stringify(c.taxonomySheet_().grid),catalog);assert.equal(s.properties.NEWS_CONTENT_REVISION,undefined);
   const stored=JSON.stringify(s.sheets.get('TaxonomiaTraducciones').grid),revision=s.properties.NEWS_REVISION;c.startTaxonomyTranslations();finish(c);
-  assert.equal(s.calls.length,4);assert.equal(c.taxonomyTranslationJob_().translated,0);assert.equal(JSON.stringify(s.sheets.get('TaxonomiaTraducciones').grid),stored);assert.equal(s.properties.NEWS_REVISION,revision);
+  assert.equal(s.calls.length,4);assert.equal(c.taxonomyTranslationJob_().translated,6);assert.equal(JSON.stringify(s.sheets.get('TaxonomiaTraducciones').grid),stored);assert.equal(s.properties.NEWS_REVISION,revision);
   c.writeTranslationJob_({state:'Completada',calls:3000,callDay:c.recordDay(new Date(),c.settings_().timezone)});c.startTaxonomyTranslations();assert.ok(c.taxonomyTranslationReadyAt_()<=Date.now());finish(c);assert.equal(s.calls.length,4);
   c.LanguageApp={translate(){throw Error('No se traduce en lecturas');}};assert.ok(c.getTaxonomyStatus().taxonomyTranslations.en['Pagos biometricos']);
 });

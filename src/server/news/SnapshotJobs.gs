@@ -9,7 +9,7 @@ function snapshotJobsPending_(){return llmJob_()?.state==='Publicando'||JSON.par
 function completeSnapshotJobs_(publishedJob=null){
   const p=properties_(),pending=JSON.parse(p.getProperty('SNAPSHOT_JOBS')||'[]');
   const remaining=[];
-  for(const key of pending){const job=JSON.parse(p.getProperty(key)||'null');if(job?.target&&job.target!==publishedJob?.target){remaining.push(key);continue;}if(job?.state==='Publicando')p.setProperty(key,JSON.stringify({...job,state:'Completada',error:'',published:new Date().toISOString()}));}
+  for(const key of pending){const job=JSON.parse(p.getProperty(key)||'null');if(job?.target&&job.target!==publishedJob?.target){remaining.push(key);continue;}if(job?.state==='Publicando'){p.setProperty(key,JSON.stringify({...job,state:'Completada',error:'',published:new Date().toISOString()}));if(key==='TAXONOMY_JOB'&&job.request==='canonical:'+TAXONOMY_POLICY.version)p.setProperty('CANONICAL_TAXONOMY_VERSION',TAXONOMY_POLICY.version);}}
   if(remaining.length){p.setProperty('SNAPSHOT_JOBS',JSON.stringify(remaining));invalidateDashboardSnapshots_();}else p.deleteProperty('SNAPSHOT_JOBS');
   for(const job of collectionJobs_())if(job.estado==='Publicando'){if(job.tipo==='daily'&&p.getProperty('MAINTENANCE_DAY')!==recordDay(new Date(),settings_().timezone))p.setProperty('MAINTENANCE_REQUEST',recordDay(new Date(),settings_().timezone));job.estado=Number(job.fallidas)>0?'Parcial':'Completada';job.fin=new Date().toISOString();writeCollectionJob_(job);}
   CacheService.getScriptCache().remove('collection-status');

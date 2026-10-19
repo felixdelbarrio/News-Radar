@@ -18,7 +18,6 @@ export function createTaxonomy({run,isActive,onRevision}){
     if(source!==sourceSignature){sourceSignature=source;revision=data.configurationRevision;$('taxonomy-catalog-url').value=data.catalogUrl||'';}
     $('taxonomy-catalog-status').textContent=data.job?.catalog?.error?t('No se pudo revisar Drive; se utiliza el catálogo guardado. ')+data.job.catalog.error:data.synced?t('Última lectura del maestro: {date}',{date:date(data.synced)}):data.catalogUrl?t('Se revisará Drive al iniciar la actualización.'):t('Se utiliza el catálogo guardado.');
     const job=data.job,total=Number(job?.workTotal??Number(job?.total||0)*2),done=Number(job?.processed||0);
-    $('taxonomy-schedule').textContent=t('Revisión del catálogo antes de las newsletters trimestrales · {state}',{state:t(data.scheduled?'Activada':'Desactivada')});
     $('taxonomy-progress').innerHTML=job?jobProgressHtml(job,{total,done,label:'Progreso de catálogo global de funcionalidades',queued:data.queued,summary:t('{done}/{total} pasos de análisis y etiquetado; {tagged} etiquetas actualizadas.',{done,total,tagged:job.tagged})}):'<p class="muted">'+t(data.queued?'En cola':'Sin actualizaciones del catálogo ejecutadas.')+'</p>';
     const next=JSON.stringify([data.items,data.pageSize,data.taxonomyTranslations,language]);
     if(next!==signature){signature=next;items=data.items;pageSize=data.pageSize;filters.options(recordOptions(items,['palanca']));render();}

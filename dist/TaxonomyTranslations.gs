@@ -49,7 +49,8 @@ function taxonomyTranslationBatch_(maxMs=TAXONOMY_POLICY.maxMs){
   const started=Date.now(),p=properties_(),today=recordDay(new Date(),settings_().timezone);let job=taxonomyTranslationJob_(),written=false;
   try{
     const names=taxonomyTranslationNames_(),languages=Object.keys(languageNames).filter(language=>language!=='es'),revision=sha256_(JSON.stringify([names,languages])),request=p.getProperty('TAXONOMY_TRANSLATION_REQUEST');
-    if(!job||job.revision!==revision||request&&job.state==='Completada'){
+    if(job?.revision===revision&&job.state==='Completada'){if(request)p.deleteProperty('TAXONOMY_TRANSLATION_REQUEST');return;}
+    if(!job||job.revision!==revision){
       job={revision,state:'Pendiente',total:names.length*languages.length,processed:0,translated:0,started:new Date().toISOString(),updated:new Date().toISOString(),calls:job?.callDay===today?job.calls:0,callDay:today,error:'',pausedUntil:0};
     }
     if(request){job.pausedUntil=0;if(p.getProperty('TAXONOMY_TRANSLATION_REQUEST')===request)p.deleteProperty('TAXONOMY_TRANSLATION_REQUEST');}

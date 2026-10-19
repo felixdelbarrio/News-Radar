@@ -1,6 +1,6 @@
 let llmStateOverride_,llmIndexMemory_,llmContextMemory_;
-function llmState_(){return llmStateOverride_||dataGeneration_().categorization||{mode:'deterministic',sheet:'',revision:'0'};}
-function llmRevision_(){const state=llmState_();return state.mode+':'+state.revision;}
+function llmState_(){const {sheet='',revision='0'}=llmStateOverride_||dataGeneration_().categorization||{};return {sheet,revision};}
+function llmRevision_(){const state=llmState_();return 'canonical:'+state.revision;}
 function llmJob_(){return JSON.parse(properties_().getProperty('LLM_JOB')||'null');}
 function llmContext_(){
  const items=taxonomyCatalog_(),catalog=functionalCatalog_();
@@ -13,7 +13,7 @@ function llmArticle_(row){
  return {...article,contentHash:sha256_(JSON.stringify(article))};
 }
 function llmIndex_(){
- const state=llmState_();if(llmIndexMemory_?.sheet===state.sheet)return llmIndexMemory_.index;
+ const state=llmState_();if(llmIndexMemory_&&llmIndexMemory_.sheet===state.sheet)return llmIndexMemory_.index;
  const index=new Map(),sheet=state.sheet?book_().getSheetByName(state.sheet):null,keys=RADAR.sheets.CategorizacionLLM;
  if(sheet?.getLastRow()>1)for(const values of sheet.getRange(2,1,sheet.getLastRow()-1,keys.length).getDisplayValues()){
   const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]]));try{row.schemaVersion=Number(row.schemaVersion);for(const key of ['ids','evidence','sources','proposals'])row[key]=JSON.parse(row[key]);if(index.has(row.newsId))throw Error('ID LLM duplicado.');index.set(row.newsId,row);}catch(_){index.set(row.newsId,null);}
@@ -24,15 +24,26 @@ function llmValid_(saved,row,context=llmContext_()){
  if(!saved)return false;const {updatedAt,...result}=saved;
  try{llmValidateResult(result,llmArticle_(row),context);return true;}catch(_){return false;}
 }
+function llmStrongResult_(saved,row,items=taxonomyCatalog_()){
+ if(saved?.status!=='classified'||!llmValid_(saved,row))return false;
+ const byId=taxonomyValidationIndex_(items).byId;
+ return saved.evidence.every(e=>{
+  const item=byId.get(e.id),terms=/\.xx Otros$/.test(item.subpalanca)?items.find(block=>block.palanca===item.palanca&&!block.subpalanca)?.terminos||[]:item.terminos||[];
+  const source=saved.sources.find(source=>source.id===e.source),text=taxonomyText([row.titular,row.extracto,source?.passage||''].join(' '));
+  return e.quote.trim().length>=12&&(!item.context?.length||taxonomyTermCounts(text,item.context.map(taxonomyText)).size>0)&&!taxonomyTermCounts(text,(item.exclude||[]).map(taxonomyText)).size&&taxonomyEvidenceSupports(e.quote,terms);
+ });
+}
 // One resolver for dashboards, filters, CSV, aggregations and newly composed newsletters.
 function effectiveTaxonomyAssignment_(row,items=taxonomyCatalog_()){
- if(llmState_().mode==='llm'){
-  const saved=llmIndex_().get(row.id);if(llmValid_(saved,row)){
+ const result=llmIndex_().get(row.id);
+ const editorialExcluded=result?.status==='out_of_scope'&&llmValid_(result,row)&&result.sources.some(source=>source.passage.trim().length>=40&&digitalAssessment_(searchText_(source.passage),searchText_(source.passage)).excluded);
+ {
+  const saved=result;if(llmStrongResult_(saved,row,items)){
    const assignments=saved.evidence.map(e=>{const source=saved.sources?.find(source=>source.id===e.source);return {id:e.id,terms:[e.quote],method:source?'external':'literal',location:source?'web':(row.titular||'').includes(e.quote)?'headline':'text',...(source?{url:source.url,retrievedAt:source.retrievedAt}:{})};});
    return {ids:saved.ids,primary:saved.primary,evidence:{...assignments[0],assignments}};
   }
  }
- const saved=taxonomySaved_(row.taxonomia);validateTaxonomyAssignment_(saved,items,row.id,false);return saved;
+ const saved=taxonomySaved_(row.taxonomia);validateTaxonomyAssignment_(saved,items,row.id,false);return {...saved,editorialExcluded};
 }
 function llmPublishedRows_(visit){
  const sheet=newsSheet_(),keys=RADAR.sheets.Noticias;
@@ -43,15 +54,13 @@ function getLlmCategorization(){
  if(counts)counts=JSON.parse(counts);
  else{const index=llmIndex_();let total=0,valid=0,classified=0,abstained=0,outOfScope=0;llmPublishedRows_(row=>{total++;const saved=index.get(row.id);if(llmValid_(saved,row,context)){valid++;if(saved.status==='classified')classified++;else if(saved.status==='out_of_scope')outOfScope++;else abstained++;}});counts={total,valid,classified,abstained,outOfScope};cacheJson_(key,counts,60);}
  const {total,valid}=counts;
- const state=llmState_();return {...counts,total,valid,pending:total-valid,percent:total?Math.round(valid/total*1000)/10:0,mode:state.mode,revision:state.revision,projectUrl:properties_().getProperty('LLM_PROJECT_URL')||LLM_OFFLINE.projectUrl,instructions:llmInstructions(context.maxAssignments),job:llmJob_(),newsRevision:publishedNewsRevision_(),limits:{importBytes:LLM_OFFLINE.importBytes,importRows:LLM_OFFLINE.importRows}};
+ const state=llmState_();return {...counts,total,valid,pending:total-valid,percent:total?Math.round(valid/total*1000)/10:0,revision:state.revision,projectUrl:properties_().getProperty('LLM_PROJECT_URL')||LLM_OFFLINE.projectUrl,instructions:llmInstructions(context.maxAssignments),job:llmJob_(),newsRevision:publishedNewsRevision_(),limits:{importBytes:LLM_OFFLINE.importBytes,importRows:LLM_OFFLINE.importRows}};
 }
 function saveLlmCategorization(payload){
  authorize_(true);return withForegroundWrite_(()=>{
-  llmExact(payload,['projectUrl','mode','revision'],'Configuración LLM');llmString(payload.projectUrl,300,'URL');
+  llmExact(payload,['projectUrl','revision'],'Configuración LLM');llmString(payload.projectUrl,300,'URL');
   if(!/^https:\/\/chatgpt\.com\/g\/g-p-[a-zA-Z0-9-]+\/?$/.test(payload.projectUrl))throw Error('Introduce la URL HTTPS de un proyecto GPT en chatgpt.com.');
-  if(!['deterministic','llm'].includes(payload.mode))throw Error('Modo LLM no válido.');
   if(payload.revision!==llmState_().revision)throw Error('La categorización ha cambiado. Recarga la pestaña.');
-  if(payload.mode!==llmState_().mode){llmAssertIdle_();llmQueuePublication_({...llmState_(),mode:payload.mode,revision:Utilities.getUuid()});}
   properties_().setProperty('LLM_PROJECT_URL',payload.projectUrl);return getLlmCategorization();
  });
 }
@@ -116,7 +125,7 @@ function importLlmResults(payload){
   if(sheet.getLastRow()>1)sheet.getRange(2,1,sheet.getLastRow()-1,1).getDisplayValues().forEach(([id],i)=>positions.set(id,i+2));
   let next=sheet.getLastRow()+1;const updates=changes.map(result=>({row:positions.get(result.newsId)||next++,values:keys.map(key=>typeof result[key]==='object'?JSON.stringify(result[key]):String(safeCell_(result[key])))}));
   // Staging is unreachable to consumers until the complete, verified snapshot set is published.
-  try{writeStagedNewsRows_(sheet,updates);llmQueuePublication_({...state,sheet:name,revision:Utilities.getUuid()});}catch(error){if(llmJob_()?.categorization?.sheet!==name)book_().deleteSheet(sheet);throw error;}
+  try{writeStagedNewsRows_(sheet,updates);llmQueuePublication_({...state,sheet:name,revision:Utilities.getUuid()},changes.length>=25&&changes.every(row=>row.status!=='classified'&&!row.sources.length));}catch(error){if(llmJob_()?.categorization?.sheet!==name)book_().deleteSheet(sheet);throw error;}
   telemetry_('llm-import',Date.now()-started,'OK',changes.length+' preparadas; '+(results.length-changes.length)+' duplicadas; '+updates.length+' filas escritas');
   return {...getLlmCategorization(),imported:changes.length,duplicates:results.length-changes.length};
  });
@@ -135,8 +144,8 @@ function llmProposals_(context,index){
  if(llmUtf8(JSON.stringify(report)).length>LLM_OFFLINE.archiveBytes)throw Error('Propuestas demasiado grandes para una descarga; revisa la hoja de categorización.');
  return report;
 }
-function llmQueuePublication_(state){
- const job={id:Utilities.getUuid(),state:'Publicando',progress:0,categorization:state,started:new Date().toISOString(),error:''};
+function llmQueuePublication_(state,reviewRequired=false){
+ const job={id:Utilities.getUuid(),state:'Publicando',progress:0,reviewRequired,categorization:state,started:new Date().toISOString(),error:''};
  properties_().setProperty('LLM_JOB',JSON.stringify(job));
  try{requestDashboardSnapshots_(true);ensureBackgroundWorker_();}catch(error){job.error=String(error.message).slice(0,180);properties_().setProperty('LLM_JOB',JSON.stringify(job));throw error;}
 }

@@ -49,7 +49,10 @@ const authorize_=()=>{if(!admin)throw Error('Acción de administrador.');};
 const configurationRevision_=()=>revision;
 const properties_=()=>({getProperty:()=>revision});
 const translationIdentityRows_=rows=>rows;
-const llmState_=()=>({mode:'deterministic'});
+const llmState_=()=>({});
+const llmIndex_=()=>new Map();
+const llmStrongResult_=()=>false;
+const llmEditorialExclusion_=()=>false;
 const taxonomyCatalog_=()=>${serialize(taxonomy)},taxonomyTranslations_=()=>(${serialize(taxonomyNames)});
 const taxonomyValidationIndex_=()=>({ids:new Set(taxonomyCatalog_().map(row=>row.id)),model:${serialize(context.taxonomyModelRevision_(taxonomy))}});
 function writeConfiguration_(config,version){authorize_();if(version!==revision)throw Error('La configuración ha cambiado. Recarga los catálogos.');validateConfiguration_(config);configuration=JSON.parse(JSON.stringify(config));revision=String(Number(revision)+1);return 'Configuración local guardada en memoria. No se ha escrito en Google.';}

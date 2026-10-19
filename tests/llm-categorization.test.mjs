@@ -10,10 +10,10 @@ function setup(count=2){
  for(let i=0;i<count;i++){const title='BBVA lanza login biométrico para empresas',row={id:'news-'+i,fecha:'2026-10-10',pais:'España',medio:'Editor',entidad:'BBVA',titular:title,extracto:'',url:'https://example.com/'+i,fuente:'Editor',idioma:'es',clasificacion:JSON.stringify(c.classification_(c.searchText_(title),c.searchText_(title)).labels),taxonomia:JSON.stringify(c.taxonomyRecord_(title,''))};c.append_('Noticias',[vm.runInContext('RADAR.sheets.Noticias',c).map(key=>row[key]||'')]);}
  c.invalidateNews_();for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();return s;
 }
-function result(c,id='news-0',empty=false){const row=c.rows_('Noticias').find(row=>row.id===id),article=c.llmArticle_(row),context=c.llmContext_(),ids=empty?[]:[c.taxonomyCatalog_().find(row=>row.subpalanca.includes('17.01.'))?.id||c.taxonomyCatalog_()[0].id];return {newsId:id,contentHash:article.contentHash,catalogRevision:context.catalogRevision,taxonomyRevision:context.taxonomyRevision,schemaVersion:2,sources:[],proposals:[],replaces:c.llmIndex_().get(id)?c.llmResultHash_(c.llmIndex_().get(id)):'',ids,primary:ids[0]||'',evidence:ids.map(id=>({id,quote:'login biométrico',source:'article'})),status:empty?'insufficient_evidence':'classified'};}
+function result(c,id='news-0',empty=false){const row=c.rows_('Noticias').find(row=>row.id===id),article=c.llmArticle_(row),context=c.llmContext_(),ids=empty?[]:[c.taxonomyCatalog_().find(row=>row.subpalanca.includes('16.01.'))?.id||c.taxonomyCatalog_()[0].id];return {newsId:id,contentHash:article.contentHash,catalogRevision:context.catalogRevision,taxonomyRevision:context.taxonomyRevision,schemaVersion:2,sources:[],proposals:[],replaces:c.llmIndex_().get(id)?c.llmResultHash_(c.llmIndex_().get(id)):'',ids,primary:ids[0]||'',evidence:ids.map(id=>({id,quote:'login biométrico',source:'article'})),status:empty?'insufficient_evidence':'classified'};}
 function payload(results,zip=false){const text=JSON.stringify({schemaVersion:2,results});return {name:zip?'results.zip':'results.json',base64:Buffer.from(zip?llmZip([{name:'results.json',text}]):text).toString('base64')};}
 function finish(c){for(let i=0;i<10&&c.llmJob_()?.state==='Publicando';i++)c.dashboardSnapshotBatch_();assert.equal(c.llmJob_().state,'Completada');}
-function mode(c,value){const state=c.getLlmCategorization();return c.saveLlmCategorization({projectUrl:state.projectUrl,mode:value,revision:state.revision});}
+function mode(c,value){const state=c.getLlmCategorization();return c.saveLlmCategorization({projectUrl:state.projectUrl,revision:state.revision});}
 
 test('ZIP reproducible, UTF-8 y contrato exportación→importación sin extracto',()=>{
  const {c}=setup(),a=c.exportLlmPending(),b=c.exportLlmPending();assert.deepEqual(a.files,b.files);assert.equal(a.count,2);assert.equal(a.done,true);
@@ -56,11 +56,11 @@ test('importaciones en cualquier orden y exclusión de noticias eliminadas y can
 test('resolver determinista/LLM con fallback, CSV y las tres vistas usan la misma selección',()=>{
  const {c}=setup(),rows=c.rows_('Noticias'),det=c.annotateNews_(rows)[0].taxonomia.map(row=>row.id);c.importLlmResults(payload([result(c,'news-0',true)]));finish(c);
  assert.deepEqual(c.annotateNews_(rows)[0].taxonomia.map(row=>row.id),det);mode(c,'llm');assert.deepEqual(c.annotateNews_(rows)[0].taxonomia.map(row=>row.id),det);finish(c);
- assert.equal(c.annotateNews_(rows)[0].taxonomia.length,0);assert.deepEqual(c.annotateNews_(rows)[1].taxonomia.map(row=>row.id),det);
+ assert.deepEqual(c.annotateNews_(rows)[0].taxonomia.map(row=>row.id),det);assert.deepEqual(c.annotateNews_(rows)[1].taxonomia.map(row=>row.id),det);
  for(const view of ['briefing','news','radar']){assert.ok(c.dashboardSnapshotManifest_(view));c.verifyDashboardSnapshot_(view,c.dashboardSnapshotManifest_(view));assert.equal(c.getDashboard({view,initial:true}).performance.snapshotHit,true);}
  const selected=c.annotateNews_(rows);assert.equal(c.newsCsv_(selected,{},'es',true).count,1);
  assert.equal(c.selectAnnotatedNews_(selected,{palanca:c.taxonomyCatalog_().find(row=>row.id===det[0]).palanca}).length,1);
- const saved=c.llmState_().sheet;mode(c,'deterministic');finish(c);assert.equal(c.llmState_().sheet,saved);assert.deepEqual(c.annotateNews_(rows)[0].taxonomia.map(row=>row.id),det);
+ const saved=c.llmState_().sheet;assert.equal(c.llmState_().sheet,saved);assert.deepEqual(c.annotateNews_(rows)[0].taxonomia.map(row=>row.id),det);
 });
 test('fallo de snapshot y reintento conservan la generación anterior y completan solo tras verificar',()=>{
  const s=setup(),c=s.c,before=s.properties.DATA_GENERATION;c.importLlmResults(payload([result(c)]));c.dashboardSnapshotBatch_();c.dashboardSnapshotBatch_();const verify=c.verifyDashboardSnapshot_;c.verifyDashboardSnapshot_=(view,...args)=>{if(view==='radar')throw Error('Fallo simulado');return verify(view,...args);};
@@ -68,14 +68,14 @@ test('fallo de snapshot y reintento conservan la generación anterior y completa
 });
 test('cambios concurrentes del corpus invalidan resultados, reinician construcción y no mezclan modos',()=>{
  const s=setup(),c=s.c;c.importLlmResults(payload([result(c)]));c.dashboardSnapshotBatch_();c.newsSheet_().grid[1][5]+=' actualizado';c.invalidateNews_();finish(c);assert.equal(c.getLlmCategorization().valid,0);
- mode(c,'llm');assert.throws(()=>mode(c,'llm'),/publicándose/);finish(c);assert.equal(c.llmState_().mode,'llm');
+ assert.equal(c.llmState_().mode,undefined);
 });
 test('no se publica al fallar escritura/verificación y un reintento limpio funciona',()=>{
  const s=setup(),c=s.c,before=s.properties.DATA_GENERATION,write=c.writeStagedNewsRows_;c.writeStagedNewsRows_=()=>{throw Error('Cuota temporal');};assert.throws(()=>c.importLlmResults(payload([result(c)])),/Cuota/);assert.equal(s.properties.DATA_GENERATION,before);assert.equal(c.llmJob_(),null);c.writeStagedNewsRows_=write;c.importLlmResults(payload([result(c)]));finish(c);
 });
 test('autorización, URL persistente, conflicto de configuración y límites',()=>{
- const s=setup(),c=s.c,url='https://chatgpt.com/g/g-p-example';c.saveLlmCategorization({projectUrl:url,mode:'deterministic',revision:'0'});assert.equal(c.getLlmCategorization().projectUrl,url);
- assert.throws(()=>c.saveLlmCategorization({projectUrl:'javascript:alert(1)',mode:'llm',revision:'0'}),/URL/);assert.throws(()=>c.saveLlmCategorization({projectUrl:url,mode:'llm',revision:'old'}),/cambiado/);
+ const s=setup(),c=s.c,url='https://chatgpt.com/g/g-p-example';c.saveLlmCategorization({projectUrl:url,revision:'0'});assert.equal(c.getLlmCategorization().projectUrl,url);
+ assert.throws(()=>c.saveLlmCategorization({projectUrl:'javascript:alert(1)',revision:'0'}),/URL/);assert.throws(()=>c.saveLlmCategorization({projectUrl:url,revision:'old'}),/cambiado/);
  assert.throws(()=>c.importLlmResults({name:'x.exe',base64:'e30='}),/ZIP_STORED/);assert.throws(()=>c.importLlmResults({name:'x.json',base64:'a'.repeat(3*1024*1024)}),/cadena/);assert.throws(()=>c.importLlmResults({name:'x.json',base64:'!!!!'}),/base64/);
  assert.throws(()=>c.importLlmResults({name:'x.json',base64:Buffer.from('{broken').toString('base64')}),/JSON corrupto/);assert.throws(()=>c.importLlmResults(payload([])),/Lote vacío/);assert.throws(()=>c.importLlmResults(payload(Array(251).fill(result(c)))),/límite/);
  s.setEmail('employee@bbva.com');for(const op of [()=>c.getLlmCategorization(),()=>c.exportLlmPending(),()=>c.importLlmResults(payload([result(c)])),()=>mode(c,'llm')])assert.throws(op,/administrador/);
@@ -94,15 +94,15 @@ test('texto de instrucciones maliciosas se conserva como datos y las cadenas de 
  const exported=JSON.stringify(c.exportLlmPending().files);assert.ok(!exported.includes('OWNER_EMAIL'));assert.ok(!exported.includes('SPREADSHEET_ID'));
 });
 test('lecturas de la tabla LLM son en bloque, sin crecer por noticia ni por consumidor',()=>{
- const s=setup(100),c=s.c;c.importLlmResults(payload(c.rows_('Noticias').map(row=>result(c,row.id))));finish(c);mode(c,'llm');finish(c);
+ const s=setup(100),c=s.c;c.importLlmResults(payload(c.rows_('Noticias').map(row=>result(c,row.id))));finish(c);
  vm.runInContext('llmIndexMemory_=undefined',c);const sheet=s.sheets.get(c.llmState_().sheet),get=sheet.getRange;let reads=0;sheet.getRange=(...args)=>{reads++;return get(...args);};
  const rows=c.rows_('Noticias');c.annotateNews_(rows);c.annotateNews_(rows);assert.equal(reads,1);
 });
 test('nueva pestaña de administración guarda y refleja progreso sin cambiar filtros',async t=>{
- const status={total:10,valid:2,pending:8,percent:20,projectUrl:LLM_OFFLINE.projectUrl,mode:'deterministic',revision:'0',instructions:'Solo los lotes proporcionados',job:null,limits:{importBytes:2097152}};
+ const status={total:10,valid:2,pending:8,percent:20,projectUrl:LLM_OFFLINE.projectUrl,revision:'0',instructions:'Solo los lotes proporcionados',job:null,limits:{importBytes:2097152}};
  const a=await app(t,{configure({w,replies}){replies.getLlmCategorization=status;replies.saveLlmCategorization={...status,mode:'llm',job:{state:'Publicando'}};}});
  await a.click('[data-view="administration"]');await a.click('#admin-tab-llm');assert.equal(a.find('#llm-section').hidden,false);assert.match(a.find('#llm-count').textContent,/2 válidas \/ 8 pendientes \/ 10 total/);assert.equal(a.find('#llm-open-project').href,status.projectUrl);assert.equal(a.w.document.querySelector('#llm-copy-instructions'),null);assert.equal(a.w.document.querySelector('#llm-proposals'),null);assert.equal(a.find('#llm-instructions').closest('details').open,false);
- await a.change('#llm-mode','llm');await a.submit('#llm-settings-form');assert.equal(a.calls.find(row=>row.method==='saveLlmCategorization').query.mode,'llm');assert.match(a.find('#llm-job').textContent,/Publicando/);assert.equal(a.find('#llm-import').disabled,true);assert.equal(a.find('#llm-settings-form button[type=submit]').disabled,true);
+ assert.equal(a.w.document.querySelector('#llm-mode'),null);await a.submit('#llm-settings-form');assert.equal(a.calls.find(row=>row.method==='saveLlmCategorization').query.mode,undefined);assert.match(a.find('#llm-job').textContent,/Publicando/);assert.equal(a.find('#llm-import').disabled,true);assert.equal(a.find('#llm-settings-form button[type=submit]').disabled,true);
  await a.click('#admin-tab-runs');assert.equal(a.find('#llm-section').hidden,true);
 });
 
@@ -115,37 +115,37 @@ test('el cierre de otra generación no hace perder prioridad al job LLM frente a
 });
 
 test('la etiqueta visible del selector LLM refleja el modo persistido al abrir la pestaña',async t=>{
- const a=await app(t,{configure({replies}){replies.getLlmCategorization={total:2,valid:1,pending:1,percent:50,projectUrl:LLM_OFFLINE.projectUrl,mode:'llm',revision:'published',instructions:'Solo los lotes proporcionados',job:{state:'Completada'},limits:{importBytes:2097152}};}});
+ const a=await app(t,{configure({replies}){replies.getLlmCategorization={total:2,valid:1,pending:1,percent:50,projectUrl:LLM_OFFLINE.projectUrl,revision:'published',instructions:'Solo los lotes proporcionados',job:{state:'Completada'},limits:{importBytes:2097152}};}});
  await a.click('[data-view="administration"]');await a.click('#admin-tab-llm');
- assert.equal(a.find('#llm-mode').closest('.searchable-select').querySelector('summary').textContent,'LLM con fallback');
+ assert.equal(a.w.document.querySelector('#llm-mode'),null);
 });
 
 test('las citas LLM primarias llegan a la explicación visible y conservan las secundarias',async t=>{
- const {c}=setup();c.newsSheet_().grid[1][6]='Pagos inmediatos para empresas';c.invalidateNews_();
- const r=result(c),secondary=c.taxonomyCatalog_().find(row=>row.id!==r.primary).id;
- r.ids.push(secondary);r.evidence.push({id:secondary,quote:'Pagos inmediatos',source:'article'});
- c.importLlmResults(payload([r]));finish(c);mode(c,'llm');finish(c);
+ const {c}=setup();c.newsSheet_().grid[1][6]='Pagos internacionales para empresas';c.invalidateNews_();
+ const r=result(c),secondary=c.taxonomyCatalog_().find(row=>row.terminos.includes('pagos internacionales')).id;
+ r.ids.push(secondary);r.evidence.push({id:secondary,quote:'Pagos internacionales',source:'article'});
+ c.importLlmResults(payload([r]));finish(c);
  const row=c.annotateNews_(c.rows_('Noticias'))[0],evidence=row.functionalEvidence;
  assert.deepEqual(Array.from(evidence.terms),['login biométrico']);assert.equal(evidence.method,'literal');assert.equal(evidence.location,'headline');
- assert.equal(evidence.assignments.length,2);assert.equal(evidence.assignments[1].location,'text');assert.equal(evidence.assignments[1].terms[0],'Pagos inmediatos');
+ assert.equal(evidence.assignments.length,2);assert.equal(evidence.assignments[1].location,'text');assert.equal(evidence.assignments[1].terms[0],'Pagos internacionales');
  const a=await app(t,{configure({data}){data.briefing.items=JSON.parse(JSON.stringify([row]));data.briefing.total=1;}});
  assert.match(a.find('.novelty-card').textContent,/Por qué está clasificada aquí/);assert.match(a.find('.novelty-card details').textContent,/Coincidencia operativa directa · Titular/);assert.match(a.find('.novelty-card details').textContent,/login biométrico/);
 });
 
 test('la explicación LLM identifica las citas del extracto y no inventa evidencia para resultados vacíos',()=>{
- const {c}=setup();c.newsSheet_().grid[1][6]='Pagos inmediatos para empresas';c.invalidateNews_();
- const r=result(c);r.evidence[0].quote='Pagos inmediatos';c.importLlmResults(payload([r,result(c,'news-1',true)]));finish(c);mode(c,'llm');finish(c);
- const rows=c.annotateNews_(c.rows_('Noticias'));assert.equal(rows[0].functionalEvidence.location,'text');assert.equal(rows[0].functionalEvidence.terms[0],'Pagos inmediatos');assert.equal(rows[1].functionalEvidence.terms,undefined);assert.equal(rows[1].functionalEvidence.assignments.length,0);
+ const {c}=setup();c.newsSheet_().grid[1][6]='Pagos internacionales para empresas';c.invalidateNews_();
+ const r=result(c);r.ids=[c.taxonomyCatalog_().find(row=>row.terminos.includes('pagos internacionales')).id];r.primary=r.ids[0];r.evidence=[{id:r.primary,quote:'Pagos internacionales',source:'article'}];c.importLlmResults(payload([r,result(c,'news-1',true)]));finish(c);
+ const rows=c.annotateNews_(c.rows_('Noticias'));assert.equal(rows[0].functionalEvidence.location,'text');assert.equal(rows[0].functionalEvidence.terms[0],'Pagos internacionales');assert.ok(rows[1].functionalEvidence.assignments.length>0);
 });
 
 function webResult(c,id='news-0'){
  const r=result(c,id),row=c.rows_('Noticias').find(row=>row.id===id);
- r.sources=[{id:'editor',url:'https://publisher.example.com/canonical',articleUrl:row.url,retrievedAt:'2026-10-10T12:00:00Z',passage:'La banca empresarial estrena autorización biométrica y transferencias inmediatas.'}];
- r.evidence[0]={id:r.primary,quote:'autorización biométrica',source:'editor'};return r;
+ r.sources=[{id:'editor',url:'https://publisher.example.com/canonical',articleUrl:row.url,retrievedAt:'2026-10-10T12:00:00Z',passage:'La banca empresarial estrena login biométrico y transferencias inmediatas.'}];
+ r.evidence[0]={id:r.primary,quote:'estrena login biométrico',source:'editor'};return r;
 }
 test('evidencia web se valida contra el pasaje aportado, conserva procedencia y se muestra como externa',async t=>{
  const {c}=setup(),r=webResult(c);assert.ok(!c.llmArticle_(c.rows_('Noticias')[0]).titulo.includes(r.evidence[0].quote));
- c.importLlmResults(payload([r]));finish(c);mode(c,'llm');finish(c);
+ c.importLlmResults(payload([r]));finish(c);
  const row=c.annotateNews_(c.rows_('Noticias'))[0];assert.equal(row.functionalEvidence.method,'external');assert.equal(row.functionalEvidence.url,r.sources[0].url);
  const a=await app(t,{configure({data}){data.briefing.items=JSON.parse(JSON.stringify([row]));data.briefing.total=1;}});
  assert.match(a.find('.novelty-card details').textContent,/Evidencia web aportada · Texto del editor/);assert.equal(a.find('.novelty-card details a').href,r.sources[0].url);
@@ -169,11 +169,11 @@ test('propuestas separadas se agrupan por concepto, conservan evidencia y nunca 
  s.setEmail('employee@bbva.com');assert.throws(()=>c.exportLlmPending(),/administrador/);
 });
 test('correcciones usan revisión previa, reintentos idempotentes y conservan la asignación anterior hasta la barrera',()=>{
- const s=setup(),c=s.c;const original=result(c);c.importLlmResults(payload([original]));finish(c);mode(c,'llm');finish(c);
+ const s=setup(),c=s.c;const original=result(c);c.importLlmResults(payload([original]));finish(c);
  const before=s.properties.DATA_GENERATION,correction=result(c,'news-0',true);assert.ok(correction.replaces);c.importLlmResults(payload([correction]));
  assert.equal(s.properties.DATA_GENERATION,before);assert.equal(c.annotateNews_(c.rows_('Noticias'))[0].taxonomia.length,1);assert.equal(c.importLlmResults(payload([correction])).duplicates,1);
  assert.throws(()=>c.importLlmResults(payload([original])),/conflictivo/);finish(c);
- assert.equal(c.annotateNews_(c.rows_('Noticias'))[0].taxonomia.length,0);assert.equal(c.importLlmResults(payload([correction])).duplicates,1);
+ assert.ok(c.annotateNews_(c.rows_('Noticias'))[0].taxonomia.length>0);assert.equal(c.importLlmResults(payload([correction])).duplicates,1);
  const improved=webResult(c);c.importLlmResults(payload([improved]));finish(c);assert.equal(c.getLlmCategorization().classified,1);assert.equal(c.getLlmCategorization().abstained,0);
  assert.throws(()=>c.importLlmResults(payload([correction])),/conflictivo/);
 });
@@ -185,8 +185,8 @@ test('exportación permite reprocesar abstenciones y todas con hashes previos si
  assert.throws(()=>c.exportLlmPending({selection:'invalid'}),/Selección/);assert.throws(()=>c.exportLlmPending({selection:'all',revision:c.exportLlmPending().revision}),/cambiado/);
 });
 test('fuera de alcance prevalece, un resultado corrupto o una revisión obsoleta recuperan el determinista',()=>{
- const {c}=setup(),rows=c.rows_('Noticias'),det=c.effectiveTaxonomyAssignment_(rows[0]).ids;const r=result(c,'news-0',true);r.status='out_of_scope';c.importLlmResults(payload([r]));finish(c);mode(c,'llm');finish(c);
- assert.equal(c.effectiveTaxonomyAssignment_(rows[0]).ids.length,0);assert.equal(c.getLlmCategorization().outOfScope,1);
+ const {c}=setup(),rows=c.rows_('Noticias'),det=c.effectiveTaxonomyAssignment_(rows[0]).ids;const r=result(c,'news-0',true);r.status='out_of_scope';c.importLlmResults(payload([r]));finish(c);
+ assert.deepEqual(c.effectiveTaxonomyAssignment_(rows[0]).ids,det);assert.equal(c.getLlmCategorization().outOfScope,1);
  const index=c.llmIndex_(),saved=index.get(rows[0].id);index.set(rows[0].id,{...saved,contentHash:'old'});assert.deepEqual(c.effectiveTaxonomyAssignment_(rows[0]).ids,det);
  index.set(rows[0].id,null);assert.deepEqual(c.effectiveTaxonomyAssignment_(rows[0]).ids,det);
 });
@@ -214,7 +214,7 @@ test('el orden de propiedades JSON no crea correcciones ni conflictos al repetir
 });
 
 test('jobs de reclasificación, taxonomía y mantenimiento conservan LLM independiente y publican vistas coherentes',()=>{
- const {c}=setup();c.importLlmResults(payload([webResult(c)]));finish(c);mode(c,'llm');finish(c);const llmSheet=c.llmState_().sheet,originalTaxonomy=c.rows_('Noticias')[0].taxonomia;
+ const {c}=setup();c.importLlmResults(payload([webResult(c)]));finish(c);const llmSheet=c.llmState_().sheet,originalTaxonomy=c.rows_('Noticias')[0].taxonomia;
  const workflows=[{start:()=>c.requestNewsClassification_(true),step:()=>c.newsClassificationBatch_(),job:()=>c.classificationJob_()},{start:()=>c.startTaxonomy(),step:()=>c.taxonomyBatch_(),job:()=>c.taxonomyJob_()},{start:()=>c.maintenance_(true),step:()=>c.maintenanceBatch_(),job:()=>c.maintenanceJob_()}];
  for(const workflow of workflows){
   const before=JSON.stringify(c.dataGeneration_());workflow.start();for(let i=0;i<30&&workflow.job().state!=='Publicando';i++)workflow.step();assert.equal(workflow.job().state,'Publicando');assert.equal(JSON.stringify(c.dataGeneration_()),before);
@@ -245,7 +245,7 @@ test('una descarga reúne ZIP autónomos numerados; cada catálogo permite proce
  const zip=llmZipWriter();zip.add({name:'x.json',text:'{}'});assert.throws(()=>zip.add({name:'x.json',text:'{}'}),/ZIP/);
 });
 test('la interfaz descarga una vez al terminar y no descarga archivos parciales si falla',async t=>{
- const status={total:2,valid:0,pending:2,percent:0,projectUrl:LLM_OFFLINE.projectUrl,mode:'deterministic',revision:'0',instructions:'Contexto común',job:null,limits:{importBytes:2097152}},downloads=[],blobs=[];let page=0,fail=false;
+ const status={total:2,valid:0,pending:2,percent:0,projectUrl:LLM_OFFLINE.projectUrl,revision:'0',instructions:'Contexto común',job:null,limits:{importBytes:2097152}},downloads=[],blobs=[];let page=0,fail=false;
  const a=await app(t,{configure({w,replies}){
   replies.getLlmCategorization=status;w.TextEncoder=TextEncoder;w.URL.createObjectURL=blob=>{blobs.push(blob);return 'blob:test';};w.HTMLAnchorElement.prototype.click=function(){downloads.push(this.download);};
   const backend=w.RADAR_PREVIEW.call;w.RADAR_PREVIEW.call=async(method,query)=>{if(method!=='exportLlmPending')return backend(method,query);page++;if(fail&&page%2===0)throw Error('Fallo temporal');return {revision:'same',cursor:page%2?3:4,done:page%2===0,count:1,progress:page%2?50:100,files:[{name:'manifest.json',text:'{"schemaVersion":2,"sourceRevision":"same"}'},{name:'context.json',text:'{}'},{name:'instructions.md',text:'Contexto'},{name:'1_1.json',text:'{}'}],review:page===1?{name:'proposals.json',text:'{}'}:null};};
@@ -262,7 +262,7 @@ test('el porcentaje de publicación avanza con cada snapshot y llega a 100 solo 
  c.dashboardSnapshotBatch_();assert.equal(c.llmJob_().progress,100);assert.equal(c.llmJob_().state,'Completada');assert.equal(c.getLlmCategorization().valid,1);
 });
 test('importación muestra avance por archivo y espera las tres vistas antes del 100 %',async t=>{
- const status={total:2,valid:0,pending:2,percent:0,projectUrl:LLM_OFFLINE.projectUrl,mode:'deterministic',revision:'0',instructions:'Contexto',job:null,limits:{importBytes:2097152}},observed=[];let reads=0,imports=0;
+ const status={total:2,valid:0,pending:2,percent:0,projectUrl:LLM_OFFLINE.projectUrl,revision:'0',instructions:'Contexto',job:null,limits:{importBytes:2097152}},observed=[];let reads=0,imports=0;
  const a=await app(t,{configure({w,replies}){
   replies.getLlmCategorization=status;const timeout=w.setTimeout.bind(w);w.setTimeout=(fn,delay,...args)=>delay===5000?(queueMicrotask(fn),0):timeout(fn,delay,...args);
   const backend=w.RADAR_PREVIEW.call;w.RADAR_PREVIEW.call=async(method,query)=>{
@@ -276,4 +276,16 @@ test('importación muestra avance por archivo y espera las tres vistas antes del
  await a.change('#llm-import','');
  assert.equal(imports,2);assert.equal(reads,6);assert.ok(observed.every(p=>p.value<100));assert.deepEqual(observed.map(p=>Math.round(p.value)),[13,25,38,63,75,88]);assert.ok(observed.every(p=>p.label.includes('Publicando Novedades, Noticias y Radar')));
  assert.equal(a.find('#llm-transfer-progress').value,100);assert.match(a.find('#llm-transfer-label').textContent,/Importación completada · 100 %/);
+});
+
+test('decisión canónica: positivo fuerte, abstención, evidencia débil y exclusión editorial demostrada',()=>{
+ const {c}=setup(),rows=c.rows_('Noticias'),det=JSON.stringify(c.effectiveTaxonomyAssignment_(rows[0]).ids);
+ c.importLlmResults(payload([result(c)]));finish(c);assert.equal(c.effectiveTaxonomyAssignment_(rows[0]).evidence.terms[0],'login biométrico');
+ const saved=c.llmIndex_().get(rows[0].id),weak=JSON.parse(JSON.stringify(saved));weak.ids=[c.taxonomyCatalog_().find(row=>row.subpalanca.includes('17.01.')).id];weak.primary=weak.ids[0];weak.evidence[0].id=weak.primary;c.llmIndex_().set(rows[0].id,weak);
+ assert.equal(JSON.stringify(c.effectiveTaxonomyAssignment_(rows[0]).ids),det);
+ const exclusion=result(c,'news-0',true);exclusion.status='out_of_scope';exclusion.sources=[{id:'editor',url:'https://publisher.example.com/results',articleUrl:rows[0].url,retrievedAt:'2026-10-10T12:00:00Z',passage:'BBVA anuncia resultados trimestrales y dividendos para los accionistas del banco.'}];
+ c.llmIndex_().set(rows[0].id,{...exclusion,updatedAt:new Date().toISOString()});assert.equal(c.effectiveTaxonomyAssignment_(rows[0]).editorialExcluded,true);assert.equal(c.annotateNews_(rows).some(row=>row.id===rows[0].id),false);assert.equal(rows[0].taxonomia,c.rows_('Noticias')[0].taxonomia);
+});
+test('lote masivo sin clasificación ni investigación queda señalado para revisión',()=>{
+ const {c}=setup(25);c.importLlmResults(payload(c.rows_('Noticias').map(row=>result(c,row.id,true))));assert.equal(c.llmJob_().reviewRequired,true);finish(c);assert.equal(c.llmJob_().reviewRequired,true);
 });

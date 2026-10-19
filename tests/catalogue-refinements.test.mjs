@@ -35,8 +35,8 @@ test('las nuevas funciones entran en la búsqueda acotada sin un despliegue y el
 
 test('TF-IDF admite agentes y depósitos tokenizados solo tras evidencia recurrente y conserva un ganador',async()=>{
  const {taxonomyObserve,taxonomyBuild}=await import('../src/shared/taxonomy.js');
- for(const [phrase,code] of [['DBS rolls out agentic AI to automate corporate banking','17.xx Agentes de IA'],['ANZ completes tokenised deposit transactions','02.xx Depósitos tokenizados']]){
-  const state={documents:0,candidates:{}};for(let i=0;i<2;i++)taxonomyObserve(state,taxonomyText(phrase),definitions,new Set(),'Medio '+i);assert.ok(!taxonomyBuild(state).some(row=>row.subpalanca===code));
+ for(const [phrase,code] of [['DBS rolls out agentic AI to automate corporate banking','17.xx Otros'],['ANZ completes tokenised deposit transactions','02.xx Otros']]){
+  const state={documents:0,candidates:{}};for(let i=0;i<2;i++)taxonomyObserve(state,taxonomyText(phrase),definitions,new Set(),'Medio '+i);assert.ok(taxonomyBuild(state).some(row=>row.subpalanca===code));
   taxonomyObserve(state,taxonomyText(phrase),definitions,new Set(),'Medio 2');const model=taxonomyBuild(state);assert.ok(model.some(row=>row.subpalanca===code));const matches=taxonomyMatches(taxonomyText(phrase),model,phrase);assert.equal(matches.length,1);assert.equal(matches[0].row.subpalanca,code);
  }
 });

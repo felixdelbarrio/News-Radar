@@ -14,7 +14,7 @@ test('Taxonomía muestra jerarquía, paginación, progreso único y lanzamiento 
     replies.getTaxonomyStatus={scheduled:true,hour:7,minute:45,timezone:'Europe/Madrid',items,job:null};
   }});
   await a.click('[data-view="administration"]');await a.click('[data-admin-view="taxonomy"]');
-  assert.equal(a.find('#taxonomy-section').hidden,false);assert.match(a.find('#taxonomy-schedule').textContent,/newsletters trimestrales/);assert.match(a.find('#taxonomy-count').textContent,/2 bloques funcionales · 2 funcionalidades/);
+  assert.equal(a.find('#taxonomy-section').hidden,false);assert.equal(a.w.document.querySelector('#taxonomy-schedule'),null);assert.match(a.find('#taxonomy-count').textContent,/2 bloques funcionales · 2 funcionalidades/);
   assert.equal(a.find('#taxonomy-body').querySelectorAll('tr').length,2);assert.match(a.find('#taxonomy-body').textContent,/Pagos biométricos/);assert.match(a.find('#taxonomy-body').textContent,/Empresas · Retail/);
   await a.change('#taxonomy-palanca','Pagos y cobros');assert.equal(a.find('#taxonomy-body').querySelectorAll('tr').length,1);
   a.replies.getTaxonomyStatus.job={total:100,processed:30,tagged:0,state:'En curso',updated:'2026-10-12T06:00:00Z'};await a.click('#taxonomy-start');

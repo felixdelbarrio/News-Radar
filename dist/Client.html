@@ -59,6 +59,8 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Solo una clasificaci\xF3n LLM vigente con evidencia fuerte sustituye al determinista; las abstenciones y los resultados d\xE9biles conservan el determinista.": ["Only a current LLM classification with strong evidence replaces the deterministic result; abstentions and weak results retain it.", "Yaln\u0131zca g\xFC\xE7l\xFC kan\u0131ta sahip g\xFCncel LLM s\u0131n\u0131fland\u0131rmas\u0131 kural tabanl\u0131 sonucu de\u011Fi\u015Ftirir; \xE7ekimserlik ve zay\u0131f sonu\xE7lar mevcut sonucu korur."],
+    "Maestro de Drive de solo lectura. News Radar conserva un espejo para clasificar y mantiene una \xFAnica entrada Otros por bloque, exclusivamente local.": ["Read-only Drive master. News Radar keeps a classification mirror and one local Other entry per block.", "Drive ana katalo\u011Fu salt okunurdur. News Radar s\u0131n\u0131fland\u0131rma kopyas\u0131n\u0131 ve her blok i\xE7in tek bir yerel Di\u011Fer girdisini tutar."],
     "{phase} \xB7 {percent} %": ["{phase} \xB7 {percent} %", "{phase} \xB7 %{percent}"],
     "Preparando descarga": ["Preparing download", "\u0130ndirme haz\u0131rlan\u0131yor"],
     "Descarga preparada": ["Download ready", "\u0130ndirme haz\u0131r"],
@@ -69,7 +71,6 @@
     "Progreso de transferencia LLM": ["LLM transfer progress", "LLM aktar\u0131m ilerlemesi"],
     "Selecci\xF3n de exportaci\xF3n no v\xE1lida.": ["Invalid export selection.", "Ge\xE7ersiz d\u0131\u015Fa aktarma se\xE7imi."],
     "Propuestas demasiado grandes para una descarga; revisa la hoja de categorizaci\xF3n.": ["Proposals exceed the download limit; review the categorization sheet.", "\xD6neriler indirme s\u0131n\u0131r\u0131n\u0131 a\u015F\u0131yor; s\u0131n\u0131fland\u0131rma sayfas\u0131n\u0131 inceleyin."],
-    "Una abstenci\xF3n expl\xEDcita v\xE1lida deja la noticia sin asignaci\xF3n en modo LLM.": ["A valid explicit abstention leaves the article unassigned in LLM mode.", "Ge\xE7erli bir a\xE7\u0131k \xE7ekimserlik, LLM modunda haberi s\u0131n\u0131fland\u0131r\u0131lmam\u0131\u015F b\u0131rak\u0131r."],
     "Noticias que exportar": ["Articles to export", "D\u0131\u015Fa aktar\u0131lacak haberler"],
     "Pendientes y abstenciones": ["Pending and abstained articles", "Bekleyen ve \xE7ekimser kal\u0131nan haberler"],
     "Todas para revisi\xF3n": ["All articles for review", "\u0130nceleme i\xE7in t\xFCm haberler"],
@@ -81,14 +82,12 @@
     "Categorizaci\xF3n LLM": ["LLM categorization", "LLM s\u0131n\u0131fland\u0131rmas\u0131"],
     "Clasificaci\xF3n offline en un proyecto GPT. Descarga los pendientes, procesa los lotes y vuelve a importar los JSON o ZIP_STORED. Las noticias sin resultado v\xE1lido conservan la clasificaci\xF3n determinista.": ["Offline classification in a GPT project. Download pending articles, process the batches and import JSON or ZIP_STORED results. Articles without valid results retain deterministic classification.", "Bir GPT projesinde \xE7evrimd\u0131\u015F\u0131 s\u0131n\u0131fland\u0131rma. Bekleyen haberleri indirin, gruplar\u0131 i\u015Fleyin ve JSON veya ZIP_STORED sonu\xE7lar\u0131n\u0131 i\xE7e aktar\u0131n. Ge\xE7erli sonucu olmayan haberler kural tabanl\u0131 s\u0131n\u0131fland\u0131rmay\u0131 korur."],
     "Proyecto GPT": ["GPT project", "GPT projesi"],
-    "Selecci\xF3n de categor\xEDas": ["Category selection", "Kategori se\xE7imi"],
-    Determinista: ["Deterministic", "Kural tabanl\u0131"],
-    "LLM con fallback": ["LLM with fallback", "Kural tabanl\u0131 yedek ile LLM"],
     "Abrir proyecto": ["Open project", "Projeyi a\xE7"],
     "Importar resultados": ["Import results", "Sonu\xE7lar\u0131 i\xE7e aktar"],
     "M\xE1ximo 250 resultados y 2 MiB por importaci\xF3n. ZIP sin compresi\xF3n (ZIP_STORED), sin carpetas ni archivos extra. Puedes importar JSON por lote si la interfaz de ChatGPT no permite usar ZIP. El progreso se actualiza tras publicar los snapshots de las tres vistas.": ["Up to 250 results and 2 MiB per import. Uncompressed ZIP (ZIP_STORED), without folders or extra files. Import JSON by batch if the ChatGPT interface does not support ZIP. Progress updates after snapshots for all three views are published.", "Her i\xE7e aktarmada en fazla 250 sonu\xE7 ve 2 MiB. Klas\xF6r veya ek dosya i\xE7ermeyen s\u0131k\u0131\u015Ft\u0131r\u0131lmam\u0131\u015F ZIP (ZIP_STORED). ChatGPT aray\xFCz\xFC ZIP desteklemiyorsa grup ba\u015F\u0131na JSON i\xE7e aktar\u0131n. \u0130lerleme, \xFC\xE7 g\xF6r\xFCn\xFCm\xFCn anl\u0131k g\xF6r\xFCnt\xFCleri yay\u0131mland\u0131ktan sonra g\xFCncellenir."],
     "Categorizaci\xF3n LLM offline de News Radar": ["Offline LLM categorization in News Radar", "News Radar \xE7evrimd\u0131\u015F\u0131 LLM s\u0131n\u0131fland\u0131rmas\u0131"],
     "Progreso de categorizaci\xF3n LLM": ["LLM categorization progress", "LLM s\u0131n\u0131fland\u0131rma ilerlemesi"],
+    "Revisi\xF3n editorial necesaria": ["Editorial review required", "Editoryal inceleme gerekli"],
     "Configuraci\xF3n guardada.": ["Settings saved.", "Ayarlar kaydedildi."],
     "La descarga no ha avanzado.": ["The download has not advanced.", "\u0130ndirme ilerlemedi."],
     "Selecciona JSON o ZIP de hasta 2 MiB.": ["Select JSON or ZIP up to 2 MiB.", "En fazla 2 MiB JSON veya ZIP se\xE7in."],
@@ -162,7 +161,6 @@
     "Se utiliza el \xFAltimo espejo del cat\xE1logo.": ["The latest catalogue mirror is used.", "Katalo\u011Fun son aynas\u0131 kullan\u0131l\u0131r."],
     "Descripci\xF3n funcional no v\xE1lida.": ["Invalid functional description.", "\u0130\u015Flev a\xE7\u0131klamas\u0131 ge\xE7ersiz."],
     "Los c\xF3digos y nombres oficiales se actualizan exclusivamente desde el cat\xE1logo maestro.": ["Official codes and names are updated exclusively from the master catalogue.", "Resm\xEE kodlar ve adlar yaln\u0131zca ana katalogdan g\xFCncellenir."],
-    "Revisi\xF3n del cat\xE1logo antes de las newsletters trimestrales \xB7 {state}": ["Catalogue review before quarterly newsletters \xB7 {state}", "\xDC\xE7 ayl\u0131k b\xFCltenlerden \xF6nce katalog incelemesi \xB7 {state}"],
     "Mirada internacional": ["International outlook", "Uluslararas\u0131 g\xF6r\xFCn\xFCm"],
     "Trending topics en {country}.": ["Trending topics in {country}.", "{country} i\xE7in \xF6ne \xE7\u0131kan konular."],
     "{count} noticias m\xE1s en este \xE1mbito": ["{count} more articles for this scope", "Bu kapsamda {count} haber daha"],
@@ -1499,7 +1497,7 @@
   function createLlmCategorization({ run, isActive, onRevision, refreshSelects: refreshSelects2 }) {
     let state2, timer, closed = !0, transferring = !1;
     function render(data) {
-      state2 = data, $("llm-project-url").value = data.projectUrl, $("llm-open-project").href = data.projectUrl, $("llm-mode").value = data.mode, $("llm-count").textContent = t("{valid} v\xE1lidas / {pending} pendientes / {total} total \xB7 {percent} %", data), $("llm-progress").value = data.percent, $("llm-instructions").textContent = data.instructions, $("llm-job").textContent = data.job ? `${t(data.job.state)}${data.job.state === "Publicando" ? " \xB7 " + data.job.progress + " %" : ""}${data.job.error ? " \xB7 " + data.job.error : ""}` : "";
+      state2 = data, $("llm-project-url").value = data.projectUrl, $("llm-open-project").href = data.projectUrl, $("llm-count").textContent = t("{valid} v\xE1lidas / {pending} pendientes / {total} total \xB7 {percent} %", data), $("llm-progress").value = data.percent, $("llm-instructions").textContent = data.instructions, $("llm-job").textContent = data.job ? `${t(data.job.state)}${data.job.state === "Publicando" ? " \xB7 " + data.job.progress + " %" : ""}${data.job.error ? " \xB7 " + data.job.error : ""}${data.job.reviewRequired ? " \xB7 " + t("Revisi\xF3n editorial necesaria") : ""}` : "";
       let pending = data.job?.state === "Publicando";
       for (let el of [$("llm-settings-form").querySelector("button[type=submit]"), $("llm-import")])
         el.disabled = pending, el.dataset.jobActive = String(pending);
@@ -1535,7 +1533,7 @@
       /^https:\/\/chatgpt\.com\/g\/g-p-[a-zA-Z0-9-]+\/?$/.test(value) ? $("llm-open-project").href = value : $("llm-open-project").removeAttribute("href");
     }), $("llm-settings-form").addEventListener("submit", (event) => {
       event.preventDefault(), run(async () => {
-        render(await call("saveLlmCategorization", { projectUrl: $("llm-project-url").value.trim(), mode: $("llm-mode").value, revision: state2.revision })), message("Configuraci\xF3n guardada.");
+        render(await call("saveLlmCategorization", { projectUrl: $("llm-project-url").value.trim(), revision: state2.revision })), message("Configuraci\xF3n guardada.");
       }, !1);
     }), $("llm-download").addEventListener("click", () => run(() => transfer(async () => {
       progress(t("Preparando descarga"), 0);
@@ -1970,7 +1968,7 @@
       let source = JSON.stringify([data.configurationRevision, data.catalogUrl]);
       source !== sourceSignature && (sourceSignature = source, revision = data.configurationRevision, $("taxonomy-catalog-url").value = data.catalogUrl || ""), $("taxonomy-catalog-status").textContent = data.job?.catalog?.error ? t("No se pudo revisar Drive; se utiliza el cat\xE1logo guardado. ") + data.job.catalog.error : data.synced ? t("\xDAltima lectura del maestro: {date}", { date: date(data.synced) }) : data.catalogUrl ? t("Se revisar\xE1 Drive al iniciar la actualizaci\xF3n.") : t("Se utiliza el cat\xE1logo guardado.");
       let job = data.job, total = Number(job?.workTotal ?? Number(job?.total || 0) * 2), done = Number(job?.processed || 0);
-      $("taxonomy-schedule").textContent = t("Revisi\xF3n del cat\xE1logo antes de las newsletters trimestrales \xB7 {state}", { state: t(data.scheduled ? "Activada" : "Desactivada") }), $("taxonomy-progress").innerHTML = job ? jobProgressHtml(job, { total, done, label: "Progreso de cat\xE1logo global de funcionalidades", queued: data.queued, summary: t("{done}/{total} pasos de an\xE1lisis y etiquetado; {tagged} etiquetas actualizadas.", { done, total, tagged: job.tagged }) }) : '<p class="muted">' + t(data.queued ? "En cola" : "Sin actualizaciones del cat\xE1logo ejecutadas.") + "</p>";
+      $("taxonomy-progress").innerHTML = job ? jobProgressHtml(job, { total, done, label: "Progreso de cat\xE1logo global de funcionalidades", queued: data.queued, summary: t("{done}/{total} pasos de an\xE1lisis y etiquetado; {tagged} etiquetas actualizadas.", { done, total, tagged: job.tagged }) }) : '<p class="muted">' + t(data.queued ? "En cola" : "Sin actualizaciones del cat\xE1logo ejecutadas.") + "</p>";
       let next = JSON.stringify([data.items, data.pageSize, data.taxonomyTranslations, language]);
       next !== signature && (signature = next, items = data.items, pageSize = data.pageSize, filters5.options(recordOptions(items, ["palanca"])), render());
     } });
