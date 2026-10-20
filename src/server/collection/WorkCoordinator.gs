@@ -17,7 +17,6 @@ function withForegroundWrite_(operation){
   const properties=properties_(),intent='WORK_INTENT:'+Utilities.getUuid(),lock=LockService.getScriptLock();let acquired=false;
   try{
     properties.setProperty(intent,String(Date.now()+WORK_COORDINATION.leaseMs));
-    scheduleWorkWake_(WORK_COORDINATION.leaseMs);
     for(const [handler,name] of [['backgroundTick_','background'],['newsletterTick_','newsletter']])if(scheduledTriggers_(handler).length)deferBackgroundWork_(name);
     if(!lock.tryLock(WORK_COORDINATION.waitMs))throw Error('El trabajo activo aún no ha liberado el bloqueo. Vuelve a intentarlo cuando termine su llamada en curso.');
     acquired=true;return operation();
@@ -34,13 +33,14 @@ function workWake_(){
   const lock=LockService.getScriptLock();let acquired=false;
   try{
     if(!lock.tryLock(1000)){scheduleWorkWake_(WORK_COORDINATION.resumeMs);return;}acquired=true;
-    if(backgroundPaused_()){scheduleWorkWake_(WORK_COORDINATION.resumeMs);return;}
+    const properties=properties_(),values=properties.getProperties(),now=Date.now();
+    if(Object.entries(values).some(([key,value])=>key.startsWith('WORK_INTENT:')&&Number(value)>now)){scheduleWorkWake_(WORK_COORDINATION.resumeMs);return;}
     scheduledTriggers_('workWake_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
-    for(const [key,value] of Object.entries(properties_().getProperties()))if(key.startsWith('WORK_INTENT:')&&Number(value)<=Date.now())properties_().deleteProperty(key);
-    workPauseCheck_=undefined;
-    const pending=Object.keys(properties_().getProperties()).filter(key=>key.startsWith('WORK_PENDING:'));
+    for(const [key,value] of Object.entries(values))if(key.startsWith('WORK_INTENT:')&&Number(value)<=Date.now())properties_().deleteProperty(key);
+    workPauseCheck_={checked:now,until:0};
+    const pending=Object.keys(values).filter(key=>key.startsWith('WORK_PENDING:'));
     for(const key of pending){
-      if(backgroundPaused_()){scheduleWorkWake_(WORK_COORDINATION.resumeMs);return;}
+      if(backgroundPaused_(true)){scheduleWorkWake_(WORK_COORDINATION.resumeMs);return;}
       const name=key.slice('WORK_PENDING:'.length);
       if(name==='daily')requestDailyPipeline_();
       else if(name==='classification'){properties_().setProperty('CLASSIFICATION_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}

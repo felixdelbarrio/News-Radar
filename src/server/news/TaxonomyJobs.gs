@@ -23,6 +23,7 @@ function taxonomyPending_(){const job=taxonomyJob_();return Boolean(job&&job.sta
 function taxonomyReadyAt_(){const job=taxonomyJob_();return job&&!['Completada','Publicando'].includes(job.state)?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
 function writeTaxonomyJob_(job){progressContextMemory_=undefined;properties_().setProperty('TAXONOMY_JOB',JSON.stringify(snapshotJob_('TAXONOMY_JOB',job)));}
 function requestTaxonomy_(request=''){
+  discardJobTargets_(taxonomyJob_(),'taxonomy');
   const catalog=refreshFunctionalCatalog_();
   const lastRow=newsSheet_().getLastRow(),candidateTotal=Math.max(0,candidateSheet_().getLastRow()-1),total=Math.max(0,lastRow-1),now=new Date().toISOString();
   const id=Utilities.getUuid(),canonical=request==='canonical:'+TAXONOMY_POLICY.version,scanWork=canonical?0:total+candidateTotal;
@@ -53,7 +54,10 @@ function taxonomyCheckpoint_(job){
 function writeTaxonomyCheckpoint_(job,state){
   const chunks=taxonomyCheckpointChunks_(Object.values(state.candidates),TAXONOMY_POLICY.checkpointRows),titleChunks=taxonomyCheckpointChunks_(Object.entries(state.titles||{}));
   const meta={id:job.id,next:state.next,documents:state.documents,cursor:state.cursor||null,size:state.size,candidateNext:state.candidateNext||2,chunks:chunks.length,titleChunks:titleChunks.length};
-  book_().getSheetByName('TaxonomiaTrabajo').getRange(2,1,chunks.length+titleChunks.length+1,1).setNumberFormat('@').setValues([[JSON.stringify(meta)],...chunks,...titleChunks]);
+  const sheet=book_().getSheetByName('TaxonomiaTrabajo'),values=[[JSON.stringify(meta)],...chunks,...titleChunks],lastWrittenRow=values.length+1;
+  if(lastWrittenRow>sheet.getMaxRows())sheet.insertRowsAfter(sheet.getMaxRows(),lastWrittenRow-sheet.getMaxRows());
+  sheet.getRange(2,1,values.length,1).setNumberFormat('@').setValues(values);
+  if(sheet.getLastRow()>lastWrittenRow)sheet.getRange(lastWrittenRow+1,1,sheet.getLastRow()-lastWrittenRow,1).clearContent();
 }
 function taxonomyCheckpointChunks_(entries,maxRows=Infinity){
   const chunks=[];let values=[],size=2;

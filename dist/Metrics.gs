@@ -1,6 +1,6 @@
 function eventDuration_(value){return Math.max(0,Math.min(3600000,Math.round(Number(value)||0)));}
 function telemetry_(operation,duration,status,detail) {
-  append_('Telemetria',[[new Date().toISOString(),operation,Math.max(0,Math.round(duration)),status,('v'+RADAR.version+'; '+String(detail||'')).slice(0,300)]]);
+  try{append_('Telemetria',[[new Date().toISOString(),operation,Math.max(0,Math.round(duration)),status,('v'+RADAR.version+'; '+String(detail||'')).slice(0,300)]]);}catch(error){console.warn(String(error.message||error));}
 }
 function recordEvents(events) {
   const session=authorize_(),now=new Date();

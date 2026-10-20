@@ -22,10 +22,12 @@ function translationIdentityRows_(rows){
   rows.forEach(row=>{row.identityTitles=titles.size?(titles.get(articleFingerprint_(row.original||row))||[]):[];});
   return rows;
 }
+function articleTranslationIndexKey_(){return 'article-index:'+sha256_(JSON.stringify([book_().getSheetByName('Traducciones').getLastRow(),properties_().getProperty('TRANSLATIONS_INDEX_REVISION')||'0',Object.keys(languageNames).map(language=>properties_().getProperty('TRANSLATIONS_REVISION:'+language)||'0')]));}
 function articleTranslationIndex_(){
   if(articleTranslationRows_)return articleTranslationRows_;
-  const sheet=book_().getSheetByName('Traducciones'),count=sheet.getLastRow()-1;
-  return articleTranslationRows_=new Map(count?sheet.getRange(2,1,count,1).getDisplayValues().map(([key],index)=>[key,index+2]):[]);
+  const key=articleTranslationIndexKey_(),cache=CacheService.getScriptCache(),cached=readDashboardCache_(cache,key);if(cached)return articleTranslationRows_=new Map(cached);
+  const sheet=book_().getSheetByName('Traducciones'),count=sheet.getLastRow()-1,entries=count?sheet.getRange(2,1,count,1).getDisplayValues().map(([key],index)=>[key,index+2]):[];
+  writeDashboardCache_(cache,key,entries);return articleTranslationRows_=new Map(entries);
 }
 function cachedArticleTranslations_(keys){
   articleTranslationMemory_=articleTranslationMemory_||new Map();
@@ -40,15 +42,15 @@ function cachedArticleTranslations_(keys){
     const rows=book_().getSheetByName('Traducciones').getRange(first,3,last-first+1,2).getDisplayValues();
     rows.forEach(([titular,extracto],offset)=>{const key=byRow.get(first+offset);if(!key)return;const value={titular,extracto};articleTranslationMemory_.set(key,value);const encoded=cacheJsonValue_(value);if(encoded)values['article:'+key]=encoded;});
   }
-  if(Object.keys(values).length)cache.putAll(values,21600);return articleTranslationMemory_;
+  if(Object.keys(values).length)try{cache.putAll(values,21600);}catch(_){}return articleTranslationMemory_;
 }
 function translateArticleText_(row,language){
   const escape=value=>String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-  const input='<p id="headline">'+escape(row.titular)+'</p><p id="excerpt">'+escape(row.extracto)+'</p>';
+  const hasExcerpt=Boolean(plainText_(row.extracto).trim()),input='<p id="headline">'+escape(row.titular)+'</p>'+(hasExcerpt?'<p id="excerpt">'+escape(row.extracto)+'</p>':'');
   const html=LanguageApp.translate(input,'',language,{contentType:'html'});
   const blocks=[...html.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)].map(match=>plainText_(match[1]));
-  if(blocks.length!==2||!blocks[0]||(row.extracto&&!blocks[1]))throw Error('Respuesta de traducción incompleta.');
-  return {titular:blocks[0].slice(0,5000),extracto:blocks[1].slice(0,5000)};
+  if(blocks.length!==(hasExcerpt?2:1)||!blocks[0]||(hasExcerpt&&!blocks[1]))throw Error('Respuesta de traducción incompleta.');
+  return {titular:blocks[0].slice(0,5000),extracto:hasExcerpt?blocks[1].slice(0,5000):''};
 }
 function nativeArticle_(row,language,feeds){return feeds.has(row.fuente)&&String(row.idioma||'').toLowerCase().split(/[-_]/)[0]===language;}
 function savedArticleTranslations_(rows,language){
@@ -61,9 +63,25 @@ function savedArticleTranslations_(rows,language){
   });
 }
 function storeArticleTranslation_(row,language){
-  const key=articleTranslationKey_(row,language),value=translateArticleText_(row,language),index=articleTranslationIndex_(),position=book_().getSheetByName('Traducciones').getLastRow()+1;
-  append_('Traducciones',[[key,language,value.titular,value.extracto,new Date().toISOString()]]);index.set(key,position);
+  const key=articleTranslationKey_(row,language),value=translateArticleText_(row,language),index=articleTranslationIndex_(),sheet=book_().getSheetByName('Traducciones'),position=index.get(key)||sheet.getLastRow()+1,values=[[key,language,value.titular,value.extracto,new Date().toISOString()]];
+  if(index.has(key))sheet.getRange(position,1,1,5).setNumberFormat('@').setValues(values.map(row=>row.map(safeCell_)));else append_('Traducciones',values);index.set(key,position);
   articleTranslationMemory_=articleTranslationMemory_||new Map();articleTranslationMemory_.set(key,value);cacheJson_('article:'+key,value,21600);
   const revision=Date.now()+'-'+Math.random().toString(36).slice(2);
   properties_().setProperties({['TRANSLATIONS_REVISION:'+language]:revision,NEWS_REVISION:revision});return value;
+}
+
+function compactArticleTranslations_(){
+  const sheet=book_().getSheetByName('Traducciones'),count=Math.max(0,sheet.getLastRow()-1);if(!count)return;
+  const fingerprints=new Set();
+  // Retain translations for the published corpus and its rollback generation.
+  const previous=JSON.parse(properties_().getProperty('PREVIOUS_DATA_GENERATION')||'{}');
+  for(const name of new Set([newsStorageKey_(),previous.snapshots?previous.newsSheet:null].filter(Boolean))){const source=book_().getSheetByName(name);if(!source)continue;const total=source.getLastRow()-1;for(let offset=0;offset<total;offset+=1000)for(const [titular,extracto] of source.getRange(offset+2,6,Math.min(1000,total-offset),2).getDisplayValues())fingerprints.add(articleFingerprint_({titular,extracto}));}
+  const rows=sheet.getRange(2,1,count,5).getDisplayValues(),unique=new Map();
+  for(const row of rows)if(supportedLanguage(row[1])&&row[0].startsWith(row[1]+':')&&fingerprints.has(row[0].slice(row[1].length+1)))unique.set(row[0],row);
+  if(unique.size===rows.length)return;
+  const kept=[...unique.values()];
+  if(kept.length)sheet.getRange(2,1,kept.length,5).setNumberFormat('@').setValues(kept.map(row=>row.map(safeCell_)));
+  sheet.getRange(kept.length+2,1,count-kept.length,5).clearContent();
+  properties_().setProperty('TRANSLATIONS_INDEX_REVISION',Utilities.getUuid());articleTranslationRows_=undefined;articleTranslationMemory_=undefined;articleIdentityTitlesMemory_=undefined;
+  const revision=Utilities.getUuid();for(const language of Object.keys(languageNames))properties_().setProperty('TRANSLATIONS_REVISION:'+language,revision);
 }

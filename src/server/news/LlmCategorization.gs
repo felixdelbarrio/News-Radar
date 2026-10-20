@@ -161,6 +161,6 @@ function llmSnapshotBatch_(){
 }
 
 function pruneLlmGenerations_(){
- const previous=JSON.parse(properties_().getProperty('PREVIOUS_DATA_GENERATION')||'{}'),keep=new Set([llmState_().sheet,previous.categorization?.sheet,llmJob_()?.categorization?.sheet]);
+ const keep=generationKeep_();
  for(const sheet of book_().getSheets())if(sheet.getName().startsWith('CategorizacionLLM_gen_')&&!keep.has(sheet.getName()))book_().deleteSheet(sheet);
 }

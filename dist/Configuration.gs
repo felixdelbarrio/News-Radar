@@ -89,6 +89,7 @@ function initializeConfiguration(){
     initializeCollectionQueue_();
     if(refreshCatalog&&(newsSheet_().getLastRow()>1||book_().getSheetByName('Telemetria')?.getLastRow()>1))maintenance_();
     initializeBackgroundSchedules_();
+    pruneNewsGenerations_();pruneLlmGenerations_();
     return 'Configuración inicializada en Sheets. Los valores existentes se han conservado.';
   });
 }

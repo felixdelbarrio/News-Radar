@@ -21,7 +21,7 @@ import { createRadar } from "./features/radar.js";
 import { createAdministration } from "./features/administration.js";
 import { $, message, setTimezone } from "./core/dom.js";
 import {setTaxonomyTranslations} from './core/language.js';
-import { call,refreshLoading } from "./core/api.js";
+import { call,refreshLoading,deferSecondaryRequests,releaseSecondaryRequests } from "./core/api.js";
 import { createFilters } from "./features/filters.js";
 import { renderNews } from "./features/news.js";
 import { renderShell,renderFreshness } from "./features/shell.js";
@@ -108,6 +108,7 @@ async function load(reuse=false) {
       }
       renderSelection(data,navigation.current,appended);
       renderApplicationShell(data);
+      releaseSecondaryRequests();
       track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true,snapshotHit:false}:{}),clientCacheHit,sharedRequest:!clientCacheHit&&data.performance.transportMs>performance.now()-started+5,rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
       if (first) {
         track("acceso");
@@ -118,6 +119,7 @@ async function load(reuse=false) {
   } catch (error) {
     if (request === state.request) {
       track("error");
+      releaseSecondaryRequests();
       message(error.message || String(error), true);
     }
   }
@@ -165,17 +167,18 @@ $('download-telemetry').addEventListener('click',()=>action(async()=>{
 },false));
 if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
 async function startApplication(params={}){
+  deferSecondaryRequests();
   if(params.edition){
     state.attribution=params.edition;const view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;
     filters.show(view);navigation.show(view);state.ready=true;filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca,subpalanca:params.subpalanca,benchmark:params.benchmark,newsGeography:params.newsGeography});return;
   }
   try{
-    if(params.view==='subscriptions'){state.data=await call('getDashboard',{view:'subscriptions'});renderApplicationShell(state.data);state.ready=true;await navigation.show('subscriptions');}
+    if(params.view==='subscriptions'){state.data=await call('getDashboard',{view:'subscriptions'});releaseSecondaryRequests();renderApplicationShell(state.data);state.ready=true;await navigation.show('subscriptions');}
     else{navigation.show(defaultView);state.ready=true;await load();}
     const id=params.unsubscribe;if(!id||params.view!=='subscriptions')return;
     message('Confirma la baja de esta suscripción.');const button=document.createElement('button');button.type='button';button.className='button';button.textContent='Confirmar baja';
     button.addEventListener('click',()=>action(async()=>{message(await call('deleteSubscription',id));await subscriptions.open();},false));$('message').appendChild(button);
-  }catch(error){$('loading').hidden=true;message(error.message||String(error),true);}
+  }catch(error){releaseSecondaryRequests();$('loading').hidden=true;message(error.message||String(error),true);}
 }
 if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocation(location=>startApplication(location.parameter));
 else startApplication(Object.fromEntries(new URLSearchParams(window.location?.search||'')));
