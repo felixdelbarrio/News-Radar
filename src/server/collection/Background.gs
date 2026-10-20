@@ -68,8 +68,8 @@ function backgroundTask_(work,daily){
   if(!blocked&&!classificationPending_()&&dashboardSnapshotsDue_())return 'snapshot';
   if(!blocked&&!classificationPending_()&&!taxonomyPending_()&&Number(properties_().getProperty('BACKGROUND_PRIORITY_BURST')||0)>=3){if(maintenanceReadyAt_()<=Date.now())return 'maintenance';if(work.pending.length)return 'collection';}
   if(!blocked&&!classificationPending_()&&!properties_().getProperty('CLASSIFICATION_REQUEST')){
-    if(translationReadyAt_()<=Date.now())return 'translation';
     if(newsletterReadyAt_(work)<=Date.now())return 'newsletter';
+    if(translationReadyAt_()<=Date.now())return 'translation';
     if(properties_().getProperty('CATALOG_SYNC_REQUEST'))return 'catalogSync';
     if(taxonomyReadyAt_()<=Date.now())return 'taxonomy';
     if(taxonomyTranslationReadyAt_()<=Date.now())return 'taxonomyTranslation';

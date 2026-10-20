@@ -19,6 +19,7 @@ export function createFilterPanel(){
   return {show(view){
     if(dialog.open)dialog.close();
     const toolbar=document.querySelector('.selection-toolbar'),freshness=$('selection-freshness'),host=document.querySelector('#'+view+'-section .reading-hero');
+    $('open-filters').hidden=view==='briefing';
     toolbar.hidden=view==='subscriptions'||view==='administration'&&!media.matches;
     if(view==='administration')$('administration-tools').appendChild(toolbar);else if(host){host.appendChild(freshness);host.appendChild(toolbar);}else{const content=document.querySelector('.content');content.prepend(toolbar);toolbar.after(freshness);}
     const active=panels[view]||panels.news,admin=view==='administration',reading=!admin&&view!=='subscriptions';

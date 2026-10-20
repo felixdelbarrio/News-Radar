@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {storage} from './helpers/server.mjs';
 const title='Banco Santander y el BEI lanzan una plataforma de financiación digital para movilizar 300 millones de euros para financiar a pymes del sector de defensa y seguridad';
-function server(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
+function server(){const s=storage();s.c.Date=class extends Date{constructor(...args){super(...(args.length?args:['2026-10-09T12:00:00Z']));}};s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
 function row(id,changes={}){return {id,fecha:'2026-10-09',entidad:'Santander',pais:'España',titular:title,extracto:'',medio:'El Cronista',fuente:'RSS',url:'https://news.google.com/articles/'+id,clasificacion:JSON.stringify({digital:true,generalista:true,capacidades:["Empresas: Pagos"]}),taxonomia:JSON.stringify({ids:['finance']}),...changes};}
 function add(s,rows){const keys=vm.runInContext('RADAR.sheets.Noticias',s.c);s.sheets.get('Noticias').grid.push(...rows.map(row=>keys.map(key=>row[key]||'')));}
 test('ocho copias guardadas cuentan como una en Noticias, Novedades, mapa, Radar, CSV y newsletter; las fuentes siguen consultables',()=>{
@@ -30,7 +30,7 @@ test('erratas aproximadas se consolidan solo dentro del mismo país en vistas, C
  const s=server(),c=s.c,title='Santander lanza una plataforma digital de financiacion empresarial para nuevas empresas',base=row('base',{titular:title,extracto:'Pagos digitales para empresas',taxonomia:JSON.stringify({ids:[]})}),typo=row('typo',{titular:title.replace('financiacion','financiacoin'),extracto:'Pagos digitales para empresas',taxonomia:JSON.stringify({ids:[]})}),foreign={...typo,id:'foreign',url:'https://editor.test/foreign',pais:'México'};
  assert.equal(c.uniqueNews_([base,typo]).length,1);assert.equal(c.uniqueNews_([base,foreign]).length,2);
  add(s,[base,foreign]);const query={from:'2026-10-06',to:'2026-10-12'};
- assert.equal(c.getDashboard({...query,view:'radar'}).stats.news,2);assert.equal(c.getDashboard({...query,view:'briefing'}).contextTotal,2);assert.equal(c.getDashboard({...query,view:'news'}).contextTotal,2);assert.equal(c.exportNews(query).count,2);assert.equal(newsletterFixture(c,[base,foreign],query,'Países',new Date(),'subscription').count,2);
+ assert.equal(c.getDashboard({...query,view:'radar'}).stats.news,2);assert.equal(c.getDashboard({...query,view:'briefing'}).contextTotal,2);assert.equal(c.getDashboard({...query,view:'news'}).contextTotal,2);assert.equal(c.exportNews(query).count,2);const newsletter=newsletterFixture(c,[base,foreign],query,'Países',new Date(),'subscription');assert.equal(newsletter.count,1);assert.equal(newsletter.total,2);assert.equal(newsletter.editorial.cards[0].relatedCount,2);
  const historical=server();add(historical,[base]);const known=historical.c.knownUrls_(),candidate={title:typo.titular,date:'2026-10-09',publisher:'El Cronista',entity:'Santander',country:'España'};
  assert.equal(c.duplicateTitle_(known,candidate),true);assert.equal(c.duplicateTitle_(known,{...candidate,country:'Perú'}),false);
  c.parseFeed_=()=>[{title:typo.titular,source:'El Cronista',url:'https://editor.test/peru',date:'2026-10-09T12:00:00Z',excerpt:'Pagos digitales para empresas en Perú'}];

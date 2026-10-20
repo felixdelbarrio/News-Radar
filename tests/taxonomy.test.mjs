@@ -23,16 +23,16 @@ test('analiza todo el histórico, crea etiquetas estables y no escribe noticias 
   const {c,sheets}=server();c.startTaxonomy();finish(c);
   const status=c.getTaxonomyStatus();assert.equal(status.job.processed,8);assert.equal(status.job.total,4);assert.ok(status.items.some(row=>row.subpalanca.startsWith('16.01.')));
   const labels=c.rows_('Noticias').map(row=>c.taxonomySaved_(row.taxonomia));assert.ok(labels[0].ids.length);assert.equal(labels[3].ids.length,0);
-  const first=JSON.stringify(c.newsSheet_().grid),writes=[],catalogWrites=[],range=c.newsSheet_().getRange,catRange=sheets.get('Taxonomia').getRange;
+  const first=JSON.stringify(c.newsSheet_().grid),writes=[],catalogWrites=[],range=c.newsSheet_().getRange,catRange=c.taxonomySheet_().getRange;
   c.newsSheet_().getRange=(...args)=>{const value=range(...args),set=value.setValues;value.setValues=rows=>{writes.push(args);return set(rows);};return value;};
-  sheets.get('Taxonomia').getRange=(...args)=>{const value=catRange(...args),set=value.setValues;value.setValues=rows=>{catalogWrites.push(args);return set(rows);};return value;};
+  c.taxonomySheet_().getRange=(...args)=>{const value=catRange(...args),set=value.setValues;value.setValues=rows=>{catalogWrites.push(args);return set(rows);};return value;};
   c.startTaxonomy();finish(c);assert.equal(c.getTaxonomyStatus().job.tagged,0);assert.deepEqual(writes,[]);assert.deepEqual(catalogWrites,[]);assert.equal(JSON.stringify(c.newsSheet_().grid),first);
 });
 test('el modelo cambia con contenido nuevo sin reescribir etiquetas intactas; filtros y newsletters usan la misma taxonomía',()=>{
   const {c,sheets}=server();c.startTaxonomy();finish(c);const prior=c.newsSheet_().grid[1][12],items=c.taxonomyCatalog_(),payment=items.find(row=>row.subpalanca.startsWith('16.01.')),query={palanca:payment.palanca,subpalanca:taxonomyPath(payment)};
   assert.equal(c.selectNews_(c.rows_('Noticias'),query).length,2);assert.deepEqual(Object.keys(c.selectNews_(c.rows_('Noticias'),query)[0].taxonomia[0]).sort(),['id','palanca','subpalanca']);assert.equal(c.newsDashboard_(annotateFixtures(c,c.rows_('Noticias')),{},[],'news').subpalanca.includes(query.subpalanca),true);
   const subscription=c.subscriptionRecord_({name:'Pagos',filters:query},'user@bbva.com','id',new Date(),0);assert.equal(subscription.filtros.subpalanca,undefined);
-  c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';const newsletter=newsletterFixture(c,c.rows_('Noticias'),query,'Pagos digitales',new Date(),'id');assert.equal(newsletter.count,1);assert.equal(newsletter.total,2);assert.equal(newsletter.editorial.cards[0].additionalCount,1);assert.ok(newsletter.html.includes(payment.subpalanca));assert.ok(newsletter.text.includes(payment.subpalanca));
+  c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';const newsletter=newsletterFixture(c,c.rows_('Noticias'),query,'Pagos digitales',new Date(),'id');assert.equal(newsletter.count,1);assert.equal(newsletter.total,2);assert.equal(newsletter.editorial.cards[0].additionalCount,1);assert.ok(newsletter.html.includes(payment.palanca.replace(/^\d{2}\.\s*/,'').replace(/&/g,'&amp;')));assert.ok(newsletter.text.includes(payment.palanca.replace(/^\d{2}\.\s*/,'')));
   c.newsSheet_().grid.push(['new','2026-10-11','España','Editor','BBVA','BBVA lanza API avanzada','','https://example.com/new','','Editor','es','{"digital":true,"capacidades":["Empresas: Pagos"]}', '']);c.invalidateNews_();c.startTaxonomy();finish(c);assert.equal(c.newsSheet_().grid[1][12],prior);assert.ok(c.taxonomySaved_(c.newsSheet_().grid.at(-1)[12]).ids.length);
   c.newsSheet_().grid[1][5]='BBVA lanza IA generativa';c.invalidateNews_();c.startTaxonomy();finish(c);assert.notEqual(c.newsSheet_().grid[1][12],prior);
 });

@@ -6,7 +6,7 @@ function createNavigation({ isAdmin, track, onAdministration, onSubscriptions, o
     if (!(view in config.views) || view === "administration" && !isAdmin()) return;
     if(opened&&view===current)return;
     opened=true;current = view;
-    $('reading-context').hidden=$('reading-context').dataset.available!=='true'||!['news','briefing','radar'].includes(view);
+
     window.scrollTo({top:0,behavior:"auto"});
     track("vista");
     for (const name of Object.keys(config.views)) $(name + "-section").hidden = name !== view;

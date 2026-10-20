@@ -50,7 +50,7 @@ const filters = createFilters({ onInvalidate: () => ++state.request, onChange: (
   track("filtro");
   load();
 } });
-const reading=createReadingContext({onCurrent:()=>filters.current(),run:action});
+const reading=createReadingContext({run:action});
 const heatmap=createTaxonomyHeatmap({onExplore:query=>navigateSelection('news',query)});
 const briefing=createBriefing({onExplore:query=>navigateSelection('news',query)});
 const newsTabs=createGeographyTabs('news-geographies','news-list',name=>filters.setGeography(name));
@@ -169,6 +169,7 @@ if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
 async function startApplication(params={}){
   deferSecondaryRequests();
   if(params.edition){
+    if(['positive','negative'].includes(params.feedback))reading.open(params.edition,params.feedback);
     state.attribution=params.edition;const view=['news','briefing','radar'].includes(params.view)?params.view:defaultView;
     filters.show(view);navigation.show(view);state.ready=true;filters.useEdition(params.edition,{country:params.country,entity:params.entity,palanca:params.palanca,subpalanca:params.subpalanca,benchmark:params.benchmark,newsGeography:params.newsGeography});return;
   }

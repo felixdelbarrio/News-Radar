@@ -1,3 +1,4 @@
+function configurationStorageKey_(name){return name==='Noticias'?newsStorageKey_():name==='Taxonomia'?taxonomyStorageKey_():NEWSLETTER_ARCHIVE_TABLES.includes(name)?newsletterStorageKey_(name):name;}
 function generationSheet_(name,headers){let sheet=book_().getSheetByName(name);if(!sheet)sheet=book_().insertSheet(name);if(sheet.getLastRow()===0)sheet.getRange(1,1,1,headers.length).setValues([headers]);return sheet;}
 
 function verifiedGenerationWrite_(sheet,first,rows){
@@ -22,7 +23,7 @@ function writeStagedNewsRows_(sheet,records){
 }
 
 function generationKeep_(excludeJob=null){
-  const keep=new Set(Object.keys(RADAR.sheets)),current=dataGeneration_(),previous=JSON.parse(properties_().getProperty('PREVIOUS_DATA_GENERATION')||'{}');
+  const keep=new Set(Object.keys(RADAR.sheets).map(configurationStorageKey_)),current=dataGeneration_(),previous=JSON.parse(properties_().getProperty('PREVIOUS_DATA_GENERATION')||'{}');
   const add=generation=>{for(const name of [generation.newsSheet,generation.taxonomySheet,generation.categorization?.sheet,...Object.values(generation.newsletterTables||{}),...Object.values(generation.snapshots||{}).map(snapshot=>snapshot.sheet)])if(name)keep.add(name);};
   add(current);
   if(DASHBOARD_SNAPSHOTS.views.every(view=>previous.snapshots?.[view])){
@@ -41,8 +42,12 @@ function discardJobTargets_(job,kind){
   for(const name of [job.target,job.modelTarget])if(name&&!keep.has(name)){const sheet=book_().getSheetByName(name);if(sheet)book_().deleteSheet(sheet);}
 }
 function pruneNewsGenerations_(){
-  const keep=generationKeep_();
-  for(const sheet of book_().getSheets())if(!keep.has(sheet.getName())&&/^(?:Preferencias$|Noticias_cuarentena_|Noticias_(?:class_|gen_|tax_|maintenance_|backup|staging)|Taxonomia_gen_|CategorizacionLLM_gen_|Newsletter(?:Contenido|Ediciones)_gen_)/i.test(sheet.getName()))book_().deleteSheet(sheet);
+ const keep=generationKeep_(),removed=[];
+ for(const sheet of book_().getSheets()){const name=sheet.getName();if(keep.has(name))continue;
+  const superseded=['Noticias','Taxonomia','NewsletterContenido','NewsletterEdiciones'].includes(name)&&configurationStorageKey_(name)!==name;
+  if(superseded||/^(?:DashboardSnapshotBackup$|Preferencias$|Noticias_cuarentena_|Noticias_(?:class_|gen_|tax_|maintenance_|backup|staging)|Taxonomia_gen_|CategorizacionLLM_gen_|Newsletter(?:Contenido|Ediciones)_gen_)/i.test(name)){book_().deleteSheet(sheet);removed.push(name);}
+ }
+ return removed;
 }
 
 function compactStorageDimensions_(){

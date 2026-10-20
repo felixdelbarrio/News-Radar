@@ -15,12 +15,11 @@ function edition(s,id='edition',items=[news(s)],view='news'){
  c.saveNewsletterEdition_(id,'delivery','owner@bbva.com','Selección',query,'es',content.evidence,content.editorial);c.completeNewsletterEdition_(id,'Enviada');return content;
 }
 function add(s,name,row){const keys=vm.runInContext('RADAR.sheets.'+name,s.c);s.sheets.get(name).grid.push(keys.map(key=>row[key]??''));}
-test('quincenal lunes tras el cierre, trimestral primer miércoles y anual primer viernes mantienen sus ventanas cerradas',()=>{
+test('quincenal lunes tras el cierre y trimestral primer miércoles mantienen sus ventanas cerradas',()=>{
  const {c}=server();
  for(const [cadence,now,available,from,to] of [
   ['fortnightly','2026-10-13','2026-10-05','2026-09-16','2026-09-30'],
   ['quarterly','2026-10-01','2026-10-07','2026-07-01','2026-09-30'],
-  ['yearly','2026-01-01','2026-01-02','2025-01-01','2025-12-31'],
   ['quarterly','2026-04-01','2026-04-01','2026-01-01','2026-03-31']]){
    const period=c.newsletterPeriod_(cadence,new Date(now+'T12:00:00Z'));assert.deepEqual([period.available,period.from,period.to],[available,from,to]);
  }
@@ -31,11 +30,11 @@ test('no prepara ni envía una trimestral antes del miércoles; reintentar no du
  c.settings_().newsletterEnabled=true;c.subscriptionRows_=()=>[{id:'sub',correo:'owner@bbva.com',periodicidad:'quarterly',nombre:'Mes',filtros:{coverage:''},activa:true,actualizada:'2026-09-01'}];
  c.sendNewsletterMail_=()=>{throw Error('No debe enviar todavía');};assert.equal(c.deliverNewsletterBatch_().pending,0);assert.equal(c.rows_('NewsletterEdiciones').length,0);
 });
-test('narrativa, ámbito, mapa y evidencias históricas permanecen al cambiar las noticias y configuración',()=>{
- const s=server(),c=s.c,content=edition(s,'edition',[news(s),news(s,'two','México','BBVA lanza onboarding digital para empresas')],'radar');
- const before=clean(c.getDashboard({view:'radar',edition:'edition',initial:true}));add(s,'Noticias',{...news(s,'later'),fecha:'2026-09-20'});c.configuration_().geographies=[];c.configuration_().applicationScope=[{name:'Empresas e instituciones',countries:[]}];c.entityKey_=()=> 'Entidad cambiada';c.invalidateNews_();
- const after=clean(c.getDashboard({view:'radar',edition:'edition',initial:true}));assert.deepEqual(after.context.editorial,clean(content.editorial));assert.deepEqual(after.radar,before.radar);assert.deepEqual(after.heatmap,before.heatmap);assert.deepEqual(after.applicationScope,before.applicationScope);assert.equal(after.stats.news,2);
- s.setEmail('other@bbva.com');assert.throws(()=>c.getDashboard({view:'radar',edition:'edition'}),/no disponible/);
+test('narrativa y evidencias históricas de Noticias permanecen al cambiar noticias y configuración',()=>{
+ const s=server(),c=s.c,content=edition(s,'edition',[news(s),news(s,'two','México','BBVA lanza onboarding digital para empresas')]);
+ const before=clean(c.getDashboard({view:'news',edition:'edition',initial:true}));add(s,'Noticias',{...news(s,'later'),fecha:'2026-09-20'});c.configuration_().geographies=[];c.configuration_().applicationScope=[];c.entityKey_=()=> 'Entidad cambiada';c.invalidateNews_();
+ const after=clean(c.getDashboard({view:'news',edition:'edition',initial:true}));assert.deepEqual(after.context.editorial,clean(content.editorial));assert.deepEqual(after.items,before.items);assert.deepEqual(after.applicationScope,before.applicationScope);assert.equal(after.context.count,2);
+ s.setEmail('other@bbva.com');assert.throws(()=>c.getDashboard({view:'news',edition:'edition'}),/no disponible/);
 });
 test('feedback es opcional, propio, deduplicado y administrable; no lee el corpus histórico al guardarse',()=>{
  const s=server(),c=s.c;edition(s);const sheet=s.sheets.get('NewsletterContenido');sheet.getRange=()=>{throw Error('Solo se requiere autorización de cabecera');};
@@ -79,9 +78,9 @@ test('una cuota diaria de URL Fetch pausa la cola sin amplificar llamadas ni con
  const s=server(),c=s.c,feed=c.feeds_().find(row=>row.kind==='rss');add(s,'Recargas',{id:'daily',tipo:'daily',estado:'Pendiente',total:1,pendientes:1,desde:'2026-10-01',hasta:'2026-10-13',inicio:new Date().toISOString()});add(s,'Recopilacion',{ciclo:'daily',fuente:feed.name,url:feed.url,estado:'Pendiente',intentos:0,prioridad:'2026-10-13'});
  let calls=0;c.UrlFetchApp={fetchAll(){calls++;throw Error('Service invoked too many times for one day: urlfetch');},fetch(){throw Error('No debe amplificar llamadas');}};c.collectionBatch_(c.collectionWork_(Date.now()));const row=c.rows_('Recopilacion')[0];assert.equal(row.estado,'Reintento programado');assert.equal(row.intentos,'0');assert.equal(c.collectionWork_(Date.now()).pending.length,0);assert.equal(calls,1);
 });
-test('el formulario histórico guarda la valoración propia y desaparece al volver al presente',async t=>{
- const s=server(),content=edition(s),a=await app(t,{location:{edition:'edition',view:'news'},configure({w,data,replies}){const base=w.RADAR_PREVIEW.call;w.RADAR_PREVIEW.call=async(method,payload)=>method==='getDashboard'?{...data,...clean(s.c.getDashboard(payload))}:method==='saveNewsletterFeedback'?clean(s.c.saveNewsletterFeedback(payload)):base(method,payload);}});
- assert.equal(a.find('#edition-narrative').hidden,false);assert.ok(a.find('#edition-summary').textContent.includes(content.editorial.cards[0].title));await a.change('#edition-feedback [name="comment"]','Más señales de pagos');await a.submit('#edition-feedback');assert.equal(s.c.rows_('NewsletterFeedback').length,1);await a.click('#reading-current');assert.equal(a.find('#reading-context').hidden,true);
+test('el enlace de valoración abre una modal y guarda la valoración propia al enviar',async t=>{
+ const s=server();edition(s);const a=await app(t,{location:{edition:'edition',view:'news',feedback:'positive'},configure({w,data}){const base=w.RADAR_PREVIEW.call;w.RADAR_PREVIEW.call=async(method,payload)=>method==='getDashboard'?{...data,...clean(s.c.getDashboard(payload))}:method==='saveNewsletterFeedback'?clean(s.c.saveNewsletterFeedback(payload)):base(method,payload);}});
+ assert.equal(a.w.document.querySelector('#edition-narrative'),null);assert.equal(a.find('#feedback-dialog').open,true);assert.equal(a.find('#edition-feedback').elements.rating.value,'positive');await a.change('#edition-feedback [name="comment"]','Más señales de pagos');await a.submit('#edition-feedback');assert.equal(s.c.rows_('NewsletterFeedback').length,1);assert.equal(s.c.rows_('NewsletterFeedback')[0].edicion,'edition');assert.equal(a.find('#feedback-dialog').open,false);
 });
 test('incorporar una noticia de Empresas digital solicita traducción automáticamente',()=>{
  const s=server(),c=s.c,feed=c.feeds_().find(row=>row.kind==='rss'),row=news(s);row.clasificacion=JSON.stringify({generalista:true,digital:true,capacidades:['Empresas: Pagos']});

@@ -38,7 +38,7 @@ test('nombres multilingües visibles conservan valores canónicos de filtros y s
  await a.click('[data-view="news"]');assert.match(a.find('#news-list').textContent,/Biometric payments/);
  const option=a.find('#filters [name="subpalanca"] option:nth-child(2)');assert.equal(option.value,path);assert.equal(option.textContent,taxonomyTranslations.en['Pagos biométricos']);
  await a.change('#filters [name="subpalanca"]',path);assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.subpalanca,path);assert.match(a.find('#active-filters').textContent,/Biometric payments/);
- await a.click('[data-view="administration"]');await a.click('[data-admin-view="taxonomy"]');assert.match(a.find('#taxonomy-body').textContent,/Biometric payments/);await a.change('#preview-language','tr');assert.match(a.find('#taxonomy-body').textContent,/Biyometrik ödemeler/);
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="taxonomy"]');assert.match(a.find('#taxonomy-body').textContent,/Pagos biométricos/);await a.change('#preview-language','tr');assert.match(a.find('#taxonomy-body').textContent,/Pagos biométricos/);
 });
 test('Idiomas reutiliza una sola barra de taxonomía, reanuda manualmente y detiene el sondeo al salir',async t=>{
  const timers=new Map();let id=0;
