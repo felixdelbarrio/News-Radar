@@ -1361,9 +1361,8 @@
   }
   function t(value, values) {
     if (values) return formatText(value, values, language);
-    if (language === "es" && /^\d{2}\./.test(String(value))) return value;
-    let names = taxonomyNames[language];
-    return names && Object.hasOwn(names, value) ? names[value] : translateText(value, language);
+    let names = taxonomyNames[language], translated = names && Object.hasOwn(names, value) ? names[value] : translateText(value, language);
+    return String(translated).replace(/(^| › )\d{2}\.(?:\d{2}\.|xx\s+)?\s*/g, "$1");
   }
   function setLanguage(value) {
     if (value && !Object.hasOwn(languageNames, value)) throw Error(t("Idioma no admitido."));
@@ -1805,24 +1804,16 @@
   }
 
   // src/client/features/reading-context.js
-  function createReadingContext({ onCurrent, run }) {
-    let edition = "", signature = "";
-    $("reading-current").addEventListener("click", onCurrent);
-    let form = $("edition-feedback");
-    form.addEventListener("submit", (event) => {
+  function createReadingContext({ run }) {
+    let edition = "", form = $("edition-feedback"), dialog2 = $("feedback-dialog");
+    return $("close-feedback").addEventListener("click", () => dialog2.close()), form.addEventListener("submit", (event) => {
       event.preventDefault(), run(async () => {
-        let result = await call("saveNewsletterFeedback", { edition, rating: form.elements.rating.value, comment: form.elements.comment.value });
-        signature = "", paintFeedback(result.feedback), message(t("Valoraci\xF3n guardada."));
+        await call("saveNewsletterFeedback", { edition, rating: form.elements.rating.value, comment: form.elements.comment.value }), dialog2.close(), message(t("Valoraci\xF3n guardada."));
       }, !1);
-    });
-    function paintFeedback(feedback) {
-      form.elements.rating.value = feedback?.valoracion || "", form.elements.comment.value = feedback?.comentario || "";
-    }
-    return { render(data, view) {
-      let context = data.context || { mode: "current" }, available = context.mode === "edition";
-      if (edition = available ? context.id : "", $("reading-context").dataset.available = String(available), $("reading-context").hidden = !available || !["news", "briefing", "radar"].includes(view), $("reading-detail").textContent = available ? t("{name} \xB7 {from} / {to} \xB7 {count} noticias en esta edici\xF3n", { name: context.title, from: context.from, to: context.to, count: context.count }) : "", $("reading-current").hidden = !available, !available) return;
-      let next = JSON.stringify([edition, data.feedback]);
-      next !== signature && (signature = next, paintFeedback(data.feedback), form.elements.comment.maxLength = context.commentLimit, $("edition-narrative").hidden = !context.editorial, $("edition-summary").innerHTML = context.editorial ? "<p>" + escape2(context.editorial.intro) + "</p>" + context.editorial.cards.map((card) => "<article><strong>" + escape2(card.title) + "</strong><p>" + escape2(card.fact) + '</p><p class="muted">' + escape2(card.relevance) + "</p></article>").join("") : "");
+    }), { render(data) {
+      edition = data.context?.mode === "edition" ? data.context.id : "", data.context?.commentLimit && (form.elements.comment.maxLength = data.context.commentLimit);
+    }, open(id, rating) {
+      edition = id, form.elements.rating.value = rating, dialog2.showModal();
     } };
   }
 
@@ -1972,7 +1963,7 @@
     let filters5 = createRecordFilters("taxonomy", [["palanca", "Bloque funcional"]], render, { placeholder: "Bloque funcional, funcionalidad / sub operativa o t\xE9rmino" });
     function render() {
       let query = filters5.query(), page = recordPage(filterRecords(items, query, ["palanca"], ["palanca", "subpalanca", "terminos", "segmentos", "descripcion"]), query, pageSize);
-      $("taxonomy-body").innerHTML = page.items.map((row) => `<tr><td data-original>${escape2(t(row.palanca))}</td><td><strong data-original>${escape2(t(row.subpalanca))}</strong></td><td>${escape2(row.segmentos.join(" \xB7 "))}</td><td>${row.noticias}</td><td data-original>${escape2(row.terminos.join(" \xB7 "))}</td><td data-original>${row.descripcion ? `<details><summary>${escape2(t("Descripci\xF3n"))}</summary>${escape2(row.descripcion)}</details>` : ""}</td><td>${escape2(row.origen === "local" ? t("Clasificaci\xF3n local") : row.origen === "tf-idf" ? "TF-IDF" : t("Cat\xE1logo maestro (Drive)"))}</td></tr>`).join("") || '<tr><td colspan="7">' + t("Sin cat\xE1logo global de funcionalidades disponible. Ejecuta el job para generarlo.") + "</td></tr>", filters5.page(page), $("taxonomy-count").textContent = t("{blocks} bloques funcionales \xB7 {functions} funcionalidades / sub operativas", { blocks: new Set(items.map((row) => row.palanca)).size, functions: items.filter((row) => row.subpalanca).length });
+      $("taxonomy-body").innerHTML = page.items.map((row) => `<tr><td data-original>${escape2(row.palanca)}</td><td><strong data-original>${escape2(row.subpalanca)}</strong></td><td>${escape2(row.segmentos.join(" \xB7 "))}</td><td>${row.noticias}</td><td data-original>${escape2(row.terminos.join(" \xB7 "))}</td><td data-original>${row.descripcion ? `<details><summary>${escape2(t("Descripci\xF3n"))}</summary>${escape2(row.descripcion)}</details>` : ""}</td><td>${escape2(row.origen === "local" ? t("Clasificaci\xF3n local") : row.origen === "tf-idf" ? "TF-IDF" : t("Cat\xE1logo maestro (Drive)"))}</td></tr>`).join("") || '<tr><td colspan="7">' + t("Sin cat\xE1logo global de funcionalidades disponible. Ejecuta el job para generarlo.") + "</td></tr>", filters5.page(page), $("taxonomy-count").textContent = t("{blocks} bloques funcionales \xB7 {functions} funcionalidades / sub operativas", { blocks: new Set(items.map((row) => row.palanca)).size, functions: items.filter((row) => row.subpalanca).length });
     }
     let monitor = createJobMonitor({ id: "taxonomy", get: "getTaxonomyStatus", start: "startTaxonomy", run, isActive, onRevision, render(data) {
       let source = JSON.stringify([data.configurationRevision, data.catalogUrl]);
@@ -2130,7 +2121,7 @@
     }), { show(view) {
       dialog2.open && dialog2.close();
       let toolbar = document.querySelector(".selection-toolbar"), freshness = $("selection-freshness"), host = document.querySelector("#" + view + "-section .reading-hero");
-      toolbar.hidden = view === "subscriptions" || view === "administration" && !media.matches, view === "administration" ? $("administration-tools").appendChild(toolbar) : host ? (host.appendChild(freshness), host.appendChild(toolbar)) : (document.querySelector(".content").prepend(toolbar), toolbar.after(freshness));
+      $("open-filters").hidden = view === "briefing", toolbar.hidden = view === "subscriptions" || view === "administration" && !media.matches, view === "administration" ? $("administration-tools").appendChild(toolbar) : host ? (host.appendChild(freshness), host.appendChild(toolbar)) : (document.querySelector(".content").prepend(toolbar), toolbar.after(freshness));
       let active = panels[view] || panels.news, admin = view === "administration", reading2 = !admin && view !== "subscriptions";
       for (let panel2 of Object.values(panels)) panel2.hidden = view === "subscriptions" || panel2 !== active;
       $("panel-button-label").textContent = admin ? "Men\xFA" : "Filtros", $("panel-dialog-title").textContent = admin ? "Administraci\xF3n" : "Filtros", dialog2.setAttribute("aria-label", admin ? "Herramientas de administraci\xF3n" : "Configurar filtros"), $("filter-dialog-actions").hidden = !reading2, administrationLayout();
@@ -2140,7 +2131,7 @@
   // src/client/features/subscription-templates.js
   function subscriptionForm(options, admin, row) {
     let country = row?.filtros.country ?? browserCountry(options.countries), newsletterLanguage = row?.idioma || language;
-    return `<form data-subscription-form data-admin="${admin}" data-id="${escape2(row?.id || "")}"><h3>${row ? "Mi suscripci\xF3n" : "Recibe Mi Newsletter"}</h3>${admin ? `<label>Correo corporativo<input name="email" type="email" required value="${escape2(row?.correo || "")}" placeholder="nombre@bbva.com"></label>` : `<p>${escape2(options.email)}</p>`}<div class="subscription-fields"><label>Geograf\xEDa<select name="country"><option value="">Sin personalizar</option>${options.countries.map((name) => `<option value="${escape2(name)}"${name === country ? " selected" : ""}>${escape2(name)}</option>`).join("")}</select></label><label>Idioma<select name="language">${Object.entries(languageNames).map(([code, name]) => `<option value="${code}"${code === newsletterLanguage ? " selected" : ""}>${escape2(name)}</option>`).join("")}</select></label></div><p class="small muted">Novedades quincenales, balance trimestral y radar anual. Canal digital de Empresas e instituciones. La suscripci\xF3n no cambia tus pantallas.</p><div class="actions"><button type="submit" class="button primary">${row ? "Guardar cambios" : "Suscribirme"}</button>${admin || row ? '<button type="button" class="button" data-close-editor>Cancelar</button>' : ""}</div></form>`;
+    return `<form data-subscription-form data-admin="${admin}" data-id="${escape2(row?.id || "")}"><h3>${row ? "Mi suscripci\xF3n" : "Recibe Mi Newsletter"}</h3>${admin ? `<label>Correo corporativo<input name="email" type="email" required value="${escape2(row?.correo || "")}" placeholder="nombre@bbva.com"></label>` : `<p>${escape2(options.email)}</p>`}<div class="subscription-fields"><label>Geograf\xEDa<select name="country"><option value="">Sin personalizar</option>${options.countries.map((name) => `<option value="${escape2(name)}"${name === country ? " selected" : ""}>${escape2(name)}</option>`).join("")}</select></label><label>Idioma<select name="language">${Object.entries(languageNames).map(([code, name]) => `<option value="${code}"${code === newsletterLanguage ? " selected" : ""}>${escape2(name)}</option>`).join("")}</select></label></div><p class="small muted">Novedades quincenales y balance trimestral. Canal digital de Empresas e instituciones. La suscripci\xF3n no cambia tus pantallas.</p><div class="actions"><button type="submit" class="button primary">${row ? "Guardar cambios" : "Suscribirme"}</button>${admin || row ? '<button type="button" class="button" data-close-editor>Cancelar</button>' : ""}</div></form>`;
   }
   function subscriptionCards(rows, admin) {
     return rows.map((row) => `<article class="panel selection-card"><div class="panel-header"><div><h3>${admin ? escape2(row.correo) : "Mi Newsletter"}</h3><p>${escape2(row.filtros.country || "Sin personalizar")} \xB7 ${escape2(languageNames[row.idioma])}</p></div><span class="status-pill" data-state="${row.activa ? "positive" : ""}">${row.activa ? "Activa" : "Pausada"}</span></div><p class="small muted">${row.ultimaEntrega ? "\xDAltimo env\xEDo: " + escape2(date(row.ultimaEntrega.fecha)) + " \xB7 " + escape2(row.ultimaEntrega.estado) : "Sin env\xEDos registrados"}</p><div class="actions"><button class="button" data-action="edit" data-id="${escape2(row.id)}">Editar</button><button class="button" data-action="delete" data-id="${escape2(row.id)}">Dar de baja</button></div></article>`).join("") || '<div class="panel empty"><p>Sin suscripciones.</p></div>';
@@ -2158,7 +2149,7 @@
       content.textContent = "Cargando resumen\u2026", details.dataset.loaded = "pending";
       try {
         let data = await call("getNewsletterSummary", details.dataset.newsletterSummary);
-        content.innerHTML = '<p class="small">' + escape2(data.from) + " / " + escape2(data.to) + " \xB7 " + data.count + " publicaciones \xB7 " + escape2(data.country || "Sin personalizar") + "</p><ul>" + data.topics.map((topic) => "<li>" + escape2(topic) + "</li>").join("") + "</ul>", details.dataset.loaded = "true";
+        content.innerHTML = '<p class="small">' + escape2(data.from) + " / " + escape2(data.to) + " \xB7 " + data.count + " publicaciones \xB7 " + escape2(data.country || "Sin personalizar") + "</p><ul>" + (data.cards?.length ? data.cards.map((card) => "<li><strong>" + escape2(card.category) + "</strong> \xB7 " + escape2(card.scope) + "<br>" + (card.url ? '<a href="' + escape2(card.url) + '" target="_blank" rel="noopener">' + escape2(card.title) + "</a>" : escape2(card.title)) + "</li>") : data.topics.map((topic) => "<li>" + escape2(topic) + "</li>")).join("") + "</ul>", details.dataset.loaded = "true";
       } catch (error) {
         content.textContent = error.message, delete details.dataset.loaded;
       }
@@ -2167,7 +2158,7 @@
 
   // src/client/features/subscriptions.js
   function createSubscriptions({ run }) {
-    let options, own = [], all = [], request3 = 0, historyPage = 0, filters5 = {}, editorId = (admin) => admin ? "admin-subscription-editor" : "personal-editor";
+    let options, own = [], all = [], request3 = 0, historyLimit = 3, filters5 = {}, editorId = (admin) => admin ? "admin-subscription-editor" : "personal-editor";
     function edit(admin, row) {
       let target = $(editorId(admin));
       target.hidden = !1, target.innerHTML = subscriptionForm(options, admin, row);
@@ -2183,7 +2174,7 @@
       $(admin ? "admin-subscriptions-list" : "subscriptions-list").innerHTML = subscriptionCards(page.items, admin), filters5[id].page(page);
     }
     async function open(admin = !1) {
-      let current = ++request3, [settings, rows, history] = await Promise.all([call("getNewsletterOptions"), call(admin ? "getAdminSubscriptions" : "getSubscriptions"), admin ? null : call("getMyNewsletterHistory", { page: historyPage })]);
+      let current = ++request3, [settings, rows, history] = await Promise.all([call("getNewsletterOptions"), call(admin ? "getAdminSubscriptions" : "getSubscriptions"), admin ? null : call("getMyNewsletterHistory", { limit: historyLimit })]);
       if (current === request3) {
         if (options = settings, admin)
           all = rows, $("subscribers-count").textContent = t("{subscribers} suscriptores \xB7 {subscriptions} suscripciones", { subscribers: rows.length, subscriptions: rows.length });
@@ -2215,15 +2206,11 @@
       });
     }
     function renderHistory(history) {
-      historyPage = history.page, $("personal-history").innerHTML = newsletterHistoryCards(history.items);
-      let pages = Math.ceil(history.total / history.pageSize);
-      $("personal-history-pages").innerHTML = pages > 1 ? '<button class="button" data-history-page="-1" ' + (historyPage === 0 ? "disabled" : "") + ">Anterior</button><span>" + t("P\xE1gina {page} de {pages}", { page: historyPage + 1, pages }) + '</span><button class="button" data-history-page="1" ' + (historyPage >= pages - 1 ? "disabled" : "") + ">Siguiente</button>" : "";
+      $("personal-history").innerHTML = newsletterHistoryCards(history.items), $("personal-history-pages").innerHTML = history.items.length < history.total ? '<button class="button" data-history-more>Mostrar m\xE1s</button>' : "";
     }
     return $("personal-history-pages").addEventListener("click", (event) => {
-      let button = event.target.closest("[data-history-page]");
-      !button || button.disabled || run(async () => {
-        let data = await call("getMyNewsletterHistory", { page: historyPage + Number(button.dataset.historyPage) });
-        renderHistory(data);
+      event.target.closest("[data-history-more]") && run(async () => {
+        historyLimit += 3, renderHistory(await call("getMyNewsletterHistory", { limit: historyLimit }));
       }, !1);
     }), attachNewsletterSummaries($("personal-history")), { open };
   }
@@ -2838,7 +2825,7 @@
   }
 
   // src/shared/newsletter-cadences.js
-  var newsletterCadences = Object.freeze({ fortnightly: { label: "Quincenal", view: "briefing", scope: "Novedades", weekday: 1 }, quarterly: { label: "Trimestral", view: "news", scope: "Noticias", weekday: 3 }, yearly: { label: "Anual", view: "radar", scope: "Radar", weekday: 5 } }), newsletterComparisonLabels = Object.freeze({ local: "Tu geograf\xEDa", group: "El grupo en otras geograf\xEDas", market: "El mercado internacional" });
+  var newsletterCadences = Object.freeze({ fortnightly: { label: "Quincenal", view: "briefing", scope: "Novedades", weekday: 1 }, quarterly: { label: "Trimestral", view: "news", scope: "Noticias", weekday: 3 } }), newsletterComparisonLabels = Object.freeze({ local: "Tu geograf\xEDa", group: "El grupo en otras geograf\xEDas", market: "El mercado internacional" });
 
   // src/client/features/metrics.js
   var filters2 = {}, requests2 = {}, insightRequest = 0;
@@ -2938,14 +2925,16 @@
       let el = form.elements[name];
       if (!el) return;
       let current2 = selected ?? el.value;
-      current2 && !values.includes(current2) && (values = [...values, current2]);
+      name !== "year" && current2 && !values.includes(current2) && (values = [...values, current2]);
       let signature = JSON.stringify(values);
-      el.dataset.options !== signature && (el.dataset.options = signature, el.innerHTML = '<option value="">Todos</option>' + values.map((x) => '<option value="' + escape2(x) + '">' + escape2(name === "subpalanca" ? taxonomySubLabel(x) : name === "coverage" ? coverageOptions[x] : x) + "</option>").join(""), el.value = current2 || "");
+      el.dataset.options !== signature && (el.dataset.options = signature, el.innerHTML = (name === "year" ? "" : '<option value="">Todos</option>') + values.map((x) => '<option value="' + escape2(x) + '">' + escape2(["palanca", "subpalanca"].includes(name) ? taxonomyDisplayLabel(x) : name === "coverage" ? coverageOptions[x] : x) + "</option>").join(""), el.value = current2 || "");
     }
     function layout() {
-      $("geography-filter").hidden = !1, $("advanced-filters").hidden = !1, view !== "news" && ($("advanced-filters").open = !1);
-      for (let id of ["from-filter", "to-filter"]) $(id).hidden = !1;
-      $("filter-description").textContent = "Edita los criterios y pulsa Aplicar filtros para actualizar los resultados.";
+      $("geography-filter").hidden = !1;
+      let radar2 = view === "radar";
+      $("entity-filter").hidden = radar2, $("year-filter").hidden = !radar2, $("advanced-filters").hidden = radar2, view !== "news" && ($("advanced-filters").open = !1);
+      for (let id of ["from-filter", "to-filter"]) $(id).hidden = view === "radar";
+      $("date-guidance").hidden = view === "radar", $("filter-description").textContent = "Edita los criterios y pulsa Aplicar filtros para actualizar los resultados.";
     }
     layout();
     let chipLabels = { benchmark: "\xC1mbito comparativo", search: "B\xFAsqueda", country: "Geograf\xEDa", entity: "Entidad", source: "Medio", type: "Tipo de entidad", signal: "Se\xF1al de negocio", palanca: "Bloque funcional", subpalanca: "Funcionalidad / Sub Operativa", from: "Fecha desde", to: "Fecha hasta" };
@@ -2953,7 +2942,7 @@
       let target = $("active-filters"), values = Object.entries(chipLabels).filter(([name]) => applied[name]);
       target.hidden = !values.length, target.innerHTML = values.map(([name, label]) => {
         let raw = applied[name], value = name === "benchmark" ? raw === "international" ? "Mirada internacional" : newsletterComparisonLabels[raw] : name === "coverage" ? coverageOptions[raw] : ["from", "to"].includes(name) ? formatCalendarDay(raw, language) : name === "subpalanca" ? taxonomySubLabel(raw) : raw, original = ["search", "entity", "source"].includes(name), text = ["palanca", "subpalanca"].includes(name) ? t(value) : t(label) + ": " + (original ? value : t(value));
-        return ["from", "to"].includes(name) ? '<button type="button" class="filter-chip" data-original data-edit-filter="' + name + '" aria-label="' + escape2(t("Editar") + " " + text) + '"><span>' + escape2(text) + "</span></button>" : '<button type="button" class="filter-chip" data-original data-remove-filter="' + name + '" aria-label="' + escape2(t("Quitar")) + " " + escape2(text) + '"><span>' + escape2(text) + '</span><span aria-hidden="true">\xD7</span></button>';
+        return view === "briefing" || view === "radar" && ["from", "to"].includes(name) ? '<span class="filter-chip" data-original>' + escape2(text) + "</span>" : ["from", "to"].includes(name) ? '<button type="button" class="filter-chip" data-original data-edit-filter="' + name + '" aria-label="' + escape2(t("Editar") + " " + text) + '"><span>' + escape2(text) + "</span></button>" : '<button type="button" class="filter-chip" data-original data-remove-filter="' + name + '" aria-label="' + escape2(t("Quitar")) + " " + escape2(text) + '"><span>' + escape2(text) + '</span><span aria-hidden="true">\xD7</span></button>';
       }).join("");
     }
     $("active-filters").addEventListener("click", (event) => {
@@ -3029,12 +3018,12 @@
         editionSelection = selection, resetContext(id);
       },
       current,
-      query: () => ({ ...applied, page, view, language, ...edition ? { edition, ...initialized.has(view) ? {} : editionSelection } : {}, ...view === "news" && newsGeography ? { newsGeography } : {}, initial: !initialized.has(view) }),
+      query: () => ({ ...applied, page, view, language, ...edition && view === "news" ? { edition, ...initialized.has(view) ? {} : editionSelection } : {}, ...view === "news" && newsGeography ? { newsGeography } : {}, initial: !initialized.has(view) }),
       show: (next) => {
         if (next === view) return !1;
         clearTimeout(timer), onInvalidate();
         let selection = { ...applied };
-        selections.set(view, selection), edition && (selections.set(next, selection), initialized.add(next)), view = next, page = 0, newsGeography = "", layout();
+        selections.set(view, selection), view = next, page = 0, newsGeography = "", layout();
         for (let input2 of form.elements) input2.name && (input2.value = (selections.get(view) || defaults)[input2.name] || "");
         return dirty = !1, applied = { ...selections.get(view) || defaults }, form.elements.to.setCustomValidity(""), renderChips(), !0;
       },
@@ -3057,9 +3046,9 @@
       setPage: (value) => page = value,
       render: (data) => {
         let draft = dirty ? Object.fromEntries(new FormData(form)) : null;
-        taxonomy2 = data.subpalanca || [], page = data.page, newsGeography = data.newsGeography || "", defaults = data.defaults || defaults, initialized.add(view);
+        view === "radar" && options("year", data.years || [], data.selection?.from?.slice(0, 4)), taxonomy2 = data.subpalanca || [], page = data.page, newsGeography = data.newsGeography || "", defaults = data.defaults || defaults, initialized.add(view);
         for (let [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type", "types"], ["segment", "segments"], ["signal", "signals"], ["palanca", "palanca"], ["subpalanca", "subpalanca"]]) options(name, data[key] || [], data.selection?.[name]);
-        if (data.selection) for (let input2 of form.elements) input2.name && (input2.value = data.selection[input2.name] || "");
+        if (data.selection) for (let input2 of form.elements) input2.name && (input2.value = (input2.name === "year" && view === "radar" ? data.selection.from?.slice(0, 4) : data.selection[input2.name]) || "");
         if (syncTaxonomyControls(form, taxonomy2), applied = data.selection ? { ...data.selection } : Object.fromEntries(new FormData(form)), renderChips(), draft) {
           for (let input2 of form.elements) input2.name && (input2.value = draft[input2.name] || "");
           syncTaxonomyControls(form, taxonomy2);
@@ -3199,7 +3188,7 @@
     let current = defaultView, opened = !1;
     async function show(view) {
       if (!(!(view in config_default.views) || view === "administration" && !isAdmin()) && !(opened && view === current)) {
-        opened = !0, current = view, $("reading-context").hidden = $("reading-context").dataset.available !== "true" || !["news", "briefing", "radar"].includes(view), window.scrollTo({ top: 0, behavior: "auto" }), track2("vista");
+        opened = !0, current = view, window.scrollTo({ top: 0, behavior: "auto" }), track2("vista");
         for (let name of Object.keys(config_default.views)) $(name + "-section").hidden = name !== view;
         onPanel(view), $("active-filters").hidden = !["news", "briefing", "radar"].includes(view), $("selection-freshness").hidden = !["news", "briefing", "radar"].includes(view), $("sidebar-context-title").textContent = view === "administration" ? "Gesti\xF3n de News Radar" : "Seguimiento personalizado", $("sidebar-context-copy").textContent = view === "administration" ? "Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicaci\xF3n." : "Mi Newsletter solo se personaliza por geograf\xEDa. La selecci\xF3n de noticias es independiente.", $("sidebar-context").hidden = !["administration", "subscriptions"].includes(view), $("export").hidden = view !== "news", $("page-title").textContent = config_default.views[view], document.querySelectorAll("[data-view]").forEach((button) => {
           button.dataset.view === view ? button.setAttribute("aria-current", "page") : button.removeAttribute("aria-current");
@@ -3323,7 +3312,7 @@
     state.ready && (changed || state.contentStale || state.view !== view) && load(!0);
   }, onSubscriptions: () => (taxonomy.close(), subscriptions.open()), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
-  } }), reading = createReadingContext({ onCurrent: () => filters4.current(), run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing({ onExplore: (query) => navigateSelection("news", query) }), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters4.setGeography(name));
+  } }), reading = createReadingContext({ run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing({ onExplore: (query) => navigateSelection("news", query) }), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters4.setGeography(name));
   function navigateSelection(view, query) {
     filters4.show(view), filters4.apply(query, !1), state.contentStale = !0, track("filtro"), navigation.show(view);
   }
@@ -3389,7 +3378,7 @@
   window.RADAR_PREVIEW && ($("preview-banner").hidden = !1);
   async function startApplication(params = {}) {
     if (deferSecondaryRequests(), params.edition) {
-      state.attribution = params.edition;
+      ["positive", "negative"].includes(params.feedback) && reading.open(params.edition, params.feedback), state.attribution = params.edition;
       let view = ["news", "briefing", "radar"].includes(params.view) ? params.view : defaultView;
       filters4.show(view), navigation.show(view), state.ready = !0, filters4.useEdition(params.edition, { country: params.country, entity: params.entity, palanca: params.palanca, subpalanca: params.subpalanca, benchmark: params.benchmark, newsGeography: params.newsGeography });
       return;
