@@ -56,8 +56,9 @@ function deliverNewsletterBatch_(work,maxMs=BACKGROUND_WORK.sliceMs){
       const email=newsletterEmail_(row.correo);if(!history.has(email))history.set(email,new Set());
       const known=history.get(email),selected=prepared.get(key),unseen=query.view==='briefing'?newsletterUnseen_(selected,known):selected,edition=Utilities.getUuid();let content=newsletterContent_(unseen,query,row.nombre,now,row.id,row.idioma,edition,known);const keys=content.items.flatMap(newsletterItemKeys_);
       const skipped=selected.length-unseen.length;content.omitted=skipped;result.duplicates+=skipped;
-      if(content.count&&!newsletterTranslationsReady_(content.items,row.idioma,started,maxMs)){result.state='translation_pending';continue;}
-      if(content.count){content=newsletterContent_(unseen,query,row.nombre,now,row.id,row.idioma,edition,known);content.omitted=skipped;}
+      const needsTranslation=content.count&&!content.translationReady;
+      if(needsTranslation&&!newsletterTranslationsReady_(content.items,row.idioma,started,maxMs)){result.state='translation_pending';continue;}
+      if(needsTranslation&&content.items.length){content=newsletterContent_(unseen,query,row.nombre,now,row.id,row.idioma,edition,known);content.omitted=skipped;}
       if(content.count&&!sender)try{sender=newsletterSender_();}catch(error){recordNewsletterBlock_(error,properties_().getProperty('OWNER_EMAIL'));throw error;}
       if(content.count)saveNewsletterEdition_(edition,id,row.correo,row.nombre,query,row.idioma,content.evidence,content.editorial);
       append_('NewsletterEnvios',[[id,row.id,row.correo,query.from,query.to,content.count?'Enviando':'Sin novedades',now.toISOString(),newsletterContentDetail_(content),JSON.stringify(keys)]]);
