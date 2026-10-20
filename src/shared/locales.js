@@ -118,6 +118,7 @@ export const translations = Object.freeze({
   "Funcionalidad / sub operativa, más relevante": ["Most relevant functionality / sub-operation", "En ilgili işlev / alt işlem"],
   "Producto concreto respaldado por fuente oficial": ["Specific product supported by an official source", "Resmî kaynakla desteklenen somut ürün"],
   "PRUEBA": ["TEST", "TEST"],
+  "Clasificación local": ["Local classification", "Yerel sınıflandırma"],
   "Catálogo maestro (Drive)": ["Master catalogue (Drive)", "Ana katalog (Drive)"],
   "Descripción": ["Description", "Açıklama"],
   "Sin clasificación funcional justificable": ["No defensible functional classification", "Gerekçelendirilebilir işlevsel sınıflandırma yok"],

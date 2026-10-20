@@ -172,6 +172,7 @@
     "Funcionalidad / sub operativa, m\xE1s relevante": ["Most relevant functionality / sub-operation", "En ilgili i\u015Flev / alt i\u015Flem"],
     "Producto concreto respaldado por fuente oficial": ["Specific product supported by an official source", "Resm\xEE kaynakla desteklenen somut \xFCr\xFCn"],
     PRUEBA: ["TEST", "TEST"],
+    "Clasificaci\xF3n local": ["Local classification", "Yerel s\u0131n\u0131fland\u0131rma"],
     "Cat\xE1logo maestro (Drive)": ["Master catalogue (Drive)", "Ana katalog (Drive)"],
     Descripci\u00F3n: ["Description", "A\xE7\u0131klama"],
     "Sin clasificaci\xF3n funcional justificable": ["No defensible functional classification", "Gerek\xE7elendirilebilir i\u015Flevsel s\u0131n\u0131fland\u0131rma yok"],
@@ -1381,7 +1382,7 @@
   function identityMark(kind, name, escape3, images) {
     if (kind === "publishers" && !publisherIdentities.size) for (let [name2, asset2] of Object.entries(define_IDENTITY_ASSETS_default.publishers)) publisherIdentities.set(name2.toLowerCase().trim(), asset2);
     let asset = kind === "publishers" ? publisherIdentities.get(String(name || "").toLowerCase().trim()) : define_IDENTITY_ASSETS_default[kind]?.[name];
-    if (!asset) return kind === "entities" && name ? '<span class="entity-monogram" title="' + escape3(name) + '" aria-label="' + escape3(name) + '">' + escape3(name.split(/\s+/).map((word) => word[0]).join("").slice(0, 2)) + "</span>" : "";
+    if (!asset) return kind === "entities" && name ? '<span class="entity-monogram" title="' + escape3(name) + '" aria-label="' + escape3(name) + '">' + escape3(name.split(/\s+/).map((word) => word.replace(/^[^\p{L}\p{N}]+/u, "")[0] || "").join("").slice(0, 2)) + "</span>" : "";
     images && images.set(asset.id, asset);
     let src = images ? "cid:" + asset.id : "data:image/png;base64," + asset.data;
     return '<img class="' + (kind === "countries" ? "geography-flag" : kind === "publishers" ? "publisher-logo" : "entity-logo") + '" src="' + src + '" width="' + asset.width + '" height="' + asset.height + '" alt="' + escape3(name) + '" title="' + escape3(name) + '"' + (images ? "" : ' loading="lazy" decoding="async"') + ">";
@@ -1468,8 +1469,17 @@
   function receive(data) {
     return data?.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), data;
   }
-  var requests = /* @__PURE__ */ new Map();
+  var requests = /* @__PURE__ */ new Map(), initialDashboard, releaseInitialDashboard, secondaryMethods = /* @__PURE__ */ new Set(["recordEvents", "getCollectionProgress", "getClassificationStatus", "getMaintenanceStatus", "getTranslationStatus", "getTaxonomyTranslationStatus"]);
+  function deferSecondaryRequests() {
+    initialDashboard || (initialDashboard = new Promise((resolve) => {
+      releaseInitialDashboard = resolve;
+    }));
+  }
+  function releaseSecondaryRequests() {
+    releaseInitialDashboard && (releaseInitialDashboard(), initialDashboard = null, releaseInitialDashboard = null);
+  }
   function call(method, ...args) {
+    if (initialDashboard && secondaryMethods.has(method)) return initialDashboard.then(() => call(method, ...args));
     let key = method.startsWith("get") ? JSON.stringify([method, ...args]) : null;
     if (key && requests.has(key)) return requests.get(key);
     let finishLoading = beginLoading(method, args), response, started = performance.now();
@@ -1962,7 +1972,7 @@
     let filters5 = createRecordFilters("taxonomy", [["palanca", "Bloque funcional"]], render, { placeholder: "Bloque funcional, funcionalidad / sub operativa o t\xE9rmino" });
     function render() {
       let query = filters5.query(), page = recordPage(filterRecords(items, query, ["palanca"], ["palanca", "subpalanca", "terminos", "segmentos", "descripcion"]), query, pageSize);
-      $("taxonomy-body").innerHTML = page.items.map((row) => `<tr><td data-original>${escape2(t(row.palanca))}</td><td><strong data-original>${escape2(t(row.subpalanca))}</strong></td><td>${escape2(row.segmentos.join(" \xB7 "))}</td><td>${row.noticias}</td><td data-original>${escape2(row.terminos.join(" \xB7 "))}</td><td data-original>${row.descripcion ? `<details><summary>${escape2(t("Descripci\xF3n"))}</summary>${escape2(row.descripcion)}</details>` : ""}</td><td>${escape2(row.origen === "tf-idf" ? "TF-IDF" : t("Cat\xE1logo maestro (Drive)"))}</td></tr>`).join("") || '<tr><td colspan="7">' + t("Sin cat\xE1logo global de funcionalidades disponible. Ejecuta el job para generarlo.") + "</td></tr>", filters5.page(page), $("taxonomy-count").textContent = t("{blocks} bloques funcionales \xB7 {functions} funcionalidades / sub operativas", { blocks: new Set(items.map((row) => row.palanca)).size, functions: items.filter((row) => row.subpalanca).length });
+      $("taxonomy-body").innerHTML = page.items.map((row) => `<tr><td data-original>${escape2(t(row.palanca))}</td><td><strong data-original>${escape2(t(row.subpalanca))}</strong></td><td>${escape2(row.segmentos.join(" \xB7 "))}</td><td>${row.noticias}</td><td data-original>${escape2(row.terminos.join(" \xB7 "))}</td><td data-original>${row.descripcion ? `<details><summary>${escape2(t("Descripci\xF3n"))}</summary>${escape2(row.descripcion)}</details>` : ""}</td><td>${escape2(row.origen === "local" ? t("Clasificaci\xF3n local") : row.origen === "tf-idf" ? "TF-IDF" : t("Cat\xE1logo maestro (Drive)"))}</td></tr>`).join("") || '<tr><td colspan="7">' + t("Sin cat\xE1logo global de funcionalidades disponible. Ejecuta el job para generarlo.") + "</td></tr>", filters5.page(page), $("taxonomy-count").textContent = t("{blocks} bloques funcionales \xB7 {functions} funcionalidades / sub operativas", { blocks: new Set(items.map((row) => row.palanca)).size, functions: items.filter((row) => row.subpalanca).length });
     }
     let monitor = createJobMonitor({ id: "taxonomy", get: "getTaxonomyStatus", start: "startTaxonomy", run, isActive, onRevision, render(data) {
       let source = JSON.stringify([data.configurationRevision, data.catalogUrl]);
@@ -1970,7 +1980,7 @@
       let job = data.job, total = Number(job?.workTotal ?? Number(job?.total || 0) * 2), done = Number(job?.processed || 0);
       $("taxonomy-progress").innerHTML = job ? jobProgressHtml(job, { total, done, label: "Progreso de cat\xE1logo global de funcionalidades", queued: data.queued, summary: t("{done}/{total} pasos de an\xE1lisis y etiquetado; {tagged} etiquetas actualizadas.", { done, total, tagged: job.tagged }) }) : '<p class="muted">' + t(data.queued ? "En cola" : "Sin actualizaciones del cat\xE1logo ejecutadas.") + "</p>";
       let next = JSON.stringify([data.items, data.pageSize, data.taxonomyTranslations, language]);
-      next !== signature && (signature = next, items = data.items, pageSize = data.pageSize, filters5.options(recordOptions(items, ["palanca"])), render());
+      next !== signature && (signature = next, items = data.items.filter((row) => row.subpalanca), pageSize = data.pageSize, filters5.options(recordOptions(items, ["palanca"])), render());
     } });
     return monitor;
   }
@@ -3343,10 +3353,10 @@
             let key2 = selectionKey({ ...filters4.query(), ...query.newsGeography ? {} : { newsGeography: "" } });
             dashboards.delete(key2), data.newsRevision && data.configurationRevision && dashboards.set(key2, { data, time: clientCacheHit ? cached.time : performance.now() }), dashboards.size > navigationCache.entries && dashboards.delete(dashboards.keys().next().value);
           }
-          renderSelection(data, navigation.current, appended), renderApplicationShell(data), track("rendimiento", performance.now() - started, { ...data.performance, ...clientCacheHit ? { serverMs: 0, newsMs: 0, preparationMs: 0, metadataMs: 0, cacheHit: !0, snapshotHit: !1 } : {}, clientCacheHit, sharedRequest: !clientCacheHit && data.performance.transportMs > performance.now() - started + 5, rpcMs: clientCacheHit ? 0 : data.performance.transportMs, renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
+          renderSelection(data, navigation.current, appended), renderApplicationShell(data), releaseSecondaryRequests(), track("rendimiento", performance.now() - started, { ...data.performance, ...clientCacheHit ? { serverMs: 0, newsMs: 0, preparationMs: 0, metadataMs: 0, cacheHit: !0, snapshotHit: !1 } : {}, clientCacheHit, sharedRequest: !clientCacheHit && data.performance.transportMs > performance.now() - started + 5, rpcMs: clientCacheHit ? 0 : data.performance.transportMs, renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
         }
       } catch (error) {
-        request3 === state.request && (track("error"), message(error.message || String(error), !0));
+        request3 === state.request && (track("error"), releaseSecondaryRequests(), message(error.message || String(error), !0));
       }
   }
   var actionControls = "#llm-section button,#llm-section input,#llm-section select,#classification-start,#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
@@ -3378,14 +3388,14 @@
   }, !1));
   window.RADAR_PREVIEW && ($("preview-banner").hidden = !1);
   async function startApplication(params = {}) {
-    if (params.edition) {
+    if (deferSecondaryRequests(), params.edition) {
       state.attribution = params.edition;
       let view = ["news", "briefing", "radar"].includes(params.view) ? params.view : defaultView;
       filters4.show(view), navigation.show(view), state.ready = !0, filters4.useEdition(params.edition, { country: params.country, entity: params.entity, palanca: params.palanca, subpalanca: params.subpalanca, benchmark: params.benchmark, newsGeography: params.newsGeography });
       return;
     }
     try {
-      params.view === "subscriptions" ? (state.data = await call("getDashboard", { view: "subscriptions" }), renderApplicationShell(state.data), state.ready = !0, await navigation.show("subscriptions")) : (navigation.show(defaultView), state.ready = !0, await load());
+      params.view === "subscriptions" ? (state.data = await call("getDashboard", { view: "subscriptions" }), releaseSecondaryRequests(), renderApplicationShell(state.data), state.ready = !0, await navigation.show("subscriptions")) : (navigation.show(defaultView), state.ready = !0, await load());
       let id = params.unsubscribe;
       if (!id || params.view !== "subscriptions") return;
       message("Confirma la baja de esta suscripci\xF3n.");
@@ -3394,7 +3404,7 @@
         message(await call("deleteSubscription", id)), await subscriptions.open();
       }, !1)), $("message").appendChild(button);
     } catch (error) {
-      $("loading").hidden = !0, message(error.message || String(error), !0);
+      releaseSecondaryRequests(), $("loading").hidden = !0, message(error.message || String(error), !0);
     }
   }
   !window.RADAR_PREVIEW && typeof google < "u" ? google.script.url.getLocation((location) => startApplication(location.parameter)) : startApplication(Object.fromEntries(new URLSearchParams(window.location?.search || "")));

@@ -19,6 +19,7 @@ function defaultDashboardSnapshot_(view,query,language){
     if(!rows||rows.some(([name,generation,part],index)=>name!==view||generation!==manifest.generation||Number(part)!==index))throw Error('Fragmentos incompletos');
     const encoded=rows.map(row=>row[3]).join('');if(sha256_(encoded)!==manifest.digest)throw Error('Contenido incompleto');
     const bundle=JSON.parse(Utilities.ungzip(Utilities.newBlob(Utilities.base64Decode(encoded),'application/gzip')).getDataAsString()),variants=Object.hasOwn(bundle.variants,query.newsGeography)?bundle.variants[query.newsGeography]:bundle.variants[''],data=variants[view==='radar'?'es':language];
+    hydrateDashboardSnapshot_(cache,manifest.revision,bundle.variants,view,bundle.period,bundle.periodFallback);
     const value={data,period:bundle.period,periodFallback:bundle.periodFallback};writeDashboardCache_(cache,key,value);return value;
   }catch(error){console.warn('Snapshot '+view+': '+String(error.message||error));properties_().setProperty('DASHBOARD_SNAPSHOT_CORRUPT','true');requestDashboardSnapshots_();return null;}
 }
@@ -65,7 +66,7 @@ function buildDashboardSnapshotBatch_(job=null){
   sheet.getRange(first,1,parts,4).setNumberFormat('@').setValues(Array.from({length:parts},(_,index)=>[view,generation,String(index),encoded.slice(index*DASHBOARD_SNAPSHOTS.chars,(index+1)*DASHBOARD_SNAPSHOTS.chars)]));SpreadsheetApp.flush();
   build.manifests[view]={revision,generation,slot,first,parts,digest:sha256_(encoded),generated:new Date().toISOString(),period,periodFallback};
   properties_().setProperty('DASHBOARD_SNAPSHOT_BUILD',JSON.stringify(build));
-  writeDashboardCache_(CacheService.getScriptCache(),'dashboard-snapshot:'+revision+':es:',{data:variants[''].es,period,periodFallback});
+  hydrateDashboardSnapshot_(CacheService.getScriptCache(),revision,variants,view,period,periodFallback);
   telemetry_('dashboard-snapshot',Date.now()-started,'OK',view+'; '+period.from+' — '+period.to+'; anterior '+periodFallback+'; variantes '+Object.keys(variants).length+'; comprimido '+encoded.length+' caracteres');
   if(DASHBOARD_SNAPSHOTS.views.every(view=>build.manifests[view]))publishDashboardSnapshotSet_(build,job);return true;
 }
@@ -104,3 +105,7 @@ function rollbackDataGeneration(){
   });
 }
 
+
+function hydrateDashboardSnapshot_(cache,revision,variants,view,period,periodFallback){
+  for(const [geography,values] of Object.entries(variants))for(const language of Object.keys(languageNames))writeDashboardCache_(cache,'dashboard-snapshot:'+revision+':'+language+':'+geography,{data:values[view==='radar'?'es':language],period,periodFallback});
+}

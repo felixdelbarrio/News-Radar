@@ -3,7 +3,12 @@ export {refreshLoading} from './loading.js';
 import {t,setTaxonomyTranslations} from './language.js';
 function receive(data){if(data?.taxonomyTranslations)setTaxonomyTranslations(data.taxonomyTranslations);return data;}
 const requests=new Map();
+let initialDashboard;let releaseInitialDashboard;
+const secondaryMethods=new Set(['recordEvents','getCollectionProgress','getClassificationStatus','getMaintenanceStatus','getTranslationStatus','getTaxonomyTranslationStatus']);
+export function deferSecondaryRequests(){if(!initialDashboard)initialDashboard=new Promise(resolve=>{releaseInitialDashboard=resolve;});}
+export function releaseSecondaryRequests(){if(releaseInitialDashboard){releaseInitialDashboard();initialDashboard=null;releaseInitialDashboard=null;}}
 function call(method, ...args) {
+  if(initialDashboard&&secondaryMethods.has(method))return initialDashboard.then(()=>call(method,...args));
   const key=method.startsWith('get')?JSON.stringify([method,...args]):null;
   if(key&&requests.has(key))return requests.get(key);
   const finishLoading=beginLoading(method,args);

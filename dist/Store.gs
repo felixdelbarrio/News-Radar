@@ -57,7 +57,7 @@ function cacheJsonValue_(value){
   const encoded=JSON.stringify(value);
   return encoded.length<=90000&&encodeURIComponent(encoded).replace(/%[A-F\d]{2}/gi,'x').length<=90000?encoded:null;
 }
-function cacheJson_(key,value,seconds){const encoded=cacheJsonValue_(value);if(encoded)CacheService.getScriptCache().put(key,encoded,seconds);}
+function cacheJson_(key,value,seconds){const encoded=cacheJsonValue_(value);if(encoded)try{CacheService.getScriptCache().put(key,encoded,seconds);}catch(_){}}
 
 function sheetRowRanges_(positions,gap=8){
   if(!positions.length)return [];
@@ -85,8 +85,11 @@ function newsWorkCursor_(row){return {date:row.fecha,row:row._sheetRow};}
 
 function writeNewsCells_(updates){
   const sheet=newsSheet_(),ordered=updates.slice().sort((a,b)=>a.column-b.column||a.row-b.row);
-  for(let start=0;start<ordered.length;){let end=start+1;while(end<ordered.length&&ordered[end].column===ordered[start].column&&ordered[end].row===ordered[end-1].row+1)end++;
-    sheet.getRange(ordered[start].row,ordered[start].column,end-start,1).setNumberFormat('@').setValues(ordered.slice(start,end).map(item=>[item.value]));start=end;
+  for(let start=0;start<ordered.length;){
+    let end=start+1;while(end<ordered.length&&ordered[end].column===ordered[start].column&&ordered[end].row-ordered[end-1].row<=64&&ordered[end].row-ordered[start].row<250)end++;
+    const first=ordered[start].row,column=ordered[start].column,size=ordered[end-1].row-first+1,values=size===end-start?ordered.slice(start,end).map(item=>[item.value]):sheet.getRange(first,column,size,1).getDisplayValues();
+    if(size!==end-start)for(const item of ordered.slice(start,end))values[item.row-first]=[item.value];
+    sheet.getRange(first,column,size,1).setNumberFormat('@').setValues(values);start=end;
   }
 }
 

@@ -71,7 +71,7 @@ function dashboardArticleFields_(data){
 }
 
 function dashboardCacheKey_(selection,view,language,edition=null){
-  return 'dashboard-fragments:'+newsStorageKey_()+':'+taxonomyStorageKey_()+':'+RADAR.version+':'+sha256_(JSON.stringify([NEWS_CACHE.schema,llmRevision_(),configurationRevision_(),edition?[edition.id,newsletterArchiveKey_()]:properties_().getProperty('NEWS_RECORDS_REVISION')||'0',view,selection,Object.keys(languageNames).map(code=>properties_().getProperty('TRANSLATIONS_REVISION:'+code)||'0'),language]));
+  return 'dashboard-fragments:'+newsStorageKey_()+':'+taxonomyStorageKey_()+':'+RADAR.version+':'+sha256_(JSON.stringify([NEWS_CACHE.schema,llmRevision_(),configurationRevision_(),edition?[edition.id,newsletterArchiveKey_()]:properties_().getProperty('NEWS_RECORDS_REVISION')||'0',view,Object.fromEntries(Object.entries(selection).filter(([key,value])=>value!==''&&value!=null&&!(key==='page'&&Number(value)===0)).sort(([a],[b])=>a.localeCompare(b))),Object.keys(languageNames).map(code=>properties_().getProperty('TRANSLATIONS_REVISION:'+code)||'0'),language]));
 }
 
 function dashboardCatalogOptions_(data,feeds){
