@@ -8,7 +8,7 @@ function newsletterDigest_(items,query,language,t,known=new Set()){
  // Count distinct evidence in the same geography/block, as in the heatmap; relevance breaks ties.
  candidates.sort((a,b)=>b.rows.length-a.rows.length||b.entities-a.entities||newsRelevance_(b.row)-newsRelevance_(a.row)||a.tag.palanca.localeCompare(b.tag.palanca,'es'));
  const limit=fortnightly?Math.min(NEWSLETTER_EDITORIAL.cards,settings_().briefingLimit):focused?2:1,chosen=[],ids=new Set(),blocks=new Set();
- function choose(entries,budget){for(const entry of entries){if(budget<=0||chosen.length>=limit)break;const row=entry.rows.find(row=>!ids.has(row.id));if(!row)continue;chosen.push({...entry,row});ids.add(row.id);blocks.add(entry.tag.palanca);budget--;}}
+ function choose(entries,budget){for(const entry of entries){if(budget<=0||chosen.length>=limit)break;if(chosen.some(item=>item.scope===entry.scope&&item.tag.palanca===entry.tag.palanca))continue;const row=entry.rows.find(row=>!ids.has(row.id));if(!row)continue;chosen.push({...entry,row});ids.add(row.id);blocks.add(entry.tag.palanca);budget--;}}
  const local=candidates.filter(row=>row.scope==='local'),global=candidates.filter(row=>row.scope==='global');
  if(focused)choose(local,fortnightly?(global.length?Math.max(1,limit-1):limit):1);
  if(fortnightly){choose(global.filter(row=>!blocks.has(row.tag.palanca)),limit-chosen.length);choose(global,limit-chosen.length);}else choose(global,1);
