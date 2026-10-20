@@ -20,10 +20,10 @@ function classificationReadyAt_(){const job=classificationJob_();return job&&!['
 function writeClassificationJob_(job){progressContextMemory_=undefined;properties_().setProperty('CLASSIFICATION_JOB',JSON.stringify(snapshotJob_('CLASSIFICATION_JOB',job)));}
 function requestNewsClassification_(force=false){
   const job=classificationJob_();if(!force&&job?.version===CLASSIFICATION_WORK.rulesVersion)return;
-  pruneNewsGenerations_();
+  discardJobTargets_(job,'classification');pruneNewsGenerations_();
   const now=new Date(),source=newsStorageKey_(),target='Noticias_class_'+Utilities.getUuid(),total=Math.max(0,newsSheet_().getLastRow()-1);
   if(total)generationSheet_(target,RADAR.sheets.Noticias);
-  writeClassificationJob_({source,taxonomySource:taxonomyStorageKey_(),target:total?target:null,corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',next:2,cursor:null,total,revision:classificationRulesRevision_(),version:CLASSIFICATION_WORK.rulesVersion,state:total?'Pendiente':'Completada',started:now.toISOString(),updated:now.toISOString(),day:recordDay(now,settings_().timezone),classified:0,digital:0});
+  writeClassificationJob_({layout:'sequential',source,taxonomySource:taxonomyStorageKey_(),target:total?target:null,corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',next:2,cursor:null,total,revision:classificationRulesRevision_(),version:CLASSIFICATION_WORK.rulesVersion,state:total?'Pendiente':'Completada',started:now.toISOString(),updated:now.toISOString(),day:recordDay(now,settings_().timezone),classified:0,digital:0});
   if(total)ensureBackgroundWorker_();
 }
 function drainClassificationRequest_(){
@@ -55,7 +55,7 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
       const saved=savedNewsLabels_(row.clasificacion),sufficient=saved.schema===1&&saved.version===CLASSIFICATION_WORK.rulesVersion&&saved.revision===revision&&saved.contentHash===sha256_(JSON.stringify([searchText_(row.titular),searchText_(row.titular+' '+row.extracto)])),labels={...(sufficient?saved:classification_(searchText_(row.titular),searchText_(row.titular+' '+row.extracto)).labels),...(saved.canonicalId?{canonicalId:saved.canonicalId}:{}),...(saved.procedencia?{procedencia:saved.procedencia}:{})},value=JSON.stringify(labels),country=newsCountry_(row);
       if(value!==row.clasificacion)classified++;
       if(country!==row.pais)countriesChanged++;
-      staged.push({row:row._sheetRow,values:keys.map(key=>key==='clasificacion'?value:key==='pais'?country:key==='taxonomia'?JSON.stringify(necessaryTaxonomyRecord_(row)):row[key])});
+      staged.push({row:job.layout==='sequential'?job.next+read:row._sheetRow,values:keys.map(key=>key==='clasificacion'?value:key==='pais'?country:key==='taxonomia'?JSON.stringify(necessaryTaxonomyRecord_(row)):row[key])});
       if(labels.digital)digital++;cursor=newsWorkCursor_(row);read++;
     }
     const targetSheet=book_().getSheetByName(job.target);writeStagedNewsRows_(targetSheet,staged);

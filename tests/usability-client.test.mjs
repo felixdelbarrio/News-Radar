@@ -14,7 +14,7 @@ test('editar criterios conserva resultados y chips hasta Aplicar filtros; restau
 });
 
 test('chips de fecha abren el calendario sin eliminar el período y fechas inválidas no consultan',async t=>{
- const a=await app(t,{configure({data}){data.selection={from:'2026-10-07',to:'2026-10-13'};}});const before=dashboards(a).length;
+ const a=await app(t,{configure({data}){data.selection={from:'2026-10-07',to:'2026-10-13'};}});await a.click('[data-view="news"]');const before=dashboards(a).length;
  assert.equal(a.w.document.querySelector('[data-remove-filter="from"]'),null);await a.click('[data-edit-filter="from"]');assert.equal(a.find('#filters-dialog').open,true);assert.equal(a.find('.calendar-dialog').open,true);await a.click('.calendar-dialog [data-calendar-close]');
  await draft(a,'from','2026-10-20');await a.submit('#filters');assert.equal(dashboards(a).length,before);assert.equal(a.find('#filters [name="to"]').validity.customError,true);
 });

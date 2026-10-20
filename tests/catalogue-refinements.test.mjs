@@ -15,14 +15,14 @@ test('la evidencia específica del titular produce una única pareja, incluso an
 test('cada nombre y código del catálogo conserva su identidad original en español',()=>{
  const s=storage(),c=s.c;c.initializeConfiguration();c.startTaxonomy();for(let i=0;i<10&&c.taxonomyPending_();i++){if(c.taxonomyJob_().state==='Publicando')c.dashboardSnapshotBatch_();else c.taxonomyBatch_();}
  const names=c.taxonomyTranslations_().es;for(const block of config.taxonomy){assert.equal(names[block.name],block.name);for(const row of block.functions)assert.equal(names[row.id+'.'+row.name],row.id+'.'+row.name);}
- assert.equal(c.taxonomyLanguage_('es',{'16.Security Experience & Onboarding':'Seguridad'})('16.Security Experience & Onboarding'),'16.Security Experience & Onboarding');
+ assert.equal(c.taxonomyLanguage_('es',{'16.Security Experience & Onboarding':'Seguridad'})('16.Security Experience & Onboarding'),'Security Experience & Onboarding');
 });
 test('los filtros muestran nombres sin índices, en orden alfabético y con valores canónicos relacionados',async t=>{
  const blocks=['20.Venta Digital','02.Cuentas','08.Financiación'],rows=[{palanca:blocks[0],subpalanca:'20.04.Quantum'},{palanca:blocks[1],subpalanca:'02.01.Landing de cuentas'},{palanca:blocks[2],subpalanca:'08.02.Crédito Virtual'}];
  const a=await app(t,{configure({data}){data.palanca=blocks;data.subpalanca=rows.map(taxonomyPath);data.taxonomyTranslations={es:{'20.Venta Digital':'Incorrecto'}};data.items=[{id:'a',fecha:'2026-10-10',titular:'Titular',url:'https://example.com/a',medio:'Editor',fuente:'RSS',taxonomia:[rows[0]]}];}});
  await a.click('[data-view="news"]');const parent=a.find('#filters [name="palanca"]'),child=a.find('#filters [name="subpalanca"]');
  assert.deepEqual([...parent.options].map(o=>o.textContent),['Todos','Cuentas','Financiación','Venta Digital']);assert.deepEqual([...child.options].map(o=>o.textContent),['Todos','Crédito Virtual','Landing de cuentas','Quantum']);
- assert.match(a.find('#news-list').textContent,/20.Venta Digital/);assert.doesNotMatch(a.find('#news-list').textContent,/Bloque funcional:|Funcionalidad \/ Sub Operativa:|Incorrecto/);
+ assert.match(a.find('#news-list').textContent,/Venta Digital/);assert.doesNotMatch(a.find('#news-list').textContent,/20\./);assert.doesNotMatch(a.find('#news-list').textContent,/Bloque funcional:|Funcionalidad \/ Sub Operativa:|Incorrecto/);
  assert.match(a.find('#news-list').textContent,/Editor Origen RSS: RSS/);
  await a.change('#filters [name="palanca"]','02.Cuentas');assert.deepEqual([...child.options].map(o=>o.textContent),['Todos','Landing de cuentas']);assert.equal(child.options[1].value,taxonomyPath(rows[1]));
  assert.equal(taxonomyDisplayLabel('03.xx Pagos con stablecoins'),'Pagos con stablecoins');

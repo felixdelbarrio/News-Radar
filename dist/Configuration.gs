@@ -34,8 +34,9 @@ function initializeConfiguration(){
   authorize_(true);return withForegroundWrite_(()=>{
     const refreshCatalog=properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION;
     for(const name of ['Candidatos','Cobertura','Configuracion','Suscripciones','NewsletterEnvios','NewsletterEdiciones','NewsletterContenido','NewsletterEventos','NewsletterFeedback','Noticias','Recopilacion','Recargas','Traducciones','CatalogoFuncional','Taxonomia','TaxonomiaTrabajo','TaxonomiaTraducciones','Auditoria','Telemetria','Ejecuciones','Adopcion','DashboardSnapshots']){
-      if(book_().getSheetByName(name)){if(name!=='Configuracion')book_().getSheetByName(name).getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]);continue;}
-      const sheet=book_().insertSheet(name);sheet.getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]).setFontWeight('bold').setBackground(SHEET_THEME.background).setFontColor(SHEET_THEME.foreground);sheet.setFrozenRows(1);
+      const physical=configurationStorageKey_(name);
+      if(book_().getSheetByName(physical)){if(name!=='Configuracion')book_().getSheetByName(physical).getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]);continue;}
+      const sheet=book_().insertSheet(physical);sheet.getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]).setFontWeight('bold').setBackground(SHEET_THEME.background).setFontColor(SHEET_THEME.foreground);sheet.setFrozenRows(1);
     }
     const sheet=book_().getSheetByName('Configuracion'),count=sheet.getLastRow()-1,keys=new Set(count?sheet.getRange(2,1,count,1).getValues().flat():[]);
     // Add only absent defaults when the catalog version changes; preserve existing edits and activations.
@@ -89,7 +90,9 @@ function initializeConfiguration(){
     initializeCollectionQueue_();
     if(refreshCatalog&&(newsSheet_().getLastRow()>1||book_().getSheetByName('Telemetria')?.getLastRow()>1))maintenance_();
     initializeBackgroundSchedules_();
-    return 'Configuración inicializada en Sheets. Los valores existentes se han conservado.';
+    const removed=pruneNewsGenerations_();pruneLlmGenerations_();
+    telemetry_('initializeConfiguration',0,'OK','Pestañas obsoletas eliminadas: '+(removed.join(', ')||'ninguna'));
+    return 'Configuración inicializada. Pestañas obsoletas eliminadas: '+(removed.join(', ')||'ninguna')+'.';
   });
 }
 function validateConfiguration_(config){

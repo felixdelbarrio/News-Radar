@@ -1,0 +1,517 @@
+{
+  "layout": "sequential",
+  "classified": 8898,
+  "digital": 620,
+  "translations": 6089,
+  "taxonomyTranslations": 688,
+  "checkpointRows": 1,
+  "cells": 1489722,
+  "phase": "verified",
+  "news": 8984,
+  "identity": "3e0abcd176a85f8ad053748413ecab1180d2f3146de4a2bb2689b0a5edb60479",
+  "taxonomy": 366,
+  "others": 22,
+  "obsolete": 0,
+  "canonical": "3.11.0",
+  "newsletter": [
+    [
+      "NewsletterContenido",
+      2032
+    ],
+    [
+      "NewsletterEdiciones",
+      30
+    ]
+  ],
+  "sheets": [
+    "Telemetria",
+    "Noticias_class_1de1d3a3-b4d2-4440-8757-7a385d4b3ba9",
+    "Taxonomia_gen_09b3f955-8818-4e82-b5ed-45132f3cfa5d",
+    "DashboardSnapshotBackup",
+    "Candidatos",
+    "Cobertura",
+    "CatalogoFuncional",
+    "DashboardSnapshots",
+    "NewsletterEventos",
+    "NewsletterFeedback",
+    "TaxonomiaTraducciones",
+    "TaxonomiaTrabajo",
+    "Recargas",
+    "Traducciones",
+    "Configuracion",
+    "Suscripciones",
+    "NewsletterEnvios",
+    "Recopilacion",
+    "Adopcion",
+    "Auditoria",
+    "Ejecuciones",
+    "NewsletterContenido_gen_a4686ce5-5f9d-4b19-97d7-b8dce9f138a6",
+    "NewsletterEdiciones_gen_a4686ce5-5f9d-4b19-97d7-b8dce9f138a6",
+    "CategorizacionLLM_gen_ef6518af-9a6c-4b29-aef7-2eb396d99b7a",
+    "Noticias_tax_09b3f955-8818-4e82-b5ed-45132f3cfa5d"
+  ],
+  "classification": "Completada",
+  "taxonomyJob": "Completada",
+  "ms": 30046,
+  "dashboardChecks": [
+    {
+      "view": "news",
+      "language": "es",
+      "total": 2,
+      "performance": {
+        "version": "3.11.0",
+        "serverMs": 5141,
+        "preparationMs": 535,
+        "metadataMs": 4340,
+        "newsMs": 266,
+        "cacheHit": true,
+        "snapshotHit": true
+      }
+    },
+    {
+      "view": "news",
+      "language": "en",
+      "total": 2,
+      "performance": {
+        "version": "3.11.0",
+        "serverMs": 973,
+        "preparationMs": 76,
+        "metadataMs": 682,
+        "newsMs": 215,
+        "cacheHit": true,
+        "snapshotHit": true
+      }
+    },
+    {
+      "view": "news",
+      "language": "tr",
+      "total": 2,
+      "performance": {
+        "version": "3.11.0",
+        "serverMs": 923,
+        "preparationMs": 76,
+        "metadataMs": 650,
+        "newsMs": 198,
+        "cacheHit": true,
+        "snapshotHit": true
+      }
+    },
+    {
+      "view": "briefing",
+      "language": "es",
+      "total": 47,
+      "performance": {
+        "version": "3.11.0",
+        "serverMs": 904,
+        "preparationMs": 71,
+        "metadataMs": 596,
+        "newsMs": 237,
+        "cacheHit": true,
+        "snapshotHit": true
+      }
+    },
+    {
+      "view": "briefing",
+      "language": "en",
+      "total": 47,
+      "performance": {
+        "version": "3.11.0",
+        "serverMs": 859,
+        "preparationMs": 65,
+        "metadataMs": 575,
+        "newsMs": 219,
+        "cacheHit": true,
+        "snapshotHit": true
+      }
+    },
+    {
+      "view": "briefing",
+      "language": "tr",
+      "total": 47,
+      "performance": {
+        "version": "3.11.0",
+        "serverMs": 867,
+        "preparationMs": 60,
+        "metadataMs": 588,
+        "newsMs": 219,
+        "cacheHit": true,
+        "snapshotHit": true
+      }
+    },
+    {
+      "view": "radar",
+      "language": "es",
+      "total": 600,
+      "performance": {
+        "version": "3.11.0",
+        "serverMs": 870,
+        "preparationMs": 73,
+        "metadataMs": 586,
+        "newsMs": 211,
+        "cacheHit": true,
+        "snapshotHit": true
+      }
+    },
+    {
+      "view": "radar",
+      "language": "en",
+      "total": 600,
+      "performance": {
+        "version": "3.11.0",
+        "serverMs": 806,
+        "preparationMs": 67,
+        "metadataMs": 544,
+        "newsMs": 195,
+        "cacheHit": true,
+        "snapshotHit": true
+      }
+    },
+    {
+      "view": "radar",
+      "language": "tr",
+      "total": 600,
+      "performance": {
+        "version": "3.11.0",
+        "serverMs": 817,
+        "preparationMs": 55,
+        "metadataMs": 549,
+        "newsMs": 213,
+        "cacheHit": true,
+        "snapshotHit": true
+      }
+    }
+  ],
+  "translationCheck": {
+    "state": "OK",
+    "value": {
+      "titular": "Trial title without extract",
+      "extracto": ""
+    }
+  },
+  "checkedAt": "2026-10-20T08:50:32.094Z",
+  "resumed": true,
+  "codeReadback": [
+    {
+      "file": "Config.gs",
+      "hash": "c5ada677"
+    },
+    {
+      "file": "Configuration.gs",
+      "hash": "f3023d22"
+    },
+    {
+      "file": "DashboardCache.gs",
+      "hash": "35d5bf91"
+    },
+    {
+      "file": "DashboardSnapshots.gs",
+      "hash": "c4ec1998"
+    },
+    {
+      "file": "LlmCategorization.gs",
+      "hash": "0a1523af"
+    },
+    {
+      "file": "Locales.gs",
+      "hash": "ad68a6dc"
+    },
+    {
+      "file": "Maintenance.gs",
+      "hash": "e05d0538"
+    },
+    {
+      "file": "News.gs",
+      "hash": "859528ba"
+    },
+    {
+      "file": "SnapshotJobs.gs",
+      "hash": "bd9b2f66"
+    },
+    {
+      "file": "Store.gs",
+      "hash": "da5c9409"
+    },
+    {
+      "file": "TaxonomyJobs.gs",
+      "hash": "565c8e83"
+    },
+    {
+      "file": "TranslationJobs.gs",
+      "hash": "637fd4cb"
+    },
+    {
+      "file": "WorkCoordinator.gs",
+      "hash": "01fdc1c5"
+    },
+    {
+      "file": "Translations.gs",
+      "hash": "47f9bbff"
+    },
+    {
+      "file": "VisualIdentity.gs",
+      "hash": "7a48421e"
+    },
+    {
+      "file": "Client.html",
+      "hash": "7c8d30e2"
+    },
+    {
+      "file": "Generations.gs",
+      "hash": "507bd2a2"
+    },
+    {
+      "file": "Metrics.gs",
+      "hash": "81adc016"
+    },
+    {
+      "file": "Classification.gs",
+      "hash": "e2462d88"
+    }
+  ],
+  "deployment": {
+    "version": 88,
+    "url": "https://script.google.com/a/macros/bbva.com/s/AKfycbxpg3fwOGwS3Q5oQcjB1xTWd2J1F1-wfW0R5zM0rkR37Qvq589-8PtRcu2FP-HDEQKG/exec",
+    "observedLocalTime": "2026-10-20 10:53 Europe/Madrid"
+  },
+  "catalogStatistics": {
+    "news": 8984,
+    "assignments": 1662,
+    "nonzero": 47,
+    "others": [
+      {
+        "name": "01.xx Otros",
+        "news": 3
+      },
+      {
+        "name": "02.xx Otros",
+        "news": 91
+      },
+      {
+        "name": "03.xx Otros",
+        "news": 182
+      },
+      {
+        "name": "04.xx Otros",
+        "news": 2
+      },
+      {
+        "name": "05.xx Otros",
+        "news": 2
+      },
+      {
+        "name": "06.xx Otros",
+        "news": 5
+      },
+      {
+        "name": "07.xx Otros",
+        "news": 2
+      },
+      {
+        "name": "08.xx Otros",
+        "news": 217
+      },
+      {
+        "name": "09.xx Otros",
+        "news": 7
+      },
+      {
+        "name": "10.xx Otros",
+        "news": 29
+      },
+      {
+        "name": "11.xx Otros",
+        "news": 29
+      },
+      {
+        "name": "12.xx Otros",
+        "news": 223
+      },
+      {
+        "name": "13.xx Otros",
+        "news": 0
+      },
+      {
+        "name": "13.xx Otros",
+        "news": 8
+      },
+      {
+        "name": "14.xx Otros",
+        "news": 45
+      },
+      {
+        "name": "15.xx Otros",
+        "news": 7
+      },
+      {
+        "name": "16.xx Otros",
+        "news": 105
+      },
+      {
+        "name": "17.xx Otros",
+        "news": 532
+      },
+      {
+        "name": "18.xx Otros",
+        "news": 0
+      },
+      {
+        "name": "19.xx Otros",
+        "news": 3
+      },
+      {
+        "name": "20.xx Otros",
+        "news": 0
+      },
+      {
+        "name": "21.xx Otros",
+        "news": 1
+      }
+    ],
+    "modelPreserved": true,
+    "snapshotsReady": true,
+    "checkedAt": "2026-10-20T09:02:00Z"
+  },
+  "executionStamps": {
+    "classification": "2026-10-20T08:44:55.417Z",
+    "taxonomy": "2026-10-20T08:26:12.650Z"
+  },
+  "ui": {
+    "catalogOthers": [
+      {
+        "block": "01.Home",
+        "name": "01.xx Otros",
+        "news": "3",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "02.Cuentas",
+        "name": "02.xx Otros",
+        "news": "91",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "03.Pagos - Transf. y traspasos",
+        "name": "03.xx Otros",
+        "news": "182",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "04.Pagos - Nóminas",
+        "name": "04.xx Otros",
+        "news": "2",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "05.Pagos - Impuestos",
+        "name": "05.xx Otros",
+        "news": "2",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "06.Pagos - Servicios y otros",
+        "name": "06.xx Otros",
+        "news": "5",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "07.Cobros",
+        "name": "07.xx Otros",
+        "news": "2",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "08.Financiación",
+        "name": "08.xx Otros",
+        "news": "217",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "09.Tarjetas",
+        "name": "09.xx Otros",
+        "news": "7",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "10.Comercio Exterior",
+        "name": "10.xx Otros",
+        "news": "29",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "11.Adquirencia / TPVs",
+        "name": "11.xx Otros",
+        "news": "29",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "12.Inversión y Mercados",
+        "name": "12.xx Otros",
+        "news": "223",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "13.Salud financiera",
+        "name": "13.xx Otros",
+        "news": "0",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "13.Sostenibilidad",
+        "name": "13.xx Otros",
+        "news": "8",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "14.Seguros",
+        "name": "14.xx Otros",
+        "news": "45",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "15.Otros",
+        "name": "15.xx Otros",
+        "news": "7",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "16.Security Experience & Onboarding",
+        "name": "16.xx Otros",
+        "news": "105",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "17.Enablers",
+        "name": "17.xx Otros",
+        "news": "532",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "18.Herramientas empleados",
+        "name": "18.xx Otros",
+        "news": "0",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "19.Core",
+        "name": "19.xx Otros",
+        "news": "3",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "20.Venta Digital",
+        "name": "20.xx Otros",
+        "news": "0",
+        "origin": "Clasificación local"
+      },
+      {
+        "block": "21.Funcionalidad transversal",
+        "name": "21.xx Otros",
+        "news": "1",
+        "origin": "Clasificación local"
+      }
+    ],
+    "verifiedVersion": 88,
+    "classificationText": "Completada8984/89848984/8984 noticias revisadas; 8898 etiquetas actualizadas; 620 digitales.Última ejecución: 20/10/26, 10:44"
+  },
+  "temporaryToolsRemoved": true
+}

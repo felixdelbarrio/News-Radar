@@ -1,5 +1,15 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Año": ["Year", "Yıl"],
+  "Enviar": ["Send", "Gönder"],
+  "Una suscripción para recibir novedades quincenales y un balance trimestral. Puedes personalizar la geografía.": ["One subscription for fortnightly updates and a quarterly review. You can personalize the geography.", "İki haftalık yenilikler ve üç aylık değerlendirme için tek abonelik. Coğrafyayı kişiselleştirebilirsiniz."],
+  "Novedades quincenales y balance trimestral. Canal digital de Empresas e instituciones. La suscripción no cambia tus pantallas.": ["Fortnightly updates and a quarterly review. Digital channels for businesses and institutions. Your subscription does not change your screens.", "İki haftalık yenilikler ve üç aylık değerlendirme. İşletme ve kurumlar için dijital kanallar. Abonelik ekranlarınızı değiştirmez."],
+  "Ámbito no disponible.": ["Scope unavailable.", "Kapsam kullanılamıyor."],
+  "Noticias y porcentaje de la selección. Los temas de una entidad pueden solaparse.": ["News and percentage of the selection. An entity’s topics may overlap.", "Haberler ve seçimin yüzdesi. Bir kurumun konuları örtüşebilir."],
+  "Suscripción guardada. Recibirás las ediciones quincenal y trimestral.": ["Subscription saved. You will receive the fortnightly and quarterly editions.", "Abonelik kaydedildi. İki haftalık ve üç aylık sayıları alacaksınız."],
+  "Año no válido.": ["Invalid year.", "Geçersiz yıl."],
+  "Noticias BBVA": ["BBVA news", "BBVA haberleri"],
+  "{theme} fue el bloque funcional con más noticias: {count}, el {share}% de las noticias analizadas.": ["{theme} was the functional block with the most news: {count}, or {share}% of the news analyzed.", "{theme}, en fazla haber içeren işlevsel blok oldu: {count}, incelenen haberlerin %{share} kadarı."],
   "Solo una clasificación LLM vigente con evidencia fuerte sustituye al determinista; las abstenciones y los resultados débiles conservan el determinista.": ["Only a current LLM classification with strong evidence replaces the deterministic result; abstentions and weak results retain it.", "Yalnızca güçlü kanıta sahip güncel LLM sınıflandırması kural tabanlı sonucu değiştirir; çekimserlik ve zayıf sonuçlar mevcut sonucu korur."],
   "Maestro de Drive de solo lectura. News Radar conserva un espejo para clasificar y mantiene una única entrada Otros por bloque, exclusivamente local.": ["Read-only Drive master. News Radar keeps a classification mirror and one local Other entry per block.", "Drive ana kataloğu salt okunurdur. News Radar sınıflandırma kopyasını ve her blok için tek bir yerel Diğer girdisini tutar."],
   "{phase} · {percent} %": ["{phase} · {percent} %", "{phase} · %{percent}"],
@@ -118,6 +128,7 @@ export const translations = Object.freeze({
   "Funcionalidad / sub operativa, más relevante": ["Most relevant functionality / sub-operation", "En ilgili işlev / alt işlem"],
   "Producto concreto respaldado por fuente oficial": ["Specific product supported by an official source", "Resmî kaynakla desteklenen somut ürün"],
   "PRUEBA": ["TEST", "TEST"],
+  "Clasificación local": ["Local classification", "Yerel sınıflandırma"],
   "Catálogo maestro (Drive)": ["Master catalogue (Drive)", "Ana katalog (Drive)"],
   "Descripción": ["Description", "Açıklama"],
   "Sin clasificación funcional justificable": ["No defensible functional classification", "Gerekçelendirilebilir işlevsel sınıflandırma yok"],

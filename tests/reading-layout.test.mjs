@@ -26,7 +26,7 @@ test('Radar usa el año cuando no hay fechas explícitas y cuenta medios sobre t
  const {storage}=await import('./helpers/server.mjs');const {c}=storage();c.initializeConfiguration();c.taxonomyOptions_=()=>({});
  const now=new Date('2026-10-12T12:00:00Z'),query=c.dashboardQuery_({view:'radar',initial:false,from:'',to:''},now);assert.equal(query.from,'2026-01-01');assert.equal(query.to,'2026-12-31');
  const input=Array.from({length:40},(_,i)=>({...row(String(i),'España'),fecha:i<20?'2026-02-10':'2026-10-10'})),data=c.newsDashboard_(input,query,[],'radar');assert.equal(data.radar.publishers[0].total,40);assert.equal(data.radar.available.total,40);assert.equal(data.radar.available.from,'2026-02-10');assert.ok(data.items.length<data.radar.summary.news);
- const manual=c.dashboardQuery_({view:'radar',from:'2026-09-01',to:'2026-09-30'},now);assert.equal(manual.from,'2026-09-01');
+ const manual=c.dashboardQuery_({view:'radar',from:'2026-09-01',to:'2026-09-30'},now);assert.equal(manual.from,'2026-01-01');assert.equal(manual.to,'2026-12-31');
 });
 test('cambiar entre palancas asociadas conserva la subpalanca compartida sin introducir etiquetas con prefijos',async t=>{
  const a=await app(t,{configure({data}){data.palanca=['Pagos','Experiencia'];data.subpalanca=['Pagos › Transferencias','Experiencia › Transferencias'];}});await a.click('[data-view="news"]');await a.change('#filters [name="subpalanca"]','Pagos › Transferencias');await a.change('#filters [name="palanca"]','Experiencia');assert.equal(a.find('#filters [name="subpalanca"]').value,'Experiencia › Transferencias');assert.match(a.find('#active-filters').textContent,/Transferencias/);assert.doesNotMatch(a.find('#active-filters').textContent,/›/);

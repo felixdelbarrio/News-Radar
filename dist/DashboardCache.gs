@@ -21,7 +21,7 @@ function cachedNewsRecords_(query={}){
     if(items.length<2)return false;const middle=Math.ceil(items.length/2);return chunk(items.slice(0,middle))&&chunk(items.slice(middle));
   }
   let complete=true;for(let i=0;i<rows.length;i+=NEWS_CACHE.chunkRows)if(!chunk(rows.slice(i,i+NEWS_CACHE.chunkRows).map(packNews_))){complete=false;break;}
-  if(complete){const id=Utilities.getUuid();if(chunks.length)cache.putAll(Object.fromEntries(chunks.map((value,index)=>[key+':'+id+':'+index,value])),NEWS_CACHE.seconds);cache.put(key,JSON.stringify({id,parts:chunks.length}),NEWS_CACHE.seconds);}
+  if(complete)try{const id=Utilities.getUuid();if(chunks.length)cache.putAll(Object.fromEntries(chunks.map((value,index)=>[key+':'+id+':'+index,value])),NEWS_CACHE.seconds);cache.put(key,JSON.stringify({id,parts:chunks.length}),NEWS_CACHE.seconds);}catch(_){}
   return rows;
 }
 function newsPeriodCount_(query){
@@ -57,5 +57,5 @@ function writeDashboardCache_(cache,key,data){
   if(count>NEWS_CACHE.dashboardParts)return;
   const id=Utilities.getUuid(),parts={};
   for(let index=0;index<count;index++)parts[key+':'+id+':'+index]=JSON.stringify(encoded.slice(index*size,(index+1)*size));
-  cache.putAll(parts,NEWS_CACHE.seconds);cache.put(key,JSON.stringify({id,parts:count}),NEWS_CACHE.seconds);
+  try{cache.putAll(parts,NEWS_CACHE.seconds);cache.put(key,JSON.stringify({id,parts:count}),NEWS_CACHE.seconds);}catch(_){}
 }

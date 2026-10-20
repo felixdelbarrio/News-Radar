@@ -72,7 +72,7 @@ test('la próxima entrega diferencia altas nuevas, pendientes, rechazos y suscri
  const s=storage(),{c}=s;c.initializeConfiguration();const now=new Date('2026-10-10T10:00:00Z'),row={activa:true,periodicidad:'quarterly',actualizada:'2026-10-10T09:00:00Z'};
  assert.equal(c.newsletterNextDate_(row,now),'2027-01-06');row.actualizada='2026-09-01T09:00:00Z';assert.equal(c.newsletterNextDate_(row,now),'2026-10-10');
  assert.equal(c.newsletterNextDate_(row,now,{id:'undefined:quarterly:2026-07-01',estado:'Enviada'}),'2027-01-06');assert.equal(c.newsletterNextDate_(row,now,{id:'undefined:quarterly:2026-07-01',estado:'No enviado'}),'2026-10-10');
- assert.equal(c.newsletterNextDate_({...row,periodicidad:'fortnightly',actualizada:now.toISOString()},now),'2026-10-19');assert.equal(c.newsletterNextDate_({...row,periodicidad:'yearly',actualizada:now.toISOString()},now),'2027-01-01');assert.equal(c.newsletterNextDate_({...row,activa:false},now),'');
+ assert.equal(c.newsletterNextDate_({...row,periodicidad:'fortnightly',actualizada:now.toISOString()},now),'2026-10-19');assert.throws(()=>c.newsletterNextDate_({...row,periodicidad:'yearly',actualizada:now.toISOString()},now),/Periodicidad/);assert.equal(c.newsletterNextDate_({...row,activa:false},now),'');
 });
 test('un rechazo confirmado se puede reintentar y los mensajes de selecciones distintas conservan su nombre',()=>{
  const s=storage(),{c}=s;c.initializeConfiguration();const cfg=c.getConfiguration();cfg.config.settings.newsletterEnabled=true;c.saveConfiguration(cfg);s.book.insertSheet('Noticias').grid.push([]);

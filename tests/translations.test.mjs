@@ -66,7 +66,7 @@ test('una solicitud diaria llegada durante una traducción cede el siguiente tur
 });
 test('las traducciones de una página se consultan por lote y las pendientes se reutilizan sin RPC individuales',()=>{
  const s=server(),c=s.c,cache=c.CacheService.getScriptCache(),reads=[];let gets=0,puts=0;
- c.CacheService.getScriptCache=()=>({...cache,getAll(keys){gets++;return cache.getAll(keys);},putAll(values,seconds){puts++;cache.putAll(values,seconds);},get(key){if(key.startsWith('article:'))throw Error('No debe consultar una traducción por RPC individual');return cache.get(key);}});
+ c.CacheService.getScriptCache=()=>({...cache,getAll(keys){if(keys.some(key=>key.startsWith('article:')))gets++;return cache.getAll(keys);},putAll(values,seconds){if(Object.keys(values).some(key=>key.startsWith('article:')))puts++;cache.putAll(values,seconds);},get(key){if(key.startsWith('article:'))throw Error('No debe consultar una traducción por RPC individual');return cache.get(key);}});
  const rows=Array.from({length:30},(_,i)=>({...article,id:String(i),titular:'Headline '+i}));
  assert.ok(c.savedArticleTranslations_(rows,'en').every(row=>row.translation.state==='pending'));assert.equal(gets,1);c.savedArticleTranslations_(rows,'en');assert.equal(gets,1);
  const keys=rows.slice(0,3).map(row=>c.articleTranslationKey_(row,'en'));s.sheets.get('Traducciones').grid.push(...keys.map((key,i)=>[key,'en','Translated '+i,'Summary','2026-10-11']));

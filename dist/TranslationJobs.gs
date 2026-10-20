@@ -20,7 +20,7 @@ function translationBatch_(maxMs=TRANSLATION_WORK.maxMs){
     const candidates=translationCandidates_(job);job.total=job.processed+candidates.length;job.businessPending=candidates.filter(row=>row.priority===0).length;
     writeTranslationJob_(job);if(request&&job.started>=request&&properties_().getProperty('TRANSLATION_REQUEST')===request){properties_().deleteProperty('TRANSLATION_REQUEST');properties_().deleteProperty('TRANSLATION_PRIORITY_REQUEST');}
     if(job.pausedUntil>started)return;
-    if(translationCallsToday_()>=TRANSLATION_WORK.dailyCalls&&candidates.length){job.state='En pausa';job.error='Límite diario de traducción alcanzado. Continuará en la siguiente ejecución diaria.';return;}
+    if(translationCallsToday_()>=TRANSLATION_WORK.dailyCalls&&candidates.length){job.state='En pausa';job.pausedUntil=nextDailyReset(Date.now(),settings_().timezone);job.error='Límite diario de traducción alcanzado. Continuará en la siguiente ejecución diaria.';return;}
     job.state='En curso';job.error='';writeTranslationJob_(job);
     const feeds=new Set(configuration_().feeds.map(feed=>feed.name)),known=articleTranslationIndex_();let calls=0;
     outer:for(let offset=0;offset<Math.min(candidates.length,TRANSLATION_WORK.batchRows);offset+=TRANSLATION_WORK.readRows){
@@ -39,7 +39,8 @@ function translationBatch_(maxMs=TRANSLATION_WORK.maxMs){
       }
     }
     job.state=job.processed===job.total?'Completada':translationCallsToday_()>=TRANSLATION_WORK.dailyCalls?'En pausa':'Pendiente';
-    if(job.state==='En pausa')job.error='Límite diario de traducción alcanzado. Continuará en la siguiente ejecución diaria.';
+    if(job.state==='En pausa'){job.pausedUntil=nextDailyReset(Date.now(),settings_().timezone);job.error='Límite diario de traducción alcanzado. Continuará en la siguiente ejecución diaria.';}
+    if(job.state==='Completada')compactArticleTranslations_();
     SpreadsheetApp.flush();telemetry_('traduccion',Date.now()-started,'OK',job.processed+'/'+job.total+' noticias; '+calls+' llamadas; '+job.translated+' traducciones guardadas');
   }catch(error){
     if(!job)throw error;

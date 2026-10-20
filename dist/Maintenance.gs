@@ -4,6 +4,7 @@ function maintenanceJob_(){const raw=properties_().getProperty('MAINTENANCE_JOB'
 function saveMaintenanceJob_(job){job.updated=new Date().toISOString();properties_().setProperty('MAINTENANCE_JOB',JSON.stringify(snapshotJob_('MAINTENANCE_JOB',job)));}
 function maintenance_(force=false){
   const previous=maintenanceJob_(),revision=classificationRulesRevision_()+':'+(properties_().getProperty('TAXONOMY_REVISION')||'0');if(!force&&previous&&previous.state!=='Completada'&&previous.revision===revision)return;
+  discardJobTargets_(previous,'maintenance');
   const total=Math.max(0,newsSheet_().getLastRow()-1),firstRow=!force&&previous?.revision===revision?Math.min(previous.total+2,total+2):2;
   const id=Utilities.getUuid();saveMaintenanceJob_({id,source:newsStorageKey_(),taxonomySource:taxonomyStorageKey_(),target:total?'Noticias_maintenance_'+id:null,corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',revision,total,firstRow,cursor:null,next:2,phase:'news',state:'Pendiente',reviewed:0,corrected:0,consolidated:0,removed:0,table:0,position:2,started:new Date().toISOString(),pausedUntil:0,error:''});ensureBackgroundWorker_();
 }
