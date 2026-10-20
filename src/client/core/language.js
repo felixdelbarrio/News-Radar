@@ -11,8 +11,8 @@ export function setTaxonomyTranslations(value){
 }
 export function t(value,values){
   if(values)return formatText(value,values,language);
-  if(language==='es'&&/^\d{2}\./.test(String(value)))return value;
-  const names=taxonomyNames[language];return names&&Object.hasOwn(names,value)?names[value]:translateText(value,language);
+  const names=taxonomyNames[language],translated=language==='es'?value:names&&Object.hasOwn(names,value)?names[value]:translateText(value,language);
+  return String(translated).replace(/(^| › )\d{2}\.(?:\d{2}\.|xx\s+)?\s*/g,'$1');
 }
 export function setLanguage(value){
   if(value&&!Object.hasOwn(languageNames,value))throw Error(t('Idioma no admitido.'));

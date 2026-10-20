@@ -1,6 +1,6 @@
 import {openDatePicker} from './date-picker.js';
 import {newsletterComparisonLabels} from '../../shared/newsletter-cadences.js';
-import {taxonomySubLabel} from '../../shared/taxonomy-path.js';
+import {taxonomySubLabel,taxonomyDisplayLabel} from '../../shared/taxonomy-path.js';
 import {syncTaxonomyControls} from './taxonomy-controls.js';
 import {coverageOptions} from '../../shared/selection-policy.js';
 import {defaultView} from '../config.js';
@@ -13,18 +13,21 @@ function createFilters({ onInvalidate, onChange }) {
   const selections=new Map(),initialized=new Set();
   function options(name, values, selected) {
     const el = form.elements[name];if(!el)return;const current = selected ?? el.value;
-    if(current&&!values.includes(current))values=[...values,current];
+    if(name!=='year'&&current&&!values.includes(current))values=[...values,current];
     const signature = JSON.stringify(values);
     if (el.dataset.options === signature) return;
     el.dataset.options = signature;
-    el.innerHTML = '<option value="">Todos</option>' + values.map((x) => '<option value="'+escape(x)+'">' + escape(name==='subpalanca'?taxonomySubLabel(x):name==='coverage'?coverageOptions[x]:x) + "</option>").join("");
+    el.innerHTML = (name==='year'?'':'<option value="">Todos</option>') + values.map((x) => '<option value="'+escape(x)+'">' + escape(['palanca','subpalanca'].includes(name)?taxonomyDisplayLabel(x):name==='coverage'?coverageOptions[x]:x) + "</option>").join("");
     el.value = current || "";
   }
   function layout(){
       $('geography-filter').hidden=false;
-      $('advanced-filters').hidden=false;
+      const radar=view==='radar';$('entity-filter').hidden=radar;
+      $('year-filter').hidden=!radar;
+      $('advanced-filters').hidden=radar;
       if(view!=='news')$('advanced-filters').open=false;
-      for(const id of ['from-filter','to-filter'])$(id).hidden=false;
+      for(const id of ['from-filter','to-filter'])$(id).hidden=view==='radar';
+      $('date-guidance').hidden=view==='radar';
       $('filter-description').textContent='Edita los criterios y pulsa Aplicar filtros para actualizar los resultados.';
   }
   layout();
@@ -36,6 +39,7 @@ function createFilters({ onInvalidate, onChange }) {
     target.innerHTML=values.map(([name,label])=>{
       const raw=applied[name],value=name==='benchmark'?(raw==='international'?'Mirada internacional':newsletterComparisonLabels[raw]):name==='coverage'?coverageOptions[raw]:['from','to'].includes(name)?formatCalendarDay(raw,language):name==='subpalanca'?taxonomySubLabel(raw):raw;
       const original=['search','entity','source'].includes(name),text=['palanca','subpalanca'].includes(name)?t(value):t(label)+': '+(original?value:t(value));
+      if(view==='briefing'||view==='radar'&&['from','to'].includes(name))return '<span class="filter-chip" data-original>'+escape(text)+'</span>';
       if(['from','to'].includes(name))return '<button type="button" class="filter-chip" data-original data-edit-filter="'+name+'" aria-label="'+escape(t('Editar')+' '+text)+'"><span>'+escape(text)+'</span></button>';
       return '<button type="button" class="filter-chip" data-original data-remove-filter="'+name+'" aria-label="'+escape(t('Quitar'))+' '+escape(text)+'"><span>'+escape(text)+'</span><span aria-hidden="true">×</span></button>';
     }).join('');
@@ -98,11 +102,11 @@ function createFilters({ onInvalidate, onChange }) {
   function current(){resetContext('');}
   return {
     useEdition:(id,selection={})=>{editionSelection=selection;resetContext(id);},current,
-    query: () => ({ ...applied, page,view,language,...(edition?{edition,...(!initialized.has(view)?editionSelection:{})}:{}),...(view==='news'&&newsGeography?{newsGeography}:{}),initial:!initialized.has(view) }),
+    query: () => ({ ...applied, page,view,language,...(edition&&view==='news'?{edition,...(!initialized.has(view)?editionSelection:{})}:{}),...(view==='news'&&newsGeography?{newsGeography}:{}),initial:!initialized.has(view) }),
     show: next => {
       if(next===view)return false;
       clearTimeout(timer);onInvalidate();
-      const selection={...applied};selections.set(view,selection);if(edition){selections.set(next,selection);initialized.add(next);}view=next;page=0;newsGeography='';layout();
+      const selection={...applied};selections.set(view,selection);view=next;page=0;newsGeography='';layout();
       for(const input of form.elements)if(input.name)input.value=(selections.get(view)||defaults)[input.name]||'';
       dirty=false;applied={...(selections.get(view)||defaults)};form.elements.to.setCustomValidity('');
       renderChips();
@@ -120,11 +124,12 @@ function createFilters({ onInvalidate, onChange }) {
     setPage: (value) => page = value,
     render: (data) => {
       const draft=dirty?Object.fromEntries(new FormData(form)):null;
+      if(view==='radar')options('year',data.years||[],data.selection?.from?.slice(0,4));
       taxonomy=data.subpalanca||[];page = data.page;newsGeography=data.newsGeography||'';
       defaults=data.defaults||defaults;
       initialized.add(view);
       for (const [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type","types"], ["segment","segments"], ["signal","signals"], ["palanca","palanca"], ["subpalanca","subpalanca"]]) options(name, data[key]||[],data.selection?.[name]);
-      if(data.selection)for(const input of form.elements)if(input.name)input.value=data.selection[input.name]||'';
+      if(data.selection)for(const input of form.elements)if(input.name)input.value=(input.name==='year'&&view==='radar'?data.selection.from?.slice(0,4):data.selection[input.name])||'';
       syncTaxonomyControls(form,taxonomy);applied=data.selection?{...data.selection}:Object.fromEntries(new FormData(form));renderChips();
       if(draft){for(const input of form.elements)if(input.name)input.value=draft[input.name]||'';syncTaxonomyControls(form,taxonomy);}
     }

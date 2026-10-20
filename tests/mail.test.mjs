@@ -69,7 +69,7 @@ test('la API de prueba personal está retirada',()=>{assert.equal(typeof mail().
 
 test('newsletter usa prefijo bIA, imagen MIME inline y enlaces distintos para gestión y baja',()=>{
   const m=mail(),{c}=m;m.settings.newsletterAppUrl='https://script.google.com/macros/s/deployment/exec';
-  c.taxonomyCatalog_=()=>[];c.savedArticleTranslations_=rows=>rows;c.configuration_=()=>configurationDefaults();
+  c.taxonomyCatalog_=()=>[];c.savedArticleTranslations_=rows=>rows.map(row=>({...row,translation:{state:'native'}}));c.configuration_=()=>configurationDefaults();
   const content=newsletterFixture(c,[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id:'one',fecha:'2026-10-13',pais:'España',entidad:'BBVA',medio:'Editor',titular:'BBVA lanza pagos digitales para empresas',extracto:'Nuevo servicio de cobros empresariales',url:'https://example.com/one'}],{},'Mi selección',new Date(), 'subscription-123');
   assert.doesNotMatch(content.html,/Ir a Newsradar/);assert.match(content.html,/view=subscriptions&amp;unsubscribe=subscription-123/);assert.match(content.html,/cid:bia-logo/);assert.match(content.text,/view=subscriptions&unsubscribe=subscription-123/);assert.match(content.html,/Banca Inteligente y Autónoma/);
   m.setResponse({id:'test'});c.sendNewsletterMail_({address:m.settings.newsletterSender,name:'News Radar'},'owner@bbva.com',content);

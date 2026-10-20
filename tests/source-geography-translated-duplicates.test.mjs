@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {storage} from './helpers/server.mjs';
 import {app} from './helpers/app.mjs';
-function server(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
+function server(){const s=storage();s.c.Date=class extends Date{constructor(...args){super(...(args.length?args:['2026-10-12T12:00:00Z']));}};s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
 const spanish='Santander lanza una nueva plataforma digital de pagos para empresas';
 const english='Santander launches a new digital payments platform for businesses';
 function story(id,changes={}){return {id,fecha:'2026-10-09',titular:spanish,extracto:'Nueva oferta de pagos digitales para empresas y pymes',entidad:'Santander',pais:'Sin determinar',medio:'Editor',fuente:'Santander · Perú',url:'https://news.google.com/articles/'+id,capturada:'2026-10-10T00:00:00Z',clasificacion:JSON.stringify({digital:true,generalista:true,capacidades:['Empresas: Pagos']}),taxonomia:JSON.stringify({ids:[]}),...changes};}

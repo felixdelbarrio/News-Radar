@@ -19,11 +19,11 @@ function taxonomyTranslations_(){
   }const originals=Object.fromEntries([...unique].map(name=>[name,name]));for(const row of items)if(row.subpalanca)originals[taxonomyPath(row)]=taxonomyPath(row);result.es=originals;cacheJson_(key,result,21600);return result;
 }
 function taxonomyLanguage_(language,names=taxonomyTranslations_()[language]||{}){
-  return value=>language==='es'?value:Object.hasOwn(names,value)?names[value]:translateText(value,language);
+  return value=>String(language==='es'?value:Object.hasOwn(names,value)?names[value]:translateText(value,language)).replace(/(^| › )\d{2}\.(?:\d{2}\.|xx\s+)?\s*/g,'$1');
 }
 function translationCallsToday_(){
-  const today=recordDay(new Date(),settings_().timezone);
-  return [translationJob_(),taxonomyTranslationJob_()].reduce((sum,job)=>sum+(job?.callDay===today?Number(job.calls||0):0),0);
+  const today=recordDay(new Date(),settings_().timezone),usage=JSON.parse(properties_().getProperty('NEWSLETTER_TRANSLATION_USAGE')||'{}');
+  return (usage.day===today?Number(usage.calls)||0:0)+[translationJob_(),taxonomyTranslationJob_()].reduce((sum,job)=>sum+(job?.callDay===today?Number(job.calls||0):0),0);
 }
 function requestTaxonomyTranslations_(){properties_().setProperty('TAXONOMY_TRANSLATION_REQUEST',new Date().toISOString());ensureBackgroundWorker_();}
 function taxonomyTranslationReadyAt_(){
