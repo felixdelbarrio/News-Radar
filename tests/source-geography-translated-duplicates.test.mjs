@@ -6,8 +6,8 @@ import vm from 'node:vm';
 import {storage} from './helpers/server.mjs';
 import {app} from './helpers/app.mjs';
 function server(){const s=storage();s.c.Date=class extends Date{constructor(...args){super(...(args.length?args:['2026-10-12T12:00:00Z']));}};s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
-const spanish='Santander lanza una nueva plataforma digital de pagos para empresas';
-const english='Santander launches a new digital payments platform for businesses';
+const spanish='Banco Santander lanza una nueva plataforma digital de pagos para empresas';
+const english='Santander bank launches a new digital payments platform for businesses';
 function story(id,changes={}){return {id,fecha:'2026-10-09',titular:spanish,extracto:'Nueva oferta de pagos digitales para empresas y pymes',entidad:'Santander',pais:'Sin determinar',medio:'Editor',fuente:'Santander · Perú',url:'https://news.google.com/articles/'+id,capturada:'2026-10-10T00:00:00Z',clasificacion:JSON.stringify({digital:true,generalista:true,capacidades:['Empresas: Pagos']}),taxonomia:JSON.stringify({ids:[]}),...changes};}
 function add(s,rows){const keys=vm.runInContext('RADAR.sheets.Noticias',s.c);s.sheets.get('Noticias').grid.push(...rows.map(row=>keys.map(key=>row[key]||'')));}
 function translate(c,row,title=english){c.LanguageApp={translate:()=>'<p>'+title+'</p><p>New digital payments for businesses</p>'};c.storeArticleTranslation_(row,'en');}
@@ -32,8 +32,8 @@ test('titulares equivalentes entre idiomas cuentan una vez en noticias, novedade
  const reads=s.reads;annotateFixtures(c,[a,b]);assert.equal(s.reads,reads);
 });
 test('la identidad traducida conserva importes, fechas lejanas y titulares cortos y fusiona equivalencias transitivas',()=>{
- const {c}=server(),a=story('a',{identityTitles:[english]}),b=story('b',{titular:'Santander presenta una nueva oferta digital de cobros para empresas',identityTitles:['Santander introduces a new digital collections service for businesses']}),bridge=story('bridge',{titular:english,identityTitles:[b.identityTitles[0]]});
- assert.equal(c.uniqueNews_([a,b,bridge]).length,1);assert.equal(c.uniqueNews_([a,story('amount',{titular:english.replace('new','300 million euro')}),story('later',{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:english,fecha:'2026-10-20'}),story('short-a',{titular:'Pagos',identityTitles:['Payments']}),story('short-b',{titular:'Payments'})]).length,5);
+ const {c}=server(),a=story('a',{identityTitles:[english]}),b=story('b',{titular:'Banco Santander presenta una nueva oferta digital de cobros para empresas',identityTitles:['Santander bank introduces a new digital collections service for businesses']}),bridge=story('bridge',{titular:english,identityTitles:[b.identityTitles[0]]});
+ assert.equal(c.uniqueNews_([a,b,bridge]).length,1);assert.equal(c.uniqueNews_([a,story('amount',{titular:english.replace('new','300 million euro')}),story('later',{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:english,fecha:'2026-10-25'}),story('short-a',{titular:'Pagos',identityTitles:['Payments']}),story('short-b',{titular:'Payments'})]).length,5);
 });
 test('una traducción recién guardada invalida el recuento de Radar aunque se reutilice el caché de registros originales',()=>{
  const s=server(),c=s.c,a=story('es'),b=story('en',{titular:english,extracto:'New digital payments for businesses'});add(s,[a,b]);assert.equal(c.getDashboard({view:'radar'}).stats.news,2);translate(c,a);assert.equal(c.getDashboard({view:'radar'}).stats.news,1);
@@ -46,10 +46,10 @@ test('las ediciones archivadas conservan sus identidades y recuentos cuando desp
  const {c}=server(),a=story('es'),b=story('en',{titular:english,extracto:'New digital payments for businesses'}),frozen=annotateFixtures(c,[a,b]);
  assert.equal(c.newsDashboard_(frozen,{},[],'radar',{}).stats.news,2);translate(c,a);assert.equal(c.newsDashboard_(frozen,{},[],'radar',{}).stats.news,2);assert.equal(c.newsDashboard_(frozen,{},[],'radar').stats.news,1);
 });
-test('el trabajador renueva las identidades tras traducir y el estado avisa al cliente para invalidar su selección almacenada',()=>{
+test('la ingesta conserva un índice ligero sin títulos traducidos y las vistas invalidan su revisión tras traducir',()=>{
  const s=server(),c=s.c,a=story('es');add(s,[a]);let batches=0;const stages=['collection','translation','collection'];
  c.collectionWork_=()=>({jobs:[{id:'annual',tipo:'annual',estado:'Pendiente',pendientes:1}],pending:[{ciclo:'annual'}],tasks:[]});c.backgroundTask_=()=>stages.shift();c.translationBatch_=()=>translate(c,a);c.collectionStatus_=()=>({});
- c.collectionBatch_=({known})=>{assert.equal(c.duplicateTitle_(known,{title:english,date:new Date(a.fecha),publisher:'Editor'}),batches++>0);return {added:0,errors:[]};};
+ c.collectionBatch_=({known})=>{assert.equal(c.duplicateTitle_(known,{title:english,date:new Date(a.fecha),entity:'Santander',publisher:'Editor'}),false);batches++;return {added:0,errors:[]};};
  c.processBackground_(3);assert.equal(batches,2);assert.equal(c.getTranslationStatus().newsRevision,s.properties.NEWS_REVISION);assert.notEqual(s.properties.NEWS_REVISION,'0');
 });
 test('una publicación de interfaz conserva la revisión de clasificación y su cursor activo',()=>{

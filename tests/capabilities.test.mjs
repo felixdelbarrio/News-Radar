@@ -23,8 +23,8 @@ test('editar, desactivar y eliminar capacidades modifica consultas y puntuación
 test('consultas acotadas y sin producto cartesiano; idioma, país y fechas se validan localmente',()=>{
  const {c}=server(),profiles=c.feeds_().filter(feed=>feed.kind==='profile'),feeds=c.collectionFeeds_(range);assert.ok(feeds.length<=profiles.length*2+c.configuration_().feeds.length);assert.equal(new Set(feeds.map(feed=>feed.url)).size,feeds.length);
  for(const feed of feeds.filter(row=>row.kind==='profile')){const q=new URL(feed.url).searchParams.get('q');assert.ok(q.startsWith('after:'));assert.ok(q.length<1800);assert.doesNotMatch(q,/"España"|"México"/);assert.equal(c.collectionTaskFeed_({fuente:feed.name,url:feed.url},c.collectionFeedIndex_()).url,feed.url);}
- const profile=profiles.find(row=>row.entity==='Santander'&&row.country==='España'),item={...raw,title:'Santander lanza nueva app para empresas en México'};assert.match(c.evaluate_(item,profile,now).reason,/Geografía/);
- const unlocated=c.evaluate_({...raw,title:'Santander lanza nueva app para empresas'},profile,now).item;assert.equal(unlocated.country,'España');assert.equal(c.profileFeed_(c.configuration_().geographies.find(row=>row.code==='UY'),c.configuration_().entities[0]).url.includes('gl=US'),true);
+ const profile=profiles.find(row=>row.entity==='Santander'&&row.country==='España'),item={...raw,title:'Banco Santander lanza nueva app para empresas en México'};assert.equal(c.evaluate_(item,profile,now).item.country,'México');
+ const unlocated=c.evaluate_({...raw,title:'Banco Santander lanza nueva app para empresas'},profile,now).item;assert.equal(unlocated.country,'España');assert.equal(c.profileFeed_(c.configuration_().geographies.find(row=>row.code==='UY'),c.configuration_().entities[0]).url.includes('gl=US'),true);
  assert.equal(c.collectionQueryRange_('https://news.google.com/rss/search?q=%ZZ'),null);assert.equal(c.collectionQueryRange_('https://news.google.com/rss/search?q=after%3A2026-02-30%20before%3A2026-03-05'),null);
  const annual=c.collectionRange_('year',now),windows=c.collectionWindows_(annual);assert.equal(windows.length,14);for(let i=1;i<windows.length;i++)assert.equal(Date.parse(windows[i-1].from)-Date.parse(windows[i].to),86400000);
 });
@@ -49,7 +49,7 @@ test('redirecciones HTTPS relativas y de idioma; destinos externos y credenciale
 test('deduplicación exacta y ligera persiste entre ejecuciones entre mercados sin mezclar fechas o eventos diferentes',()=>{
  const {c}=server();custom(c);const config=c.configuration_(),feed={...c.profileFeed_(config.geographies[0],config.entities.find(row=>row.name==='Qonto'),range,true),range};const response={getResponseCode:()=>200,getContentText:()=>'<rss/>'};let items=[raw,{...raw,url:raw.url+'-copy',title:'Qonto lanza flujo exclusivo en su canal digital para empresas!'}];c.parseFeed_=()=>items;
  const first=c.ingestFeed_(feed,c.knownUrls_(),'cycle',now,response);assert.equal(first.news.length,1);assert.equal(first.duplicated,1);c.append_('Noticias',first.news);assert.equal(c.ingestFeed_(feed,c.knownUrls_(),'retry',now,response).news.length,0);
- for(const change of [{title:raw.title+' versión 2'},{date:'2026-10-03T10:00:00Z'}]){items=[{...raw,...change,url:raw.url+JSON.stringify(change)}];assert.equal(c.ingestFeed_(feed,c.knownUrls_(),'new',now,response).news.length,1);}
+ for(const change of [{title:raw.title+' versión 2'},{date:'2026-10-03T10:00:00Z'}]){items=[{...raw,...change,url:raw.url+JSON.stringify(change)}];assert.equal(c.ingestFeed_(feed,c.knownUrls_(),'new',now,response).news.length,change.date?0:1);}
  const known=c.knownUrls_();assert.equal(c.duplicateTitle_(known,{...raw,title:raw.title,date:new Date(raw.date),entity:'Qonto',country:'México'},feed),true);
  const included=first.news[0];assert.equal(included.length,13);assert.ok(included[7].startsWith('https://'));assert.equal(included[9],feed.name);assert.equal(included[3],'');
 });

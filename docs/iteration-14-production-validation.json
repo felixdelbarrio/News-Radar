@@ -1,0 +1,189 @@
+{
+  "version": "3.14.0",
+  "deploymentVersion": 93,
+  "publishedAt": "2026-10-21T17:25:00+02:00",
+  "applicationUrl": "https://script.google.com/a/macros/bbva.com/s/AKfycbxpg3fwOGwS3Q5oQcjB1xTWd2J1F1-wfW0R5zM0rkR37Qvq589-8PtRcu2FP-HDEQKG/exec",
+  "validationAt": "2026-10-21T17:21:15+02:00",
+  "validation": {
+    "newsBefore": 9034,
+    "newsAfterCleanup": 8148,
+    "physicallyRemovedDuplicates": 886,
+    "remainingDuplicates": 0,
+    "nonCanonicalEntities": 0,
+    "countryMismatches": 0,
+    "invalidTaxonomy": 0,
+    "canonicalIdFields": 0,
+    "relevantOperationalIncidents": 30,
+    "visibleSantanderGeographicNoise": 0,
+    "classification": "Completada",
+    "taxonomy": "Completada",
+    "maintenance": "Completada",
+    "snapshotsPending": false,
+    "newsletterEnabled": true,
+    "dailyScheduleEnabled": true,
+    "scheduledNewslettersTriggerPresent": true,
+    "activeSubscriptions": 23,
+    "archivedEditions": 38,
+    "archivedContentReferences": 2732,
+    "obsoleteWorksheetsRemaining": 0,
+    "temporaryDiagnosticsRemoved": true,
+    "manualWorkPauseRemoved": true
+  },
+  "retainedRows": {
+    "Auditoria": 5000,
+    "Telemetria": 3000,
+    "Ejecuciones": 1500,
+    "Cobertura": 2000,
+    "Adopcion": 5000,
+    "NewsletterEventos": 90,
+    "Traducciones": 6058
+  },
+  "retainedCollectionQueue": {
+    "rows": 7762,
+    "completed": 4291,
+    "omitted": 828,
+    "pending": 2620,
+    "errors": 23,
+    "reason": "Every retained cycle contains pending work or errors. No error-free completed cycle remains eligible for whole-cycle removal. Existing historical recovery continues after the manual pause is removed."
+  },
+  "webAppMeasurements": [
+    {
+      "method": "getDashboard",
+      "view": "briefing",
+      "serverMs": 2745,
+      "rpcMs": 7210,
+      "browserTotalMs": 7293,
+      "renderMs": 79,
+      "snapshotHit": true,
+      "clientCacheHit": false
+    },
+    {
+      "method": "getDashboard",
+      "view": "news",
+      "serverMs": 1396,
+      "rpcMs": 6353,
+      "browserTotalMs": 6399,
+      "renderMs": 46,
+      "snapshotHit": true,
+      "clientCacheHit": false
+    },
+    {
+      "method": "getDashboard",
+      "view": "radar",
+      "serverMs": 4176,
+      "rpcMs": 7176,
+      "browserTotalMs": 7325,
+      "renderMs": 149,
+      "snapshotHit": true,
+      "clientCacheHit": false
+    },
+    {
+      "method": "getAdminFeedback",
+      "serverMs": 947,
+      "filteredRows": 1,
+      "status": "OK"
+    },
+    {
+      "method": "exportNewsletterFeedback",
+      "serverSamplesMs": [
+        776,
+        736,
+        733
+      ],
+      "exportedRows": 1,
+      "status": "OK"
+    }
+  ],
+  "batchMeasurements": {
+    "classificationLatestTelemetryMs": [
+      950,
+      518,
+      1314
+    ],
+    "classificationLatestRows": [
+      100,
+      100,
+      49
+    ],
+    "classificationLatestChangedCells": [
+      0,
+      0,
+      0
+    ],
+    "taxonomyCheckpointObservedCallsMs": [
+      6494,
+      7265,
+      7549,
+      7592,
+      7274,
+      7059
+    ],
+    "taxonomyCheckpointProgress": [
+      {
+        "table": "Noticias",
+        "nextRow": 1081
+      },
+      {
+        "table": "Noticias",
+        "nextRow": 2960
+      },
+      {
+        "table": "Noticias",
+        "nextRow": 4707
+      },
+      {
+        "table": "Noticias",
+        "nextRow": 6369
+      },
+      {
+        "table": "Candidatos",
+        "nextRow": 2
+      },
+      {
+        "table": "Candidatos",
+        "nextRow": 1263
+      }
+    ],
+    "controlledCollection": {
+      "sources": 1,
+      "evaluated": 38,
+      "added": 0,
+      "errors": 0,
+      "telemetryMs": 13202,
+      "outerCallMs": 14713
+    },
+    "publishedBackgroundCollection": [
+      {
+        "sources": 12,
+        "evaluated": 477,
+        "added": 3,
+        "errors": 0,
+        "telemetryMs": 16962
+      },
+      {
+        "sources": 12,
+        "evaluated": 790,
+        "added": 0,
+        "errors": 0,
+        "telemetryMs": 17152
+      }
+    ]
+  },
+  "browserVerification": {
+    "feedbackAfterAdoption": true,
+    "feedbackKpisAndFiltersRendered": true,
+    "outageShortcutRenderedInNewsAndBriefing": true,
+    "feedbackCsvEndpointExecutedFromPublishedButton": true,
+    "nativeBlobDownloadCaptured": false,
+    "downloadObservation": "The in-app browser did not expose a download event or local artifact for the Blob link. Published endpoint execution and row count were verified in Telemetria; CSV content, UTF-8 BOM, filters and formula escaping passed automated tests. Native file delivery remains unconfirmed in this browser.",
+    "outageShortcutApplied": true,
+    "outageQuarterlyRows": 4
+  },
+  "localChecks": {
+    "tests": 648,
+    "passed": 648,
+    "failed": 0,
+    "syntaxDesignProfilePermissions": "passed",
+    "gitDiffCheck": "passed"
+  }
+}

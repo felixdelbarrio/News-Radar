@@ -1,5 +1,23 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "Checkpoint de taxonomía incompleto.": ["Incomplete taxonomy checkpoint.", "Taksonomi kontrol noktası eksik."],
+  "Checkpoint de taxonomía corrupto.": ["Corrupted taxonomy checkpoint.", "Taksonomi kontrol noktası bozuk."],
+  "Newsletters": ["Newsletters", "Bültenler"],
+  "País": ["Country", "Ülke"],
+  "Cambió la hoja activa.": ["The active sheet changed.", "Etkin sayfa değişti."],
+  "Feedback": ["Feedback", "Geri bildirim"],
+  "Totales globales": ["Global totals", "Genel toplamlar"],
+  "Resultados filtrados": ["Filtered results", "Filtrelenen sonuçlar"],
+  "Interacciones por edición": ["Interactions by edition", "Sayıya göre etkileşimler"],
+  "Descargar CSV": ["Download CSV", "CSV indir"],
+  "Fecha de envío": ["Delivery date", "Gönderim tarihi"],
+  "Accesos": ["Visits", "Ziyaretler"],
+  "Lecturas": ["Reads", "Okumalar"],
+  "Exportaciones": ["Exports", "Dışa aktarmalar"],
+  "% útil": ["% useful", "% faydalı"],
+  "Atendidos": ["Addressed", "İlgilenilenler"],
+  "Indisponibilidad / Incidencia operativa": ["Service outage / Operational incident", "Hizmet kesintisi / İşlem sorunu"],
+
   "Año": ["Year", "Yıl"],
   "Enviar": ["Send", "Gönder"],
   "Una suscripción para recibir novedades quincenales y un balance trimestral. Puedes personalizar la geografía.": ["One subscription for fortnightly updates and a quarterly review. You can personalize the geography.", "İki haftalık yenilikler ve üç aylık değerlendirme için tek abonelik. Coğrafyayı kişiselleştirebilirsiniz."],

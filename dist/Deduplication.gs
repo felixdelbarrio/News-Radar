@@ -17,13 +17,13 @@ function titleIdentity_(item){
   const day=typeof item.date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(item.date)?date:calendarDate_(date);
   return {key,day:day.getTime()/86400000};
 }
+const EDITORIAL_STOPWORDS=new Set('para por con sin del las los una uno unos unas que como desde hasta sobre entre este esta sus the and for with from into this that are was has have not but you your their its dos das uma uns nas nos com sem pelo pela aos sao por que nao em as os de da do es en el la un o a e y i di il lo gli le dei delle per nel nella con che non der die das den dem des ein eine und oder von zur zum mit auf aus bei ist im zu et les des une dans sur pour pas aux du au ne ou ce ces se son sa ses un entre um ao pelo para sem ve bir bu ile icin gibi olan mais como foi'.split(' '));
 function editorialIdentity_(item,identity=titleIdentity_(item)){
-  const publisher=searchText_(item.publisher),entity=item.entity?searchText_(entityKey_(item.entity)):'',country=searchText_(item.country);
-  if(!identity||!publisher||!entity)return null;
-  const tokens=identity.key.split(' ');if(tokens.length<8)return null;
-  // Two stable anchors bound candidate lookup by country, publisher, entity and date.
-  const anchors=tokens.filter(token=>token.length>=4&&!/\d/.test(token)).slice(0,2);
-  return anchors.length===2?{key:JSON.stringify([country,publisher,entity,...anchors]),tokens}:null;
+  const entity=item.entity?searchText_(entityKey_(item.entity)):'';if(!identity||!entity)return null;
+  const excluded=new Set([...entity.split(' '),...searchText_(item.publisher).split(/[^\p{L}\p{N}]+/u)]);
+  const catalog=businessIndex_().entities.get(entity);for(const alias of catalog?.aliases||[])for(const token of searchText_(alias).split(' '))excluded.add(token);
+  const tokens=[...new Set(identity.key.split(' ').filter(token=>(token.length>=3||/\d/.test(token))&&!EDITORIAL_STOPWORDS.has(token)&&!excluded.has(token)))];
+  return tokens.length>=5?{key:JSON.stringify([entity,tokens.filter(token=>/\d/.test(token)).sort(),/\b(?:no|not|never|nao|non|nicht|yok)\b/.test(identity.key)]),tokens}:null;
 }
 function rememberTitle_(known,item,entry=true){
   const identity=titleIdentity_(item);if(!identity)return;
@@ -32,27 +32,22 @@ function rememberTitle_(known,item,entry=true){
   known.editorial=known.editorial||new Map();if(!known.editorial.has(editorial.key))known.editorial.set(editorial.key,new Map());
   const days=known.editorial.get(editorial.key);if(!days.has(identity.day))days.set(identity.day,[]);
   const candidates=days.get(identity.day);
-  if(candidates.length<32)candidates.push({tokens:editorial.tokens,entry});
+  candidates.push({tokens:editorial.tokens,entry});
 }
 function equivalentEditorialTitle_(a,b){
-  if(a.length!==b.length)return false;
-  let differences=0;
-  for(let i=0;i<a.length;i++){
-    if(a[i]===b[i])continue;
-    if(++differences>1||a[i].length<8||a[i].length!==b[i].length||/\d/.test(a[i]+b[i]))return false;
-    const left=a[i],right=b[i];let at=0;while(at<left.length&&left[at]===right[at])at++;
-    // Only an adjacent transposition, not a substituted word, amount or product.
-    if(left[at]!==right[at+1]||left[at+1]!==right[at]||left.slice(at+2)!==right.slice(at+2))return false;
-  }
-  return differences===1;
+  if(a.length<5||b.length<5)return false;
+  const numbers=tokens=>tokens.filter(token=>/\d/.test(token)).sort().join('|');if(numbers(a)!==numbers(b))return false;
+  const right=new Set(b),intersection=a.filter(token=>right.has(token)).length;
+  return intersection/Math.min(a.length,b.length)>=.72||intersection/(a.length+b.length-intersection)>=.60;
 }
-function duplicateTitleEntry_(known,item){
+function* duplicateTitleEntries_(known,item){
   const identity=titleIdentity_(item);if(!identity)return;
   const days=known.titles.get(identity.key);
-  if(days)for(let offset=-COLLECTION_POLICY.duplicateDays;offset<=COLLECTION_POLICY.duplicateDays;offset++)if(days.has(identity.day+offset))return days.get(identity.day+offset);
+  if(days)for(let offset=-COLLECTION_POLICY.duplicateDays;offset<=COLLECTION_POLICY.duplicateDays;offset++)if(days.has(identity.day+offset))yield days.get(identity.day+offset);
   const editorial=editorialIdentity_(item,identity),candidates=editorial&&known.editorial?.get(editorial.key);if(!candidates)return;
-  for(let offset=-COLLECTION_POLICY.duplicateDays;offset<=COLLECTION_POLICY.duplicateDays;offset++)for(const candidate of candidates.get(identity.day+offset)||[])if(equivalentEditorialTitle_(editorial.tokens,candidate.tokens))return candidate.entry;
+  for(let offset=-COLLECTION_POLICY.duplicateDays;offset<=COLLECTION_POLICY.duplicateDays;offset++)for(const candidate of candidates.get(identity.day+offset)||[])if(equivalentEditorialTitle_(editorial.tokens,candidate.tokens))yield candidate.entry;
 }
+function duplicateTitleEntry_(known,item){return duplicateTitleEntries_(known,item).next().value;}
 function duplicateTitle_(known,item){return duplicateTitleEntry_(known,item)!==undefined;}
 function newsRepresentative_(a,b){
   const original=row=>/europa\s*press/i.test(String(row.medio||''))||domainMatches_(row.url||'','europapress.es');
@@ -65,8 +60,8 @@ function uniqueNews_(rows,groups=null){
   const known={titles:new Map()},urls=new Map(),result=[],parents=[],members=groups?[]:null;
   const root=index=>{while(parents[index]!==index){parents[index]=parents[parents[index]];index=parents[index];}return index;};
   for(const row of rows){
-    const items=[row.titular,row.original?.titular,...(row.identityTitles||[])].filter(Boolean).map(title=>({title,date:row.fecha,publisher:row.medio,entity:row.entidad,country:row.pais})),url=newsUrlIdentity_(row.url);
-    const matches=new Set([url?urls.get(url):undefined,...items.map(item=>duplicateTitleEntry_(known,item))].filter(index=>index!==undefined).map(root));
+    const items=[row.titular,row.original?.titular,...(row.identityTitles||[])].filter(Boolean).map(title=>({title,date:row.fecha,publisher:row.medio,entity:entityKey_(row.entidad),country:row.pais})),url=newsUrlIdentity_(row.url);
+    const matches=new Set([url?urls.get(url):undefined,...items.flatMap(item=>[...duplicateTitleEntries_(known,item)])].filter(index=>index!==undefined).map(root));
     const index=matches.size?Math.min(...matches):result.length;
     if(!matches.size){parents.push(index);result.push(row);}
     else{for(const other of matches)if(other!==index){result[index]=newsRepresentative_(result[index],result[other]);parents[other]=index;result[other]=null;}result[index]=newsRepresentative_(result[index],row);}

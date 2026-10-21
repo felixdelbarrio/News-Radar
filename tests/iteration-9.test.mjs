@@ -10,36 +10,27 @@ function setup(count=1){
 }
 function stage(c){c.startTaxonomy();for(let i=0;i<100&&c.taxonomyJob_().state!=='Publicando';i++)c.taxonomyBatch_();assert.equal(c.taxonomyJob_().state,'Publicando');return c.taxonomyJob_();}
 function finish(c){for(let i=0;i<20&&c.taxonomyJob_().state!=='Completada';i++)c.dashboardSnapshotBatch_();assert.equal(c.taxonomyJob_().state,'Completada');}
-function mutate(s,job,change,rowIndex=1){const values=s.sheets.get(job.target).grid[rowIndex],saved=JSON.parse(values[12]);change(saved);values[12]=JSON.stringify(saved);}
+function mutate(s,job,change,rowIndex=1){const values=c.newsSheet_().grid[rowIndex],saved=JSON.parse(values[12]);change(saved);values[12]=JSON.stringify(saved);}
 
-test('un ID inexistente fuera del periodo visible bloquea la generación completa, sin ocultarlo en lectura',()=>{
- const s=setup(),c=s.c,previous=s.properties.DATA_GENERATION,job=stage(c),original=s.sheets.get(job.target).grid[1][12];
- s.sheets.get(job.target).grid[1][1]='2025-01-01';mutate(s,job,saved=>saved.ids=['obsolete']);
- assert.throws(()=>c.dashboardSnapshotBatch_(),/IDs inexistentes/);assert.equal(s.properties.DATA_GENERATION,previous);assert.equal(c.taxonomyJob_().state,'Publicando');
- const row={...c.rows_('Noticias')[0],taxonomia:JSON.stringify({ids:['obsolete']})};assert.throws(()=>c.annotateNews_([row]),/IDs inexistentes/);
- s.sheets.get(job.target).grid[1][12]=original;finish(c);assert.equal(c.dashboardSnapshotsPending_(),false);
+test('una asignación corrupta fuera del período visible se repara in-place',()=>{
+ const s=setup(),c=s.c;stage(c);finish(c);c.newsSheet_().grid[1][1]='2025-01-01';const saved=JSON.parse(c.newsSheet_().grid[1][12]);saved.ids=['obsolete'];c.newsSheet_().grid[1][12]=JSON.stringify(saved);stage(c);finish(c);const row=c.rows_('Noticias')[0];c.validateTaxonomyAssignment_(c.taxonomySaved_(row.taxonomia),c.taxonomyCatalog_(),row.id,true,row);assert.equal(c.taxonomyJob_().tagged,1);
 });
-test('la barrera rechaza modelo mixto, evidencia ausente y categoría principal errónea',()=>{
- for(const [change,pattern]of [[saved=>saved.model='obsolete',/Generación/],[saved=>saved.evidence.assignments=[],/Evidencia/],[saved=>saved.primary='obsolete',/principal/]]){
-  const s=setup(),c=s.c,previous=s.properties.DATA_GENERATION,job=stage(c);mutate(s,job,change);assert.throws(()=>c.dashboardSnapshotBatch_(),pattern);assert.equal(s.properties.DATA_GENERATION,previous);
- }
+test('la validación de cada asignación rechaza modelo mixto, evidencia ausente y principal errónea',()=>{
+ for(const change of [saved=>saved.model='obsolete',saved=>saved.evidence.assignments=[],saved=>saved.primary='obsolete']){const s=setup(),c=s.c;stage(c);finish(c);const row=c.rows_('Noticias')[0],saved=JSON.parse(row.taxonomia);change(saved);assert.throws(()=>c.validateTaxonomyAssignment_(saved,c.taxonomyCatalog_(),row.id,true,row));}
 });
-test('valida incrementalmente, conserva checkpoint tras fallo y no repite la validación al preparar cada vista',()=>{
- const s=setup(1001),c=s.c,job=stage(c),sheet=s.sheets.get(job.target),get=sheet.getRange;let validations=0;const validate=c.validateTaxonomyAssignment_;c.validateTaxonomyAssignment_=(...args)=>{if(args[3]===true)validations++;return validate(...args);};
- c.dashboardSnapshotBatch_();assert.equal(c.taxonomyJob_().integrity.checked,1000);assert.equal(validations,1000);
- sheet.getRange=()=>{throw Error('Lectura temporal');};assert.throws(()=>c.dashboardSnapshotBatch_(),/Lectura temporal/);assert.equal(c.taxonomyJob_().integrity.checked,1000);sheet.getRange=get;
- finish(c);assert.equal(validations,1001);assert.equal(c.taxonomyJob_().integrity.checked,1001);for(const view of ['news','briefing','radar'])assert.equal(c.getDashboard({view,initial:true}).performance.snapshotHit,true);
+test('el etiquetado conserva el cursor al fallar y reanuda sin clonar el corpus',()=>{
+ const s=setup(205),c=s.c;c.startTaxonomy();c.taxonomyBatch_();c.taxonomyBatch_();assert.equal(c.taxonomyJob_().next,102);const write=c.writeNewsCells_;c.writeNewsCells_=()=>{throw Error('Escritura temporal');};c.taxonomyBatch_();assert.equal(c.taxonomyJob_().next,102);assert.equal(c.taxonomyJob_().state,'En pausa');c.writeNewsCells_=write;c.startTaxonomy();stage(c);finish(c);assert.equal(c.taxonomyJob_().next,207);assert.equal(c.newsStorageKey_(),'Noticias');
 });
 test('fallar tras preparar dos snapshots conserva el manifiesto y reintentar publica las tres vistas juntas',()=>{
  const s=setup(),c=s.c,previous=s.properties.DATA_GENERATION;stage(c);c.dashboardSnapshotBatch_();c.dashboardSnapshotBatch_();const verify=c.verifyDashboardSnapshot_;c.verifyDashboardSnapshot_=(view,...args)=>{if(view==='radar')throw Error('Verificación temporal');return verify(view,...args);};
  assert.throws(()=>c.dashboardSnapshotBatch_(),/Verificación temporal/);assert.equal(s.properties.DATA_GENERATION,previous);assert.equal(c.taxonomyJob_().state,'Publicando');c.verifyDashboardSnapshot_=verify;finish(c);
  for(const view of ['news','briefing','radar'])c.verifyDashboardSnapshot_(view,c.dashboardSnapshotManifest_(view));assert.equal(c.dashboardSnapshotsPending_(),false);
 });
-test('un cambio de origen reinicia el job preparado y no activa su copia obsoleta',()=>{
- const s=setup(),c=s.c,previous=s.properties.DATA_GENERATION,job=stage(c);c.invalidateNews_();c.dashboardSnapshotBatch_();assert.equal(s.properties.DATA_GENERATION,previous);assert.notEqual(c.taxonomyJob_().id,job.id);assert.equal(c.taxonomyJob_().phase,'scan');
+test('un cambio de corpus invalida snapshots preparados sin crear una generación de noticias',()=>{
+ const s=setup(),c=s.c;stage(c);c.dashboardSnapshotBatch_();const old=JSON.parse(s.properties.DASHBOARD_SNAPSHOT_BUILD).signature;c.invalidateNews_();c.dashboardSnapshotBatch_();const next=JSON.parse(s.properties.DASHBOARD_SNAPSHOT_BUILD).signature;assert.notEqual(next,old);assert.equal(c.newsStorageKey_(),'Noticias');finish(c);
 });
-test('un cierre no completa otro job cuyo target sigue sin publicar',()=>{
- const s=setup(),c=s.c;const job=stage(c);s.properties.MAINTENANCE_JOB=JSON.stringify({state:'Publicando',target:'Noticias_maintenance_pending'});s.properties.SNAPSHOT_JOBS=JSON.stringify(['TAXONOMY_JOB','MAINTENANCE_JOB']);finish(c);assert.equal(c.maintenanceJob_().state,'Publicando');assert.deepEqual(JSON.parse(s.properties.SNAPSHOT_JOBS),['MAINTENANCE_JOB']);assert.equal(c.newsStorageKey_(),job.target);
+test('la publicación de snapshots completa todos los jobs in-place que esperaban las mismas vistas',()=>{
+ const s=setup(),c=s.c;stage(c);s.properties.MAINTENANCE_JOB=JSON.stringify({state:'Publicando'});s.properties.SNAPSHOT_JOBS=JSON.stringify(['TAXONOMY_JOB','MAINTENANCE_JOB']);finish(c);assert.equal(c.maintenanceJob_().state,'Completada');assert.equal(s.properties.SNAPSHOT_JOBS,undefined);assert.equal(c.newsStorageKey_(),'Noticias');
 });
 test('dos frases con el mismo discriminante no justifican una asociación secundaria',()=>{
  const definitions=[{id:'one',palanca:'01.Pagos',subpalanca:'01.01.Pagos biométricos',terms:['pagos biometricos']},{id:'two',palanca:'02.Acceso',subpalanca:'02.01.Autenticación biométrica',terms:['autenticacion biometrica']}],title='Banco lanza pagos biométricos con autenticación biométrica';

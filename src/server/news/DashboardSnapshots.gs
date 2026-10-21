@@ -36,15 +36,7 @@ function dashboardSnapshotLanguages_(data,view){
   return values;
 }
 // The worker holds the script lock. Publish the manifest last, using the inactive slot.
-function dashboardSnapshotBatch_(){
-  try{
-  const job=[classificationJob_(),taxonomyJob_(),maintenanceJob_()].find(job=>job?.state==='Publicando'&&job.target);
-  if(!job)return llmJob_()?.state==='Publicando'?llmSnapshotBatch_():buildDashboardSnapshotBatch_();
-  if(!validateSnapshotJob_(job))return true;
-  newsSheetOverride_=job.target;taxonomySheetOverride_=job.modelTarget;
-  try{return buildDashboardSnapshotBatch_(job);}finally{newsSheetOverride_=undefined;taxonomySheetOverride_=undefined;}
-  }catch(error){recordSnapshotFailure_(error);if(error.restartJob){const job=[classificationJob_(),taxonomyJob_(),maintenanceJob_()].find(job=>job?.state==='Publicando'&&job.target);if(job?.modelTarget)requestTaxonomy_(job.request);else if(job?.target.startsWith('Noticias_class_'))requestNewsClassification_(true);else if(job)maintenance_(true);return true;}throw error;}
-}
+function dashboardSnapshotBatch_(){try{return llmJob_()?.state==='Publicando'?llmSnapshotBatch_():buildDashboardSnapshotBatch_();}catch(error){recordSnapshotFailure_(error);throw error;}}
 
 function buildDashboardSnapshotBatch_(job=null){
   const p=properties_().getProperties(),now=new Date(),signature=sha256_(JSON.stringify(DASHBOARD_SNAPSHOTS.views.map(view=>dashboardSnapshotRevision_(view,now,p))));
@@ -74,13 +66,11 @@ function clearDashboardSnapshotRequest_(){for(const key of ['DASHBOARD_SNAPSHOT_
 function publishDashboardSnapshotSet_(build,job){
   const signature=sha256_(JSON.stringify(DASHBOARD_SNAPSHOTS.views.map(view=>dashboardSnapshotRevision_(view))));
   if(build.signature!==signature)return true;
-  if(job&&!job.llm)assertSnapshotJobSource_(job);
   for(const view of DASHBOARD_SNAPSHOTS.views)try{verifyDashboardSnapshot_(view,build.manifests[view]);}catch(error){delete build.manifests[view];properties_().setProperty('DASHBOARD_SNAPSHOT_BUILD',JSON.stringify(build));throw error;}
-  const previous=dataGeneration_(),generation={...previous,...(job?.categorization?{categorization:job.categorization}:{}),newsSheet:job?.target||previous.newsSheet||'Noticias',...(job?.modelTarget?{taxonomySheet:job.modelTarget}:{}),snapshots:build.manifests,revision:build.signature,published:new Date().toISOString()};
+  const previous=dataGeneration_(),generation={...previous,...(job?.categorization?{categorization:job.categorization}:{}),newsSheet:'Noticias',taxonomySheet:'Taxonomia',snapshots:build.manifests,revision:build.signature,published:new Date().toISOString()};
   // All view manifests and the historical corpus switch together. The previous slots remain intact.
-  if(job&&previous.snapshots)savePreviousDataGeneration_(previous);
   properties_().setProperty('DATA_GENERATION',JSON.stringify(generation));dataGenerationMemory_=generation;
-  clearDashboardSnapshotRequest_();completeSnapshotJobs_(job);if(job?.llm){const llm=llmJob_();properties_().setProperty('LLM_JOB',JSON.stringify({...llm,state:'Completada',progress:100,error:'',published:generation.published}));}return true;
+  clearDashboardSnapshotRequest_();completeSnapshotJobs_();if(job?.llm){const llm=llmJob_();properties_().setProperty('LLM_JOB',JSON.stringify({...llm,state:'Completada',progress:100,error:'',published:generation.published}));}return true;
 }
 function rebuildDashboardSnapshots(){authorize_(true);return withForegroundWrite_(()=>{properties_().setProperty('DASHBOARD_SNAPSHOT_CORRUPT','true');requestDashboardSnapshots_(true);return 'Snapshots de Novedades, Noticias y Radar en cola.';});}
 
@@ -91,21 +81,6 @@ function verifyDashboardSnapshot_(view,manifest){
   const rows=book_().getSheetByName(manifest.sheet||'DashboardSnapshots').getRange(manifest.first,1,manifest.parts,4).getDisplayValues();
   if(rows.some(([name,generation,part],index)=>name!==view||generation!==manifest.generation||Number(part)!==index)||sha256_(rows.map(row=>row[3]).join(''))!==manifest.digest)throw Error('Snapshot incompleto: '+view);return rows;
 }
-function savePreviousDataGeneration_(generation){
-  const sheet=generationSheet_('DashboardSnapshotBackup',RADAR.sheets.DashboardSnapshots),snapshots={};let first=2;
-  for(const view of DASHBOARD_SNAPSHOTS.views){const manifest=generation.snapshots[view],rows=verifyDashboardSnapshot_(view,manifest);verifiedGenerationWrite_(sheet,first,rows);snapshots[view]={...manifest,sheet:'DashboardSnapshotBackup',first};first+=rows.length;}
-  properties_().setProperty('PREVIOUS_DATA_GENERATION',JSON.stringify({...generation,snapshots}));
-}
-function rollbackDataGeneration(){
-  authorize_(true);return withForegroundWrite_(()=>{
-    const raw=properties_().getProperty('PREVIOUS_DATA_GENERATION');if(!raw)throw Error('No hay generación anterior verificada.');
-    const previous=JSON.parse(raw);if(!book_().getSheetByName(previous.newsSheet)||Object.values(previous.newsletterTables||{}).some(name=>!book_().getSheetByName(name)))throw Error('Falta el histórico anterior.');
-    for(const view of DASHBOARD_SNAPSHOTS.views)verifyDashboardSnapshot_(view,previous.snapshots[view]);
-    properties_().setProperty('DATA_GENERATION',raw);dataGenerationMemory_=previous;clearDashboardSnapshotRequest_();return 'Generación anterior restaurada.';
-  });
-}
-
-
 function hydrateDashboardSnapshot_(cache,revision,variants,view,period,periodFallback){
   for(const [geography,values] of Object.entries(variants))for(const language of Object.keys(languageNames))writeDashboardCache_(cache,'dashboard-snapshot:'+revision+':'+language+':'+geography,{data:values[view==='radar'?'es':language],period,periodFallback});
 }

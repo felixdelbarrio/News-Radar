@@ -152,10 +152,8 @@ test('el idioma del destinatario cambia los literales del correo sin reiniciar e
  f.add('new-language','BBVA lanza tarjeta para empresas');f.subscriptions[0].id='new-tr';result=f.c.deliverNewsletterBatch_();assert.equal(result.accepted,1);assert.match(f.sent[1].content.html,/lang="tr"/);assert.equal(f.sent[1].content.count,1);
 });
 
-test('la actualización explícita de idiomas conserva catálogos propios y fuentes desactivadas y es idempotente',()=>{
- const s=storage(),{c}=s;c.initializeConfiguration();let snapshot=c.getConfiguration();snapshot.config.feeds=snapshot.config.feeds.filter(row=>row.id!=='bbva-english');snapshot.config.segments[0].terms=['personalizado'];snapshot.config.settings.searchTerms=['seguimiento propio'];snapshot.config.feeds[0].enabled=false;c.saveConfiguration(snapshot);
- c.initializeLanguages();const updated=c.getConfiguration();assert.ok(updated.config.segments[0].terms.includes('personalizado'));assert.ok(updated.config.segments[0].terms.includes('business'));assert.equal(updated.config.feeds[0].enabled,false);assert.equal(updated.config.feeds.filter(row=>row.id==='bbva-english').length,1);assert.ok(updated.config.settings.searchTerms.includes('seguimiento propio'));
- c.initializeLanguages();assert.equal(c.getConfiguration().revision,updated.revision);s.setEmail('reader@bbva.com');assert.throws(()=>c.initializeLanguages(),/administrador/);
+test('reinicializar conserva catálogos propios y no reintroduce migraciones de idiomas',()=>{
+ const s=storage(),{c}=s;c.initializeConfiguration();const snapshot=c.getConfiguration();snapshot.config.segments[0].terms=['personalizado'];snapshot.config.settings.searchTerms=['seguimiento propio'];snapshot.config.feeds[0].enabled=false;c.saveConfiguration(snapshot);c.initializeConfiguration();const updated=c.getConfiguration();assert.ok(updated.config.segments[0].terms.includes('personalizado'));assert.equal(updated.config.feeds[0].enabled,false);assert.ok(updated.config.settings.searchTerms.includes('seguimiento propio'));assert.equal(c.initializeLanguages,undefined);
 });
 
 test('inicializar prioridades conserva íntegra la recuperación anual que ya estaba en curso',()=>{

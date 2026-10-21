@@ -36,7 +36,7 @@ test('la revisión de Drive actualiza el espejo y conserva solo equivalencias en
 });
 test('el trabajo reanudado conserva estadísticas de las primeras 100 noticias y publica todas las funciones',()=>{
  const {c,sheets}=storage();c.initializeConfiguration();for(let i=0;i<130;i++)sheets.get('Noticias').grid.push([String(i),'2026-10-10','España','Editor '+i,'BBVA','BBVA lanza pagos con stablecoins '+i,'Nueva operativa para empresas','https://example.com/'+i,'','Editor '+i,'es','{"digital":true,"capacidades":["Empresas: Pagos"]}','']);
- c.startTaxonomy();c.taxonomyBatch_();const job=c.taxonomyJob_(),first=c.taxonomyCheckpoint_(job);assert.equal(first.documents,100);assert.ok(Object.keys(first.candidates).length<10);c.taxonomyBatch_();const last=c.taxonomyCheckpoint_(c.taxonomyJob_());assert.equal(last.documents,130);assert.equal(last.candidates['03.Pagos - Transf. y traspasos|Otros'].df,130);
+ c.startTaxonomy();c.taxonomyBatch_();assert.equal(c.taxonomyJob_().documents,130);assert.equal(sheets.has('TaxonomiaTrabajo'),false);
  for(let i=0;i<10&&c.taxonomyPending_();i++){if(c.taxonomyJob_().state==='Publicando')c.dashboardSnapshotBatch_();else c.taxonomyBatch_();}assert.equal(c.taxonomyJob_().state,'Completada');assert.ok(c.taxonomyCatalog_().some(row=>row.subpalanca.startsWith('03.xx ')));assert.equal(c.taxonomyCatalog_().filter(row=>row.subpalanca&&row.origen==='regla').length,322);
  assert.ok(!c.taxonomyTranslationNames_().includes(''));const names=c.taxonomyTranslations_().es;assert.equal(names['08.Financiación'],'08.Financiación');assert.equal(names['08.Financiación › 08.02.Crédito Virtual'],'08.Financiación › 08.02.Crédito Virtual');
 });

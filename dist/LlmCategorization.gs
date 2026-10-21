@@ -1,5 +1,5 @@
 let llmStateOverride_,llmIndexMemory_,llmContextMemory_;
-function llmState_(){const {sheet='',revision='0'}=llmStateOverride_||dataGeneration_().categorization||{};return {sheet,revision};}
+function llmState_(){const {sheet='CategorizacionLLM',revision='0'}=llmStateOverride_||dataGeneration_().categorization||{};return {sheet,revision};}
 function llmRevision_(){const state=llmState_();return 'canonical:'+state.revision;}
 function llmJob_(){return JSON.parse(properties_().getProperty('LLM_JOB')||'null');}
 function llmContext_(){
@@ -13,12 +13,14 @@ function llmArticle_(row){
  return {...article,contentHash:sha256_(JSON.stringify(article))};
 }
 function llmIndex_(){
- const state=llmState_();if(llmIndexMemory_&&llmIndexMemory_.sheet===state.sheet)return llmIndexMemory_.index;
+ const state=llmState_();if(llmIndexMemory_&&llmIndexMemory_.sheet===state.sheet&&llmIndexMemory_.revision===state.revision)return llmIndexMemory_.index;
  const index=new Map(),sheet=state.sheet?book_().getSheetByName(state.sheet):null,keys=RADAR.sheets.CategorizacionLLM;
- if(sheet?.getLastRow()>1)for(const values of sheet.getRange(2,1,sheet.getLastRow()-1,keys.length).getDisplayValues()){
-  const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]]));try{row.schemaVersion=Number(row.schemaVersion);for(const key of ['ids','evidence','sources','proposals'])row[key]=JSON.parse(row[key]);if(index.has(row.newsId))throw Error('ID LLM duplicado.');index.set(row.newsId,row);}catch(_){index.set(row.newsId,null);}
+ if(sheet?.getLastRow()>1){
+  const rows=sheet.getRange(2,1,sheet.getLastRow()-1,keys.length).getDisplayValues(),base=[],overlay=[];
+  for(const values of rows){const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]]));if(!row.publication)base.push(row);else if(row.publication===state.revision)overlay.push(row);}
+  for(const records of [base,overlay]){const seen=new Set();for(const row of records){delete row.publication;try{row.schemaVersion=Number(row.schemaVersion);for(const key of ['ids','evidence','sources','proposals'])row[key]=JSON.parse(row[key]);if(seen.has(row.newsId))throw Error('ID LLM duplicado.');seen.add(row.newsId);index.set(row.newsId,row);}catch(_){index.set(row.newsId,null);}}}
  }
- llmIndexMemory_={sheet:state.sheet,index};return index;
+ llmIndexMemory_={sheet:state.sheet,revision:state.revision,index};return index;
 }
 function llmValid_(saved,row,context=llmContext_()){
  if(!saved)return false;const {updatedAt,...result}=saved;
@@ -120,15 +122,28 @@ function importLlmResults(payload){
    changes.push({...llmCanonicalResult_(result),updatedAt:new Date().toISOString()});
   }
   if(!changes.length){if(pending?.state==='Publicando')ensureBackgroundWorker_();return {...getLlmCategorization(),imported:0,duplicates:results.length};}
-  llmAssertIdle_();pruneLlmGenerations_();const state=llmState_(),name='CategorizacionLLM_gen_'+Utilities.getUuid(),keys=RADAR.sheets.CategorizacionLLM,previous=state.sheet&&book_().getSheetByName(state.sheet),sheet=previous?previous.copyTo(book_()).setName(name):generationSheet_(name,keys),positions=new Map();
+  llmAssertIdle_();llmCompactPublication_();const state=llmState_(),name='CategorizacionLLM',keys=RADAR.sheets.CategorizacionLLM,sheet=generationSheet_(name,keys),revision=Utilities.getUuid();
   sheet.getRange(1,1,1,keys.length).setValues([keys]);
-  if(sheet.getLastRow()>1)sheet.getRange(2,1,sheet.getLastRow()-1,1).getDisplayValues().forEach(([id],i)=>positions.set(id,i+2));
-  let next=sheet.getLastRow()+1;const updates=changes.map(result=>({row:positions.get(result.newsId)||next++,values:keys.map(key=>typeof result[key]==='object'?JSON.stringify(result[key]):String(safeCell_(result[key])))}));
-  // Staging is unreachable to consumers until the complete, verified snapshot set is published.
-  try{writeStagedNewsRows_(sheet,updates);llmQueuePublication_({...state,sheet:name,revision:Utilities.getUuid()},changes.length>=25&&changes.every(row=>row.status!=='classified'&&!row.sources.length));}catch(error){if(llmJob_()?.categorization?.sheet!==name)book_().deleteSheet(sheet);throw error;}
+  const previousLast=sheet.getLastRow(),updates=changes.map((result,i)=>({row:previousLast+i+1,values:keys.map(key=>key==='publication'?revision:typeof result[key]==='object'?JSON.stringify(result[key]):String(safeCell_(result[key])))}));
+  try{writeVerifiedRows_(sheet,updates);}catch(error){
+   const appended=sheet.getLastRow()-previousLast;if(appended>0)sheet.getRange(previousLast+1,1,appended,keys.length).clearContent();SpreadsheetApp.flush();llmIndexMemory_=undefined;throw error;
+  }
+  llmIndexMemory_=undefined;llmQueuePublication_({...state,sheet:name,revision},changes.length>=25&&changes.every(row=>row.status!=='classified'&&!row.sources.length));
   telemetry_('llm-import',Date.now()-started,'OK',changes.length+' preparadas; '+(results.length-changes.length)+' duplicadas; '+updates.length+' filas escritas');
   return {...getLlmCategorization(),imported:changes.length,duplicates:results.length-changes.length};
  });
+}
+// Fold only the previously published sparse overlay before accepting another batch.
+function llmCompactPublication_(){
+ const sheet=book_().getSheetByName('CategorizacionLLM');if(!sheet||sheet.getLastRow()<2)return;
+ const keys=RADAR.sheets.CategorizacionLLM,column=keys.indexOf('publication'),rows=sheet.getRange(2,1,sheet.getLastRow()-1,keys.length).getDisplayValues(),positions=new Map(),updates=[],remove=[],revision=llmState_().revision;
+ rows.forEach((values,index)=>{if(!values[column])positions.set(values[0],index+2);});
+ rows.forEach((values,index)=>{
+  if(!values[column])return;
+  if(values[column]===revision){const target=positions.get(values[0])||index+2,canonical=values.slice();canonical[column]='';updates.push({row:target,values:canonical});if(target!==index+2)remove.push(index+2);}
+  else remove.push(index+2);
+ });
+ writeVerifiedRows_(sheet,updates);if(remove.length)deleteSheetRows_(sheet,remove);llmIndexMemory_=undefined;
 }
 function llmCanonicalValue_(value){return Array.isArray(value)?value.map(llmCanonicalValue_):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(key=>[key,llmCanonicalValue_(value[key])])):value;}
 function llmCanonicalResult_(result){return Object.fromEntries(['newsId','contentHash','catalogRevision','taxonomyRevision','schemaVersion','ids','primary','evidence','status','sources','proposals','replaces'].map(key=>[key,llmCanonicalValue_(result[key])]));}
@@ -160,7 +175,3 @@ function llmSnapshotBatch_(){
  finally{llmStateOverride_=undefined;llmIndexMemory_=undefined;}
 }
 
-function pruneLlmGenerations_(){
- const keep=generationKeep_();
- for(const sheet of book_().getSheets())if(sheet.getName().startsWith('CategorizacionLLM_gen_')&&!keep.has(sheet.getName()))book_().deleteSheet(sheet);
-}

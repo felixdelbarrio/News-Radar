@@ -50,18 +50,4 @@ function saveAdminSubscription(input){return writeSubscription_(input,true);}
 function deleteSubscription(id){
   const session=authorize_();return withForegroundWrite_(()=>{const rows=rows_('Suscripciones'),index=rows.findIndex(row=>row.correo===session.email&&(row.id===id||JSON.parse(row.filtros).aliases?.includes(id)));if(index<0)throw Error('Suscripción no encontrada.');book_().getSheetByName('Suscripciones').deleteRow(index+2);properties_().setProperty('SUBSCRIPTIONS_REVISION',Utilities.getUuid());return 'Suscripción eliminada.';});
 }
-function initializeSubscriptions_(sheet){
-  const count=sheet.getLastRow()-1;if(!count)return;const keys=RADAR.sheets.Suscripciones,rows=sheet.getRange(2,1,count,keys.length).getDisplayValues().filter(row=>row[0]),groups=new Map();
-  for(const values of rows){const email=values[1];if(!groups.has(email))groups.set(email,[]);groups.get(email).push(Object.fromEntries(keys.map((key,i)=>[key,values[i]])));}
-  const result=[];
-  for(const [email,items] of groups){
-    const active=items.filter(row=>row.activa==='true'),countries=[...new Set(active.map(row=>JSON.parse(row.filtros).country||''))],first=items[0],country=countries.length===1&&newsletterCountries_().includes(countries[0])?countries[0]:'',aliases=[...new Set(items.flatMap(row=>[row.id,...(JSON.parse(row.filtros).aliases||[])]))].filter(id=>id!==first.id);
-    const record=subscriptionRecord_({country,active:active.length>0,language:first.idioma||'es'},email,first.id,new Date(first.actualizada));record.filtros.aliases=aliases;
-    result.push(keys.map(key=>key==='filtros'?JSON.stringify(record[key]):record[key]));
-  }
-  if(JSON.stringify(rows)===JSON.stringify(result.map(row=>row.map(String))))return;
-  append_('Auditoria',[['migration:'+RADAR.version,new Date().toISOString(),'Suscripciones','','Migración','Consolidadas por usuario; IDs originales: '+rows.map(row=>row[0]).join(', ')]]);
-  sheet.getRange(2,1,result.length,keys.length).setNumberFormat('@').setValues(result);if(count>result.length)sheet.getRange(result.length+2,1,count-result.length,keys.length).clearContent();
-  properties_().setProperty('SUBSCRIPTIONS_REVISION',Utilities.getUuid());
-}
 function deleteAdminSubscription(id){authorize_(true);return withForegroundWrite_(()=>{const index=rows_('Suscripciones').findIndex(row=>row.id===id);if(index<0)throw Error('Suscripción no encontrada.');book_().getSheetByName('Suscripciones').deleteRow(index+2);properties_().setProperty('SUBSCRIPTIONS_REVISION',Utilities.getUuid());return 'Suscripción eliminada.';});}

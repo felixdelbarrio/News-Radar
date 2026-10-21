@@ -17,7 +17,7 @@ function createFilters({ onInvalidate, onChange }) {
     const signature = JSON.stringify(values);
     if (el.dataset.options === signature) return;
     el.dataset.options = signature;
-    el.innerHTML = (name==='year'?'':'<option value="">Todos</option>') + values.map((x) => '<option value="'+escape(x)+'">' + escape(['palanca','subpalanca'].includes(name)?taxonomyDisplayLabel(x):name==='coverage'?coverageOptions[x]:x) + "</option>").join("");
+    el.innerHTML = (name==='year'?'':'<option value="">Todos</option>') + values.map((x) => '<option value="'+escape(x)+'">' + escape(['palanca','subpalanca'].includes(name)?taxonomyDisplayLabel(x):name==='coverage'?coverageOptions[x]:name==='signal'&&x==='Incidencia operativa'?'Indisponibilidad / Incidencia operativa':x) + "</option>").join("");
     el.value = current || "";
   }
   function layout(){
@@ -37,7 +37,7 @@ function createFilters({ onInvalidate, onChange }) {
     const values=Object.entries(chipLabels).filter(([name])=>applied[name]);
     target.hidden=!values.length;
     target.innerHTML=values.map(([name,label])=>{
-      const raw=applied[name],value=name==='benchmark'?(raw==='international'?'Mirada internacional':newsletterComparisonLabels[raw]):name==='coverage'?coverageOptions[raw]:['from','to'].includes(name)?formatCalendarDay(raw,language):name==='subpalanca'?taxonomySubLabel(raw):raw;
+      const raw=applied[name],value=name==='benchmark'?(raw==='international'?'Mirada internacional':newsletterComparisonLabels[raw]):name==='coverage'?coverageOptions[raw]:['from','to'].includes(name)?formatCalendarDay(raw,language):name==='subpalanca'?taxonomySubLabel(raw):name==='signal'&&raw==='Incidencia operativa'?'Indisponibilidad / Incidencia operativa':raw;
       const original=['search','entity','source'].includes(name),text=['palanca','subpalanca'].includes(name)?t(value):t(label)+': '+(original?value:t(value));
       if(view==='briefing'||view==='radar'&&['from','to'].includes(name))return '<span class="filter-chip" data-original>'+escape(text)+'</span>';
       if(['from','to'].includes(name))return '<button type="button" class="filter-chip" data-original data-edit-filter="'+name+'" aria-label="'+escape(t('Editar')+' '+text)+'"><span>'+escape(text)+'</span></button>';

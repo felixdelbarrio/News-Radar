@@ -1,7 +1,16 @@
-const publisherIdentities=new Map();
+const identityIndexes=new Map();
+function identityKey(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/^https?:\/\/(?:www\.)?|^www\./,'').replace(/\/$/,'');}
+function identityAsset(kind,name){
+ if(!identityIndexes.has(kind)){
+  const index=new Map();
+  for(const [label,asset] of Object.entries(IDENTITY_ASSETS[kind]||{}))for(const alias of [label,...(asset.aliases||[])])index.set(identityKey(alias),asset);
+  identityIndexes.set(kind,index);
+ }
+ const canonical=kind==='entities'&&typeof entityKey_==='function'?entityKey_(name):kind==='publishers'&&typeof publisherKey_==='function'?publisherKey_(name):name;
+ return identityIndexes.get(kind).get(identityKey(canonical))||identityIndexes.get(kind).get(identityKey(name));
+}
 function identityMark(kind,name,escape,images){
- if(kind==='publishers'&&!publisherIdentities.size)for(const [name,asset] of Object.entries(IDENTITY_ASSETS.publishers))publisherIdentities.set(name.toLowerCase().trim(),asset);
- const asset=kind==='publishers'?publisherIdentities.get(String(name||'').toLowerCase().trim()):IDENTITY_ASSETS[kind]?.[name];
+ const asset=identityAsset(kind,name);
  if(!asset)return kind==='entities'&&name?'<span class="entity-monogram" title="'+escape(name)+'" aria-label="'+escape(name)+'">'+escape(name.split(/\s+/).map(word=>word.replace(/^[^\p{L}\p{N}]+/u,'')[0]||'').join('').slice(0,2))+'</span>':'';
  if(images)images.set(asset.id,asset);
  const src=images?'cid:'+asset.id:'data:image/png;base64,'+asset.data;

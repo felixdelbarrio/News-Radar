@@ -273,6 +273,310 @@
       "height": 32,
       "source": "https://www.google.com/s2/favicons?domain=konfio.mx&sz=64",
       "site": "https://konfio.mx"
+    },
+    "JPMorgan Chase": {
+      "id": "entity-100",
+      "file": "entity-100.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://jpmorganchase.com/favicon.ico",
+      "domain": "jpmorganchase.com"
+    },
+    "Standard Chartered": {
+      "id": "entity-101",
+      "file": "entity-101.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://sc.com/favicon.ico",
+      "domain": "sc.com"
+    },
+    "Commonwealth Bank": {
+      "id": "entity-102",
+      "file": "entity-102.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://commbank.com.au/favicon.ico",
+      "domain": "commbank.com.au"
+    },
+    "UBS": {
+      "id": "entity-103",
+      "file": "entity-103.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=ubs.com&sz=64",
+      "domain": "ubs.com"
+    },
+    "Citi": {
+      "id": "entity-104",
+      "file": "entity-104.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://citigroup.com/favicon.ico",
+      "domain": "citigroup.com"
+    },
+    "HDFC Bank": {
+      "id": "entity-105",
+      "file": "entity-105.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=hdfcbank.com&sz=64",
+      "domain": "hdfcbank.com"
+    },
+    "NatWest": {
+      "id": "entity-106",
+      "file": "entity-106.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=natwest.com&sz=64",
+      "domain": "natwest.com"
+    },
+    "Macquarie": {
+      "id": "entity-108",
+      "file": "entity-108.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=macquarie.com&sz=64",
+      "domain": "macquarie.com"
+    },
+    "DBS": {
+      "id": "entity-109",
+      "file": "entity-109.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://dbs.com/favicon.ico",
+      "domain": "dbs.com"
+    },
+    "BNP Paribas": {
+      "id": "entity-110",
+      "file": "entity-110.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://group.bnpparibas/favicon.ico",
+      "domain": "group.bnpparibas"
+    },
+    "SMBC": {
+      "id": "entity-111",
+      "file": "entity-111.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.smbc.co.jp/favicon.ico",
+      "domain": "smbc.co.jp"
+    },
+    "ICICI Bank": {
+      "id": "entity-112",
+      "file": "entity-112.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://icicibank.com/favicon.ico",
+      "domain": "icicibank.com"
+    },
+    "Barclays": {
+      "id": "entity-113",
+      "file": "entity-113.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://home.barclays/apple-touch-icon.png",
+      "domain": "home.barclays"
+    },
+    "Deutsche Bank": {
+      "id": "entity-114",
+      "file": "entity-114.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://db.com/favicon.ico",
+      "domain": "db.com"
+    },
+    "UOB": {
+      "id": "entity-115",
+      "file": "entity-115.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://uobgroup.com/favicon.ico",
+      "domain": "uobgroup.com"
+    },
+    "OCBC": {
+      "id": "entity-116",
+      "file": "entity-116.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://ocbc.com/favicon.ico",
+      "domain": "ocbc.com"
+    },
+    "Westpac": {
+      "id": "entity-117",
+      "file": "entity-117.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=westpac.com.au&sz=64",
+      "domain": "westpac.com.au"
+    },
+    "ANZ": {
+      "id": "entity-118",
+      "file": "entity-118.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://anz.com/favicon.ico",
+      "domain": "anz.com"
+    },
+    "UniCredit": {
+      "id": "entity-119",
+      "file": "entity-119.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=unicreditgroup.eu&sz=64",
+      "domain": "unicreditgroup.eu"
+    },
+    "Société Générale": {
+      "id": "entity-120",
+      "file": "entity-120.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=societegenerale.com&sz=64",
+      "domain": "societegenerale.com"
+    },
+    "Commerzbank": {
+      "id": "entity-121",
+      "file": "entity-121.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=commerzbank.com&sz=64",
+      "domain": "commerzbank.com"
+    },
+    "Bank of America": {
+      "id": "entity-122",
+      "file": "entity-122.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://bankofamerica.com/favicon.ico",
+      "domain": "bankofamerica.com"
+    },
+    "ING": {
+      "id": "entity-123",
+      "file": "entity-123.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=ing.com&sz=64",
+      "domain": "ing.com"
+    },
+    "Intesa Sanpaolo": {
+      "id": "entity-124",
+      "file": "entity-124.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://intesasanpaolo.com/favicon.ico",
+      "domain": "intesasanpaolo.com"
+    },
+    "MUFG": {
+      "id": "entity-125",
+      "file": "entity-125.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.mufg.jp/favicon.ico",
+      "domain": "mufg.jp"
+    },
+    "Bradesco": {
+      "id": "entity-126",
+      "file": "entity-126.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://bradesco.com.br/favicon.ico",
+      "domain": "bradesco.com.br"
+    },
+    "Mizuho": {
+      "id": "entity-127",
+      "file": "entity-127.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=mizuhogroup.com&sz=64",
+      "domain": "mizuhogroup.com"
+    },
+    "Bank of China": {
+      "id": "entity-128",
+      "file": "entity-128.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.boc.cn/favicon.ico",
+      "domain": "boc.cn"
+    },
+    "ICBC": {
+      "id": "entity-129",
+      "file": "entity-129.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.icbc.com.cn/favicon.ico",
+      "domain": "icbc.com.cn"
+    },
+    "China Construction Bank": {
+      "id": "entity-130",
+      "file": "entity-130.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=ccb.com&sz=64",
+      "domain": "ccb.com"
+    },
+    "Crédit Agricole": {
+      "id": "entity-131",
+      "file": "entity-131.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=credit-agricole.com&sz=64",
+      "domain": "credit-agricole.com"
+    },
+    "KBC": {
+      "id": "entity-132",
+      "file": "entity-132.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://kbc.com/favicon.ico",
+      "domain": "kbc.com"
+    },
+    "Millennium bcp": {
+      "id": "entity-133",
+      "file": "entity-133.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=millenniumbcp.pt&sz=64",
+      "domain": "millenniumbcp.pt"
+    },
+    "Caixa Geral de Depósitos": {
+      "id": "entity-134",
+      "file": "entity-134.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=cgd.pt&sz=64",
+      "domain": "cgd.pt"
+    },
+    "RBC": {
+      "id": "entity-135",
+      "file": "entity-135.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://rbc.com/favicon.ico",
+      "domain": "rbc.com"
+    },
+    "Emirates NBD": {
+      "id": "entity-136",
+      "file": "entity-136.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=emiratesnbd.com&sz=64",
+      "domain": "emiratesnbd.com"
+    },
+    "Banca Transilvania": {
+      "id": "entity-137",
+      "file": "entity-137.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://bancatransilvania.ro/favicon.ico",
+      "domain": "bancatransilvania.ro"
+    },
+    "State Bank of India": {
+      "id": "entity-107",
+      "file": "entity-107.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=onlinesbi.sbi&sz=128",
+      "domain": "onlinesbi.sbi"
     }
   },
   "countries": {
@@ -516,96 +820,394 @@
     }
   },
   "publishers": {
-    "El Economista": {
+    "el economista": {
       "id": "publisher-0",
       "file": "publisher-0.png",
       "width": 40,
       "height": 40,
-      "source": "https://www.eleconomista.es/favicon.ico"
+      "source": "https://www.eleconomista.es/favicon.ico",
+      "aliases": [
+        "El Economista"
+      ]
     },
-    "Infobae": {
+    "infobae": {
       "id": "publisher-1",
       "file": "publisher-1.png",
       "width": 40,
       "height": 40,
-      "source": "https://www.infobae.com/favicon.ico"
+      "source": "https://www.infobae.com/favicon.ico",
+      "aliases": [
+        "Infobae"
+      ]
     },
-    "Pulzo": {
+    "pulzo": {
       "id": "publisher-3",
       "file": "publisher-3.png",
       "width": 40,
       "height": 40,
-      "source": "https://www.pulzo.com/favicon.ico"
+      "source": "https://www.pulzo.com/favicon.ico",
+      "aliases": [
+        "Pulzo"
+      ]
     },
-    "El Tiempo": {
+    "el tiempo": {
       "id": "publisher-4",
       "file": "publisher-4.png",
       "width": 40,
       "height": 40,
-      "source": "https://www.eltiempo.com/favicon.ico"
+      "source": "https://www.eltiempo.com/favicon.ico",
+      "aliases": [
+        "El Tiempo"
+      ]
     },
-    "BBVA": {
+    "bbva": {
       "id": "entity-0",
       "file": "entity-0.png",
       "width": 40,
       "height": 40,
-      "source": "https://www.bbva.com/wp-content/themes/coronita-bbvacom/assets/images/comun/favicon.ico"
+      "source": "https://www.bbva.com/wp-content/themes/coronita-bbvacom/assets/images/comun/favicon.ico",
+      "aliases": [
+        "BBVA"
+      ]
     },
-    "BBVA · Empresas": {
+    "bbva · empresas": {
       "id": "entity-0",
       "file": "entity-0.png",
       "width": 40,
       "height": 40,
-      "source": "https://www.bbva.com/wp-content/themes/coronita-bbvacom/assets/images/comun/favicon.ico"
+      "source": "https://www.bbva.com/wp-content/themes/coronita-bbvacom/assets/images/comun/favicon.ico",
+      "aliases": [
+        "BBVA · Empresas"
+      ]
     },
-    "The Asset": {
+    "the asset": {
       "id": "publisher-5",
       "file": "publisher-5.png",
       "width": 32,
       "height": 32,
-      "source": "https://www.theasset.com/favicons/favicon-32x32.png"
+      "source": "https://www.theasset.com/favicons/favicon-32x32.png",
+      "aliases": [
+        "The Asset"
+      ]
     },
-    "Asian Banking & Finance": {
+    "asian banking & finance": {
       "id": "publisher-6",
       "file": "publisher-6.png",
       "width": 40,
       "height": 40,
-      "source": "https://www.cmgassets.com/s3fs-public/styles/favicon_57/public/domain_logo/abf-favicon.png.webp?itok=cDyG68ik"
+      "source": "https://www.cmgassets.com/s3fs-public/styles/favicon_57/public/domain_logo/abf-favicon.png.webp?itok=cDyG68ik",
+      "aliases": [
+        "Asian Banking & Finance"
+      ]
     },
-    "ADB": {
+    "adb": {
       "id": "publisher-7",
       "file": "publisher-7.png",
       "width": 40,
       "height": 40,
-      "source": "https://www.adb.org/themes/custom/adb_theme/favicon.ico"
+      "source": "https://www.adb.org/themes/custom/adb_theme/favicon.ico",
+      "aliases": [
+        "ADB"
+      ]
     },
-    "AIIB": {
+    "aiib": {
       "id": "publisher-8",
       "file": "publisher-8.png",
       "width": 40,
       "height": 40,
-      "source": "https://www.aiib.org/_common/base/favicon/apple-touch-icon.png"
+      "source": "https://www.aiib.org/_common/base/favicon/apple-touch-icon.png",
+      "aliases": [
+        "AIIB"
+      ]
     },
-    "Asian Development Bank": {
+    "asian development bank": {
       "id": "publisher-7",
       "file": "publisher-7.png",
       "width": 40,
       "height": 40,
-      "source": "https://www.adb.org/themes/custom/adb_theme/favicon.ico"
+      "source": "https://www.adb.org/themes/custom/adb_theme/favicon.ico",
+      "aliases": [
+        "Asian Development Bank"
+      ]
     },
-    "Asian Infrastructure Investment Bank": {
+    "asian infrastructure investment bank": {
       "id": "publisher-8",
       "file": "publisher-8.png",
       "width": 40,
       "height": 40,
-      "source": "https://www.aiib.org/_common/base/favicon/apple-touch-icon.png"
+      "source": "https://www.aiib.org/_common/base/favicon/apple-touch-icon.png",
+      "aliases": [
+        "Asian Infrastructure Investment Bank"
+      ]
     },
-    "Asian Banking and Finance": {
+    "asian banking and finance": {
       "id": "publisher-6",
       "file": "publisher-6.png",
       "width": 40,
       "height": 40,
-      "source": "https://www.cmgassets.com/s3fs-public/styles/favicon_57/public/domain_logo/abf-favicon.png.webp?itok=cDyG68ik"
+      "source": "https://www.cmgassets.com/s3fs-public/styles/favicon_57/public/domain_logo/abf-favicon.png.webp?itok=cDyG68ik",
+      "aliases": [
+        "Asian Banking and Finance"
+      ]
+    },
+    "tradingview": {
+      "id": "publisher-100",
+      "file": "publisher-100.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://tradingview.com/favicon.ico",
+      "domain": "tradingview.com",
+      "aliases": [
+        "TradingView"
+      ]
+    },
+    "forbes": {
+      "id": "publisher-101",
+      "file": "publisher-101.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://forbes.com/favicon.ico",
+      "domain": "forbes.com",
+      "aliases": [
+        "Forbes",
+        "Forbes España"
+      ]
+    },
+    "the business times": {
+      "id": "publisher-102",
+      "file": "publisher-102.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://businesstimes.com.sg/favicon.ico",
+      "domain": "businesstimes.com.sg",
+      "aliases": [
+        "The Business Times"
+      ]
+    },
+    "financial times": {
+      "id": "publisher-103",
+      "file": "publisher-103.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=ft.com&sz=64",
+      "domain": "ft.com",
+      "aliases": [
+        "Financial Times"
+      ]
+    },
+    "bolsamania": {
+      "id": "publisher-104",
+      "file": "publisher-104.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://bolsamania.com/favicon.ico",
+      "domain": "bolsamania.com",
+      "aliases": [
+        "Bolsamania",
+        "Bolsamanía"
+      ]
+    },
+    "noticias bancarias": {
+      "id": "publisher-105",
+      "file": "publisher-105.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://noticiasbancarias.com/favicon.ico",
+      "domain": "noticiasbancarias.com",
+      "aliases": [
+        "Noticias Bancarias"
+      ]
+    },
+    "territorio fintech": {
+      "id": "publisher-106",
+      "file": "publisher-106.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://territoriofintech.com/favicon.ico",
+      "domain": "territoriofintech.com",
+      "aliases": [
+        "Territorio Fintech"
+      ]
+    },
+    "el mundo financiero": {
+      "id": "publisher-107",
+      "file": "publisher-107.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://elmundofinanciero.com/favicon.ico",
+      "domain": "elmundofinanciero.com",
+      "aliases": [
+        "El Mundo Financiero"
+      ]
+    },
+    "democrata": {
+      "id": "publisher-108",
+      "file": "publisher-108.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://democrata.es/favicon.ico",
+      "domain": "democrata.es",
+      "aliases": [
+        "Demócrata"
+      ]
+    },
+    "radio formula": {
+      "id": "publisher-109",
+      "file": "publisher-109.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=radioformula.com.mx&sz=64",
+      "domain": "radioformula.com.mx",
+      "aliases": [
+        "Radio Fórmula"
+      ]
+    },
+    "pr newswire": {
+      "id": "publisher-110",
+      "file": "publisher-110.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=prnewswire.com&sz=64",
+      "domain": "prnewswire.com",
+      "aliases": [
+        "PR Newswire"
+      ]
+    },
+    "marketbeat": {
+      "id": "publisher-111",
+      "file": "publisher-111.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://marketbeat.com/favicon.ico",
+      "domain": "marketbeat.com",
+      "aliases": [
+        "MarketBeat"
+      ]
+    },
+    "banking dive": {
+      "id": "publisher-112",
+      "file": "publisher-112.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://bankingdive.com/favicon.ico",
+      "domain": "bankingdive.com",
+      "aliases": [
+        "Banking Dive"
+      ]
+    },
+    "pymnts.com": {
+      "id": "publisher-113",
+      "file": "publisher-113.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=pymnts.com&sz=128",
+      "domain": "pymnts.com",
+      "aliases": [
+        "PYMNTS.com"
+      ]
+    },
+    "la republica": {
+      "id": "publisher-114",
+      "file": "publisher-114.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://larepublica.co/favicon.ico",
+      "domain": "larepublica.co",
+      "aliases": [
+        "La República",
+        "LaRepublica.co"
+      ]
+    },
+    "portafolio": {
+      "id": "publisher-115",
+      "file": "publisher-115.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://portafolio.co/favicon.ico",
+      "domain": "portafolio.co",
+      "aliases": [
+        "Portafolio",
+        "Portafolio.co"
+      ]
+    },
+    "el cronista": {
+      "id": "publisher-116",
+      "file": "publisher-116.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=cronista.com&sz=64",
+      "domain": "cronista.com",
+      "aliases": [
+        "El Cronista",
+        "Cronista"
+      ]
+    },
+    "eldiario.es": {
+      "id": "publisher-117",
+      "file": "publisher-117.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://eldiario.es/apple-touch-icon.png",
+      "domain": "eldiario.es",
+      "aliases": [
+        "elDiario.es"
+      ]
+    },
+    "yahoo finance": {
+      "id": "publisher-118",
+      "file": "publisher-118.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://finance.yahoo.com/favicon.ico",
+      "domain": "finance.yahoo.com",
+      "aliases": [
+        "Yahoo Finance",
+        "Yahoo Finanzas"
+      ]
+    },
+    "business today": {
+      "id": "publisher-119",
+      "file": "publisher-119.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://businesstoday.in/favicon.ico",
+      "domain": "businesstoday.in",
+      "aliases": [
+        "Business Today"
+      ]
+    },
+    "moneycontrol.com": {
+      "id": "publisher-120",
+      "file": "publisher-120.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=moneycontrol.com&sz=64",
+      "domain": "moneycontrol.com",
+      "aliases": [
+        "Moneycontrol.com"
+      ]
+    },
+    "livemint": {
+      "id": "publisher-121",
+      "file": "publisher-121.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://livemint.com/favicon.ico",
+      "domain": "livemint.com",
+      "aliases": [
+        "Livemint"
+      ]
+    },
+    "ff news": {
+      "id": "publisher-122",
+      "file": "publisher-122.png",
+      "width": 28,
+      "height": 28,
+      "source": "https://ffnews.com/favicon.ico",
+      "domain": "ffnews.com",
+      "aliases": [
+        "FF News"
+      ]
     }
   }
 }
