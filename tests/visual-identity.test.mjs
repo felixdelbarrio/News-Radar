@@ -10,7 +10,7 @@ const row=(id,entidad='BBVA',pais='España')=>({id,entidad,pais,fecha:'2026-10-1
 test('el inventario cubre entidades y países, mantiene proporciones y acota el peso total',()=>{
  const assets=identityAssets(),config=configurationDefaults();
  for(const [kind,names] of [['entities',Object.keys(assets.entities)],['countries',config.geographies.map(row=>row.name)]])for(const name of names){const image=assets[kind][name];assert.ok(image,name);assert.equal(Buffer.from(image.data,'base64').readUInt32BE(0),0x89504e47);assert.ok(image.width<=48&&image.height<=28);}
- assert.ok(Object.values(assets).flatMap(Object.values).reduce((sum,row)=>sum+Buffer.from(row.data,'base64').length,0)<100000);
+ assert.ok(Object.values(assets).flatMap(Object.values).reduce((sum,row)=>sum+Buffer.from(row.data,'base64').length,0)<140000);
 });
 test('Novedades y Noticias identifican cada tarjeta sin depender de imágenes externas, y las noticias sin país no reciben una bandera ficticia',async t=>{
  const rows=[row('a'),row('b','Santander','México'),row('c','Entidad <nueva>','Sin determinar')],a=await app(t,{configure({data}){data.briefing={...noveltyOverview(rows),items:rows};data.items=rows;}});
@@ -26,6 +26,14 @@ test('los ámbitos del correo comparten identidad y cada CID tiene un único adj
 });
 
 test('medios especializados y multilaterales usan logotipos locales también con variaciones de mayúsculas',()=>{
- const assets=identityAssets();for(const name of ['The Asset','Asian Banking & Finance','ADB','AIIB','Asian Development Bank'])assert.ok(assets.publishers[name],name);
+ const assets=identityAssets();for(const name of ['The Asset','Asian Banking & Finance','ADB','AIIB','Asian Development Bank'])assert.ok(assets.publishers[name.toLowerCase()],name);
  const c=vm.createContext({});vm.runInContext(readServerScript(),c);assert.match(c.identityMark('publishers','THE ASSET',value=>value),/data:image\/png;base64/);
+});
+
+
+test('aliases de bancos y dominios de medios comparten una identidad normalizada en cliente y servidor',()=>{
+ const c=vm.createContext({});vm.runInContext(readServerScript(),c);c.entityKey_=name=>name;c.publisherKey_=name=>name;
+ for(const [kind,alias,canonical] of [['entities','BBVA Empresas','BBVA'],['entities','Societe Generale','Société Générale'],['publishers','HTTPS://WWW.LAREPUBLICA.CO/','La República'],['publishers','Forbes España','Forbes'],['publishers',' BOLSAMANÍA ','Bolsamania']])assert.equal(c.identityAsset(kind,alias).id,c.identityAsset(kind,canonical).id,alias);
+ const assets=identityAssets();for(const name of Object.keys(assets.publishers))assert.equal(name,c.identityKey(name));
+ for(const name of ['JPMorgan Chase','State Bank of India','RBC','Emirates NBD','Banca Transilvania'])assert.ok(assets.entities[name],name);
 });

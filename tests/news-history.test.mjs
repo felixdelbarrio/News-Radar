@@ -42,12 +42,13 @@ test('caché vacía o incompleta reconstruye resultados; inserción, clasificaci
  }
  const keys=vm.runInContext('RADAR.sheets.Noticias',c);s.sheets.get('Noticias').grid.push(keys.map(key=>article(100)[key]||''));c.invalidateNews_();assert.equal(c.dashboardContent_(query,[],'news').data.total,66);
 });
-test('identidad canónica y similitud acotada conservan importes, productos, negaciones y fechas distintas',()=>{
+test('identidad canónica conserva cifras, negaciones y fechas fuera de catorce días y aplica el umbral léxico entre medios',()=>{
  const {c}=server(),base=article(1,{titular:'BBVA lanza una plataforma digital de financiacion empresarial para nuevas empresas'}),typo={...base,id:'typo',url:'https://editor.test/typo',titular:base.titular.replace('financiacion','financiacoin')};
  assert.equal(c.uniqueNews_([base,typo]).length,1);
- for(const title of [base.titular.replace('nuevas','otras'),base.titular.replace('BBVA lanza','BBVA no lanza'),base.titular.replace('empresarial','internacional')])assert.equal(c.uniqueNews_([base,{...typo,titular:title}]).length,2);
- assert.equal(c.uniqueNews_([base,{...typo,fecha:'2025-10-20'}]).length,2);
- assert.equal(c.uniqueNews_([base,{...typo,medio:'Otro'}]).length,2);
+ for(const title of [base.titular.replace('nuevas','otras'),base.titular.replace('empresarial','internacional')])assert.equal(c.uniqueNews_([base,{...typo,titular:title}]).length,1);
+ assert.equal(c.uniqueNews_([base,{...typo,titular:base.titular.replace('BBVA lanza','BBVA no lanza')}]).length,2);
+ assert.equal(c.uniqueNews_([base,{...typo,fecha:'2025-10-31'}]).length,2);
+ assert.equal(c.uniqueNews_([base,{...typo,medio:'Otro',pais:'México'}]).length,1);
  assert.equal(c.newsUrlIdentity_('https://news.google.com/rss/articles/token?oc=5'),c.newsUrlIdentity_('https://news.google.com/articles/token'));
  const amount=article(2,{titular:'Santander moviliza 300 millones de euros para financiar pymes'});assert.equal(c.uniqueNews_([amount,{...amount,id:'new',url:'https://editor.test/new',titular:amount.titular.replace('300','400')}]).length,2);
 });
@@ -59,13 +60,13 @@ test('plan de consolidación conserva originales y referencias de newsletters si
  assert.equal(c.newsletterEdition_('edition','owner@bbva.com').items[0].id,'copy');
  s.setEmail('reader@bbva.com');assert.throws(()=>c.previewNewsDeduplication(),/no autorizado/);
 });
-test('casos de la hoja real separan la sindicación próxima, la reedición lejana y productos financieros diferentes',()=>{
+test('casos de la hoja real aplican la ventana inclusiva de catorce días y la similitud léxica exigida',()=>{
  const {c}=server(),pairs=[
   ["BBVA Colombia lanza 'Blue Diamond', una nueva tarjeta de crédito para clientes de altos ingresos",'BBVA Colombia lanza Blue Diamond, una nueva tarjeta de crédito para clientes de altos ingresos','2026-02-09','2026-02-11',1],
-  ['Mastercard y BBVA lanzan en Perú la primera tarjeta de débito de la UEFA Champions League','Mastercard y BBVA lanzan en Perú la primera tarjeta de débito de la UEFA Champions League','2026-03-12','2026-03-26',2],
-  ['KAP *** YAPI KREDİ PORTFÖY ÜÇÜNCÜ PARA PİYASASI (TL) FONU *** KCP *** Portföy Dağılım Raporu','KAP *** YAPI KREDİ PORTFÖY İKİNCİ PARA PİYASASI (TL) FONU *** KCP *** Portföy Dağılım Raporu','2026-10-07','2026-10-07',2],
-  ['Commonwealth Bank of Australia (CBA.AX) stock price, news, quote and history','Commonwealth Bank of Australia (CBAPJ.AX) stock price, news, quote and history','2026-10-10','2026-10-10',2],
-  ['El BCE empuja al Sabadell y al francés BPCE para fusionarse y crear un gigante bancario ibero-francés','El BCE empuja al Sabadell y al francés BPCE para fusionarse y crear un gigante bancario ibero-galo','2026-10-09','2026-10-09',2]
+  ['Mastercard y BBVA lanzan en Perú la primera tarjeta de débito de la UEFA Champions League','Mastercard y BBVA lanzan en Perú la primera tarjeta de débito de la UEFA Champions League','2026-03-12','2026-03-26',1],
+  ['KAP *** YAPI KREDİ PORTFÖY ÜÇÜNCÜ PARA PİYASASI (TL) FONU *** KCP *** Portföy Dağılım Raporu','KAP *** YAPI KREDİ PORTFÖY İKİNCİ PARA PİYASASI (TL) FONU *** KCP *** Portföy Dağılım Raporu','2026-10-07','2026-10-07',1],
+  ['Commonwealth Bank of Australia (CBA.AX) stock price, news, quote and history','Commonwealth Bank of Australia (CBAPJ.AX) stock price, news, quote and history','2026-10-10','2026-10-10',1],
+  ['El BCE empuja al Sabadell y al francés BPCE para fusionarse y crear un gigante bancario ibero-francés','El BCE empuja al Sabadell y al francés BPCE para fusionarse y crear un gigante bancario ibero-galo','2026-10-09','2026-10-09',1]
  ];
  for(const [a,b,dayA,dayB,count] of pairs)assert.equal(c.uniqueNews_([article(1,{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:a,fecha:dayA}),article(2,{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:b,fecha:dayB})]).length,count,a);
 });

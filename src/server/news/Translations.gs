@@ -73,9 +73,8 @@ function storeArticleTranslation_(row,language){
 function compactArticleTranslations_(){
   const sheet=book_().getSheetByName('Traducciones'),count=Math.max(0,sheet.getLastRow()-1);if(!count)return;
   const fingerprints=new Set();
-  // Retain translations for the published corpus and its rollback generation.
-  const previous=JSON.parse(properties_().getProperty('PREVIOUS_DATA_GENERATION')||'{}');
-  for(const name of new Set([newsStorageKey_(),previous.snapshots?previous.newsSheet:null].filter(Boolean))){const source=book_().getSheetByName(name);if(!source)continue;const total=source.getLastRow()-1;for(let offset=0;offset<total;offset+=1000)for(const [titular,extracto] of source.getRange(offset+2,6,Math.min(1000,total-offset),2).getDisplayValues())fingerprints.add(articleFingerprint_({titular,extracto}));}
+  const source=newsSheet_(),total=source.getLastRow()-1;
+  for(let offset=0;offset<total;offset+=1000)for(const [titular,extracto] of source.getRange(offset+2,6,Math.min(1000,total-offset),2).getDisplayValues())fingerprints.add(articleFingerprint_({titular,extracto}));
   const rows=sheet.getRange(2,1,count,5).getDisplayValues(),unique=new Map();
   for(const row of rows)if(supportedLanguage(row[1])&&row[0].startsWith(row[1]+':')&&fingerprints.has(row[0].slice(row[1].length+1)))unique.set(row[0],row);
   if(unique.size===rows.length)return;

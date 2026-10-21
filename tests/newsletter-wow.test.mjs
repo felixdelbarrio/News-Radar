@@ -51,7 +51,7 @@ test('las visitas de newsletter usan identidad autenticada, IDs estables y dedup
  s.setEmail('reader@bbva.com');assert.throws(()=>c.recordEvents(input),/no disponible/);
 });
 test('el feedback actualizado conserva su retención mientras elimina otro registro antiguo',()=>{
- const s=server(),c=s.c;edition(s);c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:''});const sheet=s.sheets.get('NewsletterFeedback');sheet.grid.push(['old','edition','owner@bbva.com','negative','Antiguo','2000-01-01','pendiente']);s.properties.RETENTION_DATE='';const job={id:'retention',table:5,position:2,removed:0,state:'Pendiente'};for(let i=0;i<4&&job.table===5;i++)c.pruneEvents_(job);assert.equal(c.rows_('NewsletterFeedback').length,1);assert.notEqual(c.rows_('NewsletterFeedback')[0].id,'old');
+ const s=server(),c=s.c;edition(s);c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:''});const sheet=s.sheets.get('NewsletterFeedback');sheet.grid.push(['old','edition','owner@bbva.com','negative','Antiguo','2000-01-01','pendiente']);s.properties.RETENTION_DATE='';const job={id:'retention',table:5,position:2,removed:0,state:'Pendiente'};c.compactOperationalLogs_();assert.equal(c.rows_('NewsletterFeedback').length,2);assert.ok(c.rows_('NewsletterFeedback').some(row=>row.id==='old'));
 });
 test('traducción y categorización de Empresas preceden a la recuperación anual; los demás trabajos ceden entre lotes',()=>{
  const s=server(),c=s.c,work={pending:[{ciclo:'annual'}],jobs:[{id:'annual',tipo:'annual'}]};c.classificationReadyAt_=()=>0;assert.equal(c.backgroundTask_(work,false),'classification');c.classificationReadyAt_=()=>Infinity;

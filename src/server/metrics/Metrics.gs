@@ -5,7 +5,7 @@ function telemetry_(operation,duration,status,detail) {
 function recordEvents(events) {
   const session=authorize_(),now=new Date();
   if(!Array.isArray(events)||!events.length||events.length>20)throw new Error('Lote de eventos no válido.');
-  const administrative=['audit','sources','telemetry','adoption','administration','configuration','runs','subscribers','language','taxonomy'],allowed=['acceso','vista','filtro','lectura','exportacion','rendimiento','error'],views=[...readingViews,'subscriptions',...administrative];
+  const administrative=['audit','sources','telemetry','adoption','feedback','administration','configuration','runs','subscribers','language','taxonomy'],allowed=['acceso','vista','filtro','lectura','exportacion','rendimiento','error'],views=[...readingViews,'subscriptions',...administrative];
   const cleaned=events.map(event=>{
     if(!allowed.includes(event.event)||!views.includes(event.view)||!/^[a-z0-9-]{16,80}$/i.test(event.session))throw new Error('Evento no válido.');
     if(administrative.includes(event.view)&&!session.admin)throw new Error('Vista restringida.');
@@ -40,18 +40,17 @@ function exportTelemetry(){
   authorize_(true);const limit=settings_().eventLimit;
   const telemetry=rows_('Telemetria',limit),runs=rows_('Ejecuciones',limit),audit=rows_('Auditoria',limit),tasks=rows_('Recopilacion');
   const reasons=exclusionReasons_(audit);
-  return {schemaVersion:1,applicationVersion:RADAR.version,exportedAt:new Date().toISOString(),timezone:settings_().timezone,limits:{eventLimit:limit,collectionBatch:settings_().collectionBatch},pipeline:{classification:classificationJob_(),translation:translationJob_(),taxonomy:taxonomyJob_(),taxonomyTranslation:taxonomyTranslationJob_(),fetchResumeAt:Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0)},collection:{...collectionStatus_(tasks),tasks},telemetry,runs,audit,exclusionReasons:reasons,auditSampling:{maxExcludedExamplesPerReason:3,totals:'motivos en los resúmenes de Fuente consultada'},limited:{telemetry:telemetry.length===limit,runs:runs.length===limit,audit:audit.length===limit},usage:metrics_(rows_('Adopcion',limit),Date.now())};
+  return {schemaVersion:1,applicationVersion:RADAR.version,exportedAt:new Date().toISOString(),timezone:settings_().timezone,limits:{eventLimit:limit,collectionBatch:settings_().collectionBatch},pipeline:{classification:classificationJob_(),translation:translationJob_(),taxonomy:taxonomyJob_(),taxonomyTranslation:taxonomyTranslationJob_(),fetchResumeAt:Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0)},collection:{...collectionStatus_(tasks),tasks},telemetry,runs,audit,exclusionReasons:reasons,auditSampling:{maxExcludedExamplesPerReason:0,totals:'motivos en los resúmenes de Fuente consultada'},limited:{telemetry:telemetry.length===limit,runs:runs.length===limit,audit:audit.length===limit},usage:metrics_(rows_('Adopcion',limit),Date.now())};
 }
 
 function exclusionReasons_(audit){
-  audit=audit.map(row=>{const summary=retainedSummary_(row.motivo);return summary?{...row,motivo:summary.original,repetitions:summary.count}:{...row,repetitions:1};});
   const reasons={},summaries=new Set(),key=row=>JSON.stringify([row.ejecucion,row.fecha,row.fuente]);
   for(const row of audit){
     if(row.resultado!=='Fuente consultada')continue;
     const match=row.motivo.match(/; motivos (\{.*\})(?:; posible|$)/);if(!match)continue;
     const counts=JSON.parse(match[1]);summaries.add(key(row));
-    for(const [reason,count] of Object.entries(counts))reasons[reason]=(reasons[reason]||0)+Number(count)*row.repetitions;
+    for(const [reason,count] of Object.entries(counts))reasons[reason]=(reasons[reason]||0)+Number(count);
   }
-  for(const row of audit)if(row.resultado==='Excluida'&&!summaries.has(key(row)))reasons[row.motivo]=(reasons[row.motivo]||0)+row.repetitions;
+  for(const row of audit)if(row.resultado==='Excluida'&&!summaries.has(key(row)))reasons[row.motivo]=(reasons[row.motivo]||0)+1;
   return reasons;
 }

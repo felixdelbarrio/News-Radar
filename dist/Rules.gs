@@ -57,10 +57,12 @@ function digitalAssessment_(title,text,index=businessIndex_()){
   // Entity names are not evidence of a service (for example, Mercado Pago).
   const headline=title;title=title.replace(index.serviceNames,' ');text=text.replace(index.serviceNames,' ');
   const capabilities=index.capabilities.filter(row=>row.pattern.test(text));
-  const business=index.segments.some(row=>row.pattern.test(text.replace(/\bbusiness (?:days?|hours?)\b/g,' '))),channel=index.relevance.channel.test(text),shared=index.relevance.shared.test(title);
+  let business=index.segments.some(row=>row.pattern.test(text.replace(/\bbusiness (?:days?|hours?)\b/g,' '))),channel=index.relevance.channel.test(text),shared=index.relevance.shared.test(title);
   if(!capabilities.length&&business&&channel&&index.cataloguePattern.test(text))capabilities.push(...index.catalogue.filter(row=>row.pattern.test(text)));
-  const signals=index.signals.filter(row=>row.pattern.test(row.scope==='headline'?title:text)&&(!row.exclude.length||!row.excludePattern.test(title))&&(!row.context.length||row.contextPattern.test(text))),change=signals.length>0,problem=signals.some(row=>row.group==='Problema'),editorial=(index.relevance.editorial.test(title.replace(/\breport\b/g,' '))||index.relevance.editorial.test(title)&&!change),excluded=index.relevance.corporate.test(title)||index.relevance.incidental.test(title)||!business&&index.relevance.retail.test(text);
-  const relevant=Boolean(capabilities.length&&!excluded&&!editorial&&(!problem||business||index.relevance.infrastructure.test(text))&&(business&&(channel||shared)&&(index.relevance.service.test(text)||headlineEntity_(headline,index))||shared&&(channel||change||index.relevance.infrastructure.test(title))));
+  const signals=index.signals.filter(row=>row.pattern.test(row.scope==='headline'?title:text)&&(!row.exclude.length||!row.excludePattern.test(row.scope==='headline'?title:text))&&(!row.context.length||row.contextPattern.test(text))),change=signals.length>0,problem=signals.some(row=>row.group==='Problema'),editorial=(index.relevance.editorial.test(title.replace(/\breport\b/g,' '))||index.relevance.editorial.test(title)&&!change),excluded=headlineEntity_(headline,index)?.name==='Santander'&&santanderExcluded_(text)||index.relevance.corporate.test(title)||index.relevance.incidental.test(title)||!problem&&!business&&index.relevance.retail.test(text);
+  const incident=problem&&(channel||index.relevance.service.test(text))&&Boolean(headlineEntity_(text,index))&&!excluded&&!editorial;
+  if(incident){business=true;if(!capabilities.length)capabilities.push({segment:'Empresas',name:/\b(?:pagos|transferencias|payments|transfers)\b/.test(text)?'Pagos':/\b(?:app|movil|mobile)\b/.test(text)?'Aplicaciones móviles empresariales':'Banca electrónica corporativa',pattern:index.relevance.service});}
+  const relevant=incident||Boolean(capabilities.length&&!excluded&&!editorial&&(!problem||business||index.relevance.infrastructure.test(text))&&(business&&(channel||shared)&&(index.relevance.service.test(text)||headlineEntity_(headline,index))||shared&&(channel||change||index.relevance.infrastructure.test(title))));
   const score=relevant?4+Math.min(3,capabilities.length)+(business?2:0)+(change?2:0):0;
   const evidence=(pattern,value)=>pattern.exec(value)?.[0]?.trim().slice(0,120)||'';
   return {capabilities,score,channel,change,editorial,excluded,relevant,business,shared,signals:signals.map(row=>row.name),evidence:{segmento:index.segments.map(row=>evidence(row.pattern,text)).filter(Boolean).slice(0,3),canal:evidence(index.relevance.channel,text),capacidades:capabilities.slice(0,8).map(row=>({nombre:row.name,texto:evidence(row.pattern,text)})),senales:signals.map(row=>({nombre:row.name,texto:evidence(row.pattern,row.scope==='headline'?title:text)})),corporativa:evidence(index.relevance.corporate,title),retail:!business?evidence(index.relevance.retail,text):'',editorial:evidence(index.relevance.editorial,title)}};
@@ -88,16 +90,33 @@ function sourceGeographies_(index=businessIndex_()){
   for(const entity of index.config.entities)for(const geo of index.config.geographies){values.set(searchText_(entity.name+' · '+geo.name),geo.name);if(entity.name==='BBVA')values.set(searchText_('BBVA Empresas · '+geo.name),geo.name);}
   sourceGeographyMemory_={config:index.config,values};return values;
 }
+function domainCountry_(url,publisher,sourceName,index=businessIndex_()){
+  const byCode=new Map(index.geographies.map(geo=>[String(geo.code||'').toLowerCase(),geo.name]));
+  const codes={es:'ES',co:'CO',mx:'MX',ar:'AR',pe:'PE',cl:'CL',br:'BR',uy:'UY',it:'IT',de:'DE',fr:'FR',pt:'PT',uk:'GB',tr:'TR',nl:'NL',be:'BE',ch:'CH',ro:'RO',ca:'CA',au:'AU',in:'IN',sg:'SG',hk:'HK',jp:'JP',kr:'KR',vn:'VN',ph:'PH',my:'MY',th:'TH',ve:'VE',ae:'AE',nz:'NZ',ke:'KE',za:'ZA',id:'ID',il:'IL'};
+  const country=code=>byCode.get(String(codes[code]||code).toLowerCase())||'';
+  for(const value of [url,publisher,sourceName]){
+    const domains=String(value||'').toLowerCase().match(/(?:[a-z0-9-]+\.)+[a-z]{2,}(?![a-z])/g)||[];
+    for(const host of domains){if(host==='t.co'||host==='news.google.com'||host.endsWith('.news.google.com'))continue;const found=country(host.split('.').at(-1));if(found)return found;}
+  }
+  const names={es:['Expansión','Cinco Días','El Economista','Bolsamanía','Noticias Bancarias','Territorio Fintech','El Mundo Financiero','Demócrata'],co:['El Tiempo','Portafolio','La República','Valora Analitik'],mx:['El Economista México','El CEO','Expansión MX','Radio Fórmula','Milenio'],ar:['El Cronista','Ámbito','iProfesional'],pe:['Gestión','Semana Económica'],cl:['Diario Financiero','La Tercera'],br:['Valor Econômico','InfoMoney'],uy:['El Observador','El País Uruguay']};
+  for(const value of [publisher,sourceName]){const key=searchText_(value);for(const [code,aliases] of Object.entries(names))if(aliases.some(alias=>searchText_(alias)===key))return country(code);}
+  return '';
+}
 function newsCountry_(row,index=businessIndex_()){
-  const source=sourceGeographies_(index).get(searchText_(row.fuente));if(source)return source;
-  if(index.geographies.some(geo=>geo.name===row.pais))return row.pais;
   const title=searchText_(row.titular),matches=index.geographies.filter(geo=>geo.terms.some(term=>phraseMatch_(title,term)));
-  return matches.length===1?matches[0].name:row.pais||settings_().unknownCountry;
+  if(matches.length===1)return matches[0].name;
+  return domainCountry_(row.url,row.medio,row.fuente,index)||sourceGeographies_(index).get(searchText_(row.fuente))||(index.geographies.some(geo=>geo.name===row.pais)?row.pais:settings_().unknownCountry);
+}
+function santanderExcluded_(text){
+  if(!phraseMatch_(text,'santander'))return false;
+  if(phrasePattern_(['ayuntamiento de santander','alcalde de santander','alcaldesa de santander','concejal','vecinos de santander','mercado de mexico','bahia de santander','puerto de santander','universidad de cantabria','gobierno de cantabria','diputacion','gobernador de santander','gobernacion de santander','departamento de santander','bucaramanga','barrancabermeja','policia de santander','bomberos de santander','eln','bus incinerado','extorsion']).test(text))return true;
+  if(phrasePattern_(['banco santander','banco de santander','grupo santander','santander empresas','santander corporate','santander cib','santander uk','santander brasil','santander mexico','santander chile','santander argentina','santander portugal','getnet','pagonxt','ebury','cash nexus','openbank','ana botin']).test(text))return false;
+  return !phrasePattern_(['banco','banca','bank','banking','entidad financiera','clientes del santander','app de santander']).test(text)||/\b(?:en|de|hacia|desde) santander\b/.test(text);
 }
 function annotateNews_(rows){
   const index=businessIndex_(),items=taxonomyCatalog_(),taxonomy=new Map(items.map(({id,palanca,subpalanca})=>[id,{id,palanca,subpalanca}]));
   return rows.map(row=>{
-    const catalog=index.entities.get(searchText_(row.entidad)),assignment=effectiveTaxonomyAssignment_(row,items),classification=savedNewsLabels_(row.clasificacion),labels={digital:classification.digital,capacidades:classification.capacidades,...(classification.canonicalId?{canonicalId:classification.canonicalId}:{})};
+    const catalog=index.entities.get(searchText_(row.entidad)),assignment=effectiveTaxonomyAssignment_(row,items),classification=savedNewsLabels_(row.clasificacion),labels={digital:classification.digital,capacidades:classification.capacidades};
     if(assignment.editorialExcluded)return null;
     const annotated={...row,clasificacion:JSON.stringify(labels),medio:publisherKey_(row.medio),pais:row.pais||settings_().unknownCountry,...(assignment.evidence?{functionalEvidence:assignment.evidence}:{}),taxonomia:assignment.ids.map(id=>taxonomy.get(id)),etiquetas:labels,entidad:catalog?.name||row.entidad,tipo:catalog?.type||'',segmentos:classification.segmentos||[],senales:classification.senales||[]};newsRelevanceMemory_.set(annotated,Number(classification.score||0));return annotated;
   }).filter(Boolean);
@@ -117,11 +136,9 @@ function evaluate_(item, feed, now) {
   const reject=reason=>({inRange:true,reason,candidate});
   if(feed.entity==='Sector'&&!entity)return reject('Sin entidad de seguimiento en el titular');
   if(feed.kind==='profile'&&entity&&!index.entityTerms.get(entity.name).some(alias=>phraseMatch_(text,alias)))return reject('Sin evidencia de la entidad buscada');
-  const geographyText=text;
-  const countries=index.geographies.filter(geo=>geo.terms.some(term=>phraseMatch_(geographyText,term))).map(geo=>geo.name);
-  if(feed.kind==='profile'&&countries.length&&!countries.includes(feed.country))return reject('Geografía distinta de la búsqueda');
+  if(entityKey_(entity?.name||feed.entity)==='Santander'&&santanderExcluded_(text))return reject('Santander geográfico o municipal');
   if(!classification.labels.digital||!classification.labels.capacidades.some(name=>name.startsWith('Empresas: ')))return reject('Fuera de canal digital de Empresas e instituciones');
-  const country=sourceCountry_(feed,index)||(countries.length===1?countries[0]:settings_().unknownCountry);
+  const country=newsCountry_({titular:title,url,medio:publisher,fuente:feed.name,pais:feed.country},index);
   if(feed.capabilitySearch&&classification.assessment.excluded)return reject('Información corporativa sin novedad de canal digital');
   if(feed.capabilitySearch&&(!classification.assessment.capabilities.length||!classification.assessment.channel))return reject('Sin capacidad digital activa en contexto de canal');
   return {inRange:true,relevant:classification.labels.digital||(!classification.assessment.excluded&&classification.assessment.score>0),item:{date,title,excerpt:excerpt===title?'':excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country,language:item.language||feed.language||'',publisher:publisher||'',provenance:item.excerptSource||'rss:description'}};

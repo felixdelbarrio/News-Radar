@@ -66,11 +66,10 @@ function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
     }
     const processingMs=Date.now()-processingStarted,writeStarted=Date.now();
     persistCandidates_(candidates,now);appendCoverage_(coverage);
-    append_('Noticias',news);let sorted=false;
+    append_('Noticias',news);
     append_('Auditoria',audit);append_('Recopilacion',newTasks);
     writeCollectionTasks_(pending,updates);
-    if((news.length||tasks.some(task=>Number(task.nuevas)>0))&&!newTasks.length&&tasks.every(task=>!['Pendiente','Reintento programado'].includes(task.estado))){const sheet=newsSheet_(),count=sheet.getLastRow()-1;if(count>1){if(classificationPending_())requestNewsClassification_(true);sheet.getRange(2,1,count,RADAR.sheets.Noticias.length).sort({column:2,ascending:true});sorted=true;}}
-    if(news.length||sorted){SpreadsheetApp.flush();invalidateNews_();}
+    if(news.length){SpreadsheetApp.flush();invalidateNews_();}
     if(news.some(row=>businessNews_(Object.fromEntries(RADAR.sheets.Noticias.map((key,index)=>[key,row[index]])))))requestTranslations_(true);
     append_('Ejecuciones',[...affected].map(id=>{const batch=pending.filter(task=>task.ciclo===id),rows=batch.map(task=>updates.get(task.row)),failures=rows.map(row=>row[5]).filter(Boolean);return [id,now.toISOString(),new Date().toISOString(),failures.length?'Parcial':'Completada',batch.length,rows.reduce((sum,row)=>sum+Number(row[3]),0),rows.reduce((sum,row)=>sum+Number(row[4]),0),failures.join(' | ')];}));
     for(const job of jobs)if(pending.filter(task=>task.ciclo===job.id&&updates.get(task.row)[5]).length>=2)job.pausa=String(Date.now()+settings_().pauseMinutes*60000);

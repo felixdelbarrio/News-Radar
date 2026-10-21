@@ -21,7 +21,7 @@ test('ZIP reproducible, UTF-8 y contrato exportación→importación sin extract
  assert.ok(bytes.includes(Buffer.from('manifest.json')));assert.ok(bytes.includes(Buffer.from('instructions.md')));assert.ok(bytes.includes(Buffer.from('functionalCatalog')));assert.ok(bytes.includes(Buffer.from('resultSchema')));
  const txt='{"á":"日本語"}';assert.equal(llmDecode(llmUtf8(txt)),txt);assert.equal(llmUnzip(llmZip([{name:'results.json',text:txt}]))[0].text,txt);
  assert.equal(c.getLlmCategorization().pending,2);const original=c.rows_('Noticias')[0].taxonomia;
- c.importLlmResults(payload([result(c)],true));assert.equal(c.getLlmCategorization().valid,0);finish(c);assert.equal(c.getLlmCategorization().valid,1);assert.equal(c.rows_('Noticias')[0].taxonomia,original);assert.equal(c.getLlmCategorization().pending,1);
+ c.importLlmResults(payload([result(c)],true));assert.equal(c.getLlmCategorization().valid,1);finish(c);assert.equal(c.getLlmCategorization().valid,1);assert.equal(c.rows_('Noticias')[0].taxonomia,original);assert.equal(c.getLlmCategorization().pending,1);
 });
 test('lotes con contexto compartido limitados, cursores y descarga repetida sin mutaciones',()=>{
  const {c}=setup(55),out=c.exportLlmPending(),text=JSON.stringify(out.files);assert.equal(out.count,55);assert.ok(text.includes('3_3.json'));
@@ -71,7 +71,7 @@ test('cambios concurrentes del corpus invalidan resultados, reinician construcci
  assert.equal(c.llmState_().mode,undefined);
 });
 test('no se publica al fallar escritura/verificación y un reintento limpio funciona',()=>{
- const s=setup(),c=s.c,before=s.properties.DATA_GENERATION,write=c.writeStagedNewsRows_;c.writeStagedNewsRows_=()=>{throw Error('Cuota temporal');};assert.throws(()=>c.importLlmResults(payload([result(c)])),/Cuota/);assert.equal(s.properties.DATA_GENERATION,before);assert.equal(c.llmJob_(),null);c.writeStagedNewsRows_=write;c.importLlmResults(payload([result(c)]));finish(c);
+ const s=setup(),c=s.c,before=s.properties.DATA_GENERATION,write=c.writeVerifiedRows_;c.writeVerifiedRows_=()=>{throw Error('Cuota temporal');};assert.throws(()=>c.importLlmResults(payload([result(c)])),/Cuota/);assert.equal(s.properties.DATA_GENERATION,before);assert.equal(c.llmJob_(),null);c.writeVerifiedRows_=write;c.importLlmResults(payload([result(c)]));finish(c);
 });
 test('autorización, URL persistente, conflicto de configuración y límites',()=>{
  const s=setup(),c=s.c,url='https://chatgpt.com/g/g-p-example';c.saveLlmCategorization({projectUrl:url,revision:'0'});assert.equal(c.getLlmCategorization().projectUrl,url);
@@ -160,7 +160,7 @@ test('rechaza evidencia web sin procedencia, pasaje, fecha real o URL canónica 
 test('propuestas separadas se agrupan por concepto, conservan evidencia y nunca publican IDs .xx',()=>{
  const s=setup(),c=s.c,catalog=JSON.stringify(c.functionalCatalog_()),taxonomy=JSON.stringify(c.taxonomyCatalog_());
  const proposals=['Firma contextual adaptativa','FIRMA CONTEXTUAL ADAPTATÍVA'].map((name,i)=>{const r=result(c,'news-'+i,true);r.proposals=[{block:'17',code:'17.xx',name,justification:'El hecho requiere una suboperativa no representada en las existentes.',equivalents:['https://publisher.example.com/equivalent'],evidence:{quote:'login biométrico',source:'article'}}];return r;});
- c.importLlmResults(payload(proposals));assert.equal(JSON.parse(c.exportLlmPending().review.text).proposals.length,0);finish(c);
+ c.importLlmResults(payload(proposals));assert.equal(JSON.parse(c.exportLlmPending().review.text).proposals.length,1);finish(c);
  const out=c.exportLlmPending(),report=JSON.parse(out.review.text);assert.equal(report.proposals.length,1);assert.equal(report.proposals[0].articles.length,2);assert.equal(report.proposals[0].status,'review_only');
  assert.equal(JSON.stringify(c.functionalCatalog_()),catalog);assert.equal(JSON.stringify(c.taxonomyCatalog_()),taxonomy);
  const bad=result(c);bad.ids=['17.xx'];bad.primary='17.xx';bad.evidence=[{id:'17.xx',quote:'login biométrico',source:'article'}];assert.throws(()=>c.importLlmResults(payload([bad])),/IDs/);
@@ -201,7 +201,7 @@ test('solo el esquema vigente puede leerse e importarse, sin rutas de compatibil
  assert.throws(()=>c.importLlmResults(payload([r])),/esquema/);assert.equal(properties.DATA_GENERATION,before);assert.equal(c.llmJob_(),null);
 });
 
-test('un fallo al programar tras guardar el job conserva staging, generación y reintento recuperable',()=>{
+test('un fallo al programar tras guardar el job conserva las filas canónicas, generación y reintento recuperable',()=>{
  const s=setup(),c=s.c,before=s.properties.DATA_GENERATION,r=webResult(c),schedule=c.ensureBackgroundWorker_;
  c.ensureBackgroundWorker_=()=>{throw Error('Cuota de activadores');};assert.throws(()=>c.importLlmResults(payload([r])),/Cuota/);
  assert.equal(s.properties.DATA_GENERATION,before);const job=c.llmJob_();assert.equal(job.state,'Publicando');assert.match(job.error,/Cuota/);assert.ok(s.sheets.has(job.categorization.sheet));
@@ -256,9 +256,9 @@ test('la interfaz descarga una vez al terminar y no descarga archivos parciales 
 });
 
 test('el porcentaje de publicación avanza con cada snapshot y llega a 100 solo al publicar',()=>{
- const {c}=setup();c.importLlmResults(payload([result(c)]));assert.equal(c.llmJob_().progress,0);
+ const {c}=setup();assert.equal(c.getLlmCategorization().valid,0);assert.equal(c.importLlmResults(payload([result(c)])).valid,1);assert.equal(c.llmJob_().progress,0);
  c.dashboardSnapshotBatch_();assert.equal(c.llmJob_().progress,33);assert.equal(c.llmJob_().state,'Publicando');
- c.dashboardSnapshotBatch_();assert.equal(c.llmJob_().progress,67);assert.equal(c.getLlmCategorization().valid,0);
+ c.dashboardSnapshotBatch_();assert.equal(c.llmJob_().progress,67);assert.equal(c.getLlmCategorization().valid,1);
  c.dashboardSnapshotBatch_();assert.equal(c.llmJob_().progress,100);assert.equal(c.llmJob_().state,'Completada');assert.equal(c.getLlmCategorization().valid,1);
 });
 test('importación muestra avance por archivo y espera las tres vistas antes del 100 %',async t=>{
@@ -288,4 +288,16 @@ test('decisión canónica: positivo fuerte, abstención, evidencia débil y excl
 });
 test('lote masivo sin clasificación ni investigación queda señalado para revisión',()=>{
  const {c}=setup(25);c.importLlmResults(payload(c.rows_('Noticias').map(row=>result(c,row.id,true))));assert.equal(c.llmJob_().reviewRequired,true);finish(c);assert.equal(c.llmJob_().reviewRequired,true);
+});
+
+test('un fallo tras escribir revierte sólo las filas LLM tocadas antes de publicar y permite reintentar',()=>{
+ const s=setup(),c=s.c,write=c.writeVerifiedRows_,before=s.properties.DATA_GENERATION;
+ c.writeVerifiedRows_=(sheet,updates)=>{write(sheet,updates);throw Error('Verificación fallida');};
+ assert.throws(()=>c.importLlmResults(payload([result(c)])),/Verificación/);
+ assert.equal(c.llmJob_(),null);assert.equal(s.properties.DATA_GENERATION,before);assert.equal(c.llmIndex_().size,0);
+ c.writeVerifiedRows_=write;c.importLlmResults(payload([result(c)]));finish(c);const saved=JSON.stringify(s.sheets.get('CategorizacionLLM').grid);
+ const changed=result(c,'news-0',true);changed.replaces=c.llmResultHash_(c.llmIndex_().get('news-0'));
+ c.writeVerifiedRows_=(sheet,updates)=>{write(sheet,updates);throw Error('Verificación fallida');};
+ assert.throws(()=>c.importLlmResults(payload([changed])),/Verificación/);assert.equal(JSON.stringify(s.sheets.get('CategorizacionLLM').grid),saved);
+ assert.equal(c.llmIndex_().get('news-0').status,'classified');
 });

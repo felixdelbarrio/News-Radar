@@ -25,7 +25,7 @@ function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,o
     if(view === "language")await onLanguage();
     if (view === "runs") await onRuns();
     if (view === "audit") await loadAudit();
-    if (view === "telemetry" || view === "adoption") await loadMetrics(view, () => current === view && !$("administration-section").hidden);
+    if (view === "telemetry" || view === "adoption" || view === "feedback") await loadMetrics(view, () => current === view && !$("administration-section").hidden);
   }
   $("admin-tabs").addEventListener("click", (event) => {
     const button = event.target.closest("[data-admin-view]");

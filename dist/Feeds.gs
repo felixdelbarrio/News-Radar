@@ -6,7 +6,7 @@ function parseFeed_(xml) {
   return items.map(item=>{const description=item.getChildText('description'),content=description?'':item.getChildText('encoded',XmlService.getNamespace('http://purl.org/rss/1.0/modules/content/'));return {title:item.getChildText('title'),url:item.getChildText('link'),date:item.getChildText('pubDate'),excerpt:description||content||'',excerptSource:description?'rss:description':content?'rss:content:encoded':'rss:title',source:item.getChildText('source'),language};});
 }
 function newsRecord_(item,feed,now) {
-  const record={id:Utilities.getUuid(),fecha:Utilities.formatDate(item.date,settings_().timezone,'yyyy-MM-dd'),pais:item.country||feed.country,medio:publisherKey_(item.publisher||(feed.kind==='profile'?'':feed.name)),entidad:item.entity||feed.entity,titular:item.title,extracto:item.excerpt,url:item.url,capturada:now.toISOString(),fuente:feed.name,idioma:item.language||feed.language||'',clasificacion:JSON.stringify({...item.labels,procedencia:{fuente:feed.name,url:item.url,extracto:item.provenance||'rss:description'}}),taxonomia:JSON.stringify(taxonomyRecord_(item.title,item.excerpt))};
+  const record={id:Utilities.getUuid(),fecha:Utilities.formatDate(item.date,settings_().timezone,'yyyy-MM-dd'),pais:item.country||feed.country,medio:publisherKey_(item.publisher||(feed.kind==='profile'?'':feed.name)),entidad:entityKey_(item.entity||feed.entity),titular:item.title,extracto:item.excerpt,url:item.url,capturada:now.toISOString(),fuente:feed.name,idioma:item.language||feed.language||'',clasificacion:JSON.stringify({...item.labels,procedencia:{fuente:feed.name,url:item.url,extracto:item.provenance||'rss:description'}}),taxonomia:JSON.stringify(taxonomyRecord_(item.title,item.excerpt))};
   return RADAR.sheets.Noticias.map(key=>record[key]);
 }
 function ingestFeed_(feed,known,cycle,now,response) {
@@ -26,18 +26,20 @@ function ingestFeed_(feed,known,cycle,now,response) {
       else{known.add(newsUrlIdentity_(item.url));rememberTitle_(known,item);state='Incluida';reason=feed.kind==='profile'?'Noticia integrada desde RSS de Google News':'Noticia integrada desde RSS del editor';news.push(newsRecord_(item,feed,now));if(item.labels.digital)digital++;}
     }
     if(state==='Excluida'){excluded++;reasons[reason]=(reasons[reason]||0)+1;}else if(state==='Duplicada')duplicated++;
-    if(state==='Incluida'||(state==='Duplicada'?duplicated<=3:reasons[reason]<=3))audit.push([cycle,date,feed.name,item?.url||String(raw.url||''),state,reason]);
+    if(state==='Incluida')audit.push([cycle,date,feed.name,item?.url||String(raw.url||''),state,reason]);
   }
   audit.push([cycle,date,feed.name,feed.url,'Fuente consultada',items.length+' evaluadas; '+news.length+' nuevas; '+excluded+' excluidas; '+duplicated+' duplicadas; '+relevant+' relevantes; '+inside+' dentro del período; motivos '+JSON.stringify(reasons)+((feed.kind==='profile'||feed.domain==='news.google.com')&&items.length>=COLLECTION_POLICY.providerLimit?'; posible límite del proveedor: cobertura parcial':'')]);
   return {news,audit,candidates,inside,evaluated:items.length,relevant,digital,duplicated,excluded,saturated:(feed.kind==='profile'||feed.domain==='news.google.com')&&items.length>=COLLECTION_POLICY.providerLimit&&inside>=COLLECTION_POLICY.providerLimit*COLLECTION_POLICY.saturationRatio};
 }
-function knownUrls_() {
-  const sheet=newsSheet_(),count=sheet.getLastRow()-1,known=new Set();known.titles=new Map();
-  if(count>0)for(const row of translationIdentityRows_(sheet.getRange(2,2,count,7).getDisplayValues().map(row=>({fecha:row[0],pais:row[1],medio:row[2],entidad:row[3],titular:row[4],extracto:row[5],url:row[6]})))){
-    const url=newsUrlIdentity_(row.url);if(url)known.add(url);
-    if(Number.isFinite(Date.parse(row.fecha)))for(const title of [row.titular,...(row.identityTitles||[])])rememberTitle_(known,{date:row.fecha,title,publisher:publisherKey_(row.medio),entity:row.entidad,country:row.pais});
+let knownUrlsMemory_;
+function knownUrls_(){
+  const sheet=newsSheet_(),count=Math.max(0,sheet.getLastRow()-1),revision=newsStorageKey_()+':'+count+':'+(properties_().getProperty('NEWS_CONTENT_REVISION')||'0');
+  if(knownUrlsMemory_?.revision===revision)return knownUrlsMemory_.known;
+  const known=new Set();known.titles=new Map();
+  if(count){const rows=sheet.getRange(2,2,count,5).getDisplayValues(),urls=sheet.getRange(2,8,count,1).getDisplayValues();
+    rows.forEach((row,i)=>{const url=newsUrlIdentity_(urls[i][0]);if(url)known.add(url);rememberTitle_(known,{date:row[0],country:row[1],publisher:row[2],entity:entityKey_(row[3]),title:row[4]});});
   }
-  return known;
+  knownUrlsMemory_={revision,known};return known;
 }
 
 function fetchFeedBatch_(feeds){

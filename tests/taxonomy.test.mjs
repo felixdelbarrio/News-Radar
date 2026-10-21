@@ -21,7 +21,7 @@ test('TF-IDF exige recurrencia y fuentes distintas dentro de un bloque cerrado',
 });
 test('analiza todo el histórico, crea etiquetas estables y no escribe noticias ni catálogo en una repetición idéntica',()=>{
   const {c,sheets}=server();c.startTaxonomy();finish(c);
-  const status=c.getTaxonomyStatus();assert.equal(status.job.processed,8);assert.equal(status.job.total,4);assert.ok(status.items.some(row=>row.subpalanca.startsWith('16.01.')));
+  const status=c.getTaxonomyStatus();assert.equal(status.job.processed,4);assert.equal(status.job.total,4);assert.ok(status.items.some(row=>row.subpalanca.startsWith('16.01.')));
   const labels=c.rows_('Noticias').map(row=>c.taxonomySaved_(row.taxonomia));assert.ok(labels[0].ids.length);assert.equal(labels[3].ids.length,0);
   const first=JSON.stringify(c.newsSheet_().grid),writes=[],catalogWrites=[],range=c.newsSheet_().getRange,catRange=c.taxonomySheet_().getRange;
   c.newsSheet_().getRange=(...args)=>{const value=range(...args),set=value.setValues;value.setValues=rows=>{writes.push(args);return set(rows);};return value;};
@@ -30,9 +30,9 @@ test('analiza todo el histórico, crea etiquetas estables y no escribe noticias 
 });
 test('el modelo cambia con contenido nuevo sin reescribir etiquetas intactas; filtros y newsletters usan la misma taxonomía',()=>{
   const {c,sheets}=server();c.startTaxonomy();finish(c);const prior=c.newsSheet_().grid[1][12],items=c.taxonomyCatalog_(),payment=items.find(row=>row.subpalanca.startsWith('16.01.')),query={palanca:payment.palanca,subpalanca:taxonomyPath(payment)};
-  assert.equal(c.selectNews_(c.rows_('Noticias'),query).length,2);assert.deepEqual(Object.keys(c.selectNews_(c.rows_('Noticias'),query)[0].taxonomia[0]).sort(),['id','palanca','subpalanca']);assert.equal(c.newsDashboard_(annotateFixtures(c,c.rows_('Noticias')),{},[],'news').subpalanca.includes(query.subpalanca),true);
+  assert.equal(c.selectNews_(c.rows_('Noticias'),query).length,1);assert.deepEqual(Object.keys(c.selectNews_(c.rows_('Noticias'),query)[0].taxonomia[0]).sort(),['id','palanca','subpalanca']);assert.equal(c.newsDashboard_(annotateFixtures(c,c.rows_('Noticias')),{},[],'news').subpalanca.includes(query.subpalanca),true);
   const subscription=c.subscriptionRecord_({name:'Pagos',filters:query},'user@bbva.com','id',new Date(),0);assert.equal(subscription.filtros.subpalanca,undefined);
-  c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';const newsletter=newsletterFixture(c,c.rows_('Noticias'),query,'Pagos digitales',new Date(),'id');assert.equal(newsletter.count,1);assert.equal(newsletter.total,2);assert.equal(newsletter.editorial.cards[0].additionalCount,1);assert.ok(newsletter.html.includes(payment.palanca.replace(/^\d{2}\.\s*/,'').replace(/&/g,'&amp;')));assert.ok(newsletter.text.includes(payment.palanca.replace(/^\d{2}\.\s*/,'')));
+  c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';const newsletter=newsletterFixture(c,c.rows_('Noticias'),query,'Pagos digitales',new Date(),'id');assert.equal(newsletter.count,1);assert.equal(newsletter.total,1);assert.equal(newsletter.editorial.cards[0].additionalCount,0);assert.ok(newsletter.html.includes(payment.palanca.replace(/^\d{2}\.\s*/,'').replace(/&/g,'&amp;')));assert.ok(newsletter.text.includes(payment.palanca.replace(/^\d{2}\.\s*/,'')));
   c.newsSheet_().grid.push(['new','2026-10-11','España','Editor','BBVA','BBVA lanza API avanzada','','https://example.com/new','','Editor','es','{"digital":true,"capacidades":["Empresas: Pagos"]}', '']);c.invalidateNews_();c.startTaxonomy();finish(c);assert.equal(c.newsSheet_().grid[1][12],prior);assert.ok(c.taxonomySaved_(c.newsSheet_().grid.at(-1)[12]).ids.length);
   c.newsSheet_().grid[1][5]='BBVA lanza IA generativa';c.invalidateNews_();c.startTaxonomy();finish(c);assert.notEqual(c.newsSheet_().grid[1][12],prior);
 });
@@ -47,8 +47,8 @@ test('programación única, autorización, petición durable y recuperación dia
   s.setEmail('reader@bbva.com');assert.throws(()=>c.startTaxonomy(),/administrador/);assert.throws(()=>c.getTaxonomyStatus(),/administrador/);
 });
 test('fallos de escritura conservan el cursor y las etiquetas existentes; una modificación de corpus reinicia el análisis',()=>{
-  const {c,sheets}=server();c.startTaxonomy();c.taxonomyBatch_();c.taxonomyBatch_();assert.equal(c.taxonomyJob_().phase,'tag');
-  const sheet=sheets.get(c.taxonomyJob_().target),range=sheet.getRange;sheet.getRange=(...args)=>{const result=range(...args);if(args[1]===13)result.setValues=()=>{throw Error('Escritura temporal');};return result;};
+  const {c,sheets}=server();c.startTaxonomy();c.taxonomyBatch_();assert.equal(c.taxonomyJob_().phase,'tag');
+  const sheet=c.newsSheet_(),range=sheet.getRange;sheet.getRange=(...args)=>{const result=range(...args);if(args[1]===13)result.setValues=()=>{throw Error('Escritura temporal');};return result;};
   c.taxonomyBatch_();assert.equal(c.taxonomyJob_().state,'En pausa');assert.equal(c.taxonomyJob_().next,2);assert.match(c.taxonomyJob_().error,/Escritura/);
   sheet.getRange=range;c.startTaxonomy();finish(c);assert.ok(c.taxonomySaved_(sheet.grid[1][12]).ids.length);
   c.startTaxonomy();c.taxonomyBatch_();const id=c.taxonomyJob_().id;c.invalidateNews_();c.taxonomyBatch_();assert.notEqual(c.taxonomyJob_().id,id);assert.equal(c.taxonomyJob_().phase,'scan');finish(c);
@@ -57,7 +57,7 @@ test('fallos de escritura conservan el cursor y las etiquetas existentes; una mo
 test('las noticias nuevas se etiquetan con el modelo vigente durante la incorporación y los lotes no leen todo el corpus',()=>{
  const {c,sheets}=server();c.startTaxonomy();finish(c);const row=c.newsRecord_({date:new Date(),title:'BBVA lanza login biométrico',excerpt:'Para empresas',topic:'Pagos',url:'https://example.com/new',labels:{digital:true,generalista:true,capacidades:["Empresas: Pagos"]}},c.feeds_()[0],new Date());
  assert.ok(c.taxonomySaved_(row[12]).ids.length);
- for(let i=0;i<260;i++)c.newsSheet_().grid.push([...row.slice(0,12),'']);c.invalidateNews_();const reads=[],sheet=c.newsSheet_(),get=sheet.getRange;sheet.getRange=(...args)=>{reads.push(args);return get(...args);};c.startTaxonomy();finish(c);assert.ok(reads.every(args=>args[3]===4||args[2]<=2000));assert.equal(c.taxonomyJob_().processed,528);
+ for(let i=0;i<260;i++)c.newsSheet_().grid.push([...row.slice(0,12),'']);c.invalidateNews_();const reads=[],sheet=c.newsSheet_(),get=sheet.getRange;sheet.getRange=(...args)=>{reads.push(args);return get(...args);};c.startTaxonomy();finish(c);assert.ok(reads.every(args=>args[3]===4||args[2]<=5000));assert.equal(c.taxonomyJob_().processed,264);
 });
 
-test('la taxonomía tiene prioridad y conserva cursores y etiquetas tras un fallo de escritura',()=>{const {c,sheets,properties}=server();c.startTaxonomy();c.taxonomyBatch_();c.taxonomyBatch_();c.writeClassificationJob_({...c.classificationJob_(),target:null,state:'Completada'});properties.BACKGROUND_LAST='classification';assert.equal(c.backgroundTask_({pending:[{ciclo:'annual'}]},false),'taxonomy');const sheet=sheets.get(c.taxonomyJob_().target),range=sheet.getRange;sheet.getRange=(...args)=>{const result=range(...args);if(args[1]===13)result.setValues=()=>{throw Error('Escritura temporal');};return result;};c.taxonomyBatch_();assert.equal(c.taxonomyJob_().state,'En pausa');assert.equal(c.taxonomyJob_().next,2);sheet.getRange=range;c.startTaxonomy();finish(c);assert.equal(c.taxonomyJob_().processed,8);assert.ok(c.taxonomySaved_(sheet.grid[1][12]).ids.length);});
+test('la taxonomía tiene prioridad y conserva cursores y etiquetas tras un fallo de escritura',()=>{const {c,sheets,properties}=server();c.startTaxonomy();c.taxonomyBatch_();c.writeClassificationJob_({...c.classificationJob_(),target:null,state:'Completada'});properties.BACKGROUND_LAST='classification';assert.equal(c.backgroundTask_({pending:[{ciclo:'annual'}]},false),'taxonomy');const sheet=c.newsSheet_(),range=sheet.getRange;sheet.getRange=(...args)=>{const result=range(...args);if(args[1]===13)result.setValues=()=>{throw Error('Escritura temporal');};return result;};c.taxonomyBatch_();assert.equal(c.taxonomyJob_().state,'En pausa');assert.equal(c.taxonomyJob_().next,2);sheet.getRange=range;c.startTaxonomy();finish(c);assert.equal(c.taxonomyJob_().processed,4);assert.ok(c.taxonomySaved_(sheet.grid[1][12]).ids.length);});

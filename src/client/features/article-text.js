@@ -9,7 +9,7 @@ export function articleOriginal(row){
 export function articleHeader(row,content){return '<div class="story-topline"><div class="story-heading">'+content+'</div>'+storyIdentity(row.entidad,row.pais,escape)+'</div>';}
 export function articleTags(row,selection={},novelty=false){
   const values=[...(row.tipo?[row.tipo]:[]),...(row.segmentos||[]),...(row.senales||[])];
-  return newsCoverage(row)+newsTaxonomy(row)+[...new Set(values)].map(value=>'<span class="badge" data-original>'+escape(t(value))+'</span>').join('');
+  return newsCoverage(row)+newsTaxonomy(row)+[...new Set(values)].map(value=>'<span class="badge" data-original>'+escape(t(value==='Incidencia operativa'?'Indisponibilidad / Incidencia operativa':value))+'</span>').join('');
 }
 export function articleDate(row){return '<time datetime="'+escape(row.fecha)+'">'+escape(t('Publicado'))+': '+escape(formatCalendarDay(row.fecha,language))+'</time>';}
 export function articleTitle(row){return '<h3 class="story-title" data-original><a class="story-link" href="'+escape(validUrl(row.url))+'" target="_blank" rel="noopener noreferrer">'+escape(row.titular)+'</a></h3>';}

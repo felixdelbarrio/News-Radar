@@ -6,7 +6,7 @@ import {TestDate} from './helpers/clock.mjs';
 import {app,tick} from './helpers/app.mjs';
 const plain=value=>JSON.parse(JSON.stringify(value));
 function migrated(){
- const s=storage(),c=s.c;c.Date=TestDate;c.initializeConfiguration();c.saveSubscription({country:'España'});const sheet=s.sheets.get('Suscripciones'),first=sheet.grid[1];first[6]='2020-01-01T00:00:00Z';const removed=[...first];removed[0]='removed';removed[3]=JSON.stringify({country:'España',aliases:['nested']});sheet.grid.push(removed);c.initializeSubscriptions_(sheet);return s;
+ const s=storage(),c=s.c;c.Date=TestDate;c.initializeConfiguration();c.saveSubscription({country:'España'});const sheet=s.sheets.get('Suscripciones'),first=sheet.grid[1];first[6]='2020-01-01T00:00:00Z';first[3]=JSON.stringify({country:'España',aliases:['removed','nested']});return s;
 }
 for(const state of ['Enviada','Sin novedades','Enviando','Revisar','No enviado','Bloqueada'])test('el historial consolidado respeta '+state+' bajo cualquiera de sus IDs',()=>{
  const {c}=migrated(),row=c.subscriptionRows_()[0],now=new TestDate();assert.deepEqual(plain(row.filtros.aliases),['removed','nested']);
