@@ -1721,7 +1721,7 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
   }
 ]);
 const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
-  "version": "3.7.2",
+  "version": "3.15.0",
   "relevanceRules": [
     {
       "name": "Evidencia de canal digital",
@@ -3087,7 +3087,15 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "484",
       "enabled": true,
       "searchName": "México",
-      "terms": []
+      "terms": [
+        "mexicano",
+        "mexicana",
+        "mexicanos",
+        "banxico",
+        "spei",
+        "cnbv",
+        "condusef"
+      ]
     },
     {
       "name": "Perú",
@@ -3096,7 +3104,14 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "604",
       "enabled": true,
       "searchName": "Perú",
-      "terms": []
+      "terms": [
+        "peruano",
+        "peruana",
+        "peruanos",
+        "bcrp",
+        "sunat",
+        "sbs peru"
+      ]
     },
     {
       "name": "Colombia",
@@ -3105,7 +3120,19 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "170",
       "enabled": true,
       "searchName": "Colombia",
-      "terms": []
+      "terms": [
+        "colombiano",
+        "colombiana",
+        "colombianos",
+        "colombianas",
+        "bogota",
+        "medellin",
+        "barranquilla",
+        "bre-b",
+        "superfinanciera",
+        "banco de la republica",
+        "ach colombia"
+      ]
     },
     {
       "name": "Argentina",
@@ -3114,7 +3141,14 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "032",
       "enabled": true,
       "searchName": "Argentina",
-      "terms": []
+      "terms": [
+        "argentino",
+        "argentina",
+        "argentinos",
+        "bcra",
+        "afip",
+        "arca"
+      ]
     },
     {
       "name": "Turquía",
@@ -3134,7 +3168,12 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "858",
       "enabled": true,
       "searchName": "Uruguay",
-      "terms": []
+      "terms": [
+        "uruguayo",
+        "uruguaya",
+        "uruguayos",
+        "bcu"
+      ]
     },
     {
       "name": "Italia",
@@ -3262,7 +3301,12 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "152",
       "searchName": "Chile",
       "enabled": true,
-      "terms": []
+      "terms": [
+        "chileno",
+        "chilena",
+        "chilenos",
+        "cmf chile"
+      ]
     },
     {
       "name": "China",

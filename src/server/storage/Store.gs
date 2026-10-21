@@ -54,6 +54,13 @@ function rowsById_(name,ids,limit=Infinity){
   return result;
 }
 
+function newsRowsForCandidates_(candidates){
+ const last=newsSheet_().getLastRow(),positions=[...new Set(candidates.map(candidate=>candidate.row).filter(row=>Number.isInteger(row)&&row>=2&&row<=last))].sort((a,b)=>a-b),physical=new Map(newsRowsAt_(positions).map(row=>[row._sheetRow,row])),articles=new Map(),displaced=new Set();
+ for(const candidate of candidates){const row=physical.get(candidate.row);if(row?.id===candidate.id)articles.set(candidate.id,row);else displaced.add(candidate.id);}
+ if(displaced.size)for(const row of rowsById_('Noticias',displaced))articles.set(row.id,row);
+ return articles;
+}
+
 function cacheJsonValue_(value){
   const encoded=JSON.stringify(value);
   return encoded.length<=90000&&encodeURIComponent(encoded).replace(/%[A-F\d]{2}/gi,'x').length<=90000?encoded:null;

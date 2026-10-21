@@ -1040,7 +1040,15 @@
       "mapId": "484",
       "enabled": true,
       "searchName": "México",
-      "terms": []
+      "terms": [
+        "mexicano",
+        "mexicana",
+        "mexicanos",
+        "banxico",
+        "spei",
+        "cnbv",
+        "condusef"
+      ]
     },
     {
       "name": "Perú",
@@ -1049,7 +1057,14 @@
       "mapId": "604",
       "enabled": true,
       "searchName": "Perú",
-      "terms": []
+      "terms": [
+        "peruano",
+        "peruana",
+        "peruanos",
+        "bcrp",
+        "sunat",
+        "sbs peru"
+      ]
     },
     {
       "name": "Colombia",
@@ -1058,7 +1073,19 @@
       "mapId": "170",
       "enabled": true,
       "searchName": "Colombia",
-      "terms": []
+      "terms": [
+        "colombiano",
+        "colombiana",
+        "colombianos",
+        "colombianas",
+        "bogota",
+        "medellin",
+        "barranquilla",
+        "bre-b",
+        "superfinanciera",
+        "banco de la republica",
+        "ach colombia"
+      ]
     },
     {
       "name": "Argentina",
@@ -1067,7 +1094,14 @@
       "mapId": "032",
       "enabled": true,
       "searchName": "Argentina",
-      "terms": []
+      "terms": [
+        "argentino",
+        "argentina",
+        "argentinos",
+        "bcra",
+        "afip",
+        "arca"
+      ]
     },
     {
       "name": "Turquía",
@@ -1087,7 +1121,12 @@
       "mapId": "858",
       "enabled": true,
       "searchName": "Uruguay",
-      "terms": []
+      "terms": [
+        "uruguayo",
+        "uruguaya",
+        "uruguayos",
+        "bcu"
+      ]
     },
     {
       "name": "Italia",
@@ -1215,7 +1254,12 @@
       "mapId": "152",
       "searchName": "Chile",
       "enabled": true,
-      "terms": []
+      "terms": [
+        "chileno",
+        "chilena",
+        "chilenos",
+        "cmf chile"
+      ]
     },
     {
       "name": "China",

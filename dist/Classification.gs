@@ -52,9 +52,10 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
    read++;
    let taxonomyValid=true;try{validateTaxonomyAssignment_(taxonomy,items,row.id,true,row);}catch(_){taxonomyValid=false;}
    const current=saved.schema===1&&saved.version===CLASSIFICATION_WORK.rulesVersion&&saved.revision===revision&&saved.contentHash===hash;
-   if(!job.force&&current&&taxonomyValid&&entityKey_(row.entidad)===row.entidad)continue;
+   const nextCountry=newsCountry_(row),nextEntity=entityKey_(row.entidad);
+   if(!job.force&&current&&taxonomyValid&&nextEntity===row.entidad&&nextCountry===row.pais)continue;
    const labels=current&&!job.force?saved:{...classification_(title,text).labels,...(saved.procedencia?{procedencia:saved.procedencia}:{})};delete labels.canonicalId;
-   const changed={clasificacion:JSON.stringify(labels),pais:newsCountry_(row),entidad:entityKey_(row.entidad),taxonomia:JSON.stringify(necessaryTaxonomyRecord_(row,items))};
+   const changed={clasificacion:JSON.stringify(labels),pais:nextCountry,entidad:nextEntity,taxonomia:JSON.stringify(necessaryTaxonomyRecord_(row,items))};
    for(const [key,value] of Object.entries(changed))if(value!==row[key])updates.push({row:position,column:keys.indexOf(key)+1,value});
    if(changed.clasificacion!==row.clasificacion)classified++;if(labels.digital)digital++;
   }

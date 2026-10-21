@@ -1,5 +1,5 @@
 const RADAR = Object.freeze({
-  version:'3.14.0',
+  version:'3.15.0',
   sheets:{
     CategorizacionLLM:['newsId','contentHash','catalogRevision','taxonomyRevision','schemaVersion','ids','primary','evidence','status','updatedAt','sources','proposals','replaces','publication'],
     Candidatos:['id','fecha','pais','entidad','titular','extracto','url','fuente','idioma','capturada','estado','motivo','procedencia','clasificacion'],
@@ -32,8 +32,8 @@ const NEWS_CACHE=Object.freeze({schema:4,chunkRows:128,recordParts:400,seconds:2
 const BACKGROUND_WORK=Object.freeze({maxBatches:3,maxMs:45000,sliceMs:10000,watchdogMinutes:5,activeGraceMs:60000});
 
 const COLLECTION_POLICY=Object.freeze({windowDays:28,searchTerms:10,localTerms:4,entityAliases:8,capabilityTerms:7,queryChars:1500,providerLimit:100,saturationRatio:.8,duplicateDays:14});
-const CONFIGURATION_CATALOG_VERSION='3.14.0';
-const CLASSIFICATION_WORK=Object.freeze({rulesVersion:'3.14.0',batchRows:100,maxMs:10000});
+const CONFIGURATION_CATALOG_VERSION='3.15.0';
+const CLASSIFICATION_WORK=Object.freeze({rulesVersion:'3.15.0',batchRows:100,maxMs:10000});
 const RELEVANCE_ROLES=Object.freeze(['channel','service','shared','infrastructure','corporate','retail','editorial','incidental']);
 
 const DASHBOARD_SNAPSHOTS=Object.freeze({views:['briefing','news','radar'],chars:40000,parts:64,refreshMs:300000});
