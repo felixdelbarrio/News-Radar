@@ -7,15 +7,15 @@ test('prioridad única: diaria, clasificación, traducción de negocio, newslett
  const {c,properties:p}=fixture();c.settings_().newsletterEnabled=true;
  c.writeClassificationJob_({state:'Pendiente'});c.writeTranslationJob_({state:'Pendiente',businessPending:1});c.writeTaxonomyJob_({state:'Pendiente'});c.taxonomyTranslationReadyAt_=()=>Date.now();p.NEWSLETTER_REQUEST='true';
  assert.equal(c.backgroundTask_(work,true),'collection');assert.equal(c.backgroundTask_(work,false),'classification');
- c.writeClassificationJob_({state:'Completada'});assert.equal(c.backgroundTask_(work,false),'newsletter');delete p.NEWSLETTER_REQUEST;assert.equal(c.backgroundTask_(work,false),'translation');p.NEWSLETTER_REQUEST='true';
- c.writeTranslationJob_({state:'Completada',businessPending:0});assert.equal(c.backgroundTask_(work,false),'newsletter');
- delete p.NEWSLETTER_REQUEST;assert.equal(c.backgroundTask_(work,false),'taxonomy');c.writeTaxonomyJob_({state:'Completada'});assert.equal(c.backgroundTask_(work,false),'taxonomyTranslation');
+ c.writeClassificationJob_({state:'Completada',total:0});assert.equal(c.backgroundTask_(work,false),'newsletter');delete p.NEWSLETTER_REQUEST;assert.equal(c.backgroundTask_(work,false),'translation');p.NEWSLETTER_REQUEST='true';
+ c.writeTranslationJob_({state:'Completada',total:0,businessPending:0});assert.equal(c.backgroundTask_(work,false),'newsletter');
+ delete p.NEWSLETTER_REQUEST;assert.equal(c.backgroundTask_(work,false),'taxonomy');c.writeTaxonomyJob_({state:'Completada',total:0});assert.equal(c.backgroundTask_(work,false),'taxonomyTranslation');
  c.taxonomyTranslationReadyAt_=()=>Infinity;assert.equal(c.backgroundTask_(work,false),'collection');
 });
 test('una cuota de traducción de negocio aplaza el correo y deja avanzar pendientes sin despertar en bucle',()=>{
  const {c,properties:p}=fixture();c.settings_().newsletterEnabled=true;p.NEWSLETTER_REQUEST='true';c.writeTranslationJob_({state:'En pausa',businessPending:1,pausedUntil:Date.now()+86400000});
  assert.ok(c.newsletterReadyAt_(work)<=Date.now());assert.equal(c.backgroundTask_(work,false),'newsletter');
- c.writeTranslationJob_({state:'Completada',businessPending:0});assert.ok(c.newsletterReadyAt_(work)<=Date.now());
+ c.writeTranslationJob_({state:'Completada',total:0,businessPending:0});assert.ok(c.newsletterReadyAt_(work)<=Date.now());
 });
 test('dos activadores del mismo día conservan una sola recopilación y las etapas posteriores',()=>{
  const {c,properties:p}=fixture();c.requestDailyPipeline_();c.requestDailyPipeline_();c.drainDailyPipeline_();const request=c.collectionRequests_()[0];assert.equal(c.collectionRequests_().length,1);assert.ok(p.CLASSIFICATION_REQUEST);assert.ok(p.DAILY_TRANSLATION_REQUEST);

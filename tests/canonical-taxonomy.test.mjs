@@ -13,8 +13,8 @@ test('Otros exige bloque demostrado; dos bloques exigen evidencia independiente'
 test('clasificación suficiente se reutiliza sin volver a ejecutar el motor',()=>{
  const {c}=storage();c.initializeConfiguration();c.publishTaxonomy_({documents:0,candidates:{}});const row={id:'stable',titular:'BBVA lanza login biométrico para empresas',extracto:''};row.taxonomia=JSON.stringify(c.taxonomyRecord_(row.titular,''));c.taxonomyRecord_=()=>{throw Error('No recalcular');};assert.equal(JSON.stringify(c.necessaryTaxonomyRecord_(row)),row.taxonomia);
 });
-test('la migración canónica se ejecuta una vez y confirma su versión solo tras publicar',()=>{
- const {c,properties}=storage();c.initializeConfiguration();c.upgradeCanonicalTaxonomy();const id=c.taxonomyJob_().id;assert.equal(c.taxonomyJob_().phase,'publish');assert.equal(properties.CANONICAL_TAXONOMY_VERSION,undefined);c.upgradeCanonicalTaxonomy();assert.equal(c.taxonomyJob_().id,id);
+test('la taxonomía canónica se actualiza in-place sin migraciones antiguas',()=>{
+ const {c,sheets}=storage();c.initializeConfiguration();c.startTaxonomy();const id=c.taxonomyJob_().id;c.startTaxonomy();assert.equal(c.taxonomyJob_().id,id);
  for(let i=0;i<15&&c.taxonomyJob_().state!=='Completada';i++){if(c.taxonomyJob_().state==='Publicando')c.dashboardSnapshotBatch_();else c.taxonomyBatch_();}
- assert.equal(c.taxonomyJob_().state,'Completada');assert.equal(properties.CANONICAL_TAXONOMY_VERSION,'3.11.0');c.upgradeCanonicalTaxonomy();assert.equal(c.taxonomyJob_().id,id);
+ assert.equal(c.taxonomyJob_().state,'Completada');assert.equal(c.taxonomyStorageKey_(),'Taxonomia');assert.equal(c.upgradeCanonicalTaxonomy,undefined);assert.equal(sheets.has('TaxonomiaTrabajo'),false);
 });

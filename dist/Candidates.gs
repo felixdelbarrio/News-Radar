@@ -1,5 +1,5 @@
 function candidateRecord_(item,feed,now,reason){
-  const row={id:sha256_(newsUrlIdentity_(item.url)).slice(0,32),fecha:recordDay(item.date,settings_().timezone),pais:item.country,entidad:item.entity,titular:item.title.slice(0,1000),extracto:item.excerpt.slice(0,CANDIDATE_POLICY.excerptChars),url:item.url,fuente:feed.name,idioma:item.language,capturada:now.toISOString(),estado:item.labels.estado,motivo:reason,procedencia:JSON.stringify({fuente:feed.url,tipo:feed.kind||'rss',dominio:feed.domain,capacidad:Boolean(feed.capabilitySearch),medio:item.publisher||(feed.kind==='rss'?feed.name:''),extracto:item.provenance,consulta:feed.range||null}),clasificacion:JSON.stringify(item.labels)};
+  const row={id:sha256_(newsUrlIdentity_(item.url)).slice(0,32),fecha:recordDay(item.date,settings_().timezone),pais:item.country,entidad:item.entity,titular:item.title.slice(0,1000),extracto:item.excerpt.slice(0,CANDIDATE_POLICY.excerptChars),url:item.url,fuente:feed.name,idioma:item.language,capturada:now.toISOString(),estado:item.labels.estado,motivo:reason,procedencia:JSON.stringify({fuente:feed.url,tipo:feed.kind||'rss',dominio:feed.domain,capacidad:Boolean(feed.capabilitySearch),medio:item.publisher||(feed.kind==='rss'?feed.name:''),extracto:item.provenance,...(item.sourceUrl?{medioUrl:item.sourceUrl}:{}),consulta:feed.range||null}),clasificacion:JSON.stringify(item.labels)};
   return RADAR.sheets.Candidatos.map(key=>row[key]||'');
 }
 function candidateSheet_(){
@@ -27,4 +27,19 @@ function appendCoverage_(records){
   if(!records.length)return;
   let sheet=book_().getSheetByName('Cobertura');if(!sheet){sheet=book_().insertSheet('Cobertura');sheet.getRange(1,1,1,RADAR.sheets.Cobertura.length).setValues([RADAR.sheets.Cobertura]);}
   const overflow=Math.max(0,sheet.getLastRow()-1+records.length-20000);if(overflow)sheet.deleteRows(2,Math.min(overflow,sheet.getLastRow()-1));append_('Cobertura',records);
+}
+
+function reclassifyCandidates_(first,limit,maxMs){
+ const sheet=candidateSheet_(),keys=RADAR.sheets.Candidatos,total=Math.max(0,sheet.getLastRow()-1),count=Math.min(limit,Math.max(0,total-first+2)),started=Date.now(),updates=[];let read=0;
+ if(maxMs<=0)return {next:first,total,changed:0,done:first>total+1};
+ const rows=count?sheet.getRange(first,1,count,keys.length).getDisplayValues():[];
+ for(const values of rows){
+  if(Date.now()-started>=maxMs||backgroundPaused_(true))break;
+  const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]])),provenance=JSON.parse(row.procedencia||'{}'),saved=savedNewsLabels_(row.clasificacion),title=searchText_(row.titular),text=searchText_(row.titular+' '+row.extracto),hash=sha256_(JSON.stringify([title,text])),country=newsCountry_({...row,medio:provenance.medio,sourceUrl:provenance.medioUrl}),entity=entityKey_(row.entidad);
+  const current=saved.schema===1&&saved.version===CLASSIFICATION_WORK.rulesVersion&&saved.revision===newsClassificationRevision_()&&saved.contentHash===hash;
+  if(!current||country!==row.pais||entity!==row.entidad){const labels=current?saved:classification_(title,text).labels,changed={...row,pais:country,entidad:entity,clasificacion:JSON.stringify(labels),estado:labels.estado};updates.push({row:first+read,values:keys.map(key=>String(changed[key]||''))});}
+  read++;
+ }
+ writeVerifiedRows_(sheet,updates);if(updates.length)properties_().setProperty('CANDIDATES_REVISION',Utilities.getUuid());
+ return {next:first+read,total,changed:updates.length,done:first+read>total+1};
 }

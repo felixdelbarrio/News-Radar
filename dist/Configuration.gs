@@ -11,7 +11,7 @@ function configuration_(){
   return configurationMemory_=resolved;
 }
 function invalidateConfiguration_(){invalidateDashboardSnapshots_();configurationMemory_=undefined;configurationVersionMemory_=undefined;properties_().setProperty('CONFIG_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));}
-function configurationEdited_(event){const editedSheet=event?.range?.getSheet().getName();if(NEWSLETTER_ARCHIVE_TABLES.some(name=>editedSheet===newsletterStorageKey_(name))){markNewsletterArchiveEdited_();return;}const sheet=editedSheet===newsStorageKey_()?'Noticias':editedSheet;if(MAINTENANCE_TABLES.includes(sheet))invalidateMaintenanceCursor_(sheet,event.range.getRow?.()||2);if(backgroundPaused_()&&['Configuracion','Noticias'].includes(sheet)){deferBackgroundWork_(sheet==='Configuracion'?'edited':'news');return;}if(sheet==='CatalogoFuncional'){properties_().deleteProperty('FUNCTIONAL_CATALOG_REVISION');functionalCatalogMemory_=undefined;invalidateConfiguration_();properties_().setProperty('TAXONOMY_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}else if(sheet==='Configuracion'){invalidateConfiguration_();requestNewsClassification_(true);}else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
+function configurationEdited_(event){const editedSheet=event?.range?.getSheet().getName();if(NEWSLETTER_ARCHIVE_TABLES.some(name=>editedSheet===newsletterStorageKey_(name))){markNewsletterArchiveEdited_();return;}const sheet=editedSheet===newsStorageKey_()?'Noticias':editedSheet;if(backgroundPaused_()&&['Configuracion','Noticias'].includes(sheet)){deferBackgroundWork_(sheet==='Configuracion'?'edited':'news');return;}if(sheet==='CatalogoFuncional'){properties_().deleteProperty('FUNCTIONAL_CATALOG_REVISION');functionalCatalogMemory_=undefined;invalidateConfiguration_();properties_().setProperty('TAXONOMY_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}else if(sheet==='Configuracion'){invalidateConfiguration_();requestNewsClassification_(true);}else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
 function addVocabularyTerms_(config){
   let changed=false;
   for(const [key,rows] of [['relevanceRules',config.relevanceRules],['capabilities',config.capabilities.Empresas],['searchLanguages',config.searchLanguages]])for(const addition of CONFIGURATION_VOCABULARY_UPDATE[key]){
@@ -32,8 +32,9 @@ function updateVocabulary_(sheet){
 }
 function initializeConfiguration(){
   authorize_(true);return withForegroundWrite_(()=>{
+    migrateCanonicalStorage_();
     const refreshCatalog=properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION;
-    for(const name of ['Candidatos','Cobertura','Configuracion','Suscripciones','NewsletterEnvios','NewsletterEdiciones','NewsletterContenido','NewsletterEventos','NewsletterFeedback','Noticias','Recopilacion','Recargas','Traducciones','CatalogoFuncional','Taxonomia','TaxonomiaTrabajo','TaxonomiaTraducciones','Auditoria','Telemetria','Ejecuciones','Adopcion','DashboardSnapshots']){
+    for(const name of ['CategorizacionLLM','Candidatos','Cobertura','Configuracion','Suscripciones','NewsletterEnvios','NewsletterEdiciones','NewsletterContenido','NewsletterEventos','NewsletterFeedback','Noticias','Recopilacion','Recargas','Traducciones','CatalogoFuncional','Taxonomia','TaxonomiaTraducciones','Auditoria','Telemetria','Ejecuciones','Adopcion','DashboardSnapshots']){
       const physical=configurationStorageKey_(name);
       if(book_().getSheetByName(physical)){if(name!=='Configuracion')book_().getSheetByName(physical).getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]);continue;}
       const sheet=book_().insertSheet(physical);sheet.getRange(1,1,1,RADAR.sheets[name].length).setValues([RADAR.sheets[name]]).setFontWeight('bold').setBackground(SHEET_THEME.background).setFontColor(SHEET_THEME.foreground);sheet.setFrozenRows(1);
@@ -77,20 +78,20 @@ function initializeConfiguration(){
     append_('Configuracion',Object.entries(functionalConfigurationSettings_(CONFIGURATION_DEFAULTS)).filter(([key])=>!keys.has(key)).map(([key,value])=>[key,JSON.stringify(value)]));
     const settingsRow=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues().findIndex(row=>row[0]==='settings')+2,stored=JSON.parse(sheet.getRange(settingsRow,2,1,1).getValues()[0][0]);
     const settings=Object.fromEntries(Object.entries(CONFIGURATION_DEFAULTS.settings).map(([key,value])=>[key,key in stored?stored[key]:value]));
+    settings.newsletterEnabled=true;
     if(refreshCatalog)settings.searchTerms=[...new Set([...settings.searchTerms,...CONFIGURATION_DEFAULTS.settings.searchTerms])];
     sheet.getRange(settingsRow,2,1,1).setValues([[JSON.stringify(settings)]]);
     if(!ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='configurationEdited_'))ScriptApp.newTrigger('configurationEdited_').forSpreadsheet(book_()).onEdit().create();
     const subscriptions=book_().getSheetByName('Suscripciones'),countSubscriptions=subscriptions.getLastRow()-1;
     if(countSubscriptions>0){const range=subscriptions.getRange(2,8,countSubscriptions,1);range.setValues(range.getValues().map(([value])=>[value||'es']));}
     const vocabularyChanged=updateVocabulary_(sheet);invalidateConfiguration_();
-    initializeSubscriptions_(subscriptions);
     if(refreshCatalog){upgradeCollectionQueries_();if(translationJob_())requestTranslations_(true);properties_().setProperty('CATALOG_VERSION',CONFIGURATION_CATALOG_VERSION);}
     requestNewsClassification_(vocabularyChanged);
     if(refreshCatalog&&newsSheet_().getLastRow()>1)requestTaxonomy_();
     initializeCollectionQueue_();
     if(refreshCatalog&&(newsSheet_().getLastRow()>1||book_().getSheetByName('Telemetria')?.getLastRow()>1))maintenance_();
     initializeBackgroundSchedules_();
-    const removed=pruneNewsGenerations_();pruneLlmGenerations_();
+    const removed=pruneNewsGenerations_();
     telemetry_('initializeConfiguration',0,'OK','Pestañas obsoletas eliminadas: '+(removed.join(', ')||'ninguna'));
     return 'Configuración inicializada. Pestañas obsoletas eliminadas: '+(removed.join(', ')||'ninguna')+'.';
   });

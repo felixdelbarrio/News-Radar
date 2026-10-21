@@ -2,8 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {storage} from './helpers/server.mjs';
 const positive=[
+ '¿No puedes hacer pagos? BBVA México reporta fallas en su app este jueves 28 de mayo',
  'Uno de los bancos más grandes de Argentina lanzó una nueva plataforma de cobros y pagos',
- 'Así es Santander Pay: la herramienta que promete revolucionar los cobros de empresas',
+ 'Así es Banco Santander Pay: la herramienta que promete revolucionar los cobros de empresas',
  'España: Bankinter implementó RCS para confirmar transferencias y pagos',
  'BBVA México y Buk se alían para digitalizar la gestión de talento y las finanzas de las empresas en el país',
  'BBVA México lanza solución para que pymes puedan solicitar crédito por la vía digital',
@@ -33,7 +34,6 @@ const positive=[
 const negative=[
  'BBVA financia hasta 12 cuotas compras con 1 solo pago con tarjeta de crédito o débito',
  'BBVA Uruguay, mejor banco de Trade Finance del país por sexto año consecutivo',
- '¿No puedes hacer pagos? BBVA México reporta fallas en su app este jueves 28 de mayo',
  'BBVA premiará a los nuevos clientes en España que usen la cuenta y Bizum',
  'BBVA habilitó el pago de servicios con tarjeta de crédito desde su app',
  'BBVA fortalece el ahorro digital con una cuenta que ofrece hasta 8,5% de rentabilidad anual',

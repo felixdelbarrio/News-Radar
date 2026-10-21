@@ -25,7 +25,7 @@ function translationBatch_(maxMs=TRANSLATION_WORK.maxMs){
     const feeds=new Set(configuration_().feeds.map(feed=>feed.name)),known=articleTranslationIndex_();let calls=0;
     outer:for(let offset=0;offset<Math.min(candidates.length,TRANSLATION_WORK.batchRows);offset+=TRANSLATION_WORK.readRows){
       if(backgroundPaused_()||Date.now()-started>=maxMs)break;
-      const selected=candidates.slice(offset,offset+TRANSLATION_WORK.readRows),articles=new Map(rowsById_('Noticias',new Set(selected.map(row=>row.id))).map(row=>[row.id,row]));
+      const selected=candidates.slice(offset,offset+TRANSLATION_WORK.readRows),articles=newsRowsForCandidates_(selected);
       for(const candidate of selected){
         if(backgroundPaused_()||Date.now()-started>=maxMs||collectionRequests_().some(request=>request.kind==='daily'))break outer;
         const row=articles.get(candidate.id);

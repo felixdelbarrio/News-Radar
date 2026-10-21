@@ -37,6 +37,7 @@ function append_(name, rows) {
   const s=recordSheet_(name), start=s.getLastRow()+1, needed=start+rows.length-1;
   if (needed>s.getMaxRows()) s.insertRowsAfter(s.getMaxRows(),needed-s.getMaxRows());
   const range=s.getRange(start,1,rows.length,rows[0].length);range.setNumberFormat('@').setValues(rows.map(r=>r.map(safeCell_)));
+  enforceLogLimit_(name,s);
   if(name==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);
 }
 
@@ -51,6 +52,13 @@ function rowsById_(name,ids,limit=Infinity){
     start=end;
   }
   return result;
+}
+
+function newsRowsForCandidates_(candidates){
+ const last=newsSheet_().getLastRow(),positions=[...new Set(candidates.map(candidate=>candidate.row).filter(row=>Number.isInteger(row)&&row>=2&&row<=last))].sort((a,b)=>a-b),physical=new Map(newsRowsAt_(positions).map(row=>[row._sheetRow,row])),articles=new Map(),displaced=new Set();
+ for(const candidate of candidates){const row=physical.get(candidate.row);if(row?.id===candidate.id)articles.set(candidate.id,row);else displaced.add(candidate.id);}
+ if(displaced.size)for(const row of rowsById_('Noticias',displaced))articles.set(row.id,row);
+ return articles;
 }
 
 function cacheJsonValue_(value){
@@ -120,3 +128,8 @@ function newsletterArchiveVersion_(){return properties_().getProperty('NEWSLETTE
 function newsletterArchiveKey_(){return JSON.stringify([newsletterArchiveVersion_(),NEWSLETTER_ARCHIVE_TABLES.map(newsletterStorageKey_)]);}
 function markNewsletterArchiveEdited_(){properties_().setProperty('NEWSLETTER_ARCHIVE_REVISION',Utilities.getUuid());}
 function recordSheet_(name){return name==='Noticias'?newsSheet_():name==='Taxonomia'?taxonomySheet_():NEWSLETTER_ARCHIVE_TABLES.includes(name)?newsletterSheet_(name):book_().getSheetByName(name);}
+
+const LOG_LIMITS=Object.freeze({Auditoria:5000,Telemetria:3000,Ejecuciones:1500,Cobertura:2000,Adopcion:5000,NewsletterEventos:2000});
+function enforceLogLimit_(name,sheet=recordSheet_(name)){
+ const limit=LOG_LIMITS[name];if(!limit)return;const overflow=sheet.getLastRow()-1-limit;if(overflow>0)sheet.deleteRows(2,overflow);
+}
