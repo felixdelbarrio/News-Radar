@@ -40,13 +40,14 @@ function equivalentEditorialTitle_(a,b){
   const right=new Set(b),intersection=a.filter(token=>right.has(token)).length;
   return intersection/Math.min(a.length,b.length)>=.72||intersection/(a.length+b.length-intersection)>=.60;
 }
-function duplicateTitleEntry_(known,item){
+function* duplicateTitleEntries_(known,item){
   const identity=titleIdentity_(item);if(!identity)return;
   const days=known.titles.get(identity.key);
-  if(days)for(let offset=-COLLECTION_POLICY.duplicateDays;offset<=COLLECTION_POLICY.duplicateDays;offset++)if(days.has(identity.day+offset))return days.get(identity.day+offset);
+  if(days)for(let offset=-COLLECTION_POLICY.duplicateDays;offset<=COLLECTION_POLICY.duplicateDays;offset++)if(days.has(identity.day+offset))yield days.get(identity.day+offset);
   const editorial=editorialIdentity_(item,identity),candidates=editorial&&known.editorial?.get(editorial.key);if(!candidates)return;
-  for(let offset=-COLLECTION_POLICY.duplicateDays;offset<=COLLECTION_POLICY.duplicateDays;offset++)for(const candidate of candidates.get(identity.day+offset)||[])if(equivalentEditorialTitle_(editorial.tokens,candidate.tokens))return candidate.entry;
+  for(let offset=-COLLECTION_POLICY.duplicateDays;offset<=COLLECTION_POLICY.duplicateDays;offset++)for(const candidate of candidates.get(identity.day+offset)||[])if(equivalentEditorialTitle_(editorial.tokens,candidate.tokens))yield candidate.entry;
 }
+function duplicateTitleEntry_(known,item){return duplicateTitleEntries_(known,item).next().value;}
 function duplicateTitle_(known,item){return duplicateTitleEntry_(known,item)!==undefined;}
 function newsRepresentative_(a,b){
   const original=row=>/europa\s*press/i.test(String(row.medio||''))||domainMatches_(row.url||'','europapress.es');
@@ -60,7 +61,7 @@ function uniqueNews_(rows,groups=null){
   const root=index=>{while(parents[index]!==index){parents[index]=parents[parents[index]];index=parents[index];}return index;};
   for(const row of rows){
     const items=[row.titular,row.original?.titular,...(row.identityTitles||[])].filter(Boolean).map(title=>({title,date:row.fecha,publisher:row.medio,entity:entityKey_(row.entidad),country:row.pais})),url=newsUrlIdentity_(row.url);
-    const matches=new Set([url?urls.get(url):undefined,...items.map(item=>duplicateTitleEntry_(known,item))].filter(index=>index!==undefined).map(root));
+    const matches=new Set([url?urls.get(url):undefined,...items.flatMap(item=>[...duplicateTitleEntries_(known,item)])].filter(index=>index!==undefined).map(root));
     const index=matches.size?Math.min(...matches):result.length;
     if(!matches.size){parents.push(index);result.push(row);}
     else{for(const other of matches)if(other!==index){result[index]=newsRepresentative_(result[index],result[other]);parents[other]=index;result[other]=null;}result[index]=newsRepresentative_(result[index],row);}
