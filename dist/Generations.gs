@@ -36,6 +36,7 @@ function migrateCanonicalStorage_(){
  const removed=pruneNewsGenerations_();p.deleteProperty('CANONICAL_STORAGE_JOURNAL');invalidateNews_(false);return {moved:plan.moves,removed};
 }
 function pruneNewsGenerations_(){
+ const taxonomy=taxonomyJob_();clearTaxonomyCheckpoints_(['scan','publish'].includes(taxonomy?.phase)?taxonomy.checkpoint:null);
  const active=new Set([dataGeneration_().newsSheet,dataGeneration_().taxonomySheet,dataGeneration_().categorization?.sheet,...Object.values(dataGeneration_().newsletterTables||{})].filter(Boolean));
  const removed=[];for(const sheet of book_().getSheets()){const name=sheet.getName();if(!Object.hasOwn(RADAR.sheets,name)&&!active.has(name)){book_().deleteSheet(sheet);removed.push(name);}}return removed;
 }

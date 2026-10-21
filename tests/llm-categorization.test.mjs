@@ -21,7 +21,7 @@ test('ZIP reproducible, UTF-8 y contrato exportación→importación sin extract
  assert.ok(bytes.includes(Buffer.from('manifest.json')));assert.ok(bytes.includes(Buffer.from('instructions.md')));assert.ok(bytes.includes(Buffer.from('functionalCatalog')));assert.ok(bytes.includes(Buffer.from('resultSchema')));
  const txt='{"á":"日本語"}';assert.equal(llmDecode(llmUtf8(txt)),txt);assert.equal(llmUnzip(llmZip([{name:'results.json',text:txt}]))[0].text,txt);
  assert.equal(c.getLlmCategorization().pending,2);const original=c.rows_('Noticias')[0].taxonomia;
- c.importLlmResults(payload([result(c)],true));assert.equal(c.getLlmCategorization().valid,1);finish(c);assert.equal(c.getLlmCategorization().valid,1);assert.equal(c.rows_('Noticias')[0].taxonomia,original);assert.equal(c.getLlmCategorization().pending,1);
+ c.importLlmResults(payload([result(c)],true));assert.equal(c.getLlmCategorization().valid,0);finish(c);assert.equal(c.getLlmCategorization().valid,1);assert.equal(c.rows_('Noticias')[0].taxonomia,original);assert.equal(c.getLlmCategorization().pending,1);
 });
 test('lotes con contexto compartido limitados, cursores y descarga repetida sin mutaciones',()=>{
  const {c}=setup(55),out=c.exportLlmPending(),text=JSON.stringify(out.files);assert.equal(out.count,55);assert.ok(text.includes('3_3.json'));
@@ -160,7 +160,7 @@ test('rechaza evidencia web sin procedencia, pasaje, fecha real o URL canónica 
 test('propuestas separadas se agrupan por concepto, conservan evidencia y nunca publican IDs .xx',()=>{
  const s=setup(),c=s.c,catalog=JSON.stringify(c.functionalCatalog_()),taxonomy=JSON.stringify(c.taxonomyCatalog_());
  const proposals=['Firma contextual adaptativa','FIRMA CONTEXTUAL ADAPTATÍVA'].map((name,i)=>{const r=result(c,'news-'+i,true);r.proposals=[{block:'17',code:'17.xx',name,justification:'El hecho requiere una suboperativa no representada en las existentes.',equivalents:['https://publisher.example.com/equivalent'],evidence:{quote:'login biométrico',source:'article'}}];return r;});
- c.importLlmResults(payload(proposals));assert.equal(JSON.parse(c.exportLlmPending().review.text).proposals.length,1);finish(c);
+ c.importLlmResults(payload(proposals));assert.equal(JSON.parse(c.exportLlmPending().review.text).proposals.length,0);finish(c);
  const out=c.exportLlmPending(),report=JSON.parse(out.review.text);assert.equal(report.proposals.length,1);assert.equal(report.proposals[0].articles.length,2);assert.equal(report.proposals[0].status,'review_only');
  assert.equal(JSON.stringify(c.functionalCatalog_()),catalog);assert.equal(JSON.stringify(c.taxonomyCatalog_()),taxonomy);
  const bad=result(c);bad.ids=['17.xx'];bad.primary='17.xx';bad.evidence=[{id:'17.xx',quote:'login biométrico',source:'article'}];assert.throws(()=>c.importLlmResults(payload([bad])),/IDs/);
@@ -256,9 +256,9 @@ test('la interfaz descarga una vez al terminar y no descarga archivos parciales 
 });
 
 test('el porcentaje de publicación avanza con cada snapshot y llega a 100 solo al publicar',()=>{
- const {c}=setup();assert.equal(c.getLlmCategorization().valid,0);assert.equal(c.importLlmResults(payload([result(c)])).valid,1);assert.equal(c.llmJob_().progress,0);
+ const {c}=setup();assert.equal(c.getLlmCategorization().valid,0);assert.equal(c.importLlmResults(payload([result(c)])).valid,0);assert.equal(c.llmJob_().progress,0);
  c.dashboardSnapshotBatch_();assert.equal(c.llmJob_().progress,33);assert.equal(c.llmJob_().state,'Publicando');
- c.dashboardSnapshotBatch_();assert.equal(c.llmJob_().progress,67);assert.equal(c.getLlmCategorization().valid,1);
+ c.dashboardSnapshotBatch_();assert.equal(c.llmJob_().progress,67);assert.equal(c.getLlmCategorization().valid,0);
  c.dashboardSnapshotBatch_();assert.equal(c.llmJob_().progress,100);assert.equal(c.llmJob_().state,'Completada');assert.equal(c.getLlmCategorization().valid,1);
 });
 test('importación muestra avance por archivo y espera las tres vistas antes del 100 %',async t=>{
@@ -295,9 +295,22 @@ test('un fallo tras escribir revierte sólo las filas LLM tocadas antes de publi
  c.writeVerifiedRows_=(sheet,updates)=>{write(sheet,updates);throw Error('Verificación fallida');};
  assert.throws(()=>c.importLlmResults(payload([result(c)])),/Verificación/);
  assert.equal(c.llmJob_(),null);assert.equal(s.properties.DATA_GENERATION,before);assert.equal(c.llmIndex_().size,0);
- c.writeVerifiedRows_=write;c.importLlmResults(payload([result(c)]));finish(c);const saved=JSON.stringify(s.sheets.get('CategorizacionLLM').grid);
+ c.writeVerifiedRows_=write;c.importLlmResults(payload([result(c)]));finish(c);const saved=c.llmResultHash_(c.llmIndex_().get('news-0'));
  const changed=result(c,'news-0',true);changed.replaces=c.llmResultHash_(c.llmIndex_().get('news-0'));
  c.writeVerifiedRows_=(sheet,updates)=>{write(sheet,updates);throw Error('Verificación fallida');};
- assert.throws(()=>c.importLlmResults(payload([changed])),/Verificación/);assert.equal(JSON.stringify(s.sheets.get('CategorizacionLLM').grid),saved);
+ assert.throws(()=>c.importLlmResults(payload([changed])),/Verificación/);assert.equal(c.llmResultHash_(c.llmIndex_().get('news-0')),saved);
  assert.equal(c.llmIndex_().get('news-0').status,'classified');
+});
+
+test('publicación LLM dispersa mantiene filtros y lecturas sin snapshot en la revisión activa hasta completar las tres vistas',()=>{
+ const {c,sheets}=setup();c.importLlmResults(payload([result(c)]));finish(c);
+ const previous=c.llmResultHash_(c.llmIndex_().get('news-0')),changed=result(c,'news-0',true);changed.replaces=previous;
+ const orphan=sheets.get('CategorizacionLLM').grid[1].slice();orphan[1]='corrupt';orphan[13]='unpublished-orphan';sheets.get('CategorizacionLLM').grid.push(orphan);vm.runInContext('llmIndexMemory_=undefined;',c);assert.equal(c.llmResultHash_(c.llmIndex_().get('news-0')),previous);
+ c.importLlmResults(payload([changed]));
+ const active=()=>{vm.runInContext('llmIndexMemory_=undefined;',c);assert.equal(c.llmResultHash_(c.llmIndex_().get('news-0')),previous);assert.equal(c.getLlmCategorization().classified,1);assert.equal(c.exportLlmPending({selection:'abstentions'}).count,1);};
+ active();c.dashboardSnapshotBatch_();active();c.dashboardSnapshotBatch_();active();
+ vm.runInContext('llmStateOverride_=llmJob_().categorization;llmIndexMemory_=undefined;',c);assert.equal(c.llmIndex_().get('news-0').status,changed.status);vm.runInContext('llmStateOverride_=undefined;llmIndexMemory_=undefined;',c);
+ c.dashboardSnapshotBatch_();assert.equal(c.llmIndex_().get('news-0').status,changed.status);assert.equal(c.getLlmCategorization().classified,0);
+ assert.equal(sheets.get('CategorizacionLLM').getLastRow()-1,2);
+ const next=result(c,'news-1',true);c.importLlmResults(payload([next]));assert.equal(sheets.get('CategorizacionLLM').getLastRow()-1,2);finish(c);
 });

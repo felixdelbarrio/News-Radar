@@ -27,7 +27,7 @@ function requestTaxonomy_(request=''){
   const lastRow=newsSheet_().getLastRow(),candidateTotal=Math.max(0,candidateSheet_().getLastRow()-1),total=Math.max(0,lastRow-1),now=new Date().toISOString();
   const id=Utilities.getUuid();
   writeTaxonomyJob_({request,catalog,id,source:newsStorageKey_(),state:'Pendiente',phase:'scan',next:2,candidateTotal,candidateRevision:properties_().getProperty('CANDIDATES_REVISION')||'0',total,workTotal:total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});
-  ensureBackgroundWorker_();
+  clearTaxonomyCheckpoints_();ensureBackgroundWorker_();
 }
 function drainTaxonomyRequest_(){
  const p=properties_(),request=p.getProperty('TAXONOMY_REQUEST');if(!request||taxonomyPending_())return;
@@ -65,22 +65,31 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
  try{
   if(job.rules!==taxonomyRulesRevision_()||job.corpus!==(properties_().getProperty('NEWS_CONTENT_REVISION')||'0')||job.candidateRevision!==(properties_().getProperty('CANDIDATES_REVISION')||'0')){requestTaxonomy_(job.request);return;}
   if(job.phase!=='tag'){
-   const state={documents:0,candidates:{},titles:{}},definitions=taxonomyDefinitions(configuration_().taxonomy),excluded=new Set(configuration_().entities.flatMap(row=>[row.name,...row.aliases]).map(taxonomyText));taxonomySeed(state,definitions);
-   if(backgroundPaused_())return;
-   for(const name of ['Noticias','Candidatos']){
-    const sheet=recordSheet_(name),keys=RADAR.sheets[name],count=Math.max(0,sheet.getLastRow()-1),firstColumn=2,width=name==='Noticias'?7:6;
-    for(let first=2;first<count+2;first+=5000){
-     if(backgroundPaused_(true))return;
-     const size=Math.min(5000,count+2-first),rows=sheet.getRange(first,firstColumn,size,width).getDisplayValues(),provenance=name==='Candidatos'?sheet.getRange(first,keys.indexOf('procedencia')+1,size,1).getDisplayValues():null;
-     for(let i=0;i<size;i++){
-      if(i%100===0&&backgroundPaused_(true))return;
-      const row=Object.fromEntries(keys.slice(firstColumn-1,firstColumn-1+width).map((key,j)=>[key,rows[i][j]]));
-      observeTaxonomyRow_(state,row,definitions,excluded,row.medio||JSON.parse(provenance?.[i][0]||'{}').medio||'');
+   const state=readTaxonomyCheckpoint_(job),definitions=taxonomyDefinitions(configuration_().taxonomy),excluded=new Set(configuration_().entities.flatMap(row=>[row.name,...row.aliases]).map(taxonomyText));
+   taxonomySeed(state,definitions);
+   if(job.phase==='scan'){
+    const cursor={table:0,row:2,...job.scanCursor};let observed=0;
+    while(cursor.table<2&&Date.now()-started<maxMs&&!backgroundPaused_(true)){
+     const name=cursor.table===0?'Noticias':'Candidatos',sheet=recordSheet_(name),keys=RADAR.sheets[name],count=cursor.table===0?job.total:job.candidateTotal,width=cursor.table===0?7:6;
+     if(cursor.row>count+1){cursor.table++;cursor.row=2;continue;}
+     const size=Math.min(5000,count+2-cursor.row),rows=sheet.getRange(cursor.row,2,size,width).getDisplayValues(),provenance=cursor.table===1?sheet.getRange(cursor.row,keys.indexOf('procedencia')+1,size,1).getDisplayValues():null;
+     let read=0;
+     for(const values of rows){
+      if(Date.now()-started>=maxMs||backgroundPaused_(true))break;
+      const row=Object.fromEntries(keys.slice(1,1+width).map((key,j)=>[key,values[j]]));
+      observeTaxonomyRow_(state,row,definitions,excluded,row.medio||JSON.parse(provenance?.[read][0]||'{}').medio||'');read++;observed++;
      }
+     cursor.row+=read;if(read<rows.length)break;
     }
+    while(cursor.table<2&&cursor.row>(cursor.table===0?job.total:job.candidateTotal)+1){cursor.table++;cursor.row=2;}
+    job.scanCursor=cursor;job.documents=state.documents;job.candidatesProcessed=cursor.table>1?job.candidateTotal:cursor.table===1?cursor.row-2:0;
+    if(cursor.table===2)job.phase='publish';
+    // The manifest and exact next-row cursor commit together, after verification.
+    if(observed||job.phase==='publish')saveTaxonomyCheckpoint_(job,state);
    }
-   if(backgroundPaused_())return;
-   job.model=publishTaxonomy_(state);job.documents=state.documents;job.candidatesProcessed=job.candidateTotal;job.phase='tag';job.next=2;job.total=Math.max(0,newsSheet_().getLastRow()-1);
+   if(job.phase==='publish'&&Date.now()-started<maxMs&&!backgroundPaused_()){
+    job.model=publishTaxonomy_(state);job.documents=state.documents;job.phase='tag';job.next=2;
+   }
   }else{
    const sheet=newsSheet_(),keys=RADAR.sheets.Noticias,items=taxonomyCatalog_(),size=Math.min(TAXONOMY_POLICY.batchRows,job.total-job.next+2),updates=[];let read=0;
    const rows=size>0?sheet.getRange(job.next,1,size,keys.length).getDisplayValues():[];
@@ -89,9 +98,10 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
    if(job.next>job.total+1){job.state='Completada';properties_().setProperties({TAXONOMY_APPLIED_MODEL:job.model,TAXONOMY_APPLIED_RULES:job.rules,TAXONOMY_EVALUATED_CORPUS:job.corpus});}
   }
   if(written)invalidateNews_(false);Object.assign(job,{state:job.state==='Completada'?'Completada':'En curso',updated:new Date().toISOString(),error:'',pausedUntil:0});writeTaxonomyJob_(job);
+  if(job.phase==='tag'){clearTaxonomyCheckpoints_();if(job.checkpoint){delete job.checkpoint;delete job.scanCursor;writeTaxonomyJob_(job);}}
   if(job.state==='Completada'){requestTaxonomyTranslations_();requestDashboardSnapshots_(true);}
   telemetry_('taxonomia',Date.now()-started,'OK',job.phase+'; '+job.processed+' revisadas; '+job.tagged+' etiquetas actualizadas');
- }catch(error){Object.assign(job,{state:'En pausa',error:String(error.message).slice(0,180),pausedUntil:Date.now()+(serviceQuotaPause_(error)||settings_().retryMinutes*60000)});writeTaxonomyJob_(job);telemetry_('taxonomia',Date.now()-started,'Error',job.error);}
+ }catch(error){const durable=taxonomyJob_()||job;Object.assign(durable,{state:'En pausa',error:String(error.message).slice(0,180),pausedUntil:Date.now()+(serviceQuotaPause_(error)||settings_().retryMinutes*60000)});writeTaxonomyJob_(durable);telemetry_('taxonomia',Date.now()-started,'Error',durable.error);}
 }
 
 function observeTaxonomyRow_(state,row,definitions,excluded,publisher){
@@ -128,3 +138,32 @@ function validateTaxonomyAssignment_(saved,items,id,strict=true,row=null){
   }
 }
 
+
+function taxonomyCheckpointFirstRow_(){return 2+DASHBOARD_SNAPSHOTS.views.length*2*DASHBOARD_SNAPSHOTS.parts;}
+function readTaxonomyCheckpoint_(job){
+ const manifest=job.checkpoint;if(!manifest)return {documents:0,candidates:{},titles:{}};
+ const sheet=book_().getSheetByName('DashboardSnapshots'),rows=sheet?.getRange(manifest.first,1,manifest.parts,4).getDisplayValues();
+ if(!rows||rows.some(([kind,generation,part],i)=>kind!=='taxonomy-checkpoint'||generation!==manifest.generation||Number(part)!==i))throw Error('Checkpoint de taxonomía incompleto.');
+ const text=rows.map(row=>row[3]).join('');if(sha256_(text)!==manifest.digest)throw Error('Checkpoint de taxonomía corrupto.');return JSON.parse(text);
+}
+function taxonomyCheckpointFreeRow_(sheet,parts,keep=null){
+ const first=taxonomyCheckpointFirstRow_(),count=Math.max(0,sheet.getLastRow()-first+1),rows=count?sheet.getRange(first,1,count,4).getDisplayValues():[];
+ let start=first,free=0;
+ for(let i=0;i<rows.length;i++){
+  const row=first+i,protectedRow=keep&&row>=keep.first&&row<keep.first+keep.parts;
+  if(protectedRow||rows[i].some(value=>value!=='')){free=0;start=row+1;continue;}
+  if(++free>=parts)return start;
+ }
+ return keep&&start<keep.first+keep.parts&&start+parts>keep.first?keep.first+keep.parts:start;
+}
+function saveTaxonomyCheckpoint_(job,state){
+ const sheet=generationSheet_('DashboardSnapshots',RADAR.sheets.DashboardSnapshots),text=JSON.stringify(state),parts=Math.max(1,Math.ceil(text.length/40000)),first=taxonomyCheckpointFreeRow_(sheet,parts,job.checkpoint),generation=job.id+':'+Utilities.getUuid(),needed=first+parts-1;
+ if(needed>sheet.getMaxRows())sheet.insertRowsAfter(sheet.getMaxRows(),needed-sheet.getMaxRows());
+ sheet.getRange(first,1,parts,4).setNumberFormat('@').setValues(Array.from({length:parts},(_,i)=>['taxonomy-checkpoint',generation,String(i),text.slice(i*40000,(i+1)*40000)]));SpreadsheetApp.flush();
+ const candidate={...job,checkpoint:{first,parts,generation,digest:sha256_(text)}};readTaxonomyCheckpoint_(candidate);writeTaxonomyJob_(candidate);job.checkpoint=candidate.checkpoint;clearTaxonomyCheckpoints_(candidate.checkpoint);
+}
+function clearTaxonomyCheckpoints_(keep=null){
+ const sheet=book_().getSheetByName('DashboardSnapshots'),first=taxonomyCheckpointFirstRow_(),count=sheet?sheet.getLastRow()-first+1:0;if(count<=0)return;
+ const rows=sheet.getRange(first,1,count,2).getDisplayValues();
+ for(let start=0;start<rows.length;){if(rows[start][0]!=='taxonomy-checkpoint'||rows[start][1]===keep?.generation){start++;continue;}let end=start+1;while(end<rows.length&&rows[end][0]==='taxonomy-checkpoint'&&rows[end][1]!==keep?.generation)end++;sheet.getRange(first+start,1,end-start,4).clearContent();start=end;}
+}

@@ -1,5 +1,7 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "Checkpoint de taxonomía incompleto.": ["Incomplete taxonomy checkpoint.", "Taksonomi kontrol noktası eksik."],
+  "Checkpoint de taxonomía corrupto.": ["Corrupted taxonomy checkpoint.", "Taksonomi kontrol noktası bozuk."],
   "Newsletters": ["Newsletters", "Bültenler"],
   "País": ["Country", "Ülke"],
   "Cambió la hoja activa.": ["The active sheet changed.", "Etkin sayfa değişti."],
