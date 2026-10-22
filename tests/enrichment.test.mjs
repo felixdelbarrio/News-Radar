@@ -21,3 +21,8 @@ test('noticia retirada con reintento no deja un backfill pendiente perpetuo',()=
 test('cambios de atribución o clasificación actual actualizan la identidad de la propuesta sin tocar la original',()=>{const s=fixture(),{c}=s,row=article(s);assert.notEqual(c.enrichmentInput_(row),c.enrichmentInput_({...row,entidad:'Qonto'}));assert.notEqual(c.enrichmentInput_(row),c.enrichmentInput_({...row,taxonomia:'{"ids":["otro"]}'}));});
 
 test('una versión nueva recupera un backfill terminado y reconstruye propuestas con identidad nueva',()=>{const s=fixture(),{c,properties:p}=s;article(s);p.ENRICHMENT_ENABLED='true';p.ENRICHMENT_JOB=JSON.stringify({version:'old',next:3,newNext:3,state:'Completada'});assert.ok(c.enrichmentReadyAt_()<=Date.now());c.enrichmentBatch_();assert.notEqual(c.enrichmentJob_().version,'old');assert.equal(c.rows_('Enriquecimiento').length,1);assert.equal(c.enrichmentJob_().state,'Completada');});
+
+test('el lote calcula la revisión de taxonomía una sola vez aunque examine propuestas ya completas',()=>{
+ const s=fixture(),{c}=s;article(s,'first');article(s,'second');let models=0;const model=c.taxonomyModelRevision_;c.taxonomyModelRevision_=(...args)=>{models++;return model(...args);};
+ c.enrichmentBatch_();models=0;const result=c.enrichmentBatch_();assert.equal(result.metrics.processed,0);assert.equal(models,1);assert.equal(result.metrics.writes,0);
+});

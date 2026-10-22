@@ -4,15 +4,15 @@ function newsletterSubject_(filters,language='es',t=taxonomyLanguage_(language))
   return '[bIA] '+(values.join(' · ')||t('Todo el sector'));
 }
 function briefing_(rows,perGeography=false,geography=row=>geographyLabel(row.pais),entityName=entityKey_){
-  const entities=new Map(),ranked=rows.filter(row=>row.senales.length).map(row=>{
+  const entities=new Map(),ranked=rows.filter(briefingAllowed).map(row=>{
     const entity=entityName(row.entidad);entities.set(entity,(entities.get(entity)||0)+1);
     return {row,entity,score:newsRelevance_(row)};
   });
   ranked.sort((a,b)=>Number(b.entity==='BBVA')-Number(a.entity==='BBVA')||entities.get(b.entity)-entities.get(a.entity)||a.entity.localeCompare(b.entity,'es')||b.score-a.score||b.row.fecha.localeCompare(a.row.fecha));
-  const overview=noveltyOverview(ranked.map(item=>item.row),configuration_().signals.filter(row=>row.enabled).map(row=>row.name),geography),items=[],limit=settings_().briefingLimit;
-  const problemSignals=new Set(configuration_().signals.filter(row=>row.enabled&&row.group==='Problema').map(row=>row.name)),groups=new Map();
+  const overview=noveltyOverview(ranked.map(item=>item.row),BRIEFING_ALLOWED_SIGNALS,geography),items=[],limit=settings_().briefingLimit;
+  const groups=new Map();
   for(const {row} of ranked){const key=perGeography?geography(row):'';if(!groups.has(key))groups.set(key,[]);groups.get(key).push(row);}
-  for(const group of groups.values()){const chosen=new Set(group.filter(row=>row.senales.some(name=>problemSignals.has(name))).slice(0,Math.max(1,Math.ceil(limit/3))));for(const row of group){if(chosen.size>=limit)break;chosen.add(row);}items.push(...group.filter(row=>chosen.has(row)));}
+  for(const group of groups.values())items.push(...group.slice(0,limit));
   return {...overview,items,limited:overview.total>items.length};
 }
 function newsletter_(rows,query,title,now,subscriptionId,language='es',editionId='',known=new Set()){
@@ -20,7 +20,7 @@ function newsletter_(rows,query,title,now,subscriptionId,language='es',editionId
 }
 function newsletterContent_(selected,query,title,now,subscriptionId,language='es',editionId='',known=new Set()){
   if(!supportedLanguage(language))throw Error('Idioma no admitido.');
-  const evidence=selected.filter(row=>plainText_(row.titular).trim()&&((query.view||'briefing')!=='briefing'||row.senales.length)),t=taxonomyLanguage_(language),editorial=newsletterDigest_(evidence,query,language,t,known),examples=new Map(editorial.cards.map(card=>[card.id,null])),links=newsletterLinks_(subscriptionId,editionId,query.view,query),images=new Map([['bia-logo',{id:'bia-logo',data:NEWSLETTER_BIA_PNG}]]);
+  const evidence=selected.filter(row=>plainText_(row.titular).trim()&&briefingAllowed(row)),t=taxonomyLanguage_(language),editorial=newsletterDigest_(evidence,query,language,t,known),examples=new Map(editorial.cards.map(card=>[card.id,null])),links=newsletterLinks_(subscriptionId,editionId,query.view,query),images=new Map([['bia-logo',{id:'bia-logo',data:NEWSLETTER_BIA_PNG}]]);
   for(const row of evidence)if(examples.has(row.id))examples.set(row.id,row);
   const items=[...examples.values()],localized=savedArticleTranslations_(items,language);for(let i=0;i<editorial.cards.length;i++){editorial.cards[i].title=newsletterWords_(localized[i].titular,NEWSLETTER_EDITORIAL.titleWords);editorial.cards[i].fact=newsletterWords_(localized[i].extracto,NEWSLETTER_EDITORIAL.factWords);}
   const escape=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));

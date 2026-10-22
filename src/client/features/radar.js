@@ -2,7 +2,9 @@ import {identityMark} from '../../shared/visual-identity.js';
 import { $, escape, metricCards } from "../core/dom.js";
 import {language,t} from '../core/language.js';
 import { trendChart } from "./trend-chart.js";
-function createRadar({ onCountry, onEntity, onSource }) {
+function createRadar({ onCountry, onEntity, onSource, onOutage }) {
+  let outageSelection={};
+  $('radar-outage').addEventListener('click',event=>{const button=event.target.closest('[data-outage-explore]');if(button)onOutage({...outageSelection,...(button.dataset.entity?{entity:button.dataset.entity}:{}),...(button.dataset.country?{country:button.dataset.country}:{}),...(button.dataset.vector?{palanca:button.dataset.vector}:{})});});
   let signature = "", geographySignature="", trend, chartWidth=0;
   function renderTrend(width){
     if(!trend||!width)return;
@@ -92,6 +94,23 @@ function createRadar({ onCountry, onEntity, onSource }) {
     const available=radar.available;$('publisher-evidence').textContent=t('Se muestran los seis medios con más publicaciones.')+' '+(available?t('Período')+': '+radar.trend.from+' — '+radar.trend.to+'. '+t('Noticias recuperadas')+': '+available.total+'; '+t('Noticias de la selección')+': '+radar.summary.news+'. '+t('Los recuentos reflejan la recuperación disponible y los filtros, no toda la producción del medio.'):'');
     $('publisher-chart').innerHTML=publishers.length?publishers.map(row=>`<button type="button" class="ranking-row" data-source="${escape(row.publisher)}"><span class="ranking-name" data-original>${identityMark('publishers',row.publisher,escape)}${escape(row.publisher)}<span class="ranking-track"><span style="width:${row.total/publisherMax*100}%"></span></span></span><strong>${row.total}</strong></button>`).join(''):'<p class="muted">Sin publicaciones</p>';
     $("radar-publisher").textContent = radar.topPublisher || "Sin publicaciones";
+    const outage=radar.outages;
+    $('radar-outage').hidden=!outage;
+    if(outage){
+      outageSelection={from:outage.from,to:outage.to,signal:outage.signal,newsGeography:'',source:'',page:0};
+      $('radar-outage-summary').textContent=outage.summary;
+      const comparison=!outage.comparable?'Sin comparativa disponible':outage.change===null?'Sin base en el año anterior':`${outage.change>0?'+':''}${outage.change}% vs. año anterior`;
+      $('radar-outage-kpis').innerHTML=metricCards([['Incidencias registradas (Año)',outage.total,comparison],['Entidades afectadas',outage.affected,`${outage.ratio}% de ${outage.active} entidades activas`],['Entidad más expuesta',outage.top?.entity||'—',outage.top?`${outage.top.total} eventos · ${outage.concentration}% de concentración`:'Sin incidencias'],['Vector / Operativa crítica',outage.vector?.name||'—',outage.vector?`${outage.vector.total} evidencias`:'Sin incidencias']]);
+      const topLabel=$('radar-outage-kpis').children[2]?.querySelector('strong');if(topLabel&&outage.top)topLabel.insertAdjacentHTML('afterbegin',identityMark('entities',outage.top.entity,escape));
+      $('radar-outage-kpis').children[0]?.querySelector('span').classList.add('badge');
+      $('radar-outage-grid').hidden=!outage.total;
+      const maximum=Math.max(1,...outage.months.map(row=>row.total)),bar=(value,max)=>`<meter min="0" max="${max}" value="${value}">${value}</meter>`;
+      $('radar-outage-timeline').innerHTML=outage.months.map(row=>`<div title="${escape(row.month)}: ${row.total}"><span>${row.total}</span>${bar(row.total,maximum)}<time>${escape(row.month.slice(5))}</time></div>`).join('');
+      $('radar-outage-entities').innerHTML=outage.ranking.map(row=>`<div class="radar-outage-entity"><button type="button" class="ranking-row" data-outage-explore data-entity="${escape(row.entity)}">${identityMark('entities',row.entity,escape)}<span class="ranking-name">${escape(row.entity)}${bar(row.total,outage.top.total)}</span><strong>${row.total}</strong></button><div class="radar-outage-countries">${row.countries.map(area=>`<button type="button" class="button" data-outage-explore data-entity="${escape(row.entity)}" data-country="${escape(area.country)}">${identityMark('countries',area.country,escape)}${escape(area.country)} · ${area.total}</button>`).join('')}</div></div>`).join('');
+      $('radar-outage-vectors').innerHTML=outage.vectors.map(row=>`<button type="button" class="ranking-row" data-outage-explore data-vector="${escape(row.name)}"><span class="ranking-name">${escape(row.name)}${bar(row.total,outage.vector.total)}</span><strong>${row.total}</strong></button>`).join('');
+      $('radar-outage-evidence').innerHTML=outage.latest.map(row=>`<article class="radar-outage-evidence"><p class="identity-label">${identityMark('entities',row.entity,escape)}${escape(row.entity)} ${identityMark('countries',row.country,escape)}${escape(row.country)}</p><a href="${escape(row.url)}" target="_blank" rel="noopener noreferrer" data-original>${escape(row.title)}</a><p class="small muted"><time>${escape(row.date)}</time> · ${identityMark('publishers',row.publisher,escape)}${escape(row.publisher)}</p></article>`).join('');
+    }
+
   } };
 }
 export {
