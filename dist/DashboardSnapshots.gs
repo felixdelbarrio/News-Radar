@@ -23,7 +23,7 @@ function defaultDashboardSnapshot_(view,query,language){
   }catch(error){console.warn('Snapshot '+view+': '+String(error.message||error));properties_().setProperty('DASHBOARD_SNAPSHOT_CORRUPT','true');requestDashboardSnapshots_();return null;}
 }
 function dashboardSnapshotData_(rows,query,feeds,view){
-  const data=newsDashboard_(rows,query,feeds,view,null,null,view==='radar'?radarPreviousRows_(query):null);dashboardCatalogOptions_(data,feeds);return data;
+  const data=newsDashboard_(rows,query,feeds,view,null,null,view==='radar'?radarPreviousRows_(query):null);dashboardCatalogOptions_(data,feeds);if(view==='radar')data.years=radarAvailableYears_();return data;
 }
 function dashboardSnapshotLanguages_(data,view){
   const values={};
