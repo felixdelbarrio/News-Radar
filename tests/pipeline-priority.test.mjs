@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {storage} from './helpers/delivery.mjs';
 function fixture(){const s=storage();s.c.initializeConfiguration();for(let i=0;i<3;i++)s.c.dashboardSnapshotBatch_();delete s.properties.DASHBOARD_SNAPSHOT_REQUEST;return s;}
 const work={pending:[{ciclo:'annual'}],jobs:[{id:'annual',tipo:'annual',pendientes:1}]};
-test('prioridad única: diaria, clasificación, traducción de negocio, newsletter, taxonomía, traducción de taxonomía y pendientes',()=>{
+test('prioridad única: diaria, clasificación, snapshots, newsletter, traducción de negocio, taxonomía, traducción de taxonomía y pendientes',()=>{
  const {c,properties:p}=fixture();c.settings_().newsletterEnabled=true;
  c.writeClassificationJob_({state:'Pendiente'});c.writeTranslationJob_({state:'Pendiente',businessPending:1});c.writeTaxonomyJob_({state:'Pendiente'});c.taxonomyTranslationReadyAt_=()=>Date.now();p.NEWSLETTER_REQUEST='true';
  assert.equal(c.backgroundTask_(work,true),'collection');assert.equal(c.backgroundTask_(work,false),'classification');
@@ -26,4 +26,8 @@ test('actualizar programación elimina activadores independientes y conserva los
  const s=fixture(),c=s.c;const config=c.getConfiguration();config.config.settings.newsletterEnabled=true;c.saveConfiguration(config);c.enableDaily();for(const name of ['dailyClassification_','dailyTaxonomy_','nightlyTranslations_','deliverNewsletters_','newsletterTick_'])c.ScriptApp.newTrigger(name).timeBased().create();c.writeTranslationJob_({state:'En pausa',cursor:{id:'retained'},pausedUntil:Date.now()+86400000});
  c.updateOperationalSchedule();c.workWake_();const names=c.ScriptApp.getProjectTriggers().map(t=>t.handler);assert.ok(names.includes('dailyRadar_'));assert.ok(names.includes('scheduledNewsletters_'));assert.ok(!names.some(n=>['dailyClassification_','dailyTaxonomy_','nightlyTranslations_','deliverNewsletters_','newsletterTick_'].includes(n)));assert.equal(c.translationJob_().cursor.id,'retained');
  s.setEmail('reader@bbva.com');assert.throws(()=>c.updateOperationalSchedule(),/administrador/);
+});
+
+test('snapshots preceden envíos y al publicarse newsletter gana a traducción, mantenimiento y anual',()=>{
+ const {c,properties:p}=fixture();c.settings_().newsletterEnabled=true;p.NEWSLETTER_REQUEST='true';p.BACKGROUND_PRIORITY_BURST='99';c.writeTranslationJob_({state:'Pendiente',businessPending:100});c.maintenanceReadyAt_=()=>Date.now();c.writeTaxonomyJob_({state:'Completada',total:1});assert.equal(c.backgroundTask_(work,false),'snapshot');assert.equal(c.newsletterReadyAt_(work),Infinity);for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();assert.equal(c.backgroundTask_(work,false),'newsletter');assert.equal(c.progressBlockingJob_('newsletter',c.progressContext_()),'');p.NEWSLETTER_QUOTA_UNTIL=String(Date.now()+3600000);assert.equal(c.backgroundTask_(work,false),'translation');
 });

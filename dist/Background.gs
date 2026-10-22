@@ -60,21 +60,21 @@ function drainDailyTranslations_(work){
   if(p.getProperty('TRANSLATION_ENABLED')!=='false')requestTranslations_(true);
   if(p.getProperty('DAILY_TRANSLATION_REQUEST')===day)p.deleteProperty('DAILY_TRANSLATION_REQUEST');
 }
+function snapshotPublicationPending_(work,includeDue=true){return snapshotJobsPending_()||(work?.jobs||collectionJobs_()).some(job=>job.estado==='Publicando')||Boolean(properties_().getProperty('DASHBOARD_SNAPSHOT_BUILD'))||includeDue&&dashboardSnapshotsDue_();}
 function backgroundTask_(work,daily){
   if(daily)return 'collection';
-  if(snapshotJobsPending_()||work.jobs?.some(job=>job.estado==='Publicando'))return 'snapshot';
   const blocked=dailyCollectionPending_(work)||properties_().getProperty('DAILY_PIPELINE_REQUEST');
   if(!blocked&&classificationReadyAt_()<=Date.now())return 'classification';
-  if(!blocked&&!classificationPending_()&&dashboardSnapshotsDue_())return 'snapshot';
-  if(!blocked&&!classificationPending_()&&!taxonomyPending_()&&Number(properties_().getProperty('BACKGROUND_PRIORITY_BURST')||0)>=3){if(maintenanceReadyAt_()<=Date.now())return 'maintenance';if(work.pending.length)return 'collection';}
+  if(!blocked&&(!classificationPending_()||snapshotJobsPending_())&&snapshotPublicationPending_(work))return 'snapshot';
   if(!blocked&&!classificationPending_()&&!properties_().getProperty('CLASSIFICATION_REQUEST')){
     if(newsletterReadyAt_(work)<=Date.now())return 'newsletter';
     if(translationReadyAt_()<=Date.now())return 'translation';
     if(properties_().getProperty('CATALOG_SYNC_REQUEST'))return 'catalogSync';
     if(taxonomyReadyAt_()<=Date.now())return 'taxonomy';
     if(taxonomyTranslationReadyAt_()<=Date.now())return 'taxonomyTranslation';
+    if(enrichmentReadyAt_()<=Date.now())return 'enrichment';
+    if(maintenanceReadyAt_()<=Date.now())return 'maintenance';
   }
-  if(!blocked&&!classificationPending_()&&maintenanceReadyAt_()<=Date.now())return 'maintenance';
   return work.pending.length?'collection':'';
 }
 function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
@@ -94,9 +94,10 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
       const remaining=Math.min(BACKGROUND_WORK.sliceMs,BACKGROUND_WORK.maxMs-(Date.now()-started));if(remaining<=0)break;
       progressContextMemory_=undefined;properties_().setProperty('BACKGROUND_RUN_ID',runId);const stage=task==='collection'?daily?'daily':'annual':task;properties_().setProperty('BACKGROUND_ACTIVE',stage);properties_().setProperty('BACKGROUND_ACTIVE_UNTIL',String(Date.now()+BACKGROUND_WORK.maxMs+BACKGROUND_WORK.activeGraceMs));properties_().setProperty('JOB_LAST_EXECUTED:'+stage,new Date().toISOString());
       if(task==='snapshot')dashboardSnapshotBatch_();
+      else if(task==='enrichment')enrichmentBatch_(remaining);
       else if(task==='maintenance')maintenanceBatch_(Math.min(MAINTENANCE_POLICY.maxMs,remaining));
       else if(task==='newsletter')deliverNewsletterBatch_(work,remaining);
-      else if(task==='catalogSync'){const synced=refreshFunctionalCatalog_();if(synced.changed&&!taxonomyPending_())requestTaxonomy_('catalog-change');properties_().deleteProperty('CATALOG_SYNC_REQUEST');}
+      else if(task==='catalogSync'){const synced=refreshFunctionalCatalog_();if(synced.changed){if(!taxonomyPending_())requestTaxonomy_('catalog-change');requestEnrichment_();}properties_().deleteProperty('CATALOG_SYNC_REQUEST');}
       else if(task==='taxonomyTranslation')taxonomyTranslationBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
       else if(task==='taxonomy')taxonomyBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
       else if(task==='classification')newsClassificationBatch_(Math.min(CLASSIFICATION_WORK.maxMs,remaining));
@@ -106,12 +107,12 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
         if(daily&&work.jobs.some(job=>job.id===work.pending[0].ciclo&&job.estado==='Completada')&&properties_().getProperty('MAINTENANCE_DAY')!==day){maintenance_();properties_().setProperty('MAINTENANCE_DAY',day);}
       }
       if(task!=='snapshot'&&backgroundStageComplete_(task,work,collectionJob))requestDashboardSnapshots_(true);
-      knownRevision=properties_().getProperty('NEWS_REVISION');properties_().setProperty('BACKGROUND_LAST',task);if(task!=='snapshot')properties_().setProperty('BACKGROUND_PRIORITY_BURST',String(['translation','newsletter','catalogSync','taxonomyTranslation'].includes(task)?Number(properties_().getProperty('BACKGROUND_PRIORITY_BURST')||0)+1:0));
+      knownRevision=properties_().getProperty('NEWS_REVISION');properties_().setProperty('BACKGROUND_LAST',task);
     }
     completed=true;return {...collectionStatus_(null,work?.jobs),added,errors};
   }finally{
     try{
-      const queued=backgroundQueued_(work),next=queued||!completed||dashboardSnapshotsReady_(work)?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_(),classificationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_(work),maintenanceReadyAt_());
+      const queued=backgroundQueued_(work),next=queued||!completed||dashboardSnapshotsReady_(work)?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_(),classificationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_(work),enrichmentReadyAt_(),maintenanceReadyAt_());
       if(Number.isFinite(next))ensureBackgroundWorker_(next-Date.now());else properties_().deleteProperty('BACKGROUND_PENDING');
     }finally{if(acquired){if(properties_().getProperty('BACKGROUND_RUN_ID')===runId){properties_().deleteProperty('BACKGROUND_RUN_ID');properties_().deleteProperty('BACKGROUND_ACTIVE');properties_().deleteProperty('BACKGROUND_ACTIVE_UNTIL');}lock.releaseLock();}}
   }
@@ -125,19 +126,19 @@ function initializeBackgroundSchedules_(){
   if(p.getProperty('DAILY_ENABLED')==='true')replaceCollectionSchedule_();else scheduledTriggers_('dailyRadar_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   if(p.getProperty('TRANSLATION_ENABLED')!=='false')p.setProperty('TRANSLATION_ENABLED','true');
   if(settings_().newsletterEnabled)replaceDailySchedule_('scheduledNewsletters_',settings_().dailyHour);else scheduledTriggers_('scheduledNewsletters_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
-  if(dashboardSnapshotsPending_()||Number.isFinite(taxonomyTranslationReadyAt_())||taxonomyPending_()||p.getProperty('TAXONOMY_REQUEST')||p.getProperty('CATALOG_SYNC_REQUEST')||classificationPending_()||p.getProperty('CLASSIFICATION_REQUEST')||collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_())||Number.isFinite(newsletterReadyAt_()))ensureBackgroundWorker_();
+  if(dashboardSnapshotsPending_()||Number.isFinite(taxonomyTranslationReadyAt_())||taxonomyPending_()||p.getProperty('TAXONOMY_REQUEST')||p.getProperty('CATALOG_SYNC_REQUEST')||classificationPending_()||p.getProperty('CLASSIFICATION_REQUEST')||collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_())||Number.isFinite(newsletterReadyAt_())||Number.isFinite(enrichmentReadyAt_()))ensureBackgroundWorker_();
 }
 function updateOperationalSchedule(){authorize_(true);return withForegroundWrite_(()=>{initializeBackgroundSchedules_();return 'Prioridades y programación actualizadas.';});}
 
 function backgroundWatchdog_(){
   const p=properties_(),values=p.getProperties();if(backgroundPaused_())return;
   if(Object.entries(values).some(([key,value])=>key.startsWith('WORK_PENDING:')&&value==='true')){workWake_();return;}
-  if(!dashboardSnapshotsPending_()&&!values.BACKGROUND_PENDING&&!['MAINTENANCE_REQUEST','DAILY_PIPELINE_REQUEST','CLASSIFICATION_REQUEST','DAILY_TRANSLATION_REQUEST','TRANSLATION_REQUEST','TAXONOMY_REQUEST','CATALOG_SYNC_REQUEST','TAXONOMY_TRANSLATION_REQUEST'].some(key=>values[key])&&!(values.NEWSLETTER_REQUEST&&settings_().newsletterEnabled)&&!Number.isFinite(maintenanceReadyAt_()))return;
+  if(!dashboardSnapshotsPending_()&&!values.BACKGROUND_PENDING&&!['MAINTENANCE_REQUEST','DAILY_PIPELINE_REQUEST','CLASSIFICATION_REQUEST','DAILY_TRANSLATION_REQUEST','TRANSLATION_REQUEST','TAXONOMY_REQUEST','CATALOG_SYNC_REQUEST','TAXONOMY_TRANSLATION_REQUEST','ENRICHMENT_REQUEST'].some(key=>values[key])&&!(values.NEWSLETTER_REQUEST&&settings_().newsletterEnabled)&&!Number.isFinite(enrichmentReadyAt_())&&!Number.isFinite(maintenanceReadyAt_()))return;
   if(scheduledTriggers_('backgroundTick_').length&&Number(p.getProperty('BACKGROUND_NEXT'))>Date.now()-BACKGROUND_WORK.maxMs*2)return;
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return;
   try{
     const now=Date.now(),fetchPause=Number(p.getProperty('FETCH_PAUSED_UNTIL')||0),jobs=collectionJobs_(),collection=jobs.filter(job=>Number(job.pendientes)>0||job.estado==='Preparando').map(job=>Math.max(now,fetchPause,Number(job.pausa||0))),queued=backgroundQueued_({jobs});
-    const next=queued||dashboardSnapshotsReady_({jobs})?now:Math.min(...collection,classificationReadyAt_(),translationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_({jobs}),maintenanceReadyAt_());
+    const next=queued||dashboardSnapshotsReady_({jobs})?now:Math.min(...collection,classificationReadyAt_(),translationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_({jobs}),enrichmentReadyAt_(),maintenanceReadyAt_());
     if(Number.isFinite(next)){p.deleteProperty('BACKGROUND_NEXT');ensureBackgroundWorker_(next-now);}else p.deleteProperty('BACKGROUND_PENDING');
   }finally{lock.releaseLock();}
 }
