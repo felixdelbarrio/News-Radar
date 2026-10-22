@@ -77,6 +77,15 @@ function backgroundTask_(work,daily){
   }
   return work.pending.length?'collection':'';
 }
+// Wake only for runnable work; lower queues cannot poll while their prerequisites are paused.
+function backgroundNextAt_(work,completed=true){
+  const now=Date.now(),p=properties_();if(!work||!completed||backgroundQueued_(work))return now;
+  const collection=work.tasks?collectionReadyAt_(work):Math.min(...(work.jobs||[]).filter(job=>Number(job.pendientes)>0||job.estado==='Preparando').map(job=>Math.max(now,Number(p.getProperty('FETCH_PAUSED_UNTIL')||0),Number(job.pausa||0))));
+  if(dailyCollectionPending_(work)||p.getProperty('DAILY_PIPELINE_REQUEST'))return collection;
+  if(classificationPending_())return snapshotJobsPending_()?now:Math.min(collection,classificationReadyAt_());
+  if(dashboardSnapshotsReady_(work))return now;
+  return Math.min(collection,translationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_(work),enrichmentReadyAt_(),maintenanceReadyAt_());
+}
 function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
   if(backgroundPaused_()){deferBackgroundWork_('background');return {added:0,errors:[],paused:true};}
   scheduledTriggers_('backgroundTick_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));properties_().deleteProperty('BACKGROUND_NEXT');
@@ -112,7 +121,7 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
     completed=true;return {...collectionStatus_(null,work?.jobs),added,errors};
   }finally{
     try{
-      const queued=backgroundQueued_(work),next=queued||!completed||dashboardSnapshotsReady_(work)?Date.now():Math.min(work?collectionReadyAt_(work):Date.now(),translationReadyAt_(),classificationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_(work),enrichmentReadyAt_(),maintenanceReadyAt_());
+      const next=backgroundNextAt_(work,completed);
       if(Number.isFinite(next))ensureBackgroundWorker_(next-Date.now());else properties_().deleteProperty('BACKGROUND_PENDING');
     }finally{if(acquired){if(properties_().getProperty('BACKGROUND_RUN_ID')===runId){properties_().deleteProperty('BACKGROUND_RUN_ID');properties_().deleteProperty('BACKGROUND_ACTIVE');properties_().deleteProperty('BACKGROUND_ACTIVE_UNTIL');}lock.releaseLock();}}
   }
@@ -137,14 +146,13 @@ function backgroundWatchdog_(){
   if(scheduledTriggers_('backgroundTick_').length&&Number(p.getProperty('BACKGROUND_NEXT'))>Date.now()-BACKGROUND_WORK.maxMs*2)return;
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return;
   try{
-    const now=Date.now(),fetchPause=Number(p.getProperty('FETCH_PAUSED_UNTIL')||0),jobs=collectionJobs_(),collection=jobs.filter(job=>Number(job.pendientes)>0||job.estado==='Preparando').map(job=>Math.max(now,fetchPause,Number(job.pausa||0))),queued=backgroundQueued_({jobs});
-    const next=queued||dashboardSnapshotsReady_({jobs})?now:Math.min(...collection,classificationReadyAt_(),translationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_({jobs}),enrichmentReadyAt_(),maintenanceReadyAt_());
+    const now=Date.now(),jobs=collectionJobs_(),next=backgroundNextAt_({jobs});
     if(Number.isFinite(next)){p.deleteProperty('BACKGROUND_NEXT');ensureBackgroundWorker_(next-now);}else p.deleteProperty('BACKGROUND_PENDING');
   }finally{lock.releaseLock();}
 }
 
 function backgroundQueued_(work){
-  const p=properties_();return Boolean(p.getProperty('CATALOG_SYNC_REQUEST')||p.getProperty('MAINTENANCE_REQUEST')||p.getProperty('DAILY_PIPELINE_REQUEST')||collectionRequests_().length||!dailyCollectionPending_(work)&&!classificationPending_()&&(p.getProperty('CLASSIFICATION_REQUEST')||p.getProperty('DAILY_TRANSLATION_REQUEST'))||!businessPipelinePending_(work)&&(p.getProperty('TAXONOMY_REQUEST')&&!taxonomyPending_()));
+  const p=properties_();return Boolean(p.getProperty('MAINTENANCE_REQUEST')||p.getProperty('DAILY_PIPELINE_REQUEST')||collectionRequests_().length||!dailyCollectionPending_(work)&&!classificationPending_()&&(p.getProperty('CLASSIFICATION_REQUEST')||p.getProperty('DAILY_TRANSLATION_REQUEST')||p.getProperty('CATALOG_SYNC_REQUEST'))||!businessPipelinePending_(work)&&(p.getProperty('TAXONOMY_REQUEST')&&!taxonomyPending_()));
 }
 
 function backgroundStageComplete_(task,work,collectionJob){
