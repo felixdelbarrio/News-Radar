@@ -1,5 +1,21 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "CONTINUIDAD OPERATIVA Y RIESGO DE CANAL · VISIÓN ANUAL": ["OPERATIONAL CONTINUITY AND CHANNEL RISK · ANNUAL VIEW", "OPERASYONEL SÜREKLİLİK VE KANAL RİSKİ · YILLIK GÖRÜNÜM"],
+  "Indisponibilidad e Incidencia Operativa": ["Service Unavailability and Operational Incidents", "Hizmet Kesintileri ve Operasyonel Olaylar"],
+  "Explorar incidencias en Noticias ↗": ["Explore incidents in News ↗", "Olayları Haberlerde incele ↗"],
+  "Incidencias registradas (Año)": ["Recorded incidents (Year)", "Kaydedilen olaylar (Yıl)"],
+  "Entidades afectadas": ["Affected entities", "Etkilenen kuruluşlar"],
+  "Entidad más expuesta": ["Most exposed entity", "En fazla etkilenen kuruluş"],
+  "Vector / Operativa crítica": ["Critical capability / Operation", "Kritik yetenek / İşlem"],
+  "Evolución anual y recurrencia por entidad": ["Annual trend and recurrence by entity", "Kuruluş bazında yıllık eğilim ve tekrarlama"],
+  "Ámbitos funcionales afectados": ["Affected functional areas", "Etkilenen işlevsel alanlar"],
+  "Últimas evidencias del año": ["Latest evidence of the year", "Yılın son bulguları"],
+  "Sin comparativa disponible": ["Comparison unavailable", "Karşılaştırma mevcut değil"],
+  "Sin base en el año anterior": ["No incidents in the previous year", "Önceki yıl olay yok"],
+  "Sin incidencias": ["No incidents", "Olay yok"],
+  "Sin incidencias operativas registradas en el canal para los filtros y periodo anual seleccionados": ["No operational channel incidents recorded for the selected filters and annual period", "Seçilen filtreler ve yıllık dönem için kaydedilmiş operasyonel kanal olayı yok"],
+  "Productos nuevos, mejoras y alianzas para seguir cómo evoluciona la banca digital de empresas.": ["New products, improvements and partnerships to track digital business banking.", "Dijital ticari bankacılığın gelişimini izlemek için yeni ürünler, iyileştirmeler ve iş birlikleri."],
+
   "Selecciona una o dos noticias persistidas.": ["Select one or two saved articles.", "Kaydedilmiş bir veya iki haber seçin."],
   "Publicación de snapshots": ["Snapshot publication", "Anlık görüntü yayını"],
   "Checkpoint de taxonomía incompleto.": ["Incomplete taxonomy checkpoint.", "Taksonomi kontrol noktası eksik."],

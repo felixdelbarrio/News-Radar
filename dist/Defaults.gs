@@ -1721,7 +1721,7 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
   }
 ]);
 const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
-  "version": "3.15.0",
+  "version": "3.17.0",
   "relevanceRules": [
     {
       "name": "Evidencia de canal digital",
@@ -1733,7 +1733,13 @@ const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
         "pasarela de pago",
         "pasarelas de pago",
         "trends in",
-        "data shows"
+        "data shows",
+        "stablecoin payments",
+        "pagos con stablecoins",
+        "softpos",
+        "tap to pay",
+        "parking account",
+        "liquidacion blockchain"
       ]
     },
     {
@@ -1756,7 +1762,13 @@ const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
         "huella de carbono",
         "carbon footprint",
         "stablecoin",
-        "stablecoins"
+        "stablecoins",
+        "parking account",
+        "cuenta remunerada",
+        "liquidacion blockchain",
+        "tokenized payments",
+        "softpos",
+        "tributos provinciales"
       ]
     },
     {
@@ -2041,6 +2053,66 @@ const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
         "integren banca y contabilidad",
         "integracion banca y contabilidad",
         "integra banca y contabilidad"
+      ]
+    },
+    {
+      "id": "03.13",
+      "remove": [],
+      "terms": [
+        "stablecoin payments",
+        "pagos con stablecoins",
+        "cross-border stablecoin",
+        "liquidacion blockchain",
+        "blockchain settlement",
+        "tokenized payments",
+        "tokenised payments"
+      ]
+    },
+    {
+      "id": "02.17",
+      "remove": [],
+      "terms": [
+        "parking account",
+        "parking accounts",
+        "cuenta remunerada para empresas",
+        "cuentas remuneradas para empresas",
+        "b2b parking",
+        "excedentes de tesoreria"
+      ]
+    },
+    {
+      "id": "11.02",
+      "remove": [],
+      "terms": [
+        "softpos",
+        "tap to pay",
+        "terminales pos",
+        "merchant acquiring",
+        "adquirencia",
+        "terminal de pago",
+        "pagos integrados en comercio"
+      ]
+    },
+    {
+      "id": "05.23",
+      "remove": [],
+      "terms": [
+        "impuestos provinciales",
+        "tributos provinciales",
+        "impuestos estatales",
+        "tasas provinciales"
+      ]
+    },
+    {
+      "id": "16.01",
+      "remove": [],
+      "terms": [
+        "problemas de acceso",
+        "error al iniciar sesion",
+        "no deja entrar",
+        "unable to log in",
+        "login outage",
+        "fallo de autenticacion"
       ]
     }
   ]
@@ -3548,7 +3620,12 @@ const CONFIGURATION_DEFAULTS = {
         "sunar",
         "tanıt*",
         "başlat*",
-        "piyasaya"
+        "piyasaya",
+        "pone en marcha",
+        "rolls out",
+        "debuts",
+        "introduces new",
+        "estrenan"
       ],
       "context": [
         "cuenta*",
@@ -3597,7 +3674,10 @@ const CONFIGURATION_DEFAULTS = {
         "yatırım*",
         "digital*",
         "kyb",
-        "flujo*"
+        "flujo*",
+        "api",
+        "tesoreria",
+        "solucion*"
       ],
       "enabled": true,
       "scope": "headline",
@@ -3712,11 +3792,18 @@ const CONFIGURATION_DEFAULTS = {
         "iş birliği",
         "işbirliği",
         "ortaklık*",
-        "anlaşma*"
+        "anlaşma*",
+        "se alia",
+        "se asocia",
+        "teamed up",
+        "joint venture",
+        "colaboracion estrategica",
+        "integra a",
+        "incorpora a"
       ],
       "context": [],
       "enabled": true,
-      "scope": "headline",
+      "scope": "fullText",
       "exclude": [
         "qué es",
         "qué son",
@@ -3739,7 +3826,7 @@ const CONFIGURATION_DEFAULTS = {
       "group": "Novedad"
     },
     {
-      "name": "Incidencia operativa",
+      "name": "Indisponibilidad / Incidencia operativa",
       "group": "Problema",
       "scope": "fullText",
       "enabled": true,
@@ -3892,7 +3979,21 @@ const CONFIGURATION_DEFAULTS = {
         "que hacer si",
         "cómo solucionar",
         "como solucionar",
-        "how to fix"
+        "how to fix",
+        "evitar caidas",
+        "prevenir caidas",
+        "prevencion de caidas",
+        "posible caida",
+        "posibles caidas",
+        "potential outage",
+        "prevent outages",
+        "risk of outage",
+        "si se cae",
+        "if the app fails",
+        "sin incidencias",
+        "sin caidas",
+        "no hay caidas",
+        "no outage"
       ]
     }
   ],
@@ -5074,7 +5175,10 @@ const CONFIGURATION_DEFAULTS = {
         "stablecoin",
         "stablecoins",
         "retargeting",
-        "deeplink"
+        "deeplink",
+        "impuestos provinciales",
+        "tributos provinciales",
+        "impuestos estatales"
       ],
       "enabled": true
     },
@@ -6700,7 +6804,12 @@ const CONFIGURATION_DEFAULTS = {
             "merchant acquiring onboarding",
             "new payment terminal",
             "solicitar tpv",
-            "solicitud tpv"
+            "solicitud tpv",
+            "softpos",
+            "tap to pay",
+            "terminales pos",
+            "merchant acquiring",
+            "adquirencia"
           ]
         },
         {
@@ -7308,7 +7417,15 @@ const CONFIGURATION_DEFAULTS = {
         "embedded finance",
         "notifications",
         "omnicanal",
-        "omnichannel"
+        "omnichannel",
+        "app caida",
+        "banca online caida",
+        "online banking down",
+        "mobile banking down",
+        "app not working",
+        "caida del servicio",
+        "caida del sistema",
+        "service disruption"
       ],
       "functions": [
         {

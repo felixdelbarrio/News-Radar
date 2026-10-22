@@ -59,6 +59,21 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "CONTINUIDAD OPERATIVA Y RIESGO DE CANAL \xB7 VISI\xD3N ANUAL": ["OPERATIONAL CONTINUITY AND CHANNEL RISK \xB7 ANNUAL VIEW", "OPERASYONEL S\xDCREKL\u0130L\u0130K VE KANAL R\u0130SK\u0130 \xB7 YILLIK G\xD6R\xDCN\xDCM"],
+    "Indisponibilidad e Incidencia Operativa": ["Service Unavailability and Operational Incidents", "Hizmet Kesintileri ve Operasyonel Olaylar"],
+    "Explorar incidencias en Noticias \u2197": ["Explore incidents in News \u2197", "Olaylar\u0131 Haberlerde incele \u2197"],
+    "Incidencias registradas (A\xF1o)": ["Recorded incidents (Year)", "Kaydedilen olaylar (Y\u0131l)"],
+    "Entidades afectadas": ["Affected entities", "Etkilenen kurulu\u015Flar"],
+    "Entidad m\xE1s expuesta": ["Most exposed entity", "En fazla etkilenen kurulu\u015F"],
+    "Vector / Operativa cr\xEDtica": ["Critical capability / Operation", "Kritik yetenek / \u0130\u015Flem"],
+    "Evoluci\xF3n anual y recurrencia por entidad": ["Annual trend and recurrence by entity", "Kurulu\u015F baz\u0131nda y\u0131ll\u0131k e\u011Filim ve tekrarlama"],
+    "\xC1mbitos funcionales afectados": ["Affected functional areas", "Etkilenen i\u015Flevsel alanlar"],
+    "\xDAltimas evidencias del a\xF1o": ["Latest evidence of the year", "Y\u0131l\u0131n son bulgular\u0131"],
+    "Sin comparativa disponible": ["Comparison unavailable", "Kar\u015F\u0131la\u015Ft\u0131rma mevcut de\u011Fil"],
+    "Sin base en el a\xF1o anterior": ["No incidents in the previous year", "\xD6nceki y\u0131l olay yok"],
+    "Sin incidencias": ["No incidents", "Olay yok"],
+    "Sin incidencias operativas registradas en el canal para los filtros y periodo anual seleccionados": ["No operational channel incidents recorded for the selected filters and annual period", "Se\xE7ilen filtreler ve y\u0131ll\u0131k d\xF6nem i\xE7in kaydedilmi\u015F operasyonel kanal olay\u0131 yok"],
+    "Productos nuevos, mejoras y alianzas para seguir c\xF3mo evoluciona la banca digital de empresas.": ["New products, improvements and partnerships to track digital business banking.", "Dijital ticari bankac\u0131l\u0131\u011F\u0131n geli\u015Fimini izlemek i\xE7in yeni \xFCr\xFCnler, iyile\u015Ftirmeler ve i\u015F birlikleri."],
     "Selecciona una o dos noticias persistidas.": ["Select one or two saved articles.", "Kaydedilmi\u015F bir veya iki haber se\xE7in."],
     "Publicaci\xF3n de snapshots": ["Snapshot publication", "Anl\u0131k g\xF6r\xFCnt\xFC yay\u0131n\u0131"],
     "Checkpoint de taxonom\xEDa incompleto.": ["Incomplete taxonomy checkpoint.", "Taksonomi kontrol noktas\u0131 eksik."],
@@ -1797,6 +1812,10 @@
   }
 
   // src/shared/selection-policy.js
+  var BRIEFING_ALLOWED_SIGNALS = Object.freeze(["Lanzamiento de producto", "Mejora de oferta", "Alianza estrat\xE9gica"]);
+  function briefingAllowed(row) {
+    return row.senales?.length === 1 && BRIEFING_ALLOWED_SIGNALS.includes(row.senales[0]);
+  }
   var applicationScopeSegments = Object.freeze(["Empresas e instituciones"]), readingViews = Object.freeze(["news", "briefing", "radar"]), sectorNewsDefaults = Object.freeze({ segment: "Empresas e instituciones", coverage: "digital" }), coverageOptions = Object.freeze({ digital: "Canal digital" }), subscriptionFilterKeys = Object.freeze(["entity", "country", "source", "type", "segment", "coverage", "signal", "search", "palanca", "subpalanca"]), otherGeography = "Otras geograf\xEDas";
   function geographyLabel(name) {
     return !name || name === "Sin determinar" ? otherGeography : name;
@@ -2747,20 +2766,20 @@
 
   // src/client/features/briefing.js
   function createBriefing({ onExplore }) {
-    let briefing2, groups = [], active = "", selection = {}, problemSignals = /* @__PURE__ */ new Set(), tabs = createGeographyTabs("briefing-geographies", "briefing-list", (name) => {
+    let briefing2, groups = [], active = "", selection = {}, tabs = createGeographyTabs("briefing-geographies", "briefing-list", (name) => {
       active = name, paint2();
     });
     function paint2() {
       let group = groups.find((row) => row.name === active), stats = group || briefing2;
       tabs.render(groups, active), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: briefing2.total }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" ${row.total ? "" : "disabled"} data-signal="${escape2(row.name)}"><strong>${row.total}</strong><span>${escape2(t(row.name === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : row.name))}</span></button>`).join("");
-      let rows = group?.entities.flatMap((entity) => entity.items) || [], problem = (row) => row.senales.some((name) => problemSignals.has(name)), cards = (items) => items.map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join(""), issues = rows.filter(problem), updates = rows.filter((row) => !problem(row));
-      $("briefing-list").innerHTML = cards(updates) || '<div class="panel empty"><h3>' + t("No hay novedades de producto en esta selecci\xF3n.") + "</h3></div>", $("briefing-problems").innerHTML = cards(issues) || '<div class="panel empty"><p>' + t("No se han detectado noticias de problemas de servicio en esta selecci\xF3n.") + "</p></div>", $("briefing-limit").hidden = !group || stats.total <= group.items.length;
+      let rows = group?.entities.flatMap((entity) => entity.items) || [];
+      $("briefing-list").innerHTML = rows.map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join("") || '<div class="panel empty"><h3>' + t("No hay novedades de producto en esta selecci\xF3n.") + "</h3></div>", $("briefing-limit").hidden = !group || stats.total <= group.items.length;
     }
     return $("briefing-signals").addEventListener("click", (event) => {
       let button = event.target.closest("[data-signal]");
       button && onExplore({ ...selection, country: "", newsGeography: active, signal: button.dataset.signal, page: 0 });
     }), { render(data) {
-      selection = data.selection || {}, problemSignals = new Set(data.problemSignals || []), briefing2 = data.briefing || { total: 0, bySignal: [], geographies: [], items: [] };
+      selection = data.selection || {}, briefing2 = data.briefing || { total: 0, bySignal: [], geographies: [], items: [] }, briefing2 = { ...briefing2, items: briefing2.items.filter(briefingAllowed), bySignal: briefing2.bySignal.filter((row) => BRIEFING_ALLOWED_SIGNALS.includes(row.name)) };
       let stats = new Map(briefing2.geographies.map((row) => [row.name, row]));
       groups = noveltyGroups(briefing2.items, applicationGeography(data.applicationScope, data.selection?.segment)).map((group) => ({ ...group, ...stats.get(group.name) })), groups.some((row) => row.name === active) || (active = browserCountry(groups.map((row) => row.name)) || groups[0]?.name || ""), paint2();
     } };
@@ -2783,7 +2802,12 @@
   }
 
   // src/client/features/radar.js
-  function createRadar({ onCountry, onEntity, onSource }) {
+  function createRadar({ onCountry, onEntity, onSource, onOutage }) {
+    let outageSelection = {};
+    $("radar-outage").addEventListener("click", (event) => {
+      let button = event.target.closest("[data-outage-explore]");
+      button && onOutage({ ...outageSelection, ...button.dataset.entity ? { entity: button.dataset.entity } : {}, ...button.dataset.country ? { country: button.dataset.country } : {}, ...button.dataset.vector ? { palanca: button.dataset.vector } : {} });
+    });
     let signature = "", geographySignature = "", trend, chartWidth = 0;
     function renderTrend(width) {
       !trend || !width || (chartWidth = width, $("trend-chart").innerHTML = trendChart(trend, width));
@@ -2855,6 +2879,16 @@
       }).join(""), $("map-note").textContent = radar2.unlocated ? t("{count} publicaciones sin geograf\xEDa conocida, excluidas del mapa.", { count: radar2.unlocated }) : "Todas las publicaciones de la selecci\xF3n tienen una geograf\xEDa conocida.", trend = radar2.trend, renderTrend($("trend-chart").clientWidth || 900), $("trend-period").textContent = radar2.trend.buckets.length ? radar2.trend.from + " \u2014 " + radar2.trend.to : "Sin publicaciones", $("trend-note").textContent = radar2.trend.intervalDays > 1 ? t("Volumen agrupado en intervalos de {days} d\xEDas.", { days: radar2.trend.intervalDays }) : "N\xFAmero de publicaciones por d\xEDa, incluidos los d\xEDas sin noticias.", $("entity-ranking").innerHTML = radar2.ranking.length ? radar2.ranking.slice(0, 6).map((row, i) => `<button type="button" class="ranking-row" data-entity="${escape2(row.entity)}"><span class="ranking-index">${String(i + 1).padStart(2, "0")}</span>${identityMark("entities", row.entity, escape2)}<span class="ranking-name">${escape2(row.entity)}<span class="ranking-track"><span style="width:${row.total / Math.max(1, radar2.summary.news) * 100}%"></span></span></span><strong>${row.total}</strong></button>`).join("") : '<p class="muted">Las entidades aparecer\xE1n al ampliar tu selecci\xF3n.</p>', $("ranking-note").textContent = radar2.ranking.length > 6 ? "Se muestran las seis entidades con m\xE1s publicaciones." : "Selecciona una entidad para explorar su actualidad.";
       let publishers = radar2.publishers || [], publisherMax = Math.max(1, ...publishers.map((row) => row.total)), available = radar2.available;
       $("publisher-evidence").textContent = t("Se muestran los seis medios con m\xE1s publicaciones.") + " " + (available ? t("Per\xEDodo") + ": " + radar2.trend.from + " \u2014 " + radar2.trend.to + ". " + t("Noticias recuperadas") + ": " + available.total + "; " + t("Noticias de la selecci\xF3n") + ": " + radar2.summary.news + ". " + t("Los recuentos reflejan la recuperaci\xF3n disponible y los filtros, no toda la producci\xF3n del medio.") : ""), $("publisher-chart").innerHTML = publishers.length ? publishers.map((row) => `<button type="button" class="ranking-row" data-source="${escape2(row.publisher)}"><span class="ranking-name" data-original>${identityMark("publishers", row.publisher, escape2)}${escape2(row.publisher)}<span class="ranking-track"><span style="width:${row.total / publisherMax * 100}%"></span></span></span><strong>${row.total}</strong></button>`).join("") : '<p class="muted">Sin publicaciones</p>', $("radar-publisher").textContent = radar2.topPublisher || "Sin publicaciones";
+      let outage = radar2.outages;
+      if ($("radar-outage").hidden = !outage, outage) {
+        outageSelection = { from: outage.from, to: outage.to, signal: outage.signal, newsGeography: "", source: "", page: 0 }, $("radar-outage-summary").textContent = outage.summary;
+        let comparison = outage.comparable ? outage.change === null ? "Sin base en el a\xF1o anterior" : `${outage.change > 0 ? "+" : ""}${outage.change}% vs. a\xF1o anterior` : "Sin comparativa disponible";
+        $("radar-outage-kpis").innerHTML = metricCards([["Incidencias registradas (A\xF1o)", outage.total, comparison], ["Entidades afectadas", outage.affected, `${outage.ratio}% de ${outage.active} entidades activas`], ["Entidad m\xE1s expuesta", outage.top?.entity || "\u2014", outage.top ? `${outage.top.total} eventos \xB7 ${outage.concentration}% de concentraci\xF3n` : "Sin incidencias"], ["Vector / Operativa cr\xEDtica", outage.vector?.name || "\u2014", outage.vector ? `${outage.vector.total} evidencias` : "Sin incidencias"]]);
+        let topLabel = $("radar-outage-kpis").children[2]?.querySelector("strong");
+        topLabel && outage.top && topLabel.insertAdjacentHTML("afterbegin", identityMark("entities", outage.top.entity, escape2)), $("radar-outage-kpis").children[0]?.querySelector("span").classList.add("badge"), $("radar-outage-grid").hidden = !outage.total;
+        let maximum = Math.max(1, ...outage.months.map((row) => row.total)), bar = (value, max2) => `<meter min="0" max="${max2}" value="${value}">${value}</meter>`;
+        $("radar-outage-timeline").innerHTML = outage.months.map((row) => `<div title="${escape2(row.month)}: ${row.total}"><span>${row.total}</span>${bar(row.total, maximum)}<time>${escape2(row.month.slice(5))}</time></div>`).join(""), $("radar-outage-entities").innerHTML = outage.ranking.map((row) => `<div class="radar-outage-entity"><button type="button" class="ranking-row" data-outage-explore data-entity="${escape2(row.entity)}">${identityMark("entities", row.entity, escape2)}<span class="ranking-name">${escape2(row.entity)}${bar(row.total, outage.top.total)}</span><strong>${row.total}</strong></button><div class="radar-outage-countries">${row.countries.map((area) => `<button type="button" class="button" data-outage-explore data-entity="${escape2(row.entity)}" data-country="${escape2(area.country)}">${identityMark("countries", area.country, escape2)}${escape2(area.country)} \xB7 ${area.total}</button>`).join("")}</div></div>`).join(""), $("radar-outage-vectors").innerHTML = outage.vectors.map((row) => `<button type="button" class="ranking-row" data-outage-explore data-vector="${escape2(row.name)}"><span class="ranking-name">${escape2(row.name)}${bar(row.total, outage.vector.total)}</span><strong>${row.total}</strong></button>`).join(""), $("radar-outage-evidence").innerHTML = outage.latest.map((row) => `<article class="radar-outage-evidence"><p class="identity-label">${identityMark("entities", row.entity, escape2)}${escape2(row.entity)} ${identityMark("countries", row.country, escape2)}${escape2(row.country)}</p><a href="${escape2(row.url)}" target="_blank" rel="noopener noreferrer" data-original>${escape2(row.title)}</a><p class="small muted"><time>${escape2(row.date)}</time> \xB7 ${identityMark("publishers", row.publisher, escape2)}${escape2(row.publisher)}</p></article>`).join("");
+      }
     } };
   }
 
@@ -2993,14 +3027,14 @@
       let el = form.elements[name];
       if (!el) return;
       let current2 = selected ?? el.value;
-      name !== "year" && current2 && !values.includes(current2) && (values = [...values, current2]);
+      name === "signal" && view === "briefing" && (values = values.filter((value) => BRIEFING_ALLOWED_SIGNALS.includes(value)), values.includes(current2) || (current2 = "")), name !== "year" && !(name === "signal" && view === "briefing") && current2 && !values.includes(current2) && (values = [...values, current2]);
       let signature = JSON.stringify(values);
       el.dataset.options !== signature && (el.dataset.options = signature, el.innerHTML = (name === "year" ? "" : '<option value="">Todos</option>') + values.map((x) => '<option value="' + escape2(x) + '">' + escape2(["palanca", "subpalanca"].includes(name) ? taxonomyDisplayLabel(x) : name === "coverage" ? coverageOptions[x] : name === "signal" && x === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : x) + "</option>").join(""), el.value = current2 || "");
     }
     function layout() {
       $("geography-filter").hidden = !1;
       let radar2 = view === "radar";
-      $("entity-filter").hidden = radar2, $("year-filter").hidden = !radar2, $("advanced-filters").hidden = radar2, view !== "news" && ($("advanced-filters").open = !1);
+      $("entity-filter").hidden = !1, $("year-filter").hidden = !radar2, $("advanced-filters").hidden = radar2, view !== "news" && ($("advanced-filters").open = !1);
       for (let id of ["from-filter", "to-filter"]) $(id).hidden = view === "radar";
       $("date-guidance").hidden = view === "radar", $("filter-description").textContent = "Edita los criterios y pulsa Aplicar filtros para actualizar los resultados.";
     }
@@ -3381,14 +3415,10 @@
   }, onSubscriptions: () => (taxonomy.close(), subscriptions.open()), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
   } }), reading = createReadingContext({ run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing({ onExplore: (query) => navigateSelection("news", query) }), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters4.setGeography(name));
-  document.querySelectorAll("[data-outage-view]").forEach((button) => button.addEventListener("click", () => {
-    let view = button.dataset.outageView, query = { ...state.data.selection, signal: "Incidencia operativa", page: 0 };
-    navigation.current === view ? (filters4.apply(query, !1), track("filtro"), load()) : navigateSelection(view, query);
-  }));
   function navigateSelection(view, query) {
     filters4.show(view), filters4.apply(query, !1), state.contentStale = !0, track("filtro"), navigation.show(view);
   }
-  var radar = createRadar({ onSource: (source) => navigateSelection("news", { ...state.data.selection, source }), onCountry: (country) => navigateSelection("news", { ...state.data.selection, country }), onEntity: (entity) => navigateSelection("news", { ...state.data.selection, entity }) }), sources = createSources({ getData: () => state.data, run: action }), recoveryControls = createRecoveryControls({ getData: () => state.data, run: action }), collectionProgress = createCollectionProgress({ isActive: () => navigation.current === "administration", isBusy: () => state.busy || !$("loading").hidden, onStatus: (status) => {
+  var radar = createRadar({ onOutage: (query) => navigateSelection("news", { ...state.data.selection, ...query, page: 0 }), onSource: (source) => navigateSelection("news", { ...state.data.selection, source }), onCountry: (country) => navigateSelection("news", { ...state.data.selection, country }), onEntity: (entity) => navigateSelection("news", { ...state.data.selection, entity }) }), sources = createSources({ getData: () => state.data, run: action }), recoveryControls = createRecoveryControls({ getData: () => state.data, run: action }), collectionProgress = createCollectionProgress({ isActive: () => navigation.current === "administration", isBusy: () => state.busy || !$("loading").hidden, onStatus: (status) => {
     state.data && (state.data.collection = status), state.data?.admin && renderCollectionJobs(status);
   } });
   function renderSelection(data, view = navigation.current, appended = null) {
