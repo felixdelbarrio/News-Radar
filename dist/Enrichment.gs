@@ -9,7 +9,7 @@ function enrichmentRss_(id,item){
 function requestEnrichment_(){if(properties_().getProperty('ENRICHMENT_ENABLED')==='true'){properties_().setProperty('ENRICHMENT_REQUEST','true');ensureBackgroundWorker_();}}
 function enrichmentJob_(){return JSON.parse(properties_().getProperty('ENRICHMENT_JOB')||'null');}
 function enrichmentQuotaAt_(){const usage=JSON.parse(properties_().getProperty('ENRICHMENT_HTTP_USAGE')||'{}');return usage.day===recordDay(new Date(),settings_().timezone)&&usage.calls>=ENRICHMENT.dailyRequests?nextDailyReset(Date.now(),settings_().timezone):0;}
-function enrichmentReadyAt_(){const p=properties_(),job=enrichmentJob_();return p.getProperty('ENRICHMENT_ENABLED')==='true'&&(p.getProperty('ENRICHMENT_REQUEST')||job&&job.state!=='Completada')?Math.max(Date.now(),Number(job?.pausedUntil||0),Number(p.getProperty('FETCH_PAUSED_UNTIL')||0),enrichmentQuotaAt_()):Infinity;}
+function enrichmentReadyAt_(){const p=properties_(),job=enrichmentJob_();return p.getProperty('ENRICHMENT_ENABLED')==='true'&&(p.getProperty('ENRICHMENT_REQUEST')||job&&(job.state!=='Completada'||job.version!==ENRICHMENT.version))?Math.max(Date.now(),Number(job?.pausedUntil||0),Number(p.getProperty('FETCH_PAUSED_UNTIL')||0),enrichmentQuotaAt_()):Infinity;}
 function enrichmentUrl_(value,base=''){
   const raw=String(value||'').trim(),origin=base.match(/^https:\/\/[^/]+/)?.[0]||'';
   const url=canonicalUrl_(raw.startsWith('//')?'https:'+raw:raw.startsWith('/')?origin+raw:raw.startsWith('https://')?raw:'');
@@ -90,9 +90,9 @@ function enrichmentSignals_(row,text){
 }
 function enrichmentBatch_(maxMs=BACKGROUND_WORK.sliceMs,selectedIds=null){
   const started=Date.now(),p=properties_(),sheet=enrichmentSheet_(),keys=RADAR.sheets.Enriquecimiento,metrics={deadline:started+maxMs,http:0,fetchMs:0,resolveMs:0,reads:2,writes:0,processed:0,retried:0,success:0,changes:0,reasons:{}};
-  const count=Math.max(0,sheet.getLastRow()-1),records=count?sheet.getRange(2,1,count,6).getDisplayValues().map(values=>Object.fromEntries(keys.slice(0,6).map((key,i)=>[key,values[i]]))):[],index=new Map(records.map((row,i)=>[row.newsId,{...row,row:i+2}])),job=enrichmentJob_()||{next:2,newNext:2,state:'Pendiente'},last=newsSheet_().getLastRow();
+  const count=Math.max(0,sheet.getLastRow()-1),records=count?sheet.getRange(2,1,count,6).getDisplayValues().map(values=>Object.fromEntries(keys.slice(0,6).map((key,i)=>[key,values[i]]))):[],index=new Map(records.map((row,i)=>[row.newsId,{...row,row:i+2}])),job=enrichmentJob_()||{version:ENRICHMENT.version,next:2,newNext:2,state:'Pendiente'},last=newsSheet_().getLastRow();
   if(enrichmentQuotaAt_()>started){job.state='En pausa';job.pausedUntil=enrichmentQuotaAt_();p.setProperty('ENRICHMENT_JOB',JSON.stringify(job));return {job,metrics};}
-  const model=taxonomyModelRevision_(taxonomyCatalog_()),source=newsStorageKey_();if(job.model&&job.model!==model||job.source&&job.source!==source||job.lastRow&&last<job.lastRow){job.next=2;job.newNext=2;}job.model=model;job.source=source;job.lastRow=last;
+  const model=taxonomyModelRevision_(taxonomyCatalog_()),source=newsStorageKey_();if(job.version!==ENRICHMENT.version||job.model&&job.model!==model||job.source&&job.source!==source||job.lastRow&&last<job.lastRow){job.next=2;job.newNext=2;}job.version=ENRICHMENT.version;job.model=model;job.source=source;job.lastRow=last;
   // New arrivals take precedence; the stable historical cursor advances in bounded windows.
   const ranges=[];if(job.newNext<=last)ranges.push([Math.max(2,job.newNext),Math.min(last,job.newNext+ENRICHMENT.rows-1),'newNext']);if(job.next<=last)ranges.push([job.next,Math.min(last,job.next+ENRICHMENT.rows-1),'next']);
   if(last>Number(job.newNext||2)+ENRICHMENT.rows-1)ranges.push([Math.max(2,last-ENRICHMENT.rows+1),last,'']);
@@ -118,7 +118,7 @@ function enrichmentBatch_(maxMs=BACKGROUND_WORK.sliceMs,selectedIds=null){
   const retries=[...index.values()].filter(row=>row.state==='Reintento');job.processed=[...index.values()].filter(row=>!['Reintento','Retirada'].includes(row.state)&&(!active||active.has(row.newsId))).length;job.total=last-1;job.pending=Math.max(0,job.total-job.processed);job.state=quotaUntil?'En pausa':scanning||retries.length?'Pendiente':'Completada';job.pausedUntil=quotaUntil||(scanning?0:retries.length?Math.min(...retries.map(row=>Number(row.nextAt))):0);job.updated=new Date().toISOString();p.setProperty('ENRICHMENT_JOB',JSON.stringify(job));p.deleteProperty('ENRICHMENT_REQUEST');
   telemetry_('enrichment',Date.now()-started,'OK',JSON.stringify(metrics));return {job,metrics};
 }
-function startNewsEnrichment(){authorize_(true);return withForegroundWrite_(()=>{const p=properties_();enrichmentSheet_();if(!enrichmentJob_())p.setProperty('ENRICHMENT_JOB',JSON.stringify({next:2,newNext:Math.max(2,newsSheet_().getLastRow()-ENRICHMENT.rows+1),state:'Pendiente'}));p.setProperty('ENRICHMENT_ENABLED','true');requestEnrichment_();return enrichmentJob_();});}
+function startNewsEnrichment(){authorize_(true);return withForegroundWrite_(()=>{const p=properties_();enrichmentSheet_();if(!enrichmentJob_()||enrichmentJob_().state==='Completada')p.setProperty('ENRICHMENT_JOB',JSON.stringify({version:ENRICHMENT.version,next:2,newNext:Math.max(2,newsSheet_().getLastRow()-ENRICHMENT.rows+1),state:'Pendiente'}));p.setProperty('ENRICHMENT_ENABLED','true');requestEnrichment_();return enrichmentJob_();});}
 function getNewsEnrichmentStatus(){authorize_(true);return {job:enrichmentJob_(),enabled:properties_().getProperty('ENRICHMENT_ENABLED')==='true'};}
 
 function enrichNewsSample(ids){authorize_(true);if(!Array.isArray(ids)||ids.length<1||ids.length>ENRICHMENT.articles||ids.some(id=>typeof id!=='string'))throw Error('Selecciona una o dos noticias persistidas.');return withForegroundWrite_(()=>enrichmentBatch_(BACKGROUND_WORK.sliceMs,ids));}
