@@ -20,7 +20,7 @@ test('traduce cada nombre único a los idiomas soportados, reutiliza resultados 
   assert.equal(JSON.stringify(c.newsSheet_().grid),news);assert.equal(JSON.stringify(c.taxonomySheet_().grid),catalog);assert.equal(s.properties.NEWS_CONTENT_REVISION,undefined);
   const stored=JSON.stringify(s.sheets.get('TaxonomiaTraducciones').grid),revision=s.properties.NEWS_REVISION;c.startTaxonomyTranslations();finish(c);
   assert.equal(s.calls.length,4);assert.equal(c.taxonomyTranslationJob_().translated,6);assert.equal(JSON.stringify(s.sheets.get('TaxonomiaTraducciones').grid),stored);assert.equal(s.properties.NEWS_REVISION,revision);
-  c.writeTranslationJob_({state:'Completada',calls:3000,callDay:c.recordDay(new Date(),c.settings_().timezone)});c.startTaxonomyTranslations();assert.ok(c.taxonomyTranslationReadyAt_()<=Date.now());finish(c);assert.equal(s.calls.length,4);
+  c.writeTranslationJob_({state:'Completada',calls:3000,callDay:c.recordDay(new Date(),c.settings_().timezone)});c.startTaxonomyTranslations();assert.equal(c.taxonomyTranslationReadyAt_(),Infinity);assert.equal(s.properties.TAXONOMY_TRANSLATION_REQUEST,undefined);assert.equal(s.calls.length,4);
   c.LanguageApp={translate(){throw Error('No se traduce en lecturas');}};assert.ok(c.getTaxonomyStatus().taxonomyTranslations.en['Pagos biometricos']);
 });
 test('traduce solo nombres nuevos y elimina traducciones fuera del catálogo vigente',()=>{
@@ -31,7 +31,7 @@ test('traduce solo nombres nuevos y elimina traducciones fuera del catálogo vig
 test('un error conserva traducciones parciales y cursor; el lanzamiento manual reanuda la misma línea',()=>{
   const s=server(),c=s.c;let fail=true;c.LanguageApp={translate(name,_source,language){if(language==='en'&&fail)throw Error('Temporal');return language+' '+name;}};
   c.startTaxonomyTranslations();c.taxonomyTranslationBatch_();const failed=c.taxonomyTranslationJob_();assert.equal(failed.state,'En pausa');assert.equal(failed.processed,0);assert.equal(c.rows_('TaxonomiaTraducciones').length,0);
-  assert.ok(c.taxonomyTranslationReadyAt_()>Date.now());fail=false;c.startTaxonomyTranslations();finish(c);assert.equal(c.rows_('TaxonomiaTraducciones').length,6);assert.equal(c.taxonomyTranslationJob_().translated,6);
+  assert.ok(c.taxonomyTranslationReadyAt_()>Date.now());fail=false;c.startTaxonomyTranslations();assert.equal(c.taxonomyTranslationJob_().pausedUntil,failed.pausedUntil);c.writeTaxonomyTranslationJob_({...failed,pausedUntil:0});finish(c);assert.equal(c.rows_('TaxonomiaTraducciones').length,6);assert.equal(c.taxonomyTranslationJob_().translated,6);
   s.setEmail('reader@bbva.com');assert.throws(()=>c.startTaxonomyTranslations(),/no autorizado/);assert.throws(()=>c.getTaxonomyTranslationStatus(),/no autorizado/);
 });
 test('presupuesto compartido con noticias y lotes acotados; no monopoliza ni compite con recuperación',()=>{

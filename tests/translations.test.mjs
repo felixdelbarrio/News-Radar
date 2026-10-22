@@ -28,7 +28,7 @@ test('la solicitud persiste durante una anual ocupada y no altera la cola ni los
 });
 test('un fallo del traductor pausa y conserva las traducciones ya escritas para el reintento',()=>{
  const s=server(),c=s.c;add(s,[article]);let calls=0;c.LanguageApp={translate:input=>{if(++calls===2)throw Error('Quota exhausted');return input;}};c.requestTranslations_();c.backgroundTick_();const job=c.translationJob_();assert.equal(job.state,'En pausa');assert.equal(job.processed,0);assert.equal(job.translated,1);assert.equal(job.errors,1);assert.equal(c.rows_('Traducciones').length,1);
- c.backgroundTick_();assert.equal(calls,2);job.pausedUntil=0;c.writeTranslationJob_(job);const log=provider(c);c.backgroundTick_();assert.equal(log.length,2);drainSnapshots(c);assert.equal(c.translationJob_().state,'Completada');
+ c.backgroundTick_();assert.equal(calls,2);drainSnapshots(c);job.pausedUntil=0;c.writeTranslationJob_(job);const log=provider(c);c.backgroundTick_();assert.equal(log.length,2);drainSnapshots(c);assert.equal(c.translationJob_().state,'Completada');
 });
 test('el límite diario conserva el cursor y el día siguiente prioriza nuevas publicaciones',()=>{
  const s=server(),c=s.c;add(s,[article]);provider(c);c.requestTranslations_();c.backgroundTick_();const job=c.translationJob_();job.state='Pendiente';job.calls=3000;job.processed=0;job.cursor=null;c.writeTranslationJob_(job);c.translationBatch_();c.backgroundTick_();assert.equal(c.translationJob_().state,'En pausa');assert.match(c.translationJob_().error,/Límite diario/);c.processBackground_(5);assert.ok(Math.abs(c.scheduledTriggers_('backgroundTick_')[0].delay-(c.nextDailyReset(Date.now(),c.settings_().timezone)-Date.now()))<1000);

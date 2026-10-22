@@ -81,10 +81,10 @@ test('los lanzamientos manual y programado comparten la solicitud diaria y recha
  c.collectNow();assert.equal(c.collectionRequests_().length,1);c.backgroundTick_();assert.equal(c.collectionJobs_().length,2);
  c.collectNow('year');assert.throws(()=>c.collectNow('year'),/anual en curso/);c.drainCollectionRequests_();assert.throws(()=>c.collectNow('year'),/anual en curso/);
 });
-test('un único trabajador serializa diaria, anual y traducción, y alterna los dos procesos secundarios',()=>{
+test('un único trabajador serializa diaria, anual y traducción, y respeta traducción antes de tareas secundarias',()=>{
  const s=server(),c=s.c;c.maintenanceReadyAt_=()=>Infinity;addJob(s,'annual','annual',30);addJob(s,'daily','daily',1);const order=[];const collect=c.collectionBatch_;
  c.collectionBatch_=work=>{order.push(work.pending[0]?.ciclo);return collect(work);};c.translationBatch_=()=>{order.push('translation');};c.requestTranslations_();
- c.backgroundTick_();assert.deepEqual(order,['daily']);for(let i=0;i<5;i++)c.backgroundTick_();assert.deepEqual(order.slice(0,5),['daily','translation','translation','translation','annual']);
+ c.backgroundTick_();assert.deepEqual(order,['daily']);for(let i=0;i<5;i++)c.backgroundTick_();assert.deepEqual(order.slice(0,5),['daily','translation','translation','translation','translation']);
  assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
  const lock=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};assert.equal(c.backgroundTick_().busy,true);assert.equal(order.length,6);assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);c.LockService=lock;
 });
