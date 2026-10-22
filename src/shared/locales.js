@@ -1,5 +1,7 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Selecciona una o dos noticias persistidas.": ["Select one or two saved articles.", "Kaydedilmiş bir veya iki haber seçin."],
+  "Publicación de snapshots": ["Snapshot publication", "Anlık görüntü yayını"],
   "Checkpoint de taxonomía incompleto.": ["Incomplete taxonomy checkpoint.", "Taksonomi kontrol noktası eksik."],
   "Checkpoint de taxonomía corrupto.": ["Corrupted taxonomy checkpoint.", "Taksonomi kontrol noktası bozuk."],
   "Newsletters": ["Newsletters", "Bültenler"],

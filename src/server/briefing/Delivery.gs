@@ -1,4 +1,4 @@
-function newsletterPipelinePending_(work){const p=properties_();return Boolean(snapshotJobsPending_()||p.getProperty('DAILY_PIPELINE_REQUEST')||dailyCollectionPending_(work)||p.getProperty('CLASSIFICATION_REQUEST')||classificationPending_());}
+function newsletterPipelinePending_(work){const p=properties_();return Boolean(snapshotPublicationPending_(work,false)||p.getProperty('DAILY_PIPELINE_REQUEST')||dailyCollectionPending_(work)||p.getProperty('CLASSIFICATION_REQUEST')||classificationPending_());}
 function newsletterQuotaReset_(deliveries,now=new Date()){
   const timestamps=deliveries.filter(row=>['Enviando','Enviada','Revisar'].includes(row.estado)).map(row=>Date.parse(row.fecha)).filter(value=>value>now.getTime()-86400000).sort((a,b)=>a-b),index=timestamps.length-settings_().newsletterDailyLimit;
   return index>=0?timestamps[index]+86400000:0;
@@ -68,7 +68,10 @@ function deliverNewsletterBatch_(work,maxMs=BACKGROUND_WORK.sliceMs){
       try{completeNewsletterDelivery_(sheet,sheet.getLastRow(),sender,row.correo,content);result.accepted++;}
       catch(error){pauseNewsletterQuota_(error);properties_().setProperty('NEWSLETTER_LAST_ERROR',String(error.message).slice(0,300));result.state='error';result.error=error.message;if(error.rejected){quota++;result.pending++;}break;}
     }
-    if(result.pending||result.state==='error')requestNewsletterDelivery_(quota?settings_().pauseMinutes*60000:86400000);else properties_().deleteProperty('NEWSLETTER_REQUEST');
+    if(result.pending||result.state==='error'){
+      const delay=!quota?Math.max(60000,newsletterQuotaReset_(rows_('NewsletterEnvios'),new Date())-Date.now()):result.state==='error'?settings_().pauseMinutes*60000:result.state==='translation_pending'&&translationCallsToday_()>=TRANSLATION_WORK.dailyCalls?nextDailyReset(Date.now(),settings_().timezone)-Date.now():60000;
+      requestNewsletterDelivery_(delay);
+    }else properties_().deleteProperty('NEWSLETTER_REQUEST');
     return result;
   }catch(error){pauseNewsletterQuota_(error);properties_().setProperty('NEWSLETTER_LAST_ERROR',String(error.message).slice(0,300));ensureNewsletterContinuation_();throw error;}
   finally{properties_().deleteProperty('NEWSLETTER_RUNNING_UNTIL');CacheService.getScriptCache().remove('newsletter-progress');}

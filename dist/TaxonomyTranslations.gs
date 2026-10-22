@@ -25,7 +25,11 @@ function translationCallsToday_(){
   const today=recordDay(new Date(),settings_().timezone),usage=JSON.parse(properties_().getProperty('NEWSLETTER_TRANSLATION_USAGE')||'{}');
   return (usage.day===today?Number(usage.calls)||0:0)+[translationJob_(),taxonomyTranslationJob_()].reduce((sum,job)=>sum+(job?.callDay===today?Number(job.calls||0):0),0);
 }
-function requestTaxonomyTranslations_(){properties_().setProperty('TAXONOMY_TRANSLATION_REQUEST',new Date().toISOString());ensureBackgroundWorker_();}
+function taxonomyTranslationPlan_(){const names=taxonomyTranslationNames_(),languages=Object.keys(languageNames).filter(language=>language!=='es').sort();return {names,languages,revision:sha256_(JSON.stringify([names,languages]))};}
+function requestTaxonomyTranslations_(){
+  const p=properties_(),{revision}=taxonomyTranslationPlan_();if(taxonomyTranslationJob_()?.revision===revision||p.getProperty('TAXONOMY_TRANSLATION_REQUEST')===revision)return false;
+  p.setProperty('TAXONOMY_TRANSLATION_REQUEST',revision);ensureBackgroundWorker_();return true;
+}
 function taxonomyTranslationReadyAt_(){
   if(taxonomyPending_()||properties_().getProperty('TAXONOMY_REQUEST'))return Infinity;
   const job=taxonomyTranslationJob_(),request=properties_().getProperty('TAXONOMY_TRANSLATION_REQUEST');
@@ -46,18 +50,18 @@ function startTaxonomyTranslations(){authorize_(true);requestTaxonomyTranslation
 function taxonomyTranslationBatch_(maxMs=TAXONOMY_POLICY.maxMs){
   if(Number(properties_().getProperty('TRANSLATION_PAUSED_UNTIL')||0)>Date.now())return;
   if(taxonomyTranslationJob_()?.state==='Publicando')return;
-  const started=Date.now(),p=properties_(),today=recordDay(new Date(),settings_().timezone);let job=taxonomyTranslationJob_(),written=false;
+  const started=Date.now(),p=properties_(),today=recordDay(new Date(),settings_().timezone);let job=taxonomyTranslationJob_(),written=false,touched=false;
   try{
-    const names=taxonomyTranslationNames_(),languages=Object.keys(languageNames).filter(language=>language!=='es'),revision=sha256_(JSON.stringify([names,languages])),request=p.getProperty('TAXONOMY_TRANSLATION_REQUEST');
+    const {names,languages,revision}=taxonomyTranslationPlan_(),request=p.getProperty('TAXONOMY_TRANSLATION_REQUEST');
     if(job?.revision===revision&&job.state==='Completada'){if(request)p.deleteProperty('TAXONOMY_TRANSLATION_REQUEST');return;}
     if(!job||job.revision!==revision){
       job={revision,state:'Pendiente',total:names.length*languages.length,processed:0,translated:0,started:new Date().toISOString(),updated:new Date().toISOString(),calls:job?.callDay===today?job.calls:0,callDay:today,error:'',pausedUntil:0};
     }
-    if(request){job.pausedUntil=0;if(p.getProperty('TAXONOMY_TRANSLATION_REQUEST')===request)p.deleteProperty('TAXONOMY_TRANSLATION_REQUEST');}
+    if(request&&p.getProperty('TAXONOMY_TRANSLATION_REQUEST')===request)p.deleteProperty('TAXONOMY_TRANSLATION_REQUEST');
     if(job.callDay!==today){job.callDay=today;job.calls=0;job.pausedUntil=0;}
     if(job.pausedUntil>started)return;
     const index=taxonomyTranslationIndex_();let calls=0;
-    job.state='En curso';job.error='';writeTaxonomyTranslationJob_(job);
+    touched=true;job.state='En curso';job.error='';writeTaxonomyTranslationJob_(job);
     while(job.processed<job.total&&Date.now()-started<maxMs&&!backgroundPaused_()){
       if(collectionRequests_().some(request=>request.kind==='daily'))break;
       const name=names[Math.floor(job.processed/languages.length)],language=languages[job.processed%languages.length],key=taxonomyTranslationKey_(name,language);
@@ -84,7 +88,7 @@ function taxonomyTranslationBatch_(maxMs=TAXONOMY_POLICY.maxMs){
   }catch(error){
     if(!job)throw error;
     if(serviceQuotaPause_(error))p.setProperty('TRANSLATION_PAUSED_UNTIL',String(Date.now()+serviceQuotaPause_(error)));
-    Object.assign(job,{state:'En pausa',error:'Traducción temporalmente no disponible. Se reintentará automáticamente.',pausedUntil:Date.now()+(serviceQuotaPause_(error)||TRANSLATION_WORK.retryMs)});
+    touched=true;Object.assign(job,{state:'En pausa',error:'Traducción temporalmente no disponible. Se reintentará automáticamente.',pausedUntil:Date.now()+(serviceQuotaPause_(error)||TRANSLATION_WORK.retryMs)});
     telemetry_('traduccion-taxonomia',Date.now()-started,'Error',String(error.message).slice(0,180));
-  }finally{if(written){p.setProperty('TAXONOMY_TRANSLATIONS_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));invalidateNews_(false,false);}if(job){job.updated=new Date().toISOString();writeTaxonomyTranslationJob_(job);}if(job?.state==='Completada')requestDashboardSnapshots_(true);}
+  }finally{if(written){p.setProperty('TAXONOMY_TRANSLATIONS_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));invalidateNews_(false,false);}if(job&&touched){job.updated=new Date().toISOString();writeTaxonomyTranslationJob_(job);}if(touched&&job?.state==='Completada')requestDashboardSnapshots_(true);}
 }
