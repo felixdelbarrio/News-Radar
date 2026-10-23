@@ -12,9 +12,9 @@ test('editar Noticias refina la edición y restaurar filtros vuelve a actualidad
  const a=await app(t,{location:{edition:'edition-one',view:'news'},configure({data}){history(data);data.countries=['España','México'];}});await a.change('#filters [name="country"]','México');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.edition,'edition-one');
  await a.click('[data-edit-filter="from"]');assert.equal(a.find('#filters-dialog').open,true);await a.click('#restore-filters');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.edition,undefined);
 });
-test('Más filtros está disponible en Noticias; Novedades no ofrece filtrado y Radar solo geografía y año',async t=>{
+test('Más filtros está disponible en Noticias; Novedades no ofrece filtrado y Radar permite geografía, entidad y año',async t=>{
  const a=await app(t);assert.equal(a.find('#open-filters').hidden,true);assert.equal(a.w.document.querySelector('#reading-context'),null);
- await a.click('[data-view="radar"]');assert.equal(a.find('#advanced-filters').hidden,true);assert.equal(a.find('#entity-filter').hidden,true);assert.equal(a.find('#year-filter').hidden,false);
+ await a.click('[data-view="radar"]');assert.equal(a.find('#advanced-filters').hidden,false);assert.equal(a.find('#entity-filter').hidden,false);assert.equal(a.find('#year-filter').hidden,false);for(const name of ['search','type','signal','source'])assert.equal(a.find('#'+name+'-filter').hidden,true);assert.equal(a.find('[name="palanca"]').closest('label').hidden,false);assert.equal(a.find('[name="subpalanca"]').closest('label').hidden,false);
  await a.click('[data-view="news"]');assert.equal(a.find('#advanced-filters').hidden,false);assert.equal(a.find('#entity-filter').hidden,false);assert.equal(a.find('#year-filter').hidden,true);
 });
 test('la edición no transmite sus filtros avanzados a Novedades ni a Radar',async t=>{

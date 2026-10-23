@@ -29,3 +29,12 @@ test('completed translation revision returns without reading articles or emittin
 test('dashboard metadata warm cache requires one cache get and no catalogue RPC after a new execution',()=>{
  const s=fixture(),c=s.c,expected=c.dashboardMetadata_();vm.runInContext('dashboardMetadataMemory_=undefined',c);c.taxonomyTranslations_=()=>{throw Error('Must use compressed metadata');};let gets=0;const cache=c.CacheService.getScriptCache(),get=cache.get;c.CacheService.getScriptCache=()=>({...cache,get:key=>{gets++;return get(key);}});const started=performance.now();assert.deepEqual(clean(c.dashboardMetadata_()),clean(expected));assert.equal(gets,1);assert.ok(performance.now()-started<150);s.properties.TAXONOMY_REVISION='new';assert.throws(()=>c.dashboardMetadata_(),/compressed metadata/);
 });
+test('Radar keeps explicit entity and functional filters across initial annual queries and strips unsupported scope fields',()=>{
+ const s=fixture(),c=s.c;vm.runInContext(fs.readFileSync('src/server/config/Calendar.gs','utf8'),c);
+ const query=c.dashboardQuery_({view:'radar',initial:true,year:'2025',country:'Colombia',entity:'BBVA',palanca:'Pagos',subpalanca:'Transferencias',signal:'Lanzamiento de producto',search:'irrelevant'},new Date('2026-10-23T00:00:00Z'));
+ assert.deepEqual(clean(query),{segment:'Empresas e instituciones',coverage:'digital',entity:'BBVA',palanca:'Pagos',subpalanca:'Transferencias',country:'Colombia',from:'2025-01-01',to:'2025-12-31'});
+ const reset=c.dashboardQuery_({view:'radar',initial:true},new Date('2026-10-23T00:00:00Z'));assert.equal(reset.country,'');assert.equal(reset.entity,undefined);assert.equal(reset.palanca,undefined);
+});
+test('completion cache never certifies new content requested during the active translation batch',()=>{
+ const s=fixture(),c=s.c;c.telemetry_=()=>{};let scans=0;c.translationCandidates_=()=>{scans++;s.properties.TRANSLATION_REQUEST=new Date(Date.now()+1000).toISOString();s.properties.NEWS_CONTENT_REVISION='arrived-during-scan';return [];};c.requestTranslations_();c.translationBatch_();assert.ok(s.properties.TRANSLATION_REQUEST);assert.equal(s.properties.TRANSLATION_COMPLETED_REVISION,undefined);c.translationJob_=()=>({state:'Completada'});c.translationCandidates_=()=>{scans++;return [];};c.translationBatch_();assert.equal(scans,2);
+});

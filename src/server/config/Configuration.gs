@@ -32,7 +32,6 @@ function updateVocabulary_(sheet){
 }
 function initializeConfiguration(){
   authorize_(true);return withForegroundWrite_(()=>{
-    migrateCanonicalStorage_();
     const refreshCatalog=properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION;
     for(const name of ['CategorizacionLLM','Candidatos','Cobertura','Configuracion','Suscripciones','NewsletterEnvios','NewsletterEdiciones','NewsletterContenido','NewsletterEventos','NewsletterFeedback','Noticias','Recopilacion','Recargas','Traducciones','CatalogoFuncional','Taxonomia','TaxonomiaTraducciones','Auditoria','Telemetria','Ejecuciones','Adopcion','DashboardSnapshots']){
       const physical=configurationStorageKey_(name);
@@ -181,6 +180,6 @@ function validateCapabilities_(capabilities){
 function canonicalSignalRules_(rows,seeds){
  return seeds.map(seed=>{
   const saved=rows.find(row=>row.name===seed.name||seed.group==='Problema'&&row.group==='Problema');
-  return {...saved,...seed,...Object.fromEntries(['terms','context','exclude'].map(key=>[key,[...new Set([...(saved?.[key]||[]),...(seed[key]||[])])]]))};
+  return {...saved,...seed,...Object.fromEntries(['terms','context','exclude'].map(key=>[key,[...new Map([...(saved?.[key]||[]),...(seed[key]||[])].map(term=>[searchText_(term),term])).values()]]))};
  });
 }

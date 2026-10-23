@@ -46,3 +46,10 @@ test('clasificación completada con mismos datos no crea otro lote; edición y f
  c.requestNewsClassification_(true);c.newsClassificationBatch_();drainSnapshots(c);assert.equal(c.classificationJob_().state,'Completada');const first=JSON.stringify(c.classificationJob_());c.requestNewsClassification_();assert.equal(JSON.stringify(c.classificationJob_()),first);
  c.properties_().setProperty('NEWS_RECORDS_REVISION','manual-change');c.requestNewsClassification_();assert.equal(c.classificationJob_().state,'Pendiente');c.newsClassificationBatch_();drainSnapshots(c);c.requestNewsClassification_(true);assert.equal(c.classificationJob_().state,'Pendiente');
 });
+
+test('negaciones de incidencias y locución de acuerdo con no inventan eventos',()=>{
+ const {c}=server();
+ for(const title of ['BBVA renueva su app para empresas: los usuarios no reportan problemas de acceso','BBVA confirma que no hay caída del sistema de banca online'])assert.notEqual(labels(c,title).evento,'Indisponibilidad / Incidencia operativa',title);
+ assert.notEqual(labels(c,'Qonto mejora pagos para empresas de acuerdo con las nuevas normas').evento,'Alianza estratégica');
+ assert.equal(labels(c,'BBVA confirma que no hay caída de la app; pero hoy falla el sistema de pagos').evento,'Indisponibilidad / Incidencia operativa');
+});

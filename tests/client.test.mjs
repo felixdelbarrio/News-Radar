@@ -120,7 +120,7 @@ test('la activación de fuentes persiste al buscar y paginar antes de guardar',a
 
 test('Radar limita sus filtros a geografía y año y conserva la selección independiente de Noticias',async()=>{
  const c=client();await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'radar'}})}});c.requests.at(-1).resolve({...dashboard('Radar'),selection:{country:'España',from:'2026-01-01',to:'2026-12-31'}});await settle();
- assert.equal(c.element('geography-filter').hidden,false);assert.equal(c.element('advanced-filters').hidden,true);assert.equal(c.element('from-filter').hidden,true);
+ assert.equal(c.element('geography-filter').hidden,false);assert.equal(c.element('advanced-filters').hidden,false);assert.equal(c.element('from-filter').hidden,true);
  await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'news'}})}});c.requests.at(-1).resolve({...dashboard('Noticias'),selection:{entity:'BBVA',from:'2026-10-01',to:'2026-10-31'}});await settle();assert.equal(c.element('advanced-filters').hidden,false);
  await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'radar'}})}});await settle();assert.equal(c.form.elements.country.value,'España');assert.equal(c.form.elements.entity.value,'');assert.equal(c.form.elements.from.value,'2026-01-01');
 });

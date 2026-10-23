@@ -9,6 +9,7 @@ function translationCandidates_(job){
   return businessNewsIndex_().rows.filter(row=>row.captured<=job.started&&(!job.cursor||row.fecha<job.cursor.fecha||row.fecha===job.cursor.fecha&&row.id<job.cursor.id)).sort((a,b)=>a.fecha===b.fecha?(a.id===b.id?0:a.id>b.id?-1:1):a.fecha>b.fecha?-1:1);
 }
 function translationCompletionRevision_(){const p=properties_().getProperties();return sha256_(JSON.stringify([RADAR.version,newsStorageKey_(),p.NEWS_CONTENT_REVISION||'0',p.NEWS_RECORDS_REVISION||'0',p.CONFIG_REVISION||'0',p.TRANSLATIONS_INDEX_REVISION||'0',Object.keys(languageNames).map(code=>[code,p['TRANSLATIONS_REVISION:'+code]||'0'])]));}
+function markTranslationComplete_(){if(!properties_().getProperty('TRANSLATION_REQUEST'))properties_().setProperty('TRANSLATION_COMPLETED_REVISION',translationCompletionRevision_());}
 function translationBatch_(maxMs=TRANSLATION_WORK.maxMs){
   const existing=translationJob_();if(existing?.state==='Publicando')return;
   const revision=translationCompletionRevision_();if(existing?.state==='Completada'&&properties_().getProperty('TRANSLATION_COMPLETED_REVISION')===revision){properties_().deleteProperty('TRANSLATION_REQUEST');properties_().deleteProperty('TRANSLATION_PRIORITY_REQUEST');return;}
@@ -20,7 +21,7 @@ function translationBatch_(maxMs=TRANSLATION_WORK.maxMs){
     if(job.state==='Completada'&&!request)return;
     if(job.callDay!==today){job.callDay=today;job.calls=0;job.pausedUntil=0;job.error='';}
     const candidates=translationCandidates_(job);job.total=job.processed+candidates.length;job.businessPending=candidates.filter(row=>row.priority===0).length;
-    if(!candidates.length){job.state='Completada';job.error='';properties_().deleteProperty('TRANSLATION_REQUEST');properties_().deleteProperty('TRANSLATION_PRIORITY_REQUEST');properties_().setProperty('TRANSLATION_COMPLETED_REVISION',translationCompletionRevision_());return;}
+    if(!candidates.length){job.state='Completada';job.error='';if(request&&job.started>=request&&properties_().getProperty('TRANSLATION_REQUEST')===request){properties_().deleteProperty('TRANSLATION_REQUEST');properties_().deleteProperty('TRANSLATION_PRIORITY_REQUEST');}markTranslationComplete_();return;}
     writeTranslationJob_(job);if(request&&job.started>=request&&properties_().getProperty('TRANSLATION_REQUEST')===request){properties_().deleteProperty('TRANSLATION_REQUEST');properties_().deleteProperty('TRANSLATION_PRIORITY_REQUEST');}
     if(job.pausedUntil>started)return;
     if(translationCallsToday_()>=TRANSLATION_WORK.dailyCalls&&candidates.length){job.state='En pausa';job.pausedUntil=nextDailyReset(Date.now(),settings_().timezone);job.error='Límite diario de traducción alcanzado. Continuará en la siguiente ejecución diaria.';return;}
@@ -43,7 +44,7 @@ function translationBatch_(maxMs=TRANSLATION_WORK.maxMs){
     }
     job.state=job.processed===job.total?'Completada':translationCallsToday_()>=TRANSLATION_WORK.dailyCalls?'En pausa':'Pendiente';
     if(job.state==='En pausa'){job.pausedUntil=nextDailyReset(Date.now(),settings_().timezone);job.error='Límite diario de traducción alcanzado. Continuará en la siguiente ejecución diaria.';}
-    if(job.state==='Completada'){compactArticleTranslations_();properties_().setProperty('TRANSLATION_COMPLETED_REVISION',translationCompletionRevision_());}
+    if(job.state==='Completada'){compactArticleTranslations_();markTranslationComplete_();}
     SpreadsheetApp.flush();telemetry_('traduccion',Date.now()-started,'OK',job.processed+'/'+job.total+' noticias; '+calls+' llamadas; '+job.translated+' traducciones guardadas');
   }catch(error){
     if(!job)throw error;

@@ -59,6 +59,7 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Explorar incidencias en Noticias": ["Explore incidents in News", "Olaylar\u0131 Haberlerde incele"],
     "CONTINUIDAD OPERATIVA Y RIESGO DE CANAL \xB7 VISI\xD3N ANUAL": ["OPERATIONAL CONTINUITY AND CHANNEL RISK \xB7 ANNUAL VIEW", "OPERASYONEL S\xDCREKL\u0130L\u0130K VE KANAL R\u0130SK\u0130 \xB7 YILLIK G\xD6R\xDCN\xDCM"],
     "Indisponibilidad e Incidencia Operativa": ["Service Unavailability and Operational Incidents", "Hizmet Kesintileri ve Operasyonel Olaylar"],
     "Explorar incidencias en Noticias \u2197": ["Explore incidents in News \u2197", "Olaylar\u0131 Haberlerde incele \u2197"],
@@ -3034,7 +3035,9 @@
     function layout() {
       $("geography-filter").hidden = !1;
       let radar2 = view === "radar";
-      $("entity-filter").hidden = !1, $("year-filter").hidden = !radar2, $("advanced-filters").hidden = radar2, view !== "news" && ($("advanced-filters").open = !1);
+      $("entity-filter").hidden = !1, $("year-filter").hidden = !radar2, $("advanced-filters").hidden = !1;
+      for (let name of ["search", "type", "signal", "source"]) $(name + "-filter").hidden = radar2;
+      view !== "news" && ($("advanced-filters").open = !1);
       for (let id of ["from-filter", "to-filter"]) $(id).hidden = view === "radar";
       $("date-guidance").hidden = view === "radar", $("filter-description").textContent = "Edita los criterios y pulsa Aplicar filtros para actualizar los resultados.";
     }

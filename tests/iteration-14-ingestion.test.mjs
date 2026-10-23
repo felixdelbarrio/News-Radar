@@ -23,5 +23,5 @@ test('lightweight known URL index reads only date-to-title and URL control colum
  c.rows_=()=>{throw Error('Do not load complete tables or translations');};
  const first=c.knownUrls_();assert.ok(first.has(row.url));assert.equal(c.knownUrls_(),first);assert.deepEqual(ranges,[[2,2,1,5],[2,8,1,1]]);assert.ok(ranges.every(([,column,,width])=>column+width-1<keys.indexOf('clasificacion')+1));assert.equal(JSON.stringify([...first.titles]).includes(row.extracto),false);
  assert.equal(c.duplicateTitle_(first,{title:row.titular,date:row.fecha,entity:'BBVA',publisher:'Editor'}),true);
- properties.NEWS_CONTENT_REVISION='changed';assert.notEqual(c.knownUrls_(),first);assert.equal(ranges.length,2);
+ properties.NEWS_CONTENT_REVISION='changed';assert.notEqual(c.knownUrls_(),first);assert.equal(ranges.length,4);
 });

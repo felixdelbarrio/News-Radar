@@ -62,7 +62,11 @@ function businessSignals_(title,text,index=businessIndex_()){
     if(!row)continue;
     const scope=row.scope==='headline'?title:text;
     const clauses=kind==='Problema'?scope.split(/[.;!?\n]+|\b(?:pero|however|but)\b/):[scope];
-    if(clauses.some(value=>row.pattern.test(value)&&(!row.exclude.length||!row.excludePattern.test(value))&&(!row.context.length||row.contextPattern.test(kind==='Problema'?value:text))))return [row];
+    if(clauses.some(value=>{
+      const evidence=kind==='Alianza estratégica'?value.replace(/\bde acuerdo con\b/g,' '):value;
+      const denied=kind==='Problema'&&/\b(?:no|nunca)\s+(?:(?:se|han?|ha)\s+)?(?:hay|hubo|existe[n]?|reporta[n]?|reportado|registra[n]?|registrado|sufre[n]?|detecta[n]?|detectado)\b.{0,50}\b(?:caida[s]?|fallo[s]?|problema[s]?|incidencia[s]?|interrupcion|outage[s]?)\b/.test(value);
+      return !denied&&row.pattern.test(evidence)&&(!row.exclude.length||!row.excludePattern.test(evidence))&&(!row.context.length||row.contextPattern.test(kind==='Problema'?evidence:text));
+    }))return [row];
   }
   return [];
 }

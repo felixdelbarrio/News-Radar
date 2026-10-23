@@ -1,5 +1,6 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Explorar incidencias en Noticias": ["Explore incidents in News", "Olayları Haberlerde incele"],
   "CONTINUIDAD OPERATIVA Y RIESGO DE CANAL · VISIÓN ANUAL": ["OPERATIONAL CONTINUITY AND CHANNEL RISK · ANNUAL VIEW", "OPERASYONEL SÜREKLİLİK VE KANAL RİSKİ · YILLIK GÖRÜNÜM"],
   "Indisponibilidad e Incidencia Operativa": ["Service Unavailability and Operational Incidents", "Hizmet Kesintileri ve Operasyonel Olaylar"],
   "Explorar incidencias en Noticias ↗": ["Explore incidents in News ↗", "Olayları Haberlerde incele ↗"],
