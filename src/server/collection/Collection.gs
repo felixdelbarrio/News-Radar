@@ -89,8 +89,8 @@ function collectionQueuedKeys_(tasks){
 }
 function retryCollectionErrors() {
   authorize_(true);return withForegroundWrite_(()=>{
-    const tasks=rows_('Recopilacion'),cancelled=new Set(collectionJobs_().filter(job=>job.estado==='Cancelada').map(job=>job.id));let count=0;
-    const values=tasks.map(task=>{if(task.estado==='Error'&&!cancelled.has(task.ciclo)){task.estado='Pendiente';task.intentos=0;task.error='';count++;}return [task.estado,task.intentos,task.actualizada,task.evaluadas,task.nuevas,task.error];});
+    const tasks=rows_('Recopilacion'),daily=new Set(collectionJobs_().filter(job=>job.tipo==='daily'&&job.estado!=='Cancelada').map(job=>job.id));let count=0;
+    const values=tasks.map(task=>{if(task.estado==='Error'&&daily.has(task.ciclo)){task.estado='Pendiente';task.intentos=0;task.error='';count++;}return [task.estado,task.intentos,task.actualizada,task.evaluadas,task.nuevas,task.error];});
     if(count){book_().getSheetByName('Recopilacion').getRange(2,4,values.length,6).setNumberFormat('@').setValues(values.map(row=>row.map(safeCell_)));ensureBackgroundWorker_();}
     const jobs=collectionJobs_();for(const job of jobs)job.pausa='';collectionSnapshots_(tasks,jobs);for(const job of jobs)writeCollectionJob_(job);
     CacheService.getScriptCache().remove('collection-status');

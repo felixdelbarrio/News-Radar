@@ -78,3 +78,8 @@ test('Administración limita registros y detalles largos sin perder el historial
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="adoption"]');let rows=[...a.find('#adoption-daily').rows];assert.equal(rows.filter(row=>!row.hidden).length,10);const pager=a.find('#adoption-daily').closest('.table-wrap').nextElementSibling;pager.querySelector('[data-step="1"]').click();assert.equal(rows.filter(row=>!row.hidden).length,10);assert.equal(rows[0].hidden,true);assert.equal(rows[10].hidden,false);
  await a.click('[data-admin-view="telemetry"]');const detail=a.find('#telemetry-body .record-detail');assert.equal(detail.open,false);assert.ok(detail.textContent.includes('Detalle largo'));assert.ok(a.find('#telemetry-filters details'));assert.equal(a.w.document.querySelectorAll('#adoption-section [data-step="1"]').length,1);
 });
+test('reintentar fuentes no reactiva recuperaciones anuales históricas parciales',()=>{
+ const s=server(),c=s.c,keys=vm.runInContext('RADAR.sheets.Recargas',c);
+ for(const [id,tipo] of [['old','annual'],['today','daily']]){const job={id,tipo,estado:'Parcial',pendientes:0,total:1,fallidas:1};c.append_('Recargas',[keys.map(key=>job[key]??'')]);c.append_('Recopilacion',[[id,'Fuente','https://example.com/'+id,'Error',1,'',0,0,'HTTP 503','2026-10-23']]);}
+ c.retryCollectionErrors();assert.equal(c.rows_('Recopilacion')[0].estado,'Error');assert.equal(c.rows_('Recopilacion')[1].estado,'Pendiente');c.cancelAnnualRecovery_();assert.equal(c.collectionJobs_().find(job=>job.id==='old').estado,'Cancelada');assert.equal(c.rows_('Recopilacion')[0].estado,'Omitida');assert.equal(c.rows_('Recopilacion')[1].estado,'Pendiente');
+});

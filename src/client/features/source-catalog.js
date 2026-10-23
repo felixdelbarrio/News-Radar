@@ -43,7 +43,7 @@ export function createSourceCatalog(){
     if(input.checked)enabled.add(input.dataset.id);else enabled.delete(input.dataset.id);render();
   });
   return {
-    update(rows,size){
+    update(rows){
       const feeds=rows.map(row=>({...row}));
       groups={all:feeds,profile:[],rss:[]};for(const feed of feeds)groups[feed.kind].push(feed);
       byId=new Map(feeds.map(feed=>[feed.id,feed]));

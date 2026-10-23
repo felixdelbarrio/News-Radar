@@ -1,4 +1,4 @@
-# Iteración 19 · 3.18.1
+# Iteración 19 · 3.18.2
 
 ## Alcance
 
