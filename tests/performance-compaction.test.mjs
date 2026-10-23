@@ -38,3 +38,8 @@ test('Radar keeps explicit entity and functional filters across initial annual q
 test('completion cache never certifies new content requested during the active translation batch',()=>{
  const s=fixture(),c=s.c;c.telemetry_=()=>{};let scans=0;c.translationCandidates_=()=>{scans++;s.properties.TRANSLATION_REQUEST=new Date(Date.now()+1000).toISOString();s.properties.NEWS_CONTENT_REVISION='arrived-during-scan';return [];};c.requestTranslations_();c.translationBatch_();assert.ok(s.properties.TRANSLATION_REQUEST);assert.equal(s.properties.TRANSLATION_COMPLETED_REVISION,undefined);c.translationJob_=()=>({state:'Completada'});c.translationCandidates_=()=>{scans++;return [];};c.translationBatch_();assert.equal(scans,2);
 });
+test('a hundred already translated rows checkpoint once per batch and never poll the daily queue per language',()=>{
+ const s=fixture(),c=s.c,rows=Array.from({length:100},(_,i)=>({id:'done-'+i,fecha:'2026-10-10',captured:'2026-10-10T00:00:00Z',priority:0,titular:'Producto '+i,extracto:'Operativa '+i,fuente:'Editor'}));
+ c.translationCandidates_=()=>rows;c.newsRowsForCandidates_=selected=>new Map(selected.map(row=>[row.id,row]));c.articleTranslationIndex_=()=>new Map(rows.flatMap(row=>['es','en','tr'].map(language=>[c.articleTranslationKey_(row,language),1])));c.backgroundPaused_=()=>false;c.storeArticleTranslation_=()=>{throw Error('Already complete');};
+ let saves=0,queueChecks=0;const save=c.writeTranslationJob_;c.writeTranslationJob_=job=>{saves++;return save(job);};c.collectionRequests_=()=>{queueChecks++;return [];};c.translationBatch_();assert.equal(c.translationJob_().state,'Publicando');assert.equal(c.translationJob_().processed,100);assert.ok(saves<=4,String(saves));assert.ok(queueChecks<=6,String(queueChecks));
+});
