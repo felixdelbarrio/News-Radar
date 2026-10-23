@@ -88,3 +88,19 @@ test('incorporar una noticia de Empresas digital solicita traducción automátic
  c.fetchFeedBatch_=()=>[{response:{}}];c.ingestFeed_=()=>({news:[vm.runInContext('RADAR.sheets.Noticias',c).map(key=>row[key]??'')],audit:[],evaluated:1,relevant:1,digital:1});
  assert.equal(c.collectionBatch_(c.collectionWork_(Date.now())).added,1);assert.ok(s.properties.TRANSLATION_REQUEST);assert.equal(s.properties.TRANSLATION_PRIORITY_REQUEST,'true');
 });
+test('Otras geografías en ediciones archivadas usa el ámbito congelado también al exportar',()=>{
+ const s=server(),c=s.c;
+ const content=edition(s,'frozen-geography',[news(s,'spain','España'),news(s,'mexico','México'),news(s,'italy','Italia')]);
+ const original=content.editorial.scope;
+ assert.ok(original[0].countries.includes('México'),'La prueba requiere México dentro del ámbito original');
+ c.configuration_().applicationScope[0].countries=['España','Italia'];
+ c.invalidateNews_();
+ const query={view:'news',edition:'frozen-geography',country:'Otras geografías',newsGeography:'Otras geografías'};
+ const response=c.getDashboard(query);
+ assert.deepEqual(Array.from(response.items,row=>row.id),['italy']);
+ const exported=c.exportNews(query);
+ assert.equal(exported.count,1);
+ assert.match(exported.csv,/italy/);
+ assert.doesNotMatch(exported.csv,/mexico/);
+ assert.deepEqual(clean(response.applicationScope),clean(original));
+});

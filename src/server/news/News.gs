@@ -23,7 +23,7 @@ function getAudit(query={}){authorize_(true);return administrativeRecords_('Audi
 function exportNews(query) {
   const session=authorize_(),edition=query?.edition&&(query.view||'news')==='news'?newsletterEdition_(query.edition,session.email):null;
   const selection=dashboardQuery_(edition?{...edition.query,...query}:query,new Date(),!edition),rows=edition&&query.benchmark?newsletterComparisonRows_(edition.items,edition.editorial,query.benchmark):edition?edition.items:cachedNewsRecords_(selection);
-  return newsCsv_(newsGeographySelection_(rows,selection,newsReadingGeography_(edition?.editorial,selection)),selection,supportedLanguage(query?.language)?query.language:'es',true,edition?.names[query.language||'es'],edition?snapshotEntity_:entityKey_);
+  return newsCsv_(newsGeographySelection_(rows,selection,newsReadingGeography_(edition?.editorial,selection)),selection,supportedLanguage(query?.language)?query.language:'es',true,edition?.names[query.language||'es'],edition?snapshotEntity_:entityKey_,newsReadingGeography_(edition?.editorial,selection));
 }
 
 function dashboardContent_(query,feeds,view='radar',language='es',edition=null){
