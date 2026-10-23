@@ -38,6 +38,19 @@ function dashboardSnapshotLanguages_(data,view){
 function dashboardSnapshotBatch_(){try{return llmJob_()?.state==='Publicando'?llmSnapshotBatch_():buildDashboardSnapshotBatch_();}catch(error){recordSnapshotFailure_(error);throw error;}}
 
 function buildDashboardSnapshotBatch_(job=null){
+ if(!taxonomyPublicationReady_()||classificationJob_()&&!['Completada','Publicando'].includes(classificationJob_().state))return false;
+ const taxonomy=taxonomyJob_();
+ if(taxonomy?.state==='Publicando'&&taxonomy.generation){
+  if(taxonomy.generation.newsSheet===newsStorageKey_()&&taxonomy.generation.taxonomySheet===taxonomyStorageKey_()){
+   for(const view of DASHBOARD_SNAPSHOTS.views)verifyDashboardSnapshot_(view,dashboardSnapshotManifest_(view));
+   completeSnapshotJobs_();return buildPreparedDashboardSnapshotBatch_(job);
+  }
+  if(!taxonomySourceUnchanged_(taxonomy)||taxonomy.rules!==taxonomyRulesRevision_()){requestTaxonomy_(taxonomy.request);return false;}
+  return withTaxonomyGeneration_(taxonomy,()=>buildPreparedDashboardSnapshotBatch_(job));
+ }
+ return buildPreparedDashboardSnapshotBatch_(job);
+}
+function buildPreparedDashboardSnapshotBatch_(job=null){
   const p=properties_().getProperties(),now=new Date(),signature=sha256_(JSON.stringify(DASHBOARD_SNAPSHOTS.views.map(view=>dashboardSnapshotRevision_(view,now,p))));
   let build=JSON.parse(p.DASHBOARD_SNAPSHOT_BUILD||'null');
   if(!build||build.signature!==signature)build={signature,manifests:{}};
@@ -66,14 +79,14 @@ function publishDashboardSnapshotSet_(build,job){
   const signature=sha256_(JSON.stringify(DASHBOARD_SNAPSHOTS.views.map(view=>dashboardSnapshotRevision_(view))));
   if(build.signature!==signature)return true;
   for(const view of DASHBOARD_SNAPSHOTS.views)try{verifyDashboardSnapshot_(view,build.manifests[view]);}catch(error){delete build.manifests[view];properties_().setProperty('DASHBOARD_SNAPSHOT_BUILD',JSON.stringify(build));throw error;}
-  const previous=dataGeneration_(),generation={...previous,...(job?.categorization?{categorization:job.categorization}:{}),newsSheet:'Noticias',taxonomySheet:'Taxonomia',snapshots:build.manifests,revision:build.signature,published:new Date().toISOString()};
+  const previous=dataGeneration_(),generation={...previous,...(job?.categorization?{categorization:job.categorization}:{}),newsSheet:newsStorageKey_(),taxonomySheet:taxonomyStorageKey_(),snapshots:build.manifests,revision:build.signature,published:new Date().toISOString()};
   // All view manifests and the historical corpus switch together. The previous slots remain intact.
   properties_().setProperty('DATA_GENERATION',JSON.stringify(generation));dataGenerationMemory_=generation;
   clearDashboardSnapshotRequest_();completeSnapshotJobs_();if(job?.llm){const llm=llmJob_();properties_().setProperty('LLM_JOB',JSON.stringify({...llm,state:'Completada',progress:100,error:'',published:generation.published}));}return true;
 }
 function rebuildDashboardSnapshots(){authorize_(true);return withForegroundWrite_(()=>{properties_().setProperty('DASHBOARD_SNAPSHOT_CORRUPT','true');requestDashboardSnapshots_(true);return 'Snapshots de Novedades, Noticias y Radar en cola.';});}
 
-function dashboardSnapshotsReady_(work){return (!classificationPending_()||snapshotJobsPending_())&&!dailyCollectionPending_(work)&&!properties_().getProperty('DAILY_PIPELINE_REQUEST')&&dashboardSnapshotsPending_();}
+function dashboardSnapshotsReady_(work){return taxonomyPublicationReady_()&&(!classificationPending_()||snapshotJobsPending_())&&!dailyCollectionPending_(work)&&!properties_().getProperty('DAILY_PIPELINE_REQUEST')&&dashboardSnapshotsPending_();}
 
 function verifyDashboardSnapshot_(view,manifest){
   if(!manifest)throw Error('Falta snapshot de '+view);

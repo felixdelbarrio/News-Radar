@@ -24,16 +24,20 @@ function splitCollectionFeed_(feed){
   if(!feed.range||feed.range.from===feed.range.to)return [];
   const from=Date.parse(feed.range.from),to=Date.parse(feed.range.to),mid=from+Math.floor((to-from)/86400000/2)*86400000;
   const ranges=[{from:feed.range.from,to:new Date(mid).toISOString().slice(0,10)},{from:new Date(mid+86400000).toISOString().slice(0,10),to:feed.range.to}];
-  return ranges.reverse().map(range=>collectionProfile_(feed,range)).filter(Boolean);
+  return ranges.reverse().map(range=>domainMatches_(feed.url,'news.google.com')?{...collectionProfile_({...feed,kind:'rss'},range),kind:feed.kind}:collectionProfile_(feed,range)).filter(Boolean);
 }
 function collectionTaskFeed_(task,feeds,range){
   if(feeds.has(task.url))return {...feeds.get(task.url),range};
   const base=feeds.get('source:'+task.fuente);if(!base||(base.kind!=='profile'&&!domainMatches_(base.url,'news.google.com')))return null;
   const periodRange=collectionQueryRange_(task.url);if(!periodRange)return null;
-  if(base.kind==='rss'){const feed=collectionProfile_(base,periodRange);return feed.url===task.url?feed:null;}
-  const variants=[base,{...base,capabilitySearch:true}];
-  for(const variant of variants){const feed=collectionProfile_(variant,periodRange);if(feed?.url===task.url)return feed;}
-  return null;
+  if(!domainMatches_(task.url,'news.google.com'))return null;
+  const language=base.language?.split('-')[0],query=decodeURIComponent((task.url.match(/[?&]q=([^&]*)/)||[])[1]||'').toLowerCase();
+  if(['it','de','fr','pt','tr'].includes(language)){
+    const languages=configuration_().searchLanguages,native=new Set((languages.find(row=>row.language===language)?.terms||[]).map(searchText_));
+    if((languages.find(row=>row.language==='en')?.terms||[]).some(term=>!native.has(searchText_(term))&&query.includes('"'+term.toLowerCase()+'"')))return null;
+  }
+  // Preserve the historical query: rotating capabilities are not a new task identity.
+  return countryScopedSource_({...base,url:task.url,range:periodRange});
 }
 
 function collectionRecentRange_(now){
@@ -42,6 +46,7 @@ function collectionRecentRange_(now){
 }
 
 function collectionProfile_(base,range){
+  base=countryScopedSource_(base);
   if(base.kind==='rss'&&domainMatches_(base.url,'news.google.com')){
     const query=decodeURIComponent((base.url.match(/[?&]q=([^&]*)/)||[])[1]||'').replace(/\s*when:\d+d\b/g,'').replace(/\s*(?:after|before):\d{4}-\d{2}-\d{2}/g,'').trim();
     return {...base,range,url:canonicalUrl_(base.url.replace(/([?&]q=)[^&]*/,(_,prefix)=>prefix+encodeURIComponent(collectionPeriod_(range)+' '+query)))};
@@ -79,10 +84,9 @@ function collectionQueryRange_(url){
 function upgradeCollectionQueries_(){
   const feeds=collectionFeedIndex_(),tasks=rows_('Recopilacion'),urls=tasks.map(task=>[task.url]);let changed=false;
   tasks.forEach((task,index)=>{
-    const base=feeds.get('source:'+task.fuente),range=collectionQueryRange_(task.url);if(!base||(base.kind!=='profile'&&!domainMatches_(base.url,'news.google.com'))||!range||!['Pendiente','Reintento programado'].includes(task.estado))return;
-    if(collectionTaskFeed_(task,feeds,range))return;
-    const feed=collectionProfile_(base,range);if(!feed)return;
-    urls[index]=[feed.url];changed=true;
+    const base=feeds.get('source:'+task.fuente);if(!base||!['Pendiente','Reintento programado'].includes(task.estado))return;
+    const url=countryScopedSource_({...base,url:task.url}).url;
+    if(url!==task.url){urls[index]=[url];changed=true;}
   });
   if(changed)book_().getSheetByName('Recopilacion').getRange(2,3,urls.length,1).setValues(urls);
 }

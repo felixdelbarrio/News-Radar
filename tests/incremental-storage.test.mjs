@@ -27,7 +27,7 @@ test('taxonomy memory scan reads 19k records in six contiguous lightweight range
  const s=currentSourceStorage(),c=s.c;c.initializeConfiguration();
  for(const [name,count] of [['Noticias',9034],['Candidatos',10000]]){const keys=vm.runInContext('RADAR.sheets.'+name,c),row=keys.map(key=>({id:'row',fecha:'2026-10-10',titular:'Headline',extracto:'Excerpt',url:'https://example.test',entidad:'BBVA',procedencia:'{}'})[key]||'');for(let i=0;i<count;i++)Array.prototype.push.call(s.sheets.get(name).grid,row);}
  c.requestTaxonomy_();const reads=[];for(const name of ['Noticias','Candidatos']){const sheet=s.sheets.get(name),get=sheet.getRange;sheet.getRange=(...args)=>{reads.push([name,...args]);return get(...args);};}
- c.observeTaxonomyRow_=()=>{};c.publishTaxonomy_=()=> 'model';c.taxonomyBatch_();assert.equal(c.taxonomyJob_().phase,'tag');assert.equal(reads.length,6);assert.deepEqual(reads.map(row=>row[4]),[7,7,6,1,6,1]);assert.equal(s.sheets.has('TaxonomiaTrabajo'),false);
+ c.observeTaxonomyRow_=()=>{};c.publishTaxonomy_=()=> 'model';c.taxonomyBatch_();assert.equal(c.taxonomyJob_().phase,'tag');assert.equal(reads.length,7);assert.deepEqual(reads.map(row=>row[4]),[7,7,6,1,6,1,13]);assert.equal(s.sheets.has('TaxonomiaTrabajo'),false);
 });
 test('taxonomy respects a foreground pause before publishing its memory-only scan',async()=>{
  const s=currentSourceStorage(),c=s.c;c.initializeConfiguration();add(s,'one');c.requestTaxonomy_();let checks=0,published=false;c.backgroundPaused_=()=>++checks>=3;c.publishTaxonomy_=()=>{published=true;};c.taxonomyBatch_();assert.equal(published,false);assert.equal(c.taxonomyJob_().phase,'publish');assert.ok(c.taxonomyJob_().checkpoint);assert.equal(c.taxonomyJob_().next,2);

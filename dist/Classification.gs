@@ -56,7 +56,7 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
    const nextCountry=newsCountry_(row),nextEntity=entityKey_(row.entidad);
    if(!job.force&&current&&taxonomyValid&&nextEntity===row.entidad&&nextCountry===row.pais&&cleanTitle===row.titular&&cleanExcerpt===row.extracto)continue;
    const labels=current&&!job.force?saved:{...classification_(title,text).labels,...(saved.procedencia?{procedencia:saved.procedencia}:{})};
-   const changed={titular:cleanTitle,extracto:cleanExcerpt,clasificacion:JSON.stringify(labels),pais:nextCountry,entidad:nextEntity,taxonomia:JSON.stringify(necessaryTaxonomyRecord_(row,items))};
+   const changed={titular:cleanTitle,extracto:cleanExcerpt,clasificacion:JSON.stringify(labels),pais:nextCountry,entidad:nextEntity,taxonomia:JSON.stringify(necessaryTaxonomyRecord_({...row,titular:cleanTitle,extracto:cleanExcerpt,clasificacion:JSON.stringify(labels)},items))};
    for(const [key,value] of Object.entries(changed))if(value!==row[key])updates.push({row:position,column:keys.indexOf(key)+1,value});
    if(changed.clasificacion!==row.clasificacion)classified++;if(labels.digital)digital++;
   }
@@ -68,7 +68,5 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
 
 function necessaryTaxonomyRecord_(row,items=taxonomyCatalog_()){
  const saved=taxonomySaved_(row.taxonomia);
- const labels=savedNewsLabels_(row.clasificacion),fallback=labels.digital&&fallbackTaxonomy_(taxonomyText(row.titular+' '+row.extracto),labels,items);
- if(!saved.ids.length&&fallback?.id)return taxonomyRecord_(row.titular,row.extracto,items,labels);
- try{validateTaxonomyAssignment_(saved,items,row.id,true,row);return JSON.parse(row.taxonomia);}catch(_){return taxonomyRecord_(row.titular,row.extracto,items,labels);}
+ try{validateTaxonomyAssignment_(saved,items,row.id,true,row);return JSON.parse(row.taxonomia);}catch(_){return taxonomyRecord_(row.titular,row.extracto,items,savedNewsLabels_(row.clasificacion));}
 }

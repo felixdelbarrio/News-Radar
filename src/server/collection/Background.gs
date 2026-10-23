@@ -65,7 +65,8 @@ function backgroundTask_(work,daily){
   if(daily)return 'collection';
   const blocked=dailyCollectionPending_(work)||properties_().getProperty('DAILY_PIPELINE_REQUEST');
   if(!blocked&&classificationReadyAt_()<=Date.now())return 'classification';
-  if(!blocked&&(!classificationPending_()||snapshotJobsPending_())&&snapshotPublicationPending_(work))return 'snapshot';
+  if(!blocked&&!taxonomyPublicationReady_()&&snapshotPublicationPending_(work)&&taxonomyReadyAt_()<=Date.now()&&(!classificationPending_()||classificationJob_()?.state==='Publicando'))return 'taxonomy';
+  if(!blocked&&taxonomyPublicationReady_()&&(!classificationPending_()||snapshotJobsPending_())&&snapshotPublicationPending_(work))return 'snapshot';
   if(!blocked&&!classificationPending_()&&!properties_().getProperty('CLASSIFICATION_REQUEST')){
     if(newsletterReadyAt_(work)<=Date.now())return 'newsletter';
     if(translationReadyAt_()<=Date.now())return 'translation';
@@ -81,6 +82,7 @@ function backgroundNextAt_(work,completed=true){
   const now=Date.now(),p=properties_();if(!work||!completed||backgroundQueued_(work))return now;
   const collection=work.tasks?collectionReadyAt_(work):Math.min(...(work.jobs||[]).filter(job=>Number(job.pendientes)>0||job.estado==='Preparando').map(job=>Math.max(now,Number(p.getProperty('FETCH_PAUSED_UNTIL')||0),Number(job.pausa||0))));
   if(dailyCollectionPending_(work)||p.getProperty('DAILY_PIPELINE_REQUEST'))return collection;
+  if(classificationJob_()?.state==='Publicando'&&!taxonomyPublicationReady_())return Math.min(collection,taxonomyReadyAt_());
   if(classificationPending_())return snapshotJobsPending_()?now:Math.min(collection,classificationReadyAt_());
   if(dashboardSnapshotsReady_(work))return now;
   return Math.min(collection,translationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_(work),maintenanceReadyAt_());

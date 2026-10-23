@@ -484,7 +484,13 @@
     geograf\u00EDas: ["geographies", "co\u011Frafya"],
     "Novedades por geograf\xEDa": ["News by geography", "Co\u011Frafyaya g\xF6re haberler"],
     "Novedades de la geograf\xEDa seleccionada": ["News from the selected geography", "Se\xE7ilen co\u011Frafyan\u0131n haberleri"],
-    "La geograf\xEDa supera el l\xEDmite del briefing. Reduce los filtros para incluir todas las novedades.": ["This geography exceeds the briefing limit. Narrow your filters to include all updates.", "Bu co\u011Frafya \xF6zet s\u0131n\u0131r\u0131n\u0131 a\u015F\u0131yor. T\xFCm geli\u015Fmeleri dahil etmek i\xE7in filtreleri daralt\u0131n."],
+    "La geograf\xEDa supera el l\xEDmite del briefing. Consulta todas las novedades de esta geograf\xEDa en Noticias.": ["This geography exceeds the briefing limit. See all updates for this geography in News.", "Bu co\u011Frafya \xF6zet s\u0131n\u0131r\u0131n\u0131 a\u015F\u0131yor. Bu co\u011Frafyan\u0131n t\xFCm geli\u015Fmelerini Haberler b\xF6l\xFCm\xFCnde g\xF6r\xFCn."],
+    "Fallback sin trazabilidad verificable.": ["Fallback lacks verifiable traceability.", "Yedek s\u0131n\u0131fland\u0131rman\u0131n izlenebilirli\u011Fi do\u011Frulanam\u0131yor."],
+    "Regla, capacidad o se\xF1al de fallback incoherente.": ["Inconsistent fallback rule, capability or signal.", "Yedek kural, yetenek veya sinyal tutars\u0131z."],
+    "Cola compactada no verificada.": ["Compacted queue could not be verified.", "Daralt\u0131lm\u0131\u015F kuyruk do\u011Frulanamad\u0131."],
+    "Etiquetado persistido incompleto.": ["Incomplete persisted assignments.", "Kaydedilen s\u0131n\u0131fland\u0131rmalar eksik."],
+    "Copia de noticias incompleta.": ["Incomplete news copy.", "Haber kopyas\u0131 eksik."],
+    "Ver todas las novedades en Noticias": ["See all updates in News", "T\xFCm geli\u015Fmeleri Haberler b\xF6l\xFCm\xFCnde g\xF6r\xFCn"],
     "Tu radar de novedades": ["Your news radar", "Haber radar\u0131n\u0131z"],
     "Tu selecci\xF3n por geograf\xEDa": ["Your selection by geography", "Co\u011Frafyaya g\xF6re se\xE7iminiz"],
     "Entidad no identificada": ["Unidentified entity", "Tan\u0131mlanmayan kurulu\u015F"],
@@ -2774,9 +2780,9 @@
       let group = groups.find((row) => row.name === active), stats = group || briefing2;
       tabs.render(groups, active), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: briefing2.total }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" ${row.total ? "" : "disabled"} data-signal="${escape2(row.name)}"><strong>${row.total}</strong><span>${escape2(t(row.name === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : row.name))}</span></button>`).join("");
       let rows = group?.entities.flatMap((entity) => entity.items) || [];
-      $("briefing-list").innerHTML = rows.map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join("") || '<div class="panel empty"><h3>' + t("No hay novedades de producto en esta selecci\xF3n.") + "</h3></div>", $("briefing-limit").hidden = !group || stats.total <= group.items.length;
+      $("briefing-list").innerHTML = rows.map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join("") || '<div class="panel empty"><h3>' + t("No hay novedades de producto en esta selecci\xF3n.") + "</h3></div>", $("briefing-limit").hidden = !group || stats.total <= group.items.length, $("briefing-explore").hidden = $("briefing-limit").hidden;
     }
-    return $("briefing-signals").addEventListener("click", (event) => {
+    return $("briefing-explore-news").addEventListener("click", () => onExplore({ ...selection, country: active, newsGeography: active, page: 0 })), $("briefing-signals").addEventListener("click", (event) => {
       let button = event.target.closest("[data-signal]");
       button && onExplore({ ...selection, country: "", newsGeography: active, signal: button.dataset.signal, page: 0 });
     }), { render(data) {
@@ -3027,6 +3033,7 @@
     function options(name, values, selected) {
       let el = form.elements[name];
       if (!el) return;
+      name === "country" && view === "news" && (values = [.../* @__PURE__ */ new Set([...values, otherGeography])]);
       let current2 = selected ?? el.value;
       name === "signal" && view === "briefing" && (values = values.filter((value) => BRIEFING_ALLOWED_SIGNALS.includes(value)), values.includes(current2) || (current2 = "")), name !== "year" && !(name === "signal" && view === "briefing") && current2 && !values.includes(current2) && (values = [...values, current2]);
       let signature = JSON.stringify(values);

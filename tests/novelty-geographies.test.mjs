@@ -44,3 +44,11 @@ test('newsletter conserva toda la evidencia y presenta un máximo de tres tarjet
 test('el modelo compartido se publica para cliente y Apps Script y evita scripts en el correo',()=>{
  const {c}=server(),record=row('safe','<img src=x>','<script>');record.titular='<script>alert(1)</script>';record.extracto='<img src=x onerror=alert(1)>';const content=c.newsletterContent_([record],{},'Prueba',new Date(),'id'),d=new JSDOM(content.html).window.document;assert.equal(d.querySelectorAll('script,[onerror]').length,0);assert.ok(!d.body.textContent.includes(record.titular));assert.equal(typeof c.noveltyOverview,'function');assert.equal(typeof c.noveltyGroups,'function');
 });
+test('el límite ofrece al final acceso a Noticias con quincena y Otras geografías seleccionadas',async t=>{
+ const rows=[row('outside','Francia')],overview=noveltyOverview(rows,signals,()=> 'Otras geografías');overview.geographies[0].total=61;
+ const a=await app(t,{configure({data}){data.applicationScope=[{name:'Empresas e instituciones',countries:['España']}];data.selection={from:'2026-10-16',to:'2026-10-31'};data.briefing={...overview,total:61,limited:true,items:rows};}});
+ assert.equal(a.find('#briefing-explore').hidden,false);assert.equal(a.find('#briefing-limit').classList.contains('warning'),true);assert.equal(a.find('#briefing-section').lastElementChild.id,'briefing-explore');await a.click('#briefing-explore-news');const query=a.calls.filter(row=>row.method==='getDashboard').at(-1).query;assert.equal(query.view,'news');assert.equal(query.from,'2026-10-16');assert.equal(query.to,'2026-10-31');assert.equal(query.country,'Otras geografías');assert.equal(query.newsGeography,'Otras geografías');assert.ok([...a.find('#filters [name="country"]').options].some(option=>option.value==='Otras geografías'));
+});
+test('Otras geografías filtra los países fuera del ámbito con el mismo agrupado que Novedades',()=>{
+ const {c}=server(),rows=[row('es'),row('fr','Francia'),row('uk','Reino Unido')];const expected=rows.filter(r=>c.applicationGeography(c.configuration_().applicationScope)(r)==='Otras geografías');assert.equal(c.selectAnnotatedNews_(rows,{country:'Otras geografías'}).length,expected.length);
+});

@@ -18,8 +18,8 @@ test('una asignación corrupta fuera del período visible se repara in-place',()
 test('la validación de cada asignación rechaza modelo mixto, evidencia ausente y principal errónea',()=>{
  for(const change of [saved=>saved.model='obsolete',saved=>saved.evidence.assignments=[],saved=>saved.primary='obsolete']){const s=setup(),c=s.c;stage(c);finish(c);const row=c.rows_('Noticias')[0],saved=JSON.parse(row.taxonomia);change(saved);assert.throws(()=>c.validateTaxonomyAssignment_(saved,c.taxonomyCatalog_(),row.id,true,row));}
 });
-test('el etiquetado conserva el cursor al fallar y reanuda sin clonar el corpus',()=>{
- const s=setup(205),c=s.c;c.startTaxonomy();c.taxonomyBatch_();c.taxonomyBatch_();assert.equal(c.taxonomyJob_().next,102);const write=c.writeNewsCells_;c.writeNewsCells_=()=>{throw Error('Escritura temporal');};c.taxonomyBatch_();assert.equal(c.taxonomyJob_().next,102);assert.equal(c.taxonomyJob_().state,'En pausa');c.writeNewsCells_=write;c.startTaxonomy();stage(c);finish(c);assert.equal(c.taxonomyJob_().next,207);assert.equal(c.newsStorageKey_(),'Noticias');
+test('el etiquetado conserva el cursor al fallar y reanuda la pareja preparada',()=>{
+ const s=setup(205),c=s.c;c.startTaxonomy();c.taxonomyBatch_();c.taxonomyBatch_();assert.equal(c.taxonomyJob_().next,102);const write=c.writeNewsCells_;c.writeNewsCells_=()=>{throw Error('Escritura temporal');};c.taxonomyBatch_();assert.equal(c.taxonomyJob_().next,102);assert.equal(c.taxonomyJob_().state,'En pausa');c.writeNewsCells_=write;c.startTaxonomy();stage(c);finish(c);assert.equal(c.taxonomyJob_().next,207);assert.match(c.newsStorageKey_(),/^Noticias_tax_/);
 });
 test('fallar tras preparar dos snapshots conserva el manifiesto y reintentar publica las tres vistas juntas',()=>{
  const s=setup(),c=s.c,previous=s.properties.DATA_GENERATION;stage(c);c.dashboardSnapshotBatch_();c.dashboardSnapshotBatch_();const verify=c.verifyDashboardSnapshot_;c.verifyDashboardSnapshot_=(view,...args)=>{if(view==='radar')throw Error('Verificación temporal');return verify(view,...args);};
@@ -30,7 +30,7 @@ test('un cambio de corpus invalida snapshots preparados sin crear una generació
  const s=setup(),c=s.c;stage(c);c.dashboardSnapshotBatch_();const old=JSON.parse(s.properties.DASHBOARD_SNAPSHOT_BUILD).signature;c.invalidateNews_();c.dashboardSnapshotBatch_();const next=JSON.parse(s.properties.DASHBOARD_SNAPSHOT_BUILD).signature;assert.notEqual(next,old);assert.equal(c.newsStorageKey_(),'Noticias');finish(c);
 });
 test('la publicación de snapshots completa todos los jobs in-place que esperaban las mismas vistas',()=>{
- const s=setup(),c=s.c;stage(c);s.properties.MAINTENANCE_JOB=JSON.stringify({state:'Publicando'});s.properties.SNAPSHOT_JOBS=JSON.stringify(['TAXONOMY_JOB','MAINTENANCE_JOB']);finish(c);assert.equal(c.maintenanceJob_().state,'Completada');assert.equal(s.properties.SNAPSHOT_JOBS,undefined);assert.equal(c.newsStorageKey_(),'Noticias');
+ const s=setup(),c=s.c;stage(c);s.properties.MAINTENANCE_JOB=JSON.stringify({state:'Publicando'});s.properties.SNAPSHOT_JOBS=JSON.stringify(['TAXONOMY_JOB','MAINTENANCE_JOB']);finish(c);assert.equal(c.maintenanceJob_().state,'Completada');assert.equal(s.properties.SNAPSHOT_JOBS,undefined);assert.match(c.newsStorageKey_(),/^Noticias_tax_/);
 });
 test('dos frases con el mismo discriminante no justifican una asociación secundaria',()=>{
  const definitions=[{id:'one',palanca:'01.Pagos',subpalanca:'01.01.Pagos biométricos',terms:['pagos biometricos']},{id:'two',palanca:'02.Acceso',subpalanca:'02.01.Autenticación biométrica',terms:['autenticacion biometrica']}],title='Banco lanza pagos biométricos con autenticación biométrica';

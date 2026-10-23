@@ -52,3 +52,35 @@ function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
  }catch(error){job.state='En pausa';job.error=String(error.message).slice(0,180);job.pausedUntil=Date.now()+settings_().retryMinutes*60000;saveMaintenanceJob_(job);telemetry_('mantenimiento',Date.now()-started,'Error',job.error);}
 }
 function drainMaintenanceRequest_(){const p=properties_(),day=p.getProperty('MAINTENANCE_REQUEST');if(!day)return;if(p.getProperty('MAINTENANCE_DAY')!==day){maintenance_();p.setProperty('MAINTENANCE_DAY',day);}p.deleteProperty('MAINTENANCE_REQUEST');}
+
+// Explicit maintenance: keep a verified external archive before removing operational history.
+function archiveAndCompactOperationalStorage(){
+ authorize_(true);return withForegroundWrite_(()=>{
+  const source=book_(),archive=source.copy('News Radar · Archivo '+new Date().toISOString());
+  for(const sheet of source.getSheets()){
+   const backup=archive.getSheetByName(sheet.getName()),rows=sheet.getLastRow(),width=sheet.getLastColumn();
+   if(!backup||rows!==backup.getLastRow()||width!==backup.getLastColumn()||rows&&width&&sha256_(JSON.stringify(sheet.getRange(1,1,rows,width).getDisplayValues()))!==sha256_(JSON.stringify(backup.getRange(1,1,rows,width).getDisplayValues())))throw Error('Archivo externo no verificado: '+sheet.getName());
+  }
+  properties_().setProperty('OPERATIONAL_ARCHIVE',archive.getUrl());
+  const sheet=book_().getSheetByName('Recopilacion'),keys=RADAR.sheets.Recopilacion,seen=new Map(),remove=[];
+  const rank={Completada:5,Error:4,'Reintento programado':3,Pendiente:2,Omitida:1};
+  const rows=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,keys.length).getDisplayValues():[];
+  rows.forEach((row,i)=>{
+   const key=JSON.stringify([row[0],row[2]]),previous=seen.get(key);
+   if(!previous){seen.set(key,{row,position:i+2});return;}
+   const score=value=>[rank[value[3]]||0,Number(value[4])||0,value[8]||''];
+   const a=score(row),b=score(previous.row),preferred=a[0]>b[0]||a[0]===b[0]&&(a[1]>b[1]||a[1]===b[1]&&a[2]>b[2]);
+   remove.push(preferred?previous.position:i+2);if(preferred)seen.set(key,{row,position:i+2});
+  });
+  if(remove.length){
+   const removed=new Set(remove),retained=rows.filter((_,index)=>!removed.has(index+2));
+   if(retained.length){sheet.getRange(2,1,retained.length,keys.length).setNumberFormat('@').setValues(retained);SpreadsheetApp.flush();if(sha256_(JSON.stringify(retained))!==sha256_(JSON.stringify(sheet.getRange(2,1,retained.length,keys.length).getDisplayValues())))throw Error('Cola compactada no verificada.');}
+   sheet.getRange(retained.length+2,1,rows.length-retained.length,keys.length).clearContent();
+  }
+  const changedCycles=new Set(remove.map(position=>rows[position-2][0]));
+  for(const job of collectionSnapshots_(rows_('Recopilacion'),collectionJobs_().filter(job=>changedCycles.has(job.id))))writeCollectionJob_(job);
+  compactOperationalLogs_();const generations=pruneNewsGenerations_();compactStorageDimensions_();
+  CacheService.getScriptCache().remove('collection-status');
+  return {archive:archive.getUrl(),duplicateTasks:remove.length,generations};
+ });
+}
