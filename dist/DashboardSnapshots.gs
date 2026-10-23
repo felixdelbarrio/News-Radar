@@ -18,13 +18,12 @@ function defaultDashboardSnapshot_(view,query,language){
     const rows=book_().getSheetByName(manifest.sheet||'DashboardSnapshots')?.getRange(manifest.first,1,manifest.parts,4).getDisplayValues();
     if(!rows||rows.some(([name,generation,part],index)=>name!==view||generation!==manifest.generation||Number(part)!==index))throw Error('Fragmentos incompletos');
     const encoded=rows.map(row=>row[3]).join('');if(sha256_(encoded)!==manifest.digest)throw Error('Contenido incompleto');
-    const bundle=JSON.parse(Utilities.ungzip(Utilities.newBlob(Utilities.base64Decode(encoded),'application/gzip')).getDataAsString()),variants=Object.hasOwn(bundle.variants,query.newsGeography)?bundle.variants[query.newsGeography]:bundle.variants[''],data=variants[view==='radar'?'es':language];
-    hydrateDashboardSnapshot_(cache,manifest.revision,bundle.variants,view,bundle.period,bundle.periodFallback);
+    const bundle=JSON.parse(Utilities.ungzip(Utilities.newBlob(Utilities.base64Decode(encoded),'application/gzip')).getDataAsString()),data=view==='news'?compactNewsSnapshotData_(bundle.news,query.newsGeography,language):bundle.variants[''][view==='radar'?'es':language];
     const value={data,period:bundle.period,periodFallback:bundle.periodFallback};writeDashboardCache_(cache,key,value);return value;
   }catch(error){console.warn('Snapshot '+view+': '+String(error.message||error));properties_().setProperty('DASHBOARD_SNAPSHOT_CORRUPT','true');requestDashboardSnapshots_();return null;}
 }
 function dashboardSnapshotData_(rows,query,feeds,view){
-  const data=newsDashboard_(rows,query,feeds,view);dashboardCatalogOptions_(data,feeds);return data;
+  const data=newsDashboard_(rows,query,feeds,view,null,null,view==='radar'?radarPreviousRows_(query):null);dashboardCatalogOptions_(data,feeds);if(view==='radar')data.years=radarAvailableYears_();return data;
 }
 function dashboardSnapshotLanguages_(data,view){
   const values={};
@@ -47,9 +46,8 @@ function buildDashboardSnapshotBatch_(job=null){
   if(!view)return publishDashboardSnapshotSet_(build,job);
   const started=Date.now(),revision=dashboardSnapshotRevision_(view),feeds=feeds_();let query=dashboardQuery_({view,initial:true}),rows=cachedNewsRecords_(query),data=dashboardSnapshotData_(rows,query,feeds,view),periodFallback=false;
   if((view==='briefing'?data.briefing.total:data.contextTotal)===0){query={...query,...dashboardPeriod_(view,new Date(),true)};rows=cachedNewsRecords_(query);data=dashboardSnapshotData_(rows,query,feeds,view);periodFallback=true;}
-  const variants={'':dashboardSnapshotLanguages_(data,view)};
-  if(view==='news')for(const geography of data.newsGeographies)variants[geography.name]=geography.name===data.newsGeography?variants['']:dashboardSnapshotLanguages_(dashboardSnapshotData_(rows,{...query,newsGeography:geography.name},feeds,view),view);
-  const period={from:query.from,to:query.to},encoded=Utilities.base64Encode(Utilities.gzip(Utilities.newBlob(JSON.stringify({period,periodFallback,variants}),'application/json')).getBytes()),parts=Math.ceil(encoded.length/DASHBOARD_SNAPSHOTS.chars);
+  const payload=view==='news'?{news:compactNewsSnapshot_(rows,query,data)}:{variants:{'':dashboardSnapshotLanguages_(data,view)}};
+  const period={from:query.from,to:query.to},encoded=Utilities.base64Encode(Utilities.gzip(Utilities.newBlob(JSON.stringify({period,periodFallback,...payload}),'application/json')).getBytes()),parts=Math.ceil(encoded.length/DASHBOARD_SNAPSHOTS.chars);
   if(parts>DASHBOARD_SNAPSHOTS.parts)throw Error('Snapshot demasiado grande: '+view);
   if(revision!==dashboardSnapshotRevision_(view))return true;
   let sheet=book_().getSheetByName('DashboardSnapshots');if(!sheet){sheet=book_().insertSheet('DashboardSnapshots');sheet.getRange(1,1,1,4).setValues([RADAR.sheets.DashboardSnapshots]);sheet.setFrozenRows(1);}
@@ -58,8 +56,9 @@ function buildDashboardSnapshotBatch_(job=null){
   sheet.getRange(first,1,parts,4).setNumberFormat('@').setValues(Array.from({length:parts},(_,index)=>[view,generation,String(index),encoded.slice(index*DASHBOARD_SNAPSHOTS.chars,(index+1)*DASHBOARD_SNAPSHOTS.chars)]));SpreadsheetApp.flush();
   build.manifests[view]={revision,generation,slot,first,parts,digest:sha256_(encoded),generated:new Date().toISOString(),period,periodFallback};
   properties_().setProperty('DASHBOARD_SNAPSHOT_BUILD',JSON.stringify(build));
-  hydrateDashboardSnapshot_(CacheService.getScriptCache(),revision,variants,view,period,periodFallback);
-  telemetry_('dashboard-snapshot',Date.now()-started,'OK',view+'; '+period.from+' — '+period.to+'; anterior '+periodFallback+'; variantes '+Object.keys(variants).length+'; comprimido '+encoded.length+' caracteres');
+  if(view==='news')for(const language of Object.keys(languageNames))writeDashboardCache_(CacheService.getScriptCache(),'dashboard-snapshot:'+revision+':'+language+':',{data:compactNewsSnapshotData_(payload.news,'',language),period,periodFallback});
+  else hydrateDashboardSnapshot_(CacheService.getScriptCache(),revision,payload.variants,view,period,periodFallback);
+  telemetry_('dashboard-snapshot',Date.now()-started,'OK',view+'; '+period.from+' — '+period.to+'; anterior '+periodFallback+'; variantes '+(view==='news'?1:Object.keys(payload.variants).length)+'; comprimido '+encoded.length+' caracteres');
   if(DASHBOARD_SNAPSHOTS.views.every(view=>build.manifests[view]))publishDashboardSnapshotSet_(build,job);return true;
 }
 function clearDashboardSnapshotRequest_(){for(const key of ['DASHBOARD_SNAPSHOT_REQUEST','DASHBOARD_SNAPSHOT_REQUESTED_AT','DASHBOARD_SNAPSHOT_BUILD','DASHBOARD_SNAPSHOT_CORRUPT'])properties_().deleteProperty(key);}
@@ -84,3 +83,30 @@ function verifyDashboardSnapshot_(view,manifest){
 function hydrateDashboardSnapshot_(cache,revision,variants,view,period,periodFallback){
   for(const [geography,values] of Object.entries(variants))for(const language of Object.keys(languageNames))writeDashboardCache_(cache,'dashboard-snapshot:'+revision+':'+language+':'+geography,{data:values[view==='radar'?'es':language],period,periodFallback});
 }
+
+// One shared catalogue and article table replace country × language copies of the same payload.
+function compactNewsSnapshot_(rows,query,data){
+  const selected=selectAnnotatedNews_(rows,query),geography=newsReadingGeography_(null,query),groups=new Map(data.newsGeographies.map(row=>[row.name,[]]));
+  for(const row of selected)groups.get(geography(row))?.push(row);
+  const articles=[],positions=new Map(),pages={};
+  for(const [name,items] of groups){const page=newsEntityPage(items,0,data.pageSize);pages[name]={total:items.length,items:page.map(row=>{if(!positions.has(row)){positions.set(row,articles.length);articles.push(row);}return positions.get(row);})};}
+  const fields=[...new Set(articles.flatMap(row=>Object.keys(row)))].filter(key=>!['_sheetRow','identityTitles'].includes(key)),records=articles.map(row=>fields.map(key=>row[key]??null)),translations={};
+  for(const language of Object.keys(languageNames))translations[language]=savedArticleTranslations_(articles,language).map((row,index)=>[snapshotTextDelta_(articles[index].titular,row.titular),snapshotTextDelta_(articles[index].extracto??'',row.extracto??''),row.translation]);
+  const {items,page,newsGeography,total,...metadata}=data;return {metadata,fields,records,translations,pages,defaultGeography:newsGeography};
+}
+function compactNewsSnapshotData_(bundle,geography,language){
+  const name=Object.hasOwn(bundle.pages,geography)?geography:bundle.defaultGeography,page=bundle.pages[name]||{total:0,items:[]};
+  const items=page.items.map(index=>{
+    const row=Object.fromEntries(bundle.fields.flatMap((key,position)=>bundle.records[index][position]===null?[]:[[key,bundle.records[index][position]]])),[titular,extracto,translation]=bundle.translations[language][index];
+    return {...row,titular:snapshotTextValue_(row.titular,titular),extracto:snapshotTextValue_(row.extracto??'',extracto),...(translation.state==='translated'?{original:{titular:row.titular,extracto:row.extracto}}:{}),translation};
+  });
+  return {...bundle.metadata,items,total:page.total,page:0,newsGeography:name};
+}
+
+function snapshotTextDelta_(original,value){
+  if(original===value)return null;
+  let prefix=0,suffix=0;while(prefix<original.length&&prefix<value.length&&original[prefix]===value[prefix])prefix++;
+  while(suffix<original.length-prefix&&suffix<value.length-prefix&&original[original.length-1-suffix]===value[value.length-1-suffix])suffix++;
+  return prefix+suffix>24?[prefix,suffix,value.slice(prefix,value.length-suffix)]:value;
+}
+function snapshotTextValue_(original,delta){return delta===null?original:Array.isArray(delta)?original.slice(0,delta[0])+delta[2]+(delta[1]?original.slice(-delta[1]):''):delta;}

@@ -5,6 +5,8 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
+import {gzipSync,gunzipSync} from 'node:zlib';
+function blob(value,contentType=null){const bytes=Buffer.from(value);return {getContentType:()=>contentType,getBytes:()=>[...bytes],getDataAsString:()=>bytes.toString('utf8')};}
 import {readServerScript,renderIncludes,read,files} from '../scripts/source.mjs';
 const source=readServerScript('dist',true);
 function context(email='felix.delbarrio@bbva.com'){
@@ -14,7 +16,7 @@ function context(email='felix.delbarrio@bbva.com'){
   c.CacheService={getScriptCache:()=>({get:key=>cache.get(key),put:(key,value)=>cache.set(key,value),getAll:keys=>Object.fromEntries(keys.filter(key=>cache.has(key)).map(key=>[key,cache.get(key)])),putAll:values=>Object.entries(values).forEach(([key,value])=>cache.set(key,value)),remove:key=>cache.delete(key)})};
   c.ScriptApp={getProjectTriggers:()=>[],newTrigger:()=>({timeBased(){return this;},after(){return this;},create(){}})};
   c.LockService={getScriptLock:()=>({tryLock:()=>true,waitLock(){},releaseLock(){}})};
-  c.Utilities={DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(_algorithm,value)=>Array.from(createHash('sha256').update(value).digest()),getUuid:()=> 'id',formatDate:date=>date.toISOString().slice(0,10)};
+  c.Utilities={newBlob:blob,gzip:value=>blob(gzipSync(Buffer.from(value.getBytes())),'application/gzip'),ungzip:value=>blob(gunzipSync(Buffer.from(value.getBytes())),'application/json'),base64Encode:value=>Buffer.from(value).toString('base64'),base64Decode:value=>[...Buffer.from(value,'base64')],DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(_algorithm,value)=>Array.from(createHash('sha256').update(value).digest()),getUuid:()=> 'id',formatDate:date=>date.toISOString().slice(0,10)};
   vm.runInContext(source,c);c.llmIndex_=()=>new Map();c.businessNewsIndex_=()=>({rows:c.rows_('Noticias').map(row=>({fecha:row.fecha||''}))});c.newsRecordIndex_=()=>({days:{'2026-10-08':[[2,2]]},entities:[],sources:[]});c.newsRowsAt_=()=>c.rows_('Noticias');c.taxonomyCatalog_=()=>[];c.drainCollectionRequests_=()=>{};c.collectionJobs_=()=>[];c.writeCollectionJob_=()=>{};let config=configurationDefaults();c.configuration_=()=>config;c.configurationRevision_=()=>'test';c.writeConfiguration_=value=>{c.authorize_(true);c.validateConfiguration_(value);config=value;};return c;
 }
 const feed={name:'BBVA',domain:'bbva.com',entity:'BBVA',country:'Sin determinar',kind:'rss'},now=new Date('2026-10-09T12:00:00Z'),item={title:'BBVA lanza pagos digitales para empresas',excerpt:'Nueva plataforma digital para empresas',url:'https://www.bbva.com/es/noticia/?utm_source=rss',date:'2026-10-08T11:00:00Z'};
@@ -146,12 +148,12 @@ test('la recuperación escribe solo los estados cambiados sin reescribir toda la
  const updates=new Map([[2,['Completada',1,'',0,0,'']],[3,['Completada',1,'',0,0,'']],[12,['Error',1,'',0,0,'']]]);c.writeCollectionTasks_([{row:2},{row:3},{row:12}],updates);assert.equal(writes.length,2);assert.equal(writes.reduce((n,w)=>n+w.size,0),3);assert.equal(writes[1].row,12);
 });
 
-test('Radar usa solo geografía y año completo en Empresas e instituciones',()=>{
+test('Radar conserva geografía y entidad explícitas en el año completo de Empresas e instituciones',()=>{
   const c=context(),now=new Date('2026-10-10T12:00:00Z');
   const initial=c.dashboardQuery_({view:'radar',initial:true,country:'México',topic:'Financiación',segment:'Retail',from:'2026-01-01'},now);
-  assert.deepEqual(JSON.parse(JSON.stringify(initial)),{segment:'Empresas e instituciones',coverage:'digital',country:'',from:'2026-01-01',to:'2026-12-31'});
+  assert.deepEqual(JSON.parse(JSON.stringify(initial)),{segment:'Empresas e instituciones',coverage:'digital',country:'México',from:'2026-01-01',to:'2026-12-31'});
   const selected=c.dashboardQuery_({view:'radar',entity:'BBVA',segment:'Retail',country:'México',source:'Editor',search:'cuenta'},now);
-  assert.deepEqual(JSON.parse(JSON.stringify(selected)),{segment:'Empresas e instituciones',coverage:'digital',country:'México',from:'2026-01-01',to:'2026-12-31'});
+  assert.deepEqual(JSON.parse(JSON.stringify(selected)),{segment:'Empresas e instituciones',coverage:'digital',entity:'BBVA',country:'México',from:'2026-01-01',to:'2026-12-31'});
 });
 test('Novedades fija su quincena y Noticias conserva las fechas editadas',()=>{
   const c=context(),now=new Date('2026-10-31T23:30:00Z');
@@ -196,12 +198,12 @@ test('el lote saturado persiste consultas hijas y evita finalizar una cola con t
 
 test('la caché de dashboard evita leer y clasificar Noticias otra vez y se invalida con datos o configuración',()=>{
  const c=context(),rows=[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-08',pais:'España',entidad:'BBVA',medio:'Diario',titular:'Financiación para empresas',extracto:'',url:'https://bbva.com/a'}];let reads=0,revision='first';
- c.configurationRevision_=()=>revision;c.rows_=()=>{reads++;return rows;};
- const query={entity:'BBVA'},first=c.dashboardContent_(query,c.feeds_());assert.equal(first.cacheHit,false);assert.equal(first.data.total,1);
- assert.equal(c.dashboardContent_(query,c.feeds_()).cacheHit,true);assert.equal(reads,1);
- rows.push({...rows[0],url:'https://bbva.com/b'});c.invalidateNews_();const changed=c.dashboardContent_(query,c.feeds_());assert.equal(changed.cacheHit,false);assert.equal(changed.data.total,2);assert.equal(reads,2);
- revision='second';assert.equal(c.dashboardContent_(query,c.feeds_()).cacheHit,false);assert.equal(reads,3);
- assert.equal(c.dashboardContent_({country:'México'},c.feeds_()).data.total,0);
+ c.savedArticleTranslations_=rows=>rows;c.configurationRevision_=()=>revision;c.rows_=()=>{reads++;return rows;};
+ const query={entity:'BBVA'},first=c.dashboardContent_(query,c.feeds_(),'news');assert.equal(first.cacheHit,false);assert.equal(first.data.total,1);
+ assert.equal(c.dashboardContent_(query,c.feeds_(),'news').cacheHit,true);assert.equal(reads,1);
+ rows.push({...rows[0],url:'https://bbva.com/b'});c.invalidateNews_();const changed=c.dashboardContent_(query,c.feeds_(),'news');assert.equal(changed.cacheHit,false);assert.equal(changed.data.total,2);assert.equal(reads,2);
+ revision='second';assert.equal(c.dashboardContent_(query,c.feeds_(),'news').cacheHit,false);assert.equal(reads,3);
+ assert.equal(c.dashboardContent_({country:'México'},c.feeds_(),'news').data.total,0);
 });
 
 test('la caché respeta el límite en bytes UTF-8 y nunca recorta el resultado',()=>{
@@ -243,7 +245,7 @@ test('filtrado previo clasifica solo las filas del ámbito elegido sin alterar e
 test('la selección habitual de Noticias usa caché aunque el formulario envíe todos los campos vacíos',()=>{
  const c=context();let reads=0;c.configurationRevision_=()=> '1760175510000-configuration-version';c.properties_().setProperty('NEWS_REVISION','1760175510000-news-version');c.rows_=()=>{reads++;return [];};
  const query={entity:'BBVA',segment:'Empresas e instituciones',from:'2026-10-01',to:'2026-10-31',source:'',type:'',country:'',signal:'',search:'',topic:'',page:0};
- assert.equal(c.dashboardContent_(query,c.feeds_()).cacheHit,false);assert.equal(c.dashboardContent_(query,c.feeds_()).cacheHit,true);assert.equal(reads,1);
+ assert.equal(c.dashboardContent_(query,c.feeds_(),'news').cacheHit,false);assert.equal(c.dashboardContent_(query,c.feeds_(),'news').cacheHit,true);assert.equal(reads,1);
 });
 
 test('los tiempos de dashboard se guardan con los eventos sin otro RPC ni nuevas columnas',()=>{
@@ -319,7 +321,7 @@ test('todos los gráficos del Radar respetan geografía y distinguen editor de e
  {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-09',entidad:'Santander',pais:'México',medio:'BBVA',titular:'Banco Santander lanza pagos digitales para empresas',extracto:''}];
  for(const country of ['','España','México']){
   const query=c.dashboardQuery_({view:'radar',country,entity:'BBVA',segment:'Retail'}),data=c.newsDashboard_(annotateFixtures(c,rows),query,[],'radar'),selected=data.items;
-  assert.equal(data.stats.news,selected.length);assert.ok(selected.every(row=>row.segmentos.includes(query.segment)));assert.ok(!country||selected.every(row=>row.pais===country));assert.equal(query.entity,undefined);
+  assert.equal(data.stats.news,selected.length);assert.ok(selected.every(row=>row.segmentos.includes(query.segment)));assert.ok(!country||selected.every(row=>row.pais===country));assert.equal(query.entity,'BBVA');assert.ok(selected.every(row=>row.entidad==='BBVA'));
   for(const row of data.radar.publishers)assert.equal(row.total,selected.filter(item=>item.medio===row.publisher).length);
   for(const row of data.radar.ranking)assert.equal(row.total,selected.filter(item=>item.entidad===row.entity).length);
   assert.equal(data.radar.geographies.reduce((n,row)=>n+row.total,0),selected.length);assert.equal(data.radar.trend.series.flatMap(row=>row.values).reduce((a,b)=>a+b,0),selected.length);

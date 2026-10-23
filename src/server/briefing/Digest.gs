@@ -1,6 +1,7 @@
 function newsletterWords_(text,limit){const words=plainText_(text).split(/\s+/).filter(Boolean);return words.slice(0,limit).join(' ')+(words.length>limit?'…':'');}
 function newsletterSelectionQuery_(query){return {...query,country:''};}
 function newsletterDigest_(items,query,language,t,known=new Set()){
+ items=items.filter(briefingAllowed);
  const cadence=Object.entries(newsletterCadences).find(([,value])=>value.view===(query.view||'briefing'))?.[0];if(!cadence)throw Error('Periodicidad no válida.');
  const fortnightly=cadence==='fortnightly',focused=Boolean(query.country),scopeOf=row=>focused&&row.pais===query.country?'local':'global',buckets={local:[],global:[]},groups=new Map();
  for(const row of items){const scope=scopeOf(row);buckets[scope].push(row);for(const tag of row.taxonomia.length?row.taxonomia:[{palanca:'Otros',subpalanca:''}]){if(query.palanca&&tag.palanca!==query.palanca||query.subpalanca&&taxonomyPath(tag)!==query.subpalanca)continue;const key=scope+'|'+tag.palanca;if(!groups.has(key))groups.set(key,{scope,tag,rows:new Map()});groups.get(key).rows.set(row.id,row);}}

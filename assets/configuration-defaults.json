@@ -1501,7 +1501,12 @@
         "sunar",
         "tanıt*",
         "başlat*",
-        "piyasaya"
+        "piyasaya",
+        "pone en marcha",
+        "rolls out",
+        "debuts",
+        "introduces new",
+        "estrenan"
       ],
       "context": [
         "cuenta*",
@@ -1550,7 +1555,10 @@
         "yatırım*",
         "digital*",
         "kyb",
-        "flujo*"
+        "flujo*",
+        "api",
+        "tesoreria",
+        "solucion*"
       ],
       "enabled": true,
       "scope": "headline",
@@ -1665,11 +1673,18 @@
         "iş birliği",
         "işbirliği",
         "ortaklık*",
-        "anlaşma*"
+        "anlaşma*",
+        "se alia",
+        "se asocia",
+        "teamed up",
+        "joint venture",
+        "colaboracion estrategica",
+        "integra a",
+        "incorpora a"
       ],
       "context": [],
       "enabled": true,
-      "scope": "headline",
+      "scope": "fullText",
       "exclude": [
         "qué es",
         "qué son",
@@ -1692,7 +1707,7 @@
       "group": "Novedad"
     },
     {
-      "name": "Incidencia operativa",
+      "name": "Indisponibilidad / Incidencia operativa",
       "group": "Problema",
       "scope": "fullText",
       "enabled": true,
@@ -1701,15 +1716,10 @@
         "fuera de servicio",
         "indisponibilidad",
         "interrupción del servicio",
-        "interrupcion del servicio",
         "caída de",
-        "caida de",
         "caída global",
-        "caida global",
         "se cayó",
-        "se cayo",
         "sufrió caída",
-        "sufrio caida",
         "presenta fallas",
         "presentan fallas",
         "fallas masivas",
@@ -1728,7 +1738,6 @@
         "queda do sistema",
         "no pueden acceder",
         "caída la app",
-        "caida la app",
         "app down",
         "fallas en la app",
         "reporta fallas",
@@ -1775,7 +1784,9 @@
         "system outage",
         "online banking down",
         "mobile banking down",
-        "app not working"
+        "app not working",
+        "falla el sistema",
+        "falla la app"
       ],
       "context": [
         "app",
@@ -1845,7 +1856,21 @@
         "que hacer si",
         "cómo solucionar",
         "como solucionar",
-        "how to fix"
+        "how to fix",
+        "evitar caidas",
+        "prevenir caidas",
+        "prevencion de caidas",
+        "posible caida",
+        "posibles caidas",
+        "potential outage",
+        "prevent outages",
+        "risk of outage",
+        "si se cae",
+        "if the app fails",
+        "sin incidencias",
+        "sin caidas",
+        "no hay caidas",
+        "no outage"
       ]
     }
   ],
@@ -3027,7 +3052,10 @@
         "stablecoin",
         "stablecoins",
         "retargeting",
-        "deeplink"
+        "deeplink",
+        "impuestos provinciales",
+        "tributos provinciales",
+        "impuestos estatales"
       ],
       "enabled": true
     },
@@ -4653,7 +4681,12 @@
             "merchant acquiring onboarding",
             "new payment terminal",
             "solicitar tpv",
-            "solicitud tpv"
+            "solicitud tpv",
+            "softpos",
+            "tap to pay",
+            "terminales pos",
+            "merchant acquiring",
+            "adquirencia"
           ]
         },
         {
@@ -5261,7 +5294,15 @@
         "embedded finance",
         "notifications",
         "omnicanal",
-        "omnichannel"
+        "omnichannel",
+        "app caida",
+        "banca online caida",
+        "online banking down",
+        "mobile banking down",
+        "app not working",
+        "caida del servicio",
+        "caida del sistema",
+        "service disruption"
       ],
       "functions": [
         {

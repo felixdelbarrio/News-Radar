@@ -19,9 +19,10 @@ function classificationPending_(){const job=classificationJob_();return Boolean(
 function classificationReadyAt_(){const job=classificationJob_();return job&&!['Completada','Publicando'].includes(job.state)?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
 function writeClassificationJob_(job){progressContextMemory_=undefined;properties_().setProperty('CLASSIFICATION_JOB',JSON.stringify(snapshotJob_('CLASSIFICATION_JOB',job)));}
 function requestNewsClassification_(force=false){
-  const job=classificationJob_(),revision=classificationRulesRevision_();if(!force&&job&&job.revision===revision&&job.state!=='Completada')return;
-  const now=new Date(),total=Math.max(0,newsSheet_().getLastRow()-1);
-  writeClassificationJob_({source:newsStorageKey_(),next:2,total,revision,version:CLASSIFICATION_WORK.rulesVersion,force,state:total?'Pendiente':'Completada',started:now.toISOString(),updated:now.toISOString(),day:recordDay(now,settings_().timezone),classified:0,digital:0});
+  const job=classificationJob_(),revision=newsClassificationRevision_(),source=newsStorageKey_(),total=Math.max(0,newsSheet_().getLastRow()-1),recordsRevision=properties_().getProperty('NEWS_RECORDS_REVISION')||'0';
+  if(!force&&job&&job.revision===revision&&(job.state!=='Completada'||job.source===source&&job.total===total&&job.recordsRevision===recordsRevision))return;
+  const now=new Date();
+  writeClassificationJob_({source,recordsRevision,next:2,total,revision,version:CLASSIFICATION_WORK.rulesVersion,force,state:total?'Pendiente':'Completada',started:now.toISOString(),updated:now.toISOString(),day:recordDay(now,settings_().timezone),classified:0,digital:0});
   if(total)ensureBackgroundWorker_();
 }
 function drainClassificationRequest_(){
@@ -43,24 +44,24 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
  const job=classificationJob_();if(!job||['Completada','Publicando'].includes(job.state))return;
  const started=Date.now();let read=0,classified=0,digital=0;
  try{
-  const revision=classificationRulesRevision_();if(job.revision!==revision){requestNewsClassification_(true);return;}
+  const revision=newsClassificationRevision_();if(job.revision!==revision){requestNewsClassification_(true);return;}
   const sheet=newsSheet_(),keys=RADAR.sheets.Noticias,total=Math.max(0,sheet.getLastRow()-1),size=Math.min(CLASSIFICATION_WORK.batchRows,total-job.next+2),updates=[],items=taxonomyCatalog_();
   const rows=size>0?sheet.getRange(job.next,1,size,keys.length).getDisplayValues():[];
   for(const values of rows){
    if(Date.now()-started>=maxMs||backgroundPaused_(true))break;
-   const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]])),position=job.next+read,title=searchText_(row.titular),text=searchText_(row.titular+' '+row.extracto),hash=sha256_(JSON.stringify([title,text])),saved=savedNewsLabels_(row.clasificacion),taxonomy=taxonomySaved_(row.taxonomia);
+   const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]])),position=job.next+read,cleanTitle=plainText_(row.titular),cleanExcerpt=plainText_(row.extracto),title=searchText_(cleanTitle),text=searchText_(cleanTitle+' '+cleanExcerpt),hash=sha256_(JSON.stringify([title,text])),saved=savedNewsLabels_(row.clasificacion),taxonomy=taxonomySaved_(row.taxonomia);
    read++;
    let taxonomyValid=true;try{validateTaxonomyAssignment_(taxonomy,items,row.id,true,row);}catch(_){taxonomyValid=false;}
    const current=saved.schema===1&&saved.version===CLASSIFICATION_WORK.rulesVersion&&saved.revision===revision&&saved.contentHash===hash;
    const nextCountry=newsCountry_(row),nextEntity=entityKey_(row.entidad);
-   if(!job.force&&current&&taxonomyValid&&nextEntity===row.entidad&&nextCountry===row.pais)continue;
-   const labels=current&&!job.force?saved:{...classification_(title,text).labels,...(saved.procedencia?{procedencia:saved.procedencia}:{})};delete labels.canonicalId;
-   const changed={clasificacion:JSON.stringify(labels),pais:nextCountry,entidad:nextEntity,taxonomia:JSON.stringify(necessaryTaxonomyRecord_(row,items))};
+   if(!job.force&&current&&taxonomyValid&&nextEntity===row.entidad&&nextCountry===row.pais&&cleanTitle===row.titular&&cleanExcerpt===row.extracto)continue;
+   const labels=current&&!job.force?saved:{...classification_(title,text).labels,...(saved.procedencia?{procedencia:saved.procedencia}:{})};
+   const changed={titular:cleanTitle,extracto:cleanExcerpt,clasificacion:JSON.stringify(labels),pais:nextCountry,entidad:nextEntity,taxonomia:JSON.stringify(necessaryTaxonomyRecord_(row,items))};
    for(const [key,value] of Object.entries(changed))if(value!==row[key])updates.push({row:position,column:keys.indexOf(key)+1,value});
    if(changed.clasificacion!==row.clasificacion)classified++;if(labels.digital)digital++;
   }
   writeNewsCells_(updates);if(updates.length)invalidateNews_(false);
-  job.total=total;job.next+=read;Object.assign(job,{state:job.next>total+1?'Completada':'En curso',updated:new Date().toISOString(),classified:job.classified+classified,digital:job.digital+digital,error:'',pausedUntil:0});writeClassificationJob_(job);if(job.state==='Completada')requestDashboardSnapshots_(true);
+  job.total=total;job.next+=read;Object.assign(job,{state:job.next>total+1?'Completada':'En curso',updated:new Date().toISOString(),classified:job.classified+classified,digital:job.digital+digital,error:'',pausedUntil:0});if(job.state==='Completada')job.recordsRevision=properties_().getProperty('NEWS_RECORDS_REVISION')||'0';writeClassificationJob_(job);if(job.state==='Completada')requestDashboardSnapshots_(true);
   telemetry_('clasificacion',Date.now()-started,'OK',read+' leídas; '+classified+' clasificadas; '+updates.length+' celdas modificadas');
  }catch(error){Object.assign(job,{state:'En pausa',error:String(error.message).slice(0,180),pausedUntil:Date.now()+(serviceQuotaPause_(error)||settings_().retryMinutes*60000)});writeClassificationJob_(job);telemetry_('clasificacion',Date.now()-started,'Error',job.error);}
 }

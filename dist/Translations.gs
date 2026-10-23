@@ -40,13 +40,13 @@ function cachedArticleTranslations_(keys){
   const byRow=new Map(positions.map(({key,row})=>[row,key]));
   for(const [first,last] of sheetRowRanges_(positions.map(item=>item.row),64)){
     const rows=book_().getSheetByName('Traducciones').getRange(first,3,last-first+1,2).getDisplayValues();
-    rows.forEach(([titular,extracto],offset)=>{const key=byRow.get(first+offset);if(!key)return;const value={titular,extracto};articleTranslationMemory_.set(key,value);const encoded=cacheJsonValue_(value);if(encoded)values['article:'+key]=encoded;});
+    rows.forEach(([titular,extracto],offset)=>{const key=byRow.get(first+offset);if(!key)return;const value={titular:plainText_(titular),extracto:plainText_(extracto)};articleTranslationMemory_.set(key,value);const encoded=cacheJsonValue_(value);if(encoded)values['article:'+key]=encoded;});
   }
   if(Object.keys(values).length)try{cache.putAll(values,21600);}catch(_){}return articleTranslationMemory_;
 }
 function translateArticleText_(row,language){
   const escape=value=>String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-  const hasExcerpt=Boolean(plainText_(row.extracto).trim()),input='<p id="headline">'+escape(row.titular)+'</p>'+(hasExcerpt?'<p id="excerpt">'+escape(row.extracto)+'</p>':'');
+  const title=plainText_(row.titular).slice(0,5000),excerpt=plainText_(row.extracto).slice(0,5000),hasExcerpt=Boolean(excerpt),input='<p id="headline">'+escape(title)+'</p>'+(hasExcerpt?'<p id="excerpt">'+escape(excerpt)+'</p>':'');
   const html=LanguageApp.translate(input,'',language,{contentType:'html'});
   const blocks=[...html.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)].map(match=>plainText_(match[1]));
   if(blocks.length!==(hasExcerpt?2:1)||!blocks[0]||(hasExcerpt&&!blocks[1]))throw Error('Respuesta de traducción incompleta.');

@@ -11,7 +11,11 @@ function getMaintenanceStatus(){authorize_(true);const job=maintenanceJob_();ret
 function compactOperationalLogs_(){
  for(const name of Object.keys(LOG_LIMITS)){const sheet=book_().getSheetByName(name);if(sheet)enforceLogLimit_(name,sheet);}
  const completed=new Set(rows_('Recargas').filter(row=>['Completada','Parcial'].includes(row.estado)).map(row=>row.id)),sheet=book_().getSheetByName('Recopilacion'),keys=RADAR.sheets.Recopilacion;
- if(sheet&&sheet.getLastRow()>1){const rows=sheet.getRange(2,1,sheet.getLastRow()-1,keys.length).getDisplayValues(),cycle=keys.indexOf('ciclo'),status=keys.indexOf('estado'),errors=new Set(rows.filter(row=>!['Completada','Cancelada','Omitida'].includes(row[status])).map(row=>row[cycle]));deleteSheetRows_(sheet,rows.flatMap((row,index)=>completed.has(row[cycle])&&!errors.has(row[cycle])?[index+2]:[]));}
+ if(sheet&&sheet.getLastRow()>1){
+  const count=sheet.getLastRow()-1,cycles=sheet.getRange(2,keys.indexOf('ciclo')+1,count,1).getDisplayValues().flat(),states=sheet.getRange(2,keys.indexOf('estado')+1,count,1).getDisplayValues().flat();
+  const active=new Set(cycles.filter((_,i)=>!['Completada','Cancelada','Omitida'].includes(states[i])));
+  deleteSheetRows_(sheet,cycles.flatMap((cycle,index)=>completed.has(cycle)&&!active.has(cycle)?[index+2]:[]));
+ }
 }
 function deleteSheetRows_(sheet,positions){
  const rows=[...new Set(positions)].sort((a,b)=>b-a);for(let i=0;i<rows.length;){let end=i+1;while(end<rows.length&&rows[end]===rows[end-1]-1)end++;sheet.deleteRows(rows[end-1],end-i);i=end;}
@@ -38,7 +42,7 @@ function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
   if(job.phase==='news'){
   const sheet=newsSheet_(),keys=RADAR.sheets.Noticias,size=Math.min(MAINTENANCE_POLICY.batchRows,job.newsTotal-job.next+2),updates=[],items=taxonomyCatalog_();let read=0;
   const rows=size>0?sheet.getRange(job.next,1,size,keys.length).getDisplayValues():[];
-  for(const values of rows){if(Date.now()-started>=maxMs||backgroundPaused_(true))break;const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]])),saved=savedNewsLabels_(row.clasificacion);delete saved.canonicalId;const changed={clasificacion:JSON.stringify(saved),pais:newsCountry_(row),entidad:entityKey_(row.entidad),taxonomia:JSON.stringify(necessaryTaxonomyRecord_(row,items))};let corrected=false;for(const [key,value] of Object.entries(changed))if(value!==row[key]){updates.push({row:job.next+read,column:keys.indexOf(key)+1,value});corrected=true;}if(corrected)job.corrected++;read++;}
+  for(const values of rows){if(Date.now()-started>=maxMs||backgroundPaused_(true))break;const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]])),saved=savedNewsLabels_(row.clasificacion);const changed={clasificacion:JSON.stringify(saved),pais:newsCountry_(row),entidad:entityKey_(row.entidad),taxonomia:JSON.stringify(necessaryTaxonomyRecord_(row,items))};let corrected=false;for(const [key,value] of Object.entries(changed))if(value!==row[key]){updates.push({row:job.next+read,column:keys.indexOf(key)+1,value});corrected=true;}if(corrected)job.corrected++;read++;}
   writeNewsCells_(updates);if(updates.length)invalidateNews_(false);job.next+=read;job.reviewed+=read;job.state='Pendiente';if(job.next>job.newsTotal+1){job.phase='candidates';job.candidateNext=2;}
   }
   if(job.phase==='candidates'){
