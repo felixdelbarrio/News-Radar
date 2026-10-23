@@ -32,7 +32,6 @@ function updateVocabulary_(sheet){
 }
 function initializeConfiguration(){
   authorize_(true);return withForegroundWrite_(()=>{
-    migrateCanonicalStorage_();
     const refreshCatalog=properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION;
     for(const name of ['CategorizacionLLM','Candidatos','Cobertura','Configuracion','Suscripciones','NewsletterEnvios','NewsletterEdiciones','NewsletterContenido','NewsletterEventos','NewsletterFeedback','Noticias','Recopilacion','Recargas','Traducciones','CatalogoFuncional','Taxonomia','TaxonomiaTraducciones','Auditoria','Telemetria','Ejecuciones','Adopcion','DashboardSnapshots']){
       const physical=configurationStorageKey_(name);
@@ -55,11 +54,11 @@ function initializeConfiguration(){
         }else{
           if(['segments','applicationScope'].includes(key))value.splice(0,value.length,...value.filter(row=>row.name===sectorNewsDefaults.segment));
           if(key==='applicationScope')for(const row of value){row.countries=[...new Set([...row.countries,...(defaults.find(seed=>seed.name===row.name)?.countries||[])])];}
+          if(key==='signals')value.splice(0,value.length,...canonicalSignalRules_(value,defaults));
           const names=new Set(value.map(row=>key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))),ids=new Set(value.map(row=>row.id));
           if(key==='geographies')for(const row of value){const seed=defaults.find(item=>item.code===row.code);if(seed)row.terms=[...new Set([...(row.terms||[]),...seed.terms])];}
           if(key==='segments')for(const row of value){const seed=defaults.find(item=>item.name===row.name);if(seed)row.terms=[...new Set([...row.terms,...seed.terms])];}
           if(key==='entities')for(const row of value){const seed=defaults.find(item=>searchText_(item.name)===searchText_(row.name));if(seed){row.countries=[...new Set([...row.countries,...seed.countries])];row.aliases=[...new Set([...row.aliases,...seed.aliases])];}}
-          if(key==='signals')for(const row of value){const seed=defaults.find(item=>item.name===row.name);row.group=row.group||seed?.group||'Novedad';if(seed)for(const key of ['terms','context'])row[key]=[...new Set([...row[key],...seed[key]])];}
           value.push(...defaults.filter(row=>!names.has(key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))&&(key!=='feeds'||!ids.has(row.id))));
         }
         sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(value)]]);
@@ -70,6 +69,7 @@ function initializeConfiguration(){
       if(book_().getSheetByName('CatalogoFuncional').getLastRow()<2&&blocks.every(block=>block.functions.every(row=>typeof row.name==='string')))writeFunctionalCatalog_(blocks);
       if(refreshCatalog)for(const block of blocks){
         const seed=CONFIGURATION_DEFAULTS.taxonomy.find(row=>row.name===block.name);
+        if(seed)block.terms=[...new Set([...(block.terms||[]),...(seed.terms||[])])];
         for(const concept of seed?.emerging||[]){const previous=block.emerging.find(row=>row.name===concept.name||concept.primaryTerms?.includes(taxonomyText(row.name)));if(previous)Object.assign(previous,concept,{terms:[...new Set([...previous.terms,...concept.terms])]});else block.emerging.push(concept);}
         for(const row of block.functions){const next=defaults.get(row.id);if(next){row.terms=next.name.startsWith('Landing')?next.terms:[...new Set([...row.terms,...next.terms])];for(const key of ['context','exclude'])if(next[key]?.length)row[key]=next[key];}}
       }
@@ -176,3 +176,10 @@ function validateCapabilities_(capabilities){
 
 
 
+
+function canonicalSignalRules_(rows,seeds){
+ return seeds.map(seed=>{
+  const saved=rows.find(row=>row.name===seed.name||seed.group==='Problema'&&row.group==='Problema');
+  return {...saved,...seed,...Object.fromEntries(['terms','context','exclude'].map(key=>[key,[...new Map([...(saved?.[key]||[]),...(seed[key]||[])].map(term=>[searchText_(term),term])).values()]]))};
+ });
+}

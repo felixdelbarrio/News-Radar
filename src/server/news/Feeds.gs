@@ -36,8 +36,8 @@ function knownUrls_(){
   const sheet=newsSheet_(),count=Math.max(0,sheet.getLastRow()-1),revision=newsStorageKey_()+':'+count+':'+(properties_().getProperty('NEWS_CONTENT_REVISION')||'0');
   if(knownUrlsMemory_?.revision===revision)return knownUrlsMemory_.known;
   const known=new Set();known.titles=new Map();
-  if(count){const rows=sheet.getRange(2,2,count,7).getDisplayValues();
-    for(const row of rows){const url=newsUrlIdentity_(row[6]);if(url)known.add(url);rememberTitle_(known,{date:row[0],country:row[1],publisher:row[2],entity:entityKey_(row[3]),title:row[4]});}
+  if(count){const rows=sheet.getRange(2,2,count,5).getDisplayValues(),urls=sheet.getRange(2,8,count,1).getDisplayValues();
+    for(let i=0;i<rows.length;i++){const row=rows[i],url=newsUrlIdentity_(urls[i][0]);if(url)known.add(url);rememberTitle_(known,{date:row[0],country:row[1],publisher:row[2],entity:entityKey_(row[3]),title:row[4]});}
   }
   knownUrlsMemory_={revision,known};return known;
 }
