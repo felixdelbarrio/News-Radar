@@ -72,7 +72,7 @@ test('la cola lee estados solo de trabajos activos y conserva posiciones física
  const s=server(),c=s.c;add(s,'Recargas',{id:'done',tipo:'annual',estado:'Parcial',total:1000,pendientes:0});add(s,'Recargas',{id:'active',tipo:'daily',estado:'Pendiente',total:2,pendientes:2});
  for(let i=0;i<1000;i++)add(s,'Recopilacion',{ciclo:'done',estado:'Completada'});for(let i=0;i<2;i++)add(s,'Recopilacion',{ciclo:'active',estado:'Pendiente',fuente:'Fuente',url:'https://example.com/'+i,prioridad:'2026-10-12'});
  const sheet=s.sheets.get('Recopilacion'),range=sheet.getRange.bind(sheet),reads=[];sheet.getRange=(...args)=>{reads.push(args);return range(...args);};const work=c.collectionWork_(Date.now());assert.equal(work.tasks.length,2);assert.deepEqual(Array.from(work.pending,row=>row.row),[1002,1003]);assert.ok(reads.every(([,column,size])=>column!==4||size===2));
- c.collectionFeeds_=()=>[];c.requestDailyCollection_();c.drainCollectionRequests_();assert.equal(c.rows_('Recopilacion').length,2);assert.equal(c.collectionJobs_().find(row=>row.id==='done').total,'1000');
+ c.collectionFeeds_=()=>[];c.requestDailyCollection_();c.drainCollectionRequests_();assert.equal(c.rows_('Recopilacion').length,1002);assert.equal(c.collectionWork_(Date.now()).tasks.length,2);assert.equal(c.collectionJobs_().find(row=>row.id==='done').total,'1000');
 });
 test('una cuota diaria de URL Fetch pausa la cola sin amplificar llamadas ni consumir intentos',()=>{
  const s=server(),c=s.c,feed=c.feeds_().find(row=>row.kind==='rss');add(s,'Recargas',{id:'daily',tipo:'daily',estado:'Pendiente',total:1,pendientes:1,desde:'2026-10-01',hasta:'2026-10-13',inicio:new Date().toISOString()});add(s,'Recopilacion',{ciclo:'daily',fuente:feed.name,url:feed.url,estado:'Pendiente',intentos:0,prioridad:'2026-10-13'});
@@ -87,4 +87,28 @@ test('incorporar una noticia de Empresas digital solicita traducción automátic
  add(s,'Recargas',{id:'daily',tipo:'daily',estado:'Pendiente',total:1,pendientes:1,desde:'2026-10-01',hasta:'2026-10-13',inicio:new Date().toISOString()});add(s,'Recopilacion',{ciclo:'daily',fuente:feed.name,url:feed.url,estado:'Pendiente',intentos:0,prioridad:'2026-10-13'});
  c.fetchFeedBatch_=()=>[{response:{}}];c.ingestFeed_=()=>({news:[vm.runInContext('RADAR.sheets.Noticias',c).map(key=>row[key]??'')],audit:[],evaluated:1,relevant:1,digital:1});
  assert.equal(c.collectionBatch_(c.collectionWork_(Date.now())).added,1);assert.ok(s.properties.TRANSLATION_REQUEST);assert.equal(s.properties.TRANSLATION_PRIORITY_REQUEST,'true');
+});
+test('Otras geografías en ediciones archivadas usa el ámbito congelado también al exportar',()=>{
+ const s=server(),c=s.c;
+ const items=[
+  news(s,'spain','España','BBVA presenta una plataforma de pagos para empresas españolas'),
+  news(s,'mexico','México','BBVA incorpora nuevas funcionalidades de cobros en México'),
+  news(s,'italy','Italia','BBVA desarrolla una solución de tesorería para empresas italianas')
+ ];
+ const queryEdition={view:'news',from:'2026-09-01',to:'2026-09-30',segment:'Empresas e instituciones'};
+ const content=c.newsletterContent_(items,queryEdition,'Selección',new Date(),'subscription','es','frozen-geography');
+ c.saveNewsletterEdition_('frozen-geography','delivery','owner@bbva.com','Selección',queryEdition,'es',items,content.editorial);
+ c.completeNewsletterEdition_('frozen-geography','Enviada');
+ const original=content.editorial.scope;
+ assert.ok(original[0].countries.includes('México'),'La prueba requiere México dentro del ámbito original');
+ c.configuration_().applicationScope[0].countries=['España','Italia'];
+ c.invalidateNews_();
+ const query={view:'news',edition:'frozen-geography',country:'Otras geografías',newsGeography:'Otras geografías'};
+ const response=c.getDashboard(query);
+ assert.deepEqual(Array.from(response.items,row=>row.id),['italy']);
+ const exported=c.exportNews(query);
+ assert.equal(exported.count,1);
+ assert.match(exported.csv,/italy/);
+ assert.doesNotMatch(exported.csv,/mexico/);
+ assert.deepEqual(clean(response.applicationScope),clean(original));
 });

@@ -8,11 +8,10 @@ test('Ejecuciones incluye una sola clasificación bajo las recargas y usa el est
  const a=await app(t,{entry:''});await a.click('[data-view="administration"]');assert.ok(a.find('#runs-section').contains(a.find('#classification-start')));assert.equal(a.find('#classification-progress').querySelectorAll('progress').length,1);assert.ok(a.find('#collection-jobs').compareDocumentPosition(a.find('#classification-progress'))&a.w.Node.DOCUMENT_POSITION_FOLLOWING);assert.equal(a.w.document.querySelector('#configuration-section #classification-start'),null);assert.equal(a.calls.filter(c=>c.method==='getClassificationStatus').length,0);
  await a.click('#classification-start');assert.equal(a.calls.filter(c=>c.method==='startClassification').length,1);
 });
-test('una anual activa se puede seleccionar y continuar sin lanzar una recarga duplicada',async t=>{
- const a=await app(t,{entry:'',configure({data,replies}){data.collection={pending:20,blocked:{today:false,year:true},jobs:[]};replies.getRuns.collection=data.collection;}});
- await a.click('[data-view="administration"]');
- const annual=a.find('[name="recovery-range"][value="year"]');assert.equal(annual.disabled,false);annual.checked=true;annual.dispatchEvent(new a.w.Event('change',{bubbles:true}));assert.equal(a.find('#collect').disabled,true);assert.equal(a.find('#continue-collection').hidden,false);
- await a.click('#continue-collection');assert.equal(a.calls.find(c=>c.method==='resumeCollection').query,'year');assert.equal(a.calls.filter(c=>c.method==='collectNow').length,0);
+test('la interfaz solo permite recopilación diaria y conserva la continuación diaria',async t=>{
+ const a=await app(t,{entry:'',configure({data,replies}){data.collection={pending:20,blocked:{today:true},jobs:[]};replies.getRuns.collection=data.collection;}});
+ await a.click('[data-view="administration"]');assert.equal(a.w.document.querySelector('[name="recovery-range"]'),null);assert.equal(a.find('#collect').disabled,true);
+ await a.click('#continue-collection');assert.equal(a.calls.find(c=>c.method==='resumeCollection').query,'today');assert.equal(a.calls.filter(c=>c.method==='collectNow').length,0);
 });
 test('el supervisor repone un trabajador perdido y conserva las pausas y los datos pendientes',()=>{
  const s=fixture(),c=s.c;c.requestCollection_('annual',{from:'2025-10-01',to:'2026-10-01'});for(const trigger of c.scheduledTriggers_('backgroundTick_'))c.ScriptApp.deleteTrigger(trigger);c.backgroundWatchdog_();assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);assert.equal(c.collectionRequests_().length,1);

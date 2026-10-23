@@ -1,3 +1,4 @@
+const APPLICATION_NAVIGATION = Object.freeze({"views":{"briefing":"Novedades","news":"Noticias","radar":"Radar","subscriptions":"Mi Newsletter","administration":"Administración"},"adminViews":{"runs":"Ejecuciones","taxonomy":"Catálogo global de funcionalidades","llm":"Categorización LLM","language":"Idioma","subscribers":"Suscripciones","adoption":"Adopción","feedback":"Feedback","telemetry":"Telemetría","sources":"Fuentes","audit":"Auditoría","configuration":"Configuración de negocio"}});
 const FUNCTIONAL_CATALOG_SEED = Object.freeze([
   {
     "name": "01.Home",
@@ -2133,7 +2134,7 @@ const CONFIGURATION_DEFAULTS = {
     "collectionBatch": 3,
     "retryMinutes": 10,
     "pauseMinutes": 5,
-    "dailyHour": 7,
+    "dailyHour": 6,
     "briefingLimit": 50,
     "searchTerms": [
       "banca",
@@ -7860,7 +7861,15 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "emerging": []
     }
-  ]
+  ],
+  "storage": {
+    "primaryFolderId": "1-XyAuxo9F42NnzZzPFgfp64HlYAFgi_M",
+    "logFolderId": "1HKblMvd0Vj6om5eHqsrC4tojIUkBCJ69",
+    "newsletterFolderId": "1f-ZxHRBntvUIZmZtweGNkbDE0Bvjy74d",
+    "logRows": 10,
+    "logDays": 20,
+    "newsletterDeliveries": 3
+  }
 };
 CONFIGURATION_DEFAULTS.taxonomy=functionalCatalogRules(FUNCTIONAL_CATALOG_SEED,CONFIGURATION_DEFAULTS.taxonomy);Object.freeze(CONFIGURATION_DEFAULTS);
 addVocabularyTerms_(CONFIGURATION_DEFAULTS);

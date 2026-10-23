@@ -1,3 +1,4 @@
+export const ADMIN_PAGE_SIZE=10;
 export function recordText(value){return String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ı/g,'i').trim();}
 export function recordQuery(input={},fields=[]){
   const query={};
@@ -20,7 +21,7 @@ export function filterRecords(rows,input,fields,searchFields,dateKey='fecha',tim
   });
 }
 export function recordOptions(rows,fields){return Object.fromEntries(fields.map(key=>[key,[...new Set(rows.map(row=>String(row[key]??'')).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'))]));}
-export function recordPage(rows,input={},pageSize=30){const page=Math.min(Math.max(0,Math.floor(Number(input.page)||0)),Math.max(0,Math.ceil(rows.length/pageSize)-1));return {items:rows.slice(page*pageSize,(page+1)*pageSize),total:rows.length,page,pageSize};}
+export function recordPage(rows,input={},pageSize=ADMIN_PAGE_SIZE){const page=Math.min(Math.max(0,Math.floor(Number(input.page)||0)),Math.max(0,Math.ceil(rows.length/pageSize)-1));return {items:rows.slice(page*pageSize,(page+1)*pageSize),total:rows.length,page,pageSize};}
 
 export function recordDay(value,timezone='UTC'){
   if(recordDateFormatter?.timezone!==timezone)recordDateFormatter={timezone,formatter:new Intl.DateTimeFormat('en-CA',{timeZone:timezone,year:'numeric',month:'2-digit',day:'2-digit'})};

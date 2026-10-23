@@ -8,7 +8,7 @@ import {attachNewsletterSummaries} from './newsletter-summary.js';
 export function createSubscriptions({run}){
  let options,own=[],all=[],request=0,historyLimit=3;const filters={};
  const editorId=admin=>admin?'admin-subscription-editor':'personal-editor';
- function edit(admin,row){const target=$(editorId(admin));target.hidden=false;target.innerHTML=subscriptionForm(options,admin,row);}
+ function edit(admin,row){const target=$(editorId(admin));target.hidden=false;target.innerHTML=subscriptionForm(options,admin,row);target.scrollIntoView?.({block:"nearest"});target.querySelector("input,select,button")?.focus();}
  function render(admin){if(!admin){$('subscriptions-list').innerHTML=subscriptionCards(own,false);return;}const id='subscribers',rows=all;
   filters[id]||=createRecordFilters(id,[...(admin?[['correo','Suscriptor']]:[]),['activa','Estado',[['true','Activa'],['false','Pausada']]]],()=>render(admin),{placeholder:'Correo o geografía'});
   filters[id].options(recordOptions(rows,admin?['correo']:[]));const selected=filterRecords(rows,filters[id].query(),admin?['correo','activa']:['activa'],['correo','nombre']),page=recordPage(selected,filters[id].query());

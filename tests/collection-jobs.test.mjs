@@ -48,9 +48,9 @@ test('preparar una solicitud es idempotente incluso si quedó una parte de la co
  s.sheets.get('Recargas').grid[1][6]='Preparando';let selected;c.collectionFeeds_=range=>{selected=range;return [{...s.feed,range}];};
  c.requestCollection_('annual',{from:'2025-01-02',to:'2026-01-02'});c.drainCollectionRequests_();assert.equal(c.collectionJobs_().length,1);assert.equal(c.rows_('Recopilacion').length,1);assert.equal(selected.to,'2026-01-01');
 });
-test('terminar una carga conserva su progreso pero retira sus tareas al preparar la siguiente',()=>{
+test('terminar una carga conserva progreso y tareas hasta disponer de archivo verificado',()=>{
  const s=server(),c=s.c;addJob(s,'done','daily',1);c.backgroundTick_();assert.equal(c.rows_('Recopilacion').length,1);
- c.requestCollection_('annual',{from:'2026-10-11',to:'2026-10-11'});c.drainCollectionRequests_();assert.equal(c.rows_('Recopilacion').length,1);assert.notEqual(c.rows_('Recopilacion')[0].ciclo,'done');assert.equal(c.collectionJobs_().find(job=>job.id==='done').procesadas,'1');
+ c.requestCollection_('annual',{from:'2026-10-11',to:'2026-10-11'});c.drainCollectionRequests_();assert.equal(c.rows_('Recopilacion').length,2);assert.equal(c.rows_('Recopilacion')[0].ciclo,'done');assert.notEqual(c.rows_('Recopilacion')[1].ciclo,'done');assert.equal(c.collectionJobs_().find(job=>job.id==='done').procesadas,'1');
 });
 test('errores simultáneos solo pausan su ciclo y quedan reintentables',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',2);addJob(s,'daily','daily',1);
@@ -79,7 +79,7 @@ test('los lanzamientos manual y programado comparten la solicitud diaria y recha
  const s=server(),c=s.c;c.collectNow();const first=c.collectionRequests_()[0];assert.equal(first.kind,'daily');assert.deepEqual(first.range,c.collectionRecentRange_(new Date()));assert.throws(()=>c.collectNow(),/diaria en curso/);
  const lock=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};c.dailyRadar_();assert.equal(c.collectionRequests_().length,1);assert.deepEqual(c.collectionRequests_()[0].range,first.range);c.LockService=lock;c.backgroundTick_();assert.equal(c.collectionJobs_().length,1);
  c.collectNow();assert.equal(c.collectionRequests_().length,1);c.backgroundTick_();assert.equal(c.collectionJobs_().length,2);
- c.collectNow('year');assert.throws(()=>c.collectNow('year'),/anual en curso/);c.drainCollectionRequests_();assert.throws(()=>c.collectNow('year'),/anual en curso/);
+ assert.throws(()=>c.collectNow('year'),/recopilación diaria/);assert.equal(c.collectionRequests_().length,0);
 });
 test('un único trabajador serializa diaria, anual y traducción, y respeta traducción antes de tareas secundarias',()=>{
  const s=server(),c=s.c;c.maintenanceReadyAt_=()=>Infinity;addJob(s,'annual','annual',30);addJob(s,'daily','daily',1);const order=[];const collect=c.collectionBatch_;

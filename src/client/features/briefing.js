@@ -18,7 +18,9 @@ export function createBriefing({onExplore}){
     const rows=group?.entities.flatMap(entity=>entity.items)||[];
     $('briefing-list').innerHTML=rows.map(row=>`<article class="panel novelty-card">${articleContent(row,selection,true)}</article>`).join('')||'<div class="panel empty"><h3>'+t('No hay novedades de producto en esta selección.')+'</h3></div>';
     $('briefing-limit').hidden=!group||stats.total<=group.items.length;
+    $('briefing-explore').hidden=$('briefing-limit').hidden;
   }
+  $('briefing-explore-news').addEventListener('click',()=>onExplore({...selection,country:active,newsGeography:active,page:0}));
   $('briefing-signals').addEventListener('click',event=>{const button=event.target.closest('[data-signal]');if(button)onExplore({...selection,country:'',newsGeography:active,signal:button.dataset.signal,page:0});});
   return {render(data){
     selection=data.selection||{};briefing=data.briefing||{total:0,bySignal:[],geographies:[],items:[]};briefing={...briefing,items:briefing.items.filter(briefingAllowed),bySignal:briefing.bySignal.filter(row=>BRIEFING_ALLOWED_SIGNALS.includes(row.name))};

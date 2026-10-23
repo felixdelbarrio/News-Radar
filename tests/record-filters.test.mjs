@@ -10,10 +10,10 @@ test('filtros compartidos combinan búsqueda, valores exactos y fechas de la zon
  assert.throws(()=>recordQuery({from:'2026-02-30'}),/Fecha/);assert.throws(()=>recordQuery({from:'2026-10-12',to:'2026-10-11'}),/anterior/);assert.throws(()=>recordQuery({search:'x'.repeat(161)}),/largo/);
  assert.equal(recordPage(rows,{page:99},2).page,1);assert.equal(recordPage(rows,{page:99},2).items.length,1);
 });
-function server(){const c=vm.createContext({});vm.runInContext(readServerScript('dist',true),c);c.settings_=()=>configurationDefaults().settings;c.authorize_=()=>({admin:true});return c;}
+function server(){const c=vm.createContext({});vm.runInContext(readServerScript('dist',true),c);c.configuration_=()=>configurationDefaults();c.settings_=()=>configurationDefaults().settings;c.authorize_=()=>({admin:true});return c;}
 test('Auditoría filtra antes de paginar y encuentra errores anteriores a las últimas 100 entradas',()=>{
  const c=server(),rows=Array.from({length:201},(_,i)=>({fecha:'2026-10-11T10:00:00Z',fuente:i<40?'BBVA':'Santander',resultado:i<40?'Error':'Incluida',motivo:'HTTP 302',ejecucion:'cycle'}));c.rows_=(name,limit)=>{assert.equal(name,'Auditoria');assert.equal(limit,20000);return rows;};
- const first=c.getAudit({fuente:'BBVA',resultado:'Error'}),next=c.getAudit({fuente:'BBVA',resultado:'Error',page:1});assert.equal(first.total,40);assert.equal(first.items.length,30);assert.equal(next.items.length,10);assert.equal(first.options.fuente.length,2);
+ const first=c.getAudit({fuente:'BBVA',resultado:'Error'}),next=c.getAudit({fuente:'BBVA',resultado:'Error',page:1});assert.equal(first.total,40);assert.equal(first.items.length,10);assert.equal(next.items.length,10);assert.equal(first.options.fuente.length,2);
  c.authorize_=()=>{throw Error('Solo administrador');};assert.throws(()=>c.getAudit({}),/administrador/);
 });
 test('Adopción recalcula métricas, tabla y días a partir de los mismos eventos filtrados',()=>{

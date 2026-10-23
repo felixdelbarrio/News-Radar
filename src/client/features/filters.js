@@ -2,7 +2,7 @@ import {openDatePicker} from './date-picker.js';
 import {newsletterComparisonLabels} from '../../shared/newsletter-cadences.js';
 import {taxonomySubLabel,taxonomyDisplayLabel} from '../../shared/taxonomy-path.js';
 import {syncTaxonomyControls} from './taxonomy-controls.js';
-import {coverageOptions,BRIEFING_ALLOWED_SIGNALS} from '../../shared/selection-policy.js';
+import {coverageOptions,BRIEFING_ALLOWED_SIGNALS,otherGeography} from '../../shared/selection-policy.js';
 import {defaultView} from '../config.js';
 import {t,language} from '../core/language.js';
 import {formatCalendarDay} from '../../shared/locales.js';
@@ -12,7 +12,7 @@ function createFilters({ onInvalidate, onChange }) {
   let page = 0, view=defaultView, defaults={},edition='',newsGeography='',editionSelection={},taxonomy=[],applied={},dirty=false;
   const selections=new Map(),initialized=new Set();
   function options(name, values, selected) {
-    const el = form.elements[name];if(!el)return;let current = selected ?? el.value;if(name==='signal'&&view==='briefing'){values=values.filter(value=>BRIEFING_ALLOWED_SIGNALS.includes(value));if(!values.includes(current))current='';}
+    const el = form.elements[name];if(!el)return;if(name==='country'&&view==='news')values=[...new Set([...values,otherGeography])];let current = selected ?? el.value;if(name==='signal'&&view==='briefing'){values=values.filter(value=>BRIEFING_ALLOWED_SIGNALS.includes(value));if(!values.includes(current))current='';}
     if(name!=='year'&&!(name==='signal'&&view==='briefing')&&current&&!values.includes(current))values=[...values,current];
     const signature = JSON.stringify(values);
     if (el.dataset.options === signature) return;

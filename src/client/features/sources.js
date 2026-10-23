@@ -33,7 +33,7 @@ function createSources({ getData, run }) {
       signature = next;
       sourceFields(data.feeds);
       $("source-fields").dataset.max=data.maxFeeds;$("source-limit").textContent=data.maxFeeds;
-      catalog.update(data.configuredFeeds,data.pageSize);
+      catalog.update(data.configuredFeeds);
     }
   }, setBusy(value) {
     busy = value;

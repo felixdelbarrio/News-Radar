@@ -1,5 +1,40 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Formato de archivo no válido.": ["Invalid archive format.", "Geçersiz arşiv biçimi."],
+  "Cabecera de archivo no válida.": ["Invalid archive header.", "Geçersiz arşiv başlığı."],
+  "Planificación diaria": ["Daily schedule", "Günlük program"],
+  "Registro de actividad": ["Activity log", "Etkinlik günlüğü"],
+  "Gestionar recopilación": ["Manage collection", "Haber toplamayı yönet"],
+  "Franja de recopilación no válida.": ["Invalid collection time slot.", "Geçersiz haber toplama zaman aralığı."],
+  "Selecciona la recopilación diaria.": ["Select daily collection.", "Günlük haber toplamayı seçin."],
+  "Recuperación anual cancelada": ["Annual recovery cancelled", "Yıllık kurtarma iptal edildi"],
+  "Recopilación principal": ["Primary collection", "Ana haber toplama"],
+  "Recopilación adicional": ["Additional collection", "Ek haber toplama"],
+  "Entrega de newsletters": ["Newsletter delivery", "Bülten gönderimi"],
+  "Supervisión de colas": ["Queue supervision", "Kuyruk izleme"],
+  "Reintentar archivo": ["Retry archiving", "Arşivlemeyi yeniden dene"],
+
+  "Carpeta de archivo incorrecta.": ["Incorrect archive folder.", "Yanlış arşiv klasörü."],
+  "Se registra tu correo corporativo y eventos de uso para medir adopción. Datos visibles solo al administrador. Los accesos se conservan en Adopción; consultas de hasta": ["Your corporate email and usage events are recorded to measure adoption. Data is visible only to administrators. Access events are retained in Adoption; queries up to", "Kullanımı ölçmek için kurumsal e-posta adresiniz ve kullanım olayları kaydedilir. Veriler yalnızca yöneticilere görünür. Erişim olayları Kullanım bölümünde saklanır; sorgu sınırı"],
+
+  "Datos visibles solo al administrador. Los accesos se conservan en Adopción; consultas de hasta": ["Data is visible only to administrators. Access events are retained in Adoption; queries up to", "Veriler yalnızca yöneticilere görünür. Erişim olayları Kullanım bölümünde saklanır; sorgu sınırı"],
+  "Almacenamiento y archivo": ["Storage and archives", "Depolama ve arşiv"],
+  "El libro primario conserva su ID. Cada archivo se verifica en su carpeta antes de retirar filas; Adopción conserva todos los accesos.": ["The primary workbook keeps its ID. Each archive is verified in its folder before rows are removed; Adoption retains all access events.", "Birincil çalışma kitabının kimliği korunur. Satırlar kaldırılmadan önce her arşiv kendi klasöründe doğrulanır; Kullanım tüm erişim olaylarını korur."],
+  "Carpeta autorizada del libro y copias": ["Authorized folder for workbook and backups", "Çalışma kitabı ve yedekler için yetkili klasör"],
+  "Carpeta de logs": ["Log folder", "Günlük klasörü"],
+  "Carpeta de newsletters": ["Newsletter folder", "Bülten klasörü"],
+  "Filas recientes de cada log": ["Recent rows in each log", "Her günlükteki son satırlar"],
+  "Días de cada log": ["Days retained in each log", "Her günlük için saklama günü"],
+  "Últimos envíos por suscripción": ["Latest deliveries per subscription", "Abonelik başına son gönderimler"],
+  "Carpetas de Drive": ["Drive folders", "Drive klasörleri"],
+  "Conservación": ["Retention", "Saklama"],
+  "Configuración de almacenamiento no válida.": ["Invalid storage configuration.", "Geçersiz depolama yapılandırması."],
+  "Archivo previo no verificado.": ["Previous archive has not been verified.", "Önceki arşiv doğrulanmadı."],
+  "Newsletter archivada no verificada.": ["Archived newsletter has not been verified.", "Arşivlenen bülten doğrulanmadı."],
+  "Contenido de newsletter incompleto.": ["Incomplete newsletter content.", "Eksik bülten içeriği."],
+  "Puntero de newsletter no verificado.": ["Newsletter pointer has not been verified.", "Bülten işaretçisi doğrulanmadı."],
+  "Archivo de newsletter pendiente de compactar.": ["Newsletter archive is awaiting compaction.", "Bülten arşivi sıkıştırılmayı bekliyor."],
+
   "Explorar incidencias en Noticias": ["Explore incidents in News", "Olayları Haberlerde incele"],
   "CONTINUIDAD OPERATIVA Y RIESGO DE CANAL · VISIÓN ANUAL": ["OPERATIONAL CONTINUITY AND CHANNEL RISK · ANNUAL VIEW", "OPERASYONEL SÜREKLİLİK VE KANAL RİSKİ · YILLIK GÖRÜNÜM"],
   "Indisponibilidad e Incidencia Operativa": ["Service Unavailability and Operational Incidents", "Hizmet Kesintileri ve Operasyonel Olaylar"],
@@ -441,7 +476,13 @@ export const translations = Object.freeze({
 
   "Novedades por geografía": ["News by geography", "Coğrafyaya göre haberler"],
   "Novedades de la geografía seleccionada": ["News from the selected geography", "Seçilen coğrafyanın haberleri"],
-  "La geografía supera el límite del briefing. Reduce los filtros para incluir todas las novedades.": ["This geography exceeds the briefing limit. Narrow your filters to include all updates.", "Bu coğrafya özet sınırını aşıyor. Tüm gelişmeleri dahil etmek için filtreleri daraltın."],
+  "La geografía supera el límite del briefing. Consulta todas las novedades de esta geografía en Noticias.": ["This geography exceeds the briefing limit. See all updates for this geography in News.", "Bu coğrafya özet sınırını aşıyor. Bu coğrafyanın tüm gelişmelerini Haberler bölümünde görün."],
+  "Fallback sin trazabilidad verificable.": ["Fallback lacks verifiable traceability.", "Yedek sınıflandırmanın izlenebilirliği doğrulanamıyor."],
+  "Regla, capacidad o señal de fallback incoherente.": ["Inconsistent fallback rule, capability or signal.", "Yedek kural, yetenek veya sinyal tutarsız."],
+  "Cola compactada no verificada.": ["Compacted queue could not be verified.", "Daraltılmış kuyruk doğrulanamadı."],
+  "Etiquetado persistido incompleto.": ["Incomplete persisted assignments.", "Kaydedilen sınıflandırmalar eksik."],
+  "Copia de noticias incompleta.": ["Incomplete news copy.", "Haber kopyası eksik."],
+  "Ver todas las novedades en Noticias": ["See all updates in News", "Tüm gelişmeleri Haberler bölümünde görün"],
   "Tu radar de novedades": ["Your news radar", "Haber radarınız"],
   "Tu selección por geografía": ["Your selection by geography", "Coğrafyaya göre seçiminiz"],
   "Entidad no identificada": ["Unidentified entity", "Tanımlanmayan kuruluş"],
@@ -1346,5 +1387,5 @@ export function formatCalendarDay(value,language='es'){
 export function formatText(text,values,language='es'){return translateText(text,language).replace(/\{(\w+)\}/g,(_,key)=>String(values[key]??''));}
 
 export function feedLanguage(value){const tag=String(value||'').trim();return /^[a-z]{2}(?:-[A-Za-z0-9]{2,8})?$/.test(tag)?tag:'';}
-const recordLabels={radar:'Radar',news:'Noticias',briefing:'Novedades',subscriptions:'Mi Newsletter',administration:'Administración',configuration:'Configuración de negocio',daily:'Recopilación diaria',annual:'Recuperación anual',sources:'Fuentes',runs:'Ejecuciones',language:'Idioma',audit:'Auditoría',telemetry:'Telemetría',adoption:'Adopción',subscribers:'Suscripciones',acceso:'Acceso',vista:'Vista',filtro:'Filtro',lectura:'Lectura',exportacion:'Exportación',rendimiento:'Rendimiento',error:'Error',dashboard:'Carga de selección',recopilacion:'Recopilación',traduccion:'Traducción de noticias'};
+const recordLabels={llm:'Categorización LLM',radar:'Radar',news:'Noticias',briefing:'Novedades',subscriptions:'Mi Newsletter',administration:'Administración',configuration:'Configuración de negocio',daily:'Recopilación diaria',annual:'Recuperación anual',sources:'Fuentes',runs:'Ejecuciones',language:'Idioma',audit:'Auditoría',telemetry:'Telemetría',adoption:'Adopción',subscribers:'Suscripciones',acceso:'Acceso',vista:'Vista',filtro:'Filtro',lectura:'Lectura',exportacion:'Exportación',rendimiento:'Rendimiento',error:'Error',dashboard:'Carga de selección',recopilacion:'Recopilación',traduccion:'Traducción de noticias'};
 export function displayRecord(value,language='es'){return translateText(Object.prototype.hasOwnProperty.call(recordLabels,value)?recordLabels[value]:value,language);}
