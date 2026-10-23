@@ -90,7 +90,11 @@ test('incorporar una noticia de Empresas digital solicita traducción automátic
 });
 test('Otras geografías en ediciones archivadas usa el ámbito congelado también al exportar',()=>{
  const s=server(),c=s.c;
- const content=edition(s,'frozen-geography',[news(s,'spain','España'),news(s,'mexico','México'),news(s,'italy','Italia')]);
+ const items=[news(s,'spain','España'),news(s,'mexico','México'),news(s,'italy','Italia')];
+ const queryEdition={view:'news',from:'2026-09-01',to:'2026-09-30',segment:'Empresas e instituciones'};
+ const content=c.newsletterContent_(items,queryEdition,'Selección',new Date(),'subscription','es','frozen-geography');
+ c.saveNewsletterEdition_('frozen-geography','delivery','owner@bbva.com','Selección',queryEdition,'es',items,content.editorial);
+ c.completeNewsletterEdition_('frozen-geography','Enviada');
  const original=content.editorial.scope;
  assert.ok(original[0].countries.includes('México'),'La prueba requiere México dentro del ámbito original');
  c.configuration_().applicationScope[0].countries=['España','Italia'];
