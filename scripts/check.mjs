@@ -16,7 +16,7 @@ for(const file of files('src/shared'))checkAppsScriptSyntax(serverModule(fs.read
 new vm.Script(readServerScript('src/server'));
 new vm.Script(readClientScript());
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'src/appsscript.json')));
-const scopes=['spreadsheets','script.external_request','script.scriptapp','userinfo.email','gmail.send','gmail.settings.basic','drive','documents'].map(name=>'https://www.googleapis.com/auth/'+name);
+const scopes=['spreadsheets','script.external_request','script.scriptapp','userinfo.email','gmail.send','gmail.settings.basic','drive'].map(name=>'https://www.googleapis.com/auth/'+name);
 if(manifest.timeZone!=='Europe/Madrid'||manifest.webapp?.access!=='DOMAIN'||manifest.webapp?.executeAs!=='USER_DEPLOYING'||manifest.runtimeVersion!=='V8'||JSON.stringify([...manifest.oauthScopes].sort())!==JSON.stringify(scopes.sort()))throw Error('Manifiesto o permisos inesperados.');
 if(JSON.stringify(manifest.dependencies?.enabledAdvancedServices)!==JSON.stringify([{userSymbol:'Gmail',serviceId:'gmail',version:'v1'}]))throw Error('Falta el servicio avanzado de Gmail.');
 const config=configurationDefaults();

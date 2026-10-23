@@ -15,9 +15,14 @@ export function storage(source){
   const archiveFiles=new Map(),documents=new Map();
   const folder=id=>({getId:()=>id,getName:()=>id});
   c.DriveApp={getFolderById:folder,getFileById:id=>{if(!archiveFiles.has(id))archiveFiles.set(id,{parent:null});const file=archiveFiles.get(id);return {moveTo(target){file.parent=target.getId();},getParents(){let available=Boolean(file.parent);return {hasNext:()=>available,next:()=>{available=false;return folder(file.parent);}};}};}};
-  c.DocumentApp={create(name){const documentId='doc-'+(++id);documents.set(documentId,{name,text:''});return this.openById(documentId);},openById(documentId){const value=documents.get(documentId);if(!value)throw Error('Documento no disponible');return {getId:()=>documentId,getBody:()=>({setText(text){value.text=text;},getText:()=>value.text}),saveAndClose(){}};}};
+  const archiveBooks=new Map(),openBook=c.SpreadsheetApp.openById;
+  c.SpreadsheetApp.openById=bookId=>archiveBooks.get(bookId)||openBook(bookId);
+  c.SpreadsheetApp.create=name=>{
+    const archiveId='sheet-'+(++id),tabs=new Map(),archive={name,getId:()=>archiveId,getSheets:()=>[...tabs.values()],getSheetByName:key=>tabs.get(key),insertSheet(key){const tab=sheet(key);tabs.set(key,tab);return tab;}};
+    archiveBooks.set(archiveId,archive);return archive;
+  };
   vm.runInContext(source||readServerScript('dist',true),c);
   // Las pruebas existentes verifican un lote; las pruebas del trabajador usan processBackground_ con su presupuesto completo.
   c.backgroundTick_=()=>c.processBackground_(1);
-  return {c,sheets,cache,book,properties,archiveFiles,documents,setEmail:value=>email=value,get reads(){return reads;}};
+  return {c,sheets,cache,book,properties,archiveFiles,archiveBooks,setEmail:value=>email=value,get reads(){return reads;}};
 }

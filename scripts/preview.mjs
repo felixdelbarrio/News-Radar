@@ -25,6 +25,7 @@ const names=['briefingAllowed','radarOutageSelection_','radarOutages_','radarPre
 const shared=names.map(name=>context[name].toString()).join('\n'),serialize=value=>JSON.stringify(value).replace(/</g,'\\u003c');
 const previewDelay=Math.min(5000,Math.max(0,Number(process.env.PREVIEW_LATENCY_MS)||0));
 const preview=`<script>(()=>{
+const ADMIN_PAGE_SIZE=${serialize(vm.runInContext('ADMIN_PAGE_SIZE',context))};
 const otherGeography=${serialize(vm.runInContext('otherGeography',context))};
 const applicationScopeSegments=${serialize(vm.runInContext('applicationScopeSegments',context))};
 const readingViews=${serialize(vm.runInContext('readingViews',context))};

@@ -8,28 +8,49 @@ function fileInFolder_(id,folder){
  const verified=file.getParents();let found=0;while(verified.hasNext()){if(verified.next().getId()!==folder.getId())throw Error('Carpeta de archivo incorrecta.');found++;}
  if(found!==1)throw Error('No se ha verificado la carpeta del archivo: '+id);return file;
 }
-function archiveDocument_(name,headers,rows,folderId,key){
- const folder=archiveFolder_(folderId),payload=JSON.stringify({schema:1,table:name,headers,rows}),digest=sha256_(payload),p=properties_(),property='ARCHIVE_DOCUMENT:'+key;
+function archivePayload_(id){
+ const book=SpreadsheetApp.openById(id),info=book.getSheetByName('Archivo').getRange(1,1,1,3).getDisplayValues()[0],headers=JSON.parse(info[2]);
+ if(info[0]!=='1')throw Error('Formato de archivo no válido.');
+ let rows;
+ if(info[1]==='NewsletterEdiciones'){
+  const metadataSheet=book.getSheetByName('Edicion'),metadataKeys=metadataSheet.getRange(1,1,1,RADAR.sheets.NewsletterEdiciones.length).getDisplayValues()[0],values=metadataSheet.getRange(2,1,1,metadataKeys.length).getDisplayValues()[0],content=book.getSheetByName('Contenido'),count=content.getLastRow()-1;
+  rows=[{metadata:Object.fromEntries(metadataKeys.map((key,index)=>[key,values[index]])),items:count?content.getRange(2,1,count,2).getDisplayValues():[]}];
+ }else{
+  const sheet=book.getSheetByName('Datos');
+  if(JSON.stringify(sheet.getRange(1,1,1,headers.length).getDisplayValues()[0])!==JSON.stringify(headers))throw Error('Cabecera de archivo no válida.');
+  rows=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,headers.length).getDisplayValues():[];
+ }
+ return JSON.stringify({schema:1,table:info[1],headers,rows});
+}
+function writeArchiveTable_(book,name,headers,rows){
+ const sheet=book.getSheetByName(name)||book.insertSheet(name),values=[headers,...rows];
+ if(values.length>sheet.getMaxRows())sheet.insertRowsAfter(sheet.getMaxRows(),values.length-sheet.getMaxRows());
+ sheet.getRange(1,1,values.length,headers.length).setNumberFormat('@').setValues(values.map(row=>row.map(safeCell_)));sheet.setFrozenRows(1);
+}
+function archiveSpreadsheet_(name,headers,rows,folderId,key){
+ const folder=archiveFolder_(folderId),payload=JSON.stringify({schema:1,table:name,headers,rows}),digest=sha256_(payload),p=properties_(),property='ARCHIVE_SHEET:'+key;
  let checkpoint=JSON.parse(p.getProperty(property)||'null');
  if(checkpoint&&checkpoint.digest!==digest)throw Error('El origen del archivo ha cambiado. Revisa el checkpoint '+key+'.');
  if(!checkpoint){
-  const document=DocumentApp.create(recordDay(new Date(),settings_().timezone).replace(/-/g,'')+'_'+name+'_'+digest.slice(0,12));
-  checkpoint={id:document.getId(),digest};p.setProperty(property,JSON.stringify(checkpoint));
+  const book=SpreadsheetApp.create(recordDay(new Date(),settings_().timezone).replace(/-/g,'')+'_'+name+'_'+digest.slice(0,12));book.getSheets()[0]?.setName('Archivo');
+  checkpoint={id:book.getId(),digest};p.setProperty(property,JSON.stringify(checkpoint));
  }
- fileInFolder_(checkpoint.id,folder);
- const document=DocumentApp.openById(checkpoint.id);document.getBody().setText(payload);document.saveAndClose();
- const verified=DocumentApp.openById(checkpoint.id).getBody().getText();
- if(sha256_(verified)!==digest)throw Error('Contenido de archivo no verificado: '+name);
+ fileInFolder_(checkpoint.id,folder);const book=SpreadsheetApp.openById(checkpoint.id);
+ const info=book.getSheetByName('Archivo')||book.insertSheet('Archivo');info.getRange(1,1,1,3).setNumberFormat('@').setValues([['1',name,JSON.stringify(headers)]]);
+ if(name==='NewsletterEdiciones'){
+  const metadata=rows[0].metadata,keys=Object.keys(metadata);writeArchiveTable_(book,'Edicion',keys,[keys.map(key=>metadata[key])]);writeArchiveTable_(book,'Contenido',['edicion','contenido'],rows[0].items);
+ }else writeArchiveTable_(book,'Datos',headers,rows);
+ SpreadsheetApp.flush();if(sha256_(archivePayload_(checkpoint.id))!==digest)throw Error('Contenido de archivo no verificado: '+name);
  return {id:checkpoint.id,digest,property};
 }
 function archiveLogBatch_(name){
  const sheet=recordSheet_(name),count=sheet.getLastRow()-1,policy=configuration_().storage;
  const expected=RADAR.sheets[name];if(JSON.stringify(sheet.getRange(1,1,1,expected.length).getDisplayValues()[0])!==JSON.stringify(expected))throw Error('Cabecera del log no válida: '+name);
- const checkpointKey='ARCHIVE_DOCUMENT:'+name,checkpoint=JSON.parse(properties_().getProperty(checkpointKey)||'null');
+ const checkpointKey='ARCHIVE_SHEET:'+name,checkpoint=JSON.parse(properties_().getProperty(checkpointKey)||'null');
  if(checkpoint?.deleting){
   const first=sheet.getLastRow()>1?sheet.getRange(2,1,1,RADAR.sheets[name].length).getDisplayValues()[0]:null;
   if(JSON.stringify(first)===JSON.stringify(checkpoint.nextRow)){
-   if(sha256_(DocumentApp.openById(checkpoint.id).getBody().getText())!==checkpoint.digest)throw Error('Archivo previo no verificado.');
+   if(sha256_(archivePayload_(checkpoint.id))!==checkpoint.digest)throw Error('Archivo previo no verificado.');
    properties_().deleteProperty(checkpointKey);return false;
   }
  }
@@ -42,7 +63,7 @@ function archiveLogBatch_(name){
   const length=JSON.stringify(row).length;if(size&&chars+length>ARCHIVE_WORK.chars)break;size++;chars+=length;
  }
  if(!size)return true;
- const values=rows.slice(0,size),archive=archiveDocument_(name,keys,values,policy.logFolderId,name);
+ const values=rows.slice(0,size),archive=archiveSpreadsheet_(name,keys,values,policy.logFolderId,name);
  if(sha256_(JSON.stringify(sheet.getRange(2,1,size,keys.length).getDisplayValues()))!==sha256_(JSON.stringify(values)))throw Error('El log cambió durante el archivo: '+name);
  const nextRow=count>size?sheet.getRange(size+2,1,1,keys.length).getDisplayValues()[0]:null;
  properties_().setProperty(archive.property,JSON.stringify({...archive,deleting:true,nextRow}));
@@ -60,7 +81,7 @@ function recentNewsletterDeliveries_(rows){
 }
 function archivedNewsletter_(row){
  const marker=JSON.parse(row.editorial||'null');if(!marker?.archive)return row;
- const payload=DocumentApp.openById(marker.archive).getBody().getText();
+ const payload=archivePayload_(marker.archive);
  if(sha256_(payload)!==marker.digest)throw Error('Newsletter archivada no verificada.');
  const archived=JSON.parse(payload).rows[0];
  if(archived.metadata.id!==row.id||archived.metadata.correo!==row.correo)throw Error('Newsletter archivada no verificada.');
@@ -74,7 +95,7 @@ function archiveNewsletterBatch_(){
   if(marker?.archive){if(marker.cleared)continue;finishNewsletterArchive_(row,index,marker);return false;}
   const count=Number(row.cantidad),items=count?newsletterSheet_('NewsletterContenido').getRange(Number(row.inicio),1,count,2).getDisplayValues():[];
   if(items.some(([id,value])=>id!==row.id||!value))throw Error('Contenido de newsletter incompleto.');
-  const archive=archiveDocument_('NewsletterEdiciones',[],[{metadata:row,items}],configuration_().storage.newsletterFolderId,'newsletter:'+row.id),range=sheet.getRange(index+2,keys.indexOf('editorial')+1,1,1),value=JSON.stringify({archive:archive.id,digest:archive.digest});
+  const archive=archiveSpreadsheet_('NewsletterEdiciones',[],[{metadata:row,items}],configuration_().storage.newsletterFolderId,'newsletter:'+row.id),range=sheet.getRange(index+2,keys.indexOf('editorial')+1,1,1),value=JSON.stringify({archive:archive.id,digest:archive.digest});
   range.setValues([[value]]);SpreadsheetApp.flush();if(range.getDisplayValues()[0][0]!==value)throw Error('Puntero de newsletter no verificado.');
   markNewsletterArchiveEdited_();finishNewsletterArchive_(row,index,{archive:archive.id,digest:archive.digest});properties_().deleteProperty(archive.property);return false;
  }

@@ -29,7 +29,7 @@ function recordEvents(events) {
 }
 function getAdoption(query={}) {
   authorize_(true);const events=rows_('Adopcion',settings_().eventLimit),now=Date.now();
-  const selected=filterRecords(events,query,['correo','vista','evento'],['correo','vista','evento','sesion'],'fecha',settings_().timezone),metrics=metrics_(selected,now),page=recordPage(metrics.users,query,settings_().pageSize);
+  const selected=filterRecords(events,query,['correo','vista','evento'],['correo','vista','evento','sesion'],'fecha',settings_().timezone),metrics=metrics_(selected,now),page=recordPage(metrics.users,query,ADMIN_PAGE_SIZE);
   return {...metrics,users:page.items,total:page.total,page:page.page,pageSize:page.pageSize,options:recordOptions(events,['correo','vista','evento']),retentionDays:settings_().retentionDays,limited:events.length===settings_().eventLimit};
 }
 function getTelemetry(query={}) {

@@ -11,7 +11,7 @@ export async function loadRuns(){
   const current=++request;
   try{
     const data=await call('getRuns',filters.query());if(current!==request)return;
-    if(data.operational){const schedule=data.operational;$('operational-schedule').innerHTML='<ul class="operational-schedule">'+schedule.jobs.map(job=>'<li><strong>'+escape(t(job.label))+'</strong><span>'+escape(job.hour!==undefined?String(job.hour).padStart(2,'0')+':00 · '+job.timezone:job.minutes+' min')+'</span><span>'+escape(t(job.valid?(job.expected?'Activa':'Inactiva'):'Revisar'))+'</span></li>').join('')+'</ul>'+(schedule.archive.error?'<p class="warning">'+escape(schedule.archive.error)+'</p>':'');$('retry-archive').hidden=!schedule.archive.error;}
+    if(data.operational){const schedule=data.operational;$('operational-schedule').innerHTML='<ul class="operational-schedule">'+schedule.jobs.map(job=>'<li><div class="schedule-heading"><strong>'+escape(t(job.label))+'</strong><span class="status-pill" data-valid="'+job.valid+'">'+escape(t(job.valid?(job.expected?'Activa':'Inactiva'):'Revisar'))+'</span></div><p class="schedule-time">'+escape(job.hour!==undefined?String(job.hour).padStart(2,'0')+':00':job.minutes+' min')+'</p><p class="small muted">'+escape(job.timezone||t('Supervisión de colas'))+'</p></li>').join('')+'</ul>'+(schedule.archive.error?'<p class="warning">'+escape(schedule.archive.error)+'</p>':'');$('retry-archive').hidden=!schedule.archive.error;}
     renderCollectionJobs(data.collection);filters.options(data.options);filters.page(data);
     $('runs-body').innerHTML=data.items.map(r=>`<tr><td>${escape(displayRecord(r.tipo,language))} ${escape(r.desde)} — ${escape(r.hasta)}</td><td>${escape(date(r.inicio))}</td><td>${escape(r.estado)}</td><td>${escape(r.evaluadas)}</td><td>${escape(r.nuevas)}</td><td>${escape(r.errores||'—')}</td></tr>`).join('')||'<tr><td colspan="6">Sin ejecuciones con estos filtros.</td></tr>';
     return data;
@@ -24,7 +24,7 @@ export function renderCollectionJobs(status){
   $('collection-total').hidden=!total;$('collection-total-progress').max=Math.max(1,total);$('collection-total-progress').value=done;
   $('collection-total-label').textContent=t('{done}/{total} consultas; {added} noticias incorporadas.',{done,total,added:status?.added||0});
   $('collection-total-details').innerHTML=status?.progress?progressDetailsHtml(status.progress):'';
-  const jobs=[...(status?.jobs||[])];
+  const jobs=(status?.jobs||[]).filter(job=>job.tipo==='daily');
   $('collection-jobs').innerHTML=jobs.map(job=>{
     const progress=job.progress||progressState({state:job.estado,lastExecutedAt:job.actualizada,pausedUntil:job.pausa}),done=Number(job.procesadas||0)+Number(job.omitidas||0)+Number(job.fallidas||0),total=Number(job.total||0);
     return `<article class="collection-job" data-collection-kind="${escape(job.tipo)}"><div class="panel-header"><h3>${escape(displayRecord(job.tipo,language))}</h3><span>${escape(t(progress.state))}</span></div>${job.desde?`<p class="small muted">${escape(formatCalendarDay(job.desde,language))} — ${escape(formatCalendarDay(job.hasta,language))}</p>`:''}<progress max="${Math.max(1,total)}" value="${done}" aria-label="${escape(displayRecord(job.tipo,language))}"></progress><p>${escape(t('{done}/{total} consultas; {added} noticias incorporadas.',{done,total,added:job.nuevas||0}))}</p><p class="small muted">${Number(job.pendientes||0)} ${escape(t('Pendientes'))} · ${Number(job.fallidas||0)} ${escape(t('Errores'))}</p>${progressDetailsHtml(progress)}</article>`;
@@ -33,13 +33,11 @@ export function renderCollectionJobs(status){
 
 export function createRecoveryControls({getData,run}){
   let busy=false,status={};
-  const radios=[...document.querySelectorAll('input[name="recovery-range"]')];
   function render(next=status){
     status=next||{};
-    for(const radio of radios)radio.disabled=busy;
-    const range=document.querySelector('input[name="recovery-range"]:checked').value,blocked=Boolean(status.blocked?.[range]);
+    const blocked=Boolean(status.blocked?.today);
     $('collect').disabled=busy||blocked;
-    $('recovery-status').textContent=blocked?t(range==='year'?'Ya hay una recuperación anual en curso.':'Ya hay una recuperación diaria en curso.'):'';
+    $('recovery-status').textContent=blocked?t('Ya hay una recuperación diaria en curso.'):'';
     $('continue-collection').hidden=!blocked;$('continue-collection').disabled=busy;
     $('retry-collection').disabled=busy;$('toggle-daily').disabled=busy;
     $('toggle-daily').textContent=t(getData()?.daily?'Desactivar recopilación diaria':'Activar recopilación diaria');
@@ -48,9 +46,8 @@ export function createRecoveryControls({getData,run}){
   async function recover(method,range){return run(async()=>{
     const result=await call(method,...(range?[range]:[]));message(result.notice,result.errors.length>0);
   });}
-  $('collect').addEventListener('click',()=>recover('collectNow',document.querySelector('input[name="recovery-range"]:checked').value));
-  $('continue-collection').addEventListener('click',()=>recover('resumeCollection',document.querySelector('input[name="recovery-range"]:checked').value));
-  radios.forEach(radio=>radio.addEventListener('change',()=>render()));
+  $('collect').addEventListener('click',()=>recover('collectNow','today'));
+  $('continue-collection').addEventListener('click',()=>recover('resumeCollection','today'));
   $('toggle-daily').addEventListener('click',()=>run(async()=>{
     const enabled=getData().daily,result=await call(enabled?'disableDaily':'enableDaily');message(enabled?'Recopilación diaria desactivada.':result);
   }));

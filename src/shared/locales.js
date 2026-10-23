@@ -1,5 +1,13 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Formato de archivo no válido.": ["Invalid archive format.", "Geçersiz arşiv biçimi."],
+  "Cabecera de archivo no válida.": ["Invalid archive header.", "Geçersiz arşiv başlığı."],
+  "Planificación diaria": ["Daily schedule", "Günlük program"],
+  "Registro de actividad": ["Activity log", "Etkinlik günlüğü"],
+  "Gestionar recopilación": ["Manage collection", "Haber toplamayı yönet"],
+  "Franja de recopilación no válida.": ["Invalid collection time slot.", "Geçersiz haber toplama zaman aralığı."],
+  "Selecciona la recopilación diaria.": ["Select daily collection.", "Günlük haber toplamayı seçin."],
+  "Recuperación anual cancelada": ["Annual recovery cancelled", "Yıllık kurtarma iptal edildi"],
   "Recopilación principal": ["Primary collection", "Ana haber toplama"],
   "Recopilación adicional": ["Additional collection", "Ek haber toplama"],
   "Entrega de newsletters": ["Newsletter delivery", "Bülten gönderimi"],

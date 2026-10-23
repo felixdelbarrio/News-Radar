@@ -2,13 +2,10 @@ import { $, message } from "../core/dom.js";
 import config from "../config.js";
 import { loadMetrics } from "./metrics.js";
 import { loadAudit } from "./audit.js";
+import {enhanceAdminTables} from "./admin-tables.js";
 function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,onLanguage,onLeaveLanguage,onRuns,onLeaveRuns,onLeaveSubscribers,onTaxonomy,onLeaveTaxonomy,onLlm,onLeaveLlm }) {
   const content=document.querySelector('#administration-section .admin-content');
-  function labelTables(){for(const table of content.querySelectorAll('table')){
-    const headings=[...table.querySelectorAll('thead th')].map(cell=>cell.textContent.trim());
-    for(const row of table.querySelectorAll('tbody tr'))for(const [index,cell] of [...row.cells].entries())if(cell.colSpan===1)cell.dataset.label=headings[index]||'';
-  }}
-  new MutationObserver(labelTables).observe(content,{childList:true,subtree:true});labelTables();
+  enhanceAdminTables(content);
   let current = Object.keys(config.adminViews)[0];
   async function open(view = Object.keys(config.adminViews)[0]) {
     if (!isAdmin() || !(view in config.adminViews)) return;
@@ -23,6 +20,7 @@ function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,o
     $("admin-tabs").querySelectorAll("[data-admin-view]").forEach((button) => {
       button.setAttribute("aria-selected", String(button.dataset.adminView === view));
       button.tabIndex = button.dataset.adminView === view ? 0 : -1;
+      if(button.dataset.adminView===view)button.scrollIntoView?.({block:"nearest",inline:"nearest"});
     });
     if(view === "subscribers")await onSubscribers();
     if(view === "configuration")try{await onConfiguration();}catch(error){message(error.message||String(error),true);}

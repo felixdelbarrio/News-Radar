@@ -89,7 +89,7 @@ function enableDaily() {
   properties_().setProperty('DAILY_ENABLED','true');
   return 'Recopilación activada. '+collectionScheduleLabel_()+'.';
 }
-function disableDaily() {authorize_(true);ScriptApp.getProjectTriggers().filter(t=>['dailyRadar_',MADRID_COLLECTION.handler].includes(t.getHandlerFunction())).forEach(t=>ScriptApp.deleteTrigger(t));properties_().setProperty('DAILY_ENABLED','false');CacheService.getScriptCache().remove('daily-schedule');}
+function disableDaily() {authorize_(true);ScriptApp.getProjectTriggers().filter(t=>collectionHandlers_().includes(t.getHandlerFunction())).forEach(t=>ScriptApp.deleteTrigger(t));properties_().setProperty('DAILY_ENABLED','false');CacheService.getScriptCache().remove('daily-schedule');}
 
 
 function countryScopedSource_(feed){

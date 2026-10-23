@@ -2,7 +2,7 @@ function collectionStatus_(tasks,jobs){
   const cache=CacheService.getScriptCache();if(!tasks&&!jobs){const cached=cache.get('collection-status');if(cached){const status=JSON.parse(cached);progressContext_(status.jobs);return status;}}
   jobs=jobs||collectionJobs_();if(tasks)collectionSnapshots_(tasks,jobs);
   const requests=collectionRequests_().filter(request=>!jobs.some(job=>job.id===request.id));
-  const ordered=jobs.slice().sort((a,b)=>b.inicio.localeCompare(a.inicio)),active=ordered.filter(job=>Number(job.pendientes)>0||job.estado==='Preparando'),selected=active.length?active:ordered.slice(0,1);
+  const ordered=jobs.filter(job=>job.estado!=='Cancelada').sort((a,b)=>b.inicio.localeCompare(a.inicio)),active=ordered.filter(job=>Number(job.pendientes)>0||job.estado==='Preparando'),selected=active.length?active:ordered.slice(0,1);
   const status={blocked:recoveryAvailability(jobs,requests),total:0,processed:0,pending:0,skipped:0,failed:0,added:0,lastActivity:'',queued:requests.length,jobs:[]};
   for(const job of selected){
     for(const [key,column] of [['total','total'],['processed','procesadas'],['pending','pendientes'],['skipped','omitidas'],['failed','fallidas'],['added','nuevas']])status[key]+=Number(job[column]||0);
@@ -14,17 +14,18 @@ function collectionStatus_(tasks,jobs){
   cacheJson_('collection-status',status,15);return status;
 }
 function resumeCollection(mode='today'){
-  authorize_(true);if(!['today','year'].includes(mode))throw Error('Tipo de recuperación no válido.');
+  authorize_(true);if(mode!=='today')throw Error('Tipo de recuperación no válido.');
   ensureBackgroundWorker_();return {...collectionStatus_(),added:0,errors:[],notice:'Continuación en cola.'};
 }
 function collectNow(mode='today'){
-  authorize_(true);const now=new Date(),range=collectionRange_(mode,now),blocked=recoveryAvailability(collectionJobs_(),collectionRequests_());
-  if(blocked[mode])throw Error(mode==='year'?'Ya hay una recuperación anual en curso.':'Ya hay una recuperación diaria en curso.');
-  if(mode==='today')requestDailyCollection_(now);else requestCollection_('annual',range);
-  return {...collectionStatus_(),added:0,errors:[],notice:mode==='year'?'Recuperación anual en cola.':'Recuperación diaria en cola.'};
+  authorize_(true);if(mode!=='today')throw Error('Selecciona la recopilación diaria.');const now=new Date(),blocked=recoveryAvailability(collectionJobs_(),collectionRequests_());
+  if(blocked.today)throw Error('Ya hay una recuperación diaria en curso.');
+  requestDailyCollection_(now);
+  return {...collectionStatus_(),added:0,errors:[],notice:'Recuperación diaria en cola.'};
 }
 function requestDailyCollection_(now=new Date()){requestCollection_('daily',collectionRecentRange_(now));}
-function additionalRadar_(){requestDailyPipeline_(true);}
+function afternoonRadar_(){requestDailyPipeline_('afternoon');}
+function eveningRadar_(){requestDailyPipeline_('evening');}
 function dailyRadar_(){requestDailyPipeline_();backgroundTick_();}
 function queueScheduledCollection_(kind){
   const active=job=>Number(job.pendientes)>0||['Preparando','En curso','En cola'].includes(job.estado);
@@ -88,8 +89,8 @@ function collectionQueuedKeys_(tasks){
 }
 function retryCollectionErrors() {
   authorize_(true);return withForegroundWrite_(()=>{
-    const tasks=rows_('Recopilacion');let count=0;
-    const values=tasks.map(task=>{if(task.estado==='Error'){task.estado='Pendiente';task.intentos=0;task.error='';count++;}return [task.estado,task.intentos,task.actualizada,task.evaluadas,task.nuevas,task.error];});
+    const tasks=rows_('Recopilacion'),cancelled=new Set(collectionJobs_().filter(job=>job.estado==='Cancelada').map(job=>job.id));let count=0;
+    const values=tasks.map(task=>{if(task.estado==='Error'&&!cancelled.has(task.ciclo)){task.estado='Pendiente';task.intentos=0;task.error='';count++;}return [task.estado,task.intentos,task.actualizada,task.evaluadas,task.nuevas,task.error];});
     if(count){book_().getSheetByName('Recopilacion').getRange(2,4,values.length,6).setNumberFormat('@').setValues(values.map(row=>row.map(safeCell_)));ensureBackgroundWorker_();}
     const jobs=collectionJobs_();for(const job of jobs)job.pausa='';collectionSnapshots_(tasks,jobs);for(const job of jobs)writeCollectionJob_(job);
     CacheService.getScriptCache().remove('collection-status');

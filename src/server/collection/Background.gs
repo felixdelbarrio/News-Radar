@@ -5,16 +5,18 @@ function dailyScheduleStatus_(){
   if(cached!==null&&cached!==undefined)return cached==='true';
   const enabled=scheduledTriggers_('dailyRadar_').length>0;cache.put(key,String(enabled),300);return enabled;
 }
-const MADRID_COLLECTION=Object.freeze({handler:'additionalRadar_',hour:16,timezone:'Europe/Madrid'});
+const MADRID_COLLECTIONS=Object.freeze([{handler:'afternoonRadar_',slot:'afternoon',hour:13,timezone:'Europe/Madrid'},{handler:'eveningRadar_',slot:'evening',hour:21,timezone:'Europe/Madrid'}].map(Object.freeze));
+function collectionPipelineSlots_(){return ['daily',...MADRID_COLLECTIONS.map(job=>job.slot)];}
+function collectionPipelineKey_(slot,suffix){return slot==='daily'?'DAILY_PIPELINE_'+suffix:'COLLECTION_'+slot.toUpperCase()+'_'+suffix;}
+function collectionHandlers_(){return ['dailyRadar_',...MADRID_COLLECTIONS.map(job=>job.handler)];}
 function replaceDailySchedule_(handler,hour,minute=0,timezone=settings_().timezone){
   scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   ScriptApp.newTrigger(handler).timeBased().atHour(hour).nearMinute(minute).everyDays(1).inTimezone(timezone).create();
 }
-function collectionScheduleLabel_(){const config=settings_();return 'Banca digital: diaria · '+config.dailyHour+':00 · '+config.timezone+' · '+String(MADRID_COLLECTION.hour).padStart(2,'0')+':00 · '+MADRID_COLLECTION.timezone;}
+function collectionScheduleLabel_(){const config=settings_();return 'Banca digital: diaria · '+config.dailyHour+':00 · '+config.timezone+MADRID_COLLECTIONS.map(job=>' · '+String(job.hour).padStart(2,'0')+':00 · '+job.timezone).join('');}
 function replaceCollectionSchedule_(){
   replaceDailySchedule_('dailyRadar_',settings_().dailyHour);
-  scheduledTriggers_(MADRID_COLLECTION.handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
-  if(settings_().dailyHour!==MADRID_COLLECTION.hour||settings_().timezone!==MADRID_COLLECTION.timezone)replaceDailySchedule_(MADRID_COLLECTION.handler,MADRID_COLLECTION.hour,0,MADRID_COLLECTION.timezone);
+  for(const job of MADRID_COLLECTIONS){scheduledTriggers_(job.handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));if(settings_().dailyHour!==job.hour||settings_().timezone!==job.timezone)replaceDailySchedule_(job.handler,job.hour,0,job.timezone);}
   CacheService.getScriptCache().remove('daily-schedule');
 }
 function ensureBackgroundWorker_(delay=60000){
@@ -44,17 +46,19 @@ function collectionReadyAt_(work){
 }
 function backgroundTick_(){return processBackground_();}
 function businessTranslationPending_(){return Boolean(properties_().getProperty('TRANSLATION_PRIORITY_REQUEST')||translationJob_()?.businessPending>0);}
-function requestDailyPipeline_(additional=false){
-  if(backgroundPaused_()){deferBackgroundWork_(additional?'additional':'daily');return;}
-  properties_().setProperty(additional?'ADDITIONAL_COLLECTION_REQUEST':'DAILY_PIPELINE_REQUEST',recordDay(new Date(),additional?MADRID_COLLECTION.timezone:settings_().timezone));ensureBackgroundWorker_();
+function requestDailyPipeline_(slot='daily'){
+  if(!collectionPipelineSlots_().includes(slot))throw Error('Franja de recopilación no válida.');
+  if(backgroundPaused_()){deferBackgroundWork_(slot);return;}
+  const timezone=slot==='daily'?settings_().timezone:'Europe/Madrid';
+  properties_().setProperty(collectionPipelineKey_(slot,'REQUEST'),recordDay(new Date(),timezone));ensureBackgroundWorker_();
 }
-function dailyPipelineRequested_(){const p=properties_();return Boolean(p.getProperty('DAILY_PIPELINE_REQUEST')||p.getProperty('ADDITIONAL_COLLECTION_REQUEST'));}
+function dailyPipelineRequested_(){const p=properties_();return collectionPipelineSlots_().some(slot=>p.getProperty(collectionPipelineKey_(slot,'REQUEST')));}
 function drainDailyPipeline_(){
   const p=properties_();
-  for(const [request,completed] of [['DAILY_PIPELINE_REQUEST','DAILY_PIPELINE_DAY'],['ADDITIONAL_COLLECTION_REQUEST','ADDITIONAL_COLLECTION_DAY']]){
-    const day=p.getProperty(request);if(!day)continue;
+  for(const slot of collectionPipelineSlots_()){
+    const request=collectionPipelineKey_(slot,'REQUEST'),completed=collectionPipelineKey_(slot,'DAY'),day=p.getProperty(request);if(!day)continue;
     if(p.getProperty(completed)!==day){
-      if(request==='ADDITIONAL_COLLECTION_REQUEST'&&dailyCollectionPending_())continue;
+      if(slot!=='daily'&&dailyCollectionPending_())continue;
       queueScheduledCollection_('daily');p.setProperty('CLASSIFICATION_REQUEST',day);p.setProperty('DAILY_TRANSLATION_REQUEST',day);p.setProperty(completed,day);p.setProperty('CATALOG_SYNC_REQUEST',day);
       if(newsletterEnabled_())requestNewsletterDelivery_();
     }
@@ -141,11 +145,14 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
 }
 function initializeBackgroundSchedules_(){
   const p=properties_();
+  cancelAnnualRecovery_();
+  scheduledTriggers_('additionalRadar_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
+  for(const key of ['ADDITIONAL_COLLECTION_REQUEST','ADDITIONAL_COLLECTION_DAY','WORK_PENDING:additional'])p.deleteProperty(key);
   CacheService.getScriptCache().remove('daily-schedule');
   for(const handler of ['collectionTick_','collectionWake_','translationTick_','backgroundTick_','nightlyTranslations_','dailyClassification_','dailyTaxonomy_','newsletterTick_','deliverNewsletters_'])scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   p.deleteProperty('BACKGROUND_NEXT');
   if(scheduledTriggers_('backgroundWatchdog_').length!==1){scheduledTriggers_('backgroundWatchdog_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));ScriptApp.newTrigger('backgroundWatchdog_').timeBased().everyMinutes(BACKGROUND_WORK.watchdogMinutes).create();}
-  if(p.getProperty('DAILY_ENABLED')==='true')replaceCollectionSchedule_();else for(const handler of ['dailyRadar_',MADRID_COLLECTION.handler])scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
+  if(p.getProperty('DAILY_ENABLED')==='true')replaceCollectionSchedule_();else for(const handler of collectionHandlers_())scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   if(p.getProperty('TRANSLATION_ENABLED')!=='false')p.setProperty('TRANSLATION_ENABLED','true');
   if(settings_().newsletterEnabled)replaceDailySchedule_('scheduledNewsletters_',settings_().dailyHour);else scheduledTriggers_('scheduledNewsletters_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   if(dashboardSnapshotsPending_()||Number.isFinite(taxonomyTranslationReadyAt_())||taxonomyPending_()||p.getProperty('TAXONOMY_REQUEST')||p.getProperty('CATALOG_SYNC_REQUEST')||classificationPending_()||p.getProperty('CLASSIFICATION_REQUEST')||collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_())||Number.isFinite(newsletterReadyAt_()))ensureBackgroundWorker_();
@@ -155,7 +162,7 @@ function updateOperationalSchedule(){authorize_(true);return withForegroundWrite
 function backgroundWatchdog_(){
   const p=properties_(),values=p.getProperties();if(backgroundPaused_())return;
   if(Object.entries(values).some(([key,value])=>key.startsWith('WORK_PENDING:')&&value==='true')){workWake_();return;}
-  if(!dashboardSnapshotsPending_()&&!values.BACKGROUND_PENDING&&!['LOG_ARCHIVE_PENDING','MAINTENANCE_REQUEST','DAILY_PIPELINE_REQUEST','ADDITIONAL_COLLECTION_REQUEST','CLASSIFICATION_REQUEST','DAILY_TRANSLATION_REQUEST','TRANSLATION_REQUEST','TAXONOMY_REQUEST','CATALOG_SYNC_REQUEST','TAXONOMY_TRANSLATION_REQUEST'].some(key=>values[key])&&!(values.NEWSLETTER_REQUEST&&settings_().newsletterEnabled)&&!Number.isFinite(maintenanceReadyAt_()))return;
+  if(!dashboardSnapshotsPending_()&&!values.BACKGROUND_PENDING&&!dailyPipelineRequested_()&&!['LOG_ARCHIVE_PENDING','MAINTENANCE_REQUEST','CLASSIFICATION_REQUEST','DAILY_TRANSLATION_REQUEST','TRANSLATION_REQUEST','TAXONOMY_REQUEST','CATALOG_SYNC_REQUEST','TAXONOMY_TRANSLATION_REQUEST'].some(key=>values[key])&&!(values.NEWSLETTER_REQUEST&&settings_().newsletterEnabled)&&!Number.isFinite(maintenanceReadyAt_()))return;
   if(scheduledTriggers_('backgroundTick_').length&&Number(p.getProperty('BACKGROUND_NEXT'))>Date.now()-BACKGROUND_WORK.maxMs*2)return;
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return;
   try{
@@ -176,8 +183,8 @@ function backgroundStageComplete_(task,work,collectionJob){
 }
 
 function getOperationalSchedule(){
- authorize_(true);const config=settings_(),enabled=properties_().getProperty('DAILY_ENABLED')==='true',additional=config.dailyHour!==MADRID_COLLECTION.hour||config.timezone!==MADRID_COLLECTION.timezone;
- const jobs=[{label:'Recopilación principal',handler:'dailyRadar_',hour:config.dailyHour,timezone:config.timezone,expected:enabled?1:0},{label:'Recopilación adicional',...MADRID_COLLECTION,expected:enabled&&additional?1:0},{label:'Entrega de newsletters',handler:'scheduledNewsletters_',hour:config.dailyHour,timezone:config.timezone,expected:config.newsletterEnabled?1:0},{label:'Supervisión de colas',handler:'backgroundWatchdog_',minutes:BACKGROUND_WORK.watchdogMinutes,expected:1}];
+ authorize_(true);const config=settings_(),enabled=properties_().getProperty('DAILY_ENABLED')==='true';
+ const jobs=[{label:'Recopilación principal',handler:'dailyRadar_',hour:config.dailyHour,timezone:config.timezone,expected:enabled?1:0},...MADRID_COLLECTIONS.map(job=>({label:'Recopilación diaria',...job,expected:enabled&&(config.dailyHour!==job.hour||config.timezone!==job.timezone)?1:0})),{label:'Entrega de newsletters',handler:'scheduledNewsletters_',hour:config.dailyHour,timezone:config.timezone,expected:config.newsletterEnabled?1:0},{label:'Supervisión de colas',handler:'backgroundWatchdog_',minutes:BACKGROUND_WORK.watchdogMinutes,expected:1}];
  const counts=new Map();for(const trigger of ScriptApp.getProjectTriggers()){const handler=trigger.getHandlerFunction();counts.set(handler,(counts.get(handler)||0)+1);}
  for(const job of jobs){job.installed=counts.get(job.handler)||0;job.valid=job.installed===job.expected;}
  return {jobs,valid:jobs.every(job=>job.valid),archive:{attempts:Number(properties_().getProperty('LOG_ARCHIVE_ATTEMPTS')||0),error:properties_().getProperty('LOG_ARCHIVE_ERROR')||'',next:Number(properties_().getProperty('LOG_ARCHIVE_NEXT')||0)},workerTriggers:counts.get('backgroundTick_')||0,queued:dailyPipelineRequested_()||Boolean(properties_().getProperty('BACKGROUND_PENDING'))};

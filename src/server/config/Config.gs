@@ -1,5 +1,5 @@
 const RADAR = Object.freeze({
-  version:'3.18.0',
+  version:'3.18.1',
   sheets:{
     Enriquecimiento:['newsId','inputHash','version','state','attempts','nextAt','url','source','contentHash','signals','comparison','error','updated','durationMs'],
     CategorizacionLLM:['newsId','contentHash','catalogRevision','taxonomyRevision','schemaVersion','ids','primary','evidence','status','updatedAt','sources','proposals','replaces','publication'],

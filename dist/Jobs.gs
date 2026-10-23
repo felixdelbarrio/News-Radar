@@ -43,9 +43,21 @@ function collectionSnapshots_(tasks,jobs,now=new Date()){
     if(task.actualizada>count.actualizada)count.actualizada=task.actualizada;
   }
   for(const job of jobs){
-    const count=counters.get(job.id);if(!count)continue;
+    const count=counters.get(job.id);if(!count||job.estado==='Cancelada')continue;
     Object.assign(job,count,{estado:count.pendientes?(Number(job.pausa)>now.getTime()?'En pausa':'Pendiente'):count.fallidas?'Parcial':'Completada',fin:count.pendientes?'':job.fin||now.toISOString()});
     if(!count.pendientes&&dashboardSnapshotsPending_()){job.estado='Publicando';job.fin='';requestDashboardSnapshots_(true);}
   }
   return jobs;
+}
+
+function cancelAnnualRecovery_(){
+ const jobs=collectionJobs_(),cancelled=new Set(jobs.filter(job=>job.tipo==='annual'&&job.estado!=='Cancelada'&&(Number(job.pendientes)>0||['Preparando','En curso','Pendiente','En pausa','En cola'].includes(job.estado))).map(job=>job.id)),updates=new Map(),now=new Date().toISOString();
+ for(const request of collectionRequests_())if(request.kind==='annual')properties_().deleteProperty(request.key);
+ if(!cancelled.size)return {cancelled:0};
+ const tasks=rows_('Recopilacion').map((task,index)=>({...task,row:index+2}));
+ for(const task of tasks)if(cancelled.has(task.ciclo)&&['Pendiente','Reintento programado','Error'].includes(task.estado)){task.estado='Omitida';updates.set(task.row,[task.estado,task.intentos,now,task.evaluadas,task.nuevas,'Recuperación anual cancelada']);}
+ if(updates.size)writeCollectionTasks_(tasks.filter(task=>updates.has(task.row)),updates);
+ for(const job of jobs)if(cancelled.has(job.id)&&(Number(job.pendientes)>0||['Preparando','En curso','Pendiente','En pausa','En cola'].includes(job.estado))){Object.assign(job,{estado:'Cancelada',pendientes:0,fin:now,actualizada:now,pausa:''});writeCollectionJob_(job);}
+ CacheService.getScriptCache().remove('collection-status');
+ return {cancelled:updates.size};
 }

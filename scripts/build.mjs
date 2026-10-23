@@ -28,7 +28,7 @@ const output={
   'Newsletter.gs':'const NEWSLETTER_BIA_PNG = '+JSON.stringify(fs.readFileSync(path.join(root,'assets/bia.png')).toString('base64'))+';\nconst NEWSLETTER_STYLE = '+JSON.stringify(newsletterStyle)+';\nconst NEWSLETTER_INLINE = '+JSON.stringify(newsletterInline)+';\n',
   'Index.html':template(parts.Index),
   'Tokens.html':design.tokens,
-  'Styles.html':'<style>\n'+['base','layout','components','identity','dashboard','briefing','intelligence','responsive'].map(name=>read('src/styles/'+name+'.css')).join('\n')+'\n</style>',
+  'Styles.html':'<style>\n'+['base','layout','components','identity','dashboard','briefing','intelligence','responsive','administration'].map(name=>read('src/styles/'+name+'.css')).join('\n')+'\n</style>',
   'Client.html':'<script id="radar-client">\n'+readClientScript()+'</script>',
   'appsscript.json':read('src/appsscript.json')
 };

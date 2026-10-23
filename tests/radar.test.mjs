@@ -84,7 +84,7 @@ test('adopción calcula ventanas y sesiones y obtiene el correo exclusivamente d
 test('distribución no contiene flujo manual, estilos obsoletos ni permisos de lectura de correo',()=>{
   const c=context();for(const name of ['verifyNews','score_','getCandidates','startSearch','searchTick_','articleDate_'])assert.equal(typeof c[name],'undefined');
   const html=renderIncludes(read('dist/Index.html'));assert.doesNotMatch(html,/verify-form|verification-form|candidates-body|Verificar|puntuar|puntuación/);assert.ok(files('src/server').every(file=>!file.endsWith('/Search.gs')));
-  const manifest=JSON.parse(fs.readFileSync('src/appsscript.json'));assert.equal(manifest.oauthScopes.length,8);assert.ok(!manifest.oauthScopes.some(scope=>/gmail\.(?:readonly|modify|compose)|mail.google.com|admin.directory/.test(scope)));
+  const manifest=JSON.parse(fs.readFileSync('src/appsscript.json'));assert.equal(manifest.oauthScopes.length,7);assert.ok(!manifest.oauthScopes.some(scope=>/gmail\.(?:readonly|modify|compose)|mail.google.com|admin.directory/.test(scope)));
 });
 
 test('filtros combinan entidad normalizada, ámbito y medio sin mezclar otras noticias',()=>{

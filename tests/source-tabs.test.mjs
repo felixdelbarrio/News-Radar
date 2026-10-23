@@ -5,18 +5,18 @@ import {app} from './helpers/app.mjs';
 test('las pestañas agrupan las fuentes y conservan la activación entre tipos y páginas sin consultas',async t=>{
   const a=await app(t,{configure({data}){
     data.pageSize=2;
-    data.configuredFeeds=[...Array.from({length:3},(_,i)=>({id:'p'+i,name:'Búsqueda '+i,entity:'BBVA',country:'España',kind:'profile',url:'https://example.com/p'+i,enabled:true})),
-      ...Array.from({length:3},(_,i)=>({id:'r'+i,name:'Editor '+i,entity:'Sector',country:'Global',kind:'rss',url:'https://example.com/r'+i,enabled:i===0}))];
+    data.configuredFeeds=[...Array.from({length:11},(_,i)=>({id:'p'+i,name:'Búsqueda '+i,entity:'BBVA',country:'España',kind:'profile',url:'https://example.com/p'+i,enabled:i<3})),
+      ...Array.from({length:11},(_,i)=>({id:'r'+i,name:'Editor '+i,entity:'Sector',country:'Global',kind:'rss',url:'https://example.com/r'+i,enabled:i===0}))];
   }});
   await a.click('[data-view="administration"]');await a.click('[data-admin-view="sources"]');
   assert.equal(a.find('#source-tab-all').getAttribute('aria-selected'),'true');
   assert.equal(a.find('#source-rss-editor').hidden,true);assert.equal(a.w.document.querySelector('#source-kind'),null);
   const calls=a.calls.length;
   await a.click('#source-tab-profile');
-  assert.match(a.find('#source-pagination').textContent,/3 resultados/);
+  assert.match(a.find('#source-pagination').textContent,/11 resultados/);
   assert.doesNotMatch(a.find('#configured-sources-body').textContent,/Editor/);
   await a.click('[data-id="p0"]');
-  await a.click('#source-pagination [data-page="1"]');assert.match(a.find('#configured-sources-body').textContent,/Búsqueda 2/);
+  await a.click('#source-pagination [data-page="1"]');assert.match(a.find('#configured-sources-body').textContent,/Búsqueda 10/);
   await a.click('#source-tab-rss');
   assert.match(a.find('#source-pagination').textContent,/página 1 de 2/);
   assert.match(a.find('#configured-sources-body').textContent,/Editor 0/);
@@ -25,7 +25,7 @@ test('las pestañas agrupan las fuentes y conservan la activación entre tipos y
   assert.equal(a.find('#source-panel').getAttribute('aria-labelledby'),'source-tab-rss');
   assert.equal(a.find('#source-tab-profile').tabIndex,-1);assert.equal(a.find('#source-tab-rss').tabIndex,0);
   await a.change('#source-enabled','false');await a.click('[data-id="r1"]');
-  assert.doesNotMatch(a.find('#configured-sources-body').textContent,/Editor 1/);
+  assert.equal(a.w.document.querySelector('[data-id="r1"]'),null);
   await a.click('#source-tab-profile');assert.match(a.find('#configured-sources-body').textContent,/Búsqueda 0/);
   assert.equal(a.find('[data-id="p0"]').checked,false);
   assert.equal(a.calls.length,calls);
