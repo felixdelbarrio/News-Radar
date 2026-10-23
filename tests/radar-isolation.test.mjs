@@ -13,7 +13,7 @@ test('las búsquedas anuales conservan variantes digitales y generan menos consu
  const s=storage();s.c.initializeConfiguration();const c=s.c,config=c.configuration_(),range={from:'2026-10-01',to:'2026-10-12'},feeds=c.collectionFeeds_(range),enabled=c.feeds_();
  assert.ok(feeds.length<=enabled.filter(feed=>feed.kind==='rss').length+enabled.filter(feed=>feed.kind==='profile').length*2);assert.equal(new Set(feeds.map(feed=>feed.url)).size,feeds.length);
  assert.ok(feeds.some(feed=>feed.capabilitySearch));for(const feed of feeds)assert.doesNotMatch(decodeURIComponent(feed.url).replace(/\+/g,' '),/project finance|project financing|financial close|non-recourse/i);
- c.enableDaily();assert.deepEqual(Array.from(c.ScriptApp.getProjectTriggers().filter(t=>t.handler==='dailyRadar_'),t=>t.hour),[7]);assert.ok(!c.ScriptApp.getProjectTriggers().some(t=>/finance/i.test(t.handler)));
+ c.enableDaily();assert.deepEqual(Array.from(c.ScriptApp.getProjectTriggers().filter(t=>t.handler==='dailyRadar_'),t=>t.hour),[6]);assert.ok(!c.ScriptApp.getProjectTriggers().some(t=>/finance/i.test(t.handler)));
  assert.deepEqual(Object.keys(c.recoveryAvailability([],[])),['today','year']);
  for(const [entity,country,term] of [['BBVA','Italia','conto corrente'],['BBVA','Alemania','girokonto'],['Intesa Sanpaolo','Italia','banca digitale']])assert.ok(new URL(c.feeds_().find(row=>row.entity===entity&&row.country===country).url).searchParams.get('q').includes(term));
 });

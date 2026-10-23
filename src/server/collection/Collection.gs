@@ -24,6 +24,7 @@ function collectNow(mode='today'){
   return {...collectionStatus_(),added:0,errors:[],notice:mode==='year'?'Recuperación anual en cola.':'Recuperación diaria en cola.'};
 }
 function requestDailyCollection_(now=new Date()){requestCollection_('daily',collectionRecentRange_(now));}
+function additionalRadar_(){requestDailyPipeline_(true);}
 function dailyRadar_(){requestDailyPipeline_();backgroundTick_();}
 function queueScheduledCollection_(kind){
   const active=job=>Number(job.pendientes)>0||['Preparando','En curso','En cola'].includes(job.estado);

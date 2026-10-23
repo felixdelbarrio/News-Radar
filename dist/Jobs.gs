@@ -14,9 +14,7 @@ function jobRange_(job){return {from:job.desde,to:job.hasta};}
 function drainCollectionRequests_(){
   const requests=collectionRequests_().sort((a,b)=>(b.kind==='daily')-(a.kind==='daily'));if(!requests.length)return;
   const jobs=collectionJobs_(),tasks=rows_('Recopilacion');
-  const finished=new Set(jobs.filter(job=>['Completada','Parcial'].includes(job.estado)).map(job=>job.id)),sheet=book_().getSheetByName('Recopilacion');
-  let end=tasks.length;
-  while(end){if(!finished.has(tasks[end-1].ciclo)||tasks[end-1].estado==='Error'){end--;continue;}let start=end-1;while(start&&finished.has(tasks[start-1].ciclo)&&tasks[start-1].estado!=='Error')start--;sheet.deleteRows(start+2,end-start);end=start;}
+  const finished=new Set(jobs.filter(job=>['Completada','Parcial'].includes(job.estado)).map(job=>job.id));
   const existing=new Set(tasks.filter(task=>!finished.has(task.ciclo)||task.estado==='Error').map(task=>task.ciclo+'|'+task.url));
   for(const request of requests){
     let job=jobs.find(job=>job.id===request.id)||jobs.find(job=>(Number(job.pendientes)>0||job.estado==='Preparando')&&job.tipo===request.kind&&(request.kind==='annual'||(job.desde===request.range.from&&job.hasta===request.range.to)));

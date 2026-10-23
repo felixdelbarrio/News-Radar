@@ -18,5 +18,5 @@ test('el saneamiento conserva íntegros los artículos y UUID congelados de edic
 });
 test('mantenimiento espera la clasificación antes de purgar y solicita snapshots al terminar',()=>{
  const s=setup(),c=s.c;append(s,[article(c,'noise','BBVA presenta sus resultados financieros trimestrales')]);c.maintenance_();c.classificationPending_=()=>true;c.maintenanceBatch_();assert.equal(c.rows_('Noticias').length,1);assert.equal(c.maintenanceJob_().phase,'dedup');
- c.classificationPending_=()=>false;c.dailyCollectionPending_=()=>false;c.maintenanceBatch_();assert.equal(c.rows_('Noticias').length,0);assert.equal(c.maintenanceJob_().removed,1);assert.ok(['Publicando','Completada'].includes(c.maintenanceJob_().state));
+ c.classificationPending_=()=>false;c.dailyCollectionPending_=()=>false;for(let i=0;i<20&&c.rows_('Noticias').length;i++)c.maintenanceBatch_();assert.equal(c.rows_('Noticias').length,0);assert.equal(c.maintenanceJob_().removed,1);assert.ok(['Publicando','Completada'].includes(c.maintenanceJob_().state));
 });

@@ -3,6 +3,12 @@ import config from "../config.js";
 import { loadMetrics } from "./metrics.js";
 import { loadAudit } from "./audit.js";
 function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,onLanguage,onLeaveLanguage,onRuns,onLeaveRuns,onLeaveSubscribers,onTaxonomy,onLeaveTaxonomy,onLlm,onLeaveLlm }) {
+  const content=document.querySelector('#administration-section .admin-content');
+  function labelTables(){for(const table of content.querySelectorAll('table')){
+    const headings=[...table.querySelectorAll('thead th')].map(cell=>cell.textContent.trim());
+    for(const row of table.querySelectorAll('tbody tr'))for(const [index,cell] of [...row.cells].entries())if(cell.colSpan===1)cell.dataset.label=headings[index]||'';
+  }}
+  new MutationObserver(labelTables).observe(content,{childList:true,subtree:true});labelTables();
   let current = Object.keys(config.adminViews)[0];
   async function open(view = Object.keys(config.adminViews)[0]) {
     if (!isAdmin() || !(view in config.adminViews)) return;

@@ -335,5 +335,35 @@
   "taxonomy": {
     "label": "Catálogo global de funcionalidades",
     "help": "Equivalencias y conceptos emergentes de News Radar. Los códigos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aquí. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios."
+  },
+  "storage": {
+    "label": "Almacenamiento y archivo",
+    "help": "El libro primario conserva su ID. Cada archivo se verifica en su carpeta antes de retirar filas; Adopción conserva todos los accesos.",
+    "labels": {
+      "primaryFolderId": "Carpeta autorizada del libro y copias",
+      "logFolderId": "Carpeta de logs",
+      "newsletterFolderId": "Carpeta de newsletters",
+      "logRows": "Filas recientes de cada log",
+      "logDays": "Días de cada log",
+      "newsletterDeliveries": "Últimos envíos por suscripción"
+    },
+    "groups": [
+      {
+        "label": "Carpetas de Drive",
+        "keys": [
+          "primaryFolderId",
+          "logFolderId",
+          "newsletterFolderId"
+        ]
+      },
+      {
+        "label": "Conservación",
+        "keys": [
+          "logRows",
+          "logDays",
+          "newsletterDeliveries"
+        ]
+      }
+    ]
   }
 }

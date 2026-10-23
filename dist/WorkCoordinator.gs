@@ -42,7 +42,7 @@ function workWake_(){
     for(const key of pending){
       if(backgroundPaused_(true)){scheduleWorkWake_(WORK_COORDINATION.resumeMs);return;}
       const name=key.slice('WORK_PENDING:'.length);
-      if(name==='daily')requestDailyPipeline_();
+      if(name==='daily'||name==='additional')requestDailyPipeline_(name==='additional');
       else if(name==='classification'){properties_().setProperty('CLASSIFICATION_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}
       else if(name==='taxonomy'){properties_().setProperty('TAXONOMY_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}
       else if(name==='edited'){invalidateConfiguration_();requestNewsClassification_(true);}

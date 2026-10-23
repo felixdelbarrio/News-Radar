@@ -1,5 +1,32 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Recopilación principal": ["Primary collection", "Ana haber toplama"],
+  "Recopilación adicional": ["Additional collection", "Ek haber toplama"],
+  "Entrega de newsletters": ["Newsletter delivery", "Bülten gönderimi"],
+  "Supervisión de colas": ["Queue supervision", "Kuyruk izleme"],
+  "Reintentar archivo": ["Retry archiving", "Arşivlemeyi yeniden dene"],
+
+  "Carpeta de archivo incorrecta.": ["Incorrect archive folder.", "Yanlış arşiv klasörü."],
+  "Se registra tu correo corporativo y eventos de uso para medir adopción. Datos visibles solo al administrador. Los accesos se conservan en Adopción; consultas de hasta": ["Your corporate email and usage events are recorded to measure adoption. Data is visible only to administrators. Access events are retained in Adoption; queries up to", "Kullanımı ölçmek için kurumsal e-posta adresiniz ve kullanım olayları kaydedilir. Veriler yalnızca yöneticilere görünür. Erişim olayları Kullanım bölümünde saklanır; sorgu sınırı"],
+
+  "Datos visibles solo al administrador. Los accesos se conservan en Adopción; consultas de hasta": ["Data is visible only to administrators. Access events are retained in Adoption; queries up to", "Veriler yalnızca yöneticilere görünür. Erişim olayları Kullanım bölümünde saklanır; sorgu sınırı"],
+  "Almacenamiento y archivo": ["Storage and archives", "Depolama ve arşiv"],
+  "El libro primario conserva su ID. Cada archivo se verifica en su carpeta antes de retirar filas; Adopción conserva todos los accesos.": ["The primary workbook keeps its ID. Each archive is verified in its folder before rows are removed; Adoption retains all access events.", "Birincil çalışma kitabının kimliği korunur. Satırlar kaldırılmadan önce her arşiv kendi klasöründe doğrulanır; Kullanım tüm erişim olaylarını korur."],
+  "Carpeta autorizada del libro y copias": ["Authorized folder for workbook and backups", "Çalışma kitabı ve yedekler için yetkili klasör"],
+  "Carpeta de logs": ["Log folder", "Günlük klasörü"],
+  "Carpeta de newsletters": ["Newsletter folder", "Bülten klasörü"],
+  "Filas recientes de cada log": ["Recent rows in each log", "Her günlükteki son satırlar"],
+  "Días de cada log": ["Days retained in each log", "Her günlük için saklama günü"],
+  "Últimos envíos por suscripción": ["Latest deliveries per subscription", "Abonelik başına son gönderimler"],
+  "Carpetas de Drive": ["Drive folders", "Drive klasörleri"],
+  "Conservación": ["Retention", "Saklama"],
+  "Configuración de almacenamiento no válida.": ["Invalid storage configuration.", "Geçersiz depolama yapılandırması."],
+  "Archivo previo no verificado.": ["Previous archive has not been verified.", "Önceki arşiv doğrulanmadı."],
+  "Newsletter archivada no verificada.": ["Archived newsletter has not been verified.", "Arşivlenen bülten doğrulanmadı."],
+  "Contenido de newsletter incompleto.": ["Incomplete newsletter content.", "Eksik bülten içeriği."],
+  "Puntero de newsletter no verificado.": ["Newsletter pointer has not been verified.", "Bülten işaretçisi doğrulanmadı."],
+  "Archivo de newsletter pendiente de compactar.": ["Newsletter archive is awaiting compaction.", "Bülten arşivi sıkıştırılmayı bekliyor."],
+
   "Explorar incidencias en Noticias": ["Explore incidents in News", "Olayları Haberlerde incele"],
   "CONTINUIDAD OPERATIVA Y RIESGO DE CANAL · VISIÓN ANUAL": ["OPERATIONAL CONTINUITY AND CHANNEL RISK · ANNUAL VIEW", "OPERASYONEL SÜREKLİLİK VE KANAL RİSKİ · YILLIK GÖRÜNÜM"],
   "Indisponibilidad e Incidencia Operativa": ["Service Unavailability and Operational Incidents", "Hizmet Kesintileri ve Operasyonel Olaylar"],

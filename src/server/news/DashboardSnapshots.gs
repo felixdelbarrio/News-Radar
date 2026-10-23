@@ -86,7 +86,7 @@ function publishDashboardSnapshotSet_(build,job){
 }
 function rebuildDashboardSnapshots(){authorize_(true);return withForegroundWrite_(()=>{properties_().setProperty('DASHBOARD_SNAPSHOT_CORRUPT','true');requestDashboardSnapshots_(true);return 'Snapshots de Novedades, Noticias y Radar en cola.';});}
 
-function dashboardSnapshotsReady_(work){return taxonomyPublicationReady_()&&(!classificationPending_()||snapshotJobsPending_())&&!dailyCollectionPending_(work)&&!properties_().getProperty('DAILY_PIPELINE_REQUEST')&&dashboardSnapshotsPending_();}
+function dashboardSnapshotsReady_(work){return taxonomyPublicationReady_()&&(!classificationPending_()||snapshotJobsPending_())&&!dailyCollectionPending_(work)&&!dailyPipelineRequested_()&&dashboardSnapshotsPending_();}
 
 function verifyDashboardSnapshot_(view,manifest){
   if(!manifest)throw Error('Falta snapshot de '+view);

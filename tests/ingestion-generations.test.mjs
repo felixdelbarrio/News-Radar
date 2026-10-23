@@ -78,5 +78,5 @@ test('metadatos operativos distinguen privilegios y no cachean la revisión publ
 test('la limpieza retiene solo generaciones activas, rollback y trabajos pendientes',()=>{
  const s=server(),c=s.c;add(s);snapshots(c);c.startClassification();c.newsClassificationBatch_();snapshots(c);const active=c.newsStorageKey_();
  c.generationSheet_('Noticias_class_orphan',vm.runInContext('RADAR.sheets.Noticias',c));c.generationSheet_('Noticias_tax_pending',vm.runInContext('RADAR.sheets.Noticias',c));s.properties.TAXONOMY_JOB=JSON.stringify({state:'Pendiente',source:active,target:'Noticias_tax_pending'});
- c.pruneNewsGenerations_();assert.ok(s.sheets.has(active));assert.ok(s.sheets.has('Noticias'));assert.equal(s.sheets.has('Noticias_tax_pending'),false);assert.equal(s.sheets.has('Noticias_class_orphan'),false);
+ c.pruneNewsGenerations_(true);assert.ok(s.sheets.has(active));assert.ok(s.sheets.has('Noticias'));assert.equal(s.sheets.has('Noticias_tax_pending'),true);assert.equal(s.sheets.has('Noticias_class_orphan'),false);
 });

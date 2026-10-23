@@ -16,10 +16,11 @@ function writeVerifiedRows_(sheet,records){
   for(const {first,rows} of writes)if(sha256_(JSON.stringify(rows))!==sha256_(JSON.stringify(sheet.getRange(first,1,rows.length,width).getDisplayValues())))throw Error('La verificación del backup o de la generación ha fallado.');
 }
 
-function pruneNewsGenerations_(){
+function pruneNewsGenerations_(verifiedBackup=false){
+ if(!verifiedBackup)return [];
  const taxonomy=taxonomyJob_();clearTaxonomyCheckpoints_(['scan','publish'].includes(taxonomy?.phase)?taxonomy.checkpoint:null);
- const active=new Set([dataGeneration_().newsSheet,dataGeneration_().taxonomySheet,dataGeneration_().categorization?.sheet,taxonomy?.generation?.newsSheet,taxonomy?.generation?.taxonomySheet,...Object.values(dataGeneration_().newsletterTables||{})].filter(Boolean));
- const removed=[];for(const sheet of book_().getSheets()){const name=sheet.getName();if(!Object.hasOwn(RADAR.sheets,name)&&!active.has(name)){book_().deleteSheet(sheet);removed.push(name);}}return removed;
+ const active=new Set([dataGeneration_().newsSheet,dataGeneration_().taxonomySheet,dataGeneration_().categorization?.sheet,taxonomy?.generation?.newsSheet,taxonomy?.generation?.taxonomySheet,taxonomy?.generation?.source,classificationJob_()?.target,taxonomy?.target,...Object.values(dataGeneration_().newsletterTables||{})].filter(Boolean));
+ const removed=[];for(const sheet of book_().getSheets()){const name=sheet.getName();if(/^(?:Noticias|Taxonomia|NewsletterContenido|NewsletterEdiciones|CategorizacionLLM)_(?:tax|class|gen|maintenance|llm)_[-a-zA-Z0-9]+$/.test(name)&&!active.has(name)){book_().deleteSheet(sheet);removed.push(name);}}return removed;
 }
 
 function compactStorageDimensions_(){

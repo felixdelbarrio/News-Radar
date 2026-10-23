@@ -2133,7 +2133,7 @@ const CONFIGURATION_DEFAULTS = {
     "collectionBatch": 3,
     "retryMinutes": 10,
     "pauseMinutes": 5,
-    "dailyHour": 7,
+    "dailyHour": 6,
     "briefingLimit": 50,
     "searchTerms": [
       "banca",
@@ -7860,7 +7860,15 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "emerging": []
     }
-  ]
+  ],
+  "storage": {
+    "primaryFolderId": "1-XyAuxo9F42NnzZzPFgfp64HlYAFgi_M",
+    "logFolderId": "1HKblMvd0Vj6om5eHqsrC4tojIUkBCJ69",
+    "newsletterFolderId": "1f-ZxHRBntvUIZmZtweGNkbDE0Bvjy74d",
+    "logRows": 10,
+    "logDays": 20,
+    "newsletterDeliveries": 3
+  }
 };
 CONFIGURATION_DEFAULTS.taxonomy=functionalCatalogRules(FUNCTIONAL_CATALOG_SEED,CONFIGURATION_DEFAULTS.taxonomy);Object.freeze(CONFIGURATION_DEFAULTS);
 addVocabularyTerms_(CONFIGURATION_DEFAULTS);

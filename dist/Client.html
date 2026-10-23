@@ -59,6 +59,30 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Recopilaci\xF3n principal": ["Primary collection", "Ana haber toplama"],
+    "Recopilaci\xF3n adicional": ["Additional collection", "Ek haber toplama"],
+    "Entrega de newsletters": ["Newsletter delivery", "B\xFClten g\xF6nderimi"],
+    "Supervisi\xF3n de colas": ["Queue supervision", "Kuyruk izleme"],
+    "Reintentar archivo": ["Retry archiving", "Ar\u015Fivlemeyi yeniden dene"],
+    "Carpeta de archivo incorrecta.": ["Incorrect archive folder.", "Yanl\u0131\u015F ar\u015Fiv klas\xF6r\xFC."],
+    "Se registra tu correo corporativo y eventos de uso para medir adopci\xF3n. Datos visibles solo al administrador. Los accesos se conservan en Adopci\xF3n; consultas de hasta": ["Your corporate email and usage events are recorded to measure adoption. Data is visible only to administrators. Access events are retained in Adoption; queries up to", "Kullan\u0131m\u0131 \xF6l\xE7mek i\xE7in kurumsal e-posta adresiniz ve kullan\u0131m olaylar\u0131 kaydedilir. Veriler yaln\u0131zca y\xF6neticilere g\xF6r\xFCn\xFCr. Eri\u015Fim olaylar\u0131 Kullan\u0131m b\xF6l\xFCm\xFCnde saklan\u0131r; sorgu s\u0131n\u0131r\u0131"],
+    "Datos visibles solo al administrador. Los accesos se conservan en Adopci\xF3n; consultas de hasta": ["Data is visible only to administrators. Access events are retained in Adoption; queries up to", "Veriler yaln\u0131zca y\xF6neticilere g\xF6r\xFCn\xFCr. Eri\u015Fim olaylar\u0131 Kullan\u0131m b\xF6l\xFCm\xFCnde saklan\u0131r; sorgu s\u0131n\u0131r\u0131"],
+    "Almacenamiento y archivo": ["Storage and archives", "Depolama ve ar\u015Fiv"],
+    "El libro primario conserva su ID. Cada archivo se verifica en su carpeta antes de retirar filas; Adopci\xF3n conserva todos los accesos.": ["The primary workbook keeps its ID. Each archive is verified in its folder before rows are removed; Adoption retains all access events.", "Birincil \xE7al\u0131\u015Fma kitab\u0131n\u0131n kimli\u011Fi korunur. Sat\u0131rlar kald\u0131r\u0131lmadan \xF6nce her ar\u015Fiv kendi klas\xF6r\xFCnde do\u011Frulan\u0131r; Kullan\u0131m t\xFCm eri\u015Fim olaylar\u0131n\u0131 korur."],
+    "Carpeta autorizada del libro y copias": ["Authorized folder for workbook and backups", "\xC7al\u0131\u015Fma kitab\u0131 ve yedekler i\xE7in yetkili klas\xF6r"],
+    "Carpeta de logs": ["Log folder", "G\xFCnl\xFCk klas\xF6r\xFC"],
+    "Carpeta de newsletters": ["Newsletter folder", "B\xFClten klas\xF6r\xFC"],
+    "Filas recientes de cada log": ["Recent rows in each log", "Her g\xFCnl\xFCkteki son sat\u0131rlar"],
+    "D\xEDas de cada log": ["Days retained in each log", "Her g\xFCnl\xFCk i\xE7in saklama g\xFCn\xFC"],
+    "\xDAltimos env\xEDos por suscripci\xF3n": ["Latest deliveries per subscription", "Abonelik ba\u015F\u0131na son g\xF6nderimler"],
+    "Carpetas de Drive": ["Drive folders", "Drive klas\xF6rleri"],
+    Conservaci\u00F3n: ["Retention", "Saklama"],
+    "Configuraci\xF3n de almacenamiento no v\xE1lida.": ["Invalid storage configuration.", "Ge\xE7ersiz depolama yap\u0131land\u0131rmas\u0131."],
+    "Archivo previo no verificado.": ["Previous archive has not been verified.", "\xD6nceki ar\u015Fiv do\u011Frulanmad\u0131."],
+    "Newsletter archivada no verificada.": ["Archived newsletter has not been verified.", "Ar\u015Fivlenen b\xFClten do\u011Frulanmad\u0131."],
+    "Contenido de newsletter incompleto.": ["Incomplete newsletter content.", "Eksik b\xFClten i\xE7eri\u011Fi."],
+    "Puntero de newsletter no verificado.": ["Newsletter pointer has not been verified.", "B\xFClten i\u015Faret\xE7isi do\u011Frulanmad\u0131."],
+    "Archivo de newsletter pendiente de compactar.": ["Newsletter archive is awaiting compaction.", "B\xFClten ar\u015Fivi s\u0131k\u0131\u015Ft\u0131r\u0131lmay\u0131 bekliyor."],
     "Explorar incidencias en Noticias": ["Explore incidents in News", "Olaylar\u0131 Haberlerde incele"],
     "CONTINUIDAD OPERATIVA Y RIESGO DE CANAL \xB7 VISI\xD3N ANUAL": ["OPERATIONAL CONTINUITY AND CHANNEL RISK \xB7 ANNUAL VIEW", "OPERASYONEL S\xDCREKL\u0130L\u0130K VE KANAL R\u0130SK\u0130 \xB7 YILLIK G\xD6R\xDCN\xDCM"],
     "Indisponibilidad e Incidencia Operativa": ["Service Unavailability and Operational Incidents", "Hizmet Kesintileri ve Operasyonel Olaylar"],
@@ -2104,7 +2128,12 @@
     let current = ++request;
     try {
       let data = await call("getRuns", filters.query());
-      return current !== request ? void 0 : (renderCollectionJobs(data.collection), filters.options(data.options), filters.page(data), $("runs-body").innerHTML = data.items.map((r) => `<tr><td>${escape2(displayRecord(r.tipo, language))} ${escape2(r.desde)} \u2014 ${escape2(r.hasta)}</td><td>${escape2(date(r.inicio))}</td><td>${escape2(r.estado)}</td><td>${escape2(r.evaluadas)}</td><td>${escape2(r.nuevas)}</td><td>${escape2(r.errores || "\u2014")}</td></tr>`).join("") || '<tr><td colspan="6">Sin ejecuciones con estos filtros.</td></tr>', data);
+      if (current !== request) return;
+      if (data.operational) {
+        let schedule = data.operational;
+        $("operational-schedule").innerHTML = '<ul class="operational-schedule">' + schedule.jobs.map((job) => "<li><strong>" + escape2(t(job.label)) + "</strong><span>" + escape2(job.hour !== void 0 ? String(job.hour).padStart(2, "0") + ":00 \xB7 " + job.timezone : job.minutes + " min") + "</span><span>" + escape2(t(job.valid ? job.expected ? "Activa" : "Inactiva" : "Revisar")) + "</span></li>").join("") + "</ul>" + (schedule.archive.error ? '<p class="warning">' + escape2(schedule.archive.error) + "</p>" : ""), $("retry-archive").hidden = !schedule.archive.error;
+      }
+      return renderCollectionJobs(data.collection), filters.options(data.options), filters.page(data), $("runs-body").innerHTML = data.items.map((r) => `<tr><td>${escape2(displayRecord(r.tipo, language))} ${escape2(r.desde)} \u2014 ${escape2(r.hasta)}</td><td>${escape2(date(r.inicio))}</td><td>${escape2(r.estado)}</td><td>${escape2(r.evaluadas)}</td><td>${escape2(r.nuevas)}</td><td>${escape2(r.errores || "\u2014")}</td></tr>`).join("") || '<tr><td colspan="6">Sin ejecuciones con estos filtros.</td></tr>', data;
     } catch (error) {
       current === request && message(error.message, !0);
     }
@@ -2136,6 +2165,8 @@
     return $("collect").addEventListener("click", () => recover("collectNow", document.querySelector('input[name="recovery-range"]:checked').value)), $("continue-collection").addEventListener("click", () => recover("resumeCollection", document.querySelector('input[name="recovery-range"]:checked').value)), radios.forEach((radio) => radio.addEventListener("change", () => render())), $("toggle-daily").addEventListener("click", () => run(async () => {
       let enabled = getData().daily, result = await call(enabled ? "disableDaily" : "enableDaily");
       message(enabled ? "Recopilaci\xF3n diaria desactivada." : result);
+    })), $("retry-archive").addEventListener("click", () => run(async () => {
+      await call("resumeOperationalArchive"), await loadRuns();
     })), $("retry-collection").addEventListener("click", () => run(async () => message(await call("retryCollectionErrors")))), syncRecovery = render, { setBusy(value) {
       busy = value, render();
     } };
@@ -2228,7 +2259,7 @@
     let options, own = [], all = [], request3 = 0, historyLimit = 3, filters5 = {}, editorId = (admin) => admin ? "admin-subscription-editor" : "personal-editor";
     function edit(admin, row) {
       let target = $(editorId(admin));
-      target.hidden = !1, target.innerHTML = subscriptionForm(options, admin, row);
+      target.hidden = !1, target.innerHTML = subscriptionForm(options, admin, row), target.scrollIntoView?.({ block: "nearest" }), target.querySelector("input,select,button")?.focus();
     }
     function render(admin) {
       if (!admin) {
@@ -2658,17 +2689,47 @@
     taxonomy: {
       label: "Cat\xE1logo global de funcionalidades",
       help: "Equivalencias y conceptos emergentes de News Radar. Los c\xF3digos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aqu\xED. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios."
+    },
+    storage: {
+      label: "Almacenamiento y archivo",
+      help: "El libro primario conserva su ID. Cada archivo se verifica en su carpeta antes de retirar filas; Adopci\xF3n conserva todos los accesos.",
+      labels: {
+        primaryFolderId: "Carpeta autorizada del libro y copias",
+        logFolderId: "Carpeta de logs",
+        newsletterFolderId: "Carpeta de newsletters",
+        logRows: "Filas recientes de cada log",
+        logDays: "D\xEDas de cada log",
+        newsletterDeliveries: "\xDAltimos env\xEDos por suscripci\xF3n"
+      },
+      groups: [
+        {
+          label: "Carpetas de Drive",
+          keys: [
+            "primaryFolderId",
+            "logFolderId",
+            "newsletterFolderId"
+          ]
+        },
+        {
+          label: "Conservaci\xF3n",
+          keys: [
+            "logRows",
+            "logDays",
+            "newsletterDeliveries"
+          ]
+        }
+      ]
     }
   };
 
   // src/client/features/configuration.js
   function createConfiguration({ run }) {
-    let config, revision, category = "entities", capabilityDefaults, entries = () => category === "capabilities" ? config.capabilities.Empresas : config[category], setEntries = (rows) => {
+    let config, revision, category = "entities", capabilityDefaults, storagePrimaryId, entries = () => category === "capabilities" ? config.capabilities.Empresas : config[category], setEntries = (rows) => {
       category === "capabilities" ? config.capabilities.Empresas = rows : config[category] = rows;
     };
     async function fetchConfig() {
       let snapshot = await call("getConfiguration");
-      config = snapshot.config, revision = snapshot.revision, capabilityDefaults = snapshot.capabilityDefaults;
+      config = snapshot.config, revision = snapshot.revision, capabilityDefaults = snapshot.capabilityDefaults, storagePrimaryId = snapshot.storagePrimaryId;
     }
     function readFields() {
       if (config)
@@ -2677,8 +2738,8 @@
         else if (category === "taxonomy") {
           let list = (input2) => input2.value.split(";").map((value) => value.trim()).filter(Boolean), records = (block, selector) => [...block.querySelectorAll(selector)].map((row) => Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input2) => [input2.dataset.key, input2.dataset.key === "primary" ? input2.checked : input2.dataset.list === "true" ? list(input2) : input2.value.trim()])));
           config.taxonomy = [...$("catalog-fields").children].map((block) => ({ name: block.querySelector('[data-key="name"]').value.trim(), terms: list(block.querySelector('[data-key="terms"]')), emerging: records(block, "[data-emerging]"), functions: records(block, "[data-function]") }));
-        } else if (category === "settings")
-          for (let input2 of $("catalog-fields").querySelectorAll("[data-key]")) config.settings[input2.dataset.key] = input2.type === "checkbox" ? input2.checked : input2.type === "number" ? Number(input2.value) : input2.dataset.list === "true" ? input2.value.split(";").map((value) => value.trim()).filter(Boolean) : input2.value;
+        } else if (["settings", "storage"].includes(category))
+          for (let input2 of $("catalog-fields").querySelectorAll("[data-key]")) config[category][input2.dataset.key] = input2.type === "checkbox" ? input2.checked : input2.type === "number" ? Number(input2.value) : input2.dataset.list === "true" ? input2.value.split(";").map((value) => value.trim()).filter(Boolean) : input2.value;
         else setEntries([...$("catalog-fields").children].map((row) => Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input2) => [input2.dataset.key, input2.type === "checkbox" ? input2.checked : input2.dataset.list === "true" ? input2.value.split(";").map((value) => value.trim()).filter(Boolean) : input2.value]))));
     }
     function fields(fields2, row) {
@@ -2686,13 +2747,13 @@
     }
     function render() {
       let meta = admin_schema_default[category];
-      if ($("capability-toolbar").hidden = category !== "capabilities", $("catalog-help").textContent = meta.help, $("catalog-add").hidden = ["settings", "applicationScope", "taxonomy"].includes(category), category === "taxonomy") {
+      if ($("capability-toolbar").hidden = category !== "capabilities", $("catalog-help").textContent = meta.help + (category === "storage" ? " ID: " + storagePrimaryId : ""), $("catalog-add").hidden = ["settings", "storage", "applicationScope", "taxonomy"].includes(category), category === "taxonomy") {
         $("catalog-fields").innerHTML = config.taxonomy.map((block, index) => `<details class="catalog-row"><summary><strong>${escape2(block.name)}</strong><span>${block.functions.length}</span></summary><div class="catalog-grid">${fields([["name", "Bloque funcional", "readonly"], ["terms", "Equivalencias del bloque", "list"]], block)}</div>${block.functions.map((row) => `<div class="catalog-grid" data-function>${fields([["id", "C\xF3digo", "readonly"], ["name", "Funcionalidad / Sub Operativa", "readonly"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"]], row)}</div>`).join("")}<h3>${t("Conceptos emergentes admitidos")}</h3><button type="button" class="button" data-add-emerging="${index}">${t("A\xF1adir concepto emergente")}</button>${block.emerging.map((row) => `<div class="catalog-grid" data-emerging>${fields([["name", "Funcionalidad / Sub Operativa", "text"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"], ["primaryTerms", "Productos concretos de fuente oficial", "list"], ["primary", "Producto concreto respaldado por fuente oficial", "boolean"]], row)}<button type="button" class="button" data-remove-emerging>${t("Eliminar")}</button></div>`).join("")}</details>`).join("");
         return;
       }
-      $("catalog-fields").innerHTML = category === "applicationScope" ? config.applicationScope.map((scope) => `<fieldset class="catalog-group scope-group" data-scope="${escape2(scope.name)}"><legend>${escape2(scope.name)}</legend><div class="scope-countries">${config.geographies.map((country) => `<label class="scope-country"><input type="checkbox" data-country="${escape2(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${escape2(country.name)}</span></label>`).join("")}</div></fieldset>`).join("") : category === "settings" ? admin_schema_default.settings.groups.map((group) => `<fieldset class="catalog-group"><legend>${escape2(group.label)}</legend><div class="catalog-settings">${group.keys.map((key) => {
-        let value = config.settings[key];
-        return fields([[key, admin_schema_default.settings.labels[key], Array.isArray(value) ? "list" : typeof value == "number" ? "number" : typeof value == "boolean" ? "boolean" : "text"]], config.settings);
+      $("catalog-fields").innerHTML = category === "applicationScope" ? config.applicationScope.map((scope) => `<fieldset class="catalog-group scope-group" data-scope="${escape2(scope.name)}"><legend>${escape2(scope.name)}</legend><div class="scope-countries">${config.geographies.map((country) => `<label class="scope-country"><input type="checkbox" data-country="${escape2(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${escape2(country.name)}</span></label>`).join("")}</div></fieldset>`).join("") : ["settings", "storage"].includes(category) ? meta.groups.map((group) => `<fieldset class="catalog-group"><legend>${escape2(group.label)}</legend><div class="catalog-settings">${group.keys.map((key) => {
+        let value = config[category][key];
+        return fields([[key, meta.labels[key], Array.isArray(value) ? "list" : typeof value == "number" ? "number" : typeof value == "boolean" ? "boolean" : "text"]], config[category]);
       }).join("")}</div></fieldset>`).join("") : entries().map((row) => `<details class="catalog-row" ${row.name ? "" : "open"}><summary><strong>${escape2(row.name || "Nueva entrada")}</strong><span>${escape2(row.type || "")} \xB7 ${row.enabled ? "Activa" : "Inactiva"}</span></summary><div class="catalog-grid">${fields(meta.fields, row)}</div><div class="actions"><button type="button" class="button" data-move="-1">Subir</button><button type="button" class="button" data-move="1">Bajar</button><button type="button" class="button" data-remove>Eliminar</button></div></details>`).join("");
     }
     return $("catalog-category").innerHTML = Object.entries(admin_schema_default).map(([key, meta]) => `<option value="${key}">${escape2(meta.label)}</option>`).join(""), $("catalog-category").addEventListener("change", () => {
@@ -2983,6 +3044,14 @@
 
   // src/client/features/administration.js
   function createAdministration({ isAdmin, track: track2, onConfiguration, onSubscribers, onLanguage, onLeaveLanguage, onRuns, onLeaveRuns, onLeaveSubscribers, onTaxonomy, onLeaveTaxonomy, onLlm, onLeaveLlm }) {
+    let content = document.querySelector("#administration-section .admin-content");
+    function labelTables() {
+      for (let table of content.querySelectorAll("table")) {
+        let headings = [...table.querySelectorAll("thead th")].map((cell) => cell.textContent.trim());
+        for (let row of table.querySelectorAll("tbody tr")) for (let [index, cell] of [...row.cells].entries()) cell.colSpan === 1 && (cell.dataset.label = headings[index] || "");
+      }
+    }
+    new MutationObserver(labelTables).observe(content, { childList: !0, subtree: !0 }), labelTables();
     let current = Object.keys(config_default.adminViews)[0];
     async function open(view = Object.keys(config_default.adminViews)[0]) {
       if (!(!isAdmin() || !(view in config_default.adminViews))) {

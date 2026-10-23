@@ -84,7 +84,7 @@ test('adopción calcula ventanas y sesiones y obtiene el correo exclusivamente d
 test('distribución no contiene flujo manual, estilos obsoletos ni permisos de lectura de correo',()=>{
   const c=context();for(const name of ['verifyNews','score_','getCandidates','startSearch','searchTick_','articleDate_'])assert.equal(typeof c[name],'undefined');
   const html=renderIncludes(read('dist/Index.html'));assert.doesNotMatch(html,/verify-form|verification-form|candidates-body|Verificar|puntuar|puntuación/);assert.ok(files('src/server').every(file=>!file.endsWith('/Search.gs')));
-  const manifest=JSON.parse(fs.readFileSync('src/appsscript.json'));assert.equal(manifest.oauthScopes.length,6);assert.ok(!manifest.oauthScopes.some(scope=>/gmail\.(?:readonly|modify|compose)|mail.google.com|drive|admin.directory/.test(scope)));
+  const manifest=JSON.parse(fs.readFileSync('src/appsscript.json'));assert.equal(manifest.oauthScopes.length,8);assert.ok(!manifest.oauthScopes.some(scope=>/gmail\.(?:readonly|modify|compose)|mail.google.com|admin.directory/.test(scope)));
 });
 
 test('filtros combinan entidad normalizada, ámbito y medio sin mezclar otras noticias',()=>{
@@ -310,7 +310,7 @@ test('el gráfico de medios cuenta editores reales y limita el resultado sin inv
 });
 test('ejecuciones pagina todo el histórico disponible y el progreso es seguro para lectores',()=>{
  const c=context();c.rows_=()=>Array.from({length:45},(_,i)=>({inicio:'2026-10-09',estado:i%2?'Parcial':'Completada',errores:i%2?'HTTP 503':'',id:String(i)}));
- const page=c.getRuns({estado:'Parcial'});assert.equal(page.total,22);assert.equal(page.items.length,22);assert.equal(c.getRuns({page:1}).items.length,15);assert.throws(()=>context('reader@bbva.com').getRuns(),/no autorizado/);
+ const page=c.getRuns({estado:'Parcial'});assert.equal(page.total,22);assert.equal(page.items.length,10);assert.equal(c.getRuns({page:1}).items.length,10);assert.throws(()=>context('reader@bbva.com').getRuns(),/no autorizado/);
  c.collectionStatus_=()=>({total:3,pending:1});c.properties_().setProperty('NEWS_REVISION','revision');const progress=c.getCollectionProgress();assert.equal(progress.newsRevision,'revision');assert.equal(progress.collection.pending,1);
 });
 test('todos los gráficos del Radar respetan geografía y distinguen editor de entidad mencionada',()=>{

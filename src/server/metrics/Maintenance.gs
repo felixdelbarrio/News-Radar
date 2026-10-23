@@ -6,15 +6,11 @@ function maintenance_(force=false){
  const newsTotal=Math.max(0,newsSheet_().getLastRow()-1),candidateTotal=Math.max(0,candidateSheet_().getLastRow()-1);
  saveMaintenanceJob_({version:RADAR.version,newsTotal,candidateTotal,total:newsTotal+candidateTotal,next:2,firstRow:2,state:'Pendiente',phase:'logs',reviewed:0,corrected:0,consolidated:0,removed:0,started:new Date().toISOString()});ensureBackgroundWorker_();
 }
-function maintenanceReadyAt_(){const job=maintenanceJob_();return job&&!['Completada','Publicando'].includes(job.state)?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
-function getMaintenanceStatus(){authorize_(true);const job=maintenanceJob_();return {job:withJobProgress_('maintenance',job?{...job,processed:job.reviewed+Math.max(0,(job.candidateNext||2)-2)}:null),active:Boolean(job&&job.state!=='Completada')};}
+function maintenanceReadyAt_(){const job=maintenanceJob_();return job&&!['Completada','Publicando','Revisar'].includes(job.state)?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
+function getMaintenanceStatus(){authorize_(true);const job=maintenanceJob_();return {job:withJobProgress_('maintenance',job?{...job,processed:job.reviewed+Math.max(0,(job.candidateNext||2)-2)}:null),active:Boolean(job&&!['Completada','Revisar'].includes(job.state))};}
 function compactOperationalLogs_(){
- for(const name of Object.keys(LOG_LIMITS)){const sheet=book_().getSheetByName(name);if(sheet)enforceLogLimit_(name,sheet);}
- const completed=new Set(rows_('Recargas').filter(row=>row.estado==='Completada').map(row=>row.id)),sheet=book_().getSheetByName('Recopilacion'),keys=RADAR.sheets.Recopilacion;
- if(sheet&&sheet.getLastRow()>1){
-  const count=sheet.getLastRow()-1,cycles=sheet.getRange(2,keys.indexOf('ciclo')+1,count,1).getDisplayValues().flat();
-  deleteSheetRows_(sheet,cycles.flatMap((cycle,index)=>completed.has(cycle)?[index+2]:[]));
- }
+ for(const name of LOG_TABLES)if(book_().getSheetByName(name)&&!archiveLogBatch_(name))return false;
+ properties_().deleteProperty('LOG_ARCHIVE_PENDING');return true;
 }
 function deleteSheetRows_(sheet,positions){
  const rows=[...new Set(positions)].sort((a,b)=>b-a);for(let i=0;i<rows.length;){let end=i+1;while(end<rows.length&&rows[end]===rows[end-1]-1)end++;sheet.deleteRows(rows[end-1],end-i);i=end;}
@@ -29,15 +25,17 @@ function deduplicateNews_(){
  }
  const aliases=[];uniqueNews_(translationIdentityRows_(rows),aliases);remove.push(...aliases.map(alias=>rows[alias.index]._sheetRow));if(!remove.length)return 0;
  // Archived editions already contain complete frozen articles, so their IDs and content remain intact.
- deleteSheetRows_(sheet,remove);invalidateNews_();return remove.length;
+ const archives=[];for(let start=0;start<remove.length;start+=ARCHIVE_WORK.rows){const positions=remove.slice(start,start+ARCHIVE_WORK.rows),records=new Map(newsRowsAt_(positions.slice().sort((a,b)=>a-b)).map(row=>[row._sheetRow,keys.map(key=>row[key]||'')])),values=positions.map(position=>records.get(position));archives.push(archiveDocument_('Noticias',keys,values,configuration_().storage.primaryFolderId,'news:'+sha256_(JSON.stringify(values))));}
+ deleteSheetRows_(sheet,remove);SpreadsheetApp.flush();for(const archive of archives)properties_().deleteProperty(archive.property);invalidateNews_();return remove.length;
 }
 function cleanDuplicateNews(){authorize_(true);return withForegroundWrite_(()=>({removed:deduplicateNews_()}));}
 function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
- const job=maintenanceJob_();if(!job||['Completada','Publicando'].includes(job.state)||backgroundPaused_())return;
+ const job=maintenanceJob_();if(!job||['Completada','Publicando','Revisar'].includes(job.state)||backgroundPaused_())return;
  const started=Date.now();try{
-  if(job.phase==='logs'){compactOperationalLogs_();job.phase='dedup';saveMaintenanceJob_(job);}
+  if(job.phase==='logs'){if(compactOperationalLogs_()===false){saveMaintenanceJob_(job);return;}job.phase='newsletters';saveMaintenanceJob_(job);}
+  if(job.phase==='newsletters'){if(!archiveNewsletterBatch_()){saveMaintenanceJob_(job);return;}job.phase='dedup';saveMaintenanceJob_(job);}
   if(classificationPending_()||dailyCollectionPending_())return;
-  if(job.phase==='dedup'){job.removed+=deduplicateNews_();job.phase='news';job.newsTotal=Math.max(0,newsSheet_().getLastRow()-1);job.total=job.newsTotal+job.candidateTotal;}
+  if(job.phase==='dedup'){if(!auditMaintenanceIntegrity_(job)){saveMaintenanceJob_(job);return;}job.removed+=deduplicateNews_();job.phase='news';job.newsTotal=Math.max(0,newsSheet_().getLastRow()-1);job.total=job.newsTotal+job.candidateTotal;}
   if(job.phase==='news'){
   const sheet=newsSheet_(),keys=RADAR.sheets.Noticias,size=Math.min(MAINTENANCE_POLICY.batchRows,job.newsTotal-job.next+2),updates=[],items=taxonomyCatalog_();let read=0;
   const rows=size>0?sheet.getRange(job.next,1,size,keys.length).getDisplayValues():[];
@@ -47,16 +45,17 @@ function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
   if(job.phase==='candidates'){
    const result=reclassifyCandidates_(job.candidateNext,MAINTENANCE_POLICY.batchRows,Math.max(0,maxMs-(Date.now()-started)));job.candidateNext=result.next;job.candidateTotal=result.total;job.total=job.newsTotal+result.total;job.corrected+=result.changed;job.state=result.done?'Completada':'Pendiente';
   }
-  job.error='';job.pausedUntil=0;if(job.state==='Completada'){compactOperationalLogs_();compactStorageDimensions_();requestDashboardSnapshots_(true);}saveMaintenanceJob_(job);
+  job.error='';job.attempts=0;job.pausedUntil=0;if(job.state==='Completada'){compactOperationalLogs_();compactStorageDimensions_();requestDashboardSnapshots_(true);}saveMaintenanceJob_(job);
   telemetry_('mantenimiento',Date.now()-started,'OK',job.reviewed+' revisadas; '+job.removed+' noticias compactadas');
- }catch(error){job.state='En pausa';job.error=String(error.message).slice(0,180);job.pausedUntil=Date.now()+settings_().retryMinutes*60000;saveMaintenanceJob_(job);telemetry_('mantenimiento',Date.now()-started,'Error',job.error);}
+ }catch(error){job.attempts=Number(job.attempts||0)+1;job.state=job.attempts>=3?'Revisar':'En pausa';job.error=String(error.message).slice(0,180);job.pausedUntil=Date.now()+settings_().retryMinutes*60000;saveMaintenanceJob_(job);telemetry_('mantenimiento',Date.now()-started,'Error',job.error);}
 }
-function drainMaintenanceRequest_(){const p=properties_(),day=p.getProperty('MAINTENANCE_REQUEST');if(!day)return;if(p.getProperty('MAINTENANCE_DAY')!==day){maintenance_();p.setProperty('MAINTENANCE_DAY',day);}p.deleteProperty('MAINTENANCE_REQUEST');}
+function drainMaintenanceRequest_(){const p=properties_();const day=p.getProperty('MAINTENANCE_REQUEST');if(!day)return;if(p.getProperty('MAINTENANCE_DAY')!==day){maintenance_();p.setProperty('MAINTENANCE_DAY',day);}p.deleteProperty('MAINTENANCE_REQUEST');}
 
 // Explicit maintenance: keep a verified external archive before removing operational history.
 function archiveAndCompactOperationalStorage(){
  authorize_(true);return withForegroundWrite_(()=>{
-  const source=book_(),archive=source.copy('News Radar · Archivo '+new Date().toISOString());
+  const folder=archiveFolder_(configuration_().storage.primaryFolderId),source=book_(),archive=source.copy('News Radar · Archivo '+new Date().toISOString());
+  fileInFolder_(archive.getId(),folder);
   for(const sheet of source.getSheets()){
    const backup=archive.getSheetByName(sheet.getName()),rows=sheet.getLastRow(),width=sheet.getLastColumn();
    if(!backup||rows!==backup.getLastRow()||width!==backup.getLastColumn()||rows&&width&&sha256_(JSON.stringify(sheet.getRange(1,1,rows,width).getDisplayValues()))!==sha256_(JSON.stringify(backup.getRange(1,1,rows,width).getDisplayValues())))throw Error('Archivo externo no verificado: '+sheet.getName());
@@ -80,8 +79,24 @@ function archiveAndCompactOperationalStorage(){
   }
   const changedCycles=new Set(remove.map(position=>rows[position-2][0]));
   for(const job of collectionSnapshots_(rows_('Recopilacion'),jobs.filter(job=>changedCycles.has(job.id)&&!archivedCycles.has(job.id))))writeCollectionJob_(job);
-  compactOperationalLogs_();const generations=pruneNewsGenerations_();compactStorageDimensions_();
+  compactOperationalLogs_();const generations=pruneNewsGenerations_(true);compactStorageDimensions_();
   CacheService.getScriptCache().remove('collection-status');
   return {archive:archive.getUrl(),duplicateTasks,archivedTasks,generations};
  });
+}
+function auditMaintenanceIntegrity_(job){
+ const tables=Object.keys(RADAR.sheets);job.integrityTable=job.integrityTable||0;
+ for(let checked=0;checked<3&&job.integrityTable<tables.length;checked++,job.integrityTable++){
+  const name=tables[job.integrityTable],sheet=book_().getSheetByName(configurationStorageKey_(name));if(!sheet)continue;
+  if(JSON.stringify(sheet.getRange(1,1,1,RADAR.sheets[name].length).getDisplayValues()[0])!==JSON.stringify(RADAR.sheets[name]))throw Error('Cabecera no válida: '+name);
+ }
+ if(job.integrityTable<tables.length)return false;
+ if(!job.integrityChecked){
+  const sheet=newsSheet_(),count=sheet.getLastRow()-1,ids=count?sheet.getRange(2,1,count,1).getDisplayValues():[],seen=new Set();let duplicates=0,missing=0;
+  for(const [id] of ids){if(!id)missing++;else if(seen.has(id))duplicates++;else seen.add(id);}
+  job.integrity={news:count,duplicates,missing,storage:newsStorageKey_()};
+  if(duplicates||missing)throw Error('Integridad de IDs: '+duplicates+' duplicados; '+missing+' vacíos. Revisión necesaria.');
+  job.integrityChecked=true;
+ }
+ return true;
 }

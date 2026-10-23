@@ -48,9 +48,9 @@ test('preparar una solicitud es idempotente incluso si quedó una parte de la co
  s.sheets.get('Recargas').grid[1][6]='Preparando';let selected;c.collectionFeeds_=range=>{selected=range;return [{...s.feed,range}];};
  c.requestCollection_('annual',{from:'2025-01-02',to:'2026-01-02'});c.drainCollectionRequests_();assert.equal(c.collectionJobs_().length,1);assert.equal(c.rows_('Recopilacion').length,1);assert.equal(selected.to,'2026-01-01');
 });
-test('terminar una carga conserva su progreso pero retira sus tareas al preparar la siguiente',()=>{
+test('terminar una carga conserva progreso y tareas hasta disponer de archivo verificado',()=>{
  const s=server(),c=s.c;addJob(s,'done','daily',1);c.backgroundTick_();assert.equal(c.rows_('Recopilacion').length,1);
- c.requestCollection_('annual',{from:'2026-10-11',to:'2026-10-11'});c.drainCollectionRequests_();assert.equal(c.rows_('Recopilacion').length,1);assert.notEqual(c.rows_('Recopilacion')[0].ciclo,'done');assert.equal(c.collectionJobs_().find(job=>job.id==='done').procesadas,'1');
+ c.requestCollection_('annual',{from:'2026-10-11',to:'2026-10-11'});c.drainCollectionRequests_();assert.equal(c.rows_('Recopilacion').length,2);assert.equal(c.rows_('Recopilacion')[0].ciclo,'done');assert.notEqual(c.rows_('Recopilacion')[1].ciclo,'done');assert.equal(c.collectionJobs_().find(job=>job.id==='done').procesadas,'1');
 });
 test('errores simultáneos solo pausan su ciclo y quedan reintentables',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',2);addJob(s,'daily','daily',1);

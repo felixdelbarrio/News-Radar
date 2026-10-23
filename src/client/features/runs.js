@@ -11,6 +11,7 @@ export async function loadRuns(){
   const current=++request;
   try{
     const data=await call('getRuns',filters.query());if(current!==request)return;
+    if(data.operational){const schedule=data.operational;$('operational-schedule').innerHTML='<ul class="operational-schedule">'+schedule.jobs.map(job=>'<li><strong>'+escape(t(job.label))+'</strong><span>'+escape(job.hour!==undefined?String(job.hour).padStart(2,'0')+':00 · '+job.timezone:job.minutes+' min')+'</span><span>'+escape(t(job.valid?(job.expected?'Activa':'Inactiva'):'Revisar'))+'</span></li>').join('')+'</ul>'+(schedule.archive.error?'<p class="warning">'+escape(schedule.archive.error)+'</p>':'');$('retry-archive').hidden=!schedule.archive.error;}
     renderCollectionJobs(data.collection);filters.options(data.options);filters.page(data);
     $('runs-body').innerHTML=data.items.map(r=>`<tr><td>${escape(displayRecord(r.tipo,language))} ${escape(r.desde)} — ${escape(r.hasta)}</td><td>${escape(date(r.inicio))}</td><td>${escape(r.estado)}</td><td>${escape(r.evaluadas)}</td><td>${escape(r.nuevas)}</td><td>${escape(r.errores||'—')}</td></tr>`).join('')||'<tr><td colspan="6">Sin ejecuciones con estos filtros.</td></tr>';
     return data;
@@ -53,6 +54,7 @@ export function createRecoveryControls({getData,run}){
   $('toggle-daily').addEventListener('click',()=>run(async()=>{
     const enabled=getData().daily,result=await call(enabled?'disableDaily':'enableDaily');message(enabled?'Recopilación diaria desactivada.':result);
   }));
+  $('retry-archive').addEventListener('click',()=>run(async()=>{await call('resumeOperationalArchive');await loadRuns();}));
   $('retry-collection').addEventListener('click',()=>run(async()=>message(await call('retryCollectionErrors'))));
   syncRecovery=render;
   return {setBusy(value){busy=value;render();}};
