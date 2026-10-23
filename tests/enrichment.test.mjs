@@ -26,3 +26,8 @@ test('el lote calcula la revisión de taxonomía una sola vez aunque examine pro
  const s=fixture(),{c}=s;article(s,'first');article(s,'second');let models=0;const model=c.taxonomyModelRevision_;c.taxonomyModelRevision_=(...args)=>{models++;return model(...args);};
  c.enrichmentBatch_();models=0;const result=c.enrichmentBatch_();assert.equal(result.metrics.processed,0);assert.equal(models,1);assert.equal(result.metrics.writes,0);
 });
+
+test('progreso de una regla nueva no cuenta propuestas de la versión anterior ni supera el corpus',()=>{
+ const s=fixture(),c=s.c;for(let i=0;i<4;i++)article(s,'revision-'+i);const keys=vm.runInContext('RADAR.sheets.Enriquecimiento',c);for(let i=0;i<3;i++){const row={newsId:'revision-'+i,inputHash:'old',version:'1.1',state:'Completada'};s.sheets.get('Enriquecimiento').grid.push(keys.map(key=>row[key]||''));}
+ s.properties.ENRICHMENT_JOB=JSON.stringify({version:'1.1',next:2,newNext:2,state:'Pendiente'});const {job}=c.enrichmentBatch_();assert.equal(job.total,4);assert.equal(job.processed,2);assert.equal(job.pending,2);
+});
