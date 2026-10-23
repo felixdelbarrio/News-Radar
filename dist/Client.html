@@ -3341,7 +3341,7 @@
       let input2 = event.target;
       input2.matches(".source-enabled") && (byId.get(input2.dataset.id).enabled = input2.checked, input2.checked ? enabled.add(input2.dataset.id) : enabled.delete(input2.dataset.id), render());
     }), {
-      update(rows, size) {
+      update(rows) {
         let feeds = rows.map((row) => ({ ...row }));
         groups = { all: feeds, profile: [], rss: [] };
         for (let feed of feeds) groups[feed.kind].push(feed);
@@ -3372,7 +3372,7 @@
       e.target.closest(".remove-source") && e.target.closest("fieldset").remove();
     }), $("save-source-settings").addEventListener("click", () => run(async () => message(await call("saveSourceSettings", catalog.selected())))), { render(data) {
       let next = JSON.stringify([data.feeds, data.configuredFeeds]);
-      next !== signature && (signature = next, sourceFields(data.feeds), $("source-fields").dataset.max = data.maxFeeds, $("source-limit").textContent = data.maxFeeds, catalog.update(data.configuredFeeds, data.pageSize));
+      next !== signature && (signature = next, sourceFields(data.feeds), $("source-fields").dataset.max = data.maxFeeds, $("source-limit").textContent = data.maxFeeds, catalog.update(data.configuredFeeds));
     }, setBusy(value) {
       busy = value, $("sources-form").querySelectorAll("input,button").forEach((el) => el.disabled = busy || !getData()?.admin);
     } };
