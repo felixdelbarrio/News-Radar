@@ -90,7 +90,11 @@ test('incorporar una noticia de Empresas digital solicita traducción automátic
 });
 test('Otras geografías en ediciones archivadas usa el ámbito congelado también al exportar',()=>{
  const s=server(),c=s.c;
- const items=[news(s,'spain','España'),news(s,'mexico','México'),news(s,'italy','Italia')];
+ const items=[
+  news(s,'spain','España','BBVA presenta una plataforma de pagos para empresas españolas'),
+  news(s,'mexico','México','BBVA incorpora nuevas funcionalidades de cobros en México'),
+  news(s,'italy','Italia','BBVA desarrolla una solución de tesorería para empresas italianas')
+ ];
  const queryEdition={view:'news',from:'2026-09-01',to:'2026-09-30',segment:'Empresas e instituciones'};
  const content=c.newsletterContent_(items,queryEdition,'Selección',new Date(),'subscription','es','frozen-geography');
  c.saveNewsletterEdition_('frozen-geography','delivery','owner@bbva.com','Selección',queryEdition,'es',items,content.editorial);
