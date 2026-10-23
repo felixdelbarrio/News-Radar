@@ -16929,19 +16929,20 @@ function translationBatch_(maxMs=TRANSLATION_WORK.maxMs){
     if(translationCallsToday_()>=TRANSLATION_WORK.dailyCalls&&candidates.length){job.state='En pausa';job.pausedUntil=nextDailyReset(Date.now(),settings_().timezone);job.error='Límite diario de traducción alcanzado. Continuará en la siguiente ejecución diaria.';return;}
     job.state='En curso';job.error='';writeTranslationJob_(job);
     const feeds=new Set(configuration_().feeds.map(feed=>feed.name)),known=articleTranslationIndex_();let calls=0;
+    const dailyRequested=()=>collectionRequests_().some(request=>request.kind==='daily');
     outer:for(let offset=0;offset<Math.min(candidates.length,TRANSLATION_WORK.batchRows);offset+=TRANSLATION_WORK.readRows){
-      if(backgroundPaused_()||Date.now()-started>=maxMs)break;
+      if(backgroundPaused_()||Date.now()-started>=maxMs||dailyRequested())break;
       const selected=candidates.slice(offset,offset+TRANSLATION_WORK.readRows),articles=newsRowsForCandidates_(selected);
       for(const candidate of selected){
-        if(backgroundPaused_()||Date.now()-started>=maxMs||collectionRequests_().some(request=>request.kind==='daily'))break outer;
+        if(backgroundPaused_()||Date.now()-started>=maxMs)break outer;
         const row=articles.get(candidate.id);
         if(row)for(const language of Object.keys(languageNames)){
-          if(backgroundPaused_()||Date.now()-started>=maxMs||collectionRequests_().some(request=>request.kind==='daily'))break outer;
           if(nativeArticle_(row,language,feeds)||known.has(articleTranslationKey_(row,language)))continue;
+          if(backgroundPaused_()||Date.now()-started>=maxMs||dailyRequested())break outer;
           if(calls>=TRANSLATION_WORK.batchCalls||translationCallsToday_()>=TRANSLATION_WORK.dailyCalls)break outer;
           calls++;job.calls++;writeTranslationJob_(job);storeArticleTranslation_(row,language);job.translated++;
         }
-        job.processed++;job.cursor={id:candidate.id,fecha:candidate.fecha,priority:candidate.priority};if(candidate.priority===0)job.businessPending--;job.updated=new Date().toISOString();writeTranslationJob_(job);
+        job.processed++;job.cursor={id:candidate.id,fecha:candidate.fecha,priority:candidate.priority};if(candidate.priority===0)job.businessPending--;job.updated=new Date().toISOString();
       }
     }
     job.state=job.processed===job.total?'Completada':translationCallsToday_()>=TRANSLATION_WORK.dailyCalls?'En pausa':'Pendiente';
