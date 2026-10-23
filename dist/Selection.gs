@@ -4,7 +4,7 @@ function newsGeographySelection_(rows,query,geography=applicationGeography(confi
   return query.newsGeography?rows.filter(row=>geography(row)===query.newsGeography):rows;
 }
 function searchText_(value) {
-  return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ı/g,'i').trim();
+  return String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ı/g,'i').trim();
 }
 function newsScope_(row,query,entity,entityName=entityKey_){
   return (!query.country||row.pais===query.country)&&(!entity||entityName(row.entidad)===entity)&&(!query.source||row.medio===query.source||row.fuente===query.source)&&(!query.from||row.fecha>=query.from)&&(!query.to||row.fecha<=query.to);
