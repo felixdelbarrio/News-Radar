@@ -61,7 +61,9 @@ function businessSignals_(title,text,index=businessIndex_()){
     const row=index.signals.find(rule=>kind==='Problema'?rule.group===kind:rule.name===kind);
     if(!row)continue;
     const scope=row.scope==='headline'?title:text;
-    const clauses=kind==='Problema'?scope.split(/[.;!?\n]+|\b(?:pero|however|but)\b/):[scope];
+    // A question mark is common in live-service headlines ("outage today?").
+    // It is punctuation, not evidence that the outage is hypothetical.
+    const clauses=kind==='Problema'?scope.split(/[.;!\n]+|\b(?:pero|however|but)\b/):[scope];
     if(clauses.some(value=>{
       const evidence=kind==='Alianza estratégica'?value.replace(/\bde acuerdo con\b/g,' '):value;
       const denied=kind==='Problema'&&/\b(?:no|nunca)\s+(?:(?:se|han?|ha)\s+)?(?:hay|hubo|existe[n]?|reporta[n]?|reportado|registra[n]?|registrado|sufre[n]?|detecta[n]?|detectado)\b.{0,50}\b(?:caida[s]?|fallo[s]?|problema[s]?|incidencia[s]?|interrupcion|outage[s]?)\b/.test(value);
@@ -76,7 +78,7 @@ function digitalAssessment_(title,text,index=businessIndex_()){
   const capabilities=index.capabilities.filter(row=>row.pattern.test(text));
   let business=index.segments.some(row=>row.pattern.test(text.replace(/\bbusiness (?:days?|hours?)\b/g,' '))),channel=index.relevance.channel.test(text),shared=index.relevance.shared.test(title);
   if(!capabilities.length&&business&&channel&&index.cataloguePattern.test(text))capabilities.push(...index.catalogue.filter(row=>row.pattern.test(text)));
-  const signals=businessSignals_(title,text,index),change=signals.length>0,problem=signals.some(row=>row.group==='Problema'),editorial=(index.relevance.editorial.test(title.replace(/\breport\b/g,' '))||index.relevance.editorial.test(title)&&!change),excluded=headlineEntity_(headline,index)?.name==='Santander'&&santanderExcluded_(text)||index.relevance.corporate.test(title)||index.relevance.incidental.test(title)||!problem&&!business&&index.relevance.retail.test(text);
+  const signals=businessSignals_(title,text,index),change=signals.length>0,problem=signals.some(row=>row.group==='Problema'),liveReport=/\b(?:users|customers) report\b/.test(title),editorial=!liveReport&&index.relevance.editorial.test(title)&&!change,excluded=headlineEntity_(headline,index)?.name==='Santander'&&santanderExcluded_(text)||index.relevance.corporate.test(title)||index.relevance.incidental.test(title)||!problem&&!business&&index.relevance.retail.test(text);
   const incident=problem&&(channel||index.relevance.service.test(text))&&Boolean(headlineEntity_(text,index))&&!excluded&&!editorial;
   if(incident){business=true;channel=true;if(!capabilities.length)capabilities.push({segment:'Empresas',name:/\b(?:pagos|transferencias|payments|transfers)\b/.test(text)?'Pagos':/\b(?:app|movil|mobile)\b/.test(text)?'Aplicaciones móviles empresariales':'Banca electrónica corporativa',pattern:index.relevance.service});}
   const relevant=incident||Boolean(capabilities.length&&!excluded&&!editorial&&(!problem||business||index.relevance.infrastructure.test(text))&&(business&&(channel||shared)&&(index.relevance.service.test(text)||headlineEntity_(headline,index))||shared&&(channel||change||index.relevance.infrastructure.test(title))));
