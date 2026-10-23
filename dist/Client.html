@@ -1419,7 +1419,7 @@
   function formatText(text, values, language2 = "es") {
     return translateText(text, language2).replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ""));
   }
-  var recordLabels = { radar: "Radar", news: "Noticias", briefing: "Novedades", subscriptions: "Mi Newsletter", administration: "Administraci\xF3n", configuration: "Configuraci\xF3n de negocio", daily: "Recopilaci\xF3n diaria", annual: "Recuperaci\xF3n anual", sources: "Fuentes", runs: "Ejecuciones", language: "Idioma", audit: "Auditor\xEDa", telemetry: "Telemetr\xEDa", adoption: "Adopci\xF3n", subscribers: "Suscripciones", acceso: "Acceso", vista: "Vista", filtro: "Filtro", lectura: "Lectura", exportacion: "Exportaci\xF3n", rendimiento: "Rendimiento", error: "Error", dashboard: "Carga de selecci\xF3n", recopilacion: "Recopilaci\xF3n", traduccion: "Traducci\xF3n de noticias" };
+  var recordLabels = { llm: "Categorizaci\xF3n LLM", radar: "Radar", news: "Noticias", briefing: "Novedades", subscriptions: "Mi Newsletter", administration: "Administraci\xF3n", configuration: "Configuraci\xF3n de negocio", daily: "Recopilaci\xF3n diaria", annual: "Recuperaci\xF3n anual", sources: "Fuentes", runs: "Ejecuciones", language: "Idioma", audit: "Auditor\xEDa", telemetry: "Telemetr\xEDa", adoption: "Adopci\xF3n", subscribers: "Suscripciones", acceso: "Acceso", vista: "Vista", filtro: "Filtro", lectura: "Lectura", exportacion: "Exportaci\xF3n", rendimiento: "Rendimiento", error: "Error", dashboard: "Carga de selecci\xF3n", recopilacion: "Recopilaci\xF3n", traduccion: "Traducci\xF3n de noticias" };
   function displayRecord(value, language2 = "es") {
     return translateText(Object.prototype.hasOwnProperty.call(recordLabels, value) ? recordLabels[value] : value, language2);
   }
