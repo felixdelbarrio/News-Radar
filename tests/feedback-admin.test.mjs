@@ -33,9 +33,8 @@ test('pestaña Feedback sigue a Adopción y permite filtrar, atender y exportar 
  await a.change('#feedback-body select','atendido');assert.deepEqual(clean(a.calls.find(row=>row.method==='setNewsletterFeedbackState').query),{id:'f1',state:'atendido'});
  await a.click('#feedback-export');assert.equal(a.calls.find(row=>row.method==='exportNewsletterFeedback').query.estado,'atendido');
 });
-test('chips de indisponibilidad mantienen la vista elegida y aplican la señal canónica',async t=>{
- const a=await app(t);await a.click('[data-outage-view="briefing"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.signal,'Incidencia operativa');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.view,'briefing');
- await a.click('[data-view="news"]');await a.click('[data-outage-view="news"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.signal,'Incidencia operativa');
+test('Noticias y Novedades no tienen chips fijos de incidencia',async t=>{
+ const a=await app(t);assert.equal(a.w.document.querySelectorAll('[data-outage-view]').length,0);await a.click('[data-view="news"]');assert.equal(a.find('#filters').elements.signal.value,'');assert.equal(a.w.document.querySelectorAll('#active-filters [data-remove-filter="signal"]').length,0);
 });
 test('feedback registra duración medida de consultas y CSV y conserva errores sin registrar accesos rechazados',()=>{
  const s=fixture(),c=s.c,events=[];let now=1000;c.Date=class extends Date{static now(){return now;}};

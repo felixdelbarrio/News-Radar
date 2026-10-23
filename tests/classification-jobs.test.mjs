@@ -48,5 +48,5 @@ test('barra real muestra progreso y errores, lanza manualmente y consulta solo m
 });
 test('inicializar el nuevo job conserva capacidades eliminadas y reinicia una clasificación con reglas modificadas',()=>{
  const {c}=server(),snapshot=JSON.parse(JSON.stringify(c.getConfiguration()));snapshot.config.capabilities.Empresas.shift();c.saveConfiguration(snapshot);const names=JSON.stringify(c.getConfiguration().config.capabilities.Empresas);c.initializeConfiguration();assert.equal(JSON.stringify(c.getConfiguration().config.capabilities.Empresas),names);
- c.newsClassificationBatch_();assert.equal(c.getClassificationStatus().job.processed,100);c.configuration_().entities[0].enabled=false;c.newsClassificationBatch_();assert.equal(c.getClassificationStatus().job.processed,0);assert.equal(c.classificationJob_().state,'Pendiente');
+ c.newsClassificationBatch_();assert.equal(c.getClassificationStatus().job.processed,100);c.configuration_().entities[0].enabled=false;vm.runInContext('classificationRevisionMemory_=undefined',c);c.newsClassificationBatch_();assert.equal(c.getClassificationStatus().job.processed,0);assert.equal(c.classificationJob_().state,'Pendiente');
 });

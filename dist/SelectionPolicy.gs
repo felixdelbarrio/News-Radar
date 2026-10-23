@@ -1,3 +1,5 @@
+const BRIEFING_ALLOWED_SIGNALS=Object.freeze(['Lanzamiento de producto','Mejora de oferta','Alianza estratégica']);
+function briefingAllowed(row){return row.senales?.length===1&&BRIEFING_ALLOWED_SIGNALS.includes(row.senales[0]);}
 const applicationScopeSegments=Object.freeze(['Empresas e instituciones']);
 const readingViews=Object.freeze(['news','briefing','radar']);
 const sectorNewsDefaults=Object.freeze({segment:'Empresas e instituciones',coverage:'digital'});

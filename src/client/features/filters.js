@@ -2,7 +2,7 @@ import {openDatePicker} from './date-picker.js';
 import {newsletterComparisonLabels} from '../../shared/newsletter-cadences.js';
 import {taxonomySubLabel,taxonomyDisplayLabel} from '../../shared/taxonomy-path.js';
 import {syncTaxonomyControls} from './taxonomy-controls.js';
-import {coverageOptions} from '../../shared/selection-policy.js';
+import {coverageOptions,BRIEFING_ALLOWED_SIGNALS} from '../../shared/selection-policy.js';
 import {defaultView} from '../config.js';
 import {t,language} from '../core/language.js';
 import {formatCalendarDay} from '../../shared/locales.js';
@@ -12,8 +12,8 @@ function createFilters({ onInvalidate, onChange }) {
   let page = 0, view=defaultView, defaults={},edition='',newsGeography='',editionSelection={},taxonomy=[],applied={},dirty=false;
   const selections=new Map(),initialized=new Set();
   function options(name, values, selected) {
-    const el = form.elements[name];if(!el)return;const current = selected ?? el.value;
-    if(name!=='year'&&current&&!values.includes(current))values=[...values,current];
+    const el = form.elements[name];if(!el)return;let current = selected ?? el.value;if(name==='signal'&&view==='briefing'){values=values.filter(value=>BRIEFING_ALLOWED_SIGNALS.includes(value));if(!values.includes(current))current='';}
+    if(name!=='year'&&!(name==='signal'&&view==='briefing')&&current&&!values.includes(current))values=[...values,current];
     const signature = JSON.stringify(values);
     if (el.dataset.options === signature) return;
     el.dataset.options = signature;
@@ -22,9 +22,10 @@ function createFilters({ onInvalidate, onChange }) {
   }
   function layout(){
       $('geography-filter').hidden=false;
-      const radar=view==='radar';$('entity-filter').hidden=radar;
+      const radar=view==='radar';$('entity-filter').hidden=false;
       $('year-filter').hidden=!radar;
-      $('advanced-filters').hidden=radar;
+      $('advanced-filters').hidden=false;
+      for(const name of ['search','type','signal','source'])$(name+'-filter').hidden=radar;
       if(view!=='news')$('advanced-filters').open=false;
       for(const id of ['from-filter','to-filter'])$(id).hidden=view==='radar';
       $('date-guidance').hidden=view==='radar';

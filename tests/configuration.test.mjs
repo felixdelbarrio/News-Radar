@@ -182,3 +182,12 @@ test('actualizar vocabulario añade solo términos nuevos una vez, conservando e
 
 test('un lote normal de newsletter continúa al minuto y no aplica la pausa de errores a los destinatarios restantes',()=>{const f=deliveryFixture();f.add('batch');f.subscriptions.push({...f.subscriptions[0],id:'b',correo:'otro@bbva.com'});f.c.settings_().newsletterBatch=1;const result=f.c.deliverNewsletterBatch_();assert.equal(result.accepted,1);assert.equal(result.pending,1);assert.equal(Number(f.properties.NEWSLETTER_NEXT)-f.c.Date.now(),60000);});
 test('un rechazo temporal conserva backoff y una traducción sin presupuesto espera al reinicio diario',()=>{const f=deliveryFixture();f.add('failure');f.c.sendNewsletterMail_=()=>{const error=Error('Rechazo temporal');error.rejected=true;throw error;};assert.equal(f.c.deliverNewsletterBatch_().state,'error');assert.equal(Number(f.properties.NEWSLETTER_NEXT)-f.c.Date.now(),f.c.settings_().pauseMinutes*60000);const g=deliveryFixture();g.add('language');const content=g.c.newsletterContent_;g.c.newsletterContent_=(...args)=>({...content(...args),translationReady:false});g.c.newsletterTranslationsReady_=()=>false;g.c.translationCallsToday_=()=>3000;assert.equal(g.c.deliverNewsletterBatch_().state,'translation_pending');assert.equal(Number(g.properties.NEWSLETTER_NEXT),g.c.nextDailyReset(g.c.Date.now(),g.c.settings_().timezone));});
+
+test('la actualización canónica mantiene cuatro señales y fusiona evidencia sin duplicar la incidencia antigua',()=>{
+ const {c}=storage(),seeds=seed().signals,old=seeds.map(row=>({...row,terms:[...row.terms]}));
+ const incident=old.find(row=>row.group==='Problema');incident.name='Incidencia operativa';incident.terms.push('interrupción de prueba');incident.scope='title';
+ old.push({name:'Otros',terms:[],context:[]});const result=c.canonicalSignalRules_(old,seeds);
+ assert.equal(result.length,4);assert.equal(result.filter(row=>row.group==='Problema').length,1);
+ const updated=result.find(row=>row.group==='Problema');assert.equal(updated.name,'Indisponibilidad / Incidencia operativa');assert.equal(updated.scope,'fullText');assert.ok(updated.terms.includes('interrupción de prueba'));
+ assert.deepEqual(JSON.parse(JSON.stringify(c.canonicalSignalRules_(result,seeds))),JSON.parse(JSON.stringify(result)));
+});

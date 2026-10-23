@@ -33,7 +33,7 @@ test('reclasifica país incorrecto aunque la revisión y el contenido de la noti
 });
 test('candidatos se actualizan por lotes acotados y mantenimiento no publica antes de terminar su cursor',()=>{
  const s=server(),c=s.c,keys=vm.runInContext('RADAR.sheets.Candidatos',c);for(let i=0;i<205;i++){const value={...row({id:String(i),titular:'BBVA incorpora Bre-B para empresas',entidad:'BBVA Empresas'}),procedencia:JSON.stringify({medio:'ABC Economía'}),clasificacion:'{}'};Array.prototype.push.call(s.sheets.get('Candidatos').grid,keys.map(key=>value[key]||''));}
- c.maintenance_();c.dailyCollectionPending_=()=>false;let attempts=0;while(c.maintenanceJob_().state!=='Publicando'&&c.maintenanceJob_().state!=='Completada'&&attempts++<5)c.maintenanceBatch_();assert.ok(attempts>=3);assert.equal(c.maintenanceJob_().candidateNext,207);const rows=c.rows_('Candidatos');assert.equal(rows.length,205);assert.ok(rows.every(row=>row.pais==='Colombia'&&row.entidad==='BBVA'&&JSON.parse(row.clasificacion).version==='3.15.0'));
+ c.maintenance_();c.dailyCollectionPending_=()=>false;let attempts=0;while(c.maintenanceJob_().state!=='Publicando'&&c.maintenanceJob_().state!=='Completada'&&attempts++<5)c.maintenanceBatch_();assert.ok(attempts>=3);assert.equal(c.maintenanceJob_().candidateNext,207);const rows=c.rows_('Candidatos');assert.equal(rows.length,205);assert.ok(rows.every(row=>row.pais==='Colombia'&&row.entidad==='BBVA'&&JSON.parse(row.clasificacion).version===vm.runInContext('CLASSIFICATION_WORK.rulesVersion',c)));
  const reads=s.reads;assert.equal(c.reclassifyCandidates_(207,100,8000).changed,0);assert.ok(s.reads-reads<=1);
 });
 test('el país del RSS resuelve alias empresariales aunque el país persistido sea incorrecto',()=>{

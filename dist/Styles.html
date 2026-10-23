@@ -97,6 +97,18 @@ section[data-loading="append"]>.loading{min-height:0}section[data-loading="appen
 .hero-aside{display:flex;flex-direction:column;align-items:flex-end;gap:var(--space-2)}.hero-emblem{width:var(--hero-emblem-size);height:var(--hero-emblem-size);display:grid;place-items:center;border-radius:50%;background:var(--color-primary-bg-surface);color:var(--color-primary-bg-action)}.hero-emblem .icon{width:var(--icon-size);height:var(--icon-size)}
 
 
+.radar-outage{margin-top:var(--space-3)}
+.radar-outage-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.radar-outage-kpis .metric{min-width:0}
+.radar-outage-timeline{display:flex;align-items:end;gap:8px;margin:20px 0}
+.radar-outage-timeline>div{display:grid;text-align:center;flex:1;min-width:0;font-size:12px}
+.radar-outage meter{display:block;width:100%;height:10px;accent-color:var(--color-primary-bg-action)}
+.radar-outage-timeline meter{height:64px;writing-mode:vertical-lr;direction:rtl;margin:auto;width:18px}
+.radar-outage-countries{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 12px}
+.radar-outage-evidence{padding:12px 0;border-bottom:1px solid var(--color-primary-border)}
+.radar-outage-evidence a{font-weight:600}
+@media(max-width:760px){.radar-outage-grid{grid-template-columns:1fr}.radar-outage-kpis{grid-template-columns:1fr 1fr}}
+
 /* Novedades y suscripciones */
 .signal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--space-2);margin-block:var(--space-3)}.signal-card{background:var(--color-primary-bg-alternative);border:var(--stroke) solid var(--color-primary-border);border-radius:var(--radius-container);padding:var(--space-2);display:flex;align-items:center;gap:var(--space-2);color:var(--color-primary-text-main)}.signal-card strong{font:500 var(--text-xl)/var(--line-xl) var(--font-body)}.signal-card span{font-size:var(--text-s);line-height:var(--line-s);color:var(--color-primary-text-secondary)}.novelty-grid,.selection-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3);margin-block:var(--space-3)}.novelty-card{display:flex;flex-direction:column;gap:var(--space-1);padding:var(--space-2)}.novelty-card .news-meta{margin-bottom:0}.novelty-card>p{color:var(--color-primary-text-secondary)}
 

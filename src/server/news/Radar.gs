@@ -27,3 +27,20 @@ function radarMetrics_(rows,query,countries=configuration_().geographies,entityN
     trend:{from:from||'',to:to||'',intervalDays,buckets,series},unlocated,latest:days.at(-1)||'',
     topPublisher:publicationRanking[0]?.publisher||''};
 }
+function radarPreviousPeriod_(query){
+  const previous=value=>{const date=new Date(value+'T00:00:00Z'),month=date.getUTCMonth();date.setUTCFullYear(date.getUTCFullYear()-1);if(date.getUTCMonth()!==month)date.setUTCDate(0);return date.toISOString().slice(0,10);};
+  return {from:previous(query.from),to:previous(query.to)};
+}
+function radarOutageSelection_(selected,query,entityName,previousRows){
+  const previous=query.from&&query.to?radarPreviousPeriod_(query):null;
+  return radarOutages_(selected,previousRows&&previous?selectAnnotatedNews_(previousRows,{...query,...previous},entityName,true):[],query,entityName,Boolean(previousRows));
+}
+function radarPreviousRows_(query){return query.from&&query.to?cachedNewsRecords_({...query,...radarPreviousPeriod_(query)}):[];}
+function radarOutages_(rows,previousRows,query,entityName=entityKey_,comparable=true){
+  const incident=row=>row.senales?.some(name=>name===INCIDENT_SIGNAL||name==='Incidencia operativa'),items=rows.filter(incident),prior=previousRows.filter(incident),entities=new Map(),vectors=new Map(),months=new Map();
+  const from=query.from||rows.map(row=>row.fecha).sort()[0]||'',to=query.to||rows.map(row=>row.fecha).sort().at(-1)||'';
+  if(from&&to){const cursor=new Date(from.slice(0,7)+'-01T00:00:00Z');while(cursor.toISOString().slice(0,10)<=to&&months.size<12){months.set(cursor.toISOString().slice(0,7),0);cursor.setUTCMonth(cursor.getUTCMonth()+1);}}
+  for(const row of items){const entity=entityName(row.entidad),entry=entities.get(entity)||{entity,total:0,countries:new Map()};entry.total++;entry.countries.set(row.pais,(entry.countries.get(row.pais)||0)+1);entities.set(entity,entry);const month=row.fecha.slice(0,7);if(months.has(month))months.set(month,months.get(month)+1);const names=new Set((row.taxonomia||[]).map(tag=>tag.palanca).filter(Boolean));if(!names.size)names.add('Canales digitales');for(const name of names)vectors.set(name,(vectors.get(name)||0)+1);}
+  const ranking=[...entities.values()].sort((a,b)=>b.total-a.total||a.entity.localeCompare(b.entity,'es')).map(row=>({...row,countries:[...row.countries].map(([country,total])=>({country,total}))})),functional=[...vectors].map(([name,total])=>({name,total})).sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name,'es')),active=new Set(rows.map(row=>entityName(row.entidad))).size,total=items.length;
+  return {signal:INCIDENT_SIGNAL,from,to,total,previous:prior.length,comparable,change:comparable?(prior.length?Math.round((total-prior.length)/prior.length*100):total?null:0):null,affected:entities.size,active,ratio:active?Math.round(entities.size/active*100):0,top:ranking[0]||null,concentration:total?Math.round((ranking[0]?.total||0)/total*100):0,vector:functional[0]||null,ranking:ranking.slice(0,8),vectors:functional.slice(0,6),months:[...months].map(([month,total])=>({month,total})),latest:[...items].sort((a,b)=>b.fecha.localeCompare(a.fecha)||String(a.id).localeCompare(String(b.id))).slice(0,4).map(row=>({id:row.id,entity:entityName(row.entidad),country:row.pais,date:row.fecha,publisher:row.medio,title:plainText_(row.titular),url:canonicalUrl_(row.url)})),summary:total?total+' incidencias operativas publicadas en '+entities.size+' entidades durante el período anual seleccionado. '+(ranking[0]?ranking[0].entity+' concentra el '+Math.round(ranking[0].total/total*100)+'% de las evidencias.':''):'Sin incidencias operativas registradas en el canal para los filtros y periodo anual seleccionados'};
+}

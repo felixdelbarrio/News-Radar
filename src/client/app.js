@@ -54,9 +54,8 @@ const reading=createReadingContext({run:action});
 const heatmap=createTaxonomyHeatmap({onExplore:query=>navigateSelection('news',query)});
 const briefing=createBriefing({onExplore:query=>navigateSelection('news',query)});
 const newsTabs=createGeographyTabs('news-geographies','news-list',name=>filters.setGeography(name));
-document.querySelectorAll('[data-outage-view]').forEach(button=>button.addEventListener('click',()=>{const view=button.dataset.outageView,query={...state.data.selection,signal:'Incidencia operativa',page:0};if(navigation.current===view){filters.apply(query,false);track('filtro');load();}else navigateSelection(view,query);}));
 function navigateSelection(view,query){filters.show(view);filters.apply(query,false);state.contentStale=true;track('filtro');navigation.show(view);}
-const radar=createRadar({onSource:source=>navigateSelection('news',{...state.data.selection,source}),onCountry:country=>navigateSelection('news',{...state.data.selection,country}),onEntity:entity=>navigateSelection('news',{...state.data.selection,entity})});
+const radar=createRadar({onOutage:query=>navigateSelection('news',{...state.data.selection,...query,page:0}),onSource:source=>navigateSelection('news',{...state.data.selection,source}),onCountry:country=>navigateSelection('news',{...state.data.selection,country}),onEntity:entity=>navigateSelection('news',{...state.data.selection,entity})});
 
 const sources = createSources({ getData: () => state.data, run: action });
 const recoveryControls=createRecoveryControls({getData:()=>state.data,run:action});
