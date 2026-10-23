@@ -94,7 +94,7 @@ function disableDaily() {authorize_(true);ScriptApp.getProjectTriggers().filter(
 
 function countryScopedSource_(feed){
  if(feed.country!=='Uruguay'||!domainMatches_(feed.url,'news.google.com'))return feed;
- return {...feed,url:feed.url.replace(/([?&]q=)([^&]*)/,(_,prefix,value)=>{
+ return {...feed,url:feed.url.replace(/([?&](?:gl|ceid)=)UY(?=:|%3A|&|$)/gi,'$1US').replace(/([?&]q=)([^&]*)/,(_,prefix,value)=>{
   const query=decodeURIComponent(value.replace(/\+/g,' '));return prefix+encodeURIComponent(/\buruguay\b/i.test(query)?query:query+' "Uruguay"');
  })};
 }
