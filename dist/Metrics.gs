@@ -5,7 +5,7 @@ function telemetry_(operation,duration,status,detail) {
 function recordEvents(events) {
   const session=authorize_(),now=new Date();
   if(!Array.isArray(events)||!events.length||events.length>20)throw new Error('Lote de eventos no válido.');
-  const administrative=['audit','sources','telemetry','adoption','feedback','administration','configuration','runs','subscribers','language','taxonomy'],allowed=['acceso','vista','filtro','lectura','exportacion','rendimiento','error'],views=[...readingViews,'subscriptions',...administrative];
+  const administrative=['administration',...Object.keys(APPLICATION_NAVIGATION.adminViews)],allowed=['acceso','vista','filtro','lectura','exportacion','rendimiento','error'],views=[...Object.keys(APPLICATION_NAVIGATION.views),...administrative];
   const cleaned=events.map(event=>{
     if(!allowed.includes(event.event)||!views.includes(event.view)||!/^[a-z0-9-]{16,80}$/i.test(event.session))throw new Error('Evento no válido.');
     if(administrative.includes(event.view)&&!session.admin)throw new Error('Vista restringida.');

@@ -1,3 +1,4 @@
+const APPLICATION_NAVIGATION = Object.freeze({"views":{"briefing":"Novedades","news":"Noticias","radar":"Radar","subscriptions":"Mi Newsletter","administration":"Administración"},"adminViews":{"runs":"Ejecuciones","taxonomy":"Catálogo global de funcionalidades","llm":"Categorización LLM","language":"Idioma","subscribers":"Suscripciones","adoption":"Adopción","feedback":"Feedback","telemetry":"Telemetría","sources":"Fuentes","audit":"Auditoría","configuration":"Configuración de negocio"}});
 const FUNCTIONAL_CATALOG_SEED = Object.freeze([
   {
     "name": "01.Home",

@@ -83,3 +83,7 @@ test('reintentar fuentes no reactiva recuperaciones anuales históricas parciale
  for(const [id,tipo] of [['old','annual'],['today','daily']]){const job={id,tipo,estado:'Parcial',pendientes:0,total:1,fallidas:1};c.append_('Recargas',[keys.map(key=>job[key]??'')]);c.append_('Recopilacion',[[id,'Fuente','https://example.com/'+id,'Error',1,'',0,0,'HTTP 503','2026-10-23']]);}
  c.retryCollectionErrors();assert.equal(c.rows_('Recopilacion')[0].estado,'Error');assert.equal(c.rows_('Recopilacion')[1].estado,'Pendiente');c.cancelAnnualRecovery_();assert.equal(c.collectionJobs_().find(job=>job.id==='old').estado,'Cancelada');assert.equal(c.rows_('Recopilacion')[0].estado,'Omitida');assert.equal(c.rows_('Recopilacion')[1].estado,'Pendiente');
 });
+test('la telemetría acepta todas las pestañas del catálogo central y rechaza las administrativas al lector',()=>{
+ const s=server(),c=s.c,navigation=vm.runInContext('APPLICATION_NAVIGATION',c),admin=Object.keys(navigation.adminViews),event=view=>({session:'telemetry-admin-session-123',event:'vista',view,duration:0});
+ assert.equal(c.recordEvents(admin.map(event)).saved,true);assert.deepEqual([...c.rows_('Adopcion')].map(row=>row.vista).sort(),admin.sort());s.setEmail('reader@bbva.com');for(const view of admin)assert.throws(()=>c.recordEvents([event(view)]),/Vista restringida/);assert.throws(()=>c.recordEvents([event('unknown-view')]),/Evento no válido/);
+});
