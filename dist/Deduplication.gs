@@ -23,7 +23,7 @@ function editorialIdentity_(item,identity=titleIdentity_(item)){
   const excluded=new Set([...entity.split(' '),...searchText_(item.publisher).split(/[^\p{L}\p{N}]+/u)]);
   const catalog=businessIndex_().entities.get(entity);for(const alias of catalog?.aliases||[])for(const token of searchText_(alias).split(' '))excluded.add(token);
   const tokens=[...new Set(identity.key.split(' ').filter(token=>(token.length>=3||/\d/.test(token))&&!EDITORIAL_STOPWORDS.has(token)&&!excluded.has(token)))];
-  return tokens.length>=5?{key:JSON.stringify([entity,tokens.filter(token=>/\d/.test(token)).sort(),/\b(?:no|not|never|nao|non|nicht|yok)\b/.test(identity.key)]),tokens}:null;
+  return tokens.length>=4?{key:JSON.stringify([entity,tokens.filter(token=>/\d/.test(token)).sort(),/\b(?:no|not|never|nao|non|nicht|yok)\b/.test(identity.key)]),tokens}:null;
 }
 function rememberTitle_(known,item,entry=true){
   const identity=titleIdentity_(item);if(!identity)return;
@@ -35,8 +35,8 @@ function rememberTitle_(known,item,entry=true){
   candidates.push({tokens:editorial.tokens,entry});
 }
 function equivalentEditorialTitle_(a,b){
-  if(a.length<5||b.length<5)return false;
-  const numbers=tokens=>tokens.filter(token=>/\d/.test(token)).sort().join('|');if(numbers(a)!==numbers(b))return false;
+  if(a.length<4||b.length<4)return false;
+  const numbers=tokens=>tokens.filter(token=>/\d/.test(token)).sort(),leftNumbers=numbers(a),rightNumbers=numbers(b);if(leftNumbers.length&&rightNumbers.length&&!leftNumbers.some(value=>rightNumbers.includes(value)))return false;
   const right=new Set(b),intersection=a.filter(token=>right.has(token)).length;
   return intersection/Math.min(a.length,b.length)>=.72||intersection/(a.length+b.length-intersection)>=.60;
 }

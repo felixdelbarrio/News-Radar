@@ -9,7 +9,7 @@ test('compacta sólo descartes de la revisión vigente y conserva noticias pendi
  const s=setup(),c=s.c,noise=article(c,'noise','BBVA presenta sus resultados financieros trimestrales'),stale=article(c,'stale','BBVA publica sus resultados financieros anuales'),modified=article(c,'modified','BBVA anuncia sus resultados financieros semestrales');
  const labels=JSON.parse(stale.clasificacion);labels.revision='old';stale.clasificacion=JSON.stringify(labels);modified.titular='BBVA lanza una app de pagos digitales para empresas';
  const relevant=article(c,'relevant','BBVA lanza una plataforma de pagos digitales para empresas'),santander=article(c,'municipal','Banco Santander informa del ayuntamiento de Santander y sus vecinos',{entidad:'Santander'}),forced=JSON.parse(santander.clasificacion);forced.digital=true;santander.clasificacion=JSON.stringify(forced);
- append(s,[noise,stale,modified,relevant,santander]);assert.equal(c.deduplicateNews_(),2);assert.deepEqual(Array.from(c.rows_('Noticias'),row=>row.id),['stale','modified','relevant']);assert.equal(c.deduplicateNews_(),0);
+ append(s,[noise,stale,modified,relevant,santander]);assert.equal(c.deduplicateNews_(),3);assert.deepEqual(Array.from(c.rows_('Noticias'),row=>row.id),['stale','modified']);assert.equal(c.deduplicateNews_(),0);
 });
 test('el saneamiento conserva íntegros los artículos y UUID congelados de ediciones históricas',()=>{
  const s=setup(),c=s.c,noise=article(c,'archived-noise','BBVA presenta sus resultados financieros trimestrales'),frozen={...noise,taxonomia:[],entidad:'BBVA',segmentos:[],senales:[],etiquetas:{digital:true,capacidades:['Empresas: Pagos']}};append(s,[noise]);

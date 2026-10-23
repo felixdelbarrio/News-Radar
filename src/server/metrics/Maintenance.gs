@@ -10,11 +10,10 @@ function maintenanceReadyAt_(){const job=maintenanceJob_();return job&&!['Comple
 function getMaintenanceStatus(){authorize_(true);const job=maintenanceJob_();return {job:withJobProgress_('maintenance',job?{...job,processed:job.reviewed+Math.max(0,(job.candidateNext||2)-2)}:null),active:Boolean(job&&job.state!=='Completada')};}
 function compactOperationalLogs_(){
  for(const name of Object.keys(LOG_LIMITS)){const sheet=book_().getSheetByName(name);if(sheet)enforceLogLimit_(name,sheet);}
- const completed=new Set(rows_('Recargas').filter(row=>['Completada','Parcial'].includes(row.estado)).map(row=>row.id)),sheet=book_().getSheetByName('Recopilacion'),keys=RADAR.sheets.Recopilacion;
+ const completed=new Set(rows_('Recargas').filter(row=>row.estado==='Completada').map(row=>row.id)),sheet=book_().getSheetByName('Recopilacion'),keys=RADAR.sheets.Recopilacion;
  if(sheet&&sheet.getLastRow()>1){
-  const count=sheet.getLastRow()-1,cycles=sheet.getRange(2,keys.indexOf('ciclo')+1,count,1).getDisplayValues().flat(),states=sheet.getRange(2,keys.indexOf('estado')+1,count,1).getDisplayValues().flat();
-  const active=new Set(cycles.filter((_,i)=>!['Completada','Cancelada','Omitida'].includes(states[i])));
-  deleteSheetRows_(sheet,cycles.flatMap((cycle,index)=>completed.has(cycle)&&!active.has(cycle)?[index+2]:[]));
+  const count=sheet.getLastRow()-1,cycles=sheet.getRange(2,keys.indexOf('ciclo')+1,count,1).getDisplayValues().flat();
+  deleteSheetRows_(sheet,cycles.flatMap((cycle,index)=>completed.has(cycle)?[index+2]:[]));
  }
 }
 function deleteSheetRows_(sheet,positions){

@@ -9,13 +9,13 @@ const path=(palanca='Pagos',subpalanca='Cobros')=>({palanca,subpalanca});
 function news(id,pais='España',entidad='BBVA',taxonomy=[path()]){return {etiquetas:{digital:true,capacidades:['Empresas: Pagos']},clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id,pais,entidad,fecha:'2026-09-12',medio:'Editor',titular:entidad+' presenta servicio digital para empresas '+id,extracto:'Información del servicio para empresas '+id,tipo:'Banco tradicional',segmentos:['Empresas e instituciones'],senales:['Mejora de oferta'],tema:'Financiación',taxonomia:taxonomy,url:'https://example.com/'+id};}
 const rows=()=>[news('a'),news('b'),news('c'),news('d','España','BBVA',[path('Seguridad','Identidad')]),news('e','España','BBVA',[path('Seguridad','Identidad')]),news('f','México','Santander'),news('g','México','Santander',[path('Financiación','Crédito')])];
 const clean=value=>JSON.parse(JSON.stringify(value));
-test('la entrega trimestral consulta el historial semanal del destinatario y destaca la alternativa más relevante',()=>{
+test('la entrega trimestral conserva una evidencia semanal y su alternativa editorial',()=>{
  const {c}=server();c.settings_().newsletterEnabled=true;const period=c.newsletterPeriod_('quarterly',new Date());c.queueQuarterlyTaxonomy_=()=>true;const input=['fortnightly','fresh','recent'].map(id=>({...news(id),fecha:period.from}));
  c.newsRelevance_=row=>({fortnightly:100,fresh:90,recent:10}[row.id]);c.annotateNews_=rows=>rows;
  c.subscriptionRows_=()=>[{id:'quarterly',correo:'owner@bbva.com',nombre:'Mes',periodicidad:'quarterly',activa:true,actualizada:'2000-01-01',filtros:{coverage:''}}];
  c.rows_=name=>name==='Noticias'?input:name==='NewsletterEnvios'?[{id:'prior',suscripcion:'fortnightly',correo:'owner@bbva.com',estado:'Enviada',contenido:JSON.stringify(c.newsletterItemKeys_(input[0]))}]:[];
  c.newsletterSender_=()=>({});let sent;c.sendNewsletterMail_=(_sender,_email,content)=>{sent=content;return 'accepted';};
- assert.equal(c.deliverNewsletterBatch_().accepted,1);assert.equal(sent.items[0].id,'fresh');assert.equal(sent.total,3);assert.equal(sent.editorial.cards[0].additionalCount,2);assert.equal(c.newsletterEdition_(sent.editionId,'owner@bbva.com').items.length,3);
+ assert.equal(c.deliverNewsletterBatch_().accepted,1);assert.equal(sent.items[0].id,'fortnightly');assert.equal(sent.total,1);assert.equal(sent.editorial.cards[0].additionalCount,0);assert.equal(c.newsletterEdition_(sent.editionId,'owner@bbva.com').items.length,1);
 });
 test('las miradas trimestrales priorizan el país seleccionado y no mutan las evidencias',()=>{
  const {c}=server(),input=rows(),before=JSON.stringify(input),digest=c.newsletterDigest_(input,{view:'news',country:'México'},'es',value=>value);

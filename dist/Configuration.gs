@@ -85,6 +85,7 @@ function initializeConfiguration(){
     const subscriptions=book_().getSheetByName('Suscripciones'),countSubscriptions=subscriptions.getLastRow()-1;
     if(countSubscriptions>0){const range=subscriptions.getRange(2,8,countSubscriptions,1);range.setValues(range.getValues().map(([value])=>[value||'es']));}
     const vocabularyChanged=updateVocabulary_(sheet);invalidateConfiguration_();
+    disableNewsEnrichment_();
     if(refreshCatalog){upgradeCollectionQueries_();if(translationJob_())requestTranslations_(true);properties_().setProperty('CATALOG_VERSION',CONFIGURATION_CATALOG_VERSION);}
     requestNewsClassification_(vocabularyChanged);
     if(refreshCatalog&&newsSheet_().getLastRow()>1)requestTaxonomy_();
@@ -111,7 +112,7 @@ function validateConfiguration_(config){
     for(const row of list){
       if(!row||typeof row.name!=='string'||!row.name.trim()||row.name.length>100||names.has(row.name)||typeof row.enabled!=='boolean')throw Error('Nombre duplicado, vacío o activación no válida: '+key);
       names.add(row.name);
-      for(const field of ['terms','context','aliases','countries','exclude'])if(field in row&&(!Array.isArray(row[field])||row[field].length>(key==='searchLanguages'?160:80)||row[field].some(value=>typeof value!=='string'||!value.trim()||value.length>100)))throw Error('Lista de términos no válida: '+row.name);
+      for(const field of ['terms','context','aliases','countries','exclude'])if(field in row&&(!Array.isArray(row[field])||row[field].length>(key==='searchLanguages'?160:key==='signals'?120:80)||row[field].some(value=>typeof value!=='string'||!value.trim()||value.length>100)))throw Error('Lista de términos no válida: '+row.name);
       if(['segments','signals'].includes(key)&&!row.terms?.length)throw Error('Añade términos a '+row.name);
       if(key==='signals'&&(!Array.isArray(row.context)||!Array.isArray(row.exclude)||!['headline','fullText'].includes(row.scope)))throw Error('Define el contexto de '+row.name+' (puede estar vacío).');
       if(key==='signals'&&!['Novedad','Problema'].includes(row.group))throw Error('Define el tipo de señal: '+row.name);

@@ -10,13 +10,28 @@ function taxonomyCatalog_(){
 function taxonomyOptions_(){const rows=taxonomyCatalog_();return {palanca:[...new Set(rows.map(row=>row.palanca))],subpalanca:rows.filter(row=>row.subpalanca).map(taxonomyPath)};}
 function taxonomySaved_(value){try{const data=JSON.parse(value||'{}');return {...data,invalid:Boolean(value)&&(!Array.isArray(data.ids)||data.ids.some(id=>typeof id!=='string')),fingerprint:data.fingerprint||'',ids:Array.isArray(data.ids)?data.ids:[],evidence:data.evidence||null,reason:data.reason||''};}catch(_){return {fingerprint:'',ids:[],invalid:Boolean(value)};}}
 function taxonomyFingerprint_(title,excerpt){return sha256_(JSON.stringify([title,excerpt]));}
-function taxonomyRecord_(title,excerpt,items=taxonomyCatalog_()){
+function fallbackTaxonomy_(text,labels,items){
+ const capability=new Set((labels.capacidades||[]).map(value=>String(value).replace(/^Empresas:\s*/,''))),event=labels.evento||'',has=pattern=>pattern.test(text),pick=prefix=>items.find(item=>String(item.subpalanca||'').startsWith(prefix))?.id||'';
+ let prefix='';
+ if(event===INCIDENT_SIGNAL)prefix=has(/\b(?:login|log in|logins|acceso)\b/)?'16.01':has(/\b(?:pago|pagos|payment|payments|transferencia|transferencias|bizum)\b/)?'03.01':has(/\b(?:app|web|portal|banca|banking|canal)\b/)?'17.12':'19.07';
+ else if(capability.has('Transferencias')||capability.has('Pagos'))prefix=has(/\b(?:bre-b|inmediatas?|instant(?: payments?)?)\b/)?'03.04':'03.01';
+ else if(capability.has('Aplicaciones móviles empresariales')||capability.has('Banca electrónica corporativa'))prefix='01.01';
+ else if(capability.has('Financiación digital')||capability.has('Préstamos y líneas de crédito'))prefix='08.01';
+ else if(capability.has('Cobros y recaudación'))prefix='07.01';
+ else if(capability.has('Adquirencia y terminales'))prefix='11.01';
+ else if(capability.has('Autenticación y seguridad')||capability.has('Biometría'))prefix='16.01';
+ return prefix?{id:pick(prefix),prefix}:{};
+}
+function taxonomyRecord_(title,excerpt,items=taxonomyCatalog_(),providedLabels=null){
  const fingerprint=taxonomyFingerprint_(title,excerpt),text=taxonomyText(title+' '+excerpt);
  if(!taxonomyMatchingMemory_.has(items))taxonomyMatchingMemory_.set(items,{rows:items.map(item=>({...item,terms:item.terminos,description:item.descripcion||''})),revision:taxonomyModelRevision_(items)});
  const model=taxonomyMatchingMemory_.get(items),metadata={fingerprint,version:TAXONOMY_POLICY.version,model:model.revision};
+ const labels=providedLabels||classification_(searchText_(title),text).labels;
  if(!items.length||!taxonomyEligible_(searchText_(title),text))return {...metadata,ids:[],reason:'insufficient'};
  const decision=taxonomyDecision(text,model.rows,title),match=decision.matches[0];
- return {...metadata,ids:decision.matches.map(match=>match.row.id),primary:match?.row.id||'',reason:decision.reason,...(match?{evidence:{...match.evidence,assignments:decision.matches.map(({row,evidence})=>({id:row.id,...evidence}))}}:{})};
+ if(match)return {...metadata,ids:decision.matches.map(match=>match.row.id),primary:match.row.id,reason:decision.reason,evidence:{...match.evidence,assignments:decision.matches.map(({row,evidence})=>({id:row.id,...evidence}))}};
+ const fallback=labels.digital&&fallbackTaxonomy_(text,labels,items);
+ return fallback?.id?{...metadata,ids:[fallback.id],primary:fallback.id,reason:'capability-fallback',evidence:{method:'capability-fallback',terms:[fallback.prefix],assignments:[{id:fallback.id,method:'capability-fallback',terms:[fallback.prefix]}]}}:{...metadata,ids:[],reason:decision.reason};
 }
 function taxonomyJob_(){const raw=properties_().getProperty('TAXONOMY_JOB');return raw?JSON.parse(raw):null;}
 function taxonomyPending_(){const job=taxonomyJob_();return Boolean(job&&job.state!=='Completada');}
