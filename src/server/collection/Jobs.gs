@@ -32,9 +32,9 @@ function drainCollectionRequests_(){
   CacheService.getScriptCache().remove('collection-status');
 }
 function collectionSnapshots_(tasks,jobs,now=new Date()){
-  const counters=new Map();
+  const summaries=JSON.parse(properties_().getProperty('COLLECTION_TASK_SUMMARIES')||'{}'),counters=new Map();
   for(const task of tasks){
-    let count=counters.get(task.ciclo);if(!count){count={total:0,procesadas:0,pendientes:0,omitidas:0,fallidas:0,nuevas:0,actualizada:''};counters.set(task.ciclo,count);}
+    let count=counters.get(task.ciclo);if(!count){count={total:0,procesadas:0,pendientes:0,omitidas:0,fallidas:0,nuevas:0,actualizada:'',...summaries[task.ciclo]};counters.set(task.ciclo,count);}
     count.total++;count.nuevas+=Number(task.nuevas||0);
     if(task.estado==='Completada')count.procesadas++;
     if(['Pendiente','Reintento programado'].includes(task.estado))count.pendientes++;
@@ -51,8 +51,15 @@ function collectionSnapshots_(tasks,jobs,now=new Date()){
 }
 
 function compactCollectionTasks_(){
- const jobs=collectionJobs_(),finished=jobs.filter(job=>job.tipo==='daily'&&['Completada','Parcial'].includes(job.estado)).sort((a,b)=>String(b.fin||b.actualizada).localeCompare(String(a.fin||a.actualizada))),keep=new Set(jobs.filter(job=>!['Completada','Parcial','Cancelada'].includes(job.estado)).map(job=>job.id));
- if(finished[0])keep.add(finished[0].id);
+ const jobs=collectionJobs_(),finished=jobs.filter(job=>job.tipo==='daily'&&['Completada','Parcial'].includes(job.estado)).sort((a,b)=>String(b.fin||b.actualizada).localeCompare(String(a.fin||a.actualizada))),keep=new Set(jobs.filter(job=>!['Completada','Parcial','Cancelada'].includes(job.estado)).map(job=>job.id)),latest=finished[0],p=properties_(),summaries=JSON.parse(p.getProperty('COLLECTION_TASK_SUMMARIES')||'{}');
+ if(latest)keep.add(latest.id);for(const id of Object.keys(summaries))if(!keep.has(id))delete summaries[id];
  const tasks=rows_('Recopilacion'),remove=tasks.flatMap((task,index)=>keep.has(task.ciclo)?[]:[index+2]);
- if(remove.length){deleteSheetRows_(book_().getSheetByName('Recopilacion'),remove);CacheService.getScriptCache().remove('collection-status');}return remove.length;
+ if(latest){
+  const retained=tasks.map((task,index)=>({...task,row:index+2})).filter(task=>task.ciclo===latest.id),summary={actualizada:latest.actualizada||'',total:Math.max(0,Number(latest.total)-retained.length),procesadas:Math.max(0,Number(latest.procesadas)-retained.filter(task=>task.estado==='Completada').length),omitidas:Math.max(0,Number(latest.omitidas)-retained.filter(task=>task.estado==='Omitida').length),nuevas:Math.max(0,Number(latest.nuevas)-retained.reduce((sum,task)=>sum+Number(task.nuevas||0),0))};
+  let excess=Math.max(0,tasks.length-remove.length-COLLECTION_POLICY.retainedTasks);
+  for(const task of retained)if(excess&&['Completada','Omitida'].includes(task.estado)){remove.push(task.row);summary.total++;summary[task.estado==='Completada'?'procesadas':'omitidas']++;summary.nuevas+=Number(task.nuevas||0);excess--;}
+  if(summary.total)summaries[latest.id]=summary;
+ }
+ if(remove.length){deleteSheetRows_(book_().getSheetByName('Recopilacion'),remove);CacheService.getScriptCache().remove('collection-status');}
+ const encoded=JSON.stringify(summaries);if(encoded!==p.getProperty('COLLECTION_TASK_SUMMARIES'))p.setProperty('COLLECTION_TASK_SUMMARIES',encoded);return remove.length;
 }

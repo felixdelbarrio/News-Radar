@@ -27,5 +27,223 @@
       "La descarga CSV desde el navegador no completó; se conserva la evidencia DOM local"
     ]
   },
-  "after": null
+  "after": null,
+  "cleanup": {
+    "before": {
+      "phase": "before",
+      "version": "3.20.0",
+      "sheets": [
+        {
+          "name": "Telemetria",
+          "rows": 493
+        },
+        {
+          "name": "Taxonomia_tax_5411faa2-a966-42f8-a927-139e082a162c",
+          "rows": 366
+        },
+        {
+          "name": "Taxonomia_tax_0e769dcc-c87c-4caf-8b3f-76bfbf85453e",
+          "rows": 366
+        },
+        {
+          "name": "Enriquecimiento",
+          "rows": 867
+        },
+        {
+          "name": "Noticias",
+          "rows": 858
+        },
+        {
+          "name": "Taxonomia",
+          "rows": 366
+        },
+        {
+          "name": "Candidatos",
+          "rows": 10000
+        },
+        {
+          "name": "Cobertura",
+          "rows": 10
+        },
+        {
+          "name": "CatalogoFuncional",
+          "rows": 322
+        },
+        {
+          "name": "DashboardSnapshots",
+          "rows": 322
+        },
+        {
+          "name": "NewsletterEventos",
+          "rows": 10
+        },
+        {
+          "name": "NewsletterFeedback",
+          "rows": 1
+        },
+        {
+          "name": "TaxonomiaTraducciones",
+          "rows": 730
+        },
+        {
+          "name": "Recargas",
+          "rows": 19
+        },
+        {
+          "name": "Traducciones",
+          "rows": 2901
+        },
+        {
+          "name": "Configuracion",
+          "rows": 12
+        },
+        {
+          "name": "Suscripciones",
+          "rows": 24
+        },
+        {
+          "name": "NewsletterEnvios",
+          "rows": 55
+        },
+        {
+          "name": "Recopilacion",
+          "rows": 4406
+        },
+        {
+          "name": "Adopcion",
+          "rows": 5621
+        },
+        {
+          "name": "Auditoria",
+          "rows": 10
+        },
+        {
+          "name": "Ejecuciones",
+          "rows": 10
+        },
+        {
+          "name": "NewsletterContenido",
+          "rows": 3380
+        },
+        {
+          "name": "NewsletterEdiciones",
+          "rows": 45
+        },
+        {
+          "name": "CategorizacionLLM",
+          "rows": 26
+        },
+        {
+          "name": "Noticias_tax_0e769dcc-c87c-4caf-8b3f-76bfbf85453e",
+          "rows": 924
+        },
+        {
+          "name": "Noticias_tax_5411faa2-a966-42f8-a927-139e082a162c",
+          "rows": 972
+        }
+      ]
+    },
+    "firstPass": {
+      "phase": "after",
+      "version": "3.21.0",
+      "sheets": [
+        {
+          "name": "Telemetria",
+          "rows": 502
+        },
+        {
+          "name": "Taxonomia_tax_5411faa2-a966-42f8-a927-139e082a162c",
+          "rows": 366
+        },
+        {
+          "name": "Noticias",
+          "rows": 858
+        },
+        {
+          "name": "Taxonomia",
+          "rows": 366
+        },
+        {
+          "name": "Candidatos",
+          "rows": 3000
+        },
+        {
+          "name": "Cobertura",
+          "rows": 10
+        },
+        {
+          "name": "CatalogoFuncional",
+          "rows": 322
+        },
+        {
+          "name": "DashboardSnapshots",
+          "rows": 322
+        },
+        {
+          "name": "NewsletterEventos",
+          "rows": 10
+        },
+        {
+          "name": "NewsletterFeedback",
+          "rows": 1
+        },
+        {
+          "name": "TaxonomiaTraducciones",
+          "rows": 730
+        },
+        {
+          "name": "Recargas",
+          "rows": 19
+        },
+        {
+          "name": "Traducciones",
+          "rows": 2901
+        },
+        {
+          "name": "Configuracion",
+          "rows": 12
+        },
+        {
+          "name": "Suscripciones",
+          "rows": 24
+        },
+        {
+          "name": "NewsletterEnvios",
+          "rows": 55
+        },
+        {
+          "name": "Recopilacion",
+          "rows": 301
+        },
+        {
+          "name": "Adopcion",
+          "rows": 5625
+        },
+        {
+          "name": "Auditoria",
+          "rows": 10
+        },
+        {
+          "name": "Ejecuciones",
+          "rows": 10
+        },
+        {
+          "name": "NewsletterContenido",
+          "rows": 3380
+        },
+        {
+          "name": "NewsletterEdiciones",
+          "rows": 45
+        },
+        {
+          "name": "CategorizacionLLM",
+          "rows": 26
+        },
+        {
+          "name": "Noticias_tax_5411faa2-a966-42f8-a927-139e082a162c",
+          "rows": 972
+        }
+      ]
+    }
+  }
 }
