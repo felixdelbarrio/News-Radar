@@ -31,6 +31,7 @@ const refreshSelects=initializeSearchableSelects();initializeDatePickers();
 const state = { data: null, request: 0, busy: false,contentStale:false,attribution:'',view:null,ready:false };
 const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady:()=>Boolean(state.data),getAttribution:()=>state.attribution&&state.data?.context?.id===state.attribution?state.attribution:'' }), { track, flush } = usage;
 const dashboards=new Map();
+const renderedSelections=new Map();
 const selectionKey=query=>JSON.stringify(Object.entries(query).filter(([key,value])=>value!==''&&value!=null&&!(key==='page'&&Number(value)===0)&&!(key==='initial'&&value===false)).sort(([a],[b])=>a.localeCompare(b)));
 const configuration = createConfiguration({run:action});
 const taxonomy=createTaxonomy();
@@ -54,8 +55,9 @@ const radar=createRadar({onOutage:query=>navigateSelection('news',{...state.data
 const sources = createSources({ getData: () => state.data, run: action });
 const recoveryControls=createRecoveryControls({run:action});
 const collectionProgress=createCollectionProgress({isActive:()=>navigation.current==='administration',isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
-function renderSelection(data,view=navigation.current,appended=null){
-  reading.render(data,view);if(view==='news'){renderNews(data,appended);newsTabs.render(data.newsGeographies||[],data.newsGeography||'');}
+function renderSelection(data,view=navigation.current,appended=null,reuse=false){
+  reading.render(data,view);if(reuse)return;
+  if(view==='news'){renderNews(data,appended);newsTabs.render(data.newsGeographies||[],data.newsGeography||'');}
   if(view==='radar'){radar.render(data);heatmap.render(data);}
   if(view==='briefing')briefing.render(data);
 }
@@ -100,7 +102,9 @@ async function load(reuse=false) {
         if(data.newsRevision&&data.configurationRevision)dashboards.set(key,{data,time:clientCacheHit?cached.time:performance.now()});
         if(dashboards.size>navigationCache.entries)dashboards.delete(dashboards.keys().next().value);
       }
-      renderSelection(data,navigation.current,appended);
+      const renderedKey=selectionKey(filters.query())+':'+data.newsRevision+':'+data.configurationRevision;
+      renderSelection(data,navigation.current,appended,Boolean(clientCacheHit||data.performance.clientCacheHit)&&renderedSelections.get(query.view)===renderedKey);
+      if(!administrative)renderedSelections.set(query.view,renderedKey);
       renderApplicationShell(data);
       releaseSecondaryRequests();
       track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true,snapshotHit:false}:{}),clientCacheHit:clientCacheHit||Boolean(data.performance.clientCacheHit),sharedRequest:Boolean(data.performance.sharedRequest),rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
