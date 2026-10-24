@@ -37,7 +37,7 @@ test('canonicalización y exportación protegen URLs y fórmulas',()=>{
 test('autoriza con identidad activa y restringe administración y métricas',()=>{
   for(const email of ['reader@bbva.com','felix.delbarrio@bbva.com'])assert.doesNotThrow(()=>context(email).authorize_());
   for(const email of ['','reader@evilbbva.com','reader@bbva.com.evil'])assert.throws(()=>context(email).authorize_());
-  const reader=context('reader@bbva.com');for(const name of ['getAudit','getAdoption','getTelemetry','collectNow','retryCollectionErrors','setupRadar'])assert.throws(()=>reader[name](),/no autorizado/);assert.throws(()=>reader.saveFeeds([]),/no autorizado/);
+  const reader=context('reader@bbva.com');for(const name of ['getAdminLogs','getAdoption','getControlPanel','collectNow','retryCollectionErrors','setupRadar'])assert.throws(()=>reader[name](),/no autorizado/);assert.throws(()=>reader.saveFeeds([]),/no autorizado/);
 });
 test('dashboard de lector no expone fuentes configurables, hoja ni datos de otros usuarios',()=>{
   const c=context('reader@bbva.com');c.rows_=()=>[];c.collectionStatus_=()=>({total:0,pending:0});c.book_=()=>{throw Error('No debe leer URL de hoja');};const result=c.getDashboard({});
@@ -310,7 +310,7 @@ test('el gráfico de medios cuenta editores reales y limita el resultado sin inv
 });
 test('ejecuciones pagina todo el histórico disponible y el progreso es seguro para lectores',()=>{
  const c=context();c.rows_=()=>Array.from({length:45},(_,i)=>({inicio:'2026-10-09',estado:i%2?'Parcial':'Completada',errores:i%2?'HTTP 503':'',id:String(i)}));
- const page=c.getRuns({estado:'Parcial'});assert.equal(page.total,22);assert.equal(page.items.length,10);assert.equal(c.getRuns({page:1}).items.length,10);assert.throws(()=>context('reader@bbva.com').getRuns(),/no autorizado/);
+ const page=c.getAdminLogs('runs',{estado:'Parcial'});assert.equal(page.total,22);assert.equal(page.items.length,10);assert.equal(c.getAdminLogs('runs',{page:1}).items.length,10);assert.throws(()=>context('reader@bbva.com').getAdminLogs('runs'),/no autorizado/);
  c.collectionStatus_=()=>({total:3,pending:1});c.properties_().setProperty('NEWS_REVISION','revision');const progress=c.getCollectionProgress();assert.equal(progress.newsRevision,'revision');assert.equal(progress.collection.pending,1);
 });
 test('todos los gráficos del Radar respetan geografía y distinguen editor de entidad mencionada',()=>{

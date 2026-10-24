@@ -3,13 +3,12 @@ import config from "../config.js";
 import { loadMetrics } from "./metrics.js";
 import { loadAudit } from "./audit.js";
 import {enhanceAdminTables} from "./admin-tables.js";
-function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,onLanguage,onLeaveLanguage,onRuns,onLeaveRuns,onLeaveSubscribers,onTaxonomy,onLeaveTaxonomy,onLlm,onLeaveLlm }) {
+function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,onRuns,onLeaveRuns,onLeaveSubscribers,onTaxonomy,onLeaveTaxonomy,onLlm,onLeaveLlm }) {
   const content=document.querySelector('#administration-section .admin-content');
   enhanceAdminTables(content);
   let current = Object.keys(config.adminViews)[0];
   async function open(view = Object.keys(config.adminViews)[0]) {
     if (!isAdmin() || !(view in config.adminViews)) return;
-    if(current==="language"&&view!==current)onLeaveLanguage();
     if(current==='runs'&&view!==current)onLeaveRuns();
     if(current==='subscribers'&&view!==current)onLeaveSubscribers();
     if(current==="taxonomy"&&view!==current)onLeaveTaxonomy();
@@ -26,10 +25,10 @@ function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,o
     if(view === "configuration")try{await onConfiguration();}catch(error){message(error.message||String(error),true);}
     if(view === 'llm')await onLlm();
     if(view === "taxonomy")await onTaxonomy();
-    if(view === "language")await onLanguage();
+
     if (view === "runs") await onRuns();
     if (view === "audit") await loadAudit();
-    if (view === "telemetry" || view === "adoption" || view === "feedback") await loadMetrics(view, () => current === view && !$("administration-section").hidden);
+    if (view === "adoption" || view === "feedback") await loadMetrics(view, () => current === view && !$("administration-section").hidden);
   }
   $("admin-tabs").addEventListener("click", (event) => {
     const button = event.target.closest("[data-admin-view]");

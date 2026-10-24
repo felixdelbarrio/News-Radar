@@ -20,16 +20,15 @@ test('fuentes y novedades recorren formularios reales, recuperación y filtros d
  await a.click('#source-fields .source:last-child .remove-source');await a.submit('#sources-form');assert.equal(a.calls.find(r=>r.method==='saveFeeds').query.length,1);
  a.data.daily=true;await a.click('#toggle-daily');assert.ok(a.calls.some(r=>r.method==='enableDaily'));await a.click('#toggle-daily');assert.ok(a.calls.some(r=>r.method==='disableDaily'));
  await a.click('#collect');assert.ok(a.calls.some(r=>r.method==='collectNow'));await a.click('#retry-collection');await a.click('#save-source-settings');
- for(const view of ['adoption','telemetry','audit'])await a.click('[data-admin-view="'+view+'"]');assert.ok(a.calls.some(r=>r.method==='getTelemetry'));assert.match(a.find('#telemetry-body').textContent,/Completa/);
- await a.click('#download-telemetry');assert.match(a.find('#message').textContent,/descargada/);
- a.replies.getTelemetry=Error('Lectura fallida');await a.click('[data-admin-view="telemetry"]');assert.match(a.find('#message').textContent,/Lectura fallida/);
+ await a.click('[data-admin-view="adoption"]');await a.click('[data-admin-view="audit"]');await a.change('#logs-view','telemetry');assert.ok(a.calls.some(r=>r.method==='getAdminLogs'));
+ await a.click('#logs-export');assert.ok(a.calls.some(r=>r.method==='exportAdminLogs'));
+ a.replies.getAdminLogs=Error('Lectura fallida');await a.change('#logs-view','audit');assert.match(a.find('#message').textContent,/Lectura fallida/);
 });
-test('ejecuciones carga al abrir su pestaña, filtra en el servidor y presenta errores',async t=>{
- const a=await app(t);assert.ok(!a.calls.some(r=>r.method==='getRuns'));assert.ok(!a.find('#sources-section').querySelector('#runs-body'));
- await a.click('[data-view="administration"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('#runs-section').hidden,false);assert.match(a.find('#runs-body').textContent,/OK/);
- await a.change('#runs-from','2026-10-01');assert.equal(a.calls.filter(r=>r.method==='getRuns').at(-1).query.from,'2026-10-01');
- a.replies.getRuns={items:[],total:0,page:0,pageSize:30,options:{}};await a.click('#runs-clear');assert.match(a.find('#runs-body').textContent,/Sin ejecuciones/);
- a.replies.getRuns=Error('Error de lectura');await a.click('#runs-clear');assert.match(a.find('#message').textContent,/Error de lectura/);
+test('el Panel de control carga al abrir y los registros se filtran en Logs',async t=>{
+ const a=await app(t);assert.ok(!a.calls.some(r=>r.method==='getControlPanel'));
+ await a.click('[data-view="administration"]');assert.equal(a.find('#runs-section').hidden,false);assert.ok(a.calls.some(r=>r.method==='getControlPanel'));
+ await a.click('[data-admin-view="audit"]');await a.change('#logs-from','2026-10-01');assert.equal(a.calls.filter(r=>r.method==='getAdminLogs').at(-1).query,'runs');
+ a.replies.getAdminLogs=Error('Error de lectura');await a.click('#logs-clear');assert.match(a.find('#message').textContent,/Error de lectura/);
 });
 test('el progreso administrativo no refresca las lecturas y se detiene fuera de Administración',async t=>{const timers=new Map();let id=10000;const a=await app(t,{configure({w,data,replies}){const set=w.setTimeout.bind(w);w.setTimeout=(fn,ms)=>{if(ms<30000)return set(fn,ms);timers.set(++id,{fn,ms});return id;};w.clearTimeout=key=>timers.delete(key);data.collection={total:10,processed:2,pending:8};replies.getCollectionProgress={newsRevision:'changed',collection:{total:10,processed:3,pending:7}};}});assert.ok(!a.calls.some(r=>r.method==='getCollectionProgress'));await a.click('[data-view="administration"]');const reads=a.calls.filter(r=>r.method==='getDashboard').length;const poll=[...timers.values()].find(v=>v.ms===30000);if(poll)await poll.fn();assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,reads);await a.click('[data-view="briefing"]');assert.ok(!a.find('#briefing-section').hidden);});
 
@@ -51,8 +50,7 @@ test('las tarjetas presentan traducciones guardadas y no llaman al traductor al 
 test('Idioma tiene sección propia, programación diaria y progreso con controles administrativos',async t=>{
  const a=await app(t,{language:'tr-TR',configure({replies}){replies.getTranslationStatus={scheduled:true,hour:2,timezone:'Europe/Madrid',queued:false,job:{state:'Completada',total:10,processed:10,translated:30,updated:'2026-10-11',error:''}};}});
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="language"]');assert.equal(a.find('#language-section').hidden,false);assert.ok(a.find('#language-section').contains(a.find('#preview-language')));assert.match(a.find('#translation-schedule').textContent,/Sınıflandırma sonrasında günlük çeviri/);assert.equal(a.find('#translation-progress progress').value,10);
- await a.click('#translation-toggle');assert.ok(a.calls.some(call=>call.method==='disableTranslationSchedule'));await a.click('#translation-start');assert.ok(a.calls.some(call=>call.method==='startTranslations'));
- a.replies.getTranslationStatus.scheduled=false;await a.click('[data-admin-view="configuration"]');await a.click('[data-admin-view="language"]');await a.click('#translation-toggle');assert.ok(a.calls.some(call=>call.method==='installTranslationSchedule'));await a.click('[data-admin-view="runs"]');assert.equal(a.find('#language-section').hidden,true);assert.match(a.find('#runs-section h2').textContent,/Çalıştırmalar/);
+ assert.equal(a.w.document.getElementById('translation-toggle'),null);await a.click('[data-admin-view="runs"]');await a.click('#translation-start');assert.ok(a.calls.some(call=>call.method==='startTranslations'));assert.ok(a.find('#runs-section').contains(a.find('#translation-progress')));assert.match(a.find('#runs-section h2').textContent,/Kontrol paneli/);
 });
 test('Radar presenta título estable, contador independiente e icono sin el enlace retirado',async t=>{const a=await app(t);await a.click('[data-view="radar"]');assert.equal(a.find('#radar-headline').textContent,'Radar');assert.ok(a.find('#radar-section .hero-emblem svg'));assert.equal(a.w.document.querySelector('#radar-open-news'),null);assert.equal(a.w.document.querySelector('#radar-latest'),null);});
 test('Fuentes contiene Abrir hoja y Ejecuciones bloquea cada recuperación activa incluso después de otra acción',async t=>{

@@ -36,16 +36,16 @@ const usage = createUsage({ getView: () => navigation.current === "administratio
 const dashboards=new Map();
 const selectionKey=query=>JSON.stringify(Object.entries(query).filter(([,value])=>value!==''&&value!=null).sort(([a],[b])=>a.localeCompare(b)));
 const configuration = createConfiguration({run:action});
-const taxonomy=createTaxonomy({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='taxonomy'});
+const taxonomy=createTaxonomy({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='runs'});
 const llmCategorization=createLlmCategorization({run:action,refreshSelects,isActive:()=>navigation.current==='administration'&&administration.current==='llm',onRevision:revision=>{if(state.data&&revision!==state.data.newsRevision){state.contentStale=true;dashboards.clear();}}});
 const subscriptions = createSubscriptions({run:action});
 const classification=createClassification({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='runs'});
 const maintenance=createJobMonitor({id:'maintenance',get:'getMaintenanceStatus',isActive:()=>navigation.current==='administration'&&administration.current==='runs',render({job}){$('maintenance-progress').innerHTML=job?jobProgressHtml(job,{total:job.total,done:job.reviewed,label:'Mantenimiento incremental',summary:job.reviewed+' revisados · '+job.corrected+' corregidos · '+job.consolidated+' consolidados · '+job.removed+' eliminados'}):'<p>Sin mantenimiento pendiente.</p>';}});
-const newsletterDelivery=createNewsletterDelivery({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='subscribers'});
-const languageSettings=createLanguageSettings({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='language'});
-const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onLanguage:()=>languageSettings.open(),onLeaveLanguage:()=>languageSettings.close(),onRuns:async()=>{const data=await loadRuns();if(data)await Promise.all([classification.open(data.classification),maintenance.open()]);},onLeaveRuns:()=>{classification.close();maintenance.close();},onLeaveSubscribers:()=>newsletterDelivery.close(),onTaxonomy:()=>taxonomy.open(),onLeaveTaxonomy:()=>taxonomy.close(),onLlm:()=>llmCategorization.open(),onLeaveLlm:()=>llmCategorization.close() });
+const newsletterDelivery=createNewsletterDelivery({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='runs'});
+const languageSettings=createLanguageSettings({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='runs'});
+const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onRuns:async()=>{const data=await loadRuns();if(data)await Promise.all([classification.open(data.classification),maintenance.open(),languageSettings.open(),taxonomy.openProgress(),newsletterDelivery.openProgress()]);},onLeaveRuns:()=>{classification.close();maintenance.close();languageSettings.close();taxonomy.close();newsletterDelivery.close();},onLeaveSubscribers:()=>newsletterDelivery.close(),onTaxonomy:()=>taxonomy.open(),onLeaveTaxonomy:()=>taxonomy.close(),onLlm:()=>llmCategorization.open(),onLeaveLlm:()=>llmCategorization.close() });
 const panel=createFilterPanel();
-const navigation = createNavigation({onPanel:view=>{if(view!=='administration'){llmCategorization.close();classification.close();maintenance.close();newsletterDelivery.close();}++state.request;panel.show(view);if(state.data)collectionProgress.update(state.data);refreshLoading();}, onSelection:view=>{taxonomy.close();const changed=filters.show(view);if(state.ready&&(changed||state.contentStale||state.view!==view))load(true);}, onSubscriptions:()=>{taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
+const navigation = createNavigation({onPanel:view=>{if(view!=='administration'){llmCategorization.close();classification.close();maintenance.close();newsletterDelivery.close();languageSettings.close();taxonomy.close();}++state.request;panel.show(view);if(state.data)collectionProgress.update(state.data);refreshLoading();}, onSelection:view=>{taxonomy.close();const changed=filters.show(view);if(state.ready&&(changed||state.contentStale||state.view!==view))load(true);}, onSubscriptions:()=>{taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
 const filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
   track("filtro");
   load();
@@ -161,10 +161,6 @@ $("export").addEventListener("click", () => action(async () => {
 $("news-list").addEventListener("click", (event) => {
   if (event.target.closest("a")) track("lectura");
 });
-$('download-telemetry').addEventListener('click',()=>action(async()=>{
-  const data=await call('exportTelemetry'),url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'})),link=document.createElement('a');
-  link.href=url;link.download='news-radar-telemetria.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message('Telemetría descargada.');
-},false));
 if (window.RADAR_PREVIEW) $("preview-banner").hidden = false;
 async function startApplication(params={}){
   deferSecondaryRequests();
@@ -185,3 +181,5 @@ if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocat
 else startApplication(Object.fromEntries(new URLSearchParams(window.location?.search||'')));
 
 window.addEventListener('news-radar-language-change',async()=>{await load();if(navigation.current==='administration'&&administration.current==='language')await languageSettings.open();if(navigation.current==='administration'&&administration.current==='taxonomy')await taxonomy.open();});
+
+document.querySelector('.admin-content').addEventListener('click',event=>{const button=event.target.closest('[data-open-edition]');if(button){filters.show('news');filters.useEdition(button.dataset.openEdition);navigation.show('news');}});

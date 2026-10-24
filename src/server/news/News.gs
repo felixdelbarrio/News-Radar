@@ -19,7 +19,6 @@ function getDashboard(query) {
     configurationRevision:configurationRevision_(),...operation,daily,newsRevision:publishedNewsRevision_(),sourceCount:feeds.length,admin:session.admin};
   return {...response,performance:{version:RADAR.version,serverMs:Date.now()-started,preparationMs,metadataMs:Date.now()-metadataStarted,metadataDetails:{catalogMs,operationMs,yearsMs,dailyMs},newsMs,cacheHit:content.cacheHit,snapshotHit:Boolean(content.snapshotHit)}};
 }
-function getAudit(query={}){authorize_(true);return administrativeRecords_('Auditoria',query,['fuente','resultado','ejecucion'],['fuente','resultado','motivo','url','ejecucion']);}
 function exportNews(query) {
   const session=authorize_(),edition=query?.edition&&(query.view||'news')==='news'?newsletterEdition_(query.edition,session.email):null;
   const selection=dashboardQuery_(edition?{...edition.query,...query}:query,new Date(),!edition),rows=edition&&query.benchmark?newsletterComparisonRows_(edition.items,edition.editorial,query.benchmark):edition?edition.items:cachedNewsRecords_(selection);
@@ -59,7 +58,6 @@ function dashboardRuns_(){
   return runs;
 }
 
-function getRuns(query={}){authorize_(true);const records=administrativeRecords_('Ejecuciones',query,['estado','id'],['estado','errores','id'],'inicio'),jobs=new Map(collectionJobs_().map(job=>[job.id,job]));return {...records,operational:getOperationalSchedule(),collection:collectionStatus_(),classification:getClassificationStatus(),items:records.items.map(row=>({...row,tipo:jobs.get(row.id)?.tipo||'',desde:jobs.get(row.id)?.desde||'',hasta:jobs.get(row.id)?.hasta||''}))};}
 function getCollectionProgress(){authorize_();return {collection:collectionStatus_(),newsRevision:publishedNewsRevision_()};}
 
 let dashboardMetadataMemory_;
@@ -92,3 +90,5 @@ function dashboardOperation_(admin){
   const cache=CacheService.getScriptCache(),key='dashboard-operation:'+RADAR.version+':'+configurationRevision_()+':'+admin,cached=cache.get(key);if(cached)return JSON.parse(cached);
   const runs=dashboardRuns_(),value={lastRun:runs.at(-1)?.fin||runs.at(-1)?.inicio||'',collection:collectionStatus_(),...(admin?dashboardAdministration_():{})};cacheJson_(key,value,15);return value;
 }
+
+function getControlPanel(){authorize_(true);return {operational:{...getOperationalSchedule(),processes:operationalProcesses_()},collection:collectionStatus_(),classification:getClassificationStatus()};}

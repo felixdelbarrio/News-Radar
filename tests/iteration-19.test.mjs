@@ -73,10 +73,9 @@ test('cancelar la anual conserva noticias y registros y evita reintentar sus err
  c.append_('Recargas',[keys.map(key=>job[key]??'')]);c.append_('Recopilacion',[['annual','A','https://example.com/a','Pendiente',0,'',0,0,'','2026-10-23'],['annual','B','https://example.com/b','Error',1,'',0,0,'HTTP 503','2026-10-23']]);
  const news=c.newsSheet_().getLastRow();assert.equal(c.cancelAnnualRecovery_().cancelled,2);assert.equal(c.collectionJobs_()[0].estado,'Cancelada');assert.equal(c.collectionJobs_()[0].pendientes,'0');assert.ok(c.rows_('Recopilacion').every(task=>task.estado==='Omitida'));assert.equal(c.newsSheet_().getLastRow(),news);c.retryCollectionErrors();assert.equal(c.collectionWork_(Date.now()).pending.length,0);assert.throws(()=>c.collectNow('year'),/diaria/);assert.throws(()=>c.resumeCollection('year'),/no válido/);
 });
-test('Administración limita registros y detalles largos sin perder el historial ni crear paginadores duplicados',async t=>{
- const a=await app(t,{configure({replies}){replies.getAdoption.daily=Array.from({length:25},(_,i)=>({date:'2026-10-'+String(i+1).padStart(2,'0'),users:i,sessions:i}));replies.getTelemetry.rows[0].detalle='Detalle largo '.repeat(40);}});
- await a.click('[data-view="administration"]');await a.click('[data-admin-view="adoption"]');let rows=[...a.find('#adoption-daily').rows];assert.equal(rows.filter(row=>!row.hidden).length,10);const pager=a.find('#adoption-daily').closest('.table-wrap').nextElementSibling;pager.querySelector('[data-step="1"]').click();assert.equal(rows.filter(row=>!row.hidden).length,10);assert.equal(rows[0].hidden,true);assert.equal(rows[10].hidden,false);
- await a.click('[data-admin-view="telemetry"]');const detail=a.find('#telemetry-body .record-detail');assert.equal(detail.open,false);assert.ok(detail.textContent.includes('Detalle largo'));assert.ok(a.find('#telemetry-filters details'));assert.equal(a.w.document.querySelectorAll('#adoption-section [data-step="1"]').length,1);
+test('Logs conserva detalles largos y usa filtros modales',async t=>{
+ const a=await app(t,{configure({replies}){replies.getAdminLogs.items=[{fecha:'2026-10-24',estado:'OK',detalle:'Detalle largo '.repeat(40)}];}});
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="audit"]');const detail=a.find('#logs-body .record-detail');assert.equal(detail.open,false);assert.ok(detail.textContent.includes('Detalle largo'));await a.click('#logs-open-filters');assert.equal(a.find('#logs-dialog').open,true);await a.click('#logs-close-filters');assert.equal(a.find('#logs-dialog').open,false);
 });
 test('reintentar fuentes no reactiva recuperaciones anuales históricas parciales',()=>{
  const s=server(),c=s.c,keys=vm.runInContext('RADAR.sheets.Recargas',c);

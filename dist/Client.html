@@ -992,6 +992,18 @@
     "Recopilaci\xF3n diaria desactivada": ["Daily collection disabled", "G\xFCnl\xFCk toplama devre d\u0131\u015F\u0131"],
     "Recopilaci\xF3n actual": ["Current collection", "Ge\xE7erli toplama"],
     Recopilaci\u00F3n: ["Collection", "Toplama"],
+    "Panel de control": ["Control panel", "Kontrol paneli"],
+    "Fuentes de Drive": ["Drive sources", "Drive kaynaklar\u0131"],
+    "Registro no v\xE1lido.": ["Invalid log.", "Ge\xE7ersiz kay\u0131t."],
+    Logs: ["Logs", "Kay\u0131tlar"],
+    "Exportar CSV": ["Export CSV", "CSV d\u0131\u015Fa aktar"],
+    Registro: ["Log", "Kay\u0131t"],
+    "Feedback interacciones por edici\xF3n": ["Feedback interactions by edition", "Say\u0131ya g\xF6re geri bildirim etkile\u015Fimleri"],
+    "Fuente del cat\xE1logo global de funcionalidades": ["Global functionality catalogue source", "K\xFCresel i\u015Flev katalo\u011Fu kayna\u011F\u0131"],
+    Resultados: ["Results", "Sonu\xE7lar"],
+    "Por revisar": ["To review", "\u0130ncelenecek"],
+    Enlace: ["Link", "Ba\u011Flant\u0131"],
+    Sesi\u00F3n: ["Session", "Oturum"],
     Ejecuciones: ["Runs", "\xC7al\u0131\u015Ft\u0131rmalar"],
     Inicio: ["Start", "Ba\u015Flang\u0131\xE7"],
     Fin: ["End", "Biti\u015F"],
@@ -1668,24 +1680,24 @@
   }
 
   // src/client/features/date-picker.js
-  var dialog, input, month, focused, iso = (date2) => date2.toISOString().slice(0, 10), day = (value) => /* @__PURE__ */ new Date(value + "T12:00:00Z");
+  var dialog, input, month, focused, iso = (date3) => date3.toISOString().slice(0, 10), day = (value) => /* @__PURE__ */ new Date(value + "T12:00:00Z");
   function paint() {
     let title = new Intl.DateTimeFormat(language, { month: "long", year: "numeric", timeZone: "UTC" }).format(month), weekday = new Intl.DateTimeFormat(language, { weekday: "short", timeZone: "UTC" }), label = new Intl.DateTimeFormat(language, { dateStyle: "full", timeZone: "UTC" }), start = new Date(month);
     start.setUTCDate(1 - (month.getUTCDay() + 6) % 7), dialog.innerHTML = '<div class="calendar-heading"><button type="button" class="button" data-month="-1" aria-label="' + escape2(t("Mes anterior")) + '">\u2039</button><h2 id="calendar-title" aria-live="polite">' + escape2(title) + '</h2><button type="button" class="button" data-month="1" aria-label="' + escape2(t("Mes siguiente")) + '">\u203A</button></div><div class="calendar-grid" role="grid" aria-labelledby="calendar-title"><div role="row">' + Array.from({ length: 7 }, (_, i) => {
-      let date2 = new Date(start);
-      return date2.setUTCDate(date2.getUTCDate() + i), '<span role="columnheader">' + escape2(weekday.format(date2)) + "</span>";
+      let date3 = new Date(start);
+      return date3.setUTCDate(date3.getUTCDate() + i), '<span role="columnheader">' + escape2(weekday.format(date3)) + "</span>";
     }).join("") + "</div>" + Array.from({ length: 6 }, (_, week) => '<div role="row">' + Array.from({ length: 7 }, (_2, weekday2) => {
-      let date2 = new Date(start);
-      date2.setUTCDate(date2.getUTCDate() + week * 7 + weekday2);
-      let value = iso(date2);
-      return '<button type="button" role="gridcell" data-day="' + value + '" aria-label="' + escape2(label.format(date2)) + '" aria-selected="' + (value === input.value) + '" tabindex="' + (value === focused ? 0 : -1) + '" class="' + (date2.getUTCMonth() !== month.getUTCMonth() ? "calendar-adjacent" : "") + '">' + date2.getUTCDate() + "</button>";
+      let date3 = new Date(start);
+      date3.setUTCDate(date3.getUTCDate() + week * 7 + weekday2);
+      let value = iso(date3);
+      return '<button type="button" role="gridcell" data-day="' + value + '" aria-label="' + escape2(label.format(date3)) + '" aria-selected="' + (value === input.value) + '" tabindex="' + (value === focused ? 0 : -1) + '" class="' + (date3.getUTCMonth() !== month.getUTCMonth() ? "calendar-adjacent" : "") + '">' + date3.getUTCDate() + "</button>";
     }).join("") + "</div>").join("") + '</div><div class="actions"><button type="button" class="button" data-calendar-close>' + escape2(t("Cancelar")) + "</button></div>", dialog.querySelector('[data-day="' + focused + '"]')?.focus();
   }
   function openDatePicker(target) {
     input = target, focused = input.value || (/* @__PURE__ */ new Date()).toLocaleDateString("sv-SE"), month = day(focused), month.setUTCDate(1), dialog || (dialog = document.createElement("dialog"), dialog.className = "calendar-dialog", dialog.setAttribute("aria-labelledby", "calendar-title"), document.body.append(dialog), dialog.addEventListener("click", (event) => {
-      let date2 = event.target.closest("[data-day]");
-      if (date2)
-        input.value = date2.dataset.day, input.dispatchEvent(new Event("input", { bubbles: !0 })), input.dispatchEvent(new Event("change", { bubbles: !0 })), dialog.close(), input.focus();
+      let date3 = event.target.closest("[data-day]");
+      if (date3)
+        input.value = date3.dataset.day, input.dispatchEvent(new Event("input", { bubbles: !0 })), input.dispatchEvent(new Event("change", { bubbles: !0 })), dialog.close(), input.focus();
       else if (event.target.closest("[data-calendar-close]") || event.target === dialog)
         dialog.close(), input.focus();
       else {
@@ -1695,13 +1707,13 @@
     }), dialog.addEventListener("keydown", (event) => {
       let cell = event.target.closest("[data-day]");
       if (!cell) return;
-      let date2 = day(cell.dataset.day), offsets = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7, Home: -(date2.getUTCDay() + 6) % 7, End: 6 - (date2.getUTCDay() + 6) % 7 };
-      if (Object.hasOwn(offsets, event.key)) date2.setUTCDate(date2.getUTCDate() + offsets[event.key]);
+      let date3 = day(cell.dataset.day), offsets = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7, Home: -(date3.getUTCDay() + 6) % 7, End: 6 - (date3.getUTCDay() + 6) % 7 };
+      if (Object.hasOwn(offsets, event.key)) date3.setUTCDate(date3.getUTCDate() + offsets[event.key]);
       else if (["PageUp", "PageDown"].includes(event.key)) {
-        let desired = date2.getUTCDate();
-        date2.setUTCDate(1), date2.setUTCMonth(date2.getUTCMonth() + (event.key === "PageUp" ? -1 : 1) * (event.shiftKey ? 12 : 1)), date2.setUTCDate(Math.min(desired, new Date(Date.UTC(date2.getUTCFullYear(), date2.getUTCMonth() + 1, 0)).getUTCDate()));
+        let desired = date3.getUTCDate();
+        date3.setUTCDate(1), date3.setUTCMonth(date3.getUTCMonth() + (event.key === "PageUp" ? -1 : 1) * (event.shiftKey ? 12 : 1)), date3.setUTCDate(Math.min(desired, new Date(Date.UTC(date3.getUTCFullYear(), date3.getUTCMonth() + 1, 0)).getUTCDate()));
       } else return;
-      event.preventDefault(), focused = iso(date2), month = day(focused), month.setUTCDate(1), paint();
+      event.preventDefault(), focused = iso(date3), month = day(focused), month.setUTCDate(1), paint();
     })), paint(), dialog.showModal(), dialog.querySelector('[data-day="' + focused + '"]')?.focus();
   }
   function initializeDatePickers() {
@@ -1872,9 +1884,6 @@
   function entityOrder(a, b) {
     return +(b.name === "BBVA") - +(a.name === "BBVA") || a.name.localeCompare(b.name, "es");
   }
-  function entityVolumeOrder(a, b) {
-    return +(b.name === "BBVA") - +(a.name === "BBVA") || b.total - a.total || entityOrder(a, b);
-  }
 
   // src/client/features/geography-tabs.js
   function createGeographyTabs(id, panelId, onSelect) {
@@ -1987,9 +1996,9 @@
     return rows.filter((row) => {
       if (fields.some((key) => query[key] && String(row[key]) !== query[key]) || term && !recordText(searchFields.map((key) => row[key] ?? "").join(" ")).includes(term)) return !1;
       if (!query.from && !query.to) return !0;
-      let date2 = new Date(row[dateKey]);
-      if (!Number.isFinite(date2.getTime())) return !1;
-      let day2 = recordDay(date2, timezone2);
+      let date3 = new Date(row[dateKey]);
+      if (!Number.isFinite(date3.getTime())) return !1;
+      let day2 = recordDay(date3, timezone2);
       return (!query.from || day2 >= query.from) && (!query.to || day2 <= query.to);
     });
   }
@@ -2009,7 +2018,11 @@
   // src/client/features/record-filters.js
   function createRecordFilters(id, fields, onChange, { dates = !1, placeholder = "Buscar" } = {}) {
     let page = 0, timer, keys = ["search", ...fields.map(([key]) => key), ...dates ? ["from", "to"] : []];
-    $(id + "-filters").innerHTML = '<details class="admin-filter-panel"><summary>' + t("Filtros") + '<span class="filter-count" id="' + id + '-filter-count"></span></summary><div class="record-filters"><label>Buscar<input type="search" id="' + id + '-search" placeholder="' + escape2(placeholder) + '"></label>' + fields.map(([key, label, values]) => "<label>" + escape2(label) + '<select id="' + id + "-" + key + '"><option value="">Todos</option>' + options(values || []) + "</select></label>").join("") + (dates ? ["from", "to"].map((key, i) => "<label>" + ["Desde", "Hasta"][i] + '<input type="date" id="' + id + "-" + key + '"></label>').join("") : "") + '<button class="button" type="button" id="' + id + '-clear">Limpiar filtros</button></div></details>';
+    $(id + "-filters").innerHTML = '<button type="button" class="button" id="' + id + '-open-filters">' + t("Filtros") + '<span class="filter-count" id="' + id + '-filter-count"></span></button><dialog class="filter-dialog admin-record-dialog" id="' + id + '-dialog" aria-label="' + t("Filtros") + '"><div class="panel-header"><h2>' + t("Filtros") + '</h2><button type="button" class="button" id="' + id + '-close-filters">' + t("Cerrar") + '</button></div><div class="record-filters"><label>Buscar<input type="search" id="' + id + '-search" placeholder="' + escape2(placeholder) + '"></label>' + fields.map(([key, label, values]) => "<label>" + escape2(label) + '<select id="' + id + "-" + key + '"><option value="">Todos</option>' + options(values || []) + "</select></label>").join("") + (dates ? ["from", "to"].map((key, i) => "<label>" + ["Desde", "Hasta"][i] + '<input type="date" id="' + id + "-" + key + '"></label>').join("") : "") + '<button class="button" type="button" id="' + id + '-clear">Limpiar filtros</button></div></dialog>';
+    let dialog2 = $(id + "-dialog");
+    $(id + "-open-filters").addEventListener("click", () => dialog2.showModal()), $(id + "-close-filters").addEventListener("click", () => dialog2.close()), dialog2.addEventListener("click", (event) => {
+      event.target === dialog2 && dialog2.close();
+    });
     function options(values) {
       return values.map((value) => {
         let [key, label] = Array.isArray(value) ? value : [value, value];
@@ -2032,12 +2045,16 @@
     for (let key of keys) $(id + "-" + key).addEventListener(key === "search" ? "input" : "change", () => {
       key === "search" ? (clearTimeout(timer), timer = setTimeout(change, 250)) : change();
     });
-    return $(id + "-clear").addEventListener("click", () => {
+    $(id + "-clear").addEventListener("click", () => {
       keys.forEach((key) => $(id + "-" + key).value = ""), change();
-    }), $(id + "-pagination").addEventListener("click", (event) => {
+    });
+    let pagination = $(id + "-pagination"), paginate = (event) => {
       let button = event.target.closest("[data-page]");
       !button || button.disabled || (page += Number(button.dataset.page), Promise.resolve(onChange()).catch((error) => message(error.message, !0)));
-    }), { query, reset() {
+    };
+    return pagination?.addEventListener("click", paginate), { query, destroy() {
+      clearTimeout(timer), pagination?.removeEventListener?.("click", paginate), dialog2.close();
+    }, reset() {
       clearTimeout(timer), page = 0;
     }, options(values) {
       for (let [key, list] of Object.entries(values)) {
@@ -2046,34 +2063,28 @@
         input2.innerHTML = '<option value="">Todos</option>' + options([...list].sort((a, b) => taxonomyDisplayLabel(t(String(Array.isArray(a) ? a[1] : a))).localeCompare(taxonomyDisplayLabel(t(String(Array.isArray(b) ? b[1] : b))), language))), input2.value = list.some((item) => String(Array.isArray(item) ? item[0] : item) === value) ? value : "";
       }
     }, page(data) {
+      if (!$(id + "-pagination")) return;
       page = data.page;
       let pages = Math.max(1, Math.ceil(data.total / data.pageSize));
-      $(id + "-pagination").innerHTML = '<button class="button" type="button" data-page="-1" ' + (page === 0 ? "disabled" : "") + '>Anterior</button><span class="small muted" role="status">' + t("{total} resultados \xB7 p\xE1gina {page} de {pages}", { total: data.total, page: page + 1, pages }) + '</span><button class="button" type="button" data-page="1" ' + (page >= pages - 1 ? "disabled" : "") + ">Siguiente</button>";
+      $(id + "-pagination").innerHTML = '<button class="button" type="button" data-page="-1" ' + (page === 0 ? "disabled" : "") + '>Anterior</button><span class="small muted" role="status">' + t("{total} resultados \xB7 p\xE1gina {page} de {pages}", { total: data.total, page: page + 1, pages }) + '</span><button class="button" type="button" data-page="1" ' + (page >= pages - 1 ? "disabled" : "") + ">" + t("Ver m\xE1s") + "</button>";
     } };
   }
 
   // src/client/features/taxonomy.js
   function createTaxonomy({ run, isActive, onRevision }) {
-    let items = [], signature = "", sourceSignature = "", revision;
-    $("taxonomy-source-form").addEventListener("submit", (event) => {
-      event.preventDefault(), run(async () => {
-        message(await call("saveTaxonomySource", { url: $("taxonomy-catalog-url").value.trim(), revision })), await monitor.open();
-      });
-    });
-    let filters5 = createRecordFilters("taxonomy", [["palanca", "Bloque funcional"]], render, { placeholder: "Bloque funcional, funcionalidad / sub operativa o t\xE9rmino" });
+    let items = [], signature = "", filters4 = createRecordFilters("taxonomy", [["palanca", "Bloque funcional"]], render, { placeholder: "Bloque funcional, funcionalidad / sub operativa o t\xE9rmino" });
     function render() {
-      let query = filters5.query(), page = recordPage(filterRecords(items, query, ["palanca"], ["palanca", "subpalanca", "terminos", "segmentos", "descripcion"]), query, 10);
-      $("taxonomy-body").innerHTML = page.items.map((row) => `<tr><td data-original>${escape2(row.palanca)}</td><td><strong data-original>${escape2(row.subpalanca)}</strong></td><td>${escape2(row.segmentos.join(" \xB7 "))}</td><td>${row.noticias}</td><td data-original>${escape2(row.terminos.join(" \xB7 "))}</td><td data-original>${row.descripcion ? `<details><summary>${escape2(t("Descripci\xF3n"))}</summary>${escape2(row.descripcion)}</details>` : ""}</td><td>${escape2(row.origen === "local" ? t("Clasificaci\xF3n local") : row.origen === "tf-idf" ? "TF-IDF" : t("Cat\xE1logo maestro (Drive)"))}</td></tr>`).join("") || '<tr><td colspan="7">' + t("Sin cat\xE1logo global de funcionalidades disponible. Ejecuta el job para generarlo.") + "</td></tr>", filters5.page(page), $("taxonomy-count").textContent = t("{blocks} bloques funcionales \xB7 {functions} funcionalidades / sub operativas", { blocks: new Set(items.map((row) => row.palanca)).size, functions: items.filter((row) => row.subpalanca).length });
+      let query = filters4.query(), page = recordPage(filterRecords(items, query, ["palanca"], ["palanca", "subpalanca", "terminos", "segmentos", "descripcion"]), query, 10);
+      $("taxonomy-body").innerHTML = page.items.map((row) => `<tr><td data-original>${escape2(row.palanca)}</td><td><strong data-original>${escape2(row.subpalanca)}</strong></td><td>${escape2(row.segmentos.join(" \xB7 "))}</td><td>${row.noticias}</td><td data-original>${escape2(row.terminos.join(" \xB7 "))}</td><td data-original>${row.descripcion ? `<details><summary>${escape2(t("Descripci\xF3n"))}</summary>${escape2(row.descripcion)}</details>` : ""}</td><td>${escape2(row.origen === "local" ? t("Clasificaci\xF3n local") : row.origen === "tf-idf" ? "TF-IDF" : t("Cat\xE1logo maestro (Drive)"))}</td></tr>`).join("") || '<tr><td colspan="7">' + t("Sin cat\xE1logo global de funcionalidades disponible. Ejecuta el job para generarlo.") + "</td></tr>", filters4.page(page), $("taxonomy-count").textContent = t("{blocks} bloques funcionales \xB7 {functions} funcionalidades / sub operativas", { blocks: new Set(items.map((row) => row.palanca)).size, functions: items.filter((row) => row.subpalanca).length });
     }
-    let monitor = createJobMonitor({ id: "taxonomy", get: "getTaxonomyStatus", start: "startTaxonomy", run, isActive, onRevision, render(data) {
-      let source = JSON.stringify([data.configurationRevision, data.catalogUrl]);
-      source !== sourceSignature && (sourceSignature = source, revision = data.configurationRevision, $("taxonomy-catalog-url").value = data.catalogUrl || ""), $("taxonomy-catalog-status").textContent = data.job?.catalog?.error ? t("No se pudo revisar Drive; se utiliza el cat\xE1logo guardado. ") + data.job.catalog.error : data.synced ? t("\xDAltima lectura del maestro: {date}", { date: date(data.synced) }) : data.catalogUrl ? t("Se revisar\xE1 Drive al iniciar la actualizaci\xF3n.") : t("Se utiliza el cat\xE1logo guardado.");
+    let monitor = createJobMonitor({ id: "taxonomy", get: "getTaxonomyProgress", start: "startTaxonomy", run, isActive, onRevision, render(data) {
       let job = data.job, total = Number(job?.workTotal ?? Number(job?.total || 0) * 2), done = Number(job?.processed || 0);
       $("taxonomy-progress").innerHTML = job ? jobProgressHtml(job, { total, done, label: "Progreso de cat\xE1logo global de funcionalidades", queued: data.queued, summary: t("{done}/{total} pasos de an\xE1lisis y etiquetado; {tagged} etiquetas actualizadas.", { done, total, tagged: job.tagged }) }) : '<p class="muted">' + t(data.queued ? "En cola" : "Sin actualizaciones del cat\xE1logo ejecutadas.") + "</p>";
-      let next = JSON.stringify([data.items, data.pageSize, data.taxonomyTranslations, language]);
-      next !== signature && (signature = next, items = data.items.filter((row) => row.subpalanca), filters5.options(recordOptions(items, ["palanca"])), render());
     } });
-    return monitor;
+    return { openProgress: monitor.open, close: monitor.close, async open() {
+      let data = await call("getTaxonomyStatus"), next = JSON.stringify([data.items, data.pageSize, data.taxonomyTranslations, language]);
+      next !== signature && (signature = next, items = data.items.filter((row) => row.subpalanca), filters4.options(recordOptions(items, ["palanca"])), render());
+    } };
   }
 
   // assets/app-config.json
@@ -2086,16 +2097,15 @@
       administration: "Administraci\xF3n"
     },
     adminViews: {
-      runs: "Ejecuciones",
+      runs: "Panel de control",
       taxonomy: "Cat\xE1logo global de funcionalidades",
       llm: "Categorizaci\xF3n LLM",
       language: "Idioma",
       subscribers: "Suscripciones",
       adoption: "Adopci\xF3n",
       feedback: "Feedback",
-      telemetry: "Telemetr\xEDa",
       sources: "Fuentes",
-      audit: "Auditor\xEDa",
+      audit: "Logs",
       configuration: "Configuraci\xF3n de negocio"
     }
   };
@@ -2105,19 +2115,16 @@
 
   // src/client/features/language-settings.js
   function createLanguageSettings({ run, isActive, onRevision }) {
-    let scheduled = !1;
     function progress(id, data, label, summary, empty) {
       let job = data.job || (data.queued ? { state: "En cola", total: 0, processed: 0, translated: 0 } : null), total = Number(job?.total || 0), done = Number(job?.processed || 0);
       $(id + "-progress").innerHTML = job ? jobProgressHtml(job, { total, done, label, queued: data.queued, summary: t(summary, { done, total, translated: job.translated }) }) : '<p class="muted">' + t(empty) + "</p>";
     }
     let articles = createJobMonitor({ id: "translation", get: "getTranslationStatus", start: "startTranslations", run, isActive, onRevision, render(data) {
-      scheduled = data.scheduled, $("translation-toggle").textContent = t(scheduled ? "Desactivar traducci\xF3n diaria" : "Activar traducci\xF3n diaria"), $("translation-schedule").textContent = t("Traducci\xF3n diaria tras completar la clasificaci\xF3n \xB7 {state}", { state: t(scheduled ? "Activada" : "Desactivada") }), progress("translation", data, "Progreso de traducci\xF3n", "{done}/{total} noticias revisadas; {translated} traducciones guardadas.", "Sin traducciones programadas ejecutadas.");
+      $("translation-schedule").textContent = t("Traducci\xF3n diaria tras completar la clasificaci\xF3n \xB7 {state}", { state: t("Activada") }), progress("translation", data, "Progreso de traducci\xF3n", "{done}/{total} noticias revisadas; {translated} traducciones guardadas.", "Sin traducciones programadas ejecutadas.");
     } }), taxonomy2 = createJobMonitor({ id: "taxonomy-translation", get: "getTaxonomyTranslationStatus", start: "startTaxonomyTranslations", run, isActive, onRevision, render(data) {
       progress("taxonomy-translation", data, "Progreso de traducci\xF3n de cat\xE1logo global de funcionalidades", "{done}/{total} nombres revisados; {translated} traducciones guardadas.", "Sin traducciones de cat\xE1logo global de funcionalidades ejecutadas.");
     } });
-    return $("translation-toggle").addEventListener("click", () => run(async () => {
-      await call(scheduled ? "disableTranslationSchedule" : "installTranslationSchedule"), await articles.open();
-    }, !1)), { open: () => Promise.all([articles.open(), taxonomy2.open()]), close() {
+    return { open: () => Promise.all([articles.open(), taxonomy2.open()]), close() {
       articles.close(), taxonomy2.close();
     } };
   }
@@ -2131,19 +2138,20 @@
   }
 
   // src/client/features/runs.js
-  var filters, request = 0, syncRecovery = () => {
+  var request = 0, syncRecovery = () => {
   };
   async function loadRuns() {
-    filters ||= createRecordFilters("runs", [["estado", "Estado"], ["id", "Recarga"]], loadRuns, { dates: !0, placeholder: "Estado o error" });
     let current = ++request;
     try {
-      let data = await call("getRuns", filters.query());
+      let data = await call("getControlPanel");
       if (current !== request) return;
       if (data.operational) {
         let schedule = data.operational;
         $("operational-schedule").innerHTML = '<ul class="operational-schedule">' + schedule.jobs.map((job) => '<li><div class="schedule-heading"><strong>' + escape2(t(job.label)) + '</strong><span class="status-pill" data-valid="' + job.valid + '">' + escape2(t(job.valid ? job.expected ? "Activa" : "Inactiva" : "Revisar")) + '</span></div><p class="schedule-time">' + escape2(job.hour !== void 0 ? String(job.hour).padStart(2, "0") + ":00" : job.minutes + " min") + '</p><p class="small muted">' + escape2(job.timezone || t("Supervisi\xF3n de colas")) + "</p></li>").join("") + "</ul>" + (schedule.archive.error ? '<p class="warning">' + escape2(schedule.archive.error) + "</p>" : ""), $("retry-archive").hidden = !schedule.archive.error;
+        let processes = schedule.processes || [];
+        $("operational-processes").innerHTML = processes.map((job) => '<article class="collection-job"><div class="schedule-heading"><strong>' + escape2(t(job.label)) + '</strong><span class="process-state" data-status="' + escape2(job.status) + '">' + escape2(t(job.state)) + "</span></div>" + (job.total ? '<progress max="' + Math.max(1, job.total) + '" value="' + job.done + '" aria-label="' + escape2(t(job.label)) + '"></progress><p>' + job.done + "/" + job.total + "</p>" : "") + progressDetailsHtml(job.progress) + (job.comment ? '<p class="small muted">' + escape2(job.comment) + "</p>" : "") + "</article>").join("");
       }
-      return renderCollectionJobs(data.collection), filters.options(data.options), filters.page(data), $("runs-body").innerHTML = data.items.map((r) => `<tr><td>${escape2(displayRecord(r.tipo, language))} ${escape2(r.desde)} \u2014 ${escape2(r.hasta)}</td><td>${escape2(date(r.inicio))}</td><td>${escape2(r.estado)}</td><td>${escape2(r.evaluadas)}</td><td>${escape2(r.nuevas)}</td><td>${escape2(r.errores || "\u2014")}</td></tr>`).join("") || '<tr><td colspan="6">Sin ejecuciones con estos filtros.</td></tr>', data;
+      return renderCollectionJobs(data.collection), data;
     } catch (error) {
       current === request && message(error.message, !0);
     }
@@ -2225,12 +2233,12 @@
     }
     return media.addEventListener("change", administrationLayout), $("open-filters").addEventListener("click", () => dialog2.showModal()), $("close-filters").addEventListener("click", () => dialog2.close()), dialog2.addEventListener("click", (event) => {
       (event.target === dialog2 || event.target.closest("[data-admin-view]")) && dialog2.close();
-    }), { show(view) {
+    }), { show(view2) {
       dialog2.open && dialog2.close();
-      let toolbar = document.querySelector(".selection-toolbar"), freshness = $("selection-freshness"), host = document.querySelector("#" + view + "-section .reading-hero");
-      $("open-filters").hidden = view === "briefing", toolbar.hidden = view === "subscriptions" || view === "administration" && !media.matches, view === "administration" ? $("administration-tools").appendChild(toolbar) : host ? (host.appendChild(freshness), host.appendChild(toolbar)) : (document.querySelector(".content").prepend(toolbar), toolbar.after(freshness));
-      let active = panels[view] || panels.news, admin = view === "administration", reading2 = !admin && view !== "subscriptions";
-      for (let panel2 of Object.values(panels)) panel2.hidden = view === "subscriptions" || panel2 !== active;
+      let toolbar = document.querySelector(".selection-toolbar"), freshness = $("selection-freshness"), host = document.querySelector("#" + view2 + "-section .reading-hero");
+      $("open-filters").hidden = view2 === "briefing", toolbar.hidden = view2 === "subscriptions" || view2 === "administration" && !media.matches, view2 === "administration" ? $("administration-tools").appendChild(toolbar) : host ? (host.appendChild(freshness), host.appendChild(toolbar)) : (document.querySelector(".content").prepend(toolbar), toolbar.after(freshness));
+      let active = panels[view2] || panels.news, admin = view2 === "administration", reading2 = !admin && view2 !== "subscriptions";
+      for (let panel2 of Object.values(panels)) panel2.hidden = view2 === "subscriptions" || panel2 !== active;
       $("panel-button-label").textContent = admin ? "Men\xFA" : "Filtros", $("panel-dialog-title").textContent = admin ? "Administraci\xF3n" : "Filtros", dialog2.setAttribute("aria-label", admin ? "Herramientas de administraci\xF3n" : "Configurar filtros"), $("filter-dialog-actions").hidden = !reading2, administrationLayout();
     } };
   }
@@ -2265,7 +2273,7 @@
 
   // src/client/features/subscriptions.js
   function createSubscriptions({ run }) {
-    let options, own = [], all = [], request3 = 0, historyLimit = 3, filters5 = {}, editorId = (admin) => admin ? "admin-subscription-editor" : "personal-editor";
+    let options, own = [], all = [], request3 = 0, historyLimit = 3, filters4 = {}, editorId = (admin) => admin ? "admin-subscription-editor" : "personal-editor";
     function edit(admin, row) {
       let target = $(editorId(admin));
       target.hidden = !1, target.innerHTML = subscriptionForm(options, admin, row), target.scrollIntoView?.({ block: "nearest" }), target.querySelector("input,select,button")?.focus();
@@ -2276,9 +2284,9 @@
         return;
       }
       let id = "subscribers", rows = all;
-      filters5[id] ||= createRecordFilters(id, [...admin ? [["correo", "Suscriptor"]] : [], ["activa", "Estado", [["true", "Activa"], ["false", "Pausada"]]]], () => render(admin), { placeholder: "Correo o geograf\xEDa" }), filters5[id].options(recordOptions(rows, admin ? ["correo"] : []));
-      let selected = filterRecords(rows, filters5[id].query(), admin ? ["correo", "activa"] : ["activa"], ["correo", "nombre"]), page = recordPage(selected, filters5[id].query());
-      $(admin ? "admin-subscriptions-list" : "subscriptions-list").innerHTML = subscriptionCards(page.items, admin), filters5[id].page(page);
+      filters4[id] ||= createRecordFilters(id, [...admin ? [["correo", "Suscriptor"]] : [], ["activa", "Estado", [["true", "Activa"], ["false", "Pausada"]]]], () => render(admin), { placeholder: "Correo o geograf\xEDa" }), filters4[id].options(recordOptions(rows, admin ? ["correo"] : []));
+      let selected = filterRecords(rows, filters4[id].query(), admin ? ["correo", "activa"] : ["activa"], ["correo", "nombre"]), page = recordPage(selected, filters4[id].query());
+      $(admin ? "admin-subscriptions-list" : "subscriptions-list").innerHTML = subscriptionCards(page.items, admin), filters4[id].page(page);
     }
     async function open(admin = !1) {
       let current = ++request3, [settings, rows, history] = await Promise.all([call("getNewsletterOptions"), call(admin ? "getAdminSubscriptions" : "getSubscriptions"), admin ? null : call("getMyNewsletterHistory", { limit: historyLimit })]);
@@ -2330,19 +2338,14 @@
     }
     let monitor = createJobMonitor({ id: "newsletter-delivery", get: "getNewsletterProgress", isActive, render({ job }) {
       $("newsletter-delivery-progress").innerHTML = jobProgressHtml(job, { total: job.total, done: job.processed, label: "Progreso de env\xEDos planificados", summary: t("{done}/{total} entregas; {accepted} aceptadas; {empty} sin novedades; {pending} pendientes; {review} por revisar.", { ...job, done: job.processed }) });
-    } }), historyFilters, historyRequest = 0;
-    async function history() {
-      historyFilters ||= createRecordFilters("delivery", [["correo", "Suscriptor"], ["estado", "Estado"], ["suscripcion", "Suscripci\xF3n"]], history, { dates: !0, placeholder: "Gmail ID, correo o motivo" });
-      let request3 = ++historyRequest, data = await call("getNewsletterHistory", historyFilters.query());
-      request3 === historyRequest && (historyFilters.options(data.options), historyFilters.page(data), $("delivery-history-body").innerHTML = data.items.map((row) => `<tr><td>${escape2(date(row.fecha))}</td><td>${escape2(row.correo)}</td><td>${escape2(row.estado)}</td><td>${row.noticias ?? "Sin detalle"}</td><td>${escape2(row.detalle)}${row.edition ? `<details data-newsletter-summary="${escape2(row.edition)}"><summary>Resumen enviado</summary><div data-summary-content></div></details>` : ""}</td></tr>`).join("") || '<tr><td colspan="5">Sin env\xEDos con estos filtros.</td></tr>', $("delivery-history-note").textContent = data.total + " coincidencias." + (data.limited ? " Hist\xF3rico visible limitado a " + data.limit + " registros; el control de duplicados conserva el historial completo." : ""));
-    }
+    } });
     async function open() {
-      let [status, options] = await Promise.all([call("getNewsletterDeliveryStatus"), call("getNewsletterOptions"), history(), monitor.open()]), form = $("newsletter-test-form"), selected = form.elements.country.value;
+      let [status, options] = await Promise.all([call("getNewsletterDeliveryStatus"), call("getNewsletterOptions")]), form = $("newsletter-test-form"), selected = form.elements.country.value;
       form.elements.email.placeholder = options.email, form.elements.country.innerHTML = '<option value="">Sin personalizar</option>' + options.countries.map((name) => "<option>" + escape2(name) + "</option>").join(""), form.elements.country.value = selected, $("newsletter-sender").textContent = status.name + " <" + status.address + ">", $("newsletter-checks").innerHTML = [["Remitente", status.available ? "Configurado" : "Pendiente"], ["Entrega", status.enabled ? "Activada" : "Desactivada"], ["Programaci\xF3n", status.scheduled ? "Instalada" : "Sin activador"]].map(([name, value]) => `<div class="delivery-check"><strong>${name}</strong><span>${value}</span></div>`).join(""), $("newsletter-sender-status").textContent = status.available ? "El remitente se utiliza en los env\xEDos autom\xE1ticos y las pruebas." : status.error, $("newsletter-budget").textContent = status.remaining + " env\xEDos disponibles dentro del l\xEDmite configurado de 24 horas.", $("newsletter-content-note").textContent = status.untracked ? status.untracked + " env\xEDos anteriores no registraron las noticias incluidas. El control de contenido se aplica a los env\xEDos con inventario; los anteriores requieren contrastar los correos originales." : "El contenido de los nuevos env\xEDos queda registrado por suscriptor. Las pruebas se excluyen del control de duplicados.";
       let last = status.last;
       $("newsletter-history").innerHTML = last ? `<strong>\xDAltimo intento \xB7 ${escape2(date(last.fecha))}</strong><span>${escape2(last.estado)} \xB7 ${escape2(last.correo)}</span><span>${escape2(last.detalle)}</span>` : "<span>No hay intentos de env\xEDo registrados.</span>";
     }
-    return attachNewsletterSummaries($("delivery-history-body")), $("newsletter-test-form").addEventListener("submit", (event) => {
+    return $("newsletter-test-form").addEventListener("submit", (event) => {
       event.preventDefault();
       let form = event.target;
       if (!form.reportValidity()) return;
@@ -2357,7 +2360,7 @@
         }
         await open();
       }, !1);
-    }), { open, close: monitor.close };
+    }), { open, openProgress: monitor.open, close: monitor.close };
   }
 
   // assets/admin-schema.json
@@ -2534,7 +2537,8 @@
         newsletterSender: "Remitente verificado en Gmail (correo del grupo)",
         newsletterSenderName: "Nombre visible del remitente",
         newsletterDailyLimit: "L\xEDmite de newsletters en 24 horas",
-        newsletterAppUrl: "URL publicada de News Radar (gesti\xF3n de suscripciones)"
+        newsletterAppUrl: "URL publicada de News Radar (gesti\xF3n de suscripciones)",
+        taxonomyCatalogUrl: "Cat\xE1logo global de funcionalidades en Drive"
       },
       groups: [
         {
@@ -2580,6 +2584,12 @@
             "exportLimit",
             "eventLimit",
             "retentionDays"
+          ]
+        },
+        {
+          label: "Fuentes de Drive",
+          keys: [
+            "taxonomyCatalogUrl"
           ]
         }
       ]
@@ -2799,17 +2809,16 @@
   }
 
   // src/shared/novelty-groups.js
+  function publicationOrder(a, b) {
+    return String(b.fecha || "").localeCompare(String(a.fecha || "")) || String(a.id || a.url || a.titular || "").localeCompare(String(b.id || b.url || b.titular || ""), "es");
+  }
   function noveltyGroups(items, country = (row) => geographyLabel(row.pais)) {
     let geographies = /* @__PURE__ */ new Map();
     for (let row of items) {
-      let name = country(row), entity = row.entidad || "Entidad no identificada", segment = [...new Set(row.segmentos || [])].sort((a, b) => a.localeCompare(b, "es")).join(" \xB7 ") || "Segmento no identificado";
-      geographies.has(name) || geographies.set(name, { name, items: [], entities: /* @__PURE__ */ new Map() });
-      let geography = geographies.get(name);
-      geography.items.push(row), geography.entities.has(entity) || geography.entities.set(entity, { name: entity, items: [], segments: /* @__PURE__ */ new Map() });
-      let group = geography.entities.get(entity);
-      group.items.push(row), group.segments.has(segment) || group.segments.set(segment, { name: segment, items: [] }), group.segments.get(segment).items.push(row);
+      let name = country(row);
+      geographies.has(name) || geographies.set(name, { name, items: [] }), geographies.get(name).items.push(row);
     }
-    return [...geographies.values()].map((row) => ({ ...row, entities: [...row.entities.values()].map((entity) => ({ ...entity, total: entity.items.length, segments: [...entity.segments.values()] })).sort(entityVolumeOrder) })).sort(geographyOrder);
+    return [...geographies.values()].map((group) => ({ ...group, items: group.items.sort(publicationOrder) })).sort(geographyOrder);
   }
   function noveltyCount(count, singular, plural, translate = (value) => value) {
     return count + " " + translate(count === 1 ? singular : plural);
@@ -2849,7 +2858,7 @@
     function paint2() {
       let group = groups.find((row) => row.name === active), stats = group || briefing2;
       tabs.render(groups, active), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: briefing2.total }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" ${row.total ? "" : "disabled"} data-signal="${escape2(row.name)}"><strong>${row.total}</strong><span>${escape2(t(row.name === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : row.name))}</span></button>`).join("");
-      let rows = group?.entities.flatMap((entity) => entity.items) || [];
+      let rows = group?.items || [];
       $("briefing-list").innerHTML = rows.map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join("") || '<div class="panel empty"><h3>' + t("No hay novedades de producto en esta selecci\xF3n.") + "</h3></div>", $("briefing-limit").hidden = !group || stats.total <= group.items.length, $("briefing-explore").hidden = $("briefing-limit").hidden;
     }
     return $("briefing-explore-news").addEventListener("click", () => onExplore({ ...selection, country: active, newsGeography: active, page: 0 })), $("briefing-signals").addEventListener("click", (event) => {
@@ -2868,14 +2877,14 @@
     let width = Math.max(320, Math.min(900, availableWidth || 900)), height = 260, left = 38, right = 20, top = 24, bottom = 42, max = Math.max(1, ...series.flatMap((row) => row.values)), ceiling = Math.max(4, Math.ceil(max / 4) * 4), x = (index) => left + (buckets.length === 1 ? 0.5 : index / (buckets.length - 1)) * (width - left - right), y = (value) => height - bottom - value / ceiling * (height - top - bottom), ticks = Array.from({ length: 5 }, (_, i) => {
       let value = ceiling * i / 4;
       return `<line x1="${left}" x2="${width - right}" y1="${y(value)}" y2="${y(value)}" class="chart-grid"/><text x="${left - 12}" y="${y(value) + 4}" text-anchor="end">${value}</text>`;
-    }).join(""), labels = [.../* @__PURE__ */ new Set([0, Math.floor((buckets.length - 1) / 2), buckets.length - 1])].map((i) => `<text x="${x(i)}" y="${height - 12}" text-anchor="${i === 0 ? "start" : i === buckets.length - 1 ? "end" : "middle"}">${formatTrendDay(buckets[i], language)}</text>`).join(""), lines = series.map((row, i) => {
+    }).join(""), labels2 = [.../* @__PURE__ */ new Set([0, Math.floor((buckets.length - 1) / 2), buckets.length - 1])].map((i) => `<text x="${x(i)}" y="${height - 12}" text-anchor="${i === 0 ? "start" : i === buckets.length - 1 ? "end" : "middle"}">${formatTrendDay(buckets[i], language)}</text>`).join(""), lines = series.map((row, i) => {
       let points = row.values.map((value, index) => [x(index), y(value)]), path = points.map(([px, py], index) => (index ? "L" : "M") + px.toFixed(1) + "," + py.toFixed(1)).join(" "), color = "var(--chart-series-" + (i + 1) + ")", area = series.length === 1 ? `<path d="${path} L${x(buckets.length - 1)},${y(0)} L${x(0)},${y(0)} Z" class="chart-area"/>` : "";
       return `<g data-series="${i}">` + area + `<path d="${path}" stroke="${color}" class="chart-line"></path>` + points.map(([px, py], j) => `<circle class="chart-point" data-point="${j}" aria-label="${escape2(row.entity)} \xB7 ${buckets[j]} \xB7 ${row.values[j]} publicaciones" cx="${px}" cy="${py}" r="4" fill="${color}"></circle>`).join("") + "</g>";
     }).join(""), bands = buckets.map((day2, index) => {
       let start = index ? (x(index - 1) + x(index)) / 2 : left, end = index < buckets.length - 1 ? (x(index) + x(index + 1)) / 2 : width - right, label = day2 + " \xB7 " + series.map((row) => row.entity + ": " + row.values[index] + " publicaciones").join(" \xB7 ");
       return `<rect class="chart-band" data-bucket="${index}" tabindex="0" aria-label="${escape2(label)}" x="${start}" y="${top}" width="${end - start}" height="${height - top - bottom}"/>`;
     }).join(""), legend = series.map((row, i) => `<span><i style="background:var(--chart-series-${i + 1})"></i>${escape2(row.entity)}<strong>${row.total}</strong></span>`).join("");
-    return `<svg viewBox="0 0 ${width} ${height}" role="group" aria-label="Evoluci\xF3n del n\xFAmero de publicaciones por entidad">${ticks}${labels}${bands}${lines}</svg><div class="chart-legend">${legend}</div>`;
+    return `<svg viewBox="0 0 ${width} ${height}" role="group" aria-label="Evoluci\xF3n del n\xFAmero de publicaciones por entidad">${ticks}${labels2}${bands}${lines}</svg><div class="chart-legend">${legend}</div>`;
   }
 
   // src/client/features/radar.js
@@ -2976,37 +2985,30 @@
     return `<div class="activity-chart" role="img" aria-label="Usuarios activos por d\xEDa">${days.map((day2) => `<div class="activity-column" title="${escape2(day2.date)}: ${day2.users} usuarios"><span>${day2.users}</span><div class="activity-bar" style="--bar-height:calc(var(--activity-chart-height) * ${day2.users / maximum})"></div><span>${escape2(day2.date.slice(5))}</span></div>`).join("")}</div>`;
   }
 
-  // src/shared/newsletter-cadences.js
-  var newsletterCadences = Object.freeze({ fortnightly: { label: "Quincenal", view: "briefing", scope: "Novedades", weekday: 1 }, quarterly: { label: "Trimestral", view: "news", scope: "Noticias", weekday: 3 } }), newsletterComparisonLabels = Object.freeze({ local: "Tu geograf\xEDa", group: "El grupo en otras geograf\xEDas", market: "El mercado internacional" });
-
   // src/client/features/metrics.js
-  var filters2 = {}, requests2 = {}, insightRequest = 0;
-  async function loadInsights(isCurrent) {
-    let request3 = ++insightRequest, insights = await call("getNewsletterInsights", { adoption: filters2["newsletter-adoption"].query() });
-    !isCurrent() || request3 !== insightRequest || (filters2["newsletter-adoption"].page(insights.adoption), $("newsletter-adoption-body").innerHTML = insights.adoption.items.map((row) => "<tr>" + [row.edition, t(row.cadence), row.users, row.recipients, row.sessions, row.entries, row.destinations.join(" \xB7 ")].map((value) => "<td>" + escape2(value) + "</td>").join("") + "</tr>").join("") || '<tr><td colspan="7">' + t("Sin accesos atribuidos.") + "</td></tr>");
-  }
-  async function loadMetrics(view, isCurrent) {
-    if (view === "feedback") return loadFeedback(isCurrent);
-    filters2[view] ||= createRecordFilters(view, view === "adoption" ? [["correo", "Usuario"], ["vista", "Vista"], ["evento", "Evento"]] : [["operacion", "Operaci\xF3n"], ["estado", "Estado"]], () => loadMetrics(view, isCurrent), { dates: !0 }), view === "adoption" && (filters2["newsletter-adoption"] ||= createRecordFilters("newsletter-adoption", [["edicion", "Edici\xF3n"], ["cadencia", "Periodicidad", Object.entries(newsletterCadences).map(([key, row]) => [key, row.label])]], () => loadInsights(isCurrent), { dates: !0 }));
-    let request3 = requests2[view] = (requests2[view] || 0) + 1;
+  var filters = {}, requests2 = {};
+  async function loadMetrics(view2, isCurrent) {
+    if (view2 === "feedback") return loadFeedback(isCurrent);
+    filters[view2] ||= createRecordFilters(view2, [["correo", "Usuario"], ["vista", "Vista"], ["evento", "Evento"]], () => loadMetrics(view2, isCurrent), { dates: !0 });
+    let request3 = requests2[view2] = (requests2[view2] || 0) + 1;
     try {
-      let [data] = await Promise.all([call(view === "adoption" ? "getAdoption" : "getTelemetry", filters2[view].query()), view === "adoption" ? loadInsights(isCurrent) : null]);
-      if (!isCurrent() || requests2[view] !== request3) return;
-      filters2[view].options(data.options), filters2[view].page(data), view === "adoption" ? ($("adoption-metrics").innerHTML = metricCards([["DAU", data.dau, "Usuarios \xB7 24 horas"], ["WAU", data.wau, "Usuarios \xB7 7 d\xEDas"], ["MAU", data.mau, "Usuarios \xB7 30 d\xEDas"], ["Recurrentes", data.returning, "M\xE1s de una sesi\xF3n \xB7 30 d\xEDas"]]), $("adoption-note").textContent = t("{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.", data) + " " + (data.limited ? "L\xEDmite de eventos alcanzado; m\xE9tricas parciales." : ""), $("adoption-body").innerHTML = data.users.map((u) => `<tr><td>${escape2(u.correo)}</td><td>${escape2(date(u.first))}</td><td>${escape2(date(u.last))}</td><td>${u.sessions}</td><td>${u.actions}</td></tr>`).join("") || '<tr><td colspan="5">Sin actividad registrada.</td></tr>', $("adoption-daily").innerHTML = data.daily.map((d) => `<tr><td>${escape2(d.date)}</td><td>${d.users}</td><td>${d.sessions}</td></tr>`).join("") || '<tr><td colspan="3">Sin actividad diaria registrada.</td></tr>', $("adoption-chart").innerHTML = activityChart(data.daily)) : ($("telemetry-note").textContent = data.total + " coincidencias en las \xFAltimas " + data.limit + " operaciones disponibles." + (data.limited ? " Hist\xF3rico limitado." : ""), $("telemetry-metrics").innerHTML = metricCards([["Latencia p95", data.latencyP95 == null ? "\u2014" : data.latencyP95 + " ms", "Cargas \xB7 30 d\xEDas, todos los usuarios"], ["Errores cliente", data.clientErrors, "Eventos \xB7 30 d\xEDas, todos los usuarios"], ["Fuentes consultadas", data.collection.processed, "Recopilaci\xF3n actual"], ["Pendientes", data.collection.pending, "Fuentes por consultar"]]), $("telemetry-body").innerHTML = data.rows.map((r) => `<tr><td>${escape2(date(r.fecha))}</td><td>${escape2(displayRecord(r.operacion, language))}</td><td>${escape2(r.duracion_ms)} ms</td><td>${escape2(r.estado)}</td><td>${escape2(r.detalle)}</td></tr>`).join("") || '<tr><td colspan="5">Sin telemetr\xEDa de operaci\xF3n.</td></tr>');
+      let data = await call("getAdoption", filters[view2].query());
+      if (!isCurrent() || requests2[view2] !== request3) return;
+      filters[view2].options(data.options), view2 === "adoption" && ($("adoption-metrics").innerHTML = metricCards([["DAU", data.dau, "Usuarios \xB7 24 horas"], ["WAU", data.wau, "Usuarios \xB7 7 d\xEDas"], ["MAU", data.mau, "Usuarios \xB7 30 d\xEDas"], ["Recurrentes", data.returning, "M\xE1s de una sesi\xF3n \xB7 30 d\xEDas"]]), $("adoption-note").textContent = t("{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.", data) + " " + (data.limited ? "L\xEDmite de eventos alcanzado; m\xE9tricas parciales." : ""), $("adoption-chart").innerHTML = activityChart(data.daily));
     } catch (e) {
-      requests2[view] === request3 && isCurrent() && message(e.message, !0);
+      requests2[view2] === request3 && isCurrent() && message(e.message, !0);
     }
   }
   function feedbackCards(data) {
     return metricCards([["Total", data.total, ""], ["\u{1F44D} \xDAtil", data.positive, ""], ["\u{1F44E} Mejorable", data.negative, ""], ["% \xFAtil", data.positiveRate + "%", ""], ["Pendientes", data.pending, ""], ["Atendidos", data.resolved, ""]].map((row) => [t(row[0]), row[1], row[2]]));
   }
   async function loadFeedback(isCurrent) {
-    filters2.feedback ||= createRecordFilters("feedback", [["valoracion", "Valoraci\xF3n", [["positive", "\u{1F44D} \xDAtil"], ["negative", "\u{1F44E} Mejorable"]]], ["estado", "Estado", [["pendiente", "pendiente"], ["atendido", "atendido"]]], ["edicion", "Edici\xF3n"], ["correo", "Correo"]], () => loadFeedback(isCurrent), { dates: !0 });
+    filters.feedback ||= createRecordFilters("feedback", [["valoracion", "Valoraci\xF3n", [["positive", "\u{1F44D} \xDAtil"], ["negative", "\u{1F44E} Mejorable"]]], ["estado", "Estado", [["pendiente", "pendiente"], ["atendido", "atendido"]]], ["edicion", "Edici\xF3n"], ["correo", "Correo"]], () => loadFeedback(isCurrent), { dates: !0 });
     let request3 = requests2.feedback = (requests2.feedback || 0) + 1;
     try {
-      let data = await call("getAdminFeedback", filters2.feedback.query());
+      let data = await call("getAdminFeedback", filters.feedback.query());
       if (!isCurrent() || requests2.feedback !== request3) return;
-      filters2.feedback.options({ ...data.options, valoracion: [["positive", "\u{1F44D} \xDAtil"], ["negative", "\u{1F44E} Mejorable"]] }), filters2.feedback.page(data), $("feedback-global").innerHTML = feedbackCards(data.global), $("feedback-metrics").innerHTML = feedbackCards(data.filtered), $("feedback-body").innerHTML = data.items.map((row) => "<tr>" + [date(row.fecha), row.correo, row.nombre_edicion + " \xB7 " + row.edicion, row.fecha_envio ? date(row.fecha_envio) : "\u2014", t(row.cadencia), row.pais || "\u2014", row.idioma, row.valoracion === "positive" ? t("\u{1F44D} \xDAtil") : row.valoracion === "negative" ? t("\u{1F44E} Mejorable") : "\u2014", row.comentario].map((value) => "<td data-original>" + escape2(value) + "</td>").join("") + '<td><select data-feedback="' + escape2(row.id) + '" aria-label="' + escape2(t("Estado")) + '">' + ["pendiente", "atendido"].map((state2) => '<option value="' + state2 + '" ' + (row.estado === state2 ? "selected" : "") + ">" + escape2(t(state2)) + "</option>").join("") + "</select></td></tr>").join("") || '<tr><td colspan="10">' + t("Sin valoraciones.") + "</td></tr>", $("feedback-interactions").innerHTML = data.interactions.map((row) => "<tr>" + [row.edicion, row.accesses, row.reads, row.exports].map((value) => "<td data-original>" + escape2(value) + "</td>").join("") + "</tr>").join("") || '<tr><td colspan="4">' + t("Sin accesos atribuidos.") + "</td></tr>";
+      filters.feedback.options({ ...data.options, valoracion: [["positive", "\u{1F44D} \xDAtil"], ["negative", "\u{1F44E} Mejorable"]] }), filters.feedback.page(data), $("feedback-metrics").innerHTML = feedbackCards(data.filtered), $("feedback-body").innerHTML = data.items.map((row) => "<tr>" + [date(row.fecha), row.correo, row.nombre_edicion + " \xB7 " + row.edicion, row.fecha_envio ? date(row.fecha_envio) : "\u2014", t(row.cadencia), row.pais || "\u2014", row.idioma, row.valoracion === "positive" ? t("\u{1F44D} \xDAtil") : row.valoracion === "negative" ? t("\u{1F44E} Mejorable") : "\u2014", row.comentario].map((value, index) => "<td data-original>" + (index === 2 && row.edicion ? '<button class="text-button" data-open-edition="' + escape2(row.edicion) + '">' + escape2(value) + '</button><details data-newsletter-summary="' + escape2(row.edicion) + '"><summary>' + escape2(t("Resumen enviado")) + "</summary><div data-summary-content></div></details>" : escape2(value)) + "</td>").join("") + '<td><select data-feedback="' + escape2(row.id) + '" aria-label="' + escape2(t("Estado")) + '">' + ["pendiente", "atendido"].map((state2) => '<option value="' + state2 + '" ' + (row.estado === state2 ? "selected" : "") + ">" + escape2(t(state2)) + "</option>").join("") + "</select></td></tr>").join("") || '<tr><td colspan="10">' + t("Sin valoraciones.") + "</td></tr>";
     } catch (error) {
       isCurrent() && requests2.feedback === request3 && message(error.message, !0);
     }
@@ -3028,7 +3030,7 @@
     let button = $("feedback-export");
     button.disabled = !0;
     try {
-      let data = await call("exportNewsletterFeedback", filters2.feedback?.query() || {}), url = URL.createObjectURL(new Blob([data.csv], { type: "text/csv;charset=utf-8" })), link = document.createElement("a");
+      let data = await call("exportNewsletterFeedback", filters.feedback?.query() || {}), url = URL.createObjectURL(new Blob([data.csv], { type: "text/csv;charset=utf-8" })), link = document.createElement("a");
       link.href = url, link.download = "newsletter-feedback.csv", link.click(), setTimeout(() => URL.revokeObjectURL(url), 1e3);
     } catch (error) {
       message(error.message, !0);
@@ -3036,20 +3038,38 @@
       button.disabled = !1;
     }
   });
+  attachNewsletterSummaries($("feedback-body"));
 
   // src/client/features/audit.js
-  var filters3, request2 = 0;
+  var labels = { inicio: "Inicio", fin: "Fin", estado: "Estado", evaluadas: "Evaluadas", nuevas: "Nuevas", errores: "Errores", fecha: "Fecha", correo: "Correo", noticias: "Noticias incluidas", detalle: "Detalle", edition: "Edici\xF3n", usuarios: "Usuarios", sesiones: "Sesiones", eventos: "Eventos", edicion: "Edici\xF3n", cadencia: "Periodicidad", sesion: "Sesi\xF3n", destino: "Destino", accesos: "Accesos", lecturas: "Lecturas", exportaciones: "Exportaciones", operacion: "Operaci\xF3n", duracion_ms: "Duraci\xF3n", fuente: "Fuente", resultado: "Resultado", motivo: "Motivo", url: "Enlace", id: "Recarga", suscripcion: "Suscripci\xF3n", vista: "Vista", evento: "Evento", ejecucion: "Ejecuci\xF3n" }, filters2, view = "", request2 = 0;
   async function loadAudit() {
-    filters3 ||= createRecordFilters("audit", [["fuente", "Fuente"], ["resultado", "Resultado"], ["ejecucion", "Ejecuci\xF3n"]], loadAudit, { dates: !0, placeholder: "Motivo, fuente o URL" });
-    let current = ++request2;
+    let selected = $("logs-view").value, current = ++request2;
     try {
-      let data = await call("getAudit", filters3.query());
+      view !== selected && (view = selected, filters2?.destroy(), filters2 = null);
+      let data = await call("getAdminLogs", selected, filters2?.query() || {});
       if (current !== request2) return;
-      filters3.options(data.options), filters3.page(data), $("audit-note").textContent = data.total + " coincidencias en las \xFAltimas " + data.limit + " entradas disponibles." + (data.limited ? " Hist\xF3rico limitado; consulta Sheets para registros anteriores." : ""), $("audit-body").innerHTML = data.items.map((row) => `<tr><td>${escape2(date(row.fecha))}</td><td>${escape2(row.fuente)}</td><td>${escape2(row.resultado)}</td><td>${escape2(row.motivo)} ${validUrl(row.url) ? `<a href="${escape2(row.url)}" target="_blank" rel="noopener noreferrer">Fuente \u2197</a>` : ""}</td></tr>`).join("") || '<tr><td colspan="4">Sin entradas con estos filtros.</td></tr>';
+      filters2 ||= createRecordFilters("logs", data.fields.map((key) => [key, labels[key] || key]), loadAudit, { dates: !0 }), filters2.options(data.options), filters2.page(data), $("logs-metrics").innerHTML = metricCards((data.metrics.cards || [["Resultados", data.metrics.total, ""], ["Por revisar", data.metrics.errors, ""]]).map(([label, value, note]) => [t(label), value, note])), $("logs-note").textContent = data.limited ? t("Hist\xF3rico limitado.") + " " + data.limit : "", $("logs-head").innerHTML = "<tr>" + data.columns.map((key) => "<th>" + escape2(t(labels[key] || key)) + "</th>").join("") + "</tr>", $("logs-body").innerHTML = data.items.map((row) => "<tr>" + data.columns.map((key) => {
+        let value = row[key] ?? "\u2014", html = escape2(value);
+        return ["fecha", "inicio", "fin"].includes(key) && (html = escape2(date(value))), ["edition", "edicion"].includes(key) && value && value !== "\u2014" && (html = '<button class="text-button" data-open-edition="' + escape2(value) + '">' + escape2(value) + '</button><details data-newsletter-summary="' + escape2(value) + '"><summary>' + t("Resumen enviado") + "</summary><div data-summary-content></div></details>"), key === "url" && validUrl(value) && (html = '<a href="' + escape2(value) + '" target="_blank" rel="noopener noreferrer">' + t("Fuente") + " \u2197</a>"), '<td data-label="' + escape2(t(labels[key] || key)) + '" data-original>' + html + "</td>";
+      }).join("") + "</tr>").join("") || '<tr><td colspan="' + data.columns.length + '">' + t("Sin entradas con estos filtros.") + "</td></tr>";
     } catch (error) {
       current === request2 && message(error.message, !0);
     }
   }
+  $("logs-view").addEventListener("change", loadAudit);
+  attachNewsletterSummaries($("logs-body"));
+  $("logs-export").addEventListener("click", async () => {
+    let button = $("logs-export");
+    button.disabled = !0;
+    try {
+      let result = await call("exportAdminLogs", view || "runs", filters2?.query() || {}), url = URL.createObjectURL(new Blob([result.csv], { type: "text/csv;charset=utf-8" })), link = document.createElement("a");
+      link.href = url, link.download = "logs-" + view + ".csv", link.click(), setTimeout(() => URL.revokeObjectURL(url), 1e3);
+    } catch (error) {
+      message(error.message, !0);
+    } finally {
+      button.disabled = !1;
+    }
+  });
 
   // src/client/features/admin-tables.js
   function enhanceAdminTables(content) {
@@ -3082,22 +3102,22 @@
   }
 
   // src/client/features/administration.js
-  function createAdministration({ isAdmin, track: track2, onConfiguration, onSubscribers, onLanguage, onLeaveLanguage, onRuns, onLeaveRuns, onLeaveSubscribers, onTaxonomy, onLeaveTaxonomy, onLlm, onLeaveLlm }) {
+  function createAdministration({ isAdmin, track: track2, onConfiguration, onSubscribers, onRuns, onLeaveRuns, onLeaveSubscribers, onTaxonomy, onLeaveTaxonomy, onLlm, onLeaveLlm }) {
     let content = document.querySelector("#administration-section .admin-content");
     enhanceAdminTables(content);
     let current = Object.keys(config_default.adminViews)[0];
-    async function open(view = Object.keys(config_default.adminViews)[0]) {
-      if (!(!isAdmin() || !(view in config_default.adminViews))) {
-        current === "language" && view !== current && onLeaveLanguage(), current === "runs" && view !== current && onLeaveRuns(), current === "subscribers" && view !== current && onLeaveSubscribers(), current === "taxonomy" && view !== current && onLeaveTaxonomy(), current === "llm" && view !== current && onLeaveLlm(), current = view, track2("vista");
-        for (let name of Object.keys(config_default.adminViews)) $(name + "-section").hidden = name !== view;
+    async function open(view2 = Object.keys(config_default.adminViews)[0]) {
+      if (!(!isAdmin() || !(view2 in config_default.adminViews))) {
+        current === "runs" && view2 !== current && onLeaveRuns(), current === "subscribers" && view2 !== current && onLeaveSubscribers(), current === "taxonomy" && view2 !== current && onLeaveTaxonomy(), current === "llm" && view2 !== current && onLeaveLlm(), current = view2, track2("vista");
+        for (let name of Object.keys(config_default.adminViews)) $(name + "-section").hidden = name !== view2;
         if ($("admin-tabs").querySelectorAll("[data-admin-view]").forEach((button) => {
-          button.setAttribute("aria-selected", String(button.dataset.adminView === view)), button.tabIndex = button.dataset.adminView === view ? 0 : -1, button.dataset.adminView === view && button.scrollIntoView?.({ block: "nearest", inline: "nearest" });
-        }), view === "subscribers" && await onSubscribers(), view === "configuration") try {
+          button.setAttribute("aria-selected", String(button.dataset.adminView === view2)), button.tabIndex = button.dataset.adminView === view2 ? 0 : -1, button.dataset.adminView === view2 && button.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+        }), view2 === "subscribers" && await onSubscribers(), view2 === "configuration") try {
           await onConfiguration();
         } catch (error) {
           message(error.message || String(error), !0);
         }
-        view === "llm" && await onLlm(), view === "taxonomy" && await onTaxonomy(), view === "language" && await onLanguage(), view === "runs" && await onRuns(), view === "audit" && await loadAudit(), (view === "telemetry" || view === "adoption" || view === "feedback") && await loadMetrics(view, () => current === view && !$("administration-section").hidden);
+        view2 === "llm" && await onLlm(), view2 === "taxonomy" && await onTaxonomy(), view2 === "runs" && await onRuns(), view2 === "audit" && await loadAudit(), (view2 === "adoption" || view2 === "feedback") && await loadMetrics(view2, () => current === view2 && !$("administration-section").hidden);
       }
     }
     return $("admin-tabs").addEventListener("click", (event) => {
@@ -3113,6 +3133,9 @@
       return current;
     } };
   }
+
+  // src/shared/newsletter-cadences.js
+  var newsletterCadences = Object.freeze({ fortnightly: { label: "Quincenal", view: "briefing", scope: "Novedades", weekday: 1 }, quarterly: { label: "Trimestral", view: "news", scope: "Noticias", weekday: 3 } }), newsletterComparisonLabels = Object.freeze({ local: "Tu geograf\xEDa", group: "El grupo en otras geograf\xEDas", market: "El mercado internacional" });
 
   // src/client/features/taxonomy-controls.js
   function syncTaxonomyControls(form, paths, changed) {
@@ -3131,24 +3154,24 @@
 
   // src/client/features/filters.js
   function createFilters({ onInvalidate, onChange }) {
-    let form = $("filters"), page = 0, view = defaultView, defaults = {}, edition = "", newsGeography = "", editionSelection = {}, taxonomy2 = [], applied = {}, dirty = !1, selections = /* @__PURE__ */ new Map(), initialized = /* @__PURE__ */ new Set();
+    let form = $("filters"), page = 0, view2 = defaultView, defaults = {}, edition = "", newsGeography = "", editionSelection = {}, taxonomy2 = [], applied = {}, dirty = !1, selections = /* @__PURE__ */ new Map(), initialized = /* @__PURE__ */ new Set();
     function options(name, values, selected) {
       let el = form.elements[name];
       if (!el) return;
-      name === "country" && view === "news" && (values = [.../* @__PURE__ */ new Set([...values, otherGeography])]);
+      name === "country" && view2 === "news" && (values = [.../* @__PURE__ */ new Set([...values, otherGeography])]);
       let current2 = selected ?? el.value;
-      name === "signal" && view === "briefing" && (values = values.filter((value) => BRIEFING_ALLOWED_SIGNALS.includes(value)), values.includes(current2) || (current2 = "")), name !== "year" && !(name === "signal" && view === "briefing") && current2 && !values.includes(current2) && (values = [...values, current2]);
+      name === "signal" && view2 === "briefing" && (values = values.filter((value) => BRIEFING_ALLOWED_SIGNALS.includes(value)), values.includes(current2) || (current2 = "")), name !== "year" && !(name === "signal" && view2 === "briefing") && current2 && !values.includes(current2) && (values = [...values, current2]);
       let signature = JSON.stringify(values);
       el.dataset.options !== signature && (el.dataset.options = signature, el.innerHTML = (name === "year" ? "" : '<option value="">Todos</option>') + values.map((x) => '<option value="' + escape2(x) + '">' + escape2(["palanca", "subpalanca"].includes(name) ? taxonomyDisplayLabel(x) : name === "coverage" ? coverageOptions[x] : name === "signal" && x === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : x) + "</option>").join(""), el.value = current2 || "");
     }
     function layout() {
       $("geography-filter").hidden = !1;
-      let radar2 = view === "radar";
+      let radar2 = view2 === "radar";
       $("entity-filter").hidden = !1, $("year-filter").hidden = !radar2, $("advanced-filters").hidden = !1;
       for (let name of ["search", "type", "signal", "source"]) $(name + "-filter").hidden = radar2;
-      view !== "news" && ($("advanced-filters").open = !1);
-      for (let id of ["from-filter", "to-filter"]) $(id).hidden = view === "radar";
-      $("date-guidance").hidden = view === "radar", $("filter-description").textContent = "Edita los criterios y pulsa Aplicar filtros para actualizar los resultados.";
+      view2 !== "news" && ($("advanced-filters").open = !1);
+      for (let id of ["from-filter", "to-filter"]) $(id).hidden = view2 === "radar";
+      $("date-guidance").hidden = view2 === "radar", $("filter-description").textContent = "Edita los criterios y pulsa Aplicar filtros para actualizar los resultados.";
     }
     layout();
     let chipLabels = { benchmark: "\xC1mbito comparativo", search: "B\xFAsqueda", country: "Geograf\xEDa", entity: "Entidad", source: "Medio", type: "Tipo de entidad", signal: "Se\xF1al de negocio", palanca: "Bloque funcional", subpalanca: "Funcionalidad / Sub Operativa", from: "Fecha desde", to: "Fecha hasta" };
@@ -3156,7 +3179,7 @@
       let target = $("active-filters"), values = Object.entries(chipLabels).filter(([name]) => applied[name]);
       target.hidden = !values.length, target.innerHTML = values.map(([name, label]) => {
         let raw = applied[name], value = name === "benchmark" ? raw === "international" ? "Mirada internacional" : newsletterComparisonLabels[raw] : name === "coverage" ? coverageOptions[raw] : ["from", "to"].includes(name) ? formatCalendarDay(raw, language) : name === "subpalanca" ? taxonomySubLabel(raw) : name === "signal" && raw === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : raw, original = ["search", "entity", "source"].includes(name), text = ["palanca", "subpalanca"].includes(name) ? t(value) : t(label) + ": " + (original ? value : t(value));
-        return view === "briefing" || view === "radar" && ["from", "to"].includes(name) ? '<span class="filter-chip" data-original>' + escape2(text) + "</span>" : ["from", "to"].includes(name) ? '<button type="button" class="filter-chip" data-original data-edit-filter="' + name + '" aria-label="' + escape2(t("Editar") + " " + text) + '"><span>' + escape2(text) + "</span></button>" : '<button type="button" class="filter-chip" data-original data-remove-filter="' + name + '" aria-label="' + escape2(t("Quitar")) + " " + escape2(text) + '"><span>' + escape2(text) + '</span><span aria-hidden="true">\xD7</span></button>';
+        return view2 === "briefing" || view2 === "radar" && ["from", "to"].includes(name) ? '<span class="filter-chip" data-original>' + escape2(text) + "</span>" : ["from", "to"].includes(name) ? '<button type="button" class="filter-chip" data-original data-edit-filter="' + name + '" aria-label="' + escape2(t("Editar") + " " + text) + '"><span>' + escape2(text) + "</span></button>" : '<button type="button" class="filter-chip" data-original data-remove-filter="' + name + '" aria-label="' + escape2(t("Quitar")) + " " + escape2(text) + '"><span>' + escape2(text) + '</span><span aria-hidden="true">\xD7</span></button>';
       }).join("");
     }
     $("active-filters").addEventListener("click", (event) => {
@@ -3187,7 +3210,7 @@
       syncTaxonomyControls(form, taxonomy2, event.target?.name);
       let next = Object.fromEntries(new FormData(form));
       if (event.type === "submit" && JSON.stringify(Object.entries(next).sort()) === JSON.stringify(Object.entries(applied).filter(([key]) => form.elements[key]).sort())) return;
-      clearTimeout(timer), page = 0, initialized.add(view), onInvalidate();
+      clearTimeout(timer), page = 0, initialized.add(view2), onInvalidate();
       let from = form.elements.from.value, to = form.elements.to.value;
       form.elements.to.setCustomValidity(from && to && from > to ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : ""), $("message").hidden = !0, dirty = !1, applied = { ...edition && applied.benchmark ? { benchmark: applied.benchmark } : {}, ...Object.fromEntries(new FormData(form)) }, renderChips(), event.notify !== !1 && (event.type === "input" ? timer = setTimeout(onChange, 250) : onChange());
     }
@@ -3202,7 +3225,7 @@
         current();
         return;
       }
-      dirty = !1, initialized.delete(view), applied = {};
+      dirty = !1, initialized.delete(view2), applied = {};
       for (let input2 of form.elements) input2.name && (input2.value = "");
       page = 0, form.elements.to.setCustomValidity(""), onInvalidate(), onChange();
     }), form.addEventListener("reset", () => {
@@ -3232,22 +3255,22 @@
         editionSelection = selection, resetContext(id);
       },
       current,
-      query: () => ({ ...applied, page, view, language, ...edition && view === "news" ? { edition, ...initialized.has(view) ? {} : editionSelection } : {}, ...view === "news" && newsGeography ? { newsGeography } : {}, initial: !initialized.has(view) }),
+      query: () => ({ ...applied, page, view: view2, language, ...edition && view2 === "news" ? { edition, ...initialized.has(view2) ? {} : editionSelection } : {}, ...view2 === "news" && newsGeography ? { newsGeography } : {}, initial: !initialized.has(view2) }),
       show: (next) => {
-        if (next === view) return !1;
+        if (next === view2) return !1;
         clearTimeout(timer), onInvalidate();
         let selection = { ...applied };
-        selections.set(view, selection), view = next, page = 0, newsGeography = "", layout();
-        for (let input2 of form.elements) input2.name && (input2.value = (selections.get(view) || defaults)[input2.name] || "");
-        return dirty = !1, applied = { ...selections.get(view) || defaults }, form.elements.to.setCustomValidity(""), renderChips(), !0;
+        selections.set(view2, selection), view2 = next, page = 0, newsGeography = "", layout();
+        for (let input2 of form.elements) input2.name && (input2.value = (selections.get(view2) || defaults)[input2.name] || "");
+        return dirty = !1, applied = { ...selections.get(view2) || defaults }, form.elements.to.setCustomValidity(""), renderChips(), !0;
       },
       isValid: () => !applied.from || !applied.to || applied.from <= applied.to,
       set: (name, value) => {
         for (let input2 of form.elements) input2.name && (input2.value = applied[input2.name] || "");
-        initialized.add(view), form.elements[name].value = value, filterChanged({ type: "change" });
+        initialized.add(view2), form.elements[name].value = value, filterChanged({ type: "change" });
       },
       apply: (query, notify = !0) => {
-        initialized.add(view), Object.hasOwn(query, "newsGeography") && (newsGeography = query.newsGeography);
+        initialized.add(view2), Object.hasOwn(query, "newsGeography") && (newsGeography = query.newsGeography);
         for (let input2 of form.elements) if (input2.name) {
           let value = query[input2.name] || "";
           value && input2.tagName === "SELECT" && options(input2.name, [value]), input2.value = value;
@@ -3260,9 +3283,9 @@
       setPage: (value) => page = value,
       render: (data) => {
         let draft = dirty ? Object.fromEntries(new FormData(form)) : null;
-        view === "radar" && options("year", data.years || [], data.selection?.from?.slice(0, 4)), taxonomy2 = data.subpalanca || [], page = data.page, newsGeography = data.newsGeography || "", defaults = data.defaults || defaults, initialized.add(view);
+        view2 === "radar" && options("year", data.years || [], data.selection?.from?.slice(0, 4)), taxonomy2 = data.subpalanca || [], page = data.page, newsGeography = data.newsGeography || "", defaults = data.defaults || defaults, initialized.add(view2);
         for (let [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type", "types"], ["segment", "segments"], ["signal", "signals"], ["palanca", "palanca"], ["subpalanca", "subpalanca"]]) options(name, data[key] || [], data.selection?.[name]);
-        if (data.selection) for (let input2 of form.elements) input2.name && (input2.value = (input2.name === "year" && view === "radar" ? data.selection.from?.slice(0, 4) : data.selection[input2.name]) || "");
+        if (data.selection) for (let input2 of form.elements) input2.name && (input2.value = (input2.name === "year" && view2 === "radar" ? data.selection.from?.slice(0, 4) : data.selection[input2.name]) || "");
         if (syncTaxonomyControls(form, taxonomy2), applied = data.selection ? { ...data.selection } : Object.fromEntries(new FormData(form)), renderChips(), draft) {
           for (let input2 of form.elements) input2.name && (input2.value = draft[input2.name] || "");
           syncTaxonomyControls(form, taxonomy2);
@@ -3314,20 +3337,20 @@
   // src/client/features/source-catalog.js
   var sourceTypes = { profile: "Google News RSS", rss: "RSS del editor" };
   function createSourceCatalog() {
-    let groups = { all: [], profile: [], rss: [] }, byId = /* @__PURE__ */ new Map(), enabled = /* @__PURE__ */ new Set(), kind = "all", filters5 = createRecordFilters("source", [
+    let groups = { all: [], profile: [], rss: [] }, byId = /* @__PURE__ */ new Map(), enabled = /* @__PURE__ */ new Set(), kind = "all", filters4 = createRecordFilters("source", [
       ["entity", "Entidad"],
       ["country", "Geograf\xEDa"],
       ["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]
     ], render, { placeholder: "Entidad, geograf\xEDa o editor" });
     function render() {
-      let query = filters5.query(), rows = filterRecords(groups[kind], query, ["entity", "country", "enabled"], ["name", "entity", "country", "url"]), page = recordPage(rows, query, 10);
-      $("configured-sources-body").innerHTML = page.items.map((feed) => `<tr><td><input type="checkbox" class="source-enabled" data-id="${escape2(feed.id)}" aria-label="Activar ${escape2(feed.name)}" ${feed.enabled ? "checked" : ""}></td><td><span class="identity-label">${identityMark("entities", feed.entity, escape2)}${escape2(feed.name)}</span></td><td><span class="identity-label">${identityMark("countries", feed.country, escape2)}${escape2(feed.country)}</span></td><td>${sourceTypes[feed.kind]}</td><td><a href="${escape2(validUrl(feed.url))}" target="_blank" rel="noopener noreferrer">Abrir feed \u2197</a></td></tr>`).join("") || '<tr><td colspan="5">No hay fuentes con este criterio.</td></tr>', filters5.page(page), $("configured-source-count").textContent = groups.all.length + " fuentes configuradas \xB7 " + enabled.size + " activas";
+      let query = filters4.query(), rows = filterRecords(groups[kind], query, ["entity", "country", "enabled"], ["name", "entity", "country", "url"]), page = recordPage(rows, query, 10);
+      $("configured-sources-body").innerHTML = page.items.map((feed) => `<tr><td><input type="checkbox" class="source-enabled" data-id="${escape2(feed.id)}" aria-label="Activar ${escape2(feed.name)}" ${feed.enabled ? "checked" : ""}></td><td><span class="identity-label">${identityMark("entities", feed.entity, escape2)}${escape2(feed.name)}</span></td><td><span class="identity-label">${identityMark("countries", feed.country, escape2)}${escape2(feed.country)}</span></td><td>${sourceTypes[feed.kind]}</td><td><a href="${escape2(validUrl(feed.url))}" target="_blank" rel="noopener noreferrer">Abrir feed \u2197</a></td></tr>`).join("") || '<tr><td colspan="5">No hay fuentes con este criterio.</td></tr>', filters4.page(page), $("configured-source-count").textContent = groups.all.length + " fuentes configuradas \xB7 " + enabled.size + " activas";
     }
     function select(next) {
       !Object.hasOwn(groups, next) || next === kind || (kind = next, $("source-tabs").querySelectorAll("[data-source-kind]").forEach((button) => {
         let active = button.dataset.sourceKind === kind;
         button.setAttribute("aria-selected", String(active)), button.tabIndex = active ? 0 : -1;
-      }), $("source-panel").setAttribute("aria-labelledby", "source-tab-" + kind), $("source-rss-editor").hidden = kind !== "rss", filters5.reset(), filters5.options(recordOptions(groups[kind], ["entity", "country"])), render());
+      }), $("source-panel").setAttribute("aria-labelledby", "source-tab-" + kind), $("source-rss-editor").hidden = kind !== "rss", filters4.reset(), filters4.options(recordOptions(groups[kind], ["entity", "country"])), render());
     }
     return $("source-tabs").addEventListener("click", (event) => {
       let button = event.target.closest("[data-source-kind]");
@@ -3345,7 +3368,7 @@
         let feeds = rows.map((row) => ({ ...row }));
         groups = { all: feeds, profile: [], rss: [] };
         for (let feed of feeds) groups[feed.kind].push(feed);
-        byId = new Map(feeds.map((feed) => [feed.id, feed])), enabled = new Set(feeds.filter((feed) => feed.enabled).map((feed) => feed.id)), filters5.options(recordOptions(groups[kind], ["entity", "country"])), render();
+        byId = new Map(feeds.map((feed) => [feed.id, feed])), enabled = new Set(feeds.filter((feed) => feed.enabled).map((feed) => feed.id)), filters4.options(recordOptions(groups[kind], ["entity", "country"])), render();
       },
       selected: () => [...enabled]
     };
@@ -3400,15 +3423,15 @@
   // src/client/features/navigation.js
   function createNavigation({ isAdmin, track: track2, onAdministration, onSubscriptions, onSelection, onPanel }) {
     let current = defaultView, opened = !1;
-    async function show(view) {
-      if (!(!(view in config_default.views) || view === "administration" && !isAdmin()) && !(opened && view === current)) {
-        opened = !0, current = view, window.scrollTo({ top: 0, behavior: "auto" }), track2("vista");
-        for (let name of Object.keys(config_default.views)) $(name + "-section").hidden = name !== view;
-        onPanel(view), $("active-filters").hidden = !["news", "briefing", "radar"].includes(view), $("selection-freshness").hidden = !["news", "briefing", "radar"].includes(view), $("sidebar-context-title").textContent = view === "administration" ? "Gesti\xF3n de News Radar" : "Seguimiento personalizado", $("sidebar-context-copy").textContent = view === "administration" ? "Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicaci\xF3n." : "Mi Newsletter solo se personaliza por geograf\xEDa. La selecci\xF3n de noticias es independiente.", $("sidebar-context").hidden = !["administration", "subscriptions"].includes(view), $("export").hidden = view !== "news", $("page-title").textContent = config_default.views[view], document.querySelectorAll("[data-view]").forEach((button) => {
-          button.dataset.view === view ? button.setAttribute("aria-current", "page") : button.removeAttribute("aria-current");
+    async function show(view2) {
+      if (!(!(view2 in config_default.views) || view2 === "administration" && !isAdmin()) && !(opened && view2 === current)) {
+        opened = !0, current = view2, window.scrollTo({ top: 0, behavior: "auto" }), track2("vista");
+        for (let name of Object.keys(config_default.views)) $(name + "-section").hidden = name !== view2;
+        onPanel(view2), $("active-filters").hidden = !["news", "briefing", "radar"].includes(view2), $("selection-freshness").hidden = !["news", "briefing", "radar"].includes(view2), $("sidebar-context-title").textContent = view2 === "administration" ? "Gesti\xF3n de News Radar" : "Seguimiento personalizado", $("sidebar-context-copy").textContent = view2 === "administration" ? "Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicaci\xF3n." : "Mi Newsletter solo se personaliza por geograf\xEDa. La selecci\xF3n de noticias es independiente.", $("sidebar-context").hidden = !["administration", "subscriptions"].includes(view2), $("export").hidden = view2 !== "news", $("page-title").textContent = config_default.views[view2], document.querySelectorAll("[data-view]").forEach((button) => {
+          button.dataset.view === view2 ? button.setAttribute("aria-current", "page") : button.removeAttribute("aria-current");
         });
         try {
-          ["radar", "news", "briefing"].includes(view) && onSelection(view), view === "administration" && await onAdministration(), view === "subscriptions" && await onSubscriptions();
+          ["radar", "news", "briefing"].includes(view2) && onSelection(view2), view2 === "administration" && await onAdministration(), view2 === "subscriptions" && await onSubscriptions();
         } catch (error) {
           message(error.message || String(error), !0), track2("error");
         }
@@ -3509,41 +3532,41 @@
   initializeLocalization();
   var refreshSelects = initializeSearchableSelects();
   initializeDatePickers();
-  var state = { data: null, request: 0, busy: !1, contentStale: !1, attribution: "", view: null, ready: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data, getAttribution: () => state.attribution && state.data?.context?.id === state.attribution ? state.attribution : "" }), { track, flush } = usage, dashboards = /* @__PURE__ */ new Map(), selectionKey = (query) => JSON.stringify(Object.entries(query).filter(([, value]) => value !== "" && value != null).sort(([a], [b]) => a.localeCompare(b))), configuration = createConfiguration({ run: action }), taxonomy = createTaxonomy({ run: action, isActive: () => navigation.current === "administration" && administration.current === "taxonomy" }), llmCategorization = createLlmCategorization({ run: action, refreshSelects, isActive: () => navigation.current === "administration" && administration.current === "llm", onRevision: (revision) => {
+  var state = { data: null, request: 0, busy: !1, contentStale: !1, attribution: "", view: null, ready: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data, getAttribution: () => state.attribution && state.data?.context?.id === state.attribution ? state.attribution : "" }), { track, flush } = usage, dashboards = /* @__PURE__ */ new Map(), selectionKey = (query) => JSON.stringify(Object.entries(query).filter(([, value]) => value !== "" && value != null).sort(([a], [b]) => a.localeCompare(b))), configuration = createConfiguration({ run: action }), taxonomy = createTaxonomy({ run: action, isActive: () => navigation.current === "administration" && administration.current === "runs" }), llmCategorization = createLlmCategorization({ run: action, refreshSelects, isActive: () => navigation.current === "administration" && administration.current === "llm", onRevision: (revision) => {
     state.data && revision !== state.data.newsRevision && (state.contentStale = !0, dashboards.clear());
   } }), subscriptions = createSubscriptions({ run: action }), classification = createClassification({ run: action, isActive: () => navigation.current === "administration" && administration.current === "runs" }), maintenance = createJobMonitor({ id: "maintenance", get: "getMaintenanceStatus", isActive: () => navigation.current === "administration" && administration.current === "runs", render({ job }) {
     $("maintenance-progress").innerHTML = job ? jobProgressHtml(job, { total: job.total, done: job.reviewed, label: "Mantenimiento incremental", summary: job.reviewed + " revisados \xB7 " + job.corrected + " corregidos \xB7 " + job.consolidated + " consolidados \xB7 " + job.removed + " eliminados" }) : "<p>Sin mantenimiento pendiente.</p>";
-  } }), newsletterDelivery = createNewsletterDelivery({ run: action, isActive: () => navigation.current === "administration" && administration.current === "subscribers" }), languageSettings = createLanguageSettings({ run: action, isActive: () => navigation.current === "administration" && administration.current === "language" }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]), onLanguage: () => languageSettings.open(), onLeaveLanguage: () => languageSettings.close(), onRuns: async () => {
+  } }), newsletterDelivery = createNewsletterDelivery({ run: action, isActive: () => navigation.current === "administration" && administration.current === "runs" }), languageSettings = createLanguageSettings({ run: action, isActive: () => navigation.current === "administration" && administration.current === "runs" }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]), onRuns: async () => {
     let data = await loadRuns();
-    data && await Promise.all([classification.open(data.classification), maintenance.open()]);
+    data && await Promise.all([classification.open(data.classification), maintenance.open(), languageSettings.open(), taxonomy.openProgress(), newsletterDelivery.openProgress()]);
   }, onLeaveRuns: () => {
-    classification.close(), maintenance.close();
-  }, onLeaveSubscribers: () => newsletterDelivery.close(), onTaxonomy: () => taxonomy.open(), onLeaveTaxonomy: () => taxonomy.close(), onLlm: () => llmCategorization.open(), onLeaveLlm: () => llmCategorization.close() }), panel = createFilterPanel(), navigation = createNavigation({ onPanel: (view) => {
-    view !== "administration" && (llmCategorization.close(), classification.close(), maintenance.close(), newsletterDelivery.close()), ++state.request, panel.show(view), state.data && collectionProgress.update(state.data), refreshLoading();
-  }, onSelection: (view) => {
+    classification.close(), maintenance.close(), languageSettings.close(), taxonomy.close(), newsletterDelivery.close();
+  }, onLeaveSubscribers: () => newsletterDelivery.close(), onTaxonomy: () => taxonomy.open(), onLeaveTaxonomy: () => taxonomy.close(), onLlm: () => llmCategorization.open(), onLeaveLlm: () => llmCategorization.close() }), panel = createFilterPanel(), navigation = createNavigation({ onPanel: (view2) => {
+    view2 !== "administration" && (llmCategorization.close(), classification.close(), maintenance.close(), newsletterDelivery.close(), languageSettings.close(), taxonomy.close()), ++state.request, panel.show(view2), state.data && collectionProgress.update(state.data), refreshLoading();
+  }, onSelection: (view2) => {
     taxonomy.close();
-    let changed = filters4.show(view);
-    state.ready && (changed || state.contentStale || state.view !== view) && load(!0);
-  }, onSubscriptions: () => (taxonomy.close(), subscriptions.open()), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters4 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
+    let changed = filters3.show(view2);
+    state.ready && (changed || state.contentStale || state.view !== view2) && load(!0);
+  }, onSubscriptions: () => (taxonomy.close(), subscriptions.open()), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters3 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
-  } }), reading = createReadingContext({ run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing({ onExplore: (query) => navigateSelection("news", query) }), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters4.setGeography(name));
-  function navigateSelection(view, query) {
-    filters4.show(view), filters4.apply(query, !1), state.contentStale = !0, track("filtro"), navigation.show(view);
+  } }), reading = createReadingContext({ run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing({ onExplore: (query) => navigateSelection("news", query) }), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters3.setGeography(name));
+  function navigateSelection(view2, query) {
+    filters3.show(view2), filters3.apply(query, !1), state.contentStale = !0, track("filtro"), navigation.show(view2);
   }
   var radar = createRadar({ onOutage: (query) => navigateSelection("news", { ...state.data.selection, ...query, page: 0 }), onSource: (source) => navigateSelection("news", { ...state.data.selection, source }), onCountry: (country) => navigateSelection("news", { ...state.data.selection, country }), onEntity: (entity) => navigateSelection("news", { ...state.data.selection, entity }) }), sources = createSources({ getData: () => state.data, run: action }), recoveryControls = createRecoveryControls({ getData: () => state.data, run: action }), collectionProgress = createCollectionProgress({ isActive: () => navigation.current === "administration", isBusy: () => state.busy || !$("loading").hidden, onStatus: (status) => {
     state.data && (state.data.collection = status), state.data?.admin && renderCollectionJobs(status);
   } });
-  function renderSelection(data, view = navigation.current, appended = null) {
-    reading.render(data, view), view === "news" && (renderNews(data, appended), newsTabs.render(data.newsGeographies || [], data.newsGeography || "")), view === "radar" && (radar.render(data), heatmap.render(data)), view === "briefing" && briefing.render(data);
+  function renderSelection(data, view2 = navigation.current, appended = null) {
+    reading.render(data, view2), view2 === "news" && (renderNews(data, appended), newsTabs.render(data.newsGeographies || [], data.newsGeography || "")), view2 === "radar" && (radar.render(data), heatmap.render(data)), view2 === "briefing" && briefing.render(data);
   }
   function renderApplicationShell(data) {
     data.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), setTimezone(data.preferences?.timezone), window.RADAR_PREVIEW && data.admin && ($("preview-banner").textContent = "Administraci\xF3n local \xB7 cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales."), data.preferences && (document.querySelector(".app-footer").hidden = !1, $("retention-days").textContent = data.preferences.retentionDays, $("event-limit").textContent = data.preferences.eventLimit), renderShell(data), data.admin && sources.render(data), collectionProgress.update(data), refreshSelects(), flushLocalization();
   }
   async function load(reuse = !1) {
     let request3 = ++state.request, started = performance.now();
-    if (filters4.isValid())
+    if (filters3.isValid())
       try {
-        let administrative = navigation.current === "administration", query = administrative ? { view: administration.current, language: filters4.query().language } : filters4.query();
+        let administrative = navigation.current === "administration", query = administrative ? { view: administration.current, language: filters3.query().language } : filters3.query();
         administrative || (renderFreshness(query.initial ? {} : query, state.data?.lastRun), query.initial && ($("active-filters").hidden = !0)), query.view === "news" && !query.edition && !query.newsGeography && (query.newsGeography = browserCountry());
         let key = selectionKey(query), cached = reuse && !administrative && !state.contentStale && dashboards.get(key), clientCacheHit = !!(cached && performance.now() - cached.time < navigationCache.milliseconds), data = clientCacheHit ? { ...cached.data, collection: state.data.collection, lastRun: state.data.lastRun, daily: state.data.daily } : await call("getDashboard", query), appended = null;
         if (request3 !== state.request) return;
@@ -3552,8 +3575,8 @@
           !administrative && !clientCacheHit && state.data && (data.newsRevision !== state.data.newsRevision || data.configurationRevision !== state.data.configurationRevision) && dashboards.clear(), administrative && state.data ? data = { ...state.data, ...data, selection: state.data.selection, context: state.data.context } : state.contentStale = !1, state.data = data, state.view = query.view;
           let renderStarted = performance.now();
           if (!administrative) {
-            filters4.render(data);
-            let key2 = selectionKey({ ...filters4.query(), ...query.newsGeography ? {} : { newsGeography: "" } });
+            filters3.render(data);
+            let key2 = selectionKey({ ...filters3.query(), ...query.newsGeography ? {} : { newsGeography: "" } });
             dashboards.delete(key2), data.newsRevision && data.configurationRevision && dashboards.set(key2, { data, time: clientCacheHit ? cached.time : performance.now() }), dashboards.size > navigationCache.entries && dashboards.delete(dashboards.keys().next().value);
           }
           renderSelection(data, navigation.current, appended), renderApplicationShell(data), releaseSecondaryRequests(), track("rendimiento", performance.now() - started, { ...data.performance, ...clientCacheHit ? { serverMs: 0, newsMs: 0, preparationMs: 0, metadataMs: 0, cacheHit: !0, snapshotHit: !1 } : {}, clientCacheHit, sharedRequest: !clientCacheHit && data.performance.transportMs > performance.now() - started + 5, rpcMs: clientCacheHit ? 0 : data.performance.transportMs, renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
@@ -3576,25 +3599,21 @@
     }
   }
   $("next").addEventListener("click", () => {
-    filters4.setPage(state.data.page + 1), load();
+    filters3.setPage(state.data.page + 1), load();
   });
   $("export").addEventListener("click", () => action(async () => {
-    let result = await call("exportNews", filters4.query()), url = URL.createObjectURL(new Blob([result.csv], { type: "text/csv;charset=utf-8" })), link = document.createElement("a");
+    let result = await call("exportNews", filters3.query()), url = URL.createObjectURL(new Blob([result.csv], { type: "text/csv;charset=utf-8" })), link = document.createElement("a");
     link.href = url, link.download = "news-radar.csv", link.click(), setTimeout(() => URL.revokeObjectURL(url), 1e3), track("exportacion"), message(result.count + " publicaciones exportadas.");
   }, !1));
   $("news-list").addEventListener("click", (event) => {
     event.target.closest("a") && track("lectura");
   });
-  $("download-telemetry").addEventListener("click", () => action(async () => {
-    let data = await call("exportTelemetry"), url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" })), link = document.createElement("a");
-    link.href = url, link.download = "news-radar-telemetria.json", link.click(), setTimeout(() => URL.revokeObjectURL(url), 1e3), message("Telemetr\xEDa descargada.");
-  }, !1));
   window.RADAR_PREVIEW && ($("preview-banner").hidden = !1);
   async function startApplication(params = {}) {
     if (deferSecondaryRequests(), params.edition) {
       ["positive", "negative"].includes(params.feedback) && reading.open(params.edition, params.feedback), state.attribution = params.edition;
-      let view = ["news", "briefing", "radar"].includes(params.view) ? params.view : defaultView;
-      filters4.show(view), navigation.show(view), state.ready = !0, filters4.useEdition(params.edition, { country: params.country, entity: params.entity, palanca: params.palanca, subpalanca: params.subpalanca, benchmark: params.benchmark, newsGeography: params.newsGeography });
+      let view2 = ["news", "briefing", "radar"].includes(params.view) ? params.view : defaultView;
+      filters3.show(view2), navigation.show(view2), state.ready = !0, filters3.useEdition(params.edition, { country: params.country, entity: params.entity, palanca: params.palanca, subpalanca: params.subpalanca, benchmark: params.benchmark, newsGeography: params.newsGeography });
       return;
     }
     try {
@@ -3613,6 +3632,10 @@
   !window.RADAR_PREVIEW && typeof google < "u" ? google.script.url.getLocation((location) => startApplication(location.parameter)) : startApplication(Object.fromEntries(new URLSearchParams(window.location?.search || "")));
   window.addEventListener("news-radar-language-change", async () => {
     await load(), navigation.current === "administration" && administration.current === "language" && await languageSettings.open(), navigation.current === "administration" && administration.current === "taxonomy" && await taxonomy.open();
+  });
+  document.querySelector(".admin-content").addEventListener("click", (event) => {
+    let button = event.target.closest("[data-open-edition]");
+    button && (filters3.show("news"), filters3.useEdition(button.dataset.openEdition), navigation.show("news"));
   });
 })();
 </script>

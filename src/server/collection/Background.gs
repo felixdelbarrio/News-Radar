@@ -72,7 +72,7 @@ function businessPipelinePending_(work){
 function drainDailyTranslations_(work){
   const p=properties_(),day=p.getProperty('DAILY_TRANSLATION_REQUEST');
   if(!day||dailyCollectionPending_(work)||p.getProperty('CLASSIFICATION_REQUEST')||classificationPending_())return;
-  if(p.getProperty('TRANSLATION_ENABLED')!=='false')requestTranslations_(true);
+  requestTranslations_(true);
   if(p.getProperty('DAILY_TRANSLATION_REQUEST')===day)p.deleteProperty('DAILY_TRANSLATION_REQUEST');
 }
 function snapshotPublicationPending_(work,includeDue=true){return snapshotJobsPending_()||(work?.jobs||collectionJobs_()).some(job=>job.estado==='Publicando')||Boolean(properties_().getProperty('DASHBOARD_SNAPSHOT_BUILD'))||includeDue&&dashboardSnapshotsDue_();}
@@ -153,7 +153,7 @@ function initializeBackgroundSchedules_(){
   p.deleteProperty('BACKGROUND_NEXT');
   if(scheduledTriggers_('backgroundWatchdog_').length!==1){scheduledTriggers_('backgroundWatchdog_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));ScriptApp.newTrigger('backgroundWatchdog_').timeBased().everyMinutes(BACKGROUND_WORK.watchdogMinutes).create();}
   if(p.getProperty('DAILY_ENABLED')==='true')replaceCollectionSchedule_();else for(const handler of collectionHandlers_())scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
-  if(p.getProperty('TRANSLATION_ENABLED')!=='false')p.setProperty('TRANSLATION_ENABLED','true');
+  p.deleteProperty('TRANSLATION_ENABLED');
   if(settings_().newsletterEnabled)replaceDailySchedule_('scheduledNewsletters_',settings_().dailyHour);else scheduledTriggers_('scheduledNewsletters_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   if(dashboardSnapshotsPending_()||Number.isFinite(taxonomyTranslationReadyAt_())||taxonomyPending_()||p.getProperty('TAXONOMY_REQUEST')||p.getProperty('CATALOG_SYNC_REQUEST')||classificationPending_()||p.getProperty('CLASSIFICATION_REQUEST')||collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_())||Number.isFinite(newsletterReadyAt_()))ensureBackgroundWorker_();
 }
@@ -188,4 +188,16 @@ function getOperationalSchedule(){
  const counts=new Map();for(const trigger of ScriptApp.getProjectTriggers()){const handler=trigger.getHandlerFunction();counts.set(handler,(counts.get(handler)||0)+1);}
  for(const job of jobs){job.installed=counts.get(job.handler)||0;job.valid=job.installed===job.expected;}
  return {jobs,valid:jobs.every(job=>job.valid),archive:{attempts:Number(properties_().getProperty('LOG_ARCHIVE_ATTEMPTS')||0),error:properties_().getProperty('LOG_ARCHIVE_ERROR')||'',next:Number(properties_().getProperty('LOG_ARCHIVE_NEXT')||0)},workerTriggers:counts.get('backgroundTick_')||0,queued:dailyPipelineRequested_()||Boolean(properties_().getProperty('BACKGROUND_PENDING'))};
+}
+
+function operationalProcesses_(){
+ const p=properties_().getProperties(),definitions=[['classification','CLASSIFICATION_JOB','CLASSIFICATION_REQUEST'],['translation','TRANSLATION_JOB','TRANSLATION_REQUEST'],['taxonomy','TAXONOMY_JOB','TAXONOMY_REQUEST'],['taxonomyTranslation','TAXONOMY_TRANSLATION_JOB','TAXONOMY_TRANSLATION_REQUEST'],['maintenance','MAINTENANCE_JOB','MAINTENANCE_REQUEST']];
+ progressContext_();
+ const jobs=definitions.map(([stage,key,request])=>{
+  const stored=p[key]?JSON.parse(p[key]):null,queued=Boolean(p[request]||stage==='translation'&&p.DAILY_TRANSLATION_REQUEST),job=stored||{state:'Pendiente',updated:''},progress=jobProgressState_(stage,job,{queued});
+  return {label:PROGRESS_JOB_NAMES[stage],stage,state:progress.state,status:['Error','Fallida','Revisar'].includes(job.state)?'error':!queued&&job.state==='Completada'?'complete':'pending',progress,total:Number(job.workTotal??job.total??0),done:Number(stage==='classification'?Math.max(0,(job.next||2)-2):job.processed??job.reviewed??0),comment:job.error||''};
+ });
+ const pending=snapshotJobsPending_()||Boolean(p.DASHBOARD_SNAPSHOT_BUILD)||dashboardSnapshotsPending_(),state=pending||!p['JOB_LAST_EXECUTED:snapshot']?'Pendiente':'Completada';
+ jobs.push({stage:'snapshot',label:PROGRESS_JOB_NAMES.snapshot,state,status:state==='Completada'?'complete':'pending',progress:jobProgressState_('snapshot',{state,updated:p['JOB_LAST_EXECUTED:snapshot']||''}),total:0,done:0,comment:''});
+ return jobs;
 }

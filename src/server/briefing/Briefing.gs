@@ -3,16 +3,9 @@ function newsletterSubject_(filters,language='es',t=taxonomyLanguage_(language))
   const values=Object.entries(labels).filter(([key])=>filters[key]).map(([key,label])=>t(label)+': '+(key==='search'||key==='from'||key==='to'?String(filters[key]).replace(/[\r\n]+/g,' '):t(key==='coverage'?coverageOptions[filters[key]]:key==='subpalanca'?taxonomySubLabel(filters[key]):filters[key])));
   return '[bIA] '+(values.join(' · ')||t('Todo el sector'));
 }
-function briefing_(rows,perGeography=false,geography=row=>geographyLabel(row.pais),entityName=entityKey_){
-  const entities=new Map(),ranked=rows.filter(briefingAllowed).map(row=>{
-    const entity=entityName(row.entidad);entities.set(entity,(entities.get(entity)||0)+1);
-    return {row,entity,score:newsRelevance_(row)};
-  });
-  ranked.sort((a,b)=>Number(b.entity==='BBVA')-Number(a.entity==='BBVA')||entities.get(b.entity)-entities.get(a.entity)||a.entity.localeCompare(b.entity,'es')||b.score-a.score||b.row.fecha.localeCompare(a.row.fecha));
-  const overview=noveltyOverview(ranked.map(item=>item.row),BRIEFING_ALLOWED_SIGNALS,geography),items=[],limit=settings_().briefingLimit;
-  const groups=new Map();
-  for(const {row} of ranked){const key=perGeography?geography(row):'';if(!groups.has(key))groups.set(key,[]);groups.get(key).push(row);}
-  for(const group of groups.values())items.push(...group.slice(0,limit));
+function briefing_(rows,perGeography=false,geography=row=>geographyLabel(row.pais)){
+  const ranked=rows.filter(briefingAllowed).sort(publicationOrder),overview=noveltyOverview(ranked,BRIEFING_ALLOWED_SIGNALS,geography),items=[],counts=new Map(),limit=settings_().briefingLimit;
+  for(const row of ranked){const key=perGeography?geography(row):'',count=counts.get(key)||0;if(count<limit){items.push(row);counts.set(key,count+1);}}
   return {...overview,items,limited:overview.total>items.length};
 }
 function newsletter_(rows,query,title,now,subscriptionId,language='es',editionId='',known=new Set()){

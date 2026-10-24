@@ -58,7 +58,7 @@ for(const language of ['es','en','tr'])test('interfaz '+language+': formularios,
  await a.click('[data-view="administration"]');assert.equal(a.find('#preview-language').value,'');await a.click('[data-admin-view="subscribers"]');await a.click('#new-admin-subscription');assert.equal(a.find('#admin-subscription-editor [name="language"]').value,language);
  await a.change('#admin-subscription-editor [name="language"]','tr');await a.submit('#admin-subscription-editor form');assert.equal(a.calls.find(row=>row.method==='saveAdminSubscription').query.language,'tr');
  a.replies.getAdoption.options={vista:['administration'],evento:['rendimiento']};
- for(const view of ['configuration','sources','audit','telemetry','adoption']){await a.click('[data-admin-view="'+view+'"]');assert.ok(a.find('#'+view+'-section').textContent.length);}
+ for(const view of ['configuration','sources','audit','adoption']){await a.click('[data-admin-view="'+view+'"]');assert.ok(a.find('#'+view+'-section').textContent.length);}
  assert.equal(a.find('#adoption-vista option[value="administration"]').textContent,translateText('Administración',language));await a.change('#adoption-vista','administration');assert.equal(a.calls.filter(row=>row.method==='getAdoption').at(-1).query.vista,'administration');
  const required=a.find('#source-fields input');required.value='';required.dispatchEvent(new a.w.Event('invalid',{bubbles:false}));assert.equal(required.validationMessage,translateText('Campo obligatorio.',language));required.value='test';required.dispatchEvent(new a.w.Event('input',{bubbles:true}));assert.equal(required.validity.customError,false);
 });
@@ -139,7 +139,7 @@ for(const language of ['en','tr'])test('frases del Radar y de administración co
  for(const [id,source] of [['radar-focus','Panorama de entidades'],['radar-context','Distribución geográfica, entidades mencionadas y evolución de las publicaciones recopiladas.'],['radar-headline','Radar'],['trend-note','Volumen agrupado en intervalos de 6 días.']])assert.equal(a.find('#'+id).textContent,translateText(source,language));
  assert.ok(a.find('#trend-chart').textContent.includes(new Intl.DateTimeFormat(language,{day:'numeric',month:'short',timeZone:'UTC'}).format(new Date('2026-10-01'))));
  await a.click('[data-view="subscriptions"]');assert.equal(a.find('#subscriptions-count').textContent,translateText('1 suscripción',language));
- await a.click('[data-view="administration"]');await a.click('[data-admin-view="audit"]');assert.equal(a.find('#audit-note').textContent,translateText('0 coincidencias en las últimas 20000 entradas disponibles.',language));
- await a.click('[data-admin-view="telemetry"]');assert.equal(a.find('#telemetry-note').textContent,translateText('0 coincidencias en las últimas 20000 operaciones disponibles.',language));
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="audit"]');assert.equal(a.find('#audit-section h2').textContent,translateText('Logs',language));
+ await a.change('#logs-view','telemetry');assert.equal(a.find('#logs-view').value,'telemetry');
  await a.click('[data-admin-view="adoption"]');assert.equal(a.find('#adoption-section .eyebrow').textContent,translateText('Uso de News Radar',language));
 });

@@ -8,11 +8,11 @@ import {app} from './helpers/app.mjs';
 const signals=['Lanzamiento de producto','Mejora de oferta','Alianza estratégica'];
 function row(id,pais='España',entidad='BBVA',senales=[signals[0]],segmentos=['Empresas e instituciones']){return {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id,pais,entidad,senales,segmentos,tipo:'Banco tradicional',titular:entidad+' lanza producto '+id,extracto:'Nueva oferta para empresas',fecha:'2026-10-10',medio:'Editor',url:'https://example.com/'+id,tema:'Financiación',taxonomia:[]};}
 function server(){const s=storage();s.c.initializeConfiguration();return s;}
-test('agrupa cada noticia una sola vez en geografía, entidad y combinación de segmentos sin mutar ni sumar etiquetas duplicadas',()=>{
+test('agrupa cada noticia una sola vez en geografía y fecha de publicación sin mutar ni sumar etiquetas duplicadas',()=>{
  const rows=[row('a','España','Santander',[...signals,signals[0]],['Retail','Empresas e instituciones','Retail']),row('b','España','BBVA'),row('c','México','BBVA'),row('d','España','Santander'),row('e','','',[],[])],before=JSON.stringify(rows),overview=noveltyOverview(rows,signals),groups=noveltyGroups(rows);
  assert.equal(overview.total,5);assert.equal(overview.bySignal[0].total,4);assert.equal(overview.geographies.find(row=>row.name==='España').total,3);assert.equal(overview.geographies[0].entityCount,2);
- assert.deepEqual(groups[0].entities.map(row=>row.name),['BBVA','Santander']);assert.equal(groups[0].entities[1].segments[0].name,'Empresas e instituciones · Retail');
- const ids=groups.flatMap(group=>group.entities.flatMap(entity=>entity.segments.flatMap(segment=>segment.items.map(row=>row.id))));assert.equal(new Set(ids).size,5);assert.equal(ids.length,5);assert.equal(JSON.stringify(rows),before);assert.deepEqual(noveltyGroups([]),[]);assert.equal(noveltyOverview([]).total,0);assert.equal(noveltyCount(1,'novedad','novedades'),'1 novedad');assert.equal(noveltyCount(2,'novedad','novedades'),'2 novedades');
+ assert.deepEqual(groups[0].items.map(row=>row.id),['a','b','d']);
+ const ids=groups.flatMap(group=>group.items.map(row=>row.id));assert.equal(new Set(ids).size,5);assert.equal(ids.length,5);assert.equal(JSON.stringify(rows),before);assert.deepEqual(noveltyGroups([]),[]);assert.equal(noveltyOverview([]).total,0);assert.equal(noveltyCount(1,'novedad','novedades'),'1 novedad');assert.equal(noveltyCount(2,'novedad','novedades'),'2 novedades');
 });
 test('el límite por geografía no oculta mercados minoritarios y los KPIs conservan la población completa',()=>{
  const {c}=server();c.settings_().briefingLimit=2;

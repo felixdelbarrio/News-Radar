@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {app} from './helpers/app.mjs';
-const order=['runs','taxonomy','llm','language','subscribers','adoption','feedback','telemetry','sources','audit','configuration'];
+const order=['runs','taxonomy','llm','language','subscribers','adoption','feedback','sources','audit','configuration'];
 test('la entrada abre Novedades y Administración abre Ejecuciones y el menú centralizado sitúa Suscripciones en segundo lugar',async t=>{
  const a=await app(t,{entry:''});assert.equal(a.find('#briefing-section').hidden,false);await a.click('[data-view="administration"]');
  assert.deepEqual([...a.find('#admin-tabs').children].map(button=>button.dataset.adminView),order);
@@ -10,7 +10,7 @@ test('la entrada abre Novedades y Administración abre Ejecuciones y el menú ce
  assert.equal(a.find('#admin-tabs').parentElement.id,'administration-tools');
  assert.equal(a.find('#administration-tools').previousElementSibling.classList.contains('reading-hero'),true);
  assert.equal(a.calls.filter(row=>row.method==='getBootstrap').length,0);
- assert.equal(a.calls.filter(row=>row.method==='getRuns').length,1);
+ assert.equal(a.calls.filter(row=>row.method==='getControlPanel').length,1);
  assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,1);
  await a.click('#admin-tab-subscribers');assert.equal(a.find('#subscribers-section').hidden,false);
 });

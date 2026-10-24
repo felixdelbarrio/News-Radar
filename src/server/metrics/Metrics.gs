@@ -32,10 +32,6 @@ function getAdoption(query={}) {
   const selected=filterRecords(events,query,['correo','vista','evento'],['correo','vista','evento','sesion'],'fecha',settings_().timezone),metrics=metrics_(selected,now),page=recordPage(metrics.users,query,ADMIN_PAGE_SIZE);
   return {...metrics,users:page.items,total:page.total,page:page.page,pageSize:page.pageSize,options:recordOptions(events,['correo','vista','evento']),retentionDays:settings_().retentionDays,limited:events.length===settings_().eventLimit};
 }
-function getTelemetry(query={}) {
-  authorize_(true);const records=administrativeRecords_('Telemetria',query,['operacion','estado'],['operacion','estado','detalle']),usage=metrics_(rows_('Adopcion',settings_().eventLimit),Date.now());
-  return {...records,rows:records.items,latencyP95:usage.latencyP95,clientErrors:usage.failures,collection:collectionStatus_()};
-}
 function exportTelemetry(){
   authorize_(true);const limit=settings_().eventLimit;
   const telemetry=rows_('Telemetria',limit),runs=rows_('Ejecuciones',limit),audit=rows_('Auditoria',limit),tasks=rows_('Recopilacion');

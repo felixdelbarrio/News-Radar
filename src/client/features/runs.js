@@ -4,16 +4,13 @@ import {displayRecord,formatCalendarDay} from '../../shared/locales.js';
 import {language,t} from '../core/language.js';
 import {progressState} from '../../shared/progress-state.js';
 import {progressDetailsHtml} from './job-monitor.js';
-import {createRecordFilters} from './record-filters.js';
-let filters,request=0,syncRecovery=()=>{};
+let request=0,syncRecovery=()=>{};
 export async function loadRuns(){
-  filters||=createRecordFilters('runs',[['estado','Estado'],['id','Recarga']],loadRuns,{dates:true,placeholder:'Estado o error'});
   const current=++request;
   try{
-    const data=await call('getRuns',filters.query());if(current!==request)return;
-    if(data.operational){const schedule=data.operational;$('operational-schedule').innerHTML='<ul class="operational-schedule">'+schedule.jobs.map(job=>'<li><div class="schedule-heading"><strong>'+escape(t(job.label))+'</strong><span class="status-pill" data-valid="'+job.valid+'">'+escape(t(job.valid?(job.expected?'Activa':'Inactiva'):'Revisar'))+'</span></div><p class="schedule-time">'+escape(job.hour!==undefined?String(job.hour).padStart(2,'0')+':00':job.minutes+' min')+'</p><p class="small muted">'+escape(job.timezone||t('Supervisión de colas'))+'</p></li>').join('')+'</ul>'+(schedule.archive.error?'<p class="warning">'+escape(schedule.archive.error)+'</p>':'');$('retry-archive').hidden=!schedule.archive.error;}
-    renderCollectionJobs(data.collection);filters.options(data.options);filters.page(data);
-    $('runs-body').innerHTML=data.items.map(r=>`<tr><td>${escape(displayRecord(r.tipo,language))} ${escape(r.desde)} — ${escape(r.hasta)}</td><td>${escape(date(r.inicio))}</td><td>${escape(r.estado)}</td><td>${escape(r.evaluadas)}</td><td>${escape(r.nuevas)}</td><td>${escape(r.errores||'—')}</td></tr>`).join('')||'<tr><td colspan="6">Sin ejecuciones con estos filtros.</td></tr>';
+    const data=await call('getControlPanel');if(current!==request)return;
+    if(data.operational){const schedule=data.operational;$('operational-schedule').innerHTML='<ul class="operational-schedule">'+schedule.jobs.map(job=>'<li><div class="schedule-heading"><strong>'+escape(t(job.label))+'</strong><span class="status-pill" data-valid="'+job.valid+'">'+escape(t(job.valid?(job.expected?'Activa':'Inactiva'):'Revisar'))+'</span></div><p class="schedule-time">'+escape(job.hour!==undefined?String(job.hour).padStart(2,'0')+':00':job.minutes+' min')+'</p><p class="small muted">'+escape(job.timezone||t('Supervisión de colas'))+'</p></li>').join('')+'</ul>'+(schedule.archive.error?'<p class="warning">'+escape(schedule.archive.error)+'</p>':'');$('retry-archive').hidden=!schedule.archive.error;const processes=schedule.processes||[];$('operational-processes').innerHTML=processes.map(job=>'<article class="collection-job"><div class="schedule-heading"><strong>'+escape(t(job.label))+'</strong><span class="process-state" data-status="'+escape(job.status)+'">'+escape(t(job.state))+'</span></div>'+(job.total?'<progress max="'+Math.max(1,job.total)+'" value="'+job.done+'" aria-label="'+escape(t(job.label))+'"></progress><p>'+job.done+'/'+job.total+'</p>':'')+progressDetailsHtml(job.progress)+(job.comment?'<p class="small muted">'+escape(job.comment)+'</p>':'')+'</article>').join('');}
+    renderCollectionJobs(data.collection);
     return data;
   }catch(error){if(current===request)message(error.message,true);}
 }

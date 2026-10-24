@@ -36,8 +36,8 @@ test('el límite diario conserva el cursor y el día siguiente prioriza nuevas p
 });
 test('la programación es idempotente, se integra en la cola diaria y solo el administrador puede controlarla',()=>{
  const s=server(),c=s.c;assert.equal(c.getTranslationStatus().scheduled,true);c.initializeConfiguration();assert.equal(c.ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='nightlyTranslations_').length,0);
- c.disableTranslationSchedule();assert.equal(c.getTranslationStatus().scheduled,false);c.initializeConfiguration();assert.equal(c.getTranslationStatus().scheduled,false);c.installTranslationSchedule();assert.equal(c.getTranslationStatus().scheduled,true);assert.equal(c.getTranslationStatus().hour,undefined);
- c.startTranslations();assert.equal(c.getTranslationStatus().queued,true);s.setEmail('reader@bbva.com');for(const fn of [c.getTranslationStatus,c.startTranslations,c.installTranslationSchedule,c.disableTranslationSchedule])assert.throws(fn,/no autorizado/);
+ s.properties.TRANSLATION_ENABLED='false';c.initializeConfiguration();assert.equal(s.properties.TRANSLATION_ENABLED,undefined);assert.equal(c.getTranslationStatus().scheduled,true);assert.equal(c.getTranslationStatus().hour,undefined);
+ c.startTranslations();assert.equal(c.getTranslationStatus().queued,true);s.setEmail('reader@bbva.com');for(const fn of [c.getTranslationStatus,c.startTranslations])assert.throws(fn,/no autorizado/);
 });
 test('un RSS con idioma explícito evita traducir ese idioma y una respuesta incompleta no se guarda',()=>{
  const s=server(),c=s.c;add(s,[{...article,fuente:c.configuration_().feeds[0].name}]);const log=provider(c);c.requestTranslations_();c.backgroundTick_();assert.equal(log.length,2);assert.equal(c.savedArticleTranslations_([{...article,fuente:c.configuration_().feeds[0].name}],'es')[0].translation.state,'native');

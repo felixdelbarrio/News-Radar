@@ -64,6 +64,3 @@ function refreshFunctionalCatalog_(){
  }catch(error){const detail=String(error.message).slice(0,180);telemetry_('catalogo_funcional',Date.now()-started,'Error',detail);return {source:'espejo',error:detail};}
 }
 function taxonomyRulesRevision_(){return sha256_(JSON.stringify([TAXONOMY_POLICY.version,'business',configuration_().taxonomy,classificationRulesRevision_()]));}
-function saveTaxonomySource(payload){
-  authorize_(true);const snapshot=JSON.parse(JSON.stringify(configuration_()));snapshot.settings.taxonomyCatalogUrl=payload.url;return writeConfiguration_(snapshot,payload.revision);
-}

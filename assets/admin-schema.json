@@ -171,7 +171,8 @@
       "newsletterSender": "Remitente verificado en Gmail (correo del grupo)",
       "newsletterSenderName": "Nombre visible del remitente",
       "newsletterDailyLimit": "Límite de newsletters en 24 horas",
-      "newsletterAppUrl": "URL publicada de News Radar (gestión de suscripciones)"
+      "newsletterAppUrl": "URL publicada de News Radar (gestión de suscripciones)",
+      "taxonomyCatalogUrl": "Catálogo global de funcionalidades en Drive"
     },
     "groups": [
       {
@@ -217,6 +218,12 @@
           "exportLimit",
           "eventLimit",
           "retentionDays"
+        ]
+      },
+      {
+        "label": "Fuentes de Drive",
+        "keys": [
+          "taxonomyCatalogUrl"
         ]
       }
     ]

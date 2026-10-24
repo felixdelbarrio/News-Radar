@@ -60,7 +60,7 @@ test('una diaria recibida durante la llamada detiene el lote tras guardar el res
 test('un catálogo amplio se divide en lotes de llamadas y reanuda al cambiar de día aunque no haya traducción nocturna',()=>{
  const s=server(),c=s.c,sheet=c.taxonomySheet_();for(let i=0;i<12;i++)sheet.grid.push(['extra'+i,'Pagos y cobros','Pago variante '+i,'["Retail"]','["pago"]',1,1,'regla']);s.properties.TAXONOMY_REVISION='large';
  c.startTaxonomyTranslations();c.taxonomyTranslationBatch_();assert.equal(s.calls.length,20);assert.equal(c.taxonomyTranslationJob_().state,'Pendiente');finish(c);assert.equal(s.calls.length,28);
- c.disableTranslationSchedule();c.writeTaxonomyTranslationJob_({...c.taxonomyTranslationJob_(),state:'En pausa',callDay:'2000-01-01',calls:3000,pausedUntil:0});assert.ok(c.taxonomyTranslationReadyAt_()<=Date.now());c.taxonomyTranslationBatch_();drainSnapshots(c);assert.equal(c.taxonomyTranslationJob_().state,'Completada');assert.equal(c.taxonomyTranslationJob_().calls,0);
+ c.writeTaxonomyTranslationJob_({...c.taxonomyTranslationJob_(),state:'En pausa',callDay:'2000-01-01',calls:3000,pausedUntil:0});assert.ok(c.taxonomyTranslationReadyAt_()<=Date.now());c.taxonomyTranslationBatch_();drainSnapshots(c);assert.equal(c.taxonomyTranslationJob_().state,'Completada');assert.equal(c.taxonomyTranslationJob_().calls,0);
 });
 test('el índice de nombres guardados se reutiliza entre ejecuciones sin nuevas lecturas de Sheets',()=>{
  const s=server(),c=s.c;c.startTaxonomyTranslations();finish(c);vm.runInContext('taxonomyTranslationMemory_=undefined;',c);c.taxonomyTranslationIndex_();const reads=s.reads;

@@ -15,7 +15,7 @@ export function createBriefing({onExplore}){
 
     $('briefing-count').textContent=t('{count} publicaciones',{count:briefing.total});
     $('briefing-signals').innerHTML=stats.bySignal.map(row=>`<button type="button" class="signal-card" ${row.total?'':'disabled'} data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(t(row.name==='Incidencia operativa'?'Indisponibilidad / Incidencia operativa':row.name))}</span></button>`).join('');
-    const rows=group?.entities.flatMap(entity=>entity.items)||[];
+    const rows=group?.items||[];
     $('briefing-list').innerHTML=rows.map(row=>`<article class="panel novelty-card">${articleContent(row,selection,true)}</article>`).join('')||'<div class="panel empty"><h3>'+t('No hay novedades de producto en esta selección.')+'</h3></div>';
     $('briefing-limit').hidden=!group||stats.total<=group.items.length;
     $('briefing-explore').hidden=$('briefing-limit').hidden;

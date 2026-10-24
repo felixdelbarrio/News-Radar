@@ -196,3 +196,5 @@ function clearTaxonomyCheckpoints_(keep=null){
  const rows=sheet.getRange(first,1,count,2).getDisplayValues();
  for(let start=0;start<rows.length;){if(rows[start][0]!=='taxonomy-checkpoint'||rows[start][1]===keep?.generation){start++;continue;}let end=start+1;while(end<rows.length&&rows[end][0]==='taxonomy-checkpoint'&&rows[end][1]!==keep?.generation)end++;sheet.getRange(first+start,1,end-start,4).clearContent();start=end;}
 }
+
+function getTaxonomyProgress(){authorize_(true);return {newsRevision:publishedNewsRevision_(),job:withJobProgress_('taxonomy',taxonomyJob_(),Boolean(properties_().getProperty('TAXONOMY_REQUEST'))),queued:Boolean(properties_().getProperty('TAXONOMY_REQUEST'))};}

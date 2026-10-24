@@ -26,13 +26,6 @@ function recordNewsletterEvents_(events,email){
   }
   append_('NewsletterEventos',values);
 }
-function getNewsletterInsights(query={}){
-  authorize_(true);const events=filterRecords(rows_('NewsletterEventos',settings_().eventLimit),query.adoption||query,['edicion','cadencia'],['edicion','cadencia','destino'],'fecha',settings_().timezone),groups=new Map();
-  for(const event of events){const key=event.edicion+'|'+event.cadencia;if(!groups.has(key))groups.set(key,{edition:event.edicion,cadence:event.cadencia,users:new Set(),sessions:new Set(),entries:0,destinations:new Set()});const group=groups.get(key);group.users.add(event.correo);group.sessions.add(event.correo+'|'+event.sesion);if(event.evento==='acceso')group.entries++;group.destinations.add(event.destino);}
-  const editions=rows_('NewsletterEdiciones').filter(row=>row.estado==='Enviada'),recipients=new Map(editions.map(row=>[row.id,new Set([row.correo])])),feedback=filterRecords(rows_('NewsletterFeedback',settings_().eventLimit),query.feedback||query,['estado','edicion'],['edicion','comentario','estado'],'fecha',settings_().timezone);
-  return {adoption:recordPage([...groups.values()].reverse().map(group=>({...group,users:group.users.size,sessions:group.sessions.size,destinations:[...group.destinations],recipients:recipients.get(group.edition)?.size||0})),query.adoption||query,ADMIN_PAGE_SIZE),feedback:recordPage(feedback.slice().reverse(),query.feedback||query,ADMIN_PAGE_SIZE),retentionDays:settings_().retentionDays};
-}
-
 // Administrative feedback uses header metadata only; article evidence is never read.
 function adminFeedbackRows_(){
   const editions=new Map(rows_('NewsletterEdiciones').map(row=>[row.id,row]));
@@ -49,14 +42,7 @@ function feedbackKpis_(rows){
 }
 function getAdminFeedback(query={}){
   authorize_(true);const started=Date.now();try{
-  const rows=adminFeedbackRows_(),selected=adminFeedbackSelection_(rows,query),editionIds=new Set(selected.map(row=>row.edicion)),groups=new Map();
-  const events=filterRecords(rows_('NewsletterEventos'),{...query,search:''},['edicion','correo'],['correo','edicion','destino'],'fecha',settings_().timezone);
-  for(const event of events){
-    if((query.valoracion||query.estado||query.search)&&!editionIds.has(event.edicion))continue;
-    if(!groups.has(event.edicion))groups.set(event.edicion,{edicion:event.edicion,accesses:0,reads:0,exports:0});
-    const group=groups.get(event.edicion);if(event.evento==='acceso')group.accesses++;if(event.evento==='lectura')group.reads++;if(event.evento==='exportacion')group.exports++;
-  }
-  const result={...recordPage(selected.slice().reverse(),query,ADMIN_PAGE_SIZE),global:feedbackKpis_(rows),filtered:feedbackKpis_(selected),options:recordOptions(rows,['valoracion','estado','edicion','correo']),interactions:[...groups.values()]};
+  const rows=adminFeedbackRows_(),selected=adminFeedbackSelection_(rows,query),result={...recordPage(selected.slice().reverse(),query,ADMIN_PAGE_SIZE),filtered:feedbackKpis_(selected),options:recordOptions(rows,['valoracion','estado','edicion','correo'])};
   telemetry_('feedback_admin',Date.now()-started,'OK',selected.length+' valoraciones filtradas; '+rows.length+' totales');return result;
   }catch(error){telemetry_('feedback_admin',Date.now()-started,'Error',error.message);throw error;}
 }
