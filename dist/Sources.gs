@@ -28,7 +28,7 @@ function localizedSearchTerms_(terms,geo,strict=false){
     collectionLanguageMemory_={config,terms,scopes:new Map()};
   }
   const language=geo.language.split('-')[0],native=[],english=[],custom=[];
-  for(const term of terms){const languages=collectionLanguageMemory_.terms.get(searchText_(term));if(!languages&&(!strict||language==='es')&&!/[()]/.test(term))custom.push(term);else if(languages.has(language))native.push(term);else if(languages.has('en'))english.push(term);}
+  for(const term of terms){const languages=collectionLanguageMemory_.terms.get(searchText_(term));if(!languages){if((!strict||language==='es')&&!/[()]/.test(term))custom.push(term);}else if(languages.has(language))native.push(term);else if(languages.has('en'))english.push(term);}
   return ['it','de','fr','pt','tr'].includes(language)?native:[...native,...english,...custom];
 }
 function collectionSearchTerms_(geo){

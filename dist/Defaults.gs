@@ -3210,7 +3210,48 @@ const CONFIGURATION_DEFAULTS = {
         "organismos públicos",
         "public sector",
         "entreprise",
-        "impresa"
+        "impresa",
+        "banca de empresas",
+        "banca empresarial",
+        "banca corporativa",
+        "banca institucional",
+        "trabajadores autónomos",
+        "profesionales independientes",
+        "personas morales",
+        "personas jurídicas",
+        "negocios y comercios",
+        "tesorería corporativa",
+        "portal de empresas",
+        "app empresas",
+        "sme banking",
+        "commercial banking",
+        "corporate banking",
+        "business banking",
+        "institutional banking",
+        "small business",
+        "small and medium enterprises",
+        "mid-market",
+        "sole traders",
+        "merchant portal",
+        "corporate treasury",
+        "b2b payments",
+        "working capital digital",
+        "ticari bankacılık",
+        "kurumsal bankacılık",
+        "kobi bankacılığı",
+        "esnaf",
+        "şirket kredi kartı",
+        "ticari dijital",
+        "empresas e negócios",
+        "pessoa jurídica",
+        "conta pj",
+        "piccole e medie imprese",
+        "pmi",
+        "banque des entreprises",
+        "professionnels",
+        "firmenkunden",
+        "geschäftskunden",
+        "mittelstand"
       ],
       "enabled": true
     }
@@ -3664,10 +3705,10 @@ const CONFIGURATION_DEFAULTS = {
     {
       "id": "bankinter-blog",
       "name": "Bankinter · Blog",
-      "url": "https://www.bankinter.com/blog/rss",
-      "domain": "bankinter.com",
+      "url": "https://news.google.com/rss/search?q=site%3Abankinter.com%2Fblog%20empresas&hl=es&gl=ES&ceid=ES%3Aes",
+      "domain": "news.google.com",
       "entity": "Bankinter",
-      "country": "Sin determinar",
+      "country": "España",
       "enabled": true,
       "language": "es"
     },
@@ -4411,7 +4452,20 @@ const CONFIGURATION_DEFAULTS = {
         "indisponibilidad",
         "intermitencias",
         "fallas masivas",
-        "transferencias fallidas"
+        "transferencias fallidas",
+        "banca de empresas",
+        "banca empresarial",
+        "banca corporativa",
+        "banca institucional",
+        "mipymes",
+        "mypes",
+        "trabajadores autónomos",
+        "profesionales independientes",
+        "personas morales",
+        "personas jurídicas",
+        "negocios y comercios",
+        "tesorería corporativa",
+        "portal de empresas"
       ],
       "enabled": true
     },
@@ -4544,7 +4598,21 @@ const CONFIGURATION_DEFAULTS = {
         "outage",
         "service disruption",
         "payment failures",
-        "delayed payments"
+        "delayed payments",
+        "sme banking",
+        "commercial banking",
+        "corporate banking",
+        "business banking",
+        "institutional banking",
+        "small business",
+        "small and medium enterprises",
+        "mid-market",
+        "sole traders",
+        "freelancers",
+        "merchant portal",
+        "corporate treasury",
+        "b2b payments",
+        "working capital digital"
       ],
       "enabled": true
     },
@@ -4565,7 +4633,12 @@ const CONFIGURATION_DEFAULTS = {
         "hizmet kesintisi",
         "kesinti",
         "ödeme hatası",
-        "transfer sorunu"
+        "transfer sorunu",
+        "kurumsal bankacılık",
+        "kobi bankacılığı",
+        "esnaf",
+        "şirket kredi kartı",
+        "ticari dijital"
       ],
       "enabled": true
     },
@@ -4576,7 +4649,9 @@ const CONFIGURATION_DEFAULTS = {
         "banca digitale",
         "conto corrente",
         "pagamenti digitali",
-        "app bancaria"
+        "app bancaria",
+        "piccole e medie imprese",
+        "pmi"
       ],
       "enabled": true
     },
@@ -4587,7 +4662,10 @@ const CONFIGURATION_DEFAULTS = {
         "digitales banking",
         "girokonto",
         "digitales bezahlen",
-        "banking app"
+        "banking app",
+        "firmenkunden",
+        "geschäftskunden",
+        "mittelstand"
       ],
       "enabled": true
     },
@@ -4598,7 +4676,9 @@ const CONFIGURATION_DEFAULTS = {
         "banque en ligne",
         "paiements",
         "application bancaire",
-        "compte en ligne"
+        "compte en ligne",
+        "banque des entreprises",
+        "professionnels"
       ],
       "enabled": true
     },
@@ -4611,7 +4691,10 @@ const CONFIGURATION_DEFAULTS = {
         "pagamentos digitais",
         "serviço indisponível",
         "fora do ar",
-        "pagamentos recusados"
+        "pagamentos recusados",
+        "empresas e negócios",
+        "pessoa jurídica",
+        "conta pj"
       ],
       "enabled": true
     },

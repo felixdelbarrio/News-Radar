@@ -22,5 +22,7 @@ function geographyMatches(row,selection,geography){
   return REGION_CODES.includes(selection)?geography(row)===otherGeography&&countryRegion(row.pais)===selection:geography(row)===selection;
 }
 function regionalGeographies(rows,geography){
-  return REGION_CODES.map(name=>({name,total:rows.reduce((total,row)=>total+Number(geographyMatches(row,name,geography)),0)}));
+  const totals=new Map(REGION_CODES.map(name=>[name,0]));
+  for(const row of rows)if(geography(row)===otherGeography){const region=countryRegion(row.pais);if(totals.has(region))totals.set(region,totals.get(region)+1);}
+  return [...totals].map(([name,total])=>({name,total}));
 }

@@ -1604,7 +1604,7 @@
   }
 
   // src/client/core/browser-country.js
-  var zoneCountries = Object.freeze({ "Europe/Madrid": "ES", "Atlantic/Canary": "ES", "America/Mexico_City": "MX", "America/Lima": "PE", "America/Bogota": "CO", "America/Argentina/Buenos_Aires": "AR", "Europe/Istanbul": "TR", "America/Montevideo": "UY", "America/Caracas": "VE", "America/Sao_Paulo": "BR", "America/Toronto": "CA", "America/Vancouver": "CA", "America/Montreal": "CA", "Asia/Dubai": "AE", "Europe/London": "GB", "Europe/Paris": "FR", "Europe/Berlin": "DE", "Europe/Rome": "IT", "Europe/Lisbon": "PT", "Asia/Singapore": "SG", "Asia/Tokyo": "JP", "Asia/Kolkata": "IN" });
+  var zoneCountries = Object.freeze({ "Europe/Madrid": "ES", "Atlantic/Canary": "ES", "America/Mexico_City": "MX", "America/Lima": "PE", "America/Bogota": "CO", "America/Argentina/Buenos_Aires": "AR", "Europe/Istanbul": "TR", "America/Montevideo": "UY", "America/Caracas": "VE", "America/Sao_Paulo": "BR", "America/Toronto": "CA", "America/Vancouver": "CA", "America/Montreal": "CA", "Asia/Dubai": "AE", "Europe/London": "GB", "Europe/Paris": "FR", "Europe/Berlin": "DE", "Europe/Rome": "IT", "Europe/Lisbon": "PT", "Asia/Singapore": "SG", "Asia/Tokyo": "JP", "Asia/Kolkata": "IN", "Asia/Shanghai": "CN", "Asia/Hong_Kong": "HK", "Asia/Seoul": "KR", "Asia/Bangkok": "TH", "Asia/Jakarta": "ID", "Asia/Manila": "PH", "Asia/Kuala_Lumpur": "MY", "Asia/Ho_Chi_Minh": "VN", "Australia/Sydney": "AU", "Australia/Melbourne": "AU", "America/New_York": "US", "America/Chicago": "US", "America/Los_Angeles": "US" });
   function inferredCountryCode(languages = [], timeZone = "") {
     if (zoneCountries[timeZone]) return zoneCountries[timeZone];
     for (let language2 of languages) {
@@ -1945,13 +1945,24 @@
   function countryRegion(country) {
     return countryRegions[country] || "";
   }
+  function geographyMatches(row, selection, geography) {
+    return REGION_CODES.includes(selection) ? geography(row) === otherGeography && countryRegion(row.pais) === selection : geography(row) === selection;
+  }
+  function regionalGeographies(rows, geography) {
+    let totals = new Map(REGION_CODES.map((name) => [name, 0]));
+    for (let row of rows) if (geography(row) === otherGeography) {
+      let region = countryRegion(row.pais);
+      totals.has(region) && totals.set(region, totals.get(region) + 1);
+    }
+    return [...totals].map(([name, total]) => ({ name, total }));
+  }
 
   // src/client/features/geography-tabs.js
   function createGeographyTabs(id, panelId, onSelect) {
-    let tabs = $(id), panel2 = $(panelId), rows = [], active = "", focus = !1;
+    let tabs = $(id), panel2 = $(panelId), rows = [], regions = [], active = "", focus = !1;
     function select(name) {
-      if (name === active) {
-        tabs.querySelector('[aria-selected="true"]').focus();
+      if (name === otherGeography && regions.length && (name = countryRegion(browserCountry()) || regions.find((row) => row.total)?.name || REGION_CODES[0]), name === active) {
+        tabs.querySelector('[tabindex="0"]').focus();
         return;
       }
       focus = !0, onSelect(name);
@@ -1964,11 +1975,16 @@
       event.preventDefault();
       let index = rows.findIndex((row) => row.name === active), next = event.key === "Home" ? 0 : event.key === "End" ? rows.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + rows.length) % rows.length;
       tabs.querySelectorAll('[role="tab"]')[next].focus(), select(rows[next].name);
-    }), { render(geographies, selected) {
-      rows = geographies, active = selected, tabs.hidden = !rows.length, tabs.innerHTML = rows.map((row, index2) => `<button type="button" class="button" role="tab" id="${id}-${index2}" aria-controls="${panelId}" aria-selected="${row.name === active}" tabindex="${row.name === active ? 0 : -1}" data-geography="${escape2(row.name)}">${identityMark("countries", row.name, escape2)}${escape2(t(geographyLabel(row.name)))}<span class="geography-count">${row.total}</span></button>`).join("");
+    }), { render(geographies, selected, regionalRows = []) {
+      regions = regionalRows;
+      let regional = selected === otherGeography || REGION_CODES.includes(selected);
+      rows = [...geographies, ...regional ? regions : []], active = selected, tabs.hidden = !rows.length, tabs.innerHTML = rows.map((row, index2) => `<button type="button" class="button" role="tab" id="${id}-${index2}" aria-controls="${panelId}" aria-selected="${row.name === active || row.name === otherGeography && REGION_CODES.includes(active)}" tabindex="${row.name === active ? 0 : -1}" data-geography="${escape2(row.name)}">${REGION_CODES.includes(row.name) ? regionMark(row.name) : identityMark("countries", row.name, escape2)}${escape2(t(geographyLabel(row.name)))}<span class="geography-count">${row.total}</span></button>`).join("");
       let index = rows.findIndex((row) => row.name === active);
-      index >= 0 ? panel2.setAttribute("aria-labelledby", id + "-" + index) : panel2.removeAttribute("aria-labelledby"), focus && (tabs.querySelector('[aria-selected="true"]')?.focus(), focus = !1);
+      index >= 0 ? panel2.setAttribute("aria-labelledby", id + "-" + index) : panel2.removeAttribute("aria-labelledby"), focus && (tabs.querySelector('[tabindex="0"]')?.focus(), focus = !1);
     } };
+  }
+  function regionMark(name) {
+    return `<svg class="geography-flag region-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor"/><path d="${{ APAC: "M13 5l5 3-2 4 3 3-2 4-4-2-1-5-3-2z", EMEA: "M10 4l5 3-2 4 3 2-4 7-3-4 1-5-4-2z", AMER: "M5 5l5-1 2 4-4 4 3 3-1 5-3-4 1-4-4-3z" }[name]}" fill="currentColor"/></svg>`;
   }
 
   // src/client/features/reading-context.js
@@ -2942,6 +2958,19 @@
   }
 
   // src/shared/novelty-groups.js
+  function noveltyOverview(items, signalNames = [], country = (row) => geographyLabel(row.pais)) {
+    let signals = new Map(signalNames.map((name) => [name, 0])), geographies = /* @__PURE__ */ new Map(), entities = /* @__PURE__ */ new Set();
+    for (let row of items) {
+      let name = country(row);
+      geographies.has(name) || geographies.set(name, { name, total: 0, entities: /* @__PURE__ */ new Set(), signals: new Map(signalNames.map((name2) => [name2, 0])) });
+      let geography = geographies.get(name);
+      geography.total++, geography.entities.add(row.entidad || "Entidad no identificada"), entities.add(row.entidad || "Entidad no identificada");
+      for (let signal of new Set(row.senales || []))
+        signals.set(signal, (signals.get(signal) || 0) + 1), geography.signals.set(signal, (geography.signals.get(signal) || 0) + 1);
+    }
+    let counts = (values) => [...values].map(([name, total]) => ({ name, total }));
+    return { total: items.length, entities: entities.size, bySignal: counts(signals), geographies: [...geographies.values()].map(({ signals: signals2, entities: entities2, ...row }) => ({ ...row, entityCount: entities2.size, bySignal: counts(signals2) })).sort(geographyOrder) };
+  }
   function publicationOrder(a, b) {
     return String(b.fecha || "").localeCompare(String(a.fecha || "")) || String(a.id || a.url || a.titular || "").localeCompare(String(b.id || b.url || b.titular || ""), "es");
   }
@@ -2985,12 +3014,12 @@
 
   // src/client/features/briefing.js
   function createBriefing({ onExplore }) {
-    let briefing2, groups = [], active = "", selection = {}, tabs = createGeographyTabs("briefing-geographies", "briefing-list", (name) => {
+    let briefing2, groups = [], active = "", selection = {}, scope = [], tabs = createGeographyTabs("briefing-geographies", "briefing-list", (name) => {
       active = name, paint2();
     });
     function paint2() {
-      let group = groups.find((row) => row.name === active), stats = group || briefing2;
-      tabs.render(groups, active), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: briefing2.total }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" ${row.total ? "" : "disabled"} data-signal="${escape2(row.name)}"><strong>${row.total}</strong><span>${escape2(t(row.name === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : row.name))}</span></button>`).join("");
+      let geography = applicationGeography(selection.scope || scope, selection.segment), regional = REGION_CODES.includes(active), group = regional ? { ...noveltyOverview(briefing2.items.filter((row) => geographyMatches(row, active, geography)), BRIEFING_ALLOWED_SIGNALS, () => active).geographies[0], ...briefing2.regions?.find((row) => row.name === active), name: active, items: briefing2.items.filter((row) => geographyMatches(row, active, geography)) } : groups.find((row) => row.name === active), stats = group?.bySignal ? group : briefing2;
+      tabs.render(groups, active, regionalGeographies(briefing2.items, geography)), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: briefing2.total }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" ${row.total ? "" : "disabled"} data-signal="${escape2(row.name)}"><strong>${row.total}</strong><span>${escape2(t(row.name === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : row.name))}</span></button>`).join("");
       let rows = group?.items || [];
       $("briefing-list").innerHTML = rows.map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join("") || '<div class="panel empty"><h3>' + t("No hay novedades de producto en esta selecci\xF3n.") + "</h3></div>", $("briefing-limit").hidden = !group || stats.total <= group.items.length, $("briefing-explore").hidden = $("briefing-limit").hidden;
     }
@@ -2998,9 +3027,9 @@
       let button = event.target.closest("[data-signal]");
       button && onExplore({ ...selection, country: "", newsGeography: active, signal: button.dataset.signal, page: 0 });
     }), { render(data) {
-      selection = data.selection || {}, briefing2 = data.briefing || { total: 0, bySignal: [], geographies: [], items: [] }, briefing2 = { ...briefing2, items: briefing2.items.filter(briefingAllowed), bySignal: briefing2.bySignal.filter((row) => BRIEFING_ALLOWED_SIGNALS.includes(row.name)) };
+      scope = data.applicationScope, selection = data.selection || {}, briefing2 = data.briefing || { total: 0, bySignal: [], geographies: [], items: [] }, briefing2 = { ...briefing2, items: briefing2.items.filter(briefingAllowed), bySignal: briefing2.bySignal.filter((row) => BRIEFING_ALLOWED_SIGNALS.includes(row.name)) };
       let stats = new Map(briefing2.geographies.map((row) => [row.name, row]));
-      groups = noveltyGroups(briefing2.items, applicationGeography(data.applicationScope, data.selection?.segment)).map((group) => ({ ...group, ...stats.get(group.name) })), groups.some((row) => row.name === active) || (active = browserCountry(groups.map((row) => row.name)) || groups[0]?.name || ""), paint2();
+      groups = noveltyGroups(briefing2.items, applicationGeography(data.applicationScope, data.selection?.segment)).map((group) => ({ ...group, ...stats.get(group.name) })), REGION_CODES.includes(selection.country) && (active = selection.country), !REGION_CODES.includes(active) && !groups.some((row) => row.name === active) && (active = browserCountry(groups.map((row) => row.name)) || groups[0]?.name || ""), paint2();
     } };
   }
 
@@ -3682,7 +3711,7 @@
     state.data && (state.data.collection = status), state.data?.admin && renderCollectionJobs(status);
   } });
   function renderSelection(data, view2 = navigation.current, appended = null, reuse = !1) {
-    reading.render(data, view2), !reuse && (view2 === "news" && (renderNews(data, appended), newsTabs.render(data.newsGeographies || [], data.newsGeography || "")), view2 === "radar" && (radar.render(data), heatmap.render(data)), view2 === "briefing" && briefing.render(data));
+    reading.render(data, view2), !reuse && (view2 === "news" && (renderNews(data, appended), newsTabs.render(data.newsGeographies || [], data.newsGeography || "", data.newsRegions || [])), view2 === "radar" && (radar.render(data), heatmap.render(data)), view2 === "briefing" && briefing.render(data));
   }
   function renderApplicationShell(data) {
     data.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), setTimezone(data.preferences?.timezone), window.RADAR_PREVIEW && data.admin && ($("preview-banner").textContent = "Administraci\xF3n local \xB7 cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales."), data.preferences && (document.querySelector(".app-footer").hidden = !1, $("retention-days").textContent = data.preferences.retentionDays, $("event-limit").textContent = data.preferences.eventLimit), renderShell(data), data.admin && sources.render(data), collectionProgress.update(data), refreshSelects(), flushLocalization();
