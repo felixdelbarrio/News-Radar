@@ -1,5 +1,5 @@
 function snapshotEntity_(value){return String(value||'').trim();}
-function newsReadingGeography_(context,query){return context?.cadence==='fortnightly'&&query.benchmark==='international'&&!query.country?()=> 'Otras geografías':applicationGeography(context?.scope||configuration_().applicationScope,query.segment);}
+function newsReadingGeography_(context,query){return context?.cadence==='fortnightly'&&query.benchmark==='international'&&!query.country&&!REGION_CODES.includes(query.newsGeography)?()=> 'Otras geografías':applicationGeography(context?.scope||configuration_().applicationScope,query.segment);}
 function newsGeographySelection_(rows,query,geography=applicationGeography(configuration_().applicationScope,query.segment)){
   return query.newsGeography?rows.filter(row=>geographyMatches(row,query.newsGeography,geography)):rows;
 }

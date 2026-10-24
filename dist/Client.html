@@ -1961,7 +1961,7 @@
   function createGeographyTabs(id, panelId, onSelect) {
     let tabs = $(id), panel2 = $(panelId), rows = [], regions = [], active = "", focus = !1;
     function select(name) {
-      if (name === otherGeography && regions.length && (name = countryRegion(browserCountry()) || regions.find((row) => row.total)?.name || REGION_CODES[0]), name === active) {
+      if (name === otherGeography && regions.some((row) => row.total) && (name = countryRegion(browserCountry()) || regions.find((row) => row.total)?.name || REGION_CODES[0]), name === active) {
         tabs.querySelector('[tabindex="0"]').focus();
         return;
       }
@@ -1984,7 +1984,7 @@
     } };
   }
   function regionMark(name) {
-    return `<svg class="geography-flag region-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor"/><path d="${{ APAC: "M13 5l5 3-2 4 3 3-2 4-4-2-1-5-3-2z", EMEA: "M10 4l5 3-2 4 3 2-4 7-3-4 1-5-4-2z", AMER: "M5 5l5-1 2 4-4 4 3 3-1 5-3-4 1-4-4-3z" }[name]}" fill="currentColor"/></svg>`;
+    return `<svg class="geography-flag region-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor"/><path d="${["M13 5l5 3-2 4 3 3-2 4-4-2-1-5-3-2z", "M10 4l5 3-2 4 3 2-4 7-3-4 1-5-4-2z", "M5 5l5-1 2 4-4 4 3 3-1 5-3-4 1-4-4-3z"][REGION_CODES.indexOf(name)]}" fill="currentColor"/></svg>`;
   }
 
   // src/client/features/reading-context.js
@@ -2904,7 +2904,7 @@
       $("capability-toolbar").hidden = category !== "taxonomy", $("catalog-help").textContent = t(meta.help) + (category === "storage" ? " ID: " + storagePrimaryId : ""), $("catalog-add").hidden = !!meta.groups || ["applicationScope", "taxonomy"].includes(category);
       let html;
       category === "taxonomy" ? html = `<details class="catalog-row" data-config-detection><summary><strong>${t("Detecci\xF3n de canal digital y b\xFAsquedas")}</strong></summary><p class="muted">${t("Estos criterios recuperan y seleccionan noticias antes de asignar funcionalidades del cat\xE1logo maestro.")}</p><label class="catalog-terms">${t("T\xE9rminos de b\xFAsqueda de sector")}<textarea id="catalog-search-terms" rows="5">${escape2(config.settings.searchTerms.join(`
-`))}</textarea><span class="small muted">${t("Un t\xE9rmino por l\xEDnea")}</span></label><button class="button" type="button" data-add-capability>${t("A\xF1adir capacidad de detecci\xF3n")}</button>${config.capabilities.Empresas.map((row) => `<details class="catalog-row" data-capability><summary><strong>${escape2(row.name)}</strong><span>${t(row.enabled ? "Activa" : "Inactiva")}</span></summary><div class="catalog-grid">${fields(capabilityFields, row)}</div><div class="actions"><button class="button" type="button" data-remove-capability>${t("Eliminar")}</button></div></details>`).join("")}</details>` + config.taxonomy.map((block, index) => `<details class="catalog-row" data-taxonomy-block><summary><strong>${escape2(block.name)}</strong><span>${block.functions.length} ${t("funcionalidades")}</span></summary><div class="catalog-grid">${fields([["name", "Bloque funcional", "readonly"], ["terms", "Equivalencias del bloque", "list"]], block)}</div>${block.functions.map((row) => `<details class="catalog-function" data-function><summary><strong>${escape2(row.id + " \xB7 " + row.name)}</strong><span>${row.terms.length} ${t("equivalencias")}</span></summary><div class="catalog-grid">${fields([["id", "C\xF3digo", "readonly"], ["name", "Funcionalidad / Sub Operativa", "readonly"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"]], row)}</div></details>`).join("")}<h3>${t("Conceptos emergentes admitidos")}</h3><button type="button" class="button" data-add-emerging="${index}">${t("A\xF1adir concepto emergente")}</button>${block.emerging.map((row) => `<div class="catalog-grid" data-emerging>${fields([["name", "Funcionalidad / Sub Operativa", "text"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"], ["primaryTerms", "Productos concretos de fuente oficial", "list"], ["primary", "Producto concreto respaldado por fuente oficial", "boolean"]], row)}<button type="button" class="button" data-remove-emerging>${t("Eliminar")}</button></div>`).join("")}</details>`).join("") : category === "applicationScope" ? html = config.applicationScope.map((scope) => `<fieldset class="catalog-group scope-group" data-scope="${escape2(scope.name)}"><legend>${escape2(scope.name)}</legend><div class="scope-countries">${REGION_CODES.map((region) => `<fieldset class="scope-group"><legend>${region}</legend><div class="scope-countries">${config.geographies.filter((country) => countryRegion(country.name) === region).map((country) => `<label class="scope-country"><input type="checkbox" data-country="${escape2(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${escape2(country.name)}</span></label>`).join("")}</div></fieldset>`).join("")}</div></fieldset>`).join("") : meta.groups ? html = meta.groups.map((group) => {
+`))}</textarea><span class="small muted">${t("Un t\xE9rmino por l\xEDnea")}</span></label><button class="button" type="button" data-add-capability>${t("A\xF1adir capacidad de detecci\xF3n")}</button>${config.capabilities.Empresas.map((row) => `<details class="catalog-row" data-capability><summary><strong>${escape2(row.name)}</strong><span>${t(row.enabled ? "Activa" : "Inactiva")}</span></summary><div class="catalog-grid">${fields(capabilityFields, row)}</div><div class="actions"><button class="button" type="button" data-remove-capability>${t("Eliminar")}</button></div></details>`).join("")}</details>` + config.taxonomy.map((block, index) => `<details class="catalog-row" data-taxonomy-block><summary><strong>${escape2(block.name)}</strong><span>${block.functions.length} ${t("funcionalidades")}</span></summary><div class="catalog-grid">${fields([["name", "Bloque funcional", "readonly"], ["terms", "Equivalencias del bloque", "list"]], block)}</div>${block.functions.map((row) => `<details class="catalog-function" data-function><summary><strong>${escape2(row.id + " \xB7 " + row.name)}</strong><span>${row.terms.length} ${t("equivalencias")}</span></summary><div class="catalog-grid">${fields([["id", "C\xF3digo", "readonly"], ["name", "Funcionalidad / Sub Operativa", "readonly"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"]], row)}</div></details>`).join("")}<h3>${t("Conceptos emergentes admitidos")}</h3><button type="button" class="button" data-add-emerging="${index}">${t("A\xF1adir concepto emergente")}</button>${block.emerging.map((row) => `<div class="catalog-grid" data-emerging>${fields([["name", "Funcionalidad / Sub Operativa", "text"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"], ["primaryTerms", "Productos concretos de fuente oficial", "list"], ["primary", "Producto concreto respaldado por fuente oficial", "boolean"]], row)}<button type="button" class="button" data-remove-emerging>${t("Eliminar")}</button></div>`).join("")}</details>`).join("") : category === "applicationScope" ? html = config.applicationScope.map((scope) => `<fieldset class="catalog-group scope-group" data-scope="${escape2(scope.name)}"><legend>${escape2(scope.name)}</legend><div class="scope-regions">${REGION_CODES.map((region) => `<fieldset class="scope-group"><legend>${region}</legend><div class="scope-countries">${config.geographies.filter((country) => countryRegion(country.name) === region).map((country) => `<label class="scope-country"><input type="checkbox" data-country="${escape2(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${escape2(country.name)}</span></label>`).join("")}</div></fieldset>`).join("")}</div></fieldset>`).join("") : meta.groups ? html = meta.groups.map((group) => {
         let section = group.section || category;
         return `<fieldset class="catalog-group" data-config-section="${section}"><legend>${escape2(t(group.label))}</legend><div class="catalog-settings">${group.keys.map((key) => {
           let value = config[section][key];
@@ -3013,12 +3013,18 @@
   }
 
   // src/client/features/briefing.js
-  function createBriefing({ onExplore }) {
+  function createBriefing({ onExplore, onGeography = () => {
+  } }) {
     let briefing2, groups = [], active = "", selection = {}, scope = [], tabs = createGeographyTabs("briefing-geographies", "briefing-list", (name) => {
-      active = name, paint2();
+      active = name, onGeography(name), paint2();
     });
     function paint2() {
-      let geography = applicationGeography(selection.scope || scope, selection.segment), regional = REGION_CODES.includes(active), group = regional ? { ...noveltyOverview(briefing2.items.filter((row) => geographyMatches(row, active, geography)), BRIEFING_ALLOWED_SIGNALS, () => active).geographies[0], ...briefing2.regions?.find((row) => row.name === active), name: active, items: briefing2.items.filter((row) => geographyMatches(row, active, geography)) } : groups.find((row) => row.name === active), stats = group?.bySignal ? group : briefing2;
+      let geography = applicationGeography(scope, selection.segment), group = groups.find((row) => row.name === active);
+      if (REGION_CODES.includes(active)) {
+        let items = briefing2.items.filter((row) => geographyMatches(row, active, geography)), overview = briefing2.regions?.find((row) => row.name === active) || noveltyOverview(items, BRIEFING_ALLOWED_SIGNALS, () => active).geographies[0];
+        group = { total: 0, entityCount: 0, bySignal: BRIEFING_ALLOWED_SIGNALS.map((name) => ({ name, total: 0 })), ...overview, name: active, items };
+      }
+      let stats = group || briefing2;
       tabs.render(groups, active, regionalGeographies(briefing2.items, geography)), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: briefing2.total }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" ${row.total ? "" : "disabled"} data-signal="${escape2(row.name)}"><strong>${row.total}</strong><span>${escape2(t(row.name === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : row.name))}</span></button>`).join("");
       let rows = group?.items || [];
       $("briefing-list").innerHTML = rows.map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join("") || '<div class="panel empty"><h3>' + t("No hay novedades de producto en esta selecci\xF3n.") + "</h3></div>", $("briefing-limit").hidden = !group || stats.total <= group.items.length, $("briefing-explore").hidden = $("briefing-limit").hidden;
@@ -3439,6 +3445,10 @@
         }
         filterChanged({ type: "change", notify });
       },
+      syncGeography: (name) => {
+        let select = form.elements.country, values = [...select.options].map((option) => option.value).filter(Boolean);
+        options("country", [.../* @__PURE__ */ new Set([...values, name])], name), select.value = name, applied = { ...applied, country: name }, page = 0, initialized.add(view2), renderChips();
+      },
       setGeography: (name) => {
         newsGeography = name, applied.country = REGION_CODES.includes(name) ? name : "", page = 0, onInvalidate(), onChange();
       },
@@ -3703,7 +3713,9 @@
     state.ready && (changed || state.contentStale || state.view !== view2) && load(!0);
   }, onSubscriptions: () => subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters3 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
-  } }), reading = createReadingContext({ run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing({ onExplore: (query) => navigateSelection("news", query) }), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters3.setGeography(name));
+  } }), reading = createReadingContext({ run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing({ onExplore: (query) => navigateSelection("news", query), onGeography: (country) => {
+    filters3.syncGeography(country), refreshSelects();
+  } }), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters3.setGeography(name));
   function navigateSelection(view2, query) {
     filters3.show(view2), filters3.apply(query, !1), state.contentStale = !0, track("filtro"), navigation.show(view2);
   }

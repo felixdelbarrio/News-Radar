@@ -5216,6 +5216,11 @@ const CONFIGURATION_DEFAULTS = {
             "product overview",
             "aggregate",
             "aggregated"
+          ],
+          "exclude": [
+            "workforce dashboard",
+            "stock market dashboard",
+            "cloud cost dashboard"
           ]
         }
       ],
@@ -5468,6 +5473,10 @@ const CONFIGURATION_DEFAULTS = {
             "blockchain settlement",
             "tokenized payments",
             "tokenised payments"
+          ],
+          "exclude": [
+            "child meal",
+            "food delivery"
           ]
         },
         {
@@ -6160,6 +6169,10 @@ const CONFIGURATION_DEFAULTS = {
             "prestamo empresarial",
             "business loan",
             "credito simple"
+          ],
+          "exclude": [
+            "syndicated loan",
+            "bilateral facility"
           ]
         },
         {
@@ -6618,6 +6631,11 @@ const CONFIGURATION_DEFAULTS = {
             "terminales pos",
             "merchant acquiring",
             "adquirencia"
+          ],
+          "exclude": [
+            "child meal",
+            "kids card",
+            "teen card"
           ]
         },
         {
@@ -7087,6 +7105,10 @@ const CONFIGURATION_DEFAULTS = {
             "autenticación",
             "passkey",
             "sesión biométrica"
+          ],
+          "exclude": [
+            "border control",
+            "police facial recognition"
           ]
         },
         {
@@ -7172,6 +7194,10 @@ const CONFIGURATION_DEFAULTS = {
             "personas jurídicas",
             "persona jurídica",
             "sociedades"
+          ],
+          "exclude": [
+            "employee onboarding",
+            "onboarding de empleados"
           ]
         },
         {
@@ -7337,6 +7363,11 @@ const CONFIGURATION_DEFAULTS = {
             "integren banca y contabilidad",
             "integracion banca y contabilidad",
             "integra banca y contabilidad"
+          ],
+          "exclude": [
+            "google cloud customers",
+            "clientes de google cloud",
+            "api tutorial"
           ]
         },
         {

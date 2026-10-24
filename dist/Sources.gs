@@ -8,7 +8,7 @@ function profileFeed_(geo,entity,range,capabilitySearch=false) {
   const terms=capabilitySearch?capabilitySearchTerms_(geo,entity):collectionSearchTerms_(geo);
   if(!terms.length)return null;
   const language=geo.language.split('-')[0],scopes=collectionLanguageMemory_.scopes;
-  if(capabilitySearch&&!scopes.has(language))scopes.set(language,localizedSearchTerms_(configuration_().segments.filter(row=>row.enabled).flatMap(row=>row.terms),geo).slice(0,6));
+  if(capabilitySearch&&!scopes.has(language))scopes.set(language,localizedSearchTerms_(configuration_().segments.filter(row=>row.enabled).flatMap(row=>row.terms),geo,true).slice(0,6));
   if(capabilitySearch&&!scopes.get(language).length)return null;
   const scope=capabilitySearch?' ('+scopes.get(language).map(quote).join(' OR ')+')':'';
   // Fechas al principio y OR agrupados: el proveedor no debe ampliar el período por una alternativa.
@@ -28,7 +28,7 @@ function localizedSearchTerms_(terms,geo,strict=false){
     collectionLanguageMemory_={config,terms,scopes:new Map()};
   }
   const language=geo.language.split('-')[0],native=[],english=[],custom=[];
-  for(const term of terms){const languages=collectionLanguageMemory_.terms.get(searchText_(term));if(!languages){if((!strict||language==='es')&&!/[()]/.test(term))custom.push(term);}else if(languages.has(language))native.push(term);else if(languages.has('en'))english.push(term);}
+  for(const term of terms){if(strict&&language!=='es'&&/[()]/.test(term))continue;const languages=collectionLanguageMemory_.terms.get(searchText_(term));if(!languages){if((!strict||language==='es')&&!/[()]/.test(term))custom.push(term);}else if(languages.has(language))native.push(term);else if(languages.has('en'))english.push(term);}
   return ['it','de','fr','pt','tr'].includes(language)?native:[...native,...english,...custom];
 }
 function collectionSearchTerms_(geo){
