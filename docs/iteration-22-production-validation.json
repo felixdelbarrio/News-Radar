@@ -27,7 +27,88 @@
       "La descarga CSV desde el navegador no completó; se conserva la evidencia DOM local"
     ]
   },
-  "after": null,
+  "after": {
+    "deployment": 108,
+    "release": "3.21.0",
+    "publishedAt": "2026-10-24T21:33:00+02:00",
+    "remoteFilesCompared": 30,
+    "temporaryHelpersPublished": false,
+    "snapshots": {
+      "built": true,
+      "pending": false,
+      "classification": "Completada",
+      "taxonomy": "Completada",
+      "generation": "e4caf269f5ed5faf19f618f924ca8a15f1cd7c7f671c503fe3acee7942cd5c13"
+    },
+    "controlPanelServerMs": [
+      710,
+      1030,
+      1031
+    ],
+    "dashboard": [
+      {
+        "view": "briefing",
+        "rpcMs": 6577,
+        "serverMs": 1202,
+        "newsMs": 114,
+        "preparationMs": 129,
+        "metadataMs": 959,
+        "renderMs": 46,
+        "snapshotHit": true
+      },
+      {
+        "view": "news",
+        "rpcMs": 4170,
+        "serverMs": 1256,
+        "newsMs": 135,
+        "preparationMs": 123,
+        "metadataMs": 998,
+        "renderMs": 32,
+        "snapshotHit": true
+      },
+      {
+        "view": "radar",
+        "rpcMs": 3568,
+        "serverMs": 801,
+        "newsMs": 103,
+        "preparationMs": 139,
+        "metadataMs": 559,
+        "renderMs": 60,
+        "snapshotHit": true
+      }
+    ],
+    "clientRevisit": [
+      {
+        "view": "briefing",
+        "durationMs": 40,
+        "rpcMs": 0,
+        "clientCacheHit": true
+      },
+      {
+        "view": "news",
+        "durationMs": 45,
+        "rpcMs": 0,
+        "clientCacheHit": true
+      },
+      {
+        "view": "radar",
+        "durationMs": 69,
+        "rpcMs": 0,
+        "clientCacheHit": true
+      }
+    ],
+    "targetsVerified": {
+      "dashboardServerBelow300Ms": false,
+      "clientSwitchBelow15Ms": false,
+      "controlPanelBelow400Ms": false
+    },
+    "limitations": [
+      "Muestra de sesión con recopilación activa; no es un ensayo controlado.",
+      "Los paneles cacheados sin cambio no generan telemetría rutinaria; estas medidas corresponden a lecturas registradas.",
+      "Recopilacion conserva 301 tareas del ciclo activo además de un error del ciclo previo; el límite de 200 no elimina trabajo activo ni errores.",
+      "Dos hojas *_tax_* son la generación publicada y se conservan; se retiró la pareja realmente huérfana."
+    ]
+  },
   "cleanup": {
     "before": {
       "phase": "before",
@@ -244,6 +325,298 @@
           "rows": 972
         }
       ]
+    },
+    "verified": {
+      "phase": "verified",
+      "version": "3.21.0",
+      "sheets": [
+        {
+          "name": "Telemetria",
+          "rows": 538
+        },
+        {
+          "name": "Taxonomia_tax_5411faa2-a966-42f8-a927-139e082a162c",
+          "rows": 366
+        },
+        {
+          "name": "Noticias",
+          "rows": 858
+        },
+        {
+          "name": "Taxonomia",
+          "rows": 366
+        },
+        {
+          "name": "Candidatos",
+          "rows": 3000
+        },
+        {
+          "name": "Cobertura",
+          "rows": 37
+        },
+        {
+          "name": "CatalogoFuncional",
+          "rows": 322
+        },
+        {
+          "name": "DashboardSnapshots",
+          "rows": 322
+        },
+        {
+          "name": "NewsletterEventos",
+          "rows": 10
+        },
+        {
+          "name": "NewsletterFeedback",
+          "rows": 1
+        },
+        {
+          "name": "TaxonomiaTraducciones",
+          "rows": 730
+        },
+        {
+          "name": "Recargas",
+          "rows": 20
+        },
+        {
+          "name": "Traducciones",
+          "rows": 2901
+        },
+        {
+          "name": "Configuracion",
+          "rows": 12
+        },
+        {
+          "name": "Suscripciones",
+          "rows": 24
+        },
+        {
+          "name": "NewsletterEnvios",
+          "rows": 55
+        },
+        {
+          "name": "Recopilacion",
+          "rows": 302
+        },
+        {
+          "name": "Adopcion",
+          "rows": 5636
+        },
+        {
+          "name": "Auditoria",
+          "rows": 37
+        },
+        {
+          "name": "Ejecuciones",
+          "rows": 19
+        },
+        {
+          "name": "NewsletterContenido",
+          "rows": 3380
+        },
+        {
+          "name": "NewsletterEdiciones",
+          "rows": 45
+        },
+        {
+          "name": "CategorizacionLLM",
+          "rows": 26
+        },
+        {
+          "name": "Noticias_tax_5411faa2-a966-42f8-a927-139e082a162c",
+          "rows": 972
+        }
+      ],
+      "generation": {
+        "newsSheet": "Noticias_tax_5411faa2-a966-42f8-a927-139e082a162c",
+        "taxonomySheet": "Taxonomia_tax_5411faa2-a966-42f8-a927-139e082a162c",
+        "revision": "cd8a9bcefe8ab03ae00339854d2ee7d3e281b3bc05cb93ce4d9ab5da3a8b767a"
+      },
+      "taxonomy": {
+        "id": "5411faa2-a966-42f8-a927-139e082a162c",
+        "state": "Completada",
+        "phase": "tag",
+        "error": "",
+        "generation": {
+          "newsSheet": "Noticias_tax_5411faa2-a966-42f8-a927-139e082a162c",
+          "taxonomySheet": "Taxonomia_tax_5411faa2-a966-42f8-a927-139e082a162c",
+          "sourceDigest": "b4964ff49161a409a96284bbcf17e60078c8e990a6053ed9272175bac3ec2254",
+          "source": "Noticias_tax_0e769dcc-c87c-4caf-8b3f-76bfbf85453e"
+        }
+      },
+      "compacted": {
+        "daily/2026-10-24/453ff350-ad54-40c6-9882-ab83ef7c0efc": {
+          "actualizada": "2026-10-24T12:14:53.909Z",
+          "total": 300,
+          "procesadas": 300,
+          "omitidas": 0,
+          "nuevas": 19
+        }
+      },
+      "collection": [
+        {
+          "id": "2bf03af5-f21c-4b1a-bd87-94a726be96d6",
+          "state": "Cancelada",
+          "total": "7",
+          "processed": "0",
+          "pending": "0",
+          "added": "0"
+        },
+        {
+          "id": "daily/2026-10-12/548a2a80-8069-4647-993e-cdc49087828e",
+          "state": "Completada",
+          "total": "184",
+          "processed": "184",
+          "pending": "0",
+          "added": "2"
+        },
+        {
+          "id": "daily/2026-10-12/843b3c92-d52c-478e-876e-547ab353b1f6",
+          "state": "Parcial",
+          "total": "1",
+          "processed": "0",
+          "pending": "0",
+          "added": "0"
+        },
+        {
+          "id": "daily/2026-10-13/0a77ca4c-5f04-4637-89ef-15cc72d358ec",
+          "state": "Parcial",
+          "total": "1",
+          "processed": "0",
+          "pending": "0",
+          "added": "0"
+        },
+        {
+          "id": "daily/2026-10-13/8eebcd90-1345-4167-8b1d-014e10ab0800",
+          "state": "Parcial",
+          "total": "1",
+          "processed": "0",
+          "pending": "0",
+          "added": "0"
+        },
+        {
+          "id": "ccffe2b1-f565-4ebe-ba30-474105cb8f7f",
+          "state": "Cancelada",
+          "total": "3796",
+          "processed": "3020",
+          "pending": "0",
+          "added": "4728"
+        },
+        {
+          "id": "daily/2026-10-14/031ab466-1682-4e49-9695-91510d7faab7",
+          "state": "Parcial",
+          "total": "455",
+          "processed": "454",
+          "pending": "0",
+          "added": "848"
+        },
+        {
+          "id": "daily/2026-10-15/1d2bdd80-761f-4a43-a5e1-c725f0c235c5",
+          "state": "Parcial",
+          "total": "361",
+          "processed": "358",
+          "pending": "0",
+          "added": "828"
+        },
+        {
+          "id": "daily/2026-10-16/8aa79fa1-7beb-4e69-b6b8-7e6ffe5d3b5a",
+          "state": "Parcial",
+          "total": "341",
+          "processed": "340",
+          "pending": "0",
+          "added": "2"
+        },
+        {
+          "id": "daily/2026-10-16/c4543f60-9d75-438c-b0c4-f324ac7f56eb",
+          "state": "Parcial",
+          "total": "533",
+          "processed": "532",
+          "pending": "0",
+          "added": "29"
+        },
+        {
+          "id": "daily/2026-10-17/dfd0daf4-397d-44ed-80f2-30e7832abde7",
+          "state": "Parcial",
+          "total": "367",
+          "processed": "366",
+          "pending": "0",
+          "added": "5"
+        },
+        {
+          "id": "daily/2026-10-18/5c8b2b05-6e96-41ec-96b3-1cd1c10c807e",
+          "state": "Parcial",
+          "total": "343",
+          "processed": "342",
+          "pending": "0",
+          "added": "6"
+        },
+        {
+          "id": "daily/2026-10-19/bd57670f-4391-44f2-85ef-3c06c995665c",
+          "state": "Parcial",
+          "total": "341",
+          "processed": "340",
+          "pending": "0",
+          "added": "6"
+        },
+        {
+          "id": "daily/2026-10-20/e19e87d8-4eb9-4a9d-915b-cbfee08f577f",
+          "state": "Parcial",
+          "total": "365",
+          "processed": "364",
+          "pending": "0",
+          "added": "29"
+        },
+        {
+          "id": "daily/2026-10-21/f2dad3f3-1872-4c28-ba43-f19d84162a11",
+          "state": "Parcial",
+          "total": "367",
+          "processed": "366",
+          "pending": "0",
+          "added": "28"
+        },
+        {
+          "id": "daily/2026-10-22/87367a36-ae53-4682-9cf3-46a943ff1e00",
+          "state": "Parcial",
+          "total": "391",
+          "processed": "390",
+          "pending": "0",
+          "added": "60"
+        },
+        {
+          "id": "daily/2026-10-23/85b463a0-e716-439e-84de-00ec83f459d3",
+          "state": "Parcial",
+          "total": "373",
+          "processed": "372",
+          "pending": "0",
+          "added": "32"
+        },
+        {
+          "id": "daily/2026-10-24/5aa24f39-9d58-4d96-baec-0707ce70a195",
+          "state": "Parcial",
+          "total": "309",
+          "processed": "308",
+          "pending": "0",
+          "added": "48"
+        },
+        {
+          "id": "daily/2026-10-24/453ff350-ad54-40c6-9882-ab83ef7c0efc",
+          "state": "Parcial",
+          "total": "301",
+          "processed": "300",
+          "pending": "0",
+          "added": "19"
+        },
+        {
+          "id": "daily/2026-10-24/3ff29ad1-7641-43b9-b800-5dc846ca1574",
+          "state": "Pendiente",
+          "total": "301",
+          "processed": "27",
+          "pending": "274",
+          "added": "0"
+        }
+      ],
+      "retiredProperties": [],
+      "snapshotsPending": true
     }
   }
 }
