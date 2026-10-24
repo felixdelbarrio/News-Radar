@@ -59,6 +59,10 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Mantenimiento incremental en cola.": ["Incremental maintenance queued.", "Art\u0131ml\u0131 bak\u0131m s\u0131raya al\u0131nd\u0131."],
+    "Archivado de logs": ["Log archiving", "G\xFCnl\xFCk ar\u015Fivleme"],
+    "Generar snapshots": ["Build snapshots", "Anl\u0131k g\xF6r\xFCnt\xFC olu\u015Ftur"],
+    "Iniciar mantenimiento": ["Start maintenance", "Bak\u0131m\u0131 ba\u015Flat"],
     "Cada {minutes} minutos": ["Every {minutes} minutes", "Her {minutes} dakikada"],
     "{added} noticias incorporadas \xB7 {errors} errores": ["{added} news items added \xB7 {errors} errors", "{added} haber eklendi \xB7 {errors} hata"],
     "Detecci\xF3n previa de canal digital": ["Digital channel pre-screening", "Dijital kanal \xF6n elemesi"],
@@ -1635,7 +1639,35 @@
   function receive(data) {
     return data?.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), data;
   }
-  var requests = /* @__PURE__ */ new Map(), initialDashboard, releaseInitialDashboard, secondaryMethods = /* @__PURE__ */ new Set(["recordEvents", "getCollectionProgress"]);
+  var requests = /* @__PURE__ */ new Map(), dashboards = /* @__PURE__ */ new Map(), dashboardStorage = "radar-dashboards:v22", dashboardRevision = "", prefetched = !1, dashboardKey = (query) => JSON.stringify(Object.entries(query || {}).filter(([, value]) => value !== "" && value != null).sort(([a], [b]) => a.localeCompare(b)));
+  try {
+    let saved = JSON.parse(sessionStorage.getItem(dashboardStorage) || "null");
+    if (saved && Date.now() - saved.at < 3e5) {
+      dashboardRevision = saved.revision;
+      for (let [key, value] of saved.entries) dashboards.set(key, value);
+    }
+  } catch {
+  }
+  function rememberDashboard(query, data) {
+    let revision = JSON.stringify([data.newsRevision, data.configurationRevision]);
+    revision !== dashboardRevision && (dashboards.clear(), dashboardRevision = revision);
+    let value = { data, at: Date.now() };
+    dashboards.set(dashboardKey(query), value);
+    let selection = { ...data.selection, view: query.view, language: query.language, initial: !1 };
+    for (dashboards.set(dashboardKey(selection), value); dashboards.size > 12; ) dashboards.delete(dashboards.keys().next().value);
+    try {
+      sessionStorage.setItem(dashboardStorage, JSON.stringify({ at: Date.now(), revision: dashboardRevision, entries: [...dashboards] }));
+    } catch {
+    }
+  }
+  function prefetchDashboards(query) {
+    if (prefetched || query.edition) return;
+    prefetched = !0, (window.requestIdleCallback || ((callback) => setTimeout(callback, 1e3)))(() => {
+      for (let view2 of ["briefing", "news", "radar"]) view2 !== query.view && call("getDashboard", { view: view2, language: query.language || "es", initial: !0, ...view2 === "news" ? { newsGeography: query.newsGeography || "" } : {} }, { reuse: !0 }).catch(() => {
+      });
+    });
+  }
+  var initialDashboard, releaseInitialDashboard, secondaryMethods = /* @__PURE__ */ new Set(["recordEvents", "getCollectionProgress"]);
   function deferSecondaryRequests() {
     initialDashboard || (initialDashboard = new Promise((resolve) => {
       releaseInitialDashboard = resolve;
@@ -1647,14 +1679,28 @@
   function call(method, ...args) {
     if (initialDashboard && secondaryMethods.has(method)) return initialDashboard.then(() => call(method, ...args));
     let key = method.startsWith("get") ? JSON.stringify([method, ...args]) : null;
-    if (key && requests.has(key)) return requests.get(key);
+    if (key && requests.has(key)) return method === "getDashboard" ? requests.get(key).then((data) => ({ ...data, performance: { ...data.performance, sharedRequest: !0 } })) : requests.get(key);
+    let dashboard = method === "getDashboard" && ["briefing", "news", "radar"].includes(args[0]?.view) && !args[0]?.edition, cached = dashboard && args[1]?.reuse && dashboards.get(dashboardKey(args[0]));
+    if (cached) {
+      if (Date.now() - cached.at > 6e4) {
+        let refresh = send(method, ...args).then((data) => (rememberDashboard(args[0], data), data));
+        requests.set(key, refresh), refresh.then(() => requests.delete(key), () => requests.delete(key));
+      }
+      return Promise.resolve(receive({ ...cached.data, performance: { ...cached.data.performance, clientCacheHit: !0, serverMs: 0, transportMs: 0 } }));
+    }
     let finishLoading = beginLoading(method, args), response, started = performance.now();
     try {
-      response = send(method, ...args), method === "getDashboard" && (response = response.then((data) => ({ ...data, performance: { ...data.performance, transportMs: Math.round(performance.now() - started) } })));
+      response = send(method, ...method === "getDashboard" ? args.slice(0, 1) : args), method === "getDashboard" && (response = response.then((data) => ({ ...data, performance: { ...data.performance, transportMs: Math.round(performance.now() - started) } })));
     } catch (error) {
       throw finishLoading(), error;
     }
-    key && requests.set(key, response);
+    if (dashboard && (response = response.then((data) => (rememberDashboard(args[0], data), prefetchDashboards(args[0]), data))), key && requests.set(key, response), !method.startsWith("get") && method !== "recordEvents") {
+      dashboards.clear();
+      try {
+        sessionStorage.removeItem(dashboardStorage);
+      } catch {
+      }
+    }
     let complete = () => {
       key && requests.delete(key), finishLoading();
     };
@@ -2035,7 +2081,7 @@
         return "<option" + (/^\d{2}\./.test(label) ? ' data-catalog-name="' + escape2(label) + '"' : "") + ' value="' + escape2(key) + '">' + escape2(/^\d{2}\./.test(label) ? taxonomyDisplayLabel(t(label)) : displayRecord(label, language)) + "</option>";
       }).join("");
     }
-    $(id + "-filters").innerHTML = `<button type="button" class="button" id="${id}-open-filters">${t("Filtros")}<span class="filter-count" id="${id}-filter-count"></span></button><div class="active-filters" id="${id}-chips" aria-label="${t("Filtros activos")}"></div><dialog class="filter-dialog admin-record-dialog" id="${id}-dialog" aria-label="${t("Filtros")}"><div class="dialog-header"><h2>${t("Filtros")}</h2><button type="button" class="button" id="${id}-close-filters" aria-label="${t("Cerrar panel")}">\u2715</button></div><form id="${id}-filter-form"><div class="record-filters"><label>${t("Buscar")}<input type="search" id="${id}-search" placeholder="${escape2(t(placeholder))}"></label>${fields.map(([key, label, values]) => `<label>${escape2(t(label))}<select id="${id}-${key}"><option value="">${t("Todos")}</option>${options(values || [])}</select></label>`).join("")}${dates ? ["from", "to"].map((key) => `<label>${t(labels2[key])}<input type="date" id="${id}-${key}"></label>`).join("") : ""}</div><div class="filter-dialog-actions"><button class="button" type="button" id="${id}-clear">${t("Limpiar filtros")}</button><button class="button primary" type="submit" id="${id}-apply">${t("Aplicar filtros")}</button></div></form></dialog>`;
+    $(id + "-filters").innerHTML = `<button type="button" class="button" id="${id}-open-filters">${$("open-filters")?.querySelector?.("svg")?.outerHTML || ""} ${t("Filtros")}<span class="filter-count" id="${id}-filter-count"></span></button><div class="active-filters" id="${id}-chips" aria-label="${t("Filtros activos")}"></div><dialog class="filter-dialog admin-record-dialog" id="${id}-dialog" aria-label="${t("Filtros")}"><div class="dialog-header"><h2>${t("Filtros")}</h2><button type="button" class="button" id="${id}-close-filters" aria-label="${t("Cerrar panel")}">\u2715</button></div><form id="${id}-filter-form"><div class="record-filters"><label>${t("Buscar")}<input type="search" id="${id}-search" placeholder="${escape2(t(placeholder))}"></label>${fields.map(([key, label, values]) => `<label>${escape2(t(label))}<select id="${id}-${key}"><option value="">${t("Todos")}</option>${options(values || [])}</select></label>`).join("")}${dates ? ["from", "to"].map((key) => `<label>${t(labels2[key])}<input type="date" id="${id}-${key}"></label>`).join("") : ""}</div><div class="filter-dialog-actions"><button class="button" type="button" id="${id}-clear">${t("Limpiar filtros")}</button><button class="button primary" type="submit" id="${id}-apply">${t("Aplicar filtros")}</button></div></form></dialog>`;
     let dialog2 = $(id + "-dialog");
     function chips() {
       let values = keys.filter((key) => applied[key]);
@@ -2136,11 +2182,11 @@
   }
 
   // src/client/features/runs.js
-  var request = 0, timer, panelDaily = !1, syncRecovery = () => {
-  }, processActions = { classification: ["classification-start", "Clasificar pendientes"], translation: ["translation-start", "Traducir pendientes"], taxonomy: ["taxonomy-start", "Actualizar cat\xE1logo"] };
+  var request = 0, timer, panelDaily = !1, panelActive = !1, syncRecovery = () => {
+  }, processActions = { classification: ["classification-start", "Clasificar pendientes"], translation: ["translation-start", "Traducir pendientes"], taxonomy: ["taxonomy-start", "Actualizar cat\xE1logo"], snapshot: ["snapshot-start", "Generar snapshots"], maintenance: ["maintenance-start", "Iniciar mantenimiento"] };
   function processCard(job) {
     let action2 = processActions[job.stage], active = !["Completada", "Parcial", "En pausa", "Detenido por falta de cuota", "Sin ejecuciones"].includes(job.progress.state), status = job.valid === !1 ? "error" : job.status, progress = job.progress;
-    return `<article class="process-card" data-process="${escape2(job.id || job.stage)}"><div class="schedule-heading"><h4>${escape2(t(job.label))}</h4><span class="process-state" data-status="${escape2(status)}">${escape2(t(job.enabled ? "Activo" : "Inactivo"))}${progress.state === "Activo" ? "" : " \xB7 " + escape2(t(progress.state))}</span></div>${job.timezone ? `<p class="small muted">${escape2(job.timezone)}</p>` : ""}${job.modified ? `<p>${t("\xDAltima modificaci\xF3n")}: ${escape2(date(job.modified))}</p>` : ""}${job.total !== void 0 ? `<div id="${job.id || (job.stage === "newsletter" ? "newsletter-delivery" : job.stage === "taxonomyTranslation" ? "taxonomy-translation" : job.stage)}-progress"><progress max="${Math.max(1, job.total)}" value="${job.done}" aria-label="${escape2(t(job.label))}"></progress><p class="small muted">${job.done}/${job.total}</p></div>` : ""}${progressDetailsHtml(progress)}${job.comment ? `<p class="small muted">${escape2(t(job.comment))}</p>` : ""}${job.active ? `<p>${t("En curso")}: ${escape2(t(job.active))}</p>` : ""}${job.dispatched ? `<p class="small muted">${t("\xDAltimo proceso autorizado")}: ${escape2(t(job.dispatched.label))} \xB7 ${escape2(date(job.dispatched.at))}</p>` : ""}${job.waiting?.length ? `<details><summary>${t("Trabajos en espera")} (${job.waiting.length})</summary><ul>${job.waiting.map((row) => `<li>${escape2(t(row.label))}: ${escape2(t(row.reason))}${row.restartAt ? " \xB7 " + escape2(date(row.restartAt)) : ""}</li>`).join("")}</ul></details>` : ""}${action2 ? `<button type="button" class="button" id="${action2[0]}" data-process-action="${job.stage}" data-job-active="${active}" ${active ? "disabled" : ""}>${t(action2[1])}</button>` : ""}</article>`;
+    return `<article class="process-card" data-process="${escape2(job.id || job.stage)}"><div class="schedule-heading"><h4>${escape2(t(job.label))}</h4><span class="process-state" data-status="${escape2(status)}">${escape2(t(job.enabled ? "Activo" : "Inactivo"))}${progress.state === "Activo" ? "" : " \xB7 " + escape2(t(progress.state))}</span></div>${job.timezone ? `<p class="small muted">${escape2(job.timezone)}</p>` : ""}${job.modified ? `<p>${t("\xDAltima modificaci\xF3n")}: ${escape2(date(job.modified))}</p>` : ""}${job.total !== void 0 ? `<div id="${job.id || (job.stage === "newsletter" ? "newsletter-delivery" : job.stage === "taxonomyTranslation" ? "taxonomy-translation" : job.stage)}-progress"><progress max="${Math.max(1, job.total)}" value="${job.done}" aria-label="${escape2(t(job.label))}"></progress><p class="small muted">${job.done}/${job.total}</p></div>` : ""}${progressDetailsHtml(progress)}${job.comment ? `<p class="small muted">${escape2(t(job.comment))}</p>` : ""}${job.active ? `<p>${t("En curso")}: ${escape2(t(job.active))}</p>` : ""}${job.dispatched ? `<p class="small muted">${t("\xDAltimo proceso autorizado")}: ${escape2(t(job.dispatched.label))} \xB7 ${escape2(date(job.dispatched.at))}</p>` : ""}${job.waiting?.length ? `<details><summary>${t("Trabajos en espera")} (${job.waiting.length})</summary><ul>${job.waiting.map((row) => `<li>${escape2(t(row.label))}: ${escape2(t(row.reason))}${row.restartAt ? " \xB7 " + escape2(date(row.restartAt)) : ""}</li>`).join("")}</ul></details>` : ""}${job.stage === "daily" ? `<button type="button" class="button" data-collection-slot="${escape2(job.id)}" ${active ? "disabled" : ""}>${t("Recopilar ahora")}</button>` : ""}${action2 ? `<button type="button" class="button" id="${action2[0]}" data-process-action="${job.stage}" data-job-active="${active}" ${active ? "disabled" : ""}>${t(action2[1])}</button>` : ""}</article>`;
   }
   function closeRuns() {
     request++, clearTimeout(timer);
@@ -2150,11 +2196,11 @@
     let current = request;
     try {
       let data = await call("getControlPanel");
-      return current !== request ? void 0 : (panelDaily = !!data.daily, data.groups && ($("control-panel-groups").innerHTML = data.groups.map((group) => `<section class="process-group" data-process-group="${group.id}"><div class="panel-header"><h3>${escape2(t(group.label))}</h3><span class="small muted">${t("Prioridad")} ${group.priority}</span></div><div class="process-grid">${group.jobs.map(processCard).join("")}</div>${group.manual ? `<details class="admin-action-panel"><summary>${t("Contingencia manual")}</summary>${processCard(group.manual)}<div class="recovery-control"><button class="button primary" id="collect" type="button">${t("Recopilar ahora")}</button><button class="button" id="continue-collection" type="button" hidden>${t("Continuar recuperaci\xF3n")}</button><button class="button" type="button" id="retry-collection">${t("Reintentar fuentes fallidas")}</button><button class="button" type="button" id="toggle-daily">${t(data.daily ? "Desactivar recopilaci\xF3n diaria" : "Activar recopilaci\xF3n diaria")}</button></div><p id="recovery-status" class="small muted" aria-live="polite"></p></details>` : ""}</section>`).join("")), $("retry-archive").hidden = !data.archive?.error, $("control-panel-error").textContent = data.archive?.error || "", renderCollectionJobs(data.collection), data);
+      return current !== request ? void 0 : (panelDaily = !!data.daily, panelActive = !!data.groups?.some((group) => group.jobs.some((job) => job.status === "pending")), data.groups && ($("control-panel-groups").innerHTML = data.groups.map((group) => `<section class="process-group" data-process-group="${group.id}"><div class="panel-header"><h3>${escape2(t(group.label))}</h3><span class="small muted">${t("Prioridad")} ${group.priority}</span></div><div class="process-grid">${group.jobs.map(processCard).join("")}</div></section>`).join("")), $("control-panel-error").textContent = data.archive?.error || "", renderCollectionJobs(data.collection), data);
     } catch (error) {
       current === request && message(error.message, !0);
     } finally {
-      current === request && !$("runs-section").hidden && !$("administration-section").hidden && (timer = setTimeout(pollRuns, 3e4));
+      current === request && !$("runs-section").hidden && !$("administration-section").hidden && (timer = setTimeout(pollRuns, panelActive ? 3e4 : 12e4));
     }
   }
   function renderCollectionJobs(status) {
@@ -2165,15 +2211,18 @@
     function render(next = status) {
       status = next || {};
       let blocked = !!status.blocked?.today, button = $("collect");
-      if (button) {
-        button.disabled = busy || blocked, $("recovery-status").textContent = blocked ? t("Ya hay una recuperaci\xF3n diaria en curso.") : "", $("continue-collection").hidden = !blocked;
-        for (let id of ["continue-collection", "retry-collection", "toggle-daily"]) $(id).disabled = busy;
-      }
+      button && (button.disabled = busy || blocked, $("recovery-status").textContent = blocked ? t("Ya hay una recuperaci\xF3n diaria en curso.") : "");
     }
     return $("runs-section").addEventListener("click", (event) => {
       let button = event.target.closest("button");
       if (!button) return;
-      let methods = { collect: "collectNow", "continue-collection": "resumeCollection", "retry-collection": "retryCollectionErrors", "retry-archive": "resumeOperationalArchive", classification: "startClassification", translation: "startTranslations", taxonomy: "startTaxonomy" }, key = button.dataset.processAction || button.id, method = key === "toggle-daily" ? panelDaily ? "disableDaily" : "enableDaily" : methods[key];
+      let methods = { collect: "collectNow", "continue-collection": "resumeCollection", "retry-collection": "retryCollectionErrors", "retry-archive": "resumeOperationalArchive", classification: "startClassification", translation: "startTranslations", taxonomy: "startTaxonomy", snapshot: "rebuildDashboardSnapshots", maintenance: "startMaintenance" }, key = button.dataset.processAction || button.id, method = key === "toggle-daily" ? panelDaily ? "disableDaily" : "enableDaily" : methods[key];
+      if (button.dataset.collectionSlot) {
+        run(async () => {
+          message(await call("collectSlot", button.dataset.collectionSlot)), await loadRuns();
+        }, !1);
+        return;
+      }
       method && run(async () => {
         let result = await call(method, ...["collectNow", "resumeCollection"].includes(method) ? ["today"] : []);
         typeof result == "string" ? message(result) : result?.notice && message(result.notice, !!result.errors?.length), await loadRuns();
@@ -2190,6 +2239,9 @@
     loadRuns();
   }
   $("control-panel-refresh").addEventListener("click", loadRuns);
+  document.addEventListener("visibilitychange", () => {
+    clearTimeout(timer), !document.hidden && !$("runs-section").hidden && !$("administration-section").hidden && loadRuns();
+  });
 
   // src/client/features/collection-progress.js
   function createCollectionProgress({ isActive, isBusy, onStatus }) {
@@ -3609,8 +3661,8 @@
   initializeLocalization();
   var refreshSelects = initializeSearchableSelects();
   initializeDatePickers();
-  var state = { data: null, request: 0, busy: !1, contentStale: !1, attribution: "", view: null, ready: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data, getAttribution: () => state.attribution && state.data?.context?.id === state.attribution ? state.attribution : "" }), { track, flush } = usage, dashboards = /* @__PURE__ */ new Map(), selectionKey = (query) => JSON.stringify(Object.entries(query).filter(([, value]) => value !== "" && value != null).sort(([a], [b]) => a.localeCompare(b))), configuration = createConfiguration({ run: action }), taxonomy = createTaxonomy(), llmCategorization = createLlmCategorization({ run: action, refreshSelects, isActive: () => navigation.current === "administration" && administration.current === "llm", onRevision: (revision) => {
-    state.data && revision !== state.data.newsRevision && (state.contentStale = !0, dashboards.clear());
+  var state = { data: null, request: 0, busy: !1, contentStale: !1, attribution: "", view: null, ready: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data, getAttribution: () => state.attribution && state.data?.context?.id === state.attribution ? state.attribution : "" }), { track, flush } = usage, dashboards2 = /* @__PURE__ */ new Map(), selectionKey = (query) => JSON.stringify(Object.entries(query).filter(([, value]) => value !== "" && value != null).sort(([a], [b]) => a.localeCompare(b))), configuration = createConfiguration({ run: action }), taxonomy = createTaxonomy(), llmCategorization = createLlmCategorization({ run: action, refreshSelects, isActive: () => navigation.current === "administration" && administration.current === "llm", onRevision: (revision) => {
+    state.data && revision !== state.data.newsRevision && (state.contentStale = !0, dashboards2.clear());
   } }), subscriptions = createSubscriptions({ run: action }), newsletterDelivery = createNewsletterDelivery({ run: action }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]), onRuns: loadRuns, onLeaveRuns: closeRuns, onTaxonomy: () => taxonomy.open(), onLlm: () => llmCategorization.open(), onLeaveLlm: () => llmCategorization.close() }), panel = createFilterPanel(), navigation = createNavigation({ onPanel: (view2) => {
     view2 !== "administration" && (llmCategorization.close(), closeRuns()), ++state.request, panel.show(view2), state.data && collectionProgress.update(state.data), refreshLoading();
   }, onSelection: (view2) => {
@@ -3637,18 +3689,18 @@
       try {
         let administrative = navigation.current === "administration", query = administrative ? { view: administration.current, language: filters3.query().language } : filters3.query();
         administrative || (renderFreshness(query.initial ? {} : query, state.data?.lastRun), query.initial && ($("active-filters").hidden = !0)), query.view === "news" && !query.edition && !query.newsGeography && (query.newsGeography = browserCountry());
-        let key = selectionKey(query), cached = reuse && !administrative && !state.contentStale && dashboards.get(key), clientCacheHit = !!(cached && performance.now() - cached.time < navigationCache.milliseconds), data = clientCacheHit ? { ...cached.data, collection: state.data.collection, lastRun: state.data.lastRun, daily: state.data.daily } : await call("getDashboard", query), appended = null;
+        let key = selectionKey(query), cached = reuse && !administrative && !state.contentStale && dashboards2.get(key), clientCacheHit = !!(cached && performance.now() - cached.time < navigationCache.milliseconds), data = clientCacheHit ? { ...cached.data, collection: state.data.collection, lastRun: state.data.lastRun, daily: state.data.daily } : await call("getDashboard", query, { reuse }), appended = null;
         if (request3 !== state.request) return;
         if (query.view === "news" && query.page > 0 && (state.data?.newsRevision === data.newsRevision && data.page === query.page ? (appended = data.items, data = { ...data, items: [...state.data.items, ...appended] }) : data = await call("getDashboard", { ...query, page: 0 })), request3 === state.request) {
           let first = !state.data;
-          !administrative && !clientCacheHit && state.data && (data.newsRevision !== state.data.newsRevision || data.configurationRevision !== state.data.configurationRevision) && dashboards.clear(), administrative && state.data ? data = { ...state.data, ...data, selection: state.data.selection, context: state.data.context } : state.contentStale = !1, state.data = data, state.view = query.view;
+          !administrative && !clientCacheHit && state.data && (data.newsRevision !== state.data.newsRevision || data.configurationRevision !== state.data.configurationRevision) && dashboards2.clear(), administrative && state.data ? data = { ...state.data, ...data, selection: state.data.selection, context: state.data.context } : state.contentStale = !1, state.data = data, state.view = query.view;
           let renderStarted = performance.now();
           if (!administrative) {
             filters3.render(data);
             let key2 = selectionKey({ ...filters3.query(), ...query.newsGeography ? {} : { newsGeography: "" } });
-            dashboards.delete(key2), data.newsRevision && data.configurationRevision && dashboards.set(key2, { data, time: clientCacheHit ? cached.time : performance.now() }), dashboards.size > navigationCache.entries && dashboards.delete(dashboards.keys().next().value);
+            dashboards2.delete(key2), data.newsRevision && data.configurationRevision && dashboards2.set(key2, { data, time: clientCacheHit ? cached.time : performance.now() }), dashboards2.size > navigationCache.entries && dashboards2.delete(dashboards2.keys().next().value);
           }
-          renderSelection(data, navigation.current, appended), renderApplicationShell(data), releaseSecondaryRequests(), track("rendimiento", performance.now() - started, { ...data.performance, ...clientCacheHit ? { serverMs: 0, newsMs: 0, preparationMs: 0, metadataMs: 0, cacheHit: !0, snapshotHit: !1 } : {}, clientCacheHit, sharedRequest: !clientCacheHit && data.performance.transportMs > performance.now() - started + 5, rpcMs: clientCacheHit ? 0 : data.performance.transportMs, renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
+          renderSelection(data, navigation.current, appended), renderApplicationShell(data), releaseSecondaryRequests(), track("rendimiento", performance.now() - started, { ...data.performance, ...clientCacheHit ? { serverMs: 0, newsMs: 0, preparationMs: 0, metadataMs: 0, cacheHit: !0, snapshotHit: !1 } : {}, clientCacheHit: clientCacheHit || !!data.performance.clientCacheHit, sharedRequest: !!data.performance.sharedRequest, rpcMs: clientCacheHit ? 0 : data.performance.transportMs, renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
         }
       } catch (error) {
         request3 === state.request && (track("error"), releaseSecondaryRequests(), message(error.message || String(error), !0));

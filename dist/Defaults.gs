@@ -1721,403 +1721,6 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
     ]
   }
 ]);
-const CONFIGURATION_VOCABULARY_UPDATE = Object.freeze({
-  "version": "3.17.0",
-  "relevanceRules": [
-    {
-      "name": "Evidencia de canal digital",
-      "terms": [
-        "transacciones inmediatas",
-        "pagos inmediatos",
-        "bre-b",
-        "instant transfers",
-        "pasarela de pago",
-        "pasarelas de pago",
-        "trends in",
-        "data shows",
-        "stablecoin payments",
-        "pagos con stablecoins",
-        "softpos",
-        "tap to pay",
-        "parking account",
-        "liquidacion blockchain"
-      ]
-    },
-    {
-      "name": "Servicios financieros y operativa",
-      "terms": [
-        "transacciones inmediatas",
-        "llaves",
-        "bre-b",
-        "gastos",
-        "nominas",
-        "payroll",
-        "impuestos",
-        "tax",
-        "adquirencia",
-        "acquiring",
-        "depositos",
-        "deposit",
-        "seguros",
-        "insurance",
-        "huella de carbono",
-        "carbon footprint",
-        "stablecoin",
-        "stablecoins",
-        "parking account",
-        "cuenta remunerada",
-        "liquidacion blockchain",
-        "tokenized payments",
-        "softpos",
-        "tributos provinciales"
-      ]
-    },
-    {
-      "name": "Capacidades reutilizables por empresas",
-      "terms": [
-        "transacciones inmediatas",
-        "pagos inmediatos",
-        "bre-b",
-        "digitaliza gastos",
-        "request to pay",
-        "cyber insurance",
-        "ciberseguro",
-        "stablecoin",
-        "stablecoins",
-        "retargeting",
-        "deeplink"
-      ]
-    },
-    {
-      "name": "Infraestructura y servicios empresariales",
-      "terms": [
-        "bre-b"
-      ]
-    },
-    {
-      "name": "Excluir avisos rutinarios y sucesos individuales",
-      "terms": [],
-      "remove": [
-        "caida de",
-        "sufrio caida",
-        "presenta fallas",
-        "presentan fallas",
-        "reporta fallas",
-        "reportan fallas",
-        "reportan problemas",
-        "habrian problemas",
-        "fallas masivas",
-        "se cayo",
-        "colapsaron",
-        "caida global",
-        "falla global",
-        "no funciona*",
-        "goes down",
-        "outage",
-        "intermitencias",
-        "no podian",
-        "fuera de servicio",
-        "no se puede iniciar"
-      ]
-    },
-    {
-      "name": "Infraestructura y servicios empresariales",
-      "terms": [
-        "payment processing",
-        "procesamiento de pagos"
-      ]
-    },
-    {
-      "name": "Excluir información corporativa sin utilidad de canal",
-      "terms": [
-        "earnings",
-        "net profit",
-        "share price",
-        "stock price",
-        "stock and other",
-        "keeps buy",
-        "stock narrative",
-        "stocks to watch",
-        "look fully valued",
-        "yield that",
-        "forum & discussion",
-        "index ntr",
-        "price target",
-        "shares sold",
-        "shares bought",
-        "shares purchased",
-        "shares of",
-        "dividend*",
-        "dividendo*",
-        "cotizacion",
-        "recompra de acciones",
-        "capital notes",
-        "appoint*",
-        "nombramiento*",
-        "nombra",
-        "names new",
-        "nueva responsable",
-        "nuevo director",
-        "patrocinio",
-        "sponsorship",
-        "premio*",
-        "premiad*",
-        "premiara",
-        "mejor banco",
-        "recognised for",
-        "award*",
-        "pension*",
-        "jubilacion",
-        "quiniela",
-        "loteria",
-        "resultados financieros",
-        "ingresos de su negocio",
-        "beneficios del grupo",
-        "resultado neto",
-        "net income",
-        "quarterly results",
-        "acquires",
-        "para comprar la empresa",
-        "adquiere la empresa",
-        "compra de la compañía"
-      ]
-    },
-    {
-      "name": "Excluir guías genéricas sin movimiento de mercado",
-      "terms": [
-        "que es",
-        "que son",
-        "what is",
-        "what are",
-        "how to",
-        "guia de",
-        "guide to",
-        "como abrir",
-        "como activar",
-        "como solicitar",
-        "como invertir",
-        "como pagar",
-        "como retirar",
-        "usos reales",
-        "consejos para",
-        "tips for",
-        "why",
-        "por qué",
-        "cómo la",
-        "como la",
-        "survey",
-        "surveyed",
-        "study finds",
-        "report"
-      ]
-    },
-    {
-      "name": "Excluir consumo particular sin contexto empresarial",
-      "terms": [
-        "particulares",
-        "personal customers",
-        "personal finance",
-        "consumer lending",
-        "consumo*",
-        "cuotas",
-        "installments",
-        "descuentos",
-        "promocion especial",
-        "regalo",
-        "pago complementario",
-        "cash payments",
-        "payment offer",
-        "groups of customers",
-        "claim",
-        "beca*",
-        "bps",
-        "auh",
-        "pensionados",
-        "colpensiones",
-        "seniors",
-        "sueldo",
-        "prestamo personal",
-        "prestamos personales",
-        "casino",
-        "apuestas",
-        "hipoteca*",
-        "mortgage*",
-        "cuenta de ahorro*",
-        "cuenta ahorro*",
-        "ahorrar",
-        "ahorro",
-        "remunerada",
-        "rentabilidad",
-        "tae",
-        "cashback",
-        "nomina",
-        "jovenes",
-        "students",
-        "estudiantes",
-        "family",
-        "familiares",
-        "retirement",
-        "familiares y amigos",
-        "friends and family"
-      ]
-    }
-  ],
-  "capabilities": [
-    {
-      "name": "Gestión de gastos corporativos",
-      "terms": [
-        "digitaliza gastos",
-        "digitalizacion de gastos",
-        "digitises expenses",
-        "digitizes expenses"
-      ]
-    },
-    {
-      "name": "Transferencias",
-      "terms": [
-        "transacciones inmediatas",
-        "pagos inmediatos",
-        "bre-b",
-        "instant transfers"
-      ]
-    }
-  ],
-  "searchLanguages": [
-    {
-      "name": "Español",
-      "terms": [
-        "nominas digitales",
-        "pago de impuestos",
-        "adquirencia",
-        "depositos a plazo",
-        "huella de carbono",
-        "salud financiera",
-        "ciberseguro",
-        "stablecoins",
-        "request to pay",
-        "deeplink",
-        "pagos vostro",
-        "cuentas vostro",
-        "Quantum",
-        "depósitos tokenizados",
-        "pagos con stablecoins",
-        "agentes de ia",
-        "indisponibilidad",
-        "intermitencias",
-        "fallas masivas",
-        "transferencias fallidas"
-      ]
-    },
-    {
-      "name": "English",
-      "terms": [
-        "payroll",
-        "tax payments",
-        "merchant acquiring",
-        "term deposit",
-        "carbon footprint",
-        "financial health",
-        "cyber insurance",
-        "stablecoin",
-        "request to pay",
-        "deep link",
-        "vostro payments",
-        "vostro accounts",
-        "Quantum",
-        "tokenized deposits",
-        "tokenised deposits",
-        "stablecoin payouts",
-        "stablecoin payments",
-        "ai agents",
-        "agentic ai",
-        "personal agent protocol",
-        "trade finance automation",
-        "automate trade finance",
-        "cleareye",
-        "payment gateway",
-        "custody",
-        "model context protocol",
-        "outage",
-        "service disruption",
-        "payment failures",
-        "delayed payments"
-      ]
-    }
-  ],
-  "taxonomy": [
-    {
-      "id": "17.16",
-      "remove": [
-        "contpaqi"
-      ],
-      "terms": [
-        "integren banca y contabilidad",
-        "integracion banca y contabilidad",
-        "integra banca y contabilidad"
-      ]
-    },
-    {
-      "id": "03.13",
-      "remove": [],
-      "terms": [
-        "stablecoin payments",
-        "pagos con stablecoins",
-        "cross-border stablecoin",
-        "liquidacion blockchain",
-        "blockchain settlement",
-        "tokenized payments",
-        "tokenised payments"
-      ]
-    },
-    {
-      "id": "02.17",
-      "remove": [],
-      "terms": [
-        "parking account",
-        "parking accounts",
-        "cuenta remunerada para empresas",
-        "cuentas remuneradas para empresas",
-        "b2b parking",
-        "excedentes de tesoreria"
-      ]
-    },
-    {
-      "id": "11.02",
-      "remove": [],
-      "terms": [
-        "softpos",
-        "tap to pay",
-        "terminales pos",
-        "merchant acquiring",
-        "adquirencia",
-        "terminal de pago",
-        "pagos integrados en comercio"
-      ]
-    },
-    {
-      "id": "05.23",
-      "remove": [],
-      "terms": [
-        "impuestos provinciales",
-        "tributos provinciales",
-        "impuestos estatales",
-        "tasas provinciales"
-      ]
-    },
-    {
-      "id": "16.01",
-      "remove": [],
-      "terms": [
-        "problemas de acceso",
-        "error al iniciar sesion",
-        "no deja entrar",
-        "unable to log in",
-        "login outage",
-        "fallo de autenticacion"
-      ]
-    }
-  ]
-});
 const CONFIGURATION_DEFAULTS = {
   "settings": {
     "timezone": "Europe/Madrid",
@@ -4339,7 +3942,11 @@ const CONFIGURATION_DEFAULTS = {
           "control de gastos",
           "spending controls",
           "limites de tarjetas",
-          "limites de las tarjetas"
+          "limites de las tarjetas",
+          "digitaliza gastos",
+          "digitalizacion de gastos",
+          "digitises expenses",
+          "digitizes expenses"
         ],
         "enabled": true
       },
@@ -4573,7 +4180,11 @@ const CONFIGURATION_DEFAULTS = {
         "name": "Transferencias",
         "terms": [
           "transferencias",
-          "transfers"
+          "transfers",
+          "transacciones inmediatas",
+          "pagos inmediatos",
+          "bre-b",
+          "instant transfers"
         ],
         "enabled": true
       },
@@ -5072,7 +4683,19 @@ const CONFIGURATION_DEFAULTS = {
         "datáfono",
         "e-invoicing",
         "pasarela de pago",
-        "pasarelas de pago"
+        "pasarelas de pago",
+        "transacciones inmediatas",
+        "pagos inmediatos",
+        "bre-b",
+        "instant transfers",
+        "trends in",
+        "data shows",
+        "stablecoin payments",
+        "pagos con stablecoins",
+        "softpos",
+        "tap to pay",
+        "parking account",
+        "liquidacion blockchain"
       ],
       "enabled": true
     },
@@ -5149,7 +4772,16 @@ const CONFIGURATION_DEFAULTS = {
         "huella de carbono",
         "carbon footprint",
         "stablecoin",
-        "stablecoins"
+        "stablecoins",
+        "transacciones inmediatas",
+        "llaves",
+        "bre-b",
+        "gastos",
+        "parking account",
+        "cuenta remunerada",
+        "liquidacion blockchain",
+        "tokenized payments",
+        "tributos provinciales"
       ],
       "enabled": true
     },
@@ -5208,7 +4840,11 @@ const CONFIGURATION_DEFAULTS = {
         "deeplink",
         "impuestos provinciales",
         "tributos provinciales",
-        "impuestos estatales"
+        "impuestos estatales",
+        "transacciones inmediatas",
+        "pagos inmediatos",
+        "bre-b",
+        "digitaliza gastos"
       ],
       "enabled": true
     },
@@ -5239,7 +4875,8 @@ const CONFIGURATION_DEFAULTS = {
         "tokenized deposits",
         "tokenised deposits",
         "payment processing",
-        "procesamiento de pagos"
+        "procesamiento de pagos",
+        "bre-b"
       ],
       "enabled": true
     },
@@ -5392,7 +5029,8 @@ const CONFIGURATION_DEFAULTS = {
         "study report",
         "market report",
         "trends in",
-        "data shows"
+        "data shows",
+        "report"
       ],
       "enabled": true
     },
@@ -5589,7 +5227,14 @@ const CONFIGURATION_DEFAULTS = {
         },
         {
           "id": "02.17",
-          "terms": []
+          "terms": [
+            "parking account",
+            "parking accounts",
+            "cuenta remunerada para empresas",
+            "cuentas remuneradas para empresas",
+            "b2b parking",
+            "excedentes de tesoreria"
+          ]
         },
         {
           "id": "02.18",
@@ -5710,7 +5355,14 @@ const CONFIGURATION_DEFAULTS = {
             "remesas internacionales",
             "cross-border real-time payments",
             "x-border real-time payments",
-            "cross border real time payments"
+            "cross border real time payments",
+            "stablecoin payments",
+            "pagos con stablecoins",
+            "cross-border stablecoin",
+            "liquidacion blockchain",
+            "blockchain settlement",
+            "tokenized payments",
+            "tokenised payments"
           ]
         },
         {
@@ -6078,7 +5730,10 @@ const CONFIGURATION_DEFAULTS = {
           "terms": [
             "impuestos provinciales",
             "provincial tax",
-            "state tax payments"
+            "state tax payments",
+            "tributos provinciales",
+            "impuestos estatales",
+            "tasas provinciales"
           ]
         },
         {
@@ -6832,7 +6487,14 @@ const CONFIGURATION_DEFAULTS = {
             "digital merchant onboarding",
             "merchant acquiring onboarding",
             "alta de comercio",
-            "afiliación de comercios"
+            "afiliación de comercios",
+            "softpos",
+            "tap to pay",
+            "terminales pos",
+            "merchant acquiring",
+            "adquirencia",
+            "terminal de pago",
+            "pagos integrados en comercio"
           ],
           "context": [
             "alta de comercio",
@@ -7297,7 +6959,13 @@ const CONFIGURATION_DEFAULTS = {
             "biometricos",
             "biometric",
             "biometrics",
-            "facial recognition"
+            "facial recognition",
+            "problemas de acceso",
+            "error al iniciar sesion",
+            "no deja entrar",
+            "unable to log in",
+            "login outage",
+            "fallo de autenticacion"
           ],
           "context": [
             "login",
@@ -7883,4 +7551,3 @@ const CONFIGURATION_DEFAULTS = {
   }
 };
 CONFIGURATION_DEFAULTS.taxonomy=functionalCatalogRules(FUNCTIONAL_CATALOG_SEED,CONFIGURATION_DEFAULTS.taxonomy);Object.freeze(CONFIGURATION_DEFAULTS);
-addVocabularyTerms_(CONFIGURATION_DEFAULTS);

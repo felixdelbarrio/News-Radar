@@ -11,7 +11,7 @@ function completeSnapshotJobs_(){
   for(const key of pending){const job=JSON.parse(p.getProperty(key)||'null');if(job?.state==='Publicando')p.setProperty(key,JSON.stringify({...job,state:'Completada',error:'',published:new Date().toISOString()}));}
   p.deleteProperty('SNAPSHOT_JOBS');
   for(const job of collectionJobs_())if(job.estado==='Publicando'){if(job.tipo==='daily'&&p.getProperty('MAINTENANCE_DAY')!==recordDay(new Date(),settings_().timezone))p.setProperty('MAINTENANCE_REQUEST',recordDay(new Date(),settings_().timezone));job.estado=Number(job.fallidas)>0?'Parcial':'Completada';job.fin=new Date().toISOString();writeCollectionJob_(job);}
-  CacheService.getScriptCache().remove('collection-status');
+  compactCollectionTasks_();CacheService.getScriptCache().remove('collection-status');
 
 }
 

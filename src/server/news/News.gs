@@ -2,7 +2,8 @@ function radarAvailableYears_(){
   const current=recordDay(new Date(),settings_().timezone).slice(0,4),key='radar-years:'+RADAR.version+':'+newsStorageKey_()+':'+(properties_().getProperty('NEWS_RECORDS_REVISION')||'0')+':'+current,cache=CacheService.getScriptCache(),cached=cache.get(key);if(cached)return JSON.parse(cached);
   const years=[...new Set(businessNewsIndex_().rows.map(row=>row.fecha.slice(0,4)).filter(year=>/^\d{4}$/.test(year)&&year>='2000'&&year<=current))].sort().reverse();cacheJson_(key,years,NEWS_CACHE.seconds);return years;
 }
-function getDashboard(query) {
+function getDashboard(query){return withScriptProperties_(()=>getDashboardRequest_(query));}
+function getDashboardRequest_(query) {
   const started=Date.now(),session=authorize_(),feeds=feeds_();
   const view=query?.view||'radar',initial=Boolean(query?.initial),automaticPeriod=initial||!query?.from&&!query?.to,language=supportedLanguage(query?.language)?query.language:'es',edition=query?.edition&&view==='news'?newsletterEdition_(query.edition,session.email,session.admin):null;
   if(edition&&initial&&view==='news'&&query.country&&!query.newsGeography&&!['entity','palanca','subpalanca','benchmark'].some(key=>query[key]))query={...query,newsGeography:applicationGeography(edition.editorial?.scope||configuration_().applicationScope,edition.query.segment)({pais:query.country}),country:''};
@@ -13,7 +14,7 @@ function getDashboard(query) {
   let content=snapshot?{data:snapshot.data,cacheHit:true,snapshotHit:true}:dashboardContent_(query||{},feeds,view,language,edition);
   if(!snapshot&&canFallback&&!periodFallback&&(view==='briefing'?content.data.briefing.total:content.data.total)===0){query={...query,...dashboardPeriod_(view,new Date(),true)};content=dashboardContent_(query,feeds,view,language);periodFallback=true;}
   const newsMs=Date.now()-contentStarted;
-  const metadataStarted=Date.now(),metadata=dashboardMetadata_(),catalogMs=Date.now()-metadataStarted,operationStarted=Date.now(),operation=dashboardOperation_(session.admin),operationMs=Date.now()-operationStarted,yearsStarted=Date.now(),years=view==='radar'?(content.data.years||radarAvailableYears_()):null,yearsMs=Date.now()-yearsStarted,dailyStarted=Date.now(),daily=dailyScheduleStatus_(),dailyMs=Date.now()-dailyStarted;
+  const metadataStarted=Date.now(),metadata=snapshot?.metadata||dashboardMetadata_(),catalogMs=Date.now()-metadataStarted,operationStarted=Date.now(),operation=dashboardOperation_(session.admin),operationMs=Date.now()-operationStarted,yearsStarted=Date.now(),years=view==='radar'?(content.data.years||radarAvailableYears_()):null,yearsMs=Date.now()-yearsStarted,dailyStarted=Date.now(),daily=dailyScheduleStatus_(),dailyMs=Date.now()-dailyStarted;
   const response={...content.data,...(view==='radar'?{years}:{}),
     ...(edition?{feedback:newsletterFeedback_(edition.id,session.email)}:{}),context:edition?{mode:'edition',id:edition.id,title:edition.title,editorial:edition.editorial,commentLimit:NEWSLETTER_EDITORIAL.commentChars,from:edition.query.from,to:edition.query.to,count:edition.items.length,language:edition.language}:{mode:'current',periodFallback},...metadata,taxonomyTranslations:edition?edition.names:metadata.taxonomyTranslations,initial,selection:query||{},defaults:dashboardQuery_({view,initial:true}),geographies:edition?.editorial?.geographies||metadata.geographies,applicationScope:edition?.editorial?.scope||metadata.applicationScope,
     configurationRevision:configurationRevision_(),...operation,daily,newsRevision:publishedNewsRevision_(),sourceCount:feeds.length,admin:session.admin};
@@ -64,11 +65,10 @@ let dashboardMetadataMemory_;
 function dashboardMetadata_(){
   const p=properties_().getProperties(),signature=JSON.stringify([RADAR.version,taxonomyStorageKey_(),p.CONFIG_REVISION||'0',p.TAXONOMY_REVISION||'0',p.TAXONOMY_TRANSLATIONS_REVISION||'0']),key='dashboard-metadata:'+sha256_(signature);
   if(dashboardMetadataMemory_?.signature===signature)return dashboardMetadataMemory_.value;
-  const cache=CacheService.getScriptCache(),encoded=cache.get(key);
-  if(encoded){const value=JSON.parse(Utilities.ungzip(Utilities.newBlob(Utilities.base64Decode(encoded),'application/gzip')).getDataAsString());dashboardMetadataMemory_={signature,value};return value;}
+  const cache=CacheService.getScriptCache(),cached=readDashboardCache_(cache,key);
+  if(cached){const value=cached;dashboardMetadataMemory_={signature,value};return value;}
   const config=configuration_(),value={taxonomyTranslations:taxonomyTranslations_(),geographies:config.geographies,applicationScope:config.applicationScope,preferences:{timezone:config.settings.timezone,retentionDays:config.settings.retentionDays,eventLimit:config.settings.eventLimit,unknownCountry:config.settings.unknownCountry,dailyLabel:collectionScheduleLabel_()}};
-  const compressed=Utilities.base64Encode(Utilities.gzip(Utilities.newBlob(JSON.stringify(value),'application/json')).getBytes());
-  if(compressed.length<=90000)try{cache.put(key,compressed,NEWS_CACHE.seconds);}catch(_){}
+  writeDashboardCache_(cache,key,value);
   dashboardMetadataMemory_={signature,value};return value;
 }
 
@@ -91,4 +91,9 @@ function dashboardOperation_(admin){
   const runs=dashboardRuns_(),value={lastRun:runs.at(-1)?.fin||runs.at(-1)?.inicio||'',collection:collectionStatus_(),...(admin?dashboardAdministration_():{})};cacheJson_(key,value,15);return value;
 }
 
-function getControlPanel(){authorize_(true);progressContextMemory_=undefined;const started=Date.now(),collection=collectionStatus_(),schedule=getOperationalSchedule(),result={groups:controlPanelGroups_(collection,schedule),collection,archive:schedule.archive,daily:dailyScheduleStatus_()};telemetry_('control-panel',Date.now()-started,'OK',result.groups.length+' grupos operativos');return result;}
+function getControlPanel(){authorize_(true);return withScriptProperties_(()=>{
+ progressContextMemory_=undefined;const started=Date.now(),p=properties_().getProperties(),now=Date.now(),signature=sha256_(JSON.stringify(Object.entries(p).filter(([key])=>/JOB|REQUEST|SUPERVISOR|BACKGROUND|PIPELINE|LOG_ARCHIVE|CONFIG_REVISION|SUBSCRIPTIONS_REVISION|NEWSLETTER_STATUS_SUMMARY|DATA_GENERATION/.test(key)).sort())),key='control-panel:'+RADAR.version+':'+signature,cache=CacheService.getScriptCache(),cached=cache.get(key);
+ if(cached){const entry=JSON.parse(cached);if(now-entry.at<15000)return entry.value;}
+ const collection=collectionStatus_(),schedule=getOperationalSchedule(),result={groups:controlPanelGroups_(collection,schedule),collection,archive:schedule.archive,daily:dailyScheduleStatus_()};cacheJson_(key,{at:now,value:result},15);
+ const previous=cache.get('control-panel-state:'+RADAR.version);if(previous!==signature||Date.now()-started>1000){telemetry_('control-panel',Date.now()-started,'OK',result.groups.length+' grupos operativos');cache.put('control-panel-state:'+RADAR.version,signature,300);}return result;
+ });}

@@ -1,9 +1,9 @@
 const WORK_COORDINATION=Object.freeze({waitMs:60000,leaseMs:600000,resumeMs:60000,pollMs:1000});
-let workPauseCheck_;
+let workPauseCheck_,foregroundWriteDepth_=0;
 function backgroundPaused_(cached=false){
   const now=Date.now();
   if(!cached||!workPauseCheck_||now-workPauseCheck_.checked>=WORK_COORDINATION.pollMs){
-    const values=properties_().getProperties();
+    refreshScriptProperties_();const values=properties_().getProperties();
     workPauseCheck_={checked:now,until:Math.max(0,...Object.entries(values).filter(([key])=>key.startsWith('WORK_INTENT:')).map(([,value])=>Number(value)||0))};
   }
   return workPauseCheck_.until>now;
@@ -19,7 +19,7 @@ function withForegroundWrite_(operation){
     properties.setProperty(intent,String(Date.now()+WORK_COORDINATION.leaseMs));
     for(const [handler,name] of [['backgroundTick_','background'],['newsletterTick_','newsletter']])if(scheduledTriggers_(handler).length)deferBackgroundWork_(name);
     if(!lock.tryLock(WORK_COORDINATION.waitMs))throw Error('El trabajo activo aún no ha liberado el bloqueo. Vuelve a intentarlo cuando termine su llamada en curso.');
-    acquired=true;return operation();
+    acquired=true;foregroundWriteDepth_++;try{return operation();}finally{foregroundWriteDepth_--;}
   }finally{
     try{if(acquired){try{SpreadsheetApp.flush();}finally{lock.releaseLock();}}}
     finally{

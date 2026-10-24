@@ -2219,7 +2219,11 @@
           "control de gastos",
           "spending controls",
           "limites de tarjetas",
-          "limites de las tarjetas"
+          "limites de las tarjetas",
+          "digitaliza gastos",
+          "digitalizacion de gastos",
+          "digitises expenses",
+          "digitizes expenses"
         ],
         "enabled": true
       },
@@ -2453,7 +2457,11 @@
         "name": "Transferencias",
         "terms": [
           "transferencias",
-          "transfers"
+          "transfers",
+          "transacciones inmediatas",
+          "pagos inmediatos",
+          "bre-b",
+          "instant transfers"
         ],
         "enabled": true
       },
@@ -2952,7 +2960,19 @@
         "datáfono",
         "e-invoicing",
         "pasarela de pago",
-        "pasarelas de pago"
+        "pasarelas de pago",
+        "transacciones inmediatas",
+        "pagos inmediatos",
+        "bre-b",
+        "instant transfers",
+        "trends in",
+        "data shows",
+        "stablecoin payments",
+        "pagos con stablecoins",
+        "softpos",
+        "tap to pay",
+        "parking account",
+        "liquidacion blockchain"
       ],
       "enabled": true
     },
@@ -3029,7 +3049,16 @@
         "huella de carbono",
         "carbon footprint",
         "stablecoin",
-        "stablecoins"
+        "stablecoins",
+        "transacciones inmediatas",
+        "llaves",
+        "bre-b",
+        "gastos",
+        "parking account",
+        "cuenta remunerada",
+        "liquidacion blockchain",
+        "tokenized payments",
+        "tributos provinciales"
       ],
       "enabled": true
     },
@@ -3088,7 +3117,11 @@
         "deeplink",
         "impuestos provinciales",
         "tributos provinciales",
-        "impuestos estatales"
+        "impuestos estatales",
+        "transacciones inmediatas",
+        "pagos inmediatos",
+        "bre-b",
+        "digitaliza gastos"
       ],
       "enabled": true
     },
@@ -3119,7 +3152,8 @@
         "tokenized deposits",
         "tokenised deposits",
         "payment processing",
-        "procesamiento de pagos"
+        "procesamiento de pagos",
+        "bre-b"
       ],
       "enabled": true
     },
@@ -3272,7 +3306,8 @@
         "study report",
         "market report",
         "trends in",
-        "data shows"
+        "data shows",
+        "report"
       ],
       "enabled": true
     },
@@ -3469,7 +3504,14 @@
         },
         {
           "id": "02.17",
-          "terms": []
+          "terms": [
+            "parking account",
+            "parking accounts",
+            "cuenta remunerada para empresas",
+            "cuentas remuneradas para empresas",
+            "b2b parking",
+            "excedentes de tesoreria"
+          ]
         },
         {
           "id": "02.18",
@@ -3590,7 +3632,14 @@
             "remesas internacionales",
             "cross-border real-time payments",
             "x-border real-time payments",
-            "cross border real time payments"
+            "cross border real time payments",
+            "stablecoin payments",
+            "pagos con stablecoins",
+            "cross-border stablecoin",
+            "liquidacion blockchain",
+            "blockchain settlement",
+            "tokenized payments",
+            "tokenised payments"
           ]
         },
         {
@@ -3958,7 +4007,10 @@
           "terms": [
             "impuestos provinciales",
             "provincial tax",
-            "state tax payments"
+            "state tax payments",
+            "tributos provinciales",
+            "impuestos estatales",
+            "tasas provinciales"
           ]
         },
         {
@@ -4712,7 +4764,14 @@
             "digital merchant onboarding",
             "merchant acquiring onboarding",
             "alta de comercio",
-            "afiliación de comercios"
+            "afiliación de comercios",
+            "softpos",
+            "tap to pay",
+            "terminales pos",
+            "merchant acquiring",
+            "adquirencia",
+            "terminal de pago",
+            "pagos integrados en comercio"
           ],
           "context": [
             "alta de comercio",
@@ -5177,7 +5236,13 @@
             "biometricos",
             "biometric",
             "biometrics",
-            "facial recognition"
+            "facial recognition",
+            "problemas de acceso",
+            "error al iniciar sesion",
+            "no deja entrar",
+            "unable to log in",
+            "login outage",
+            "fallo de autenticacion"
           ],
           "context": [
             "login",

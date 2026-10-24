@@ -1,9 +1,10 @@
 function serviceQuotaPause_(error){return /for one day|daily quota|quota exceeded|limit exceeded/i.test(String(error?.message||error))?86400000:0;}
 function scheduledTriggers_(handler){return ScriptApp.getProjectTriggers().filter(trigger=>trigger.getHandlerFunction()===handler);}
+let operationalTriggersMemory_;
 function dailyScheduleStatus_(){
   const cache=CacheService.getScriptCache(),key='daily-schedule',cached=cache.get(key);
   if(cached!==null&&cached!==undefined)return cached==='true';
-  const enabled=ScriptApp.getProjectTriggers().some(trigger=>collectionHandlers_().includes(trigger.getHandlerFunction()));cache.put(key,String(enabled),300);return enabled;
+  const enabled=(operationalTriggersMemory_||ScriptApp.getProjectTriggers()).some(trigger=>collectionHandlers_().includes(trigger.getHandlerFunction()));cache.put(key,String(enabled),300);return enabled;
 }
 const COLLECTION_SLOTS=Object.freeze([{handler:'dailyRadar_',slot:'daily',prefix:'daily',enabled:'morningEnabled'},{handler:'afternoonRadar_',slot:'afternoon',prefix:'afternoon',enabled:'afternoonEnabled'},{handler:'eveningRadar_',slot:'evening',prefix:'evening',enabled:'eveningEnabled'}].map(Object.freeze));
 function collectionSchedules_(){const config=settings_();return COLLECTION_SLOTS.map(job=>({...job,hour:config[job.prefix+'Hour'],minute:config[job.prefix+'Minute'],enabled:config[job.enabled],timezone:config.timezone}));}
@@ -96,7 +97,7 @@ function backgroundTask_(work,daily){
       offer('archive',logArchiveReadyAt_()<=Date.now()&&!work.pending.length);offer('maintenance',maintenanceReadyAt_()<=Date.now());
     }
   }
-  offer('collection',work.pending.length>0,daily?PROCESS_PRIORITY.daily:PROCESS_PRIORITY.annual);
+  offer('collection',work.pending.length>0,daily?PROCESS_PRIORITY.daily:PROCESS_PRIORITY.maintenance+1);
   return candidates.sort((a,b)=>a.priority-b.priority)[0]?.task||'';
 }
 // Wake only for runnable work; lower queues cannot poll while their prerequisites are paused.
@@ -109,7 +110,8 @@ function backgroundNextAt_(work,completed=true){
   if(dashboardSnapshotsReady_(work))return now;
   return Math.min(catalogSyncReadyAt_(),logArchiveReadyAt_(),collection,translationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_(work),maintenanceReadyAt_());
 }
-function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
+function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){return withScriptProperties_(()=>processBackground_Request_(batchLimit));}
+function processBackground_Request_(batchLimit=BACKGROUND_WORK.maxBatches){
   if(backgroundPaused_()){deferBackgroundWork_('background');return {added:0,errors:[],paused:true};}
   scheduledTriggers_('backgroundTick_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));properties_().deleteProperty('BACKGROUND_NEXT');
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000)){ensureBackgroundWorker_();return {added:0,errors:[],busy:true};}
@@ -117,14 +119,14 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
   try{
     for(let batch=0;batch<batchLimit&&Date.now()-started<BACKGROUND_WORK.maxMs;batch++){
       if(backgroundPaused_()){deferBackgroundWork_('background');break;}
-      if(batch){lock.releaseLock();acquired=false;if(backgroundPaused_()){deferBackgroundWork_('background');break;}if(!lock.tryLock(1000))break;acquired=true;dataGenerationMemory_=undefined;if(backgroundPaused_()){deferBackgroundWork_('background');break;}if(String(properties_().getProperty('CONFIG_REVISION')||'0')!==configurationVersionMemory_){configurationMemory_=undefined;configurationVersionMemory_=undefined;}}
+      if(batch){lock.releaseLock();acquired=false;if(backgroundPaused_()){deferBackgroundWork_('background');break;}if(!lock.tryLock(1000))break;acquired=true;refreshScriptProperties_();dataGenerationMemory_=undefined;if(backgroundPaused_()){deferBackgroundWork_('background');break;}if(String(properties_().getProperty('CONFIG_REVISION')||'0')!==configurationVersionMemory_){configurationMemory_=undefined;configurationVersionMemory_=undefined;}}
       drainDailyPipeline_();drainCollectionRequests_();drainMaintenanceRequest_();work=collectionWork_(Date.now());
       const daily=Boolean(work.pending.length&&work.jobs.some(job=>job.id===work.pending[0].ciclo&&job.tipo==='daily'));
       if(!work.pending.length&&batch===0)collectionBatch_(work);
       if(!daily&&!dailyCollectionPending_(work)){drainClassificationRequest_();drainDailyTranslations_(work);drainTaxonomyRequest_();}
       const collectionJob=work.pending[0]?.ciclo,task=backgroundTask_(work,daily);if(!task){if(dashboardSnapshotsReady_(work))dashboardSnapshotBatch_();break;}
       const remaining=Math.min(BACKGROUND_WORK.sliceMs,BACKGROUND_WORK.maxMs-(Date.now()-started));if(remaining<=0)break;
-      progressContextMemory_=undefined;properties_().setProperty('SUPERVISOR_DISPATCH',JSON.stringify({task,at:new Date().toISOString()}));properties_().setProperty('BACKGROUND_RUN_ID',runId);const stage=task==='collection'?daily?'daily':'annual':task;properties_().setProperty('BACKGROUND_ACTIVE',stage);if(task==='collection')properties_().setProperty('BACKGROUND_COLLECTION_JOB',collectionJob||'');else properties_().deleteProperty('BACKGROUND_COLLECTION_JOB');properties_().setProperty('BACKGROUND_ACTIVE_UNTIL',String(Date.now()+BACKGROUND_WORK.maxMs+BACKGROUND_WORK.activeGraceMs));properties_().setProperty('JOB_LAST_EXECUTED:'+stage,new Date().toISOString());
+      progressContextMemory_=undefined;properties_().setProperty('SUPERVISOR_DISPATCH',JSON.stringify({task,at:new Date().toISOString()}));properties_().setProperty('BACKGROUND_RUN_ID',runId);const stage=task==='collection'?'daily':task;properties_().setProperty('BACKGROUND_ACTIVE',stage);if(task==='collection')properties_().setProperty('BACKGROUND_COLLECTION_JOB',collectionJob||'');else properties_().deleteProperty('BACKGROUND_COLLECTION_JOB');properties_().setProperty('BACKGROUND_ACTIVE_UNTIL',String(Date.now()+BACKGROUND_WORK.maxMs+BACKGROUND_WORK.activeGraceMs));properties_().setProperty('JOB_LAST_EXECUTED:'+stage,new Date().toISOString());
       if(task==='snapshot')dashboardSnapshotBatch_();
       else if(task==='archive')operationalArchiveBatch_();
       else if(task==='maintenance')maintenanceBatch_(Math.min(MAINTENANCE_POLICY.maxMs,remaining));
@@ -152,16 +154,11 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
 function initializeBackgroundSchedules_(){
   const p=properties_();
   installFunctionalCatalogWatcher_();
-  cancelAnnualRecovery_();
-  scheduledTriggers_('additionalRadar_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
-  for(const key of ['ADDITIONAL_COLLECTION_REQUEST','ADDITIONAL_COLLECTION_DAY','WORK_PENDING:additional'])p.deleteProperty(key);
   CacheService.getScriptCache().remove('daily-schedule');
-  for(const handler of ['collectionTick_','collectionWake_','translationTick_','backgroundTick_','nightlyTranslations_','dailyClassification_','dailyTaxonomy_','newsletterTick_','deliverNewsletters_'])scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   p.deleteProperty('BACKGROUND_NEXT');
   const watchdogMinutes=settings_().watchdogMinutes;if(scheduledTriggers_('backgroundWatchdog_').length!==1||Number(p.getProperty('WATCHDOG_INTERVAL'))!==watchdogMinutes){scheduledTriggers_('backgroundWatchdog_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));ScriptApp.newTrigger('backgroundWatchdog_').timeBased().everyMinutes(watchdogMinutes).create();p.setProperty('WATCHDOG_INTERVAL',String(watchdogMinutes));}
   if(p.getProperty('DAILY_ENABLED')===null)p.setProperty('DAILY_ENABLED','true');
   if(p.getProperty('DAILY_ENABLED')==='true')replaceCollectionSchedule_();else for(const handler of collectionHandlers_())scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
-  p.deleteProperty('TRANSLATION_ENABLED');
   if(settings_().newsletterEnabled)replaceDailySchedule_('scheduledNewsletters_',settings_().newsletterHour,settings_().newsletterMinute);else scheduledTriggers_('scheduledNewsletters_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   if(dashboardSnapshotsPending_()||Number.isFinite(taxonomyTranslationReadyAt_())||taxonomyPending_()||p.getProperty('TAXONOMY_REQUEST')||p.getProperty('CATALOG_SYNC_REQUEST')||classificationPending_()||p.getProperty('CLASSIFICATION_REQUEST')||collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_())||Number.isFinite(newsletterReadyAt_()))ensureBackgroundWorker_();
 }
@@ -193,7 +190,7 @@ function backgroundStageComplete_(task,work,collectionJob){
 function getOperationalSchedule(){
  authorize_(true);const config=settings_(),enabled=properties_().getProperty('DAILY_ENABLED')==='true';
  const times=new Set(),jobs=[...collectionSchedules_().map((job,index)=>{const key=scheduleTime_(job)+'|'+job.timezone,expected=enabled&&job.enabled&&!times.has(key)?1:0;if(expected)times.add(key);return {...job,label:'Recopilación '+(index+1),expected};}),{label:'Envíos planificados',handler:'scheduledNewsletters_',hour:config.newsletterHour,minute:config.newsletterMinute,timezone:config.timezone,expected:config.newsletterEnabled?1:0},{label:'Supervisor de colas',handler:'backgroundWatchdog_',minutes:config.watchdogMinutes,expected:1}];
- const counts=new Map();for(const trigger of ScriptApp.getProjectTriggers()){const handler=trigger.getHandlerFunction();counts.set(handler,(counts.get(handler)||0)+1);}
+ const counts=new Map();operationalTriggersMemory_=ScriptApp.getProjectTriggers();for(const trigger of operationalTriggersMemory_){const handler=trigger.getHandlerFunction();counts.set(handler,(counts.get(handler)||0)+1);}
  for(const job of jobs){job.installed=counts.get(job.handler)||0;job.valid=job.installed===job.expected;}
  return {jobs,valid:jobs.every(job=>job.valid),archive:{attempts:Number(properties_().getProperty('LOG_ARCHIVE_ATTEMPTS')||0),error:properties_().getProperty('LOG_ARCHIVE_ERROR')||'',next:Number(properties_().getProperty('LOG_ARCHIVE_NEXT')||0)},workerTriggers:counts.get('backgroundTick_')||0,queued:dailyPipelineRequested_()||Boolean(properties_().getProperty('BACKGROUND_PENDING'))};
 }

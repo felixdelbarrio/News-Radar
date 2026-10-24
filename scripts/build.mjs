@@ -22,7 +22,7 @@ const design=designOutputs(),tokens=JSON.parse(read('src/design/tokens.json')).c
 const newsletterStyle=(read('src/styles/identity.css')+'\n'+read('src/styles/newsletter.css')).replace(/var\(--([\w-]+)\)/g,(_,key)=>tokens[key]);
 const newsletterInline=newsletterInlineStyles(newsletterStyle);
 const output={
-  'Defaults.gs':'const APPLICATION_NAVIGATION = Object.freeze('+JSON.stringify(navigation)+');\nconst FUNCTIONAL_CATALOG_SEED = Object.freeze('+read('assets/functional-catalogue.json').trim()+');\nconst CONFIGURATION_VOCABULARY_UPDATE = Object.freeze('+read('assets/vocabulary-update.json').trim()+');\nconst CONFIGURATION_DEFAULTS = '+read('assets/configuration-defaults.json').trim()+';\nCONFIGURATION_DEFAULTS.taxonomy=functionalCatalogRules(FUNCTIONAL_CATALOG_SEED,CONFIGURATION_DEFAULTS.taxonomy);Object.freeze(CONFIGURATION_DEFAULTS);\naddVocabularyTerms_(CONFIGURATION_DEFAULTS);\n',
+  'Defaults.gs':'const APPLICATION_NAVIGATION = Object.freeze('+JSON.stringify(navigation)+');\nconst FUNCTIONAL_CATALOG_SEED = Object.freeze('+read('assets/functional-catalogue.json').trim()+');\nconst CONFIGURATION_DEFAULTS = '+read('assets/configuration-defaults.json').trim()+';\nCONFIGURATION_DEFAULTS.taxonomy=functionalCatalogRules(FUNCTIONAL_CATALOG_SEED,CONFIGURATION_DEFAULTS.taxonomy);Object.freeze(CONFIGURATION_DEFAULTS);\n',
   'Design.gs':design.sheet,
   'IdentityAssets.gs':'const IDENTITY_ASSETS = Object.freeze('+JSON.stringify(identityAssets())+');\n',
   'Newsletter.gs':'const NEWSLETTER_BIA_PNG = '+JSON.stringify(fs.readFileSync(path.join(root,'assets/bia.png')).toString('base64'))+';\nconst NEWSLETTER_STYLE = '+JSON.stringify(newsletterStyle)+';\nconst NEWSLETTER_INLINE = '+JSON.stringify(newsletterInline)+';\n',
@@ -32,7 +32,7 @@ const output={
   'Client.html':'<script id="radar-client">\n'+readClientScript()+'</script>',
   'appsscript.json':read('src/appsscript.json')
 };
-for(const file of files('src/shared'))output[serverModuleName(file)]=serverModule(read(file));
+for(const file of files('src/shared').filter(file=>!file.endsWith('/functional-catalogue.js')))output[serverModuleName(file)]=serverModule(read(file));
 for(const file of files('src/server')){
   const name=path.basename(file);if(name in output)throw Error('Nombre de módulo duplicado: '+name);output[name]=read(file);
 }

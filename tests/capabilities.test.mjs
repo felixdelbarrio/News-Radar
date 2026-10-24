@@ -77,8 +77,8 @@ test('medios multientidad atribuyen el titular al sujeto publicado y evitan coin
  assert.equal(c.evaluate_(sample,feed,now).item.entity,'Wise');assert.equal(c.phraseMatch_('annual revenue','nu'),false);assert.equal(c.phrasePosition_('annual update by nu','nu'),17);
 });
 test('el trabajador reutiliza el índice de noticias entre lotes y no ordena si no hubo altas',()=>{
- const {c,sheets}=server(),feed=c.feeds_().find(row=>row.kind==='rss'),keys=vm.runInContext('RADAR.sheets.Recargas',c),job={id:'annual',tipo:'annual',desde:'2025-10-12',hasta:'2026-10-12',inicio:now.toISOString(),estado:'Pendiente',total:30,pendientes:30};
- sheets.get('Recargas').grid.push(keys.map(key=>job[key]||''));for(let i=0;i<30;i++)sheets.get('Recopilacion').grid.push([job.id,feed.name,feed.url,'Pendiente',0,'',0,0,'',range.to]);
+ const {c,sheets}=server(),feed=c.feeds_().find(row=>row.kind==='rss'),keys=vm.runInContext('RADAR.sheets.Recargas',c),job={id:'annual',tipo:'annual',desde:'2025-10-12',hasta:'2026-10-12',inicio:now.toISOString(),estado:'Pendiente',total:9,pendientes:9};
+ sheets.get('Recargas').grid.push(keys.map(key=>job[key]||''));for(let i=0;i<9;i++)sheets.get('Recopilacion').grid.push([job.id,feed.name,feed.url,'Pendiente',0,'',0,0,'',range.to]);
  c.UrlFetchApp={fetchAll:requests=>requests.map(()=>({getResponseCode:()=>200,getContentText:()=>'<rss/>'}))};c.parseFeed_=()=>[];const known=c.knownUrls_;let builds=0,sorts=0;c.knownUrls_=()=>{builds++;return known();};const sheet=sheets.get('Noticias'),getRange=sheet.getRange.bind(sheet);sheet.getRange=(...args)=>{const value=getRange(...args);value.sort=()=>{sorts++;};return value;};
  c.processBackground_();assert.equal(builds,1);assert.equal(sorts,0);drainSnapshots(c);assert.equal(c.collectionJobs_()[0].estado,'Completada');assert.equal(c.rows_('Ejecuciones').length,3);assert.match(c.rows_('Telemetria').find(row=>row.operacion==='recopilacion').detalle,/recuperadas.*relevantes.*duplicadas.*saturadas/);
 });

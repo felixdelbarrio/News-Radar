@@ -27,7 +27,7 @@ test('el progreso de newsletter deduplica intentos, detecta revisiones y nunca l
  const plan=c.newsletterDeliveryPlan_(new Date(),[]),period=plan.periods.get('quarterly'),id=plan.planned[0].id;
  s.sheets.get('NewsletterEnvios').grid.push([id,'0','owner@bbva.com',period.from,period.to,'No enviado',new Date().toISOString(),'',''],[id,'0','owner@bbva.com',period.from,period.to,'Enviada',new Date().toISOString(),'','']);
  const second=plan.planned[1].id;s.sheets.get('NewsletterEnvios').grid.push([second,'1','owner@bbva.com',period.from,period.to,'Revisar',new Date().toISOString(),'','']);
- s.sheets.get('Noticias').getRange=()=>{throw Error('No debe leer noticias');};c.newsletterSender_=()=>{throw Error('No debe consultar Gmail');};const progress=c.getNewsletterProgress();assert.equal(progress.job.total,3);assert.equal(progress.job.processed,1);assert.equal(progress.job.pending,1);assert.equal(progress.job.review,1);assert.equal(progress.job.state,'En pausa');
+ c.refreshNewsletterStatus_();s.sheets.get('Noticias').getRange=()=>{throw Error('No debe leer noticias');};c.newsletterSender_=()=>{throw Error('No debe consultar Gmail');};const progress=c.getNewsletterProgress();assert.equal(progress.job.total,3);assert.equal(progress.job.processed,1);assert.equal(progress.job.pending,1);assert.equal(progress.job.review,1);assert.equal(progress.job.state,'En pausa');
  const reads=s.reads;c.getNewsletterProgress();assert.equal(s.reads,reads);s.setEmail('reader@bbva.com');assert.throws(()=>c.getNewsletterProgress(),/administrador/);
 });
 test('envíos acotados mantienen progreso entre lotes y la taxonomía se completa antes de todas las trimestrales',()=>{

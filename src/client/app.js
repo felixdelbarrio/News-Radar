@@ -80,7 +80,7 @@ async function load(reuse=false) {
     if(query.view==='news'&&!query.edition&&!query.newsGeography)query.newsGeography=browserCountry();
     const key=selectionKey(query),cached=reuse&&!administrative&&!state.contentStale&&dashboards.get(key);
     const clientCacheHit=Boolean(cached&&performance.now()-cached.time<navigationCache.milliseconds);
-    let data=clientCacheHit?{...cached.data,collection:state.data.collection,lastRun:state.data.lastRun,daily:state.data.daily}:await call("getDashboard",query),appended=null;
+    let data=clientCacheHit?{...cached.data,collection:state.data.collection,lastRun:state.data.lastRun,daily:state.data.daily}:await call("getDashboard",query,{reuse}),appended=null;
     if(request!==state.request)return;
     if(query.view==='news'&&query.page>0){
       if(state.data?.newsRevision===data.newsRevision&&data.page===query.page){appended=data.items;data={...data,items:[...state.data.items,...appended]};}
@@ -103,7 +103,7 @@ async function load(reuse=false) {
       renderSelection(data,navigation.current,appended);
       renderApplicationShell(data);
       releaseSecondaryRequests();
-      track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true,snapshotHit:false}:{}),clientCacheHit,sharedRequest:!clientCacheHit&&data.performance.transportMs>performance.now()-started+5,rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
+      track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true,snapshotHit:false}:{}),clientCacheHit:clientCacheHit||Boolean(data.performance.clientCacheHit),sharedRequest:Boolean(data.performance.sharedRequest),rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
       if (first) {
         track("acceso");
         track("vista");
