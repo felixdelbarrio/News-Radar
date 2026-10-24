@@ -14,3 +14,13 @@ function applicationGeography(scopes,segment){
 function geographyOrder(a,b){return Number(a.name===otherGeography)-Number(b.name===otherGeography)||a.name.localeCompare(b.name,'es');}
 function entityOrder(a,b){return Number(b.name==='BBVA')-Number(a.name==='BBVA')||a.name.localeCompare(b.name,'es');}
 function entityVolumeOrder(a,b){return Number(b.name==='BBVA')-Number(a.name==='BBVA')||b.total-a.total||entityOrder(a,b);}
+
+const REGION_CODES=Object.freeze(['APAC','EMEA','AMER']);
+const countryRegions=Object.freeze({"China": "APAC", "Hong Kong": "APAC", "Japón": "APAC", "Singapur": "APAC", "India": "APAC", "Australia": "APAC", "Indonesia": "APAC", "Corea del Sur": "APAC", "Vietnam": "APAC", "Filipinas": "APAC", "Malasia": "APAC", "Tailandia": "APAC", "México": "AMER", "Perú": "AMER", "Colombia": "AMER", "Argentina": "AMER", "Uruguay": "AMER", "Estados Unidos": "AMER", "Brasil": "AMER", "Chile": "AMER", "Venezuela": "AMER", "Canadá": "AMER", "España": "EMEA", "Turquía": "EMEA", "Italia": "EMEA", "Alemania": "EMEA", "Francia": "EMEA", "Portugal": "EMEA", "Reino Unido": "EMEA", "Suiza": "EMEA", "Países Bajos": "EMEA", "Bélgica": "EMEA", "Rumanía": "EMEA", "Emiratos Árabes Unidos": "EMEA"});
+function countryRegion(country){return countryRegions[country]||'';}
+function geographyMatches(row,selection,geography){
+  return REGION_CODES.includes(selection)?geography(row)===otherGeography&&countryRegion(row.pais)===selection:geography(row)===selection;
+}
+function regionalGeographies(rows,geography){
+  return REGION_CODES.map(name=>({name,total:rows.reduce((total,row)=>total+Number(geographyMatches(row,name,geography)),0)}));
+}

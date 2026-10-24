@@ -4933,7 +4933,22 @@ const CONFIGURATION_DEFAULTS = {
         "acquires",
         "para comprar la empresa",
         "adquiere la empresa",
-        "compra de la compañía"
+        "compra de la compañía",
+        "layoffs",
+        "job cuts",
+        "workforce reduction",
+        "headcount",
+        "despidos",
+        "recorte de plantilla",
+        "ere",
+        "cost drive",
+        "q1 profit",
+        "q2 profit",
+        "q3 profit",
+        "q4 profit",
+        "ai stocks",
+        "stock bubble",
+        "ai spending"
       ],
       "enabled": true
     },
@@ -4993,7 +5008,14 @@ const CONFIGURATION_DEFAULTS = {
         "log in",
         "logins",
         "cloud",
-        "users"
+        "users",
+        "child meal",
+        "delivery app",
+        "food delivery",
+        "comedor escolar",
+        "tarjeta infantil",
+        "kids card",
+        "teen card"
       ],
       "enabled": true
     },

@@ -104,8 +104,8 @@ function hydrateDashboardSnapshot_(cache,revision,variants,view,period,periodFal
 
 // One shared catalogue and article table replace country × language copies of the same payload.
 function compactNewsSnapshot_(rows,query,data){
-  const selected=selectAnnotatedNews_(rows,query),geography=newsReadingGeography_(null,query),groups=new Map(data.newsGeographies.map(row=>[row.name,[]]));
-  for(const row of selected)groups.get(geography(row))?.push(row);
+  const selected=selectAnnotatedNews_(rows,query),geography=newsReadingGeography_(null,query),groups=new Map([...data.newsGeographies,...regionalGeographies(selected,geography)].map(row=>[row.name,[]]));
+  for(const row of selected){const name=geography(row);groups.get(name)?.push(row);if(name===otherGeography)groups.get(countryRegion(row.pais))?.push(row);}
   const articles=[],positions=new Map(),pages={};
   for(const [name,items] of groups){const page=newsEntityPage(items,0,data.pageSize);pages[name]={total:items.length,items:page.map(row=>{if(!positions.has(row)){positions.set(row,articles.length);articles.push(row);}return positions.get(row);})};}
   const fields=[...new Set(articles.flatMap(row=>Object.keys(row)))].filter(key=>!['_sheetRow','identityTitles'].includes(key)),records=articles.map(row=>fields.map(key=>row[key]??null)),translations={};

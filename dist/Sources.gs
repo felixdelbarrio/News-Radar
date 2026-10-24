@@ -21,14 +21,14 @@ function profileFeed_(geo,entity,range,capabilitySearch=false) {
   return {id:'profile/'+geo.code+'/'+entity.name,name:entity.name+' · '+geo.name,url,domain:'news.google.com',entity:entity.name,country:geo.name,kind:'profile',language:geo.language,capabilitySearch,enabled:entity.enabled&&geo.enabled};
 }
 let collectionLanguageMemory_;
-function localizedSearchTerms_(terms,geo){
+function localizedSearchTerms_(terms,geo,strict=false){
   const config=configuration_();if(collectionLanguageMemory_?.config!==config){
     const terms=new Map();
     for(const row of config.searchLanguages.filter(row=>row.enabled))for(const term of row.terms){const key=searchText_(term);if(!terms.has(key))terms.set(key,new Set());terms.get(key).add(row.language);}
     collectionLanguageMemory_={config,terms,scopes:new Map()};
   }
   const language=geo.language.split('-')[0],native=[],english=[],custom=[];
-  for(const term of terms){const languages=collectionLanguageMemory_.terms.get(searchText_(term));if(!languages)custom.push(term);else if(languages.has(language))native.push(term);else if(languages.has('en'))english.push(term);}
+  for(const term of terms){const languages=collectionLanguageMemory_.terms.get(searchText_(term));if(!languages&&(!strict||language==='es')&&!/[()]/.test(term))custom.push(term);else if(languages.has(language))native.push(term);else if(languages.has('en'))english.push(term);}
   return ['it','de','fr','pt','tr'].includes(language)?native:[...native,...english,...custom];
 }
 function collectionSearchTerms_(geo){
@@ -55,7 +55,7 @@ function capabilitySearchTerms_(geo,entity){
   const add=(rows,budget)=>{
     if(!rows.length)return;const offset=(hash+day*budget)%rows.length;
     for(let i=0,added=0;i<rows.length&&added<budget;i++){
-      const row=rows[(offset+i)%rows.length],choices=localizedSearchTerms_(row.terms,geo),term=choices.find(value=>!base.has(searchText_(value))&&!terms.has(value));
+      const row=rows[(offset+i)%rows.length],choices=localizedSearchTerms_(row.terms,geo,true),term=choices.find(value=>!base.has(searchText_(value))&&!terms.has(value));
       if(term){terms.add(term);added++;}
     }
   };

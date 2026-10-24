@@ -1,5 +1,5 @@
 function newsletterEnabled_(){return settings_().newsletterEnabled&&scheduledTriggers_('scheduledNewsletters_').length>0;}
-function newsletterCountries_(){return configuration_().applicationScope.find(row=>row.name===sectorNewsDefaults.segment).countries;}
+function newsletterCountries_(){return [...configuration_().applicationScope.find(row=>row.name===sectorNewsDefaults.segment).countries,otherGeography,...REGION_CODES];}
 function subscriptionFilters_(input={}){return {...sectorNewsDefaults,...(input.country?{country:input.country}:{})};}
 function subscriptionRows_(email){
   return rows_('Suscripciones').filter(row=>row.id&&(!email||row.correo===email)).map(row=>{const filters=JSON.parse(row.filtros);return {...row,filtros:{...subscriptionFilters_(filters),...(filters.aliases?.length?{aliases:filters.aliases}:{})},activa:String(row.activa)==='true'};});

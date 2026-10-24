@@ -39,6 +39,8 @@ function taxonomyPending_(){const job=taxonomyJob_();return Boolean(job&&job.sta
 function taxonomyReadyAt_(){const job=taxonomyJob_();return job&&!['Completada','Publicando'].includes(job.state)?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
 function writeTaxonomyJob_(job){progressContextMemory_=undefined;properties_().setProperty('TAXONOMY_JOB',JSON.stringify(snapshotJob_('TAXONOMY_JOB',job)));}
 function requestTaxonomy_(request='',refresh=true){
+  const previous=taxonomyJob_(),published=dataGeneration_();
+  if(previous?.generation)for(const name of [previous.generation.newsSheet,previous.generation.taxonomySheet])if(name!==published.newsSheet&&name!==published.taxonomySheet){const sheet=book_().getSheetByName(name);if(sheet)book_().deleteSheet(sheet);}
   const catalog=refresh?refreshFunctionalCatalog_():{source:'espejo'};
   const lastRow=newsSheet_().getLastRow(),candidateTotal=Math.max(0,candidateSheet_().getLastRow()-1),total=Math.max(0,lastRow-1),now=new Date().toISOString();
   const id=Utilities.getUuid();
