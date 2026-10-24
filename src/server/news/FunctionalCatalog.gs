@@ -66,6 +66,7 @@ function refreshFunctionalCatalog_(){
 function catalogSyncReadyAt_(){return properties_().getProperty('CATALOG_SYNC_REQUEST')?Math.max(Date.now(),Number(properties_().getProperty('CATALOG_SYNC_RETRY_AT')||0)):Infinity;}
 function installFunctionalCatalogWatcher_(){
  const id=settings_().taxonomyCatalogUrl.match(/\/d\/([\w-]+)/)?.[1]||'',p=properties_(),triggers=scheduledTriggers_('functionalCatalogEdited_');
+ if(id&&!p.getProperty('FUNCTIONAL_CATALOG_MODIFIED'))p.setProperty('FUNCTIONAL_CATALOG_MODIFIED',DriveApp.getFileById(id).getLastUpdated().toISOString());
  if(p.getProperty('FUNCTIONAL_CATALOG_TRIGGER_SOURCE')===id&&triggers.length===(id?1:0))return;
  triggers.forEach(trigger=>ScriptApp.deleteTrigger(trigger));
  if(id){ScriptApp.newTrigger('functionalCatalogEdited_').forSpreadsheet(id).onEdit().create();}
@@ -73,8 +74,8 @@ function installFunctionalCatalogWatcher_(){
 }
 function functionalCatalogEdited_(event){
  const range=event?.range;if(!range||!['Soluciones Funcionales','Capacidades canal (core y VD)'].includes(range.getSheet().getName()))return;
- const columns=range.getSheet().getRange(1,1,1,6).getDisplayValues()[0],used=['ID','Bloque funcional','Funcionalidad/Sub Operativa','Descripción'].map(name=>columns.indexOf(name)+1).filter(Boolean);
- if(range.getRow()>1&&!used.some(column=>column>=range.getColumn()&&column<range.getColumn()+range.getNumColumns()))return;
- properties_().setProperty('CATALOG_SYNC_REQUEST',new Date().toISOString());properties_().deleteProperty('CATALOG_SYNC_RETRY_AT');ensureBackgroundWorker_();
+ const sheet=range.getSheet(),headers=sheet.getRange(1,1,Math.min(20,sheet.getLastRow()),6).getDisplayValues(),header=headers.findIndex(row=>row.includes('Bloque funcional')&&row.includes('Funcionalidad/Sub Operativa')),columns=headers[header]||[],used=['ID','Bloque funcional','Funcionalidad/Sub Operativa','Descripción'].map(name=>columns.indexOf(name)+1).filter(Boolean);
+ if(header>=0&&range.getRow()>header+1&&!used.some(column=>column>=range.getColumn()&&column<range.getColumn()+range.getNumColumns()))return;
+ const modified=new Date().toISOString();properties_().setProperty('FUNCTIONAL_CATALOG_MODIFIED',modified);properties_().setProperty('CATALOG_SYNC_REQUEST',modified);properties_().deleteProperty('CATALOG_SYNC_RETRY_AT');ensureBackgroundWorker_();
 }
 function taxonomyRulesRevision_(){return sha256_(JSON.stringify([TAXONOMY_POLICY.version,'business',configuration_().taxonomy,classificationRulesRevision_()]));}

@@ -63,7 +63,7 @@ test('la traducción prioriza Empresas digital antes de Retail más reciente sin
 });
 test('una cuota diaria suspende ambos traductores y no se pierde la solicitud prioritaria',()=>{
  const s=server(),c=s.c,row=news(s);row.clasificacion=JSON.stringify(row.etiquetas);add(s,'Noticias',row);let calls=0;c.LanguageApp={translate(){calls++;throw Error('Service invoked too many times for one day: translate');}};
- c.requestTranslations_(true);c.translationBatch_();c.requestTranslations_(true);c.translationBatch_();c.startTaxonomyTranslations();c.taxonomyTranslationBatch_();assert.equal(calls,1);assert.ok(c.translationReadyAt_()>Date.now());assert.ok(c.taxonomyTranslationReadyAt_()>Date.now());assert.ok(s.properties.TRANSLATION_PRIORITY_REQUEST);
+ c.requestTranslations_(true);c.translationBatch_();c.requestTranslations_(true);c.translationBatch_();c.requestTaxonomyTranslations_();c.taxonomyTranslationBatch_();assert.equal(calls,1);assert.ok(c.translationReadyAt_()>Date.now());assert.ok(c.taxonomyTranslationReadyAt_()>Date.now());assert.ok(s.properties.TRANSLATION_PRIORITY_REQUEST);
 });
 test('una solicitud recibida durante la traducción persiste para incorporar el siguiente contenido',()=>{
  const s=server(),c=s.c;add(s,'Noticias',news(s));c.requestTranslations_();c.LanguageApp={translate:html=>{s.properties.TRANSLATION_REQUEST=new Date(Date.now()+1000).toISOString();return html;}};c.translationBatch_();assert.ok(s.properties.TRANSLATION_REQUEST);drainSnapshots(c);assert.equal(c.translationJob_().state,'Completada');
