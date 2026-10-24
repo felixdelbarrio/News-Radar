@@ -10,8 +10,8 @@ test('Ejecuciones incluye una sola clasificación bajo las recargas y usa el est
 });
 test('la interfaz solo permite recopilación diaria y conserva la continuación diaria',async t=>{
  const a=await app(t,{entry:'',configure({data,replies}){data.collection={pending:20,blocked:{today:true},jobs:[]};replies.getRuns.collection=data.collection;}});
- await a.click('[data-view="administration"]');assert.equal(a.w.document.querySelector('[name="recovery-range"]'),null);assert.equal(a.find('#collect').disabled,true);
- await a.click('#continue-collection');assert.equal(a.calls.find(c=>c.method==='resumeCollection').query,'today');assert.equal(a.calls.filter(c=>c.method==='collectNow').length,0);
+ await a.click('[data-view="administration"]');assert.equal(a.w.document.querySelector('[name="recovery-range"]'),null);assert.equal(a.find('[data-collection-slot="daily"]').disabled,true);
+ await a.click('#control-panel-refresh');assert.equal(a.calls.filter(c=>c.method==='getControlPanel').length,2);assert.equal(a.calls.filter(c=>c.method==='collectNow').length,0);
 });
 test('el supervisor repone un trabajador perdido y conserva las pausas y los datos pendientes',()=>{
  const s=fixture(),c=s.c;c.requestCollection_('annual',{from:'2025-10-01',to:'2026-10-01'});for(const trigger of c.scheduledTriggers_('backgroundTick_'))c.ScriptApp.deleteTrigger(trigger);c.backgroundWatchdog_();assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);assert.equal(c.collectionRequests_().length,1);

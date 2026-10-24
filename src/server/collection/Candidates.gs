@@ -8,7 +8,7 @@ function candidateSheet_(){
 // A bounded identity column is read once per collection batch, never per article.
 function persistCandidates_(records,now=new Date()){
   const p=properties_(),day=recordDay(now,settings_().timezone);
-  if(!records.length&&(!book_().getSheetByName('Candidatos')||p.getProperty('CANDIDATE_RETENTION_DAY')===day))return;
+  if(!records.length&&(!book_().getSheetByName('Candidatos')||p.getProperty('CANDIDATE_RETENTION_DAY')===day&&book_().getSheetByName('Candidatos').getLastRow()-1<=CANDIDATE_POLICY.maxRows))return;
   const sheet=candidateSheet_(),count=Math.max(0,sheet.getLastRow()-1),cutoff=new Date(now.getTime()-CANDIDATE_POLICY.retentionDays*86400000).toISOString();
   let expired=0;
   if(count&&p.getProperty('CANDIDATE_RETENTION_DAY')!==day)for(const [captured] of sheet.getRange(2,10,count,1).getDisplayValues()){if(captured>=cutoff)break;expired++;}

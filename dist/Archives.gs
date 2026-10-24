@@ -108,9 +108,9 @@ function finishNewsletterArchive_(row,index,marker){
  if(range){range.clearContent();SpreadsheetApp.flush();if(range.getDisplayValues().some(([value])=>value))throw Error('Archivo de newsletter pendiente de compactar.');}
  newsletterSheet_('NewsletterEdiciones').getRange(index+2,RADAR.sheets.NewsletterEdiciones.indexOf('editorial')+1,1,1).setValues([[JSON.stringify({...marker,cleared:true})]]);markNewsletterArchiveEdited_();
 }
-function logArchiveReadyAt_(){const p=properties_();return p.getProperty('LOG_ARCHIVE_PENDING')&&Number(p.getProperty('LOG_ARCHIVE_ATTEMPTS')||0)<3?Math.max(Date.now(),Number(p.getProperty('LOG_ARCHIVE_NEXT')||0)):Infinity;}
+function logArchiveReadyAt_(){const p=properties_();return p.getProperty('LOG_ARCHIVE_PENDING')?Math.max(Date.now(),Number(p.getProperty('LOG_ARCHIVE_NEXT')||0)):Infinity;}
 function operationalArchiveBatch_(){
  const p=properties_();try{p.setProperty('LOG_ARCHIVE_LAST',new Date().toISOString());const done=compactOperationalLogs_();p.deleteProperty('LOG_ARCHIVE_ATTEMPTS');p.deleteProperty('LOG_ARCHIVE_NEXT');p.deleteProperty('LOG_ARCHIVE_ERROR');return done;}
- catch(error){p.setProperty('LOG_ARCHIVE_ATTEMPTS',String(Number(p.getProperty('LOG_ARCHIVE_ATTEMPTS')||0)+1));p.setProperty('LOG_ARCHIVE_NEXT',String(Date.now()+settings_().retryMinutes*60000));p.setProperty('LOG_ARCHIVE_ERROR',String(error.message).slice(0,180));return false;}
+ catch(error){p.setProperty('LOG_ARCHIVE_ATTEMPTS',String(Number(p.getProperty('LOG_ARCHIVE_ATTEMPTS')||0)+1));p.setProperty('LOG_ARCHIVE_NEXT',String(Date.now()+Math.min(21600000,settings_().retryMinutes*60000*2**Math.min(8,Number(p.getProperty('LOG_ARCHIVE_ATTEMPTS')||0)-1))));p.setProperty('LOG_ARCHIVE_ERROR',String(error.message).slice(0,180));return false;}
 }
 function resumeOperationalArchive(){authorize_(true);return withForegroundWrite_(()=>{for(const key of ['LOG_ARCHIVE_ATTEMPTS','LOG_ARCHIVE_NEXT','LOG_ARCHIVE_ERROR'])properties_().deleteProperty(key);properties_().setProperty('LOG_ARCHIVE_PENDING','true');const job=maintenanceJob_();if(job?.state==='Revisar'){job.state='Pendiente';job.attempts=0;job.pausedUntil=0;saveMaintenanceJob_(job);}ensureBackgroundWorker_();return getOperationalSchedule();});}

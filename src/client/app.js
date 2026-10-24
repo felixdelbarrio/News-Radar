@@ -31,7 +31,7 @@ const refreshSelects=initializeSearchableSelects();initializeDatePickers();
 const state = { data: null, request: 0, busy: false,contentStale:false,attribution:'',view:null,ready:false };
 const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady:()=>Boolean(state.data),getAttribution:()=>state.attribution&&state.data?.context?.id===state.attribution?state.attribution:'' }), { track, flush } = usage;
 const dashboards=new Map();
-const selectionKey=query=>JSON.stringify(Object.entries(query).filter(([,value])=>value!==''&&value!=null).sort(([a],[b])=>a.localeCompare(b)));
+const selectionKey=query=>JSON.stringify(Object.entries(query).filter(([key,value])=>value!==''&&value!=null&&!(key==='page'&&Number(value)===0)&&!(key==='initial'&&value===false)).sort(([a],[b])=>a.localeCompare(b)));
 const configuration = createConfiguration({run:action});
 const taxonomy=createTaxonomy();
 const llmCategorization=createLlmCategorization({run:action,refreshSelects,isActive:()=>navigation.current==='administration'&&administration.current==='llm',onRevision:revision=>{if(state.data&&revision!==state.data.newsRevision){state.contentStale=true;dashboards.clear();}}});

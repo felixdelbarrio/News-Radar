@@ -51,7 +51,7 @@ for(const language of ['es','en','tr'])test('interfaz '+language+': formularios,
  await a.click('[data-view="news"]');assert.equal(a.find('#page-title').textContent,translateText('Noticias',language));
  await a.change('#filters [name="country"]','España');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.country,'España');assert.equal(a.find('#filters [name="country"]').value,'España');assert.equal(a.find('#filters [name="country"] option[value="España"]').textContent,translateText('España',language));
  a.data.items=[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:'Noticias de España',extracto:'Nueva cuenta en España',medio:'Noticias España',pais:'España',fecha:'2026-10-11',url:'https://example.com/original',entidad:'BBVA',tema:'Financiación'}];a.data.total=1;
- await a.click('[data-view="radar"]');await a.click('[data-view="news"]');
+ await a.click('[data-view="radar"]');await a.click('[data-view="news"]');await a.change('#filters [name="search"]','Noticias');
  assert.equal(a.find('#news-list h3').textContent,'Noticias de España');assert.equal(a.find('#news-list .identity-label [data-original]')?.textContent??'Noticias España','Noticias España');assert.equal(a.find('#news-list p[data-original]').textContent,'Nueva cuenta en España');
  a.replies.getSubscriptions=[];await a.click('[data-view="subscriptions"]');assert.equal(a.find('#personal-editor [name="language"]').value,language);
  assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);await a.submit('#personal-editor form');const saved=a.calls.find(row=>row.method==='saveSubscription').query;assert.equal(saved.language,language);assert.equal(saved.name,undefined);assert.equal(saved.periodicity,undefined);

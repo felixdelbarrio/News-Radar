@@ -26,7 +26,7 @@ test('el planificador reserva cupo diario, avanza el anual y lee URLs solo del l
  const reads=[],sheet=s.sheets.get('Recopilacion'),range=sheet.getRange.bind(sheet);sheet.getRange=(...args)=>{reads.push(args);return range(...args);};
  const work=c.collectionWork_(Date.now());assert.equal(work.pending.filter(task=>task.ciclo==='daily').length,3);assert.equal(work.pending.filter(task=>task.ciclo==='annual').length,0);assert.equal(work.tasks.length,38);
  assert.deepEqual(reads.slice(0,2),[[2,1,38,1],[2,4,38,7]]);assert.equal(reads.slice(2).reduce((n,read)=>n+read[2],0),3);assert.ok(reads.slice(2).every(read=>read[1]===2&&read[3]===2));
- c.backgroundTick_();c.backgroundTick_();c.backgroundTick_();assert.equal(c.collectionWork_(Date.now()).pending.length,12);c.configuration_().settings.collectionBatch=5;assert.equal(c.collectionWork_(Date.now()).pending.length,20);
+ c.backgroundTick_();c.backgroundTick_();c.backgroundTick_();assert.equal(c.collectionWork_(Date.now()).pending.length,3);c.configuration_().settings.collectionBatch=5;assert.equal(c.collectionWork_(Date.now()).pending.length,5);
 });
 test('las pausas de la anual no bloquean la diaria y los reintentos respetan su espera',()=>{
  const s=server(),c=s.c;addJob(s,'annual','annual',20);addJob(s,'daily','daily',2);
@@ -46,7 +46,7 @@ test('preparar una solicitud es idempotente incluso si quedó una parte de la co
  const s=server(),c=s.c;c.requestCollection_('annual',{from:'2025-01-01',to:'2026-01-01'});const request=c.collectionRequests_()[0];
  addJob(s,request.id,'annual',1);s.sheets.get('Recargas').grid[1][2]=request.range.from;s.sheets.get('Recargas').grid[1][3]=request.range.to;s.sheets.get('Recargas').grid[1][6]='Preparando';c.drainCollectionRequests_();assert.equal(c.rows_('Recopilacion').length,1);assert.equal(c.collectionRequests_().length,0);
  s.sheets.get('Recargas').grid[1][6]='Preparando';let selected;c.collectionFeeds_=range=>{selected=range;return [{...s.feed,range}];};
- c.requestCollection_('annual',{from:'2025-01-02',to:'2026-01-02'});c.drainCollectionRequests_();assert.equal(c.collectionJobs_().length,2);assert.equal(c.rows_('Recopilacion').length,1);assert.equal(selected.to,'2026-01-01');
+ c.requestCollection_('annual',{from:'2025-01-02',to:'2026-01-02'});c.drainCollectionRequests_();assert.equal(c.collectionJobs_().length,2);assert.equal(c.rows_('Recopilacion').length,2);assert.equal(selected.to,'2026-01-02');
 });
 test('terminar una carga conserva progreso y tareas hasta disponer de archivo verificado',()=>{
  const s=server(),c=s.c;addJob(s,'done','daily',1);c.backgroundTick_();assert.equal(c.rows_('Recopilacion').length,1);

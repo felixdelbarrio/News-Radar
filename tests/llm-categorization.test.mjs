@@ -63,7 +63,7 @@ test('resolver determinista/LLM con fallback, CSV y las tres vistas usan la mism
  const saved=c.llmState_().sheet;assert.equal(c.llmState_().sheet,saved);assert.deepEqual(c.annotateNews_(rows)[0].taxonomia.map(row=>row.id),det);
 });
 test('fallo de snapshot y reintento conservan la generación anterior y completan solo tras verificar',()=>{
- const s=setup(),c=s.c,before=s.properties.DATA_GENERATION;c.importLlmResults(payload([result(c)]));c.dashboardSnapshotBatch_();c.dashboardSnapshotBatch_();const verify=c.verifyDashboardSnapshot_;c.verifyDashboardSnapshot_=(view,...args)=>{if(view==='radar')throw Error('Fallo simulado');return verify(view,...args);};
+ const s=setup(),c=s.c,before=s.properties.DATA_GENERATION;c.importLlmResults(payload([result(c)]));const verify=c.verifyDashboardSnapshot_;c.verifyDashboardSnapshot_=(view,...args)=>{if(view==='radar')throw Error('Fallo simulado');return verify(view,...args);};
  assert.throws(()=>c.dashboardSnapshotBatch_(),/Fallo simulado/);assert.equal(s.properties.DATA_GENERATION,before);assert.equal(c.llmJob_().state,'Publicando');assert.match(c.llmJob_().error,/Fallo simulado/);c.verifyDashboardSnapshot_=verify;finish(c);assert.equal(c.getLlmCategorization().valid,1);
 });
 test('cambios concurrentes del corpus invalidan resultados, reinician construcción y no mezclan modos',()=>{

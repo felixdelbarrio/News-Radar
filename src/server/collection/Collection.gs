@@ -1,4 +1,5 @@
 function collectionStatus_(tasks,jobs){
+  progressContextMemory_=undefined;
   const cache=CacheService.getScriptCache();if(!tasks&&!jobs){const cached=cache.get('collection-status');if(cached){const status=JSON.parse(cached);progressContext_(status.jobs);return status;}}
   jobs=jobs||collectionJobs_();if(tasks)collectionSnapshots_(tasks,jobs);
   const requests=collectionRequests_().filter(request=>!jobs.some(job=>job.id===request.id));

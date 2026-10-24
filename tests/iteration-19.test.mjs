@@ -56,8 +56,8 @@ test('auditoría incremental verifica cabeceras y bloquea IDs ambiguos sin modif
  const s=server(),c=s.c,job={};let done=false;for(let i=0;i<20&&!done;i++)done=c.auditMaintenanceIntegrity_(job);assert.equal(done,true);assert.ok(job.integrityTable>=20);const news=s.sheets.get('Noticias');Array.prototype.push.call(news.grid,['same','2026-10-10'],['same','2026-10-11']);const before=JSON.stringify(news.grid);assert.throws(()=>{const next={};for(let i=0;i<20;i++)c.auditMaintenanceIntegrity_(next);},/IDs/);assert.equal(JSON.stringify(news.grid),before);
 });
 
-test('los errores de archivo tienen tres reintentos y reanudación administrativa explícita',()=>{
- const s=server(),c=s.c;logs(s);s.properties.LOG_ARCHIVE_PENDING='true';c.DriveApp.getFolderById=()=>{throw Error('Sin permiso');};for(let i=0;i<3;i++)c.operationalArchiveBatch_();assert.equal(c.logArchiveReadyAt_(),Infinity);assert.equal(c.getOperationalSchedule().archive.attempts,3);assert.match(c.getOperationalSchedule().archive.error,/permiso/);c.resumeOperationalArchive();assert.equal(s.properties.LOG_ARCHIVE_ATTEMPTS,undefined);assert.ok(Number.isFinite(c.logArchiveReadyAt_()));
+test('los errores de archivo reintentan automáticamente con backoff y conservan el diagnóstico',()=>{
+ const s=server(),c=s.c;logs(s);s.properties.LOG_ARCHIVE_PENDING='true';c.DriveApp.getFolderById=()=>{throw Error('Sin permiso');};for(let i=0;i<3;i++)c.operationalArchiveBatch_();assert.ok(c.logArchiveReadyAt_()>Date.now());assert.ok(c.logArchiveReadyAt_()<=Date.now()+21600000);assert.equal(c.getOperationalSchedule().archive.attempts,3);assert.match(c.getOperationalSchedule().archive.error,/permiso/);c.resumeOperationalArchive();assert.equal(s.properties.LOG_ARCHIVE_ATTEMPTS,undefined);assert.ok(Number.isFinite(c.logArchiveReadyAt_()));
 });
 
 test('Administración edita la conservación sin duplicar el ID primario y acerca el alta a la lista',async t=>{

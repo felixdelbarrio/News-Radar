@@ -75,6 +75,9 @@ ${shared}
 window.RADAR_PREVIEW={async call(method,q={},query={}){
 ${previewDelay?`if(method!=='recordEvents')await new Promise(resolve=>setTimeout(resolve,${previewDelay}));`:''}
  if(method==='resumeCollection'){authorize_();return {added:0,pending:0,errors:[],notice:'Vista local: no hay recuperaciones remotas en curso.'};}
+ if(method==='collectSlot'){authorize_();return 'Recuperación diaria en cola.';}
+ if(method==='rebuildDashboardSnapshots'){authorize_();return 'Snapshots de Novedades, Noticias y Radar en cola.';}
+ if(method==='startMaintenance'){authorize_();return 'Mantenimiento incremental en cola.';}
  if(method==='collectNow'){authorize_();const range=(q||'today')!=='year'?collectionRecentRange_(new Date()):collectionRange_(q,new Date()),available=rows.filter(row=>row.fecha>=range.from&&row.fecha<=range.to).length;return {added:0,pending:0,errors:[],notice:'Vista local: '+available+' noticias de la instantánea en el período '+range.from+' / '+range.to+'. La consulta remota se ejecuta únicamente en Apps Script.'};}
  if(method==='recordEvents'){usage.push(...q.map(event=>({fecha:new Date().toISOString(),correo:'usuario@bbva.com',sesion:event.session,evento:event.event,vista:event.view,duracion_ms:eventDuration_(event.duration)})));if(usage.length>settings_().eventLimit)usage.splice(0,usage.length-settings_().eventLimit);return {saved:true};}
  if(method==='getMyNewsletterHistory')return {...recordPage([],q),options:{},limit:settings_().eventLimit,limited:false};
