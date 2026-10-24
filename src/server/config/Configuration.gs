@@ -12,24 +12,6 @@ function configuration_(){
 }
 function invalidateConfiguration_(){invalidateDashboardSnapshots_();configurationMemory_=undefined;configurationVersionMemory_=undefined;properties_().setProperty('CONFIG_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));}
 function configurationEdited_(event){const editedSheet=event?.range?.getSheet().getName();if(NEWSLETTER_ARCHIVE_TABLES.some(name=>editedSheet===newsletterStorageKey_(name))){markNewsletterArchiveEdited_();return;}const sheet=editedSheet===newsStorageKey_()?'Noticias':editedSheet;if(backgroundPaused_()&&['Configuracion','Noticias'].includes(sheet)){deferBackgroundWork_(sheet==='Configuracion'?'edited':'news');return;}if(sheet==='CatalogoFuncional'){properties_().deleteProperty('FUNCTIONAL_CATALOG_REVISION');functionalCatalogMemory_=undefined;invalidateConfiguration_();properties_().setProperty('TAXONOMY_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();}else if(sheet==='Configuracion'){invalidateConfiguration_();requestNewsClassification_(true);}else if(sheet==='Noticias')invalidateNews_();else if(sheet==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);}
-function addVocabularyTerms_(config){
-  let changed=false;
-  for(const [key,rows] of [['relevanceRules',config.relevanceRules],['capabilities',config.capabilities.Empresas],['searchLanguages',config.searchLanguages]])for(const addition of CONFIGURATION_VOCABULARY_UPDATE[key]){
-    const row=rows.find(item=>item.name===addition.name);if(!row)continue;
-    const removed=new Set((addition.remove||[]).map(searchText_)),terms=[...new Set([...row.terms.filter(term=>!removed.has(searchText_(term))),...addition.terms])];if(JSON.stringify(terms)!==JSON.stringify(row.terms)){row.terms=terms;changed=true;}
-  }
-  for(const addition of CONFIGURATION_VOCABULARY_UPDATE.taxonomy||[]){
-    const row=config.taxonomy.flatMap(block=>block.functions).find(row=>row.id===addition.id);if(!row)continue;
-    const removed=new Set(addition.remove.map(searchText_)),terms=[...new Set([...row.terms.filter(term=>!removed.has(searchText_(term))),...addition.terms])];if(JSON.stringify(terms)!==JSON.stringify(row.terms)){row.terms=terms;changed=true;}
-  }
-  return changed;
-}
-function updateVocabulary_(sheet){
-  if(properties_().getProperty('VOCABULARY_VERSION')===CONFIGURATION_VOCABULARY_UPDATE.version)return false;
-  const values=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues(),config=Object.fromEntries(values.map(([key,value])=>[key,JSON.parse(value)])),changed=addVocabularyTerms_(config);
-  if(changed)for(const key of ['relevanceRules','capabilities','searchLanguages','taxonomy'])sheet.getRange(values.findIndex(row=>row[0]===key)+2,2,1,1).setValues([[JSON.stringify(config[key])]]);
-  properties_().setProperty('VOCABULARY_VERSION',CONFIGURATION_VOCABULARY_UPDATE.version);return changed;
-}
 function initializeConfiguration(){
   authorize_(true);return withForegroundWrite_(()=>{
     const refreshCatalog=properties_().getProperty('CATALOG_VERSION')!==CONFIGURATION_CATALOG_VERSION;
@@ -84,15 +66,16 @@ function initializeConfiguration(){
     if(!ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='configurationEdited_'))ScriptApp.newTrigger('configurationEdited_').forSpreadsheet(book_()).onEdit().create();
     const subscriptions=book_().getSheetByName('Suscripciones'),countSubscriptions=subscriptions.getLastRow()-1;
     if(countSubscriptions>0){const range=subscriptions.getRange(2,8,countSubscriptions,1);range.setValues(range.getValues().map(([value])=>[value||'es']));}
-    const vocabularyChanged=updateVocabulary_(sheet);invalidateConfiguration_();
-    disableNewsEnrichment_();
+    invalidateConfiguration_();
+    const retired=book_().getSheetByName('Enriquecimiento');if(retired)book_().deleteSheet(retired);
+    for(const key of ['ENRICHMENT_ENABLED','ENRICHMENT_REQUEST','ENRICHMENT_JOB','ENRICHMENT_HTTP_USAGE','VOCABULARY_VERSION'])properties_().deleteProperty(key);
     if(refreshCatalog){upgradeCollectionQueries_();if(translationJob_())requestTranslations_(true);properties_().setProperty('CATALOG_VERSION',CONFIGURATION_CATALOG_VERSION);}
-    requestNewsClassification_(vocabularyChanged);
+    requestNewsClassification_();
     if(refreshCatalog&&newsSheet_().getLastRow()>1)requestTaxonomy_();
     initializeCollectionQueue_();
     if(refreshCatalog&&(newsSheet_().getLastRow()>1||book_().getSheetByName('Telemetria')?.getLastRow()>1))maintenance_();
-    initializeBackgroundSchedules_();
-    const removed=pruneNewsGenerations_();
+    initializeBackgroundSchedules_();refreshNewsletterStatus_();
+    compactCollectionTasks_();persistCandidates_([]);const removed=pruneNewsGenerations_();
     telemetry_('initializeConfiguration',0,'OK','Pestañas obsoletas eliminadas: '+(removed.join(', ')||'ninguna'));
     return 'Configuración inicializada. Pestañas obsoletas eliminadas: '+(removed.join(', ')||'ninguna')+'.';
   });
@@ -159,7 +142,7 @@ function writeConfiguration_(config,revision){
     const reclassify=classificationRulesRevision_()!==classificationRulesRevision_(config);
     const taxonomyChanged=JSON.stringify(configuration_().taxonomy)!==JSON.stringify(config.taxonomy)||configuration_().settings.taxonomyCatalogUrl!==config.settings.taxonomyCatalogUrl;
     const sheet=book_().getSheetByName('Configuracion'),rows=Object.entries(functionalConfigurationSettings_(config)).map(([key,value])=>[key,JSON.stringify(value)]);
-    sheet.getRange(2,1,Math.max(rows.length,sheet.getLastRow()-1),2).clearContent();append_('Configuracion',rows);invalidateConfiguration_();if(reclassify)requestNewsClassification_(true);if(taxonomyChanged)requestTaxonomy_();initializeBackgroundSchedules_();
+    sheet.getRange(2,1,Math.max(rows.length,sheet.getLastRow()-1),2).clearContent();append_('Configuracion',rows);invalidateConfiguration_();if(reclassify)requestNewsClassification_(true);if(taxonomyChanged)requestTaxonomy_();initializeBackgroundSchedules_();refreshNewsletterStatus_();
     return 'Configuración guardada. Se aplicará a filtros, clasificación y próximas recopilaciones.';
   });
 }

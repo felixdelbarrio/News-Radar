@@ -8,7 +8,7 @@ function maintenance_(force=false){
 }
 function maintenanceReadyAt_(){const job=maintenanceJob_();return job&&!['Completada','Publicando','Revisar'].includes(job.state)?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
 function compactOperationalLogs_(){
- for(const name of LOG_TABLES)if(book_().getSheetByName(name)&&!archiveLogBatch_(name))return false;
+ let done=0;for(const name of LOG_TABLES){if(book_().getSheetByName(name)&&!archiveLogBatch_(name)){properties_().setProperty('LOG_ARCHIVE_DONE',String(done));return false;}done++;}properties_().setProperty('LOG_ARCHIVE_DONE',String(done));
  properties_().deleteProperty('LOG_ARCHIVE_PENDING');return true;
 }
 function deleteSheetRows_(sheet,positions){
@@ -31,7 +31,7 @@ function cleanDuplicateNews(){authorize_(true);return withForegroundWrite_(()=>(
 function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
  const job=maintenanceJob_();if(!job||['Completada','Publicando','Revisar'].includes(job.state)||backgroundPaused_())return;
  const started=Date.now();try{
-  if(job.phase==='logs'){if(compactOperationalLogs_()===false){saveMaintenanceJob_(job);return;}job.phase='newsletters';saveMaintenanceJob_(job);}
+  if(job.phase==='logs'){compactCollectionTasks_();persistCandidates_([]);pruneNewsGenerations_();if(compactOperationalLogs_()===false){saveMaintenanceJob_(job);return;}job.phase='newsletters';saveMaintenanceJob_(job);}
   if(job.phase==='newsletters'){if(!archiveNewsletterBatch_()){saveMaintenanceJob_(job);return;}job.phase='dedup';saveMaintenanceJob_(job);}
   if(classificationPending_()||dailyCollectionPending_())return;
   if(job.phase==='dedup'){if(!auditMaintenanceIntegrity_(job)){saveMaintenanceJob_(job);return;}job.removed+=deduplicateNews_();job.phase='news';job.newsTotal=Math.max(0,newsSheet_().getLastRow()-1);job.total=job.newsTotal+job.candidateTotal;}
@@ -78,7 +78,7 @@ function archiveAndCompactOperationalStorage(){
   }
   const changedCycles=new Set(remove.map(position=>rows[position-2][0]));
   for(const job of collectionSnapshots_(rows_('Recopilacion'),jobs.filter(job=>changedCycles.has(job.id)&&!archivedCycles.has(job.id))))writeCollectionJob_(job);
-  compactOperationalLogs_();const generations=pruneNewsGenerations_(true);compactStorageDimensions_();
+  compactOperationalLogs_();const generations=pruneNewsGenerations_();compactStorageDimensions_();
   CacheService.getScriptCache().remove('collection-status');
   return {archive:archive.getUrl(),duplicateTasks,archivedTasks,generations};
  });
@@ -99,3 +99,5 @@ function auditMaintenanceIntegrity_(job){
  }
  return true;
 }
+
+function startMaintenance(){authorize_(true);return withForegroundWrite_(()=>{maintenance_(true);return 'Mantenimiento incremental en cola.';});}

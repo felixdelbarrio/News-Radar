@@ -13,14 +13,15 @@ function persistCandidates_(records,now=new Date()){
   let expired=0;
   if(count&&p.getProperty('CANDIDATE_RETENTION_DAY')!==day)for(const [captured] of sheet.getRange(2,10,count,1).getDisplayValues()){if(captured>=cutoff)break;expired++;}
   if(expired)sheet.deleteRows(2,expired);
-  const size=Math.max(0,sheet.getLastRow()-1),known=new Set(size?sheet.getRange(2,1,size,1).getDisplayValues().flat():[]),added=[];
+  const size=Math.max(0,sheet.getLastRow()-1),cache=CacheService.getScriptCache(),key='candidate-ids:'+RADAR.version+':'+(p.getProperty('CANDIDATES_REVISION')||'0')+':'+size,cached=!expired&&readDashboardCache_(cache,key),known=new Set(cached||(size?sheet.getRange(2,1,size,1).getDisplayValues().flat():[])),added=[];
+  if(!cached&&!expired)writeDashboardCache_(cache,key,[...known]);
   for(const record of records)if(!known.has(record[0])){known.add(record[0]);added.push(record);}
   // Keep the newest bounded recoverable corpus; expired/displaced records are counted explicitly.
   const overflow=Math.max(0,size+added.length-CANDIDATE_POLICY.maxRows),removed=Math.min(size,overflow),discarded=Math.max(0,overflow-size);
   if(removed)sheet.deleteRows(2,removed);
   append_('Candidatos',added.slice(discarded));
   p.setProperty('CANDIDATE_RETENTION_DAY',day);
-  if(added.length||expired||removed)properties_().setProperty('CANDIDATES_REVISION',Utilities.getUuid());
+  if(added.length||expired||removed){const revision=Utilities.getUuid();p.setProperty('CANDIDATES_REVISION',revision);const retained=removed?sheet.getRange(2,1,Math.max(0,sheet.getLastRow()-1),1).getDisplayValues().flat():[...known];writeDashboardCache_(cache,'candidate-ids:'+RADAR.version+':'+revision+':'+Math.max(0,sheet.getLastRow()-1),retained);}
   telemetry_('candidatos',0,'OK',JSON.stringify({recibidos:records.length,nuevos:added.length-discarded,duplicados:records.length-added.length,expirados:expired,limite:removed+discarded}));
 }
 function appendCoverage_(records){

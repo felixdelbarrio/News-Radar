@@ -67,7 +67,7 @@ function archiveLogBatch_(name){
  if(sha256_(JSON.stringify(sheet.getRange(2,1,size,keys.length).getDisplayValues()))!==sha256_(JSON.stringify(values)))throw Error('El log cambió durante el archivo: '+name);
  const nextRow=count>size?sheet.getRange(size+2,1,1,keys.length).getDisplayValues()[0]:null;
  properties_().setProperty(archive.property,JSON.stringify({...archive,deleting:true,nextRow}));
- sheet.deleteRows(2,size);SpreadsheetApp.flush();
+ sheet.deleteRows(2,size);SpreadsheetApp.flush();properties_().setProperty('LOG_ARCHIVE_ACTION',name+': '+size+' filas archivadas y verificadas.');
  if(sheet.getLastRow()-1!==count-size)throw Error('Retirada del log no verificada: '+name);
  properties_().deleteProperty(archive.property);return false;
 }
@@ -110,7 +110,7 @@ function finishNewsletterArchive_(row,index,marker){
 }
 function logArchiveReadyAt_(){const p=properties_();return p.getProperty('LOG_ARCHIVE_PENDING')&&Number(p.getProperty('LOG_ARCHIVE_ATTEMPTS')||0)<3?Math.max(Date.now(),Number(p.getProperty('LOG_ARCHIVE_NEXT')||0)):Infinity;}
 function operationalArchiveBatch_(){
- const p=properties_();try{const done=compactOperationalLogs_();p.deleteProperty('LOG_ARCHIVE_ATTEMPTS');p.deleteProperty('LOG_ARCHIVE_NEXT');p.deleteProperty('LOG_ARCHIVE_ERROR');return done;}
+ const p=properties_();try{p.setProperty('LOG_ARCHIVE_LAST',new Date().toISOString());const done=compactOperationalLogs_();p.deleteProperty('LOG_ARCHIVE_ATTEMPTS');p.deleteProperty('LOG_ARCHIVE_NEXT');p.deleteProperty('LOG_ARCHIVE_ERROR');return done;}
  catch(error){p.setProperty('LOG_ARCHIVE_ATTEMPTS',String(Number(p.getProperty('LOG_ARCHIVE_ATTEMPTS')||0)+1));p.setProperty('LOG_ARCHIVE_NEXT',String(Date.now()+settings_().retryMinutes*60000));p.setProperty('LOG_ARCHIVE_ERROR',String(error.message).slice(0,180));return false;}
 }
 function resumeOperationalArchive(){authorize_(true);return withForegroundWrite_(()=>{for(const key of ['LOG_ARCHIVE_ATTEMPTS','LOG_ARCHIVE_NEXT','LOG_ARCHIVE_ERROR'])properties_().deleteProperty(key);properties_().setProperty('LOG_ARCHIVE_PENDING','true');const job=maintenanceJob_();if(job?.state==='Revisar'){job.state='Pendiente';job.attempts=0;job.pausedUntil=0;saveMaintenanceJob_(job);}ensureBackgroundWorker_();return getOperationalSchedule();});}

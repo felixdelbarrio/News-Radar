@@ -236,4 +236,12 @@ button.signal-card{text-align:left;font:inherit;color:inherit;cursor:pointer}but
 
 .catalog-function>summary::after{content:'+';color:var(--color-primary-bg-action)}.catalog-function[open]>summary::after{content:'−'}.catalog-function[open]>.catalog-grid{margin-top:var(--space-2)}
 
+/* All record controls use the reading toolbar and its shared button tokens. */
+.admin-content,.admin-layout,#subscriptions-section{min-width:0;max-width:100%;overflow-x:hidden}
+.admin-content :is(.panel-header,.record-toolbar,.process-grid)>*,#subscriptions-section :is(.panel-header,.metrics)>*{min-width:0;max-width:100%}
+.admin-content :is(td,p,a,code),#subscriptions-section :is(p,a,td){overflow-wrap:anywhere}
+.record-toolbar>[id$="-filters"]{display:flex;align-items:center;flex:1;flex-wrap:wrap;gap:var(--space-1);min-width:0}
+.record-toolbar .active-filters{display:flex;flex-wrap:wrap;gap:var(--space-1)}
+@media(max-width:768px){.record-toolbar,.admin-content .panel-header{flex-wrap:wrap}.admin-content :is(input,select,textarea){max-width:100%;min-width:0}.admin-content .record-filters{grid-template-columns:minmax(0,1fr)}}
+
 </style>

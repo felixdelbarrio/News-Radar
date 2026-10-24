@@ -1,7 +1,6 @@
 const RADAR = Object.freeze({
   version:'3.20.0',
   sheets:{
-    Enriquecimiento:['newsId','inputHash','version','state','attempts','nextAt','url','source','contentHash','signals','comparison','error','updated','durationMs'],
     CategorizacionLLM:['newsId','contentHash','catalogRevision','taxonomyRevision','schemaVersion','ids','primary','evidence','status','updatedAt','sources','proposals','replaces','publication'],
     Candidatos:['id','fecha','pais','entidad','titular','extracto','url','fuente','idioma','capturada','estado','motivo','procedencia','clasificacion'],
     Cobertura:['ejecucion','fecha','fuente','pais','desde','hasta','evaluadas','dentro','saturada','particiones','estado','error'],
@@ -39,5 +38,5 @@ const RELEVANCE_ROLES=Object.freeze(['channel','service','shared','infrastructur
 
 const DASHBOARD_SNAPSHOTS=Object.freeze({views:['briefing','news','radar'],chars:40000,parts:64,refreshMs:300000});
 
-const CANDIDATE_POLICY=Object.freeze({maxRows:10000,retentionDays:90,excerptChars:1500});
+const CANDIDATE_POLICY=Object.freeze({maxRows:3000,retentionDays:30,excerptChars:1500});
 const INCIDENT_SIGNAL='Indisponibilidad / Incidencia operativa';

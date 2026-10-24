@@ -16,10 +16,13 @@ function writeVerifiedRows_(sheet,records){
   for(const {first,rows} of writes)if(sha256_(JSON.stringify(rows))!==sha256_(JSON.stringify(sheet.getRange(first,1,rows.length,width).getDisplayValues())))throw Error('La verificación del backup o de la generación ha fallado.');
 }
 
-function pruneNewsGenerations_(verifiedBackup=false){
- if(!verifiedBackup)return [];
+function pruneNewsGenerations_(){
+ const generation=dataGeneration_(),active=new Set([generation.newsSheet,generation.taxonomySheet,generation.categorization?.sheet,...Object.values(generation.newsletterTables||{})].filter(Boolean));
  const taxonomy=taxonomyJob_();clearTaxonomyCheckpoints_(['scan','publish'].includes(taxonomy?.phase)?taxonomy.checkpoint:null);
- const active=new Set([dataGeneration_().newsSheet,dataGeneration_().taxonomySheet,dataGeneration_().categorization?.sheet,taxonomy?.generation?.newsSheet,taxonomy?.generation?.taxonomySheet,taxonomy?.generation?.source,classificationJob_()?.target,taxonomy?.target,...Object.values(dataGeneration_().newsletterTables||{})].filter(Boolean));
+ for(const key of ['TAXONOMY_JOB','CLASSIFICATION_JOB','LLM_JOB','MAINTENANCE_JOB']){
+  const job=JSON.parse(properties_().getProperty(key)||'null');if(!job||job.state==='Completada')continue;
+  for(const value of [job.source,job.target,job.sheet,job.generation?.source,job.generation?.newsSheet,job.generation?.taxonomySheet,job.categorization?.sheet])if(value)active.add(value);
+ }
  const removed=[];for(const sheet of book_().getSheets()){const name=sheet.getName();if(/^(?:Noticias|Taxonomia|NewsletterContenido|NewsletterEdiciones|CategorizacionLLM)_(?:tax|class|gen|maintenance|llm)_[-a-zA-Z0-9]+$/.test(name)&&!active.has(name)){book_().deleteSheet(sheet);removed.push(name);}}return removed;
 }
 
