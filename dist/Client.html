@@ -2985,6 +2985,9 @@
     return `<div class="activity-chart" role="img" aria-label="Usuarios activos por d\xEDa">${days.map((day2) => `<div class="activity-column" title="${escape2(day2.date)}: ${day2.users} usuarios"><span>${day2.users}</span><div class="activity-bar" style="--bar-height:calc(var(--activity-chart-height) * ${day2.users / maximum})"></div><span>${escape2(day2.date.slice(5))}</span></div>`).join("")}</div>`;
   }
 
+  // src/shared/newsletter-cadences.js
+  var newsletterCadences = Object.freeze({ fortnightly: { label: "Quincenal", view: "briefing", scope: "Novedades", weekday: 1 }, quarterly: { label: "Trimestral", view: "news", scope: "Noticias", weekday: 3 } }), newsletterComparisonLabels = Object.freeze({ local: "Tu geograf\xEDa", group: "El grupo en otras geograf\xEDas", market: "El mercado internacional" });
+
   // src/client/features/metrics.js
   var filters = {}, requests2 = {};
   async function loadMetrics(view2, isCurrent) {
@@ -3008,7 +3011,7 @@
     try {
       let data = await call("getAdminFeedback", filters.feedback.query());
       if (!isCurrent() || requests2.feedback !== request3) return;
-      filters.feedback.options({ ...data.options, valoracion: [["positive", "\u{1F44D} \xDAtil"], ["negative", "\u{1F44E} Mejorable"]] }), filters.feedback.page(data), $("feedback-metrics").innerHTML = feedbackCards(data.filtered), $("feedback-body").innerHTML = data.items.map((row) => "<tr>" + [date(row.fecha), row.correo, row.nombre_edicion + " \xB7 " + row.edicion, row.fecha_envio ? date(row.fecha_envio) : "\u2014", t(row.cadencia), row.pais || "\u2014", row.idioma, row.valoracion === "positive" ? t("\u{1F44D} \xDAtil") : row.valoracion === "negative" ? t("\u{1F44E} Mejorable") : "\u2014", row.comentario].map((value, index) => "<td data-original>" + (index === 2 && row.edicion ? '<button class="text-button" data-open-edition="' + escape2(row.edicion) + '">' + escape2(value) + '</button><details data-newsletter-summary="' + escape2(row.edicion) + '"><summary>' + escape2(t("Resumen enviado")) + "</summary><div data-summary-content></div></details>" : escape2(value)) + "</td>").join("") + '<td><select data-feedback="' + escape2(row.id) + '" aria-label="' + escape2(t("Estado")) + '">' + ["pendiente", "atendido"].map((state2) => '<option value="' + state2 + '" ' + (row.estado === state2 ? "selected" : "") + ">" + escape2(t(state2)) + "</option>").join("") + "</select></td></tr>").join("") || '<tr><td colspan="10">' + t("Sin valoraciones.") + "</td></tr>";
+      filters.feedback.options({ ...data.options, valoracion: [["positive", "\u{1F44D} \xDAtil"], ["negative", "\u{1F44E} Mejorable"]] }), filters.feedback.page(data), $("feedback-metrics").innerHTML = feedbackCards(data.filtered), $("feedback-body").innerHTML = data.items.map((row) => "<tr>" + [date(row.fecha), row.correo, row.nombre_edicion + " \xB7 " + row.edicion, row.fecha_envio ? date(row.fecha_envio) : "\u2014", t(newsletterCadences[row.cadencia]?.label || row.cadencia), row.pais || "\u2014", row.idioma, row.valoracion === "positive" ? t("\u{1F44D} \xDAtil") : row.valoracion === "negative" ? t("\u{1F44E} Mejorable") : "\u2014", row.comentario].map((value, index) => "<td data-original>" + (index === 2 && row.edicion ? '<button class="text-button" data-open-edition="' + escape2(row.edicion) + '">' + escape2(value) + '</button><details data-newsletter-summary="' + escape2(row.edicion) + '"><summary>' + escape2(t("Resumen enviado")) + "</summary><div data-summary-content></div></details>" : escape2(value)) + "</td>").join("") + '<td><select data-feedback="' + escape2(row.id) + '" aria-label="' + escape2(t("Estado")) + '">' + ["pendiente", "atendido"].map((state2) => '<option value="' + state2 + '" ' + (row.estado === state2 ? "selected" : "") + ">" + escape2(t(state2)) + "</option>").join("") + "</select></td></tr>").join("") || '<tr><td colspan="10">' + t("Sin valoraciones.") + "</td></tr>";
     } catch (error) {
       isCurrent() && requests2.feedback === request3 && message(error.message, !0);
     }
@@ -3133,9 +3136,6 @@
       return current;
     } };
   }
-
-  // src/shared/newsletter-cadences.js
-  var newsletterCadences = Object.freeze({ fortnightly: { label: "Quincenal", view: "briefing", scope: "Novedades", weekday: 1 }, quarterly: { label: "Trimestral", view: "news", scope: "Noticias", weekday: 3 } }), newsletterComparisonLabels = Object.freeze({ local: "Tu geograf\xEDa", group: "El grupo en otras geograf\xEDas", market: "El mercado internacional" });
 
   // src/client/features/taxonomy-controls.js
   function syncTaxonomyControls(form, paths, changed) {
