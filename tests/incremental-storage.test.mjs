@@ -11,7 +11,7 @@ test('ordinary initialization preserves canonical sheet identities and pending j
  const s=fixture(),c=s.c;add(s,'original');c.requestNewsClassification_();const sheet=c.newsSheet_(),job=JSON.stringify(c.classificationJob_());c.initializeConfiguration();assert.equal(c.newsSheet_().getSheetId(),sheet.getSheetId());assert.equal(c.newsSheet_().grid[1][0],'original');assert.equal(JSON.stringify(c.classificationJob_()),job);
 });
 test('obsolete sheet cleanup preserves checkpoints and canonical data without a migration reset',()=>{
- const s=fixture(),c=s.c;add(s,'original');c.generationSheet_('TaxonomiaTrabajo',['id']);const before=JSON.stringify(c.classificationJob_());assert.ok(c.pruneNewsGenerations_().includes('TaxonomiaTrabajo'));assert.equal(JSON.stringify(c.classificationJob_()),before);assert.equal(c.newsSheet_().grid[1][0],'original');assert.equal(c.pruneNewsGenerations_().length,0);
+ const s=fixture(),c=s.c;add(s,'original');c.generationSheet_('TaxonomiaTrabajo',['id']);const before=JSON.stringify(c.classificationJob_());assert.equal(c.pruneNewsGenerations_().length,0);assert.ok(s.sheets.has('TaxonomiaTrabajo'));assert.equal(JSON.stringify(c.classificationJob_()),before);assert.equal(c.newsSheet_().grid[1][0],'original');assert.equal(c.pruneNewsGenerations_().length,0);
 });
 test('incremental pass skips current rows and writes only an edited record in place',()=>{
  const s=fixture(),c=s.c;add(s,'one');add(s,'two','BBVA incorpora autenticación biométrica para empresas');c.requestNewsClassification_(true);c.newsClassificationBatch_();for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();let calls=0;const classify=c.classification_;c.classification_=(...args)=>{calls++;return classify(...args);};c.requestNewsClassification_();c.newsClassificationBatch_();assert.equal(calls,0);for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();assert.equal(c.newsStorageKey_(),'Noticias');c.newsSheet_().grid[2][5]='BBVA mejora el acceso de banca online para empresas';c.configurationEdited_({range:{getSheet:()=>c.newsSheet_()}});c.requestNewsClassification_();c.newsClassificationBatch_();assert.equal(calls,1);assert.equal([...s.sheets.keys()].some(name=>/Noticias_(class|tax|maintenance)_/.test(name)),false);
@@ -19,21 +19,21 @@ test('incremental pass skips current rows and writes only an edited record in pl
 test('physical deduplication preserves the frozen newsletter article after deleting its live duplicate',()=>{
  const s=fixture(),c=s.c;add(s,'one');add(s,'two');const rows=c.rows_('Noticias'),aliases=[];c.uniqueNews_(rows,aliases);assert.equal(aliases.length,1);const losing=rows[aliases[0].index],frozen=JSON.stringify(c.packNews_(losing));s.sheets.get('NewsletterContenido').grid.push(['edition',frozen]);const retained=rows[aliases[0].representativeIndex].id;assert.equal(c.cleanDuplicateNews().removed,1);assert.equal(c.rows_('Noticias').length,1);assert.equal(c.rows_('Noticias')[0].id,retained);assert.equal(c.rows_('NewsletterContenido')[0].noticia,frozen);assert.equal(c.unpackNews_(JSON.parse(c.rows_('NewsletterContenido')[0].noticia)).id,losing.id);assert.equal(c.cleanDuplicateNews().removed,0);
 });
-test('strict log caps and completed task purge operate independently of classification',()=>{
- const s=fixture(),c=s.c;const sheet=s.sheets.get('Auditoria');for(let i=0;i<5010;i++)sheet.grid.push([String(i),'2026-10-10']);const task=s.sheets.get('Recopilacion');task.grid.push(['done','source','url','Completada'],['error','source','url','Error']);const jobs=s.sheets.get('Recargas'),keys=vm.runInContext('RADAR.sheets.Recargas',c);for(const [id,estado] of [['done','Completada'],['error','Parcial']])jobs.grid.push(keys.map(key=>({id,estado})[key]||''));add(s,'one');c.requestNewsClassification_(true);c.maintenance_(true);c.maintenanceBatch_();assert.equal(sheet.getLastRow()-1,5000);assert.equal(sheet.grid[1][0],'10');assert.equal(task.grid.length,2);assert.equal(task.grid[1][0],'error');
+test('archivo incremental de logs conserva la cola hasta un backup explícito',()=>{
+ const s=fixture(),c=s.c;const sheet=s.sheets.get('Auditoria');for(let i=0;i<5010;i++)sheet.grid.push([String(i),'2026-10-10']);const task=s.sheets.get('Recopilacion');task.grid.push(['done','source','url','Completada'],['error','source','url','Error']);const jobs=s.sheets.get('Recargas'),keys=vm.runInContext('RADAR.sheets.Recargas',c);for(const [id,estado] of [['done','Completada'],['error','Parcial']])jobs.grid.push(keys.map(key=>({id,estado})[key]||''));add(s,'one');c.requestNewsClassification_(true);c.maintenance_(true);c.maintenanceBatch_();assert.equal(sheet.getLastRow()-1,4910);assert.equal(sheet.grid[1][0],'100');assert.equal(task.grid.length,3);assert.ok(s.archiveBooks.size);
 });
 
 test('taxonomy memory scan reads 19k records in six contiguous lightweight ranges',async()=>{
  const s=currentSourceStorage(),c=s.c;c.initializeConfiguration();
  for(const [name,count] of [['Noticias',9034],['Candidatos',10000]]){const keys=vm.runInContext('RADAR.sheets.'+name,c),row=keys.map(key=>({id:'row',fecha:'2026-10-10',titular:'Headline',extracto:'Excerpt',url:'https://example.test',entidad:'BBVA',procedencia:'{}'})[key]||'');for(let i=0;i<count;i++)Array.prototype.push.call(s.sheets.get(name).grid,row);}
  c.requestTaxonomy_();const reads=[];for(const name of ['Noticias','Candidatos']){const sheet=s.sheets.get(name),get=sheet.getRange;sheet.getRange=(...args)=>{reads.push([name,...args]);return get(...args);};}
- c.observeTaxonomyRow_=()=>{};c.publishTaxonomy_=()=> 'model';c.taxonomyBatch_();assert.equal(c.taxonomyJob_().phase,'tag');assert.equal(reads.length,6);assert.deepEqual(reads.map(row=>row[4]),[7,7,6,1,6,1]);assert.equal(s.sheets.has('TaxonomiaTrabajo'),false);
+ c.observeTaxonomyRow_=()=>{};c.publishTaxonomy_=()=> 'model';c.taxonomyBatch_();assert.equal(c.taxonomyJob_().phase,'tag');assert.equal(reads.length,7);assert.deepEqual(reads.map(row=>row[4]),[7,7,6,1,6,1,13]);assert.equal(s.sheets.has('TaxonomiaTrabajo'),false);
 });
 test('taxonomy respects a foreground pause before publishing its memory-only scan',async()=>{
  const s=currentSourceStorage(),c=s.c;c.initializeConfiguration();add(s,'one');c.requestTaxonomy_();let checks=0,published=false;c.backgroundPaused_=()=>++checks>=3;c.publishTaxonomy_=()=>{published=true;};c.taxonomyBatch_();assert.equal(published,false);assert.equal(c.taxonomyJob_().phase,'publish');assert.ok(c.taxonomyJob_().checkpoint);assert.equal(c.taxonomyJob_().next,2);
 });
 test('maintenance caps logs once while waiting for classification instead of rereading every batch',async()=>{
- const s=currentSourceStorage(),c=s.c;c.initializeConfiguration();let compacted=0;c.compactOperationalLogs_=()=>{compacted++;};c.classificationPending_=()=>true;c.maintenance_(true);c.maintenanceBatch_();c.maintenanceBatch_();assert.equal(compacted,1);assert.equal(c.maintenanceJob_().phase,'dedup');
+ const s=currentSourceStorage(),c=s.c;c.initializeConfiguration();let compacted=0;c.compactOperationalLogs_=()=>{compacted++;return true;};c.classificationPending_=()=>true;c.maintenance_(true);c.maintenanceBatch_();c.maintenanceBatch_();assert.equal(compacted,1);assert.equal(c.maintenanceJob_().phase,'dedup');
 });
 
 test('collection appends without physically sorting news or restarting an active classification',()=>{
@@ -55,11 +55,11 @@ test('maintenance applies the same translated headline deduplication plan as pre
  assert.equal(c.cleanDuplicateNews().removed,preview.duplicates);assert.equal(c.rows_('Noticias').length,preview.unique);assert.equal(c.rows_('Noticias')[0].id,retained);const content=s.sheets.get('NewsletterContenido').grid[1];assert.deepEqual(content,contentBefore);assert.equal(c.unpackNews_(JSON.parse(content[1])).id,losing);assert.equal(c.previewNewsDeduplication().duplicates,0);assert.equal(c.cleanDuplicateNews().removed,0);
 });
 
-test('log compaction removes terminal omitted tasks only in finished cycles without errors or pending work',()=>{
+test('compactar logs conserva tareas de todos los ciclos hasta verificar su archivo',()=>{
  const s=currentSourceStorage(),c=s.c;c.initializeConfiguration();const jobs=s.sheets.get('Recargas'),keys=vm.runInContext('RADAR.sheets.Recargas',c),tasks=s.sheets.get('Recopilacion');
  for(const [id,estado] of [['done','Completada'],['partial','Parcial'],['retry','Parcial'],['running','Pendiente'],['missing','Completada']])jobs.grid.push(keys.map(key=>({id,estado})[key]||''));
  for(const [id,states] of [['done',['Completada','Omitida','Cancelada']],['partial',['Omitida','Error']],['retry',['Omitida','Reintento programado']],['running',['Omitida','Pendiente']],['orphan',['Omitida']]])for(const state of states)tasks.grid.push([id,'source','https://example.test/'+id,state]);
- c.compactOperationalLogs_();assert.equal(tasks.grid.slice(1).some(row=>row[0]==='done'),false);assert.deepEqual(tasks.grid.slice(1).map(row=>[row[0],row[3]]),[['partial','Omitida'],['partial','Error'],['retry','Omitida'],['retry','Reintento programado'],['running','Omitida'],['running','Pendiente'],['orphan','Omitida']]);
+ c.compactOperationalLogs_();assert.equal(tasks.grid.slice(1).some(row=>row[0]==='done'),true);assert.deepEqual(tasks.grid.slice(1).filter(row=>row[0]!=='done').map(row=>[row[0],row[3]]),[['partial','Omitida'],['partial','Error'],['retry','Omitida'],['retry','Reintento programado'],['running','Omitida'],['running','Pendiente'],['orphan','Omitida']]);
  c.dashboardSnapshotsPending_=()=>false;const omitted=c.collectionSnapshots_([{ciclo:'terminal',estado:'Omitida',nuevas:0}],[{id:'terminal',estado:'Pendiente'}]);assert.equal(omitted[0].estado,'Completada');assert.equal(omitted[0].omitidas,1);assert.equal(omitted[0].fallidas,0);
 });
 

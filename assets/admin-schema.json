@@ -145,28 +145,22 @@
   },
   "settings": {
     "label": "Operación y selección inicial",
-    "help": "Los límites se validan al guardar. Cambiar hora o zona requiere reactivar la programación diaria. Listas: separadas por punto y coma.",
+    "help": "Los cambios de horario se aplican a los activadores al guardar. Todos los horarios usan la zona configurada.",
     "labels": {
-      "timezone": "Zona horaria",
       "windowDays": "Ventana de recopilación (días)",
       "pageSize": "Noticias por página",
-      "dailyHour": "Hora de banca digital (0–23)",
-      "searchTerms": "Términos de búsqueda de sector",
       "disabledSources": "IDs de fuentes de perfil desactivadas",
       "briefingLimit": "Máximo de novedades por geografía",
       "maxCustomFeeds": "Máximo de fuentes RSS",
       "maxFeedBytes": "Máximo de caracteres de feed",
       "maxItems": "Máximo de entradas por feed",
       "exportLimit": "Máximo de noticias exportadas",
-      "eventLimit": "Máximo de eventos conservados",
-      "retentionDays": "Conservación de eventos (días)",
       "trendPoints": "Máximo de intervalos de gráfica",
       "trendSeries": "Máximo de series (incluye otras)",
       "collectionBatch": "Fuentes por lote",
       "retryMinutes": "Minutos entre reintentos",
       "pauseMinutes": "Minutos de pausa",
       "unknownCountry": "Geografía predeterminado de un RSS sin país",
-      "newsletterEnabled": "Activar entrega de newsletters",
       "newsletterBatch": "Máximo de destinatarios por ejecución",
       "newsletterSender": "Remitente verificado en Gmail (correo del grupo)",
       "newsletterSenderName": "Nombre visible del remitente",
@@ -177,7 +171,6 @@
       {
         "label": "Newsletter",
         "keys": [
-          "newsletterEnabled",
           "newsletterSender",
           "newsletterSenderName",
           "newsletterAppUrl",
@@ -189,10 +182,7 @@
       {
         "label": "Recopilación",
         "keys": [
-          "timezone",
-          "dailyHour",
           "windowDays",
-          "searchTerms",
           "disabledSources",
           "collectionBatch",
           "retryMinutes",
@@ -214,32 +204,9 @@
           "maxCustomFeeds",
           "maxFeedBytes",
           "maxItems",
-          "exportLimit",
-          "eventLimit",
-          "retentionDays"
+          "exportLimit"
         ]
       }
-    ]
-  },
-  "capabilities": {
-    "label": "Capacidades digitales",
-    "help": "Capacidades del canal de Empresas e instituciones. Solo las activas participan en búsquedas, clasificación y relevancia. Términos separados por punto y coma.",
-    "fields": [
-      [
-        "name",
-        "Nombre",
-        "text"
-      ],
-      [
-        "terms",
-        "Términos de búsqueda",
-        "list"
-      ],
-      [
-        "enabled",
-        "Activa",
-        "boolean"
-      ]
     ]
   },
   "applicationScope": {
@@ -308,7 +275,7 @@
   },
   "searchLanguages": {
     "label": "Búsquedas por idioma",
-    "help": "Vocabulario editable de recuperación. Los primeros cuatro términos tienen prioridad en las búsquedas del idioma; se combinan con Operación y selección inicial y Capacidades digitales. Editar estas listas cambia las próximas consultas sin añadir fuentes ni multiplicar combinaciones.",
+    "help": "Vocabulario de recuperación por idioma. Se combina con la detección de canal digital y las equivalencias del catálogo global de funcionalidades.",
     "fields": [
       [
         "name",
@@ -334,6 +301,129 @@
   },
   "taxonomy": {
     "label": "Catálogo global de funcionalidades",
-    "help": "Equivalencias y conceptos emergentes de News Radar. Los códigos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aquí. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios."
+    "help": "Equivalencias y conceptos emergentes de News Radar. Los códigos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aquí. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios. La detección previa de canal digital y los términos de recuperación siguen en uso; se administran aquí junto a las equivalencias funcionales."
+  },
+  "storage": {
+    "label": "Almacenamiento y archivo",
+    "help": "El libro primario conserva su ID. Cada archivo se verifica en su carpeta antes de retirar filas; Adopción conserva todos los accesos.",
+    "labels": {
+      "primaryFolderId": "Carpeta autorizada del libro y copias",
+      "logFolderId": "Carpeta de logs",
+      "newsletterFolderId": "Carpeta de newsletters",
+      "taxonomyCatalogUrl": "Catálogo global de funcionalidades en Drive"
+    },
+    "groups": [
+      {
+        "label": "Carpetas de Drive",
+        "keys": [
+          "primaryFolderId",
+          "logFolderId",
+          "newsletterFolderId"
+        ]
+      },
+      {
+        "label": "Catálogo maestro de Drive",
+        "section": "settings",
+        "keys": [
+          "taxonomyCatalogUrl"
+        ]
+      }
+    ]
+  },
+  "schedule": {
+    "label": "Programación de procesos",
+    "help": "El supervisor respeta las prioridades y reanuda los trabajos con cuota disponible. Apps Script ejecuta cada horario con un margen aproximado de 15 minutos.",
+    "labels": {
+      "timezone": "Zona horaria",
+      "dailyHour": "Primera recopilación: hora (0–23)",
+      "newsletterEnabled": "Activar entrega de newsletters",
+      "watchdogMinutes": "Supervisor: intervalo en minutos (1, 5, 10, 15 o 30)",
+      "dailyMinute": "Primera recopilación: minuto (0–59)",
+      "morningEnabled": "Activar primera recopilación",
+      "afternoonHour": "Segunda recopilación: hora (0–23)",
+      "afternoonMinute": "Segunda recopilación: minuto (0–59)",
+      "afternoonEnabled": "Activar segunda recopilación",
+      "eveningHour": "Tercera recopilación: hora (0–23)",
+      "eveningMinute": "Tercera recopilación: minuto (0–59)",
+      "eveningEnabled": "Activar tercera recopilación",
+      "newsletterHour": "Newsletter: hora (0–23)",
+      "newsletterMinute": "Newsletter: minuto (0–59)"
+    },
+    "groups": [
+      {
+        "label": "Supervisor de colas",
+        "section": "settings",
+        "keys": [
+          "timezone",
+          "watchdogMinutes"
+        ]
+      },
+      {
+        "label": "Primera recopilación · prioridad 1",
+        "section": "settings",
+        "keys": [
+          "morningEnabled",
+          "dailyHour",
+          "dailyMinute"
+        ]
+      },
+      {
+        "label": "Segunda recopilación · prioridad 1",
+        "section": "settings",
+        "keys": [
+          "afternoonEnabled",
+          "afternoonHour",
+          "afternoonMinute"
+        ]
+      },
+      {
+        "label": "Tercera recopilación · prioridad 1",
+        "section": "settings",
+        "keys": [
+          "eveningEnabled",
+          "eveningHour",
+          "eveningMinute"
+        ]
+      },
+      {
+        "label": "Envíos planificados · prioridad 3",
+        "section": "settings",
+        "keys": [
+          "newsletterEnabled",
+          "newsletterHour",
+          "newsletterMinute"
+        ]
+      }
+    ]
+  },
+  "retention": {
+    "label": "Conservación",
+    "help": "Conservación y límites del historial operativo. Adopción mantiene todos los accesos.",
+    "labels": {
+      "eventLimit": "Máximo de eventos conservados",
+      "retentionDays": "Conservación de eventos (días)",
+      "logRows": "Filas recientes de cada log",
+      "logDays": "Días de cada log",
+      "newsletterDeliveries": "Últimos envíos por suscripción"
+    },
+    "groups": [
+      {
+        "label": "Archivo operativo",
+        "section": "storage",
+        "keys": [
+          "logRows",
+          "logDays",
+          "newsletterDeliveries"
+        ]
+      },
+      {
+        "label": "Consultas y eventos",
+        "section": "settings",
+        "keys": [
+          "eventLimit",
+          "retentionDays"
+        ]
+      }
+    ]
   }
 }

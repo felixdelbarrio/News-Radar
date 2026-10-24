@@ -13,11 +13,11 @@ function fixture(){
  for(const evento of ['acceso','lectura','exportacion'])add('NewsletterEventos',{id:evento,edicion:'edition-a',correo:'one@bbva.com',evento,fecha:'2026-10-10T12:00:00Z'});
  return s;
 }
-test('feedback administrativo filtra antes de paginar, enriquece cabeceras y conserva KPIs globales e interacciones',()=>{
+test('feedback administrativo filtra antes de paginar, enriquece cabeceras y conserva KPIs de la selección',()=>{
  const s=fixture(),c=s.c;c.newsRows_=()=>{throw Error('No debe leer noticias');};
- const all=c.getAdminFeedback();assert.equal(all.total,35);assert.ok(all.items.length<35);assert.equal(all.global.positive,17);assert.equal(all.global.pending,18);
+ const all=c.getAdminFeedback();assert.equal(all.total,35);assert.ok(all.items.length<35);assert.equal(all.filtered.positive,17);assert.equal(all.filtered.pending,18);
  const selected=c.getAdminFeedback({valoracion:'positive',correo:'one@bbva.com',from:'2026-10-10',to:'2026-10-10',search:'Balance'});
- assert.equal(selected.total,17);assert.equal(selected.global.total,35);assert.equal(selected.filtered.positiveRate,100);assert.equal(selected.items[0].pais,'México');assert.equal(selected.items[0].cadencia,'quarterly');assert.equal(selected.items[0].nombre_edicion,'Balance empresas');assert.deepEqual(clean(selected.interactions),[{edicion:'edition-a',accesses:1,reads:1,exports:1}]);
+ assert.equal(selected.total,17);assert.equal(selected.filtered.positiveRate,100);assert.equal(selected.items[0].pais,'México');assert.equal(selected.items[0].cadencia,'quarterly');assert.equal(selected.items[0].nombre_edicion,'Balance empresas');assert.equal(selected.global,undefined);assert.equal(selected.interactions,undefined);assert.equal(c.getAdminLogs('interactions',{correo:'one@bbva.com'}).items[0].lecturas,1);
  assert.equal(c.getAdminFeedback({from:'2026-10-11'}).total,0);assert.throws(()=>c.getAdminFeedback({from:'2026-10-12',to:'2026-10-10'}),/anterior/);
 });
 test('CSV exporta todas las filas filtradas con BOM, comillas, orden y protección de fórmulas; acceso solo administrador',()=>{

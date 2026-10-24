@@ -41,13 +41,13 @@ test('feedback es opcional, propio, deduplicado y administrable; no lee el corpu
  assert.equal(c.saveNewsletterFeedback({edition:'edition',rating:'',comment:''}).feedback,null);
  const first=c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:'<b>Útil</b>'}).feedback;assert.equal(first.comentario,'Útil');
  c.saveNewsletterFeedback({edition:'edition',rating:'negative',comment:'Mejorar cobertura'});assert.equal(c.rows_('NewsletterFeedback').length,1);assert.equal(c.rows_('NewsletterFeedback')[0].id,first.id);
- c.setNewsletterFeedbackState({id:first.id,state:'atendido'});assert.equal(c.getNewsletterInsights().feedback.items[0].estado,'atendido');assert.throws(()=>c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:'a'.repeat(1001)}),/no válido/);
- s.setEmail('reader@bbva.com');assert.throws(()=>c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:''}),/no disponible/);assert.throws(()=>c.setNewsletterFeedbackState({id:first.id,state:'pendiente'}),/no autorizado/);assert.throws(()=>c.getNewsletterInsights(),/no autorizado/);
+ c.setNewsletterFeedbackState({id:first.id,state:'atendido'});assert.equal(c.getAdminFeedback().items[0].estado,'atendido');assert.throws(()=>c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:'a'.repeat(1001)}),/no válido/);
+ s.setEmail('reader@bbva.com');assert.throws(()=>c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:''}),/no disponible/);assert.throws(()=>c.setNewsletterFeedbackState({id:first.id,state:'pendiente'}),/no autorizado/);assert.throws(()=>c.getAdminFeedback(),/no autorizado/);
 });
 test('las visitas de newsletter usan identidad autenticada, IDs estables y deduplicación de reenvíos',()=>{
  const s=server(),c=s.c;edition(s);const input=[{id:'event-entry-123456',edition:'edition',session:'session-123456789',event:'acceso',view:'news',email:'spoof@bbva.com'},{id:'event-radar-123456',edition:'edition',session:'session-123456789',event:'vista',view:'radar'}];
  c.recordEvents(input);s.cache.clear();c.recordEvents(input);assert.equal(c.rows_('NewsletterEventos').length,2);assert.ok(c.rows_('NewsletterEventos').every(row=>row.correo==='owner@bbva.com'));
- const metrics=c.getNewsletterInsights().adoption.items[0];assert.equal(metrics.users,1);assert.equal(metrics.sessions,1);assert.equal(metrics.entries,1);assert.equal(metrics.recipients,1);assert.deepEqual(Array.from(metrics.destinations),['news','radar']);
+ const metrics=c.getAdminLogs('accesses');assert.equal(metrics.total,1);assert.equal(metrics.metrics.cards.find(row=>row[0]==='Usuarios')[1],1);assert.equal(metrics.items[0].correo,'owner@bbva.com');
  s.setEmail('reader@bbva.com');assert.throws(()=>c.recordEvents(input),/no disponible/);
 });
 test('el feedback actualizado conserva su retención mientras elimina otro registro antiguo',()=>{
@@ -63,7 +63,7 @@ test('la traducción prioriza Empresas digital antes de Retail más reciente sin
 });
 test('una cuota diaria suspende ambos traductores y no se pierde la solicitud prioritaria',()=>{
  const s=server(),c=s.c,row=news(s);row.clasificacion=JSON.stringify(row.etiquetas);add(s,'Noticias',row);let calls=0;c.LanguageApp={translate(){calls++;throw Error('Service invoked too many times for one day: translate');}};
- c.requestTranslations_(true);c.translationBatch_();c.requestTranslations_(true);c.translationBatch_();c.startTaxonomyTranslations();c.taxonomyTranslationBatch_();assert.equal(calls,1);assert.ok(c.translationReadyAt_()>Date.now());assert.ok(c.taxonomyTranslationReadyAt_()>Date.now());assert.ok(s.properties.TRANSLATION_PRIORITY_REQUEST);
+ c.requestTranslations_(true);c.translationBatch_();c.requestTranslations_(true);c.translationBatch_();c.requestTaxonomyTranslations_();c.taxonomyTranslationBatch_();assert.equal(calls,1);assert.ok(c.translationReadyAt_()>Date.now());assert.ok(c.taxonomyTranslationReadyAt_()>Date.now());assert.ok(s.properties.TRANSLATION_PRIORITY_REQUEST);
 });
 test('una solicitud recibida durante la traducción persiste para incorporar el siguiente contenido',()=>{
  const s=server(),c=s.c;add(s,'Noticias',news(s));c.requestTranslations_();c.LanguageApp={translate:html=>{s.properties.TRANSLATION_REQUEST=new Date(Date.now()+1000).toISOString();return html;}};c.translationBatch_();assert.ok(s.properties.TRANSLATION_REQUEST);drainSnapshots(c);assert.equal(c.translationJob_().state,'Completada');
@@ -72,7 +72,7 @@ test('la cola lee estados solo de trabajos activos y conserva posiciones física
  const s=server(),c=s.c;add(s,'Recargas',{id:'done',tipo:'annual',estado:'Parcial',total:1000,pendientes:0});add(s,'Recargas',{id:'active',tipo:'daily',estado:'Pendiente',total:2,pendientes:2});
  for(let i=0;i<1000;i++)add(s,'Recopilacion',{ciclo:'done',estado:'Completada'});for(let i=0;i<2;i++)add(s,'Recopilacion',{ciclo:'active',estado:'Pendiente',fuente:'Fuente',url:'https://example.com/'+i,prioridad:'2026-10-12'});
  const sheet=s.sheets.get('Recopilacion'),range=sheet.getRange.bind(sheet),reads=[];sheet.getRange=(...args)=>{reads.push(args);return range(...args);};const work=c.collectionWork_(Date.now());assert.equal(work.tasks.length,2);assert.deepEqual(Array.from(work.pending,row=>row.row),[1002,1003]);assert.ok(reads.every(([,column,size])=>column!==4||size===2));
- c.collectionFeeds_=()=>[];c.requestDailyCollection_();c.drainCollectionRequests_();assert.equal(c.rows_('Recopilacion').length,2);assert.equal(c.collectionJobs_().find(row=>row.id==='done').total,'1000');
+ c.collectionFeeds_=()=>[];c.requestDailyCollection_();c.drainCollectionRequests_();assert.equal(c.rows_('Recopilacion').length,1002);assert.equal(c.collectionWork_(Date.now()).tasks.length,2);assert.equal(c.collectionJobs_().find(row=>row.id==='done').total,'1000');
 });
 test('una cuota diaria de URL Fetch pausa la cola sin amplificar llamadas ni consumir intentos',()=>{
  const s=server(),c=s.c,feed=c.feeds_().find(row=>row.kind==='rss');add(s,'Recargas',{id:'daily',tipo:'daily',estado:'Pendiente',total:1,pendientes:1,desde:'2026-10-01',hasta:'2026-10-13',inicio:new Date().toISOString()});add(s,'Recopilacion',{ciclo:'daily',fuente:feed.name,url:feed.url,estado:'Pendiente',intentos:0,prioridad:'2026-10-13'});
@@ -87,4 +87,28 @@ test('incorporar una noticia de Empresas digital solicita traducción automátic
  add(s,'Recargas',{id:'daily',tipo:'daily',estado:'Pendiente',total:1,pendientes:1,desde:'2026-10-01',hasta:'2026-10-13',inicio:new Date().toISOString()});add(s,'Recopilacion',{ciclo:'daily',fuente:feed.name,url:feed.url,estado:'Pendiente',intentos:0,prioridad:'2026-10-13'});
  c.fetchFeedBatch_=()=>[{response:{}}];c.ingestFeed_=()=>({news:[vm.runInContext('RADAR.sheets.Noticias',c).map(key=>row[key]??'')],audit:[],evaluated:1,relevant:1,digital:1});
  assert.equal(c.collectionBatch_(c.collectionWork_(Date.now())).added,1);assert.ok(s.properties.TRANSLATION_REQUEST);assert.equal(s.properties.TRANSLATION_PRIORITY_REQUEST,'true');
+});
+test('Otras geografías en ediciones archivadas usa el ámbito congelado también al exportar',()=>{
+ const s=server(),c=s.c;
+ const items=[
+  news(s,'spain','España','BBVA presenta una plataforma de pagos para empresas españolas'),
+  news(s,'mexico','México','BBVA incorpora nuevas funcionalidades de cobros en México'),
+  news(s,'italy','Italia','BBVA desarrolla una solución de tesorería para empresas italianas')
+ ];
+ const queryEdition={view:'news',from:'2026-09-01',to:'2026-09-30',segment:'Empresas e instituciones'};
+ const content=c.newsletterContent_(items,queryEdition,'Selección',new Date(),'subscription','es','frozen-geography');
+ c.saveNewsletterEdition_('frozen-geography','delivery','owner@bbva.com','Selección',queryEdition,'es',items,content.editorial);
+ c.completeNewsletterEdition_('frozen-geography','Enviada');
+ const original=content.editorial.scope;
+ assert.ok(original[0].countries.includes('México'),'La prueba requiere México dentro del ámbito original');
+ c.configuration_().applicationScope[0].countries=['España','Italia'];
+ c.invalidateNews_();
+ const query={view:'news',edition:'frozen-geography',country:'Otras geografías',newsGeography:'Otras geografías'};
+ const response=c.getDashboard(query);
+ assert.deepEqual(Array.from(response.items,row=>row.id),['italy']);
+ const exported=c.exportNews(query);
+ assert.equal(exported.count,1);
+ assert.match(exported.csv,/italy/);
+ assert.doesNotMatch(exported.csv,/mexico/);
+ assert.deepEqual(clean(response.applicationScope),clean(original));
 });

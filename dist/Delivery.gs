@@ -1,4 +1,4 @@
-function newsletterPipelinePending_(work){const p=properties_();return Boolean(snapshotPublicationPending_(work,false)||p.getProperty('DAILY_PIPELINE_REQUEST')||dailyCollectionPending_(work)||p.getProperty('CLASSIFICATION_REQUEST')||classificationPending_());}
+function newsletterPipelinePending_(work){const p=properties_();return Boolean(snapshotPublicationPending_(work,false)||dailyPipelineRequested_()||dailyCollectionPending_(work)||p.getProperty('CLASSIFICATION_REQUEST')||classificationPending_());}
 function newsletterQuotaReset_(deliveries,now=new Date()){
   const timestamps=deliveries.filter(row=>['Enviando','Enviada','Revisar'].includes(row.estado)).map(row=>Date.parse(row.fecha)).filter(value=>value>now.getTime()-86400000).sort((a,b)=>a-b),index=timestamps.length-settings_().newsletterDailyLimit;
   return index>=0?timestamps[index]+86400000:0;

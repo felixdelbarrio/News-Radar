@@ -20,8 +20,8 @@ test('staged sparse writes preserve intervening rows and verify one flushed gene
 });
 test('restart removes abandoned targets while canonical, active and other jobs survive pruning',()=>{
  const s=fixture(),c=s.c;for(const name of ['Noticias_backup_old','Preferencias','Noticias_class_old','Noticias_tax_live','Unrelated'])c.generationSheet_(name,['id']);
- s.properties.CLASSIFICATION_JOB=JSON.stringify({state:'Pendiente',target:'Noticias_class_old'});s.properties.TAXONOMY_JOB=JSON.stringify({state:'Pendiente',target:'Noticias_tax_live'});c.requestNewsClassification_(true);c.pruneNewsGenerations_();
- for(const name of ['Noticias_backup_old','Preferencias','Noticias_class_old'])assert.equal(s.sheets.has(name),false,name);assert.equal(s.sheets.has('Noticias'),true);for(const name of ['Noticias_tax_live','Unrelated'])assert.equal(s.sheets.has(name),false,name);
+ s.properties.CLASSIFICATION_JOB=JSON.stringify({state:'Pendiente',target:'Noticias_class_old'});s.properties.TAXONOMY_JOB=JSON.stringify({state:'Pendiente',target:'Noticias_tax_live'});c.requestNewsClassification_(true);c.pruneNewsGenerations_(true);
+ assert.equal(s.sheets.has('Noticias_class_old'),false);for(const name of ['Noticias_backup_old','Preferencias','Noticias','Noticias_tax_live','Unrelated'])assert.equal(s.sheets.has(name),true,name);
 });
 test('dashboard cache keys canonicalize empty defaults and object order',()=>{
  const {c}=fixture();assert.equal(c.dashboardCacheKey_({from:'2026-10-01',to:'2026-10-31',page:0,entity:''},'news','es'),c.dashboardCacheKey_({to:'2026-10-31',from:'2026-10-01'},'news','es'));

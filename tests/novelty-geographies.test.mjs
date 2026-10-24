@@ -8,11 +8,11 @@ import {app} from './helpers/app.mjs';
 const signals=['Lanzamiento de producto','Mejora de oferta','Alianza estratégica'];
 function row(id,pais='España',entidad='BBVA',senales=[signals[0]],segmentos=['Empresas e instituciones']){return {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',id,pais,entidad,senales,segmentos,tipo:'Banco tradicional',titular:entidad+' lanza producto '+id,extracto:'Nueva oferta para empresas',fecha:'2026-10-10',medio:'Editor',url:'https://example.com/'+id,tema:'Financiación',taxonomia:[]};}
 function server(){const s=storage();s.c.initializeConfiguration();return s;}
-test('agrupa cada noticia una sola vez en geografía, entidad y combinación de segmentos sin mutar ni sumar etiquetas duplicadas',()=>{
+test('agrupa cada noticia una sola vez en geografía y fecha de publicación sin mutar ni sumar etiquetas duplicadas',()=>{
  const rows=[row('a','España','Santander',[...signals,signals[0]],['Retail','Empresas e instituciones','Retail']),row('b','España','BBVA'),row('c','México','BBVA'),row('d','España','Santander'),row('e','','',[],[])],before=JSON.stringify(rows),overview=noveltyOverview(rows,signals),groups=noveltyGroups(rows);
  assert.equal(overview.total,5);assert.equal(overview.bySignal[0].total,4);assert.equal(overview.geographies.find(row=>row.name==='España').total,3);assert.equal(overview.geographies[0].entityCount,2);
- assert.deepEqual(groups[0].entities.map(row=>row.name),['BBVA','Santander']);assert.equal(groups[0].entities[1].segments[0].name,'Empresas e instituciones · Retail');
- const ids=groups.flatMap(group=>group.entities.flatMap(entity=>entity.segments.flatMap(segment=>segment.items.map(row=>row.id))));assert.equal(new Set(ids).size,5);assert.equal(ids.length,5);assert.equal(JSON.stringify(rows),before);assert.deepEqual(noveltyGroups([]),[]);assert.equal(noveltyOverview([]).total,0);assert.equal(noveltyCount(1,'novedad','novedades'),'1 novedad');assert.equal(noveltyCount(2,'novedad','novedades'),'2 novedades');
+ assert.deepEqual(groups[0].items.map(row=>row.id),['a','b','d']);
+ const ids=groups.flatMap(group=>group.items.map(row=>row.id));assert.equal(new Set(ids).size,5);assert.equal(ids.length,5);assert.equal(JSON.stringify(rows),before);assert.deepEqual(noveltyGroups([]),[]);assert.equal(noveltyOverview([]).total,0);assert.equal(noveltyCount(1,'novedad','novedades'),'1 novedad');assert.equal(noveltyCount(2,'novedad','novedades'),'2 novedades');
 });
 test('el límite por geografía no oculta mercados minoritarios y los KPIs conservan la población completa',()=>{
  const {c}=server();c.settings_().briefingLimit=2;
@@ -43,4 +43,12 @@ test('newsletter conserva toda la evidencia y presenta un máximo de tres tarjet
 });
 test('el modelo compartido se publica para cliente y Apps Script y evita scripts en el correo',()=>{
  const {c}=server(),record=row('safe','<img src=x>','<script>');record.titular='<script>alert(1)</script>';record.extracto='<img src=x onerror=alert(1)>';const content=c.newsletterContent_([record],{},'Prueba',new Date(),'id'),d=new JSDOM(content.html).window.document;assert.equal(d.querySelectorAll('script,[onerror]').length,0);assert.ok(!d.body.textContent.includes(record.titular));assert.equal(typeof c.noveltyOverview,'function');assert.equal(typeof c.noveltyGroups,'function');
+});
+test('el límite ofrece al final acceso a Noticias con quincena y Otras geografías seleccionadas',async t=>{
+ const rows=[row('outside','Francia')],overview=noveltyOverview(rows,signals,()=> 'Otras geografías');overview.geographies[0].total=61;
+ const a=await app(t,{configure({data}){data.applicationScope=[{name:'Empresas e instituciones',countries:['España']}];data.selection={from:'2026-10-16',to:'2026-10-31'};data.briefing={...overview,total:61,limited:true,items:rows};}});
+ assert.equal(a.find('#briefing-explore').hidden,false);assert.equal(a.find('#briefing-limit').classList.contains('warning'),true);assert.equal(a.find('#briefing-section').lastElementChild.id,'briefing-explore');await a.click('#briefing-explore-news');const query=a.calls.filter(row=>row.method==='getDashboard').at(-1).query;assert.equal(query.view,'news');assert.equal(query.from,'2026-10-16');assert.equal(query.to,'2026-10-31');assert.equal(query.country,'Otras geografías');assert.equal(query.newsGeography,'Otras geografías');assert.ok([...a.find('#filters [name="country"]').options].some(option=>option.value==='Otras geografías'));
+});
+test('Otras geografías filtra los países fuera del ámbito con el mismo agrupado que Novedades',()=>{
+ const {c}=server(),rows=[row('es'),row('fr','Francia'),row('uk','Reino Unido')];const expected=rows.filter(r=>c.applicationGeography(c.configuration_().applicationScope)(r)==='Otras geografías');assert.equal(c.selectAnnotatedNews_(rows,{country:'Otras geografías'}).length,expected.length);
 });

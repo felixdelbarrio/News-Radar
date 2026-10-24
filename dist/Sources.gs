@@ -9,9 +9,10 @@ function profileFeed_(geo,entity,range,capabilitySearch=false) {
   if(!terms.length)return null;
   const language=geo.language.split('-')[0],scopes=collectionLanguageMemory_.scopes;
   if(capabilitySearch&&!scopes.has(language))scopes.set(language,localizedSearchTerms_(configuration_().segments.filter(row=>row.enabled).flatMap(row=>row.terms),geo).slice(0,6));
+  if(capabilitySearch&&!scopes.get(language).length)return null;
   const scope=capabilitySearch?' ('+scopes.get(language).map(quote).join(' OR ')+')':'';
   // Fechas al principio y OR agrupados: el proveedor no debe ampliar el período por una alternativa.
-  const prefix=period+' ('+[entity.name,...entity.aliases].slice(0,COLLECTION_POLICY.entityAliases+1).map(quote).join(' OR ')+') (',selected=[];let length=prefix.length+1+scope.length;
+  const prefix=period+(geo.code==='UY'?' "Uruguay"':'')+' ('+[entity.name,...entity.aliases].slice(0,COLLECTION_POLICY.entityAliases+1).map(quote).join(' OR ')+') (',selected=[];let length=prefix.length+1+scope.length;
   for(const term of terms){const value=quote(term),size=value.length+(selected.length?4:0);if(length+size>COLLECTION_POLICY.queryChars)continue;selected.push(value);length+=size;}
   if(!selected.length)return null;const query=prefix+selected.join(' OR ')+')'+scope;
   // Google News no publica edición UY; su redirección legítima utiliza US en español latinoamericano.
@@ -28,7 +29,7 @@ function localizedSearchTerms_(terms,geo){
   }
   const language=geo.language.split('-')[0],native=[],english=[],custom=[];
   for(const term of terms){const languages=collectionLanguageMemory_.terms.get(searchText_(term));if(!languages)custom.push(term);else if(languages.has(language))native.push(term);else if(languages.has('en'))english.push(term);}
-  return [...native,...english,...custom];
+  return ['it','de','fr','pt','tr'].includes(language)?native:[...native,...english,...custom];
 }
 function collectionSearchTerms_(geo){
   const local=(configuration_().searchLanguages.find(row=>row.enabled&&row.language===geo.language.split('-')[0])?.terms||[]).slice(0,COLLECTION_POLICY.localTerms),terms=localizedSearchTerms_([...new Set(settings_().searchTerms)],geo),count=Math.min(terms.length,Math.max(0,COLLECTION_POLICY.searchTerms-local.length));
@@ -64,7 +65,7 @@ function capabilitySearchTerms_(geo,entity){
 }
 function defaultFeeds_(range) {
   const config=configuration_(),disabled=new Set(config.settings.disabledSources);
-  return config.feeds.map(feed=>({...feed,kind:'rss'})).concat(config.entities.flatMap(entity=>config.geographies.filter(geo=>entity.countries.includes(geo.name)).map(geo=>{const feed=profileFeed_(geo,entity,range);return {...feed,enabled:feed.enabled&&!disabled.has(feed.id)};})));
+  return config.feeds.map(feed=>countryScopedSource_({...feed,kind:'rss'})).concat(config.entities.flatMap(entity=>config.geographies.filter(geo=>entity.countries.includes(geo.name)).map(geo=>{const feed=profileFeed_(geo,entity,range);return {...feed,enabled:feed.enabled&&!disabled.has(feed.id)};})));
 }
 function customFeeds_(){return configuration_().feeds;}
 let configuredFeedMemory_;
@@ -88,5 +89,12 @@ function enableDaily() {
   properties_().setProperty('DAILY_ENABLED','true');
   return 'Recopilación activada. '+collectionScheduleLabel_()+'.';
 }
-function disableDaily() {authorize_(true);ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='dailyRadar_').forEach(t=>ScriptApp.deleteTrigger(t));properties_().setProperty('DAILY_ENABLED','false');CacheService.getScriptCache().remove('daily-schedule');}
+function disableDaily() {authorize_(true);ScriptApp.getProjectTriggers().filter(t=>collectionHandlers_().includes(t.getHandlerFunction())).forEach(t=>ScriptApp.deleteTrigger(t));properties_().setProperty('DAILY_ENABLED','false');CacheService.getScriptCache().remove('daily-schedule');}
 
+
+function countryScopedSource_(feed){
+ if(feed.country!=='Uruguay'||!domainMatches_(feed.url,'news.google.com'))return feed;
+ return {...feed,url:feed.url.replace(/([?&](?:gl|ceid)=)UY(?=:|%3A|&|$)/gi,'$1US').replace(/([?&]q=)([^&]*)/,(_,prefix,value)=>{
+  const query=decodeURIComponent(value.replace(/\+/g,' '));return prefix+encodeURIComponent(/\buruguay\b/i.test(query)?query:query+' "Uruguay"');
+ })};
+}

@@ -7,16 +7,15 @@
     "administration": "Administración"
   },
   "adminViews": {
-    "runs": "Ejecuciones",
+    "runs": "Panel de control",
     "taxonomy": "Catálogo global de funcionalidades",
     "llm": "Categorización LLM",
     "language": "Idioma",
     "subscribers": "Suscripciones",
     "adoption": "Adopción",
     "feedback": "Feedback",
-    "telemetry": "Telemetría",
     "sources": "Fuentes",
-    "audit": "Auditoría",
+    "audit": "Logs",
     "configuration": "Configuración de negocio"
   }
 }

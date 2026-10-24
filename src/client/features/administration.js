@@ -2,14 +2,14 @@ import { $, message } from "../core/dom.js";
 import config from "../config.js";
 import { loadMetrics } from "./metrics.js";
 import { loadAudit } from "./audit.js";
-function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,onLanguage,onLeaveLanguage,onRuns,onLeaveRuns,onLeaveSubscribers,onTaxonomy,onLeaveTaxonomy,onLlm,onLeaveLlm }) {
+import {enhanceAdminTables} from "./admin-tables.js";
+function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,onRuns,onLeaveRuns,onTaxonomy,onLlm,onLeaveLlm }) {
+  const content=document.querySelector('#administration-section .admin-content');
+  enhanceAdminTables(content);
   let current = Object.keys(config.adminViews)[0];
   async function open(view = Object.keys(config.adminViews)[0]) {
     if (!isAdmin() || !(view in config.adminViews)) return;
-    if(current==="language"&&view!==current)onLeaveLanguage();
     if(current==='runs'&&view!==current)onLeaveRuns();
-    if(current==='subscribers'&&view!==current)onLeaveSubscribers();
-    if(current==="taxonomy"&&view!==current)onLeaveTaxonomy();
     if(current==='llm'&&view!==current)onLeaveLlm();
     current = view;
     track("vista");
@@ -17,15 +17,16 @@ function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,o
     $("admin-tabs").querySelectorAll("[data-admin-view]").forEach((button) => {
       button.setAttribute("aria-selected", String(button.dataset.adminView === view));
       button.tabIndex = button.dataset.adminView === view ? 0 : -1;
+      if(button.dataset.adminView===view)button.scrollIntoView?.({block:"nearest",inline:"nearest"});
     });
     if(view === "subscribers")await onSubscribers();
     if(view === "configuration")try{await onConfiguration();}catch(error){message(error.message||String(error),true);}
     if(view === 'llm')await onLlm();
     if(view === "taxonomy")await onTaxonomy();
-    if(view === "language")await onLanguage();
+
     if (view === "runs") await onRuns();
     if (view === "audit") await loadAudit();
-    if (view === "telemetry" || view === "adoption" || view === "feedback") await loadMetrics(view, () => current === view && !$("administration-section").hidden);
+    if (view === "adoption" || view === "feedback") await loadMetrics(view, () => current === view && !$("administration-section").hidden);
   }
   $("admin-tabs").addEventListener("click", (event) => {
     const button = event.target.closest("[data-admin-view]");

@@ -27,8 +27,8 @@ test('la solicitud persiste durante una anual ocupada y no altera la cola ni los
  c.LockService=lock;c.backgroundTick_();assert.equal(s.properties.TRANSLATION_REQUEST,undefined);drainSnapshots(c);assert.equal(c.translationJob_().state,'Completada');assert.equal(c.rows_('Recopilacion').length,0);
 });
 test('un fallo del traductor pausa y conserva las traducciones ya escritas para el reintento',()=>{
- const s=server(),c=s.c;add(s,[article]);let calls=0;c.LanguageApp={translate:input=>{if(++calls===2)throw Error('Quota exhausted');return input;}};c.requestTranslations_();c.backgroundTick_();const job=c.translationJob_();assert.equal(job.state,'En pausa');assert.equal(job.processed,0);assert.equal(job.translated,1);assert.equal(job.errors,1);assert.equal(c.rows_('Traducciones').length,1);
- c.backgroundTick_();assert.equal(calls,2);drainSnapshots(c);job.pausedUntil=0;c.writeTranslationJob_(job);const log=provider(c);c.backgroundTick_();assert.equal(log.length,2);drainSnapshots(c);assert.equal(c.translationJob_().state,'Completada');
+ const s=server(),c=s.c;add(s,[{...article,titular:'BBVA lanza cuenta digital para empresas',extracto:'Aplicación móvil de pagos para empresas'}]);let calls=0;c.LanguageApp={translate:input=>{if(++calls===2)throw Error('Quota exhausted');return input;}};c.requestTranslations_();c.backgroundTick_();const job=c.translationJob_();assert.equal(job.state,'En pausa');assert.equal(job.processed,0);assert.equal(job.translated,1);assert.equal(job.errors,1);assert.equal(c.rows_('Traducciones').length,1);
+ c.backgroundTick_();assert.equal(calls,2);drainSnapshots(c);job.pausedUntil=0;c.writeTranslationJob_(job);const log=provider(c);c.backgroundTick_();drainSnapshots(c);for(let i=0;i<8&&c.translationJob_()?.state!=='Completada';i++){c.backgroundTick_();drainSnapshots(c);}assert.equal(log.length,2);drainSnapshots(c);assert.equal(c.translationJob_().state,'Completada');
 });
 test('el límite diario conserva el cursor y el día siguiente prioriza nuevas publicaciones',()=>{
  const s=server(),c=s.c;add(s,[article]);provider(c);c.requestTranslations_();c.backgroundTick_();const job=c.translationJob_();job.state='Pendiente';job.calls=3000;job.processed=0;job.cursor=null;c.writeTranslationJob_(job);c.translationBatch_();c.backgroundTick_();assert.equal(c.translationJob_().state,'En pausa');assert.match(c.translationJob_().error,/Límite diario/);c.processBackground_(5);assert.ok(Math.abs(c.scheduledTriggers_('backgroundTick_')[0].delay-(c.nextDailyReset(Date.now(),c.settings_().timezone)-Date.now()))<1000);
@@ -36,8 +36,8 @@ test('el límite diario conserva el cursor y el día siguiente prioriza nuevas p
 });
 test('la programación es idempotente, se integra en la cola diaria y solo el administrador puede controlarla',()=>{
  const s=server(),c=s.c;assert.equal(c.getTranslationStatus().scheduled,true);c.initializeConfiguration();assert.equal(c.ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='nightlyTranslations_').length,0);
- c.disableTranslationSchedule();assert.equal(c.getTranslationStatus().scheduled,false);c.initializeConfiguration();assert.equal(c.getTranslationStatus().scheduled,false);c.installTranslationSchedule();assert.equal(c.getTranslationStatus().scheduled,true);assert.equal(c.getTranslationStatus().hour,undefined);
- c.startTranslations();assert.equal(c.getTranslationStatus().queued,true);s.setEmail('reader@bbva.com');for(const fn of [c.getTranslationStatus,c.startTranslations,c.installTranslationSchedule,c.disableTranslationSchedule])assert.throws(fn,/no autorizado/);
+ s.properties.TRANSLATION_ENABLED='false';c.initializeConfiguration();assert.equal(s.properties.TRANSLATION_ENABLED,undefined);assert.equal(c.getTranslationStatus().scheduled,true);assert.equal(c.getTranslationStatus().hour,undefined);
+ c.startTranslations();assert.equal(c.getTranslationStatus().queued,true);s.setEmail('reader@bbva.com');for(const fn of [c.getTranslationStatus,c.startTranslations])assert.throws(fn,/no autorizado/);
 });
 test('un RSS con idioma explícito evita traducir ese idioma y una respuesta incompleta no se guarda',()=>{
  const s=server(),c=s.c;add(s,[{...article,fuente:c.configuration_().feeds[0].name}]);const log=provider(c);c.requestTranslations_();c.backgroundTick_();assert.equal(log.length,2);assert.equal(c.savedArticleTranslations_([{...article,fuente:c.configuration_().feeds[0].name}],'es')[0].translation.state,'native');
@@ -60,9 +60,9 @@ test('guardar traducciones invalida las identidades y el Radar, que vuelve a reu
  const s=server(),c=s.c;add(s,[{...article,entidad:'BBVA'}]);const query={entity:'BBVA',segment:'Empresas e instituciones'},feeds=c.feeds_();assert.equal(c.dashboardContent_(query,feeds,'radar','es').cacheHit,false);provider(c);c.storeArticleTranslation_(article,'tr');assert.equal(c.dashboardContent_(query,feeds,'radar','tr').cacheHit,false);assert.equal(c.dashboardContent_(query,feeds,'radar','es').cacheHit,true);
 });
 test('una solicitud diaria llegada durante una traducción cede el siguiente turno sin perder variantes ni cursor',()=>{
- const s=server(),c=s.c;add(s,[article]);let calls=0;c.LanguageApp={translate:html=>{calls++;c.requestDailyCollection_();return html;}};
+ const s=server(),c=s.c;add(s,[{...article,titular:'BBVA lanza cuenta digital para empresas',extracto:'Aplicación móvil de pagos para empresas'}]);let calls=0;c.LanguageApp={translate:html=>{calls++;c.requestDailyCollection_();return html;}};
  c.requestTranslations_();c.backgroundTick_();assert.equal(calls,1);assert.equal(c.translationJob_().processed,0);assert.equal(c.translationJob_().state,'Pendiente');assert.equal(c.rows_('Traducciones').length,1);assert.equal(c.collectionRequests_()[0].kind,'daily');
- c.collectionFeeds_=()=>[];const log=provider(c);c.backgroundTick_();assert.equal(log.length,2);drainSnapshots(c);assert.equal(c.translationJob_().state,'Completada');assert.equal(c.collectionJobs_()[0].tipo,'daily');
+ c.collectionFeeds_=()=>[];const log=provider(c);c.backgroundTick_();drainSnapshots(c);for(let i=0;i<8&&c.translationJob_()?.state!=='Completada';i++){c.backgroundTick_();drainSnapshots(c);}assert.equal(log.length,2);drainSnapshots(c);assert.equal(c.translationJob_().state,'Completada');assert.equal(c.collectionJobs_()[0].tipo,'daily');
 });
 test('las traducciones de una página se consultan por lote y las pendientes se reutilizan sin RPC individuales',()=>{
  const s=server(),c=s.c,cache=c.CacheService.getScriptCache(),reads=[];let gets=0,puts=0;

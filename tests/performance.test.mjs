@@ -43,13 +43,13 @@ test('las tablas adaptables conservan sus encabezados y etiquetas al cambiar el 
  const a=await app(t);await a.click('[data-view="administration"]');await a.click('[data-admin-view="sources"]');
  const table=a.find('#configured-sources-body').closest('table');assert.equal(table.getAttribute('role'),'table');
  const row=a.find('#configured-sources-body').rows[0];
- await a.click('[data-admin-view="subscribers"]');
- const subscriptionTable=a.find('#delivery-history-body').closest('table');
+ a.replies.getAdminLogs.items=[{fecha:'2026-10-24',estado:'OK',detalle:'Detalle'}];await a.click('[data-admin-view="audit"]');
+ const subscriptionTable=a.find('#logs-body').closest('table');
  assert.equal(subscriptionTable.getAttribute('role'),'table');
- assert.deepEqual([...a.find('#delivery-history-body').rows[0].cells].map(cell=>cell.dataset.label),[...subscriptionTable.tHead.rows[0].cells].map(cell=>cell.textContent));
+ assert.deepEqual([...a.find('#logs-body').rows[0].cells].map(cell=>cell.dataset.label),[...subscriptionTable.tHead.rows[0].cells].map(cell=>cell.textContent));
  assert.ok(row);
  await a.change('#preview-language','en');
- assert.deepEqual([...a.find('#delivery-history-body').rows[0].cells].map(cell=>cell.dataset.label),[...subscriptionTable.tHead.rows[0].cells].map(cell=>cell.textContent));
+ assert.deepEqual([...a.find('#logs-body').rows[0].cells].map(cell=>cell.dataset.label),[...subscriptionTable.tHead.rows[0].cells].map(cell=>cell.textContent));
 });
 
 test('la caché de navegación se reutiliza durante un minuto sin prolongarse al volver',async t=>{

@@ -1,0 +1,398 @@
+{
+  "applicationVersion": "3.18.2",
+  "deploymentVersion": 101,
+  "publishedAt": "2026-10-23T18:29:00Z",
+  "measuredAt": "2026-10-23T18:36:00.618Z",
+  "measurement": "Actual published /exec UI. Telemetry filtered by application version; browser wall time includes RPC, server and render. Incremental workers paused during the comparison, then resumed. Different sample counts; Google latency is variable. No claim of measured Google CPU or RAM.",
+  "baselineVersion": "3.17.1",
+  "news": 924,
+  "uniqueIds": 924,
+  "unchangedNewsAgainstVerifiedBackup": true,
+  "generation": "beb923d3b487b65b15bf4642b573c846c9f12fd243aa23e3d85ada8cefc26381",
+  "overall": {
+    "baseline": {
+      "count": 9,
+      "p50Ms": 6025,
+      "p95Ms": 7420
+    },
+    "published": {
+      "count": 12,
+      "p50Ms": 4976,
+      "p95Ms": 6588
+    }
+  },
+  "views": {
+    "briefing": {
+      "baselineRecent": {
+        "count": 3,
+        "p50Ms": 6372,
+        "p95Ms": 7420
+      },
+      "published": {
+        "count": 4,
+        "p50Ms": 4267,
+        "p95Ms": 5580
+      },
+      "baselineVersionHistory": {
+        "count": 21,
+        "p50": 6938,
+        "p95": 8088,
+        "errors": 0
+      },
+      "publishedSamples": [
+        {
+          "at": "2026-10-23T18:29:55.663Z",
+          "ms": 4593,
+          "state": "OK",
+          "server": 1325,
+          "rpc": 4553,
+          "snapshot": true
+        },
+        {
+          "at": "2026-10-23T18:30:03.784Z",
+          "ms": 3766,
+          "state": "OK",
+          "server": 706,
+          "rpc": 3729,
+          "snapshot": true
+        },
+        {
+          "at": "2026-10-23T18:32:39.051Z",
+          "ms": 5580,
+          "state": "OK",
+          "server": 1266,
+          "rpc": 5538,
+          "snapshot": true
+        },
+        {
+          "at": "2026-10-23T18:33:34.733Z",
+          "ms": 4267,
+          "state": "OK",
+          "server": 1528,
+          "rpc": 4217,
+          "snapshot": true
+        }
+      ]
+    },
+    "news": {
+      "baselineRecent": {
+        "count": 3,
+        "p50Ms": 6071,
+        "p95Ms": 7055
+      },
+      "published": {
+        "count": 4,
+        "p50Ms": 4976,
+        "p95Ms": 5890
+      },
+      "baselineVersionHistory": {
+        "count": 16,
+        "p50": 7055,
+        "p95": 9884,
+        "errors": 0
+      },
+      "publishedSamples": [
+        {
+          "at": "2026-10-23T18:30:52.674Z",
+          "ms": 5890,
+          "state": "OK",
+          "server": 2816,
+          "rpc": 5860,
+          "snapshot": true
+        },
+        {
+          "at": "2026-10-23T18:30:55.599Z",
+          "ms": 5382,
+          "state": "OK",
+          "server": 1522,
+          "rpc": 5356,
+          "snapshot": true
+        },
+        {
+          "at": "2026-10-23T18:31:00.574Z",
+          "ms": 4976,
+          "state": "OK",
+          "server": 1802,
+          "rpc": 4948,
+          "snapshot": true
+        },
+        {
+          "at": "2026-10-23T18:33:05.493Z",
+          "ms": 3468,
+          "state": "OK",
+          "server": 598,
+          "rpc": 3444,
+          "snapshot": true
+        }
+      ]
+    },
+    "radar": {
+      "baselineRecent": {
+        "count": 3,
+        "p50Ms": 5749,
+        "p95Ms": 6025
+      },
+      "published": {
+        "count": 4,
+        "p50Ms": 5465,
+        "p95Ms": 6588
+      },
+      "baselineVersionHistory": {
+        "count": 12,
+        "p50": 5531,
+        "p95": 7364,
+        "errors": 0
+      },
+      "publishedSamples": [
+        {
+          "at": "2026-10-23T18:31:21.347Z",
+          "ms": 6457,
+          "state": "OK",
+          "server": 1228,
+          "rpc": 6422,
+          "snapshot": true
+        },
+        {
+          "at": "2026-10-23T18:31:27.365Z",
+          "ms": 5465,
+          "state": "OK",
+          "server": 2017,
+          "rpc": 5409,
+          "snapshot": true
+        },
+        {
+          "at": "2026-10-23T18:31:30.404Z",
+          "ms": 4671,
+          "state": "OK",
+          "server": 376,
+          "rpc": 4635,
+          "snapshot": true
+        },
+        {
+          "at": "2026-10-23T18:33:35.073Z",
+          "ms": 6588,
+          "state": "OK",
+          "server": 3140,
+          "rpc": 6548,
+          "snapshot": true
+        }
+      ]
+    }
+  },
+  "schedule": [
+    {
+      "label": "Recopilación principal",
+      "handler": "dailyRadar_",
+      "hour": 6,
+      "timezone": "Europe/Madrid",
+      "expected": 1,
+      "installed": 1,
+      "valid": true
+    },
+    {
+      "label": "Recopilación diaria",
+      "handler": "afternoonRadar_",
+      "slot": "afternoon",
+      "hour": 13,
+      "timezone": "Europe/Madrid",
+      "expected": 1,
+      "installed": 1,
+      "valid": true
+    },
+    {
+      "label": "Recopilación diaria",
+      "handler": "eveningRadar_",
+      "slot": "evening",
+      "hour": 21,
+      "timezone": "Europe/Madrid",
+      "expected": 1,
+      "installed": 1,
+      "valid": true
+    },
+    {
+      "label": "Entrega de newsletters",
+      "handler": "scheduledNewsletters_",
+      "hour": 6,
+      "timezone": "Europe/Madrid",
+      "expected": 1,
+      "installed": 1,
+      "valid": true
+    },
+    {
+      "label": "Supervisión de colas",
+      "handler": "backgroundWatchdog_",
+      "minutes": 5,
+      "expected": 1,
+      "installed": 1,
+      "valid": true
+    }
+  ],
+  "archive": {
+    "format": "application/vnd.google-apps.spreadsheet",
+    "convertedAuditArchive": "14oQWMcPQhKBVXs5eUgu8vOVxpWfHkfgm1aMFisJ2nxs",
+    "convertedAuditRows": 57,
+    "originalDocRecoverableInTrash": true,
+    "newsletterArchiveVerified": "165nevuplfleTvSFmDBRiFrCiPE4OfB6aVbqzf09vkwM",
+    "newsletterPointerVerifiedAndContentCompacted": true,
+    "checkpointsPending": []
+  },
+  "adminMobile": {
+    "widths": [
+      360,
+      390
+    ],
+    "views": [
+      {
+        "view": "taxonomy",
+        "busy": "false",
+        "overflows": [],
+        "scroll": 356,
+        "tables": [
+          {
+            "id": "taxonomy-body",
+            "visible": 10
+          }
+        ],
+        "width": 356
+      },
+      {
+        "view": "llm",
+        "busy": "false",
+        "overflows": [],
+        "scroll": 358,
+        "tables": [],
+        "width": 358
+      },
+      {
+        "view": "language",
+        "busy": "false",
+        "overflows": [],
+        "scroll": 356,
+        "tables": [],
+        "width": 356
+      },
+      {
+        "view": "subscribers",
+        "busy": "false",
+        "overflows": [],
+        "scroll": 358,
+        "tables": [
+          {
+            "id": "delivery-history-body",
+            "visible": 8
+          }
+        ],
+        "width": 358
+      },
+      {
+        "view": "adoption",
+        "busy": "false",
+        "overflows": [],
+        "scroll": 356,
+        "tables": [
+          {
+            "id": "adoption-body",
+            "visible": 10
+          },
+          {
+            "id": "adoption-daily",
+            "visible": 10
+          },
+          {
+            "id": "newsletter-adoption-body",
+            "visible": 10
+          }
+        ],
+        "width": 356
+      },
+      {
+        "view": "feedback",
+        "busy": "false",
+        "overflows": [],
+        "scroll": 356,
+        "tables": [
+          {
+            "id": "feedback-body",
+            "visible": 1
+          },
+          {
+            "id": "feedback-interactions",
+            "visible": 10
+          }
+        ],
+        "width": 356
+      },
+      {
+        "view": "telemetry",
+        "busy": "false",
+        "overflows": [],
+        "scroll": 356,
+        "tables": [
+          {
+            "id": "telemetry-body",
+            "visible": 10
+          }
+        ],
+        "width": 356
+      },
+      {
+        "view": "sources",
+        "busy": null,
+        "overflows": [],
+        "scroll": 356,
+        "tables": [
+          {
+            "id": "configured-sources-body",
+            "visible": 10
+          }
+        ],
+        "width": 356
+      },
+      {
+        "view": "audit",
+        "busy": "false",
+        "overflows": [],
+        "scroll": 356,
+        "tables": [
+          {
+            "id": "audit-body",
+            "visible": 10
+          }
+        ],
+        "width": 356
+      },
+      {
+        "view": "configuration",
+        "busy": "false",
+        "overflows": [],
+        "scroll": 358,
+        "tables": [],
+        "width": 358
+      },
+      {
+        "view": "runs",
+        "busy": "false",
+        "overflows": [],
+        "scroll": 356,
+        "tables": [
+          {
+            "id": "runs-body",
+            "visible": 10
+          }
+        ],
+        "width": 356
+      }
+    ],
+    "recordsPerPageMaximum": 10
+  },
+  "validation": {
+    "tests": 750,
+    "failures": 0,
+    "coverage": {
+      "lines": 97.87,
+      "branches": 85.61,
+      "functions": 94.74,
+      "statements": 92.31
+    }
+  }
+}

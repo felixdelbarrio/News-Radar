@@ -98,9 +98,14 @@ function initializeConfiguration(){
   });
 }
 function validateConfiguration_(config){
+  const storage=config?.storage;
+  if(!storage||['primaryFolderId','logFolderId','newsletterFolderId'].some(key=>typeof storage[key]!=='string'||!/^[-\w]{10,100}$/.test(storage[key]))||['logRows','logDays','newsletterDeliveries'].some(key=>!Number.isInteger(storage[key])||storage[key]<1||storage[key]>1000))throw Error('Configuración de almacenamiento no válida.');
   const numeric={windowDays:[1,90],pageSize:[1,100],maxCustomFeeds:[1,100],maxFeedBytes:[10000,2000000],maxItems:[1,1000],exportLimit:[1,10000],eventLimit:[100,20000],retentionDays:[1,90],trendPoints:[2,60],trendSeries:[1,6],collectionBatch:[1,5],retryMinutes:[1,60],pauseMinutes:[1,60],dailyHour:[0,23],briefingLimit:[1,100],newsletterBatch:[1,100],newsletterDailyLimit:[1,1500]};
   if(!config||typeof config.settings!=='object')throw Error('Falta configuración operativa.');
   for(const [name,[min,max]] of Object.entries(numeric)){const n=config.settings[name];if(!Number.isInteger(n)||n<min||n>max)throw Error(name+': requiere un entero entre '+min+' y '+max+'.');}
+  for(const key of ['afternoonHour','eveningHour','newsletterHour','dailyMinute','afternoonMinute','eveningMinute','newsletterMinute']){const max=key.endsWith('Hour')?23:59;if(!Number.isInteger(config.settings[key])||config.settings[key]<0||config.settings[key]>max)throw Error(key+': requiere un entero entre 0 y '+max+'.');}
+  if(![1,5,10,15,30].includes(config.settings.watchdogMinutes))throw Error('El supervisor admite intervalos de 1, 5, 10, 15 o 30 minutos.');
+  if(['morningEnabled','afternoonEnabled','eveningEnabled'].some(key=>typeof config.settings[key]!=='boolean'))throw Error('Activación de recopilaciones no válida.');
   if(typeof config.settings.newsletterEnabled!=='boolean')throw Error('Configuración de newsletter no válida.');
   newsletterEmail_(config.settings.newsletterSender);
   if(typeof config.settings.newsletterAppUrl!=='string'||(config.settings.newsletterAppUrl&&!/^https:\/\/script\.google\.com\/(?:a\/macros\/bbva\.com\/|macros\/)s\/[A-Za-z0-9_-]+\/exec$/.test(config.settings.newsletterAppUrl)))throw Error('URL de newsletter no válida: indica la WebApp publicada en Apps Script.');
@@ -129,7 +134,7 @@ function validateConfiguration_(config){
   if(typeof config.settings.taxonomyCatalogUrl!=='string'||(config.settings.taxonomyCatalogUrl&&!/^https:\/\/docs\.google\.com\/spreadsheets\/d\/[\w-]+(?:\/edit(?:[?#].*)?)?$/.test(config.settings.taxonomyCatalogUrl)))throw Error('Fuente del catálogo funcional no válida.');
   for(const row of config.relevanceRules)if(!RELEVANCE_ROLES.includes(row.role)||!row.terms.length||Object.keys(row).sort().join(',')!=='enabled,name,role,terms'||row.terms.some(term=>/[\\^$+?(){}[\]|]/.test(term)||term.includes('**')||term.split(' ').some(word=>word.includes('*')&&word.indexOf('*')!==word.length-1)))throw Error('Criterio de relevancia no válido.');
   const languages=new Set();for(const row of config.searchLanguages){if(!/^[a-z]{2}$/.test(row.language)||languages.has(row.language)||!row.terms.length||row.terms.length>160||Object.keys(row).sort().join(',')!=='enabled,language,name,terms')throw Error('Perfil de búsqueda no válido.');languages.add(row.language);}
-  if(Object.keys(config).sort().join(',')!=='applicationScope,capabilities,entities,feeds,geographies,relevanceRules,searchLanguages,segments,settings,signals,taxonomy')throw Error('Claves de configuración no reconocidas.');
+  if(Object.keys(config).sort().join(',')!=='applicationScope,capabilities,entities,feeds,geographies,relevanceRules,searchLanguages,segments,settings,signals,storage,taxonomy')throw Error('Claves de configuración no reconocidas.');
   for(const key of ['searchTerms','disabledSources'])if(!Array.isArray(config.settings[key])||config.settings[key].length>1000||config.settings[key].some(value=>typeof value!=='string'||value.length>160))throw Error('Lista operativa no válida: '+key);
   if(!config.settings.searchTerms.length||config.settings.searchTerms.length>80)throw Error('Define entre 1 y 80 términos de búsqueda.');
   if(encodeURIComponent(JSON.stringify(functionalConfigurationSettings_(config))).replace(/%[A-F\d]{2}/gi,'x').length>90000)throw Error('Configuración demasiado grande para la caché.');
@@ -146,8 +151,8 @@ function validateConfiguration_(config){
   return config;
 }
 function configurationRevision_(){configuration_();return configurationVersionMemory_;}
-function getConfiguration(){authorize_(true);return {config:configuration_(),revision:configurationRevision_(),capabilityDefaults:CONFIGURATION_DEFAULTS.capabilities};}
-function saveConfiguration(payload){authorize_(true);return writeConfiguration_(payload.config,payload.revision);}
+function getConfiguration(){authorize_(true);return {config:configuration_(),revision:configurationRevision_(),capabilityDefaults:CONFIGURATION_DEFAULTS.capabilities,storagePrimaryId:properties_().getProperty('SPREADSHEET_ID')};}
+function saveConfiguration(payload){authorize_(true);if(JSON.stringify(payload.config.storage)!==JSON.stringify(configuration_().storage))validateStorageFolders_(payload.config.storage);return writeConfiguration_(payload.config,payload.revision);}
 function writeConfiguration_(config,revision){
   validateConfiguration_(config);const canonical=functionalConfiguration_(config);if(JSON.stringify(config.taxonomy.map(block=>[block.name,block.functions.map(row=>[row.id,row.name])]))!==JSON.stringify(canonical.taxonomy.map(block=>[block.name,block.functions.map(row=>[row.id,row.name])])))throw Error('Los códigos y nombres oficiales se actualizan exclusivamente desde el catálogo maestro.');config=canonical;return withForegroundWrite_(()=>{
     if(revision!==String(properties_().getProperty('CONFIG_REVISION')||'0'))throw Error('La configuración ha cambiado en otra sesión. Recarga los catálogos antes de guardar.');

@@ -14,7 +14,7 @@
     "collectionBatch": 3,
     "retryMinutes": 10,
     "pauseMinutes": 5,
-    "dailyHour": 7,
+    "dailyHour": 6,
     "briefingLimit": 50,
     "searchTerms": [
       "banca",
@@ -53,7 +53,18 @@
     "newsletterSenderName": "News Radar · BBVA Empresas",
     "newsletterDailyLimit": 100,
     "newsletterAppUrl": "",
-    "taxonomyCatalogUrl": "https://docs.google.com/spreadsheets/d/1hsFp-ZiiSsSt_ka73oKAWFlHEySdmJM_IrkBmK6YfH8/edit?gid=1593939800#gid=1593939800"
+    "taxonomyCatalogUrl": "https://docs.google.com/spreadsheets/d/1hsFp-ZiiSsSt_ka73oKAWFlHEySdmJM_IrkBmK6YfH8/edit?gid=1593939800#gid=1593939800",
+    "watchdogMinutes": 5,
+    "dailyMinute": 0,
+    "morningEnabled": true,
+    "afternoonHour": 13,
+    "afternoonMinute": 0,
+    "afternoonEnabled": true,
+    "eveningHour": 21,
+    "eveningMinute": 0,
+    "eveningEnabled": true,
+    "newsletterHour": 9,
+    "newsletterMinute": 0
   },
   "entities": [
     {
@@ -5741,5 +5752,13 @@
       ],
       "emerging": []
     }
-  ]
+  ],
+  "storage": {
+    "primaryFolderId": "1-XyAuxo9F42NnzZzPFgfp64HlYAFgi_M",
+    "logFolderId": "1HKblMvd0Vj6om5eHqsrC4tojIUkBCJ69",
+    "newsletterFolderId": "1f-ZxHRBntvUIZmZtweGNkbDE0Bvjy74d",
+    "logRows": 10,
+    "logDays": 20,
+    "newsletterDeliveries": 3
+  }
 }

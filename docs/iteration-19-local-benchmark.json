@@ -1,0 +1,721 @@
+{
+  "environment": "Local V8 and in-memory Sheets; not Apps Script latency",
+  "baseline": "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b",
+  "repetitions": 3,
+  "summary": [
+    {
+      "count": 858,
+      "scenario": "radar cold",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 12.3,
+          "p95": 13.4,
+          "reads": [
+            2,
+            2,
+            2
+          ],
+          "retainedHeapBytes": [
+            648936,
+            711160,
+            -2610616
+          ]
+        },
+        "working-tree": {
+          "p50": 10.4,
+          "p95": 14.1,
+          "reads": [
+            2,
+            2,
+            2
+          ],
+          "retainedHeapBytes": [
+            843672,
+            708080,
+            706832
+          ]
+        }
+      }
+    },
+    {
+      "count": 858,
+      "scenario": "briefing cold",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 4.6,
+          "p95": 5.1,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            184088,
+            122488,
+            122248
+          ]
+        },
+        "working-tree": {
+          "p50": 4.1,
+          "p95": 4.6,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            208528,
+            121544,
+            121544
+          ]
+        }
+      }
+    },
+    {
+      "count": 858,
+      "scenario": "news cold",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 2.6,
+          "p95": 3.5,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            15488,
+            5304,
+            3968
+          ]
+        },
+        "working-tree": {
+          "p50": 2.5,
+          "p95": 2.8,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            14864,
+            5272,
+            4576
+          ]
+        }
+      }
+    },
+    {
+      "count": 858,
+      "scenario": "news next page",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 0.8,
+          "p95": 0.8,
+          "reads": [
+            1,
+            1,
+            1
+          ],
+          "retainedHeapBytes": [
+            20728,
+            18616,
+            18072
+          ]
+        },
+        "working-tree": {
+          "p50": 0.7,
+          "p95": 0.8,
+          "reads": [
+            1,
+            1,
+            1
+          ],
+          "retainedHeapBytes": [
+            20392,
+            18136,
+            18616
+          ]
+        }
+      }
+    },
+    {
+      "count": 858,
+      "scenario": "news cache hit",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 0.2,
+          "p95": 0.5,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            18232,
+            9304,
+            8984
+          ]
+        },
+        "working-tree": {
+          "p50": 0.1,
+          "p95": 0.2,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            9432,
+            9304,
+            9304
+          ]
+        }
+      }
+    },
+    {
+      "count": 858,
+      "scenario": "old period",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 1.1,
+          "p95": 1.2,
+          "reads": [
+            1,
+            1,
+            1
+          ],
+          "retainedHeapBytes": [
+            3840,
+            -7904,
+            -7912
+          ]
+        },
+        "working-tree": {
+          "p50": 1,
+          "p95": 1.2,
+          "reads": [
+            1,
+            1,
+            1
+          ],
+          "retainedHeapBytes": [
+            6016,
+            -7760,
+            -7760
+          ]
+        }
+      }
+    },
+    {
+      "count": 858,
+      "scenario": "full history",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 42.7,
+          "p95": 44.6,
+          "reads": [
+            1,
+            1,
+            1
+          ],
+          "retainedHeapBytes": [
+            873040,
+            801096,
+            800792
+          ]
+        },
+        "working-tree": {
+          "p50": 41.5,
+          "p95": 44.3,
+          "reads": [
+            1,
+            1,
+            1
+          ],
+          "retainedHeapBytes": [
+            879520,
+            801432,
+            802696
+          ]
+        }
+      }
+    },
+    {
+      "count": 8580,
+      "scenario": "radar cold",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 42.4,
+          "p95": 44.3,
+          "reads": [
+            2,
+            2,
+            2
+          ],
+          "retainedHeapBytes": [
+            -2189248,
+            1198392,
+            1164928
+          ]
+        },
+        "working-tree": {
+          "p50": 41.1,
+          "p95": 42.2,
+          "reads": [
+            2,
+            2,
+            2
+          ],
+          "retainedHeapBytes": [
+            1131040,
+            1181296,
+            1163400
+          ]
+        }
+      }
+    },
+    {
+      "count": 8580,
+      "scenario": "briefing cold",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 18.8,
+          "p95": 21.1,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            155424,
+            154808,
+            155400
+          ]
+        },
+        "working-tree": {
+          "p50": 22,
+          "p95": 62.8,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            154656,
+            154720,
+            154912
+          ]
+        }
+      }
+    },
+    {
+      "count": 8580,
+      "scenario": "news cold",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 17.7,
+          "p95": 17.9,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            -3664,
+            -3848,
+            -3768
+          ]
+        },
+        "working-tree": {
+          "p50": 17.4,
+          "p95": 17.6,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            -3600,
+            -4640,
+            -3848
+          ]
+        }
+      }
+    },
+    {
+      "count": 8580,
+      "scenario": "news next page",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 0.9,
+          "p95": 1.5,
+          "reads": [
+            1,
+            1,
+            1
+          ],
+          "retainedHeapBytes": [
+            27616,
+            28176,
+            21688
+          ]
+        },
+        "working-tree": {
+          "p50": 0.8,
+          "p95": 0.8,
+          "reads": [
+            1,
+            1,
+            1
+          ],
+          "retainedHeapBytes": [
+            22184,
+            600,
+            25816
+          ]
+        }
+      }
+    },
+    {
+      "count": 8580,
+      "scenario": "news cache hit",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 0.1,
+          "p95": 0.2,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            -8792,
+            -17008,
+            -9080
+          ]
+        },
+        "working-tree": {
+          "p50": 0.2,
+          "p95": 0.2,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            5736,
+            -17264,
+            -3840
+          ]
+        }
+      }
+    },
+    {
+      "count": 8580,
+      "scenario": "old period",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 3.8,
+          "p95": 4.4,
+          "reads": [
+            1,
+            1,
+            1
+          ],
+          "retainedHeapBytes": [
+            40576,
+            38920,
+            40440
+          ]
+        },
+        "working-tree": {
+          "p50": 3.4,
+          "p95": 3.6,
+          "reads": [
+            1,
+            1,
+            1
+          ],
+          "retainedHeapBytes": [
+            57408,
+            40496,
+            38864
+          ]
+        }
+      }
+    },
+    {
+      "count": 8580,
+      "scenario": "full history",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 357.4,
+          "p95": 362.8,
+          "reads": [
+            5,
+            5,
+            5
+          ],
+          "retainedHeapBytes": [
+            7274360,
+            7250360,
+            7235888
+          ]
+        },
+        "working-tree": {
+          "p50": 348.8,
+          "p95": 364.6,
+          "reads": [
+            5,
+            5,
+            5
+          ],
+          "retainedHeapBytes": [
+            7275376,
+            7235888,
+            7251000
+          ]
+        }
+      }
+    },
+    {
+      "count": 85800,
+      "scenario": "radar cold",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 288.7,
+          "p95": 316.4,
+          "reads": [
+            5,
+            5,
+            5
+          ],
+          "retainedHeapBytes": [
+            5663160,
+            5666440,
+            5666592
+          ]
+        },
+        "working-tree": {
+          "p50": 289.2,
+          "p95": 298.7,
+          "reads": [
+            5,
+            5,
+            5
+          ],
+          "retainedHeapBytes": [
+            5648120,
+            5651344,
+            5665160
+          ]
+        }
+      }
+    },
+    {
+      "count": 85800,
+      "scenario": "briefing cold",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 158.6,
+          "p95": 180.5,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            149200,
+            133800,
+            133800
+          ]
+        },
+        "working-tree": {
+          "p50": 158.1,
+          "p95": 162.7,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            134208,
+            133800,
+            133800
+          ]
+        }
+      }
+    },
+    {
+      "count": 85800,
+      "scenario": "news cold",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 152.9,
+          "p95": 215.5,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            29120,
+            20552,
+            20856
+          ]
+        },
+        "working-tree": {
+          "p50": 146.2,
+          "p95": 150.3,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            20592,
+            20552,
+            20856
+          ]
+        }
+      }
+    },
+    {
+      "count": 85800,
+      "scenario": "news next page",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 1,
+          "p95": 1.3,
+          "reads": [
+            1,
+            1,
+            1
+          ],
+          "retainedHeapBytes": [
+            20616,
+            21872,
+            21360
+          ]
+        },
+        "working-tree": {
+          "p50": 1.1,
+          "p95": 1.1,
+          "reads": [
+            1,
+            1,
+            1
+          ],
+          "retainedHeapBytes": [
+            21856,
+            21856,
+            21856
+          ]
+        }
+      }
+    },
+    {
+      "count": 85800,
+      "scenario": "news cache hit",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 0.2,
+          "p95": 0.2,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            -400,
+            -5640,
+            -5368
+          ]
+        },
+        "working-tree": {
+          "p50": 0.2,
+          "p95": 0.2,
+          "reads": [
+            0,
+            0,
+            0
+          ],
+          "retainedHeapBytes": [
+            -5640,
+            -5248,
+            -5640
+          ]
+        }
+      }
+    },
+    {
+      "count": 85800,
+      "scenario": "old period",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 21,
+          "p95": 22.3,
+          "reads": [
+            1,
+            1,
+            1
+          ],
+          "retainedHeapBytes": [
+            408600,
+            410120,
+            410696
+          ]
+        },
+        "working-tree": {
+          "p50": 20.8,
+          "p95": 21.6,
+          "reads": [
+            1,
+            1,
+            1
+          ],
+          "retainedHeapBytes": [
+            407984,
+            410696,
+            410136
+          ]
+        }
+      }
+    },
+    {
+      "count": 85800,
+      "scenario": "full history",
+      "versions": {
+        "dda3660fa5cb1c5bcbcb43a0e8d8cc7d940bc91b": {
+          "p50": 2638.9,
+          "p95": 2978.1,
+          "reads": [
+            43,
+            43,
+            43
+          ],
+          "retainedHeapBytes": [
+            10643288,
+            10643888,
+            10641960
+          ]
+        },
+        "working-tree": {
+          "p50": 2653.7,
+          "p95": 2802.6,
+          "reads": [
+            43,
+            43,
+            43
+          ],
+          "retainedHeapBytes": [
+            10643272,
+            10642008,
+            9686808
+          ]
+        }
+      }
+    }
+  ]
+}

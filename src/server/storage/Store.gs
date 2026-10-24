@@ -5,9 +5,10 @@ function setupRadar() {
   if (p.getProperty('OWNER_EMAIL') && p.getProperty('OWNER_EMAIL')!==email) throw new Error('Solo el propietario puede inicializar.');
   if(p.getProperty('OWNER_EMAIL'))authorize_(true);
   else if(Session.getActiveUser().getEmail().toLowerCase()!==email)throw new Error('Inicializa desde el editor con la cuenta propietaria.');
-  const existing=p.getProperty('SPREADSHEET_ID');
+  const folder=archiveFolder_(CONFIGURATION_DEFAULTS.storage.primaryFolderId),existing=p.getProperty('SPREADSHEET_ID');
   const book=existing?SpreadsheetApp.openById(existing):(SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.create('BBVA Empresas · News Radar'));
   radarBook_=book;
+  fileInFolder_(book.getId(),folder);
   p.setProperties({OWNER_EMAIL:email,SPREADSHEET_ID:book.getId()});
   initializeConfiguration();
   book.setSpreadsheetTimeZone(settings_().timezone);
@@ -129,7 +130,8 @@ function newsletterArchiveKey_(){return JSON.stringify([newsletterArchiveVersion
 function markNewsletterArchiveEdited_(){properties_().setProperty('NEWSLETTER_ARCHIVE_REVISION',Utilities.getUuid());}
 function recordSheet_(name){return name==='Noticias'?newsSheet_():name==='Taxonomia'?taxonomySheet_():NEWSLETTER_ARCHIVE_TABLES.includes(name)?newsletterSheet_(name):book_().getSheetByName(name);}
 
-const LOG_LIMITS=Object.freeze({Auditoria:5000,Telemetria:3000,Ejecuciones:1500,Cobertura:2000,Adopcion:5000,NewsletterEventos:2000});
+const LOG_TABLES=Object.freeze(['Auditoria','Telemetria','Ejecuciones','Cobertura','NewsletterEventos']);
 function enforceLogLimit_(name,sheet=recordSheet_(name)){
- const limit=LOG_LIMITS[name];if(!limit)return;const overflow=sheet.getLastRow()-1-limit;if(overflow>0)sheet.deleteRows(2,overflow);
+ if(!LOG_TABLES.includes(name)||sheet.getLastRow()-1<=configuration_().storage.logRows)return;
+ properties_().setProperty('LOG_ARCHIVE_PENDING','true');
 }

@@ -1,3 +1,4 @@
+const APPLICATION_NAVIGATION = Object.freeze({"views":{"briefing":"Novedades","news":"Noticias","radar":"Radar","subscriptions":"Mi Newsletter","administration":"Administración"},"adminViews":{"runs":"Panel de control","taxonomy":"Catálogo global de funcionalidades","llm":"Categorización LLM","language":"Idioma","subscribers":"Suscripciones","adoption":"Adopción","feedback":"Feedback","sources":"Fuentes","audit":"Logs","configuration":"Configuración de negocio"}});
 const FUNCTIONAL_CATALOG_SEED = Object.freeze([
   {
     "name": "01.Home",
@@ -2133,7 +2134,7 @@ const CONFIGURATION_DEFAULTS = {
     "collectionBatch": 3,
     "retryMinutes": 10,
     "pauseMinutes": 5,
-    "dailyHour": 7,
+    "dailyHour": 6,
     "briefingLimit": 50,
     "searchTerms": [
       "banca",
@@ -2172,7 +2173,18 @@ const CONFIGURATION_DEFAULTS = {
     "newsletterSenderName": "News Radar · BBVA Empresas",
     "newsletterDailyLimit": 100,
     "newsletterAppUrl": "",
-    "taxonomyCatalogUrl": "https://docs.google.com/spreadsheets/d/1hsFp-ZiiSsSt_ka73oKAWFlHEySdmJM_IrkBmK6YfH8/edit?gid=1593939800#gid=1593939800"
+    "taxonomyCatalogUrl": "https://docs.google.com/spreadsheets/d/1hsFp-ZiiSsSt_ka73oKAWFlHEySdmJM_IrkBmK6YfH8/edit?gid=1593939800#gid=1593939800",
+    "watchdogMinutes": 5,
+    "dailyMinute": 0,
+    "morningEnabled": true,
+    "afternoonHour": 13,
+    "afternoonMinute": 0,
+    "afternoonEnabled": true,
+    "eveningHour": 21,
+    "eveningMinute": 0,
+    "eveningEnabled": true,
+    "newsletterHour": 9,
+    "newsletterMinute": 0
   },
   "entities": [
     {
@@ -7860,7 +7872,15 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "emerging": []
     }
-  ]
+  ],
+  "storage": {
+    "primaryFolderId": "1-XyAuxo9F42NnzZzPFgfp64HlYAFgi_M",
+    "logFolderId": "1HKblMvd0Vj6om5eHqsrC4tojIUkBCJ69",
+    "newsletterFolderId": "1f-ZxHRBntvUIZmZtweGNkbDE0Bvjy74d",
+    "logRows": 10,
+    "logDays": 20,
+    "newsletterDeliveries": 3
+  }
 };
 CONFIGURATION_DEFAULTS.taxonomy=functionalCatalogRules(FUNCTIONAL_CATALOG_SEED,CONFIGURATION_DEFAULTS.taxonomy);Object.freeze(CONFIGURATION_DEFAULTS);
 addVocabularyTerms_(CONFIGURATION_DEFAULTS);

@@ -3,14 +3,28 @@ function scheduledTriggers_(handler){return ScriptApp.getProjectTriggers().filte
 function dailyScheduleStatus_(){
   const cache=CacheService.getScriptCache(),key='daily-schedule',cached=cache.get(key);
   if(cached!==null&&cached!==undefined)return cached==='true';
-  const enabled=scheduledTriggers_('dailyRadar_').length>0;cache.put(key,String(enabled),300);return enabled;
+  const enabled=ScriptApp.getProjectTriggers().some(trigger=>collectionHandlers_().includes(trigger.getHandlerFunction()));cache.put(key,String(enabled),300);return enabled;
 }
-function replaceDailySchedule_(handler,hour,minute=0){
+const COLLECTION_SLOTS=Object.freeze([{handler:'dailyRadar_',slot:'daily',prefix:'daily',enabled:'morningEnabled'},{handler:'afternoonRadar_',slot:'afternoon',prefix:'afternoon',enabled:'afternoonEnabled'},{handler:'eveningRadar_',slot:'evening',prefix:'evening',enabled:'eveningEnabled'}].map(Object.freeze));
+function collectionSchedules_(){const config=settings_();return COLLECTION_SLOTS.map(job=>({...job,hour:config[job.prefix+'Hour'],minute:config[job.prefix+'Minute'],enabled:config[job.enabled],timezone:config.timezone}));}
+function collectionPipelineSlots_(){return COLLECTION_SLOTS.map(job=>job.slot);}
+function collectionPipelineKey_(slot,suffix){return slot==='daily'?'DAILY_PIPELINE_'+suffix:'COLLECTION_'+slot.toUpperCase()+'_'+suffix;}
+function collectionHandlers_(){return COLLECTION_SLOTS.map(job=>job.handler);}
+function replaceDailySchedule_(handler,hour,minute=0,timezone=settings_().timezone){
   scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
-  ScriptApp.newTrigger(handler).timeBased().atHour(hour).nearMinute(minute).everyDays(1).inTimezone(settings_().timezone).create();
+  ScriptApp.newTrigger(handler).timeBased().atHour(hour).nearMinute(minute).everyDays(1).inTimezone(timezone).create();
 }
-function collectionScheduleLabel_(){const config=settings_();return 'Banca digital: diaria · '+config.dailyHour+':00 · '+config.timezone;}
-function replaceCollectionSchedule_(){replaceDailySchedule_('dailyRadar_',settings_().dailyHour);CacheService.getScriptCache().remove('daily-schedule');}
+function scheduleTime_(job){return String(job.hour).padStart(2,'0')+':'+String(job.minute||0).padStart(2,'0');}
+function collectionScheduleLabel_(){return 'Banca digital: '+collectionSchedules_().filter(job=>job.enabled).map(scheduleTime_).join(' · ')+' · '+settings_().timezone;}
+function replaceCollectionSchedule_(){
+  const installed=new Set();
+  for(const job of collectionSchedules_()){
+    scheduledTriggers_(job.handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
+    const key=scheduleTime_(job)+'|'+job.timezone;
+    if(job.enabled&&!installed.has(key)){replaceDailySchedule_(job.handler,job.hour,job.minute,job.timezone);installed.add(key);}
+  }
+  CacheService.getScriptCache().remove('daily-schedule');
+}
 function ensureBackgroundWorker_(delay=60000){
   if(backgroundPaused_()){deferBackgroundWork_('background');return;}
   properties_().setProperty('BACKGROUND_PENDING','true');
@@ -38,52 +52,62 @@ function collectionReadyAt_(work){
 }
 function backgroundTick_(){return processBackground_();}
 function businessTranslationPending_(){return Boolean(properties_().getProperty('TRANSLATION_PRIORITY_REQUEST')||translationJob_()?.businessPending>0);}
-function requestDailyPipeline_(){
-  if(backgroundPaused_()){deferBackgroundWork_('daily');return;}
-  properties_().setProperty('DAILY_PIPELINE_REQUEST',recordDay(new Date(),settings_().timezone));ensureBackgroundWorker_();
+function requestDailyPipeline_(slot='daily'){
+  if(!collectionPipelineSlots_().includes(slot))throw Error('Franja de recopilación no válida.');
+  if(backgroundPaused_()){deferBackgroundWork_(slot);return;}
+  const timezone=settings_().timezone;
+  properties_().setProperty(collectionPipelineKey_(slot,'REQUEST'),recordDay(new Date(),timezone));ensureBackgroundWorker_();
 }
+function dailyPipelineRequested_(){const p=properties_();return collectionPipelineSlots_().some(slot=>p.getProperty(collectionPipelineKey_(slot,'REQUEST')));}
 function drainDailyPipeline_(){
-  const p=properties_(),day=p.getProperty('DAILY_PIPELINE_REQUEST');if(!day)return;
-  if(p.getProperty('DAILY_PIPELINE_DAY')!==day){
-    queueScheduledCollection_('daily');p.setProperty('CLASSIFICATION_REQUEST',day);p.setProperty('DAILY_TRANSLATION_REQUEST',day);p.setProperty('DAILY_PIPELINE_DAY',day);p.setProperty('CATALOG_SYNC_REQUEST',day);
-    if(newsletterEnabled_())requestNewsletterDelivery_();
+  const p=properties_();
+  for(const slot of collectionPipelineSlots_()){
+    const request=collectionPipelineKey_(slot,'REQUEST'),completed=collectionPipelineKey_(slot,'DAY'),day=p.getProperty(request);if(!day)continue;
+    if(p.getProperty(completed)!==day){
+      if(dailyCollectionPending_())continue;
+      const id=queueScheduledCollection_('daily');if(id)p.setProperty(collectionPipelineKey_(slot,'JOB'),id);p.setProperty('CLASSIFICATION_REQUEST',day);p.setProperty('DAILY_TRANSLATION_REQUEST',day);p.setProperty(completed,day);
+    }
+    if(p.getProperty(request)===day)p.deleteProperty(request);
   }
-  if(p.getProperty('DAILY_PIPELINE_REQUEST')===day)p.deleteProperty('DAILY_PIPELINE_REQUEST');
 }
 function dailyCollectionPending_(work){return collectionRequests_().some(request=>request.kind==='daily')||(work?.jobs||collectionJobs_()).some(job=>job.tipo==='daily'&&(Number(job.pendientes)>0||job.estado==='Preparando'));}
 function businessPipelinePending_(work){
-  const p=properties_();return Boolean(snapshotJobsPending_()||p.getProperty('DAILY_PIPELINE_REQUEST')||dailyCollectionPending_(work)||p.getProperty('CLASSIFICATION_REQUEST')||classificationPending_()||p.getProperty('DAILY_TRANSLATION_REQUEST')||businessTranslationPending_());
+  const p=properties_();return Boolean(snapshotJobsPending_()||dailyPipelineRequested_()||dailyCollectionPending_(work)||p.getProperty('CLASSIFICATION_REQUEST')||classificationPending_()||p.getProperty('DAILY_TRANSLATION_REQUEST')||businessTranslationPending_());
 }
 function drainDailyTranslations_(work){
   const p=properties_(),day=p.getProperty('DAILY_TRANSLATION_REQUEST');
   if(!day||dailyCollectionPending_(work)||p.getProperty('CLASSIFICATION_REQUEST')||classificationPending_())return;
-  if(p.getProperty('TRANSLATION_ENABLED')!=='false')requestTranslations_(true);
+  requestTranslations_(true);
   if(p.getProperty('DAILY_TRANSLATION_REQUEST')===day)p.deleteProperty('DAILY_TRANSLATION_REQUEST');
 }
 function snapshotPublicationPending_(work,includeDue=true){return snapshotJobsPending_()||(work?.jobs||collectionJobs_()).some(job=>job.estado==='Publicando')||Boolean(properties_().getProperty('DASHBOARD_SNAPSHOT_BUILD'))||includeDue&&dashboardSnapshotsDue_();}
 function backgroundTask_(work,daily){
   if(daily)return 'collection';
-  const blocked=dailyCollectionPending_(work)||properties_().getProperty('DAILY_PIPELINE_REQUEST');
-  if(!blocked&&classificationReadyAt_()<=Date.now())return 'classification';
-  if(!blocked&&(!classificationPending_()||snapshotJobsPending_())&&snapshotPublicationPending_(work))return 'snapshot';
-  if(!blocked&&!classificationPending_()&&!properties_().getProperty('CLASSIFICATION_REQUEST')){
-    if(newsletterReadyAt_(work)<=Date.now())return 'newsletter';
-    if(translationReadyAt_()<=Date.now())return 'translation';
-    if(properties_().getProperty('CATALOG_SYNC_REQUEST'))return 'catalogSync';
-    if(taxonomyReadyAt_()<=Date.now())return 'taxonomy';
-    if(taxonomyTranslationReadyAt_()<=Date.now())return 'taxonomyTranslation';
-    if(maintenanceReadyAt_()<=Date.now())return 'maintenance';
+  const blocked=dailyCollectionPending_(work)||dailyPipelineRequested_(),candidates=[];
+  const offer=(task,ready,priority=PROCESS_PRIORITY[task])=>{if(ready)candidates.push({task,priority});};
+  if(!blocked){
+    offer('classification',classificationReadyAt_()<=Date.now());
+    const publishing=snapshotPublicationPending_(work),classifying=classificationPending_();
+    offer('taxonomy',!taxonomyPublicationReady_()&&publishing&&taxonomyReadyAt_()<=Date.now()&&(!classifying||classificationJob_()?.state==='Publicando'),PROCESS_PRIORITY.classification);
+    offer('snapshot',taxonomyPublicationReady_()&&(!classifying||snapshotJobsPending_())&&publishing);
+    if(!classifying&&!properties_().getProperty('CLASSIFICATION_REQUEST')){
+      offer('newsletter',newsletterReadyAt_(work)<=Date.now());offer('translation',translationReadyAt_()<=Date.now());
+      offer('catalogSync',catalogSyncReadyAt_()<=Date.now());offer('taxonomy',taxonomyReadyAt_()<=Date.now());offer('taxonomyTranslation',taxonomyTranslationReadyAt_()<=Date.now());
+      offer('archive',logArchiveReadyAt_()<=Date.now()&&!work.pending.length);offer('maintenance',maintenanceReadyAt_()<=Date.now());
+    }
   }
-  return work.pending.length?'collection':'';
+  offer('collection',work.pending.length>0,daily?PROCESS_PRIORITY.daily:PROCESS_PRIORITY.annual);
+  return candidates.sort((a,b)=>a.priority-b.priority)[0]?.task||'';
 }
 // Wake only for runnable work; lower queues cannot poll while their prerequisites are paused.
 function backgroundNextAt_(work,completed=true){
   const now=Date.now(),p=properties_();if(!work||!completed||backgroundQueued_(work))return now;
   const collection=work.tasks?collectionReadyAt_(work):Math.min(...(work.jobs||[]).filter(job=>Number(job.pendientes)>0||job.estado==='Preparando').map(job=>Math.max(now,Number(p.getProperty('FETCH_PAUSED_UNTIL')||0),Number(job.pausa||0))));
-  if(dailyCollectionPending_(work)||p.getProperty('DAILY_PIPELINE_REQUEST'))return collection;
+  if(dailyCollectionPending_(work)||dailyPipelineRequested_())return collection;
+  if(classificationJob_()?.state==='Publicando'&&!taxonomyPublicationReady_())return Math.min(collection,taxonomyReadyAt_());
   if(classificationPending_())return snapshotJobsPending_()?now:Math.min(collection,classificationReadyAt_());
   if(dashboardSnapshotsReady_(work))return now;
-  return Math.min(collection,translationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_(work),maintenanceReadyAt_());
+  return Math.min(catalogSyncReadyAt_(),logArchiveReadyAt_(),collection,translationReadyAt_(),taxonomyReadyAt_(),taxonomyTranslationReadyAt_(),newsletterReadyAt_(work),maintenanceReadyAt_());
 }
 function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
   if(backgroundPaused_()){deferBackgroundWork_('background');return {added:0,errors:[],paused:true};}
@@ -100,11 +124,12 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
       if(!daily&&!dailyCollectionPending_(work)){drainClassificationRequest_();drainDailyTranslations_(work);drainTaxonomyRequest_();}
       const collectionJob=work.pending[0]?.ciclo,task=backgroundTask_(work,daily);if(!task){if(dashboardSnapshotsReady_(work))dashboardSnapshotBatch_();break;}
       const remaining=Math.min(BACKGROUND_WORK.sliceMs,BACKGROUND_WORK.maxMs-(Date.now()-started));if(remaining<=0)break;
-      progressContextMemory_=undefined;properties_().setProperty('BACKGROUND_RUN_ID',runId);const stage=task==='collection'?daily?'daily':'annual':task;properties_().setProperty('BACKGROUND_ACTIVE',stage);properties_().setProperty('BACKGROUND_ACTIVE_UNTIL',String(Date.now()+BACKGROUND_WORK.maxMs+BACKGROUND_WORK.activeGraceMs));properties_().setProperty('JOB_LAST_EXECUTED:'+stage,new Date().toISOString());
+      progressContextMemory_=undefined;properties_().setProperty('SUPERVISOR_DISPATCH',JSON.stringify({task,at:new Date().toISOString()}));properties_().setProperty('BACKGROUND_RUN_ID',runId);const stage=task==='collection'?daily?'daily':'annual':task;properties_().setProperty('BACKGROUND_ACTIVE',stage);if(task==='collection')properties_().setProperty('BACKGROUND_COLLECTION_JOB',collectionJob||'');else properties_().deleteProperty('BACKGROUND_COLLECTION_JOB');properties_().setProperty('BACKGROUND_ACTIVE_UNTIL',String(Date.now()+BACKGROUND_WORK.maxMs+BACKGROUND_WORK.activeGraceMs));properties_().setProperty('JOB_LAST_EXECUTED:'+stage,new Date().toISOString());
       if(task==='snapshot')dashboardSnapshotBatch_();
+      else if(task==='archive')operationalArchiveBatch_();
       else if(task==='maintenance')maintenanceBatch_(Math.min(MAINTENANCE_POLICY.maxMs,remaining));
       else if(task==='newsletter')deliverNewsletterBatch_(work,remaining);
-      else if(task==='catalogSync'){const synced=refreshFunctionalCatalog_();if(synced.changed&&!taxonomyPending_())requestTaxonomy_('catalog-change');properties_().deleteProperty('CATALOG_SYNC_REQUEST');}
+      else if(task==='catalogSync'){const synced=refreshFunctionalCatalog_();if(synced.error)properties_().setProperty('CATALOG_SYNC_RETRY_AT',String(Date.now()+settings_().retryMinutes*60000));else{properties_().deleteProperty('CATALOG_SYNC_REQUEST');properties_().deleteProperty('CATALOG_SYNC_RETRY_AT');if(synced.changed&&!taxonomyPending_())requestTaxonomy_('catalog-change',false);}}
       else if(task==='taxonomyTranslation')taxonomyTranslationBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
       else if(task==='taxonomy')taxonomyBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
       else if(task==='classification')newsClassificationBatch_(Math.min(CLASSIFICATION_WORK.maxMs,remaining));
@@ -121,36 +146,41 @@ function processBackground_(batchLimit=BACKGROUND_WORK.maxBatches){
     try{
       const next=backgroundNextAt_(work,completed);
       if(Number.isFinite(next))ensureBackgroundWorker_(next-Date.now());else properties_().deleteProperty('BACKGROUND_PENDING');
-    }finally{if(acquired){if(properties_().getProperty('BACKGROUND_RUN_ID')===runId){properties_().deleteProperty('BACKGROUND_RUN_ID');properties_().deleteProperty('BACKGROUND_ACTIVE');properties_().deleteProperty('BACKGROUND_ACTIVE_UNTIL');}lock.releaseLock();}}
+    }finally{if(acquired){if(properties_().getProperty('BACKGROUND_RUN_ID')===runId){properties_().deleteProperty('BACKGROUND_RUN_ID');properties_().deleteProperty('BACKGROUND_ACTIVE');properties_().deleteProperty('BACKGROUND_ACTIVE_UNTIL');properties_().deleteProperty('BACKGROUND_COLLECTION_JOB');}lock.releaseLock();}}
   }
 }
 function initializeBackgroundSchedules_(){
   const p=properties_();
+  installFunctionalCatalogWatcher_();
+  cancelAnnualRecovery_();
+  scheduledTriggers_('additionalRadar_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
+  for(const key of ['ADDITIONAL_COLLECTION_REQUEST','ADDITIONAL_COLLECTION_DAY','WORK_PENDING:additional'])p.deleteProperty(key);
   CacheService.getScriptCache().remove('daily-schedule');
   for(const handler of ['collectionTick_','collectionWake_','translationTick_','backgroundTick_','nightlyTranslations_','dailyClassification_','dailyTaxonomy_','newsletterTick_','deliverNewsletters_'])scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   p.deleteProperty('BACKGROUND_NEXT');
-  if(!scheduledTriggers_('backgroundWatchdog_').length)ScriptApp.newTrigger('backgroundWatchdog_').timeBased().everyMinutes(BACKGROUND_WORK.watchdogMinutes).create();
-  if(p.getProperty('DAILY_ENABLED')==='true')replaceCollectionSchedule_();else scheduledTriggers_('dailyRadar_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
-  if(p.getProperty('TRANSLATION_ENABLED')!=='false')p.setProperty('TRANSLATION_ENABLED','true');
-  if(settings_().newsletterEnabled)replaceDailySchedule_('scheduledNewsletters_',settings_().dailyHour);else scheduledTriggers_('scheduledNewsletters_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
+  const watchdogMinutes=settings_().watchdogMinutes;if(scheduledTriggers_('backgroundWatchdog_').length!==1||Number(p.getProperty('WATCHDOG_INTERVAL'))!==watchdogMinutes){scheduledTriggers_('backgroundWatchdog_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));ScriptApp.newTrigger('backgroundWatchdog_').timeBased().everyMinutes(watchdogMinutes).create();p.setProperty('WATCHDOG_INTERVAL',String(watchdogMinutes));}
+  if(p.getProperty('DAILY_ENABLED')===null)p.setProperty('DAILY_ENABLED','true');
+  if(p.getProperty('DAILY_ENABLED')==='true')replaceCollectionSchedule_();else for(const handler of collectionHandlers_())scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
+  p.deleteProperty('TRANSLATION_ENABLED');
+  if(settings_().newsletterEnabled)replaceDailySchedule_('scheduledNewsletters_',settings_().newsletterHour,settings_().newsletterMinute);else scheduledTriggers_('scheduledNewsletters_').forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   if(dashboardSnapshotsPending_()||Number.isFinite(taxonomyTranslationReadyAt_())||taxonomyPending_()||p.getProperty('TAXONOMY_REQUEST')||p.getProperty('CATALOG_SYNC_REQUEST')||classificationPending_()||p.getProperty('CLASSIFICATION_REQUEST')||collectionRequests_().length||collectionJobs_().some(job=>Number(job.pendientes)>0)||Number.isFinite(translationReadyAt_())||Number.isFinite(newsletterReadyAt_()))ensureBackgroundWorker_();
 }
 function updateOperationalSchedule(){authorize_(true);return withForegroundWrite_(()=>{initializeBackgroundSchedules_();return 'Prioridades y programación actualizadas.';});}
 
 function backgroundWatchdog_(){
-  const p=properties_(),values=p.getProperties();if(backgroundPaused_())return;
+  const p=properties_(),values=p.getProperties();p.setProperty('SUPERVISOR_LAST',new Date().toISOString());if(backgroundPaused_()){p.setProperty('SUPERVISOR_DECISION','Edición administrativa: trabajos en espera');return;}
   if(Object.entries(values).some(([key,value])=>key.startsWith('WORK_PENDING:')&&value==='true')){workWake_();return;}
-  if(!dashboardSnapshotsPending_()&&!values.BACKGROUND_PENDING&&!['MAINTENANCE_REQUEST','DAILY_PIPELINE_REQUEST','CLASSIFICATION_REQUEST','DAILY_TRANSLATION_REQUEST','TRANSLATION_REQUEST','TAXONOMY_REQUEST','CATALOG_SYNC_REQUEST','TAXONOMY_TRANSLATION_REQUEST'].some(key=>values[key])&&!(values.NEWSLETTER_REQUEST&&settings_().newsletterEnabled)&&!Number.isFinite(maintenanceReadyAt_()))return;
+  if(!dashboardSnapshotsPending_()&&!values.BACKGROUND_PENDING&&!dailyPipelineRequested_()&&!['LOG_ARCHIVE_PENDING','MAINTENANCE_REQUEST','CLASSIFICATION_REQUEST','DAILY_TRANSLATION_REQUEST','TRANSLATION_REQUEST','TAXONOMY_REQUEST','CATALOG_SYNC_REQUEST','TAXONOMY_TRANSLATION_REQUEST'].some(key=>values[key])&&!(values.NEWSLETTER_REQUEST&&settings_().newsletterEnabled)&&!Number.isFinite(maintenanceReadyAt_())){p.setProperty('SUPERVISOR_DECISION','Sin trabajos pendientes');return;}
   if(scheduledTriggers_('backgroundTick_').length&&Number(p.getProperty('BACKGROUND_NEXT'))>Date.now()-BACKGROUND_WORK.maxMs*2)return;
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return;
   try{
     const now=Date.now(),jobs=collectionJobs_(),next=backgroundNextAt_({jobs});
-    if(Number.isFinite(next)){p.deleteProperty('BACKGROUND_NEXT');ensureBackgroundWorker_(next-now);}else p.deleteProperty('BACKGROUND_PENDING');
+    if(Number.isFinite(next)){p.setProperty('SUPERVISOR_DECISION',next>now?'Esperando disponibilidad de cuota o reintento':'Continuación de la cola autorizada');p.deleteProperty('BACKGROUND_NEXT');ensureBackgroundWorker_(next-now);}else{p.setProperty('SUPERVISOR_DECISION','Sin trabajos pendientes');p.deleteProperty('BACKGROUND_PENDING');}
   }finally{lock.releaseLock();}
 }
 
 function backgroundQueued_(work){
-  const p=properties_();return Boolean(p.getProperty('MAINTENANCE_REQUEST')||p.getProperty('DAILY_PIPELINE_REQUEST')||collectionRequests_().length||!dailyCollectionPending_(work)&&!classificationPending_()&&(p.getProperty('CLASSIFICATION_REQUEST')||p.getProperty('DAILY_TRANSLATION_REQUEST')||p.getProperty('CATALOG_SYNC_REQUEST'))||!businessPipelinePending_(work)&&(p.getProperty('TAXONOMY_REQUEST')&&!taxonomyPending_()));
+  const p=properties_();return Boolean(p.getProperty('MAINTENANCE_REQUEST')||dailyPipelineRequested_()||collectionRequests_().length||!dailyCollectionPending_(work)&&!classificationPending_()&&(p.getProperty('CLASSIFICATION_REQUEST')||p.getProperty('DAILY_TRANSLATION_REQUEST'))||!businessPipelinePending_(work)&&(p.getProperty('TAXONOMY_REQUEST')&&!taxonomyPending_()));
 }
 
 function backgroundStageComplete_(task,work,collectionJob){
@@ -158,4 +188,18 @@ function backgroundStageComplete_(task,work,collectionJob){
   if(task==='collection')return !work.jobs.some(job=>Number(job.pendientes)>0||job.estado==='Preparando');
   const job={classification:classificationJob_,translation:translationJob_,taxonomy:taxonomyJob_,taxonomyTranslation:taxonomyTranslationJob_,maintenance:maintenanceJob_}[task];
   return task==='newsletter'||Boolean(job&&job()?.state==='Completada');
+}
+
+function getOperationalSchedule(){
+ authorize_(true);const config=settings_(),enabled=properties_().getProperty('DAILY_ENABLED')==='true';
+ const times=new Set(),jobs=[...collectionSchedules_().map((job,index)=>{const key=scheduleTime_(job)+'|'+job.timezone,expected=enabled&&job.enabled&&!times.has(key)?1:0;if(expected)times.add(key);return {...job,label:'Recopilación '+(index+1),expected};}),{label:'Envíos planificados',handler:'scheduledNewsletters_',hour:config.newsletterHour,minute:config.newsletterMinute,timezone:config.timezone,expected:config.newsletterEnabled?1:0},{label:'Supervisor de colas',handler:'backgroundWatchdog_',minutes:config.watchdogMinutes,expected:1}];
+ const counts=new Map();for(const trigger of ScriptApp.getProjectTriggers()){const handler=trigger.getHandlerFunction();counts.set(handler,(counts.get(handler)||0)+1);}
+ for(const job of jobs){job.installed=counts.get(job.handler)||0;job.valid=job.installed===job.expected;}
+ return {jobs,valid:jobs.every(job=>job.valid),archive:{attempts:Number(properties_().getProperty('LOG_ARCHIVE_ATTEMPTS')||0),error:properties_().getProperty('LOG_ARCHIVE_ERROR')||'',next:Number(properties_().getProperty('LOG_ARCHIVE_NEXT')||0)},workerTriggers:counts.get('backgroundTick_')||0,queued:dailyPipelineRequested_()||Boolean(properties_().getProperty('BACKGROUND_PENDING'))};
+}
+
+function operationalProcesses_(){
+ const p=properties_().getProperties(),definitions=[['classification','CLASSIFICATION_JOB','CLASSIFICATION_REQUEST'],['translation','TRANSLATION_JOB','TRANSLATION_REQUEST'],['taxonomy','TAXONOMY_JOB','TAXONOMY_REQUEST'],['taxonomyTranslation','TAXONOMY_TRANSLATION_JOB','TAXONOMY_TRANSLATION_REQUEST'],['maintenance','MAINTENANCE_JOB','MAINTENANCE_REQUEST']];
+ const jobs=definitions.map(([stage,key,request])=>controlProcess_(stage,p[key]?JSON.parse(p[key]):null,Boolean(p[request]||stage==='translation'&&p.DAILY_TRANSLATION_REQUEST)));
+ const pending=snapshotJobsPending_()||Boolean(p.DASHBOARD_SNAPSHOT_BUILD)||dashboardSnapshotsPending_();jobs.push(controlProcess_('snapshot',{state:pending?'Pendiente':'Completada',updated:p['JOB_LAST_EXECUTED:snapshot']||''},pending));return jobs;
 }

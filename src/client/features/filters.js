@@ -2,7 +2,7 @@ import {openDatePicker} from './date-picker.js';
 import {newsletterComparisonLabels} from '../../shared/newsletter-cadences.js';
 import {taxonomySubLabel,taxonomyDisplayLabel} from '../../shared/taxonomy-path.js';
 import {syncTaxonomyControls} from './taxonomy-controls.js';
-import {coverageOptions,BRIEFING_ALLOWED_SIGNALS} from '../../shared/selection-policy.js';
+import {coverageOptions,BRIEFING_ALLOWED_SIGNALS,otherGeography} from '../../shared/selection-policy.js';
 import {defaultView} from '../config.js';
 import {t,language} from '../core/language.js';
 import {formatCalendarDay} from '../../shared/locales.js';
@@ -12,7 +12,7 @@ function createFilters({ onInvalidate, onChange }) {
   let page = 0, view=defaultView, defaults={},edition='',newsGeography='',editionSelection={},taxonomy=[],applied={},dirty=false;
   const selections=new Map(),initialized=new Set();
   function options(name, values, selected) {
-    const el = form.elements[name];if(!el)return;let current = selected ?? el.value;if(name==='signal'&&view==='briefing'){values=values.filter(value=>BRIEFING_ALLOWED_SIGNALS.includes(value));if(!values.includes(current))current='';}
+    const el = form.elements[name];if(!el)return;if(name==='country'&&view==='news')values=[...new Set([...values,otherGeography])];let current = selected ?? el.value;if(name==='signal'&&view==='briefing'){values=values.filter(value=>BRIEFING_ALLOWED_SIGNALS.includes(value));if(!values.includes(current))current='';}
     if(name!=='year'&&!(name==='signal'&&view==='briefing')&&current&&!values.includes(current))values=[...values,current];
     const signature = JSON.stringify(values);
     if (el.dataset.options === signature) return;
@@ -94,15 +94,15 @@ function createFilters({ onInvalidate, onChange }) {
     if(!form.reportValidity())return;
     filterChanged({ type: "submit" });$('filters-dialog').close();
   });
-  function resetContext(nextEdition){
+  function resetContext(nextEdition,notify=true){
     edition=nextEdition;dirty=false;applied={};newsGeography='';clearTimeout(timer);page=0;
     for(const name of ['news','briefing','radar']){initialized.delete(name);selections.delete(name);}
     for(const input of form.elements)if(input.name)input.value='';
-    form.elements.to.setCustomValidity('');onInvalidate();onChange();
+    form.elements.to.setCustomValidity('');onInvalidate();if(notify)onChange();
   }
   function current(){resetContext('');}
   return {
-    useEdition:(id,selection={})=>{editionSelection=selection;resetContext(id);},current,
+    useEdition:(id,selection={},notify=true)=>{editionSelection=selection;resetContext(id,notify);},current,
     query: () => ({ ...applied, page,view,language,...(edition&&view==='news'?{edition,...(!initialized.has(view)?editionSelection:{})}:{}),...(view==='news'&&newsGeography?{newsGeography}:{}),initial:!initialized.has(view) }),
     show: next => {
       if(next===view)return false;

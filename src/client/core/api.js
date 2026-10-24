@@ -4,7 +4,7 @@ import {t,setTaxonomyTranslations} from './language.js';
 function receive(data){if(data?.taxonomyTranslations)setTaxonomyTranslations(data.taxonomyTranslations);return data;}
 const requests=new Map();
 let initialDashboard;let releaseInitialDashboard;
-const secondaryMethods=new Set(['recordEvents','getCollectionProgress','getClassificationStatus','getMaintenanceStatus','getTranslationStatus','getTaxonomyTranslationStatus']);
+const secondaryMethods=new Set(['recordEvents','getCollectionProgress']);
 export function deferSecondaryRequests(){if(!initialDashboard)initialDashboard=new Promise(resolve=>{releaseInitialDashboard=resolve;});}
 export function releaseSecondaryRequests(){if(releaseInitialDashboard){releaseInitialDashboard();initialDashboard=null;releaseInitialDashboard=null;}}
 function call(method, ...args) {

@@ -5,14 +5,13 @@ import {app,tick} from './helpers/app.mjs';
 import {storage} from './helpers/delivery.mjs';
 function fixture(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
 test('Ejecuciones incluye una sola clasificación bajo las recargas y usa el estado del mismo RPC',async t=>{
- const a=await app(t,{entry:''});await a.click('[data-view="administration"]');assert.ok(a.find('#runs-section').contains(a.find('#classification-start')));assert.equal(a.find('#classification-progress').querySelectorAll('progress').length,1);assert.ok(a.find('#collection-jobs').compareDocumentPosition(a.find('#classification-progress'))&a.w.Node.DOCUMENT_POSITION_FOLLOWING);assert.equal(a.w.document.querySelector('#configuration-section #classification-start'),null);assert.equal(a.calls.filter(c=>c.method==='getClassificationStatus').length,0);
+ const a=await app(t,{entry:''});await a.click('[data-view="administration"]');assert.ok(a.find('#runs-section').contains(a.find('#classification-start')));assert.equal(a.find('#classification-progress').querySelectorAll('progress').length,1);assert.ok(a.find('[data-process-group="collection"]').compareDocumentPosition(a.find('#classification-progress'))&a.w.Node.DOCUMENT_POSITION_FOLLOWING);assert.equal(a.w.document.querySelector('#configuration-section #classification-start'),null);assert.equal(a.calls.filter(c=>c.method==='getClassificationStatus').length,0);
  await a.click('#classification-start');assert.equal(a.calls.filter(c=>c.method==='startClassification').length,1);
 });
-test('una anual activa se puede seleccionar y continuar sin lanzar una recarga duplicada',async t=>{
- const a=await app(t,{entry:'',configure({data,replies}){data.collection={pending:20,blocked:{today:false,year:true},jobs:[]};replies.getRuns.collection=data.collection;}});
- await a.click('[data-view="administration"]');
- const annual=a.find('[name="recovery-range"][value="year"]');assert.equal(annual.disabled,false);annual.checked=true;annual.dispatchEvent(new a.w.Event('change',{bubbles:true}));assert.equal(a.find('#collect').disabled,true);assert.equal(a.find('#continue-collection').hidden,false);
- await a.click('#continue-collection');assert.equal(a.calls.find(c=>c.method==='resumeCollection').query,'year');assert.equal(a.calls.filter(c=>c.method==='collectNow').length,0);
+test('la interfaz solo permite recopilación diaria y conserva la continuación diaria',async t=>{
+ const a=await app(t,{entry:'',configure({data,replies}){data.collection={pending:20,blocked:{today:true},jobs:[]};replies.getRuns.collection=data.collection;}});
+ await a.click('[data-view="administration"]');assert.equal(a.w.document.querySelector('[name="recovery-range"]'),null);assert.equal(a.find('#collect').disabled,true);
+ await a.click('#continue-collection');assert.equal(a.calls.find(c=>c.method==='resumeCollection').query,'today');assert.equal(a.calls.filter(c=>c.method==='collectNow').length,0);
 });
 test('el supervisor repone un trabajador perdido y conserva las pausas y los datos pendientes',()=>{
  const s=fixture(),c=s.c;c.requestCollection_('annual',{from:'2025-10-01',to:'2026-10-01'});for(const trigger of c.scheduledTriggers_('backgroundTick_'))c.ScriptApp.deleteTrigger(trigger);c.backgroundWatchdog_();assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);assert.equal(c.collectionRequests_().length,1);
@@ -39,7 +38,7 @@ test('envíos acotados mantienen progreso entre lotes y la taxonomía se complet
 });
 test('el progreso de envíos solo se sondea en la vista administrativa activa',async t=>{
  const timers=new Map();let id=0;const a=await app(t,{configure({w,replies}){const set=w.setTimeout.bind(w),clear=w.clearTimeout.bind(w);w.setTimeout=(fn,ms)=>{if(ms<30000)return set(fn,ms);timers.set(++id,{fn,ms});return id;};w.clearTimeout=key=>{timers.delete(key);clear(key);};replies.getNewsletterProgress={enabled:true,active:true,queued:true,job:{state:'En cola',total:3,processed:1,pending:2,accepted:1,empty:0,review:0}};}});
- await a.click('[data-view="administration"]');await a.click('[data-admin-view="subscribers"]');assert.equal(a.find('#newsletter-delivery-progress progress').value,1);assert.equal(a.find('#newsletter-delivery-progress progress').max,3);assert.ok([...timers.values()].some(t=>t.ms===30000));await a.click('[data-admin-view="runs"]');assert.equal([...timers.values()].filter(t=>t.ms===30000).length,0);
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('#newsletter-delivery-progress progress').value,1);assert.equal(a.find('#newsletter-delivery-progress progress').max,3);assert.ok([...timers.values()].some(t=>t.ms===30000));await a.click('[data-admin-view="subscribers"]');assert.equal([...timers.values()].filter(t=>t.ms===30000).length,0);
 });
 test('el supervisor recupera solicitudes de clasificación sin cursor activo y trabajo diferido tras una configuración',()=>{
  const s=fixture(),c=s.c;s.properties.CLASSIFICATION_REQUEST='2026-01-01';delete s.properties.BACKGROUND_PENDING;c.backgroundWatchdog_();assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);assert.equal(s.properties.CLASSIFICATION_REQUEST,'2026-01-01');

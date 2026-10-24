@@ -1,10 +1,10 @@
 import {identityMark} from '../../shared/visual-identity.js';
 import {$,escape,validUrl} from '../core/dom.js';
 import {createRecordFilters} from './record-filters.js';
-import {filterRecords,recordOptions,recordPage} from '../../shared/record-filters.js';
+import {ADMIN_PAGE_SIZE,filterRecords,recordOptions,recordPage} from '../../shared/record-filters.js';
 const sourceTypes={profile:'Google News RSS',rss:'RSS del editor'};
 export function createSourceCatalog(){
-  let groups={all:[],profile:[],rss:[]},byId=new Map(),enabled=new Set(),pageSize=30,kind='all';
+  let groups={all:[],profile:[],rss:[]},byId=new Map(),enabled=new Set(),kind='all';
   const filters=createRecordFilters('source',[
     ['entity','Entidad'],['country','Geografía'],
     ['enabled','Estado',[['true','Activa'],['false','Inactiva']]]
@@ -12,7 +12,7 @@ export function createSourceCatalog(){
   function render(){
     const query=filters.query(),
       rows=filterRecords(groups[kind],query,['entity','country','enabled'],['name','entity','country','url']),
-      page=recordPage(rows,query,pageSize);
+      page=recordPage(rows,query,ADMIN_PAGE_SIZE);
     $('configured-sources-body').innerHTML=page.items.map(feed=>`<tr><td><input type="checkbox" class="source-enabled" data-id="${escape(feed.id)}" aria-label="Activar ${escape(feed.name)}" ${feed.enabled?'checked':''}></td><td><span class="identity-label">${identityMark('entities',feed.entity,escape)}${escape(feed.name)}</span></td><td><span class="identity-label">${identityMark('countries',feed.country,escape)}${escape(feed.country)}</span></td><td>${sourceTypes[feed.kind]}</td><td><a href="${escape(validUrl(feed.url))}" target="_blank" rel="noopener noreferrer">Abrir feed ↗</a></td></tr>`).join('')||'<tr><td colspan="5">No hay fuentes con este criterio.</td></tr>';
     filters.page(page);
     $('configured-source-count').textContent=groups.all.length+' fuentes configuradas · '+enabled.size+' activas';
@@ -43,10 +43,10 @@ export function createSourceCatalog(){
     if(input.checked)enabled.add(input.dataset.id);else enabled.delete(input.dataset.id);render();
   });
   return {
-    update(rows,size){
+    update(rows){
       const feeds=rows.map(row=>({...row}));
       groups={all:feeds,profile:[],rss:[]};for(const feed of feeds)groups[feed.kind].push(feed);
-      byId=new Map(feeds.map(feed=>[feed.id,feed]));pageSize=size;
+      byId=new Map(feeds.map(feed=>[feed.id,feed]));
       enabled=new Set(feeds.filter(feed=>feed.enabled).map(feed=>feed.id));
       filters.options(recordOptions(groups[kind],['entity','country']));render();
     },

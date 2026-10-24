@@ -20,7 +20,7 @@ function fallbackTaxonomy_(text,labels,items){
  else if(capability.has('Cobros y recaudación'))prefix='07.01';
  else if(capability.has('Adquirencia y terminales'))prefix='11.01';
  else if(capability.has('Autenticación y seguridad')||capability.has('Biometría'))prefix='16.01';
- return prefix?{id:pick(prefix),prefix}:{};
+ return prefix?{id:pick(prefix),rule:prefix,capabilities:[...capability].sort(),signal:event}:{};
 }
 function taxonomyRecord_(title,excerpt,items=taxonomyCatalog_(),providedLabels=null){
  const fingerprint=taxonomyFingerprint_(title,excerpt),text=taxonomyText(title+' '+excerpt);
@@ -31,18 +31,19 @@ function taxonomyRecord_(title,excerpt,items=taxonomyCatalog_(),providedLabels=n
  const decision=taxonomyDecision(text,model.rows,title),match=decision.matches[0];
  if(match)return {...metadata,ids:decision.matches.map(match=>match.row.id),primary:match.row.id,reason:decision.reason,evidence:{...match.evidence,assignments:decision.matches.map(({row,evidence})=>({id:row.id,...evidence}))}};
  const fallback=labels.digital&&fallbackTaxonomy_(text,labels,items);
- return fallback?.id?{...metadata,ids:[fallback.id],primary:fallback.id,reason:'capability-fallback',evidence:{method:'capability-fallback',terms:[fallback.prefix],assignments:[{id:fallback.id,method:'capability-fallback',terms:[fallback.prefix]}]}}:{...metadata,ids:[],reason:decision.reason};
+ const evidence=fallback?.id?{method:'capability-fallback',rule:fallback.rule,capabilities:fallback.capabilities,signal:fallback.signal}:null;
+ return evidence?{...metadata,ids:[fallback.id],primary:fallback.id,reason:'capability-fallback',evidence:{...evidence,assignments:[{id:fallback.id,...evidence}]}}:{...metadata,ids:[],reason:decision.reason};
 }
 function taxonomyJob_(){const raw=properties_().getProperty('TAXONOMY_JOB');return raw?JSON.parse(raw):null;}
 function taxonomyPending_(){const job=taxonomyJob_();return Boolean(job&&job.state!=='Completada');}
 function taxonomyReadyAt_(){const job=taxonomyJob_();return job&&!['Completada','Publicando'].includes(job.state)?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
 function writeTaxonomyJob_(job){progressContextMemory_=undefined;properties_().setProperty('TAXONOMY_JOB',JSON.stringify(snapshotJob_('TAXONOMY_JOB',job)));}
-function requestTaxonomy_(request=''){
-  const catalog=refreshFunctionalCatalog_();
+function requestTaxonomy_(request='',refresh=true){
+  const catalog=refresh?refreshFunctionalCatalog_():{source:'espejo'};
   const lastRow=newsSheet_().getLastRow(),candidateTotal=Math.max(0,candidateSheet_().getLastRow()-1),total=Math.max(0,lastRow-1),now=new Date().toISOString();
   const id=Utilities.getUuid();
   writeTaxonomyJob_({request,catalog,id,source:newsStorageKey_(),state:'Pendiente',phase:'scan',next:2,candidateTotal,candidateRevision:properties_().getProperty('CANDIDATES_REVISION')||'0',total,workTotal:total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});
-  clearTaxonomyCheckpoints_();ensureBackgroundWorker_();
+  clearTaxonomyCheckpoints_();properties_().deleteProperty('DASHBOARD_SNAPSHOT_BUILD');ensureBackgroundWorker_();
 }
 function drainTaxonomyRequest_(){
  const p=properties_(),request=p.getProperty('TAXONOMY_REQUEST');if(!request||taxonomyPending_())return;
@@ -75,10 +76,13 @@ function taxonomyEligible_(title,text){
   const assessment=digitalAssessment_(title,text);return !assessment.excluded&&!assessment.editorial;
 }
 function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
+ const job=taxonomyJob_();if(job&&!['Completada','Publicando'].includes(job.state)){if(job.rules!==taxonomyRulesRevision_()||job.corpus!==(properties_().getProperty('NEWS_CONTENT_REVISION')||'0')||job.candidateRevision!==(properties_().getProperty('CANDIDATES_REVISION')||'0')){requestTaxonomy_(job.request);return;}}
+ return withTaxonomyGeneration_(job,()=>taxonomyGenerationBatch_(maxMs));
+}
+function taxonomyGenerationBatch_(maxMs){
  const job=taxonomyJob_();if(!job||['Completada','Publicando'].includes(job.state))return;
  const started=Date.now();let written=false;
  try{
-  if(job.rules!==taxonomyRulesRevision_()||job.corpus!==(properties_().getProperty('NEWS_CONTENT_REVISION')||'0')||job.candidateRevision!==(properties_().getProperty('CANDIDATES_REVISION')||'0')){requestTaxonomy_(job.request);return;}
   if(job.phase!=='tag'){
    const state=readTaxonomyCheckpoint_(job),definitions=taxonomyDefinitions(configuration_().taxonomy),excluded=new Set(configuration_().entities.flatMap(row=>[row.name,...row.aliases]).map(taxonomyText));
    taxonomySeed(state,definitions);
@@ -103,14 +107,17 @@ function taxonomyBatch_(maxMs=TAXONOMY_POLICY.maxMs){
     if(observed||job.phase==='publish')saveTaxonomyCheckpoint_(job,state);
    }
    if(job.phase==='publish'&&Date.now()-started<maxMs&&!backgroundPaused_()){
-    job.model=publishTaxonomy_(state);job.documents=state.documents;job.phase='tag';job.next=2;
+    prepareTaxonomyGeneration_(job);
+    withTaxonomyGeneration_(job,()=>{job.model=publishTaxonomy_(state);});job.documents=state.documents;job.phase='tag';job.next=2;
    }
   }else{
    const sheet=newsSheet_(),keys=RADAR.sheets.Noticias,items=taxonomyCatalog_(),size=Math.min(TAXONOMY_POLICY.batchRows,job.total-job.next+2),updates=[];let read=0;
-   const rows=size>0?sheet.getRange(job.next,1,size,keys.length).getDisplayValues():[];
-   for(const values of rows){if(Date.now()-started>=maxMs||backgroundPaused_(true))break;const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]])),saved=taxonomySaved_(row.taxonomia);const value=JSON.stringify(necessaryTaxonomyRecord_(row,items));if(value!==row.taxonomia)updates.push({row:job.next+read,column:keys.indexOf('taxonomia')+1,value});read++;}
-   writeNewsCells_(updates);written=updates.length>0;job.next+=read;job.tagged+=updates.length;job.processed=job.next-2;
-   if(job.next>job.total+1){job.state='Completada';properties_().setProperties({TAXONOMY_APPLIED_MODEL:job.model,TAXONOMY_APPLIED_RULES:job.rules,TAXONOMY_EVALUATED_CORPUS:job.corpus});}
+   const rows=size>0?sheet.getRange(job.next,1,size,keys.length).getDisplayValues():[],expected=[];
+   for(const values of rows){if(Date.now()-started>=maxMs||backgroundPaused_(true))break;const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]]));const assignment=necessaryTaxonomyRecord_(row,items);validateTaxonomyAssignment_(assignment,items,row.id,true,row);const value=JSON.stringify(assignment);expected.push([value]);if(value!==row.taxonomia)updates.push({row:job.next+read,column:keys.indexOf('taxonomia')+1,value});read++;}
+   writeNewsCells_(updates);
+   if(read&&sha256_(JSON.stringify(expected))!==sha256_(JSON.stringify(sheet.getRange(job.next,keys.indexOf('taxonomia')+1,read,1).getDisplayValues())))throw Error('Etiquetado persistido incompleto.');
+   written=updates.length>0;job.next+=read;job.tagged+=updates.length;job.processed=job.next-2;
+   if(job.next>job.total+1){job.state='Completada';job.verified=true;properties_().setProperties({TAXONOMY_APPLIED_MODEL:job.model,TAXONOMY_APPLIED_RULES:job.rules,TAXONOMY_EVALUATED_CORPUS:job.corpus});}
   }
   if(written)invalidateNews_(false);Object.assign(job,{state:job.state==='Completada'?'Completada':'En curso',updated:new Date().toISOString(),error:'',pausedUntil:0});writeTaxonomyJob_(job);
   if(job.phase==='tag'){clearTaxonomyCheckpoints_();if(job.checkpoint){delete job.checkpoint;delete job.scanCursor;writeTaxonomyJob_(job);}}
@@ -143,10 +150,17 @@ function validateTaxonomyAssignment_(saved,items,id,strict=true,row=null){
   if((strict||saved.model)&&saved.model!==index.model)fail('Generación del catálogo distinta.');
   if(!strict)return;
   if(saved.version!==TAXONOMY_POLICY.version||!saved.reason||row&&saved.fingerprint!==taxonomyFingerprint_(row.titular,row.extracto))fail('Asignación pendiente de reproceso.');
+  if(row&&!saved.ids.length&&saved.reason!=='insufficient'){const labels=savedNewsLabels_(row.clasificacion);if(labels.digital&&fallbackTaxonomy_(taxonomyText(row.titular+' '+row.extracto),labels,items)?.id)fail('Asignación pendiente de reproceso.');}
   const assignments=saved.evidence?.assignments||[];
   if(saved.ids.length>TAXONOMY_POLICY.maxAssignments||assignments.length!==saved.ids.length||saved.ids.some((value,i)=>assignments[i]?.id!==value)||saved.ids.length&&saved.primary!==saved.ids[0])fail('Evidencia o categoría principal incompleta.');
   const text=row?taxonomyText(row.titular+' '+row.extracto):'',used=[];
   for(const evidence of assignments){
+    if(evidence.method==='capability-fallback'){
+      if(saved.reason!=='capability-fallback'||saved.ids.length!==1||!row)fail('Fallback sin trazabilidad verificable.');
+      const labels=savedNewsLabels_(row.clasificacion),expected=labels.digital&&fallbackTaxonomy_(text,labels,items);
+      if(!expected?.id||expected.id!==evidence.id||expected.rule!==evidence.rule||expected.signal!==evidence.signal||JSON.stringify(expected.capabilities)!==JSON.stringify(evidence.capabilities)||evidence.terms?.length)fail('Regla, capacidad o señal de fallback incoherente.');
+      continue;
+    }
     if(!Array.isArray(evidence.terms)||!evidence.terms.length||!['literal','description'].includes(evidence.method)||row&&evidence.terms.some(term=>!taxonomyTermCounts(text,[term]).size))fail('Evidencia individual no verificable.');
     if(used.length&&!taxonomyIndependentEvidence(evidence,used))fail('Evidencia secundaria solapada o genérica.');
     used.push(...evidence.terms);

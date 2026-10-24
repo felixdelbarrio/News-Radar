@@ -37,7 +37,7 @@ test('canonicalización y exportación protegen URLs y fórmulas',()=>{
 test('autoriza con identidad activa y restringe administración y métricas',()=>{
   for(const email of ['reader@bbva.com','felix.delbarrio@bbva.com'])assert.doesNotThrow(()=>context(email).authorize_());
   for(const email of ['','reader@evilbbva.com','reader@bbva.com.evil'])assert.throws(()=>context(email).authorize_());
-  const reader=context('reader@bbva.com');for(const name of ['getAudit','getAdoption','getTelemetry','collectNow','retryCollectionErrors','setupRadar'])assert.throws(()=>reader[name](),/no autorizado/);assert.throws(()=>reader.saveFeeds([]),/no autorizado/);
+  const reader=context('reader@bbva.com');for(const name of ['getAdminLogs','getAdoption','getControlPanel','collectNow','retryCollectionErrors','setupRadar'])assert.throws(()=>reader[name](),/no autorizado/);assert.throws(()=>reader.saveFeeds([]),/no autorizado/);
 });
 test('dashboard de lector no expone fuentes configurables, hoja ni datos de otros usuarios',()=>{
   const c=context('reader@bbva.com');c.rows_=()=>[];c.collectionStatus_=()=>({total:0,pending:0});c.book_=()=>{throw Error('No debe leer URL de hoja');};const result=c.getDashboard({});
@@ -75,7 +75,7 @@ test('recopila por lotes, integra automáticamente, deduplica y conserva reinten
 test('agotados tres intentos registra error y la recuperación escribe un único lote',()=>{
   const c=context(),tasks=[{ciclo:'cycle',fuente:'Error',url:'bad',estado:'Pendiente',intentos:'2',actualizada:'2026-10-09',evaluadas:'0',nuevas:'0',error:''}];let rows,writes=0;
   c.rows_=()=>tasks;c.collectionWork_=()=>({tasks,pending:tasks.map((task,index)=>({...task,row:index+2})),jobs:[{id:'cycle',desde:'2025-01-01',hasta:'2030-01-01',inicio:'2026-10-11'}]});c.feeds_=()=>[{...feed,url:'bad'}];c.knownUrls_=()=>new Set();c.book_=()=>({getSheetByName:()=>({getLastRow:()=>1,getRange:()=>({setNumberFormat(){return this;},setValues:value=>{rows=value;writes++;}})})});c.UrlFetchApp={fetchAll:requests=>requests.map(()=>({getResponseCode:()=>503}))};c.append_=()=>{};c.telemetry_=()=>{};c.collectionBatch_(c.collectionWork_(Date.now()));assert.equal(rows[0][0],'Error');
-  tasks[0].estado='Error';writes=0;assert.match(c.retryCollectionErrors(),/^1 fuentes/);assert.equal(writes,1);assert.equal(rows[0][0],'Pendiente');assert.equal(rows[0][1],0);
+  tasks[0].estado='Error';c.collectionJobs_=()=>[{id:'cycle',tipo:'daily'}];writes=0;assert.match(c.retryCollectionErrors(),/^1 fuentes/);assert.equal(writes,1);assert.equal(rows[0][0],'Pendiente');assert.equal(rows[0][1],0);
 });
 test('adopción calcula ventanas y sesiones y obtiene el correo exclusivamente del servidor',()=>{
   const c=context(),events=[{fecha:'2026-10-09T10:00:00Z',correo:'a@bbva.com',sesion:'1',evento:'vista',vista:'radar'},{fecha:'2026-10-07T10:00:00Z',correo:'a@bbva.com',sesion:'2',evento:'rendimiento',duracion_ms:'100'},{fecha:'2026-09-15T10:00:00Z',correo:'b@bbva.com',sesion:'3',evento:'error'}],metrics=c.metrics_(events,now.getTime());assert.equal(metrics.dau,1);assert.equal(metrics.wau,1);assert.equal(metrics.mau,2);assert.equal(metrics.returning,1);assert.equal(metrics.sessions,3);assert.equal(metrics.latencyP95,100);
@@ -84,7 +84,7 @@ test('adopción calcula ventanas y sesiones y obtiene el correo exclusivamente d
 test('distribución no contiene flujo manual, estilos obsoletos ni permisos de lectura de correo',()=>{
   const c=context();for(const name of ['verifyNews','score_','getCandidates','startSearch','searchTick_','articleDate_'])assert.equal(typeof c[name],'undefined');
   const html=renderIncludes(read('dist/Index.html'));assert.doesNotMatch(html,/verify-form|verification-form|candidates-body|Verificar|puntuar|puntuación/);assert.ok(files('src/server').every(file=>!file.endsWith('/Search.gs')));
-  const manifest=JSON.parse(fs.readFileSync('src/appsscript.json'));assert.equal(manifest.oauthScopes.length,6);assert.ok(!manifest.oauthScopes.some(scope=>/gmail\.(?:readonly|modify|compose)|mail.google.com|drive|admin.directory/.test(scope)));
+  const manifest=JSON.parse(fs.readFileSync('src/appsscript.json'));assert.equal(manifest.oauthScopes.length,7);assert.ok(!manifest.oauthScopes.some(scope=>/gmail\.(?:readonly|modify|compose)|mail.google.com|admin.directory/.test(scope)));
 });
 
 test('filtros combinan entidad normalizada, ámbito y medio sin mezclar otras noticias',()=>{
@@ -310,7 +310,7 @@ test('el gráfico de medios cuenta editores reales y limita el resultado sin inv
 });
 test('ejecuciones pagina todo el histórico disponible y el progreso es seguro para lectores',()=>{
  const c=context();c.rows_=()=>Array.from({length:45},(_,i)=>({inicio:'2026-10-09',estado:i%2?'Parcial':'Completada',errores:i%2?'HTTP 503':'',id:String(i)}));
- const page=c.getRuns({estado:'Parcial'});assert.equal(page.total,22);assert.equal(page.items.length,22);assert.equal(c.getRuns({page:1}).items.length,15);assert.throws(()=>context('reader@bbva.com').getRuns(),/no autorizado/);
+ const page=c.getAdminLogs('runs',{estado:'Parcial'});assert.equal(page.total,22);assert.equal(page.items.length,10);assert.equal(c.getAdminLogs('runs',{page:1}).items.length,10);assert.throws(()=>context('reader@bbva.com').getAdminLogs('runs'),/no autorizado/);
  c.collectionStatus_=()=>({total:3,pending:1});c.properties_().setProperty('NEWS_REVISION','revision');const progress=c.getCollectionProgress();assert.equal(progress.newsRevision,'revision');assert.equal(progress.collection.pending,1);
 });
 test('todos los gráficos del Radar respetan geografía y distinguen editor de entidad mencionada',()=>{
