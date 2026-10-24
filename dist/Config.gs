@@ -1,5 +1,5 @@
 const RADAR = Object.freeze({
-  version:'3.19.0',
+  version:'3.20.0',
   sheets:{
     Enriquecimiento:['newsId','inputHash','version','state','attempts','nextAt','url','source','contentHash','signals','comparison','error','updated','durationMs'],
     CategorizacionLLM:['newsId','contentHash','catalogRevision','taxonomyRevision','schemaVersion','ids','primary','evidence','status','updatedAt','sources','proposals','replaces','publication'],
@@ -30,7 +30,7 @@ const NEWSLETTER_EDITORIAL=Object.freeze({cards:3,groupEntity:'BBVA',entityTheme
 const TRANSLATION_WORK=Object.freeze({dailyCalls:3000,batchCalls:20,batchRows:100,readRows:20,maxMs:45000,retryMs:900000});
 
 const NEWS_CACHE=Object.freeze({schema:4,chunkRows:128,recordParts:400,seconds:21600,dashboardChars:12000,dashboardParts:64});
-const BACKGROUND_WORK=Object.freeze({maxBatches:3,maxMs:45000,sliceMs:10000,watchdogMinutes:5,activeGraceMs:60000});
+const BACKGROUND_WORK=Object.freeze({maxBatches:3,maxMs:45000,sliceMs:10000,activeGraceMs:60000});
 
 const COLLECTION_POLICY=Object.freeze({windowDays:28,searchTerms:10,localTerms:4,entityAliases:8,capabilityTerms:7,queryChars:1500,providerLimit:100,saturationRatio:.8,duplicateDays:14});
 const CONFIGURATION_CATALOG_VERSION='3.17.1';

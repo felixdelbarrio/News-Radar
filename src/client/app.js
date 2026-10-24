@@ -1,6 +1,5 @@
 import {createLlmCategorization} from './features/llm-categorization.js';
 import {initializeDatePickers} from './features/date-picker.js';
-import {createJobMonitor,jobProgressHtml} from './features/job-monitor.js';
 import {browserCountry} from './core/browser-country.js';
 import {initializeSearchableSelects} from './features/searchable-selects.js';
 import {createGeographyTabs} from './features/geography-tabs.js';
@@ -8,9 +7,7 @@ import {createReadingContext} from './features/reading-context.js';
 import {createTaxonomyHeatmap} from './features/taxonomy-heatmap.js';
 import {createTaxonomy} from './features/taxonomy.js';
 import {defaultView,navigationCache} from './config.js';
-import {createLanguageSettings} from './features/language-settings.js';
-import {createClassification} from './features/classification.js';
-import {loadRuns,createRecoveryControls,renderCollectionJobs} from './features/runs.js';
+import {loadRuns,closeRuns,createRecoveryControls,renderCollectionJobs} from './features/runs.js';
 import {createCollectionProgress} from './features/collection-progress.js';
 import {createFilterPanel} from './features/filter-panel.js';
 import {createSubscriptions} from './features/subscriptions.js';
@@ -36,16 +33,13 @@ const usage = createUsage({ getView: () => navigation.current === "administratio
 const dashboards=new Map();
 const selectionKey=query=>JSON.stringify(Object.entries(query).filter(([,value])=>value!==''&&value!=null).sort(([a],[b])=>a.localeCompare(b)));
 const configuration = createConfiguration({run:action});
-const taxonomy=createTaxonomy({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='runs'});
+const taxonomy=createTaxonomy();
 const llmCategorization=createLlmCategorization({run:action,refreshSelects,isActive:()=>navigation.current==='administration'&&administration.current==='llm',onRevision:revision=>{if(state.data&&revision!==state.data.newsRevision){state.contentStale=true;dashboards.clear();}}});
 const subscriptions = createSubscriptions({run:action});
-const classification=createClassification({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='runs'});
-const maintenance=createJobMonitor({id:'maintenance',get:'getMaintenanceStatus',isActive:()=>navigation.current==='administration'&&administration.current==='runs',render({job}){$('maintenance-progress').innerHTML=job?jobProgressHtml(job,{total:job.total,done:job.reviewed,label:'Mantenimiento incremental',summary:job.reviewed+' revisados · '+job.corrected+' corregidos · '+job.consolidated+' consolidados · '+job.removed+' eliminados'}):'<p>Sin mantenimiento pendiente.</p>';}});
-const newsletterDelivery=createNewsletterDelivery({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='runs'});
-const languageSettings=createLanguageSettings({run:action,isActive:()=>navigation.current==='administration'&&administration.current==='runs'});
-const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onRuns:async()=>{const data=await loadRuns();if(data)await Promise.all([classification.open(data.classification),maintenance.open(),languageSettings.open(),taxonomy.openProgress(),newsletterDelivery.openProgress()]);},onLeaveRuns:()=>{classification.close();maintenance.close();languageSettings.close();taxonomy.close();newsletterDelivery.close();},onLeaveSubscribers:()=>newsletterDelivery.close(),onTaxonomy:()=>taxonomy.open(),onLeaveTaxonomy:()=>taxonomy.close(),onLlm:()=>llmCategorization.open(),onLeaveLlm:()=>llmCategorization.close() });
+const newsletterDelivery=createNewsletterDelivery({run:action});
+const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onRuns:loadRuns,onLeaveRuns:closeRuns,onTaxonomy:()=>taxonomy.open(),onLlm:()=>llmCategorization.open(),onLeaveLlm:()=>llmCategorization.close() });
 const panel=createFilterPanel();
-const navigation = createNavigation({onPanel:view=>{if(view!=='administration'){llmCategorization.close();classification.close();maintenance.close();newsletterDelivery.close();languageSettings.close();taxonomy.close();}++state.request;panel.show(view);if(state.data)collectionProgress.update(state.data);refreshLoading();}, onSelection:view=>{taxonomy.close();const changed=filters.show(view);if(state.ready&&(changed||state.contentStale||state.view!==view))load(true);}, onSubscriptions:()=>{taxonomy.close();return subscriptions.open();}, onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
+const navigation = createNavigation({onPanel:view=>{if(view!=='administration'){llmCategorization.close();closeRuns();}++state.request;panel.show(view);if(state.data)collectionProgress.update(state.data);refreshLoading();}, onSelection:view=>{const changed=filters.show(view);if(state.ready&&(changed||state.contentStale||state.view!==view))load(true);}, onSubscriptions:()=>subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
 const filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
   track("filtro");
   load();
@@ -58,7 +52,7 @@ function navigateSelection(view,query){filters.show(view);filters.apply(query,fa
 const radar=createRadar({onOutage:query=>navigateSelection('news',{...state.data.selection,...query,page:0}),onSource:source=>navigateSelection('news',{...state.data.selection,source}),onCountry:country=>navigateSelection('news',{...state.data.selection,country}),onEntity:entity=>navigateSelection('news',{...state.data.selection,entity})});
 
 const sources = createSources({ getData: () => state.data, run: action });
-const recoveryControls=createRecoveryControls({getData:()=>state.data,run:action});
+const recoveryControls=createRecoveryControls({run:action});
 const collectionProgress=createCollectionProgress({isActive:()=>navigation.current==='administration',isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
 function renderSelection(data,view=navigation.current,appended=null){
   reading.render(data,view);if(view==='news'){renderNews(data,appended);newsTabs.render(data.newsGeographies||[],data.newsGeography||'');}
@@ -124,7 +118,7 @@ async function load(reuse=false) {
     }
   }
 }
-const actionControls="#llm-section button,#llm-section input,#llm-section select,#classification-start,#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
+const actionControls="#llm-section button,#llm-section input,#llm-section select,#runs-section button,#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
 async function action(fn, refresh = true) {
   if (state.busy) return;
   state.busy = true;
@@ -180,6 +174,6 @@ async function startApplication(params={}){
 if(!window.RADAR_PREVIEW&&typeof google!=='undefined')google.script.url.getLocation(location=>startApplication(location.parameter));
 else startApplication(Object.fromEntries(new URLSearchParams(window.location?.search||'')));
 
-window.addEventListener('news-radar-language-change',async()=>{await load();if(navigation.current==='administration'&&administration.current==='language')await languageSettings.open();if(navigation.current==='administration'&&administration.current==='taxonomy')await taxonomy.open();});
+window.addEventListener('news-radar-language-change',async()=>{await load();if(navigation.current==='administration'&&administration.current==='taxonomy')await taxonomy.open();});
 
-document.querySelector('.admin-content').addEventListener('click',event=>{const button=event.target.closest('[data-open-edition]');if(button){filters.show('news');filters.useEdition(button.dataset.openEdition);navigation.show('news');}});
+document.querySelector('.admin-content').addEventListener('click',event=>{const button=event.target.closest('[data-open-edition]');if(button){filters.show('news');filters.useEdition(button.dataset.openEdition,{},false);state.contentStale=true;navigation.show('news');}});

@@ -40,7 +40,7 @@ function functionalCatalog_(){
   items=blocks.size?[...blocks.values()]:FUNCTIONAL_CATALOG_SEED;writeDashboardCache_(cache,key,items);
  }functionalCatalogMemory_={revision,items};return items;
 }
-function functionalConfiguration_(config){return {...config,taxonomy:functionalCatalogRules(functionalCatalog_(),config.taxonomy)};}
+function functionalConfiguration_(config){return {...config,settings:{...CONFIGURATION_DEFAULTS.settings,...config.settings},taxonomy:functionalCatalogRules(functionalCatalog_(),config.taxonomy)};}
 function functionalConfigurationSettings_(config){return {...config,taxonomy:functionalRuleSettings(config.taxonomy)};}
 function writeFunctionalCatalog_(blocks){
  const descriptions=new Map(FUNCTIONAL_CATALOG_SEED.flatMap(block=>block.functions.map(row=>[row.id,row])));
@@ -49,7 +49,7 @@ function writeFunctionalCatalog_(blocks){
  if(!sheet){sheet=book_().insertSheet('CatalogoFuncional');sheet.getRange(1,1,1,4).setValues([RADAR.sheets.CatalogoFuncional]);sheet.setFrozenRows(1);}
  const rows=catalogue.flatMap(block=>block.functions.map(row=>[row.id,block.name,row.name,row.description])),count=sheet.getLastRow()-1;
  sheet.getRange(2,1,rows.length,4).setNumberFormat('@').setValues(rows);if(count>rows.length)sheet.getRange(rows.length+2,1,count-rows.length,4).clearContent();
- p.setProperty('FUNCTIONAL_CATALOG_REVISION',revision);functionalCatalogMemory_={revision,items:catalogue};invalidateConfiguration_();return true;
+ p.setProperty('FUNCTIONAL_CATALOG_REVISION',revision);p.setProperty('FUNCTIONAL_CATALOG_MODIFIED',new Date().toISOString());functionalCatalogMemory_={revision,items:catalogue};invalidateConfiguration_();return true;
 }
 function refreshFunctionalCatalog_(){
  const config=configuration_();if(!config.settings.taxonomyCatalogUrl)return {source:'espejo',detail:'Se utiliza el último espejo del catálogo.'};
@@ -60,7 +60,21 @@ function refreshFunctionalCatalog_(){
   const tables=names.map(name=>{const sheet=book.getSheetByName(name);if(!sheet||sheet.getLastRow()>1500)throw Error('Pestaña del catálogo ausente o fuera de límite: '+name);return sheet.getRange(1,1,sheet.getLastRow(),6).getDisplayValues();});
   const changed=writeFunctionalCatalog_(functionalCatalogRows_(tables));
   if(changed){requestNewsClassification_(true);requestDashboardSnapshots_(true);}
-  properties_().setProperty('FUNCTIONAL_CATALOG_SYNCED',new Date().toISOString());telemetry_('catalogo_funcional',Date.now()-started,'OK',changed?'Espejo actualizado desde el maestro de Drive':'Sin cambios en el maestro de Drive');return {source:'drive',changed};
- }catch(error){const detail=String(error.message).slice(0,180);telemetry_('catalogo_funcional',Date.now()-started,'Error',detail);return {source:'espejo',error:detail};}
+  properties_().setProperty('FUNCTIONAL_CATALOG_SYNCED',new Date().toISOString());properties_().deleteProperty('FUNCTIONAL_CATALOG_ERROR');telemetry_('catalogo_funcional',Date.now()-started,'OK',changed?'Espejo actualizado desde el maestro de Drive':'Sin cambios en el maestro de Drive');return {source:'drive',changed};
+ }catch(error){const detail=String(error.message).slice(0,180);properties_().setProperty('FUNCTIONAL_CATALOG_ERROR',detail);telemetry_('catalogo_funcional',Date.now()-started,'Error',detail);return {source:'espejo',error:detail};}
+}
+function catalogSyncReadyAt_(){return properties_().getProperty('CATALOG_SYNC_REQUEST')?Math.max(Date.now(),Number(properties_().getProperty('CATALOG_SYNC_RETRY_AT')||0)):Infinity;}
+function installFunctionalCatalogWatcher_(){
+ const id=settings_().taxonomyCatalogUrl.match(/\/d\/([\w-]+)/)?.[1]||'',p=properties_(),triggers=scheduledTriggers_('functionalCatalogEdited_');
+ if(p.getProperty('FUNCTIONAL_CATALOG_TRIGGER_SOURCE')===id&&triggers.length===(id?1:0))return;
+ triggers.forEach(trigger=>ScriptApp.deleteTrigger(trigger));
+ if(id){ScriptApp.newTrigger('functionalCatalogEdited_').forSpreadsheet(id).onEdit().create();}
+ p.setProperty('FUNCTIONAL_CATALOG_TRIGGER_SOURCE',id);
+}
+function functionalCatalogEdited_(event){
+ const range=event?.range;if(!range||!['Soluciones Funcionales','Capacidades canal (core y VD)'].includes(range.getSheet().getName()))return;
+ const columns=range.getSheet().getRange(1,1,1,6).getDisplayValues()[0],used=['ID','Bloque funcional','Funcionalidad/Sub Operativa','Descripción'].map(name=>columns.indexOf(name)+1).filter(Boolean);
+ if(range.getRow()>1&&!used.some(column=>column>=range.getColumn()&&column<range.getColumn()+range.getNumColumns()))return;
+ properties_().setProperty('CATALOG_SYNC_REQUEST',new Date().toISOString());properties_().deleteProperty('CATALOG_SYNC_RETRY_AT');ensureBackgroundWorker_();
 }
 function taxonomyRulesRevision_(){return sha256_(JSON.stringify([TAXONOMY_POLICY.version,'business',configuration_().taxonomy,classificationRulesRevision_()]));}

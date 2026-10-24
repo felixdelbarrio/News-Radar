@@ -103,6 +103,9 @@ function validateConfiguration_(config){
   const numeric={windowDays:[1,90],pageSize:[1,100],maxCustomFeeds:[1,100],maxFeedBytes:[10000,2000000],maxItems:[1,1000],exportLimit:[1,10000],eventLimit:[100,20000],retentionDays:[1,90],trendPoints:[2,60],trendSeries:[1,6],collectionBatch:[1,5],retryMinutes:[1,60],pauseMinutes:[1,60],dailyHour:[0,23],briefingLimit:[1,100],newsletterBatch:[1,100],newsletterDailyLimit:[1,1500]};
   if(!config||typeof config.settings!=='object')throw Error('Falta configuración operativa.');
   for(const [name,[min,max]] of Object.entries(numeric)){const n=config.settings[name];if(!Number.isInteger(n)||n<min||n>max)throw Error(name+': requiere un entero entre '+min+' y '+max+'.');}
+  for(const key of ['afternoonHour','eveningHour','newsletterHour','dailyMinute','afternoonMinute','eveningMinute','newsletterMinute']){const max=key.endsWith('Hour')?23:59;if(!Number.isInteger(config.settings[key])||config.settings[key]<0||config.settings[key]>max)throw Error(key+': requiere un entero entre 0 y '+max+'.');}
+  if(![1,5,10,15,30].includes(config.settings.watchdogMinutes))throw Error('El supervisor admite intervalos de 1, 5, 10, 15 o 30 minutos.');
+  if(['morningEnabled','afternoonEnabled','eveningEnabled'].some(key=>typeof config.settings[key]!=='boolean'))throw Error('Activación de recopilaciones no válida.');
   if(typeof config.settings.newsletterEnabled!=='boolean')throw Error('Configuración de newsletter no válida.');
   newsletterEmail_(config.settings.newsletterSender);
   if(typeof config.settings.newsletterAppUrl!=='string'||(config.settings.newsletterAppUrl&&!/^https:\/\/script\.google\.com\/(?:a\/macros\/bbva\.com\/|macros\/)s\/[A-Za-z0-9_-]+\/exec$/.test(config.settings.newsletterAppUrl)))throw Error('URL de newsletter no válida: indica la WebApp publicada en Apps Script.');

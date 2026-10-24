@@ -27,7 +27,7 @@ test('Radar sitúa el mapa de calor inmediatamente después de KPI y antes del m
 });
 test('la programación diaria reutiliza la consulta y se invalida al desactivar, activar y reconfigurar',()=>{
  const {c}=storage();c.initializeConfiguration();let reads=0;const triggers=c.ScriptApp.getProjectTriggers;c.ScriptApp.getProjectTriggers=()=>{reads++;return triggers();};
- assert.equal(c.dailyScheduleStatus_(),false);const first=reads;assert.equal(c.dailyScheduleStatus_(),false);assert.equal(reads,first);
+ assert.equal(c.dailyScheduleStatus_(),true);const first=reads;assert.equal(c.dailyScheduleStatus_(),true);assert.equal(reads,first);
  c.enableDaily();assert.equal(c.dailyScheduleStatus_(),true);const active=reads;assert.equal(c.dailyScheduleStatus_(),true);assert.equal(reads,active);
  c.disableDaily();assert.equal(c.dailyScheduleStatus_(),false);
  c.configuration_().settings.dailyHour=8;c.replaceCollectionSchedule_();assert.equal(c.dailyScheduleStatus_(),true);

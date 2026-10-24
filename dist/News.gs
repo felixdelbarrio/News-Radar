@@ -4,7 +4,7 @@ function radarAvailableYears_(){
 }
 function getDashboard(query) {
   const started=Date.now(),session=authorize_(),feeds=feeds_();
-  const view=query?.view||'radar',initial=Boolean(query?.initial),automaticPeriod=initial||!query?.from&&!query?.to,language=supportedLanguage(query?.language)?query.language:'es',edition=query?.edition&&view==='news'?newsletterEdition_(query.edition,session.email):null;
+  const view=query?.view||'radar',initial=Boolean(query?.initial),automaticPeriod=initial||!query?.from&&!query?.to,language=supportedLanguage(query?.language)?query.language:'es',edition=query?.edition&&view==='news'?newsletterEdition_(query.edition,session.email,session.admin):null;
   if(edition&&initial&&view==='news'&&query.country&&!query.newsGeography&&!['entity','palanca','subpalanca','benchmark'].some(key=>query[key]))query={...query,newsGeography:applicationGeography(edition.editorial?.scope||configuration_().applicationScope,edition.query.segment)({pais:query.country}),country:''};
   query=dashboardQuery_(edition&&initial?{...edition.query,...(typeof query.country==='string'?{country:query.country}:{}),...(typeof query.entity==='string'?{entity:query.entity}:{}),...(query.palanca?{palanca:query.palanca}:{}),...(query.subpalanca?{subpalanca:query.subpalanca}:{}),...(query.benchmark?{benchmark:query.benchmark}:{}),...(typeof query.newsGeography==='string'?{newsGeography:query.newsGeography}:{}),view,initial:false}:{...(edition?.query||{}),...query,view},new Date(),!edition);
   const preparationMs=Date.now()-started,contentStarted=Date.now(),canFallback=!edition&&readingViews.includes(view)&&automaticPeriod,snapshot=!edition?defaultDashboardSnapshot_(view,query,language):null;let periodFallback=Boolean(snapshot?.periodFallback);
@@ -20,7 +20,7 @@ function getDashboard(query) {
   return {...response,performance:{version:RADAR.version,serverMs:Date.now()-started,preparationMs,metadataMs:Date.now()-metadataStarted,metadataDetails:{catalogMs,operationMs,yearsMs,dailyMs},newsMs,cacheHit:content.cacheHit,snapshotHit:Boolean(content.snapshotHit)}};
 }
 function exportNews(query) {
-  const session=authorize_(),edition=query?.edition&&(query.view||'news')==='news'?newsletterEdition_(query.edition,session.email):null;
+  const session=authorize_(),edition=query?.edition&&(query.view||'news')==='news'?newsletterEdition_(query.edition,session.email,session.admin):null;
   const selection=dashboardQuery_(edition?{...edition.query,...query}:query,new Date(),!edition),rows=edition&&query.benchmark?newsletterComparisonRows_(edition.items,edition.editorial,query.benchmark):edition?edition.items:cachedNewsRecords_(selection);
   return newsCsv_(newsGeographySelection_(rows,selection,newsReadingGeography_(edition?.editorial,selection)),selection,supportedLanguage(query?.language)?query.language:'es',true,edition?.names[query.language||'es'],edition?snapshotEntity_:entityKey_,newsReadingGeography_(edition?.editorial,selection));
 }
@@ -91,4 +91,4 @@ function dashboardOperation_(admin){
   const runs=dashboardRuns_(),value={lastRun:runs.at(-1)?.fin||runs.at(-1)?.inicio||'',collection:collectionStatus_(),...(admin?dashboardAdministration_():{})};cacheJson_(key,value,15);return value;
 }
 
-function getControlPanel(){authorize_(true);return {operational:{...getOperationalSchedule(),processes:operationalProcesses_()},collection:collectionStatus_(),classification:getClassificationStatus()};}
+function getControlPanel(){authorize_(true);progressContextMemory_=undefined;const started=Date.now(),collection=collectionStatus_(),schedule=getOperationalSchedule(),result={groups:controlPanelGroups_(collection,schedule),collection,archive:schedule.archive,daily:dailyScheduleStatus_()};telemetry_('control-panel',Date.now()-started,'OK',result.groups.length+' grupos operativos');return result;}

@@ -43,10 +43,6 @@ function taxonomyTranslationReadyAt_(){
   }
   return Math.max(Date.now(),Number(job.pausedUntil||0));
 }
-function getTaxonomyTranslationStatus(){
-  authorize_(true);return {job:withJobProgress_('taxonomyTranslation',taxonomyTranslationJob_(),Boolean(properties_().getProperty('TAXONOMY_TRANSLATION_REQUEST'))),queued:Boolean(properties_().getProperty('TAXONOMY_TRANSLATION_REQUEST')),newsRevision:publishedNewsRevision_(),taxonomyTranslations:taxonomyTranslations_()};
-}
-function startTaxonomyTranslations(){authorize_(true);requestTaxonomyTranslations_();return getTaxonomyTranslationStatus();}
 function taxonomyTranslationBatch_(maxMs=TAXONOMY_POLICY.maxMs){
   if(Number(properties_().getProperty('TRANSLATION_PAUSED_UNTIL')||0)>Date.now())return;
   if(taxonomyTranslationJob_()?.state==='Publicando')return;

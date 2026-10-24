@@ -107,14 +107,14 @@ test('el mapa refleja el volumen filtrado y comunica entidad y ausencia de notic
 
 test('el administrador transmite el período seleccionado al recuperar noticias',async()=>{
  const c=client({collectNow:{added:0,pending:1,errors:[],notice:'Recuperación anual en cola.'}});c.requests[0].resolve({...dashboard('Inicial'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{total:0}});await settle();
- const action=c.element('collect').listeners.click();await settle();c.requests.at(-1).resolve({...dashboard('Recuperada'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{total:0}});await action;assert.equal(c.rpc.find(r=>r.method==='collectNow').query,'today');assert.match(c.element('message').textContent,/anual en cola/);
+ const action=c.element('runs-section').listeners.click({target:{closest:()=>({id:'collect',dataset:{}})}});await settle();c.requests.at(-1).resolve({...dashboard('Recuperada'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{total:0}});await action;assert.equal(c.rpc.find(r=>r.method==='collectNow').query,'today');assert.match(c.element('message').textContent,/anual en cola/);
 });
 
 test('la activación de fuentes persiste al buscar y paginar antes de guardar',async()=>{
  const c=client(),feeds=Array.from({length:31},(_,i)=>({id:String(i),name:'Fuente '+i,country:'España',kind:'profile',url:'https://example.com/rss',enabled:true}));
  c.requests[0].resolve({...dashboard('Inicial'),admin:true,feeds:[],configuredFeeds:feeds,runs:[],collection:{}});await settle();
  c.element('configured-sources-body').listeners.change({target:{matches:()=>true,dataset:{id:'0'},checked:false}});c.element('source-pagination').listeners.click({target:{closest:()=>({dataset:{page:'1'}})}});assert.match(c.element('configured-sources-body').innerHTML,/Fuente 10/);
- c.element('source-search').value='Fuente 0';c.element('source-search').listeners.input();c.debounce();assert.doesNotMatch(c.element('configured-sources-body').innerHTML,/ checked/);
+ c.element('source-search').value='Fuente 0';c.element('source-filter-form').listeners.submit({preventDefault(){}});c.debounce();assert.doesNotMatch(c.element('configured-sources-body').innerHTML,/ checked/);
  c.element('save-source-settings').listeners.click();await settle();const saved=c.rpc.find(row=>row.method==='saveSourceSettings').query;assert.equal(saved.length,30);assert.ok(!saved.includes('0'));assert.ok(saved.includes('30'));
 });
 
@@ -164,15 +164,15 @@ test('filtros administrativos consultan sin recargar el dashboard y reinician la
  const data={items:[{fecha:'2026-10-11T10:00:00Z',fuente:'BBVA',resultado:'Error',motivo:'HTTP 302'}],options:{fuente:['BBVA'],resultado:['Error'],ejecucion:['cycle']},total:45,page:0,pageSize:30,limit:20000};
  const c=client({getAdminLogs:{...data,fields:['fuente','resultado'],columns:['fecha','fuente','resultado','motivo'],metrics:{total:45,errors:1}}});c.element('logs-view').value='audit';c.requests[0].resolve({...dashboard('Inicial'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{}});await settle();
  await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'administration'}})}});await c.element('admin-tabs').listeners.click({target:{closest:()=>({dataset:{adminView:'audit'}})}});await settle();
- c.element('logs-fuente').value='BBVA';c.element('logs-fuente').listeners.change();await settle();assert.equal(c.rpc.filter(row=>row.method==='getAdminLogs').at(-1).query.fuente,'BBVA');
+ c.element('logs-fuente').value='BBVA';c.element('logs-filter-form').listeners.submit({preventDefault(){}});await settle();assert.equal(c.rpc.filter(row=>row.method==='getAdminLogs').at(-1).query.fuente,'BBVA');
  c.element('logs-pagination').listeners.click({target:{closest:()=>({dataset:{page:'1'}})}});await settle();assert.equal(c.rpc.filter(row=>row.method==='getAdminLogs').at(-1).query.page,1);
- c.element('logs-resultado').value='Error';c.element('logs-resultado').listeners.change();await settle();assert.equal(c.rpc.filter(row=>row.method==='getAdminLogs').at(-1).query.page,0);assert.equal(c.rpc.filter(row=>row.method==='getDashboard').length,1);
- c.element('logs-from').value='2026-10-12';c.element('logs-to').value='2026-10-11';const before=c.rpc.length;c.element('logs-to').listeners.change();await settle();assert.equal(c.rpc.length,before);assert.match(c.element('message').textContent,/anterior/);
+ c.element('logs-resultado').value='Error';c.element('logs-filter-form').listeners.submit({preventDefault(){}});await settle();assert.equal(c.rpc.filter(row=>row.method==='getAdminLogs').at(-1).query.page,0);assert.equal(c.rpc.filter(row=>row.method==='getDashboard').length,1);
+ c.element('logs-from').value='2026-10-12';c.element('logs-to').value='2026-10-11';const before=c.rpc.length;c.element('logs-filter-form').listeners.submit({preventDefault(){}});await settle();assert.equal(c.rpc.length,before);assert.match(c.element('message').textContent,/anterior/);
 });
 test('filtrar Fuentes por estado conserva la selección de las filas ocultas',async()=>{
  const c=client(),feeds=[{id:'active',name:'BBVA',entity:'BBVA',country:'España',kind:'profile',url:'https://example.com/a',enabled:true},{id:'off',name:'Santander',entity:'Santander',country:'México',kind:'rss',url:'https://example.com/b',enabled:false}];
  c.requests[0].resolve({...dashboard('Inicial'),admin:true,feeds:[],configuredFeeds:feeds,runs:[],collection:{}});await settle();
- c.element('source-enabled').value='false';c.element('source-enabled').listeners.change();assert.match(c.element('configured-sources-body').innerHTML,/Santander/);assert.doesNotMatch(c.element('configured-sources-body').innerHTML,/data-id="active"/);
+ c.element('source-enabled').value='false';c.element('source-filter-form').listeners.submit({preventDefault(){}});assert.match(c.element('configured-sources-body').innerHTML,/Santander/);assert.doesNotMatch(c.element('configured-sources-body').innerHTML,/data-id="active"/);
  c.element('configured-sources-body').listeners.change({target:{matches:()=>true,dataset:{id:'off'},checked:true}});assert.match(c.element('configured-sources-body').innerHTML,/No hay fuentes/);
  c.element('save-source-settings').listeners.click();await settle();const saved=c.rpc.find(row=>row.method==='saveSourceSettings').query;assert.equal(saved.length,2);assert.ok(saved.includes('active'));assert.ok(saved.includes('off'));
 });

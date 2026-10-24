@@ -4,7 +4,7 @@ function collectionRequests_(){
 function requestCollection_(kind,range){
   const id=kind==='daily'?'daily/'+range.to+'/'+Utilities.getUuid():Utilities.getUuid(),request={id,kind,range,created:new Date().toISOString()};
   properties_().setProperty('COLLECTION_REQUEST:'+sha256_(kind+'|'+range.from+'|'+range.to),JSON.stringify(request));
-  CacheService.getScriptCache().remove('collection-status');ensureBackgroundWorker_();
+  CacheService.getScriptCache().remove('collection-status');ensureBackgroundWorker_();return id;
 }
 function collectionJobs_(){return rows_('Recargas').map((job,index)=>({...job,row:index+2}));}
 function writeCollectionJob_(job){

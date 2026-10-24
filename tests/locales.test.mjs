@@ -101,7 +101,7 @@ test('cambiar de idioma conserva documento, sección, borradores y filtros sin n
  for(const language of ['en','tr','es','tr','en','']){
   await a.change('#preview-language',language);const expected=language||'es';assert.equal(a.w.document,document);assert.equal(document.documentElement.lang,expected);assert.equal(a.find('#language-section').hidden,false);assert.equal(field.value,'Borrador sin guardar');
   assert.equal(a.find('[data-view="news"]').textContent.trim(),translateText('Noticias',expected));assert.equal(a.find('[data-admin-view="language"]').textContent.trim(),translateText('Idioma',expected));assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.language,expected);
-  assert.ok(a.find('#translation-schedule').textContent.includes(translateText('Activada',expected)));
+  assert.equal(a.w.document.querySelector('#language-section progress'),null);
  }
 });
 

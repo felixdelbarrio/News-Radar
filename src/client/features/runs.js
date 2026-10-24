@@ -1,55 +1,35 @@
 import {$,escape,date,message} from '../core/dom.js';
 import {call} from '../core/api.js';
-import {displayRecord,formatCalendarDay} from '../../shared/locales.js';
-import {language,t} from '../core/language.js';
-import {progressState} from '../../shared/progress-state.js';
-import {progressDetailsHtml} from './job-monitor.js';
-let request=0,syncRecovery=()=>{};
+import {t} from '../core/language.js';
+import {progressDetailsHtml} from './process-progress.js';
+let request=0,timer,panelDaily=false,syncRecovery=()=>{};
+const processActions={classification:['classification-start','Clasificar pendientes'],translation:['translation-start','Traducir pendientes'],taxonomy:['taxonomy-start','Actualizar catálogo']};
+function processCard(job){
+ const action=processActions[job.stage],active=!['Completada','Parcial','En pausa','Detenido por falta de cuota','Sin ejecuciones'].includes(job.progress.state),status=job.valid===false?'error':job.status,progress=job.progress;
+ return `<article class="process-card" data-process="${escape(job.id||job.stage)}"><div class="schedule-heading"><h4>${escape(t(job.label))}</h4><span class="process-state" data-status="${escape(status)}">${escape(t(job.enabled?'Activo':'Inactivo'))}${progress.state==='Activo'?'':' · '+escape(t(progress.state))}</span></div>${job.timezone?`<p class="small muted">${escape(job.timezone)}</p>`:''}${job.modified?`<p>${t('Última modificación')}: ${escape(date(job.modified))}</p>`:''}${job.total!==undefined?`<div id="${job.id|| (job.stage==='newsletter'?'newsletter-delivery':job.stage==='taxonomyTranslation'?'taxonomy-translation':job.stage)}-progress"><progress max="${Math.max(1,job.total)}" value="${job.done}" aria-label="${escape(t(job.label))}"></progress><p class="small muted">${job.done}/${job.total}</p></div>`:''}${progressDetailsHtml(progress)}${job.comment?`<p class="small muted">${escape(t(job.comment))}</p>`:''}${job.active?`<p>${t('En curso')}: ${escape(t(job.active))}</p>`:''}${job.dispatched?`<p class="small muted">${t('Último proceso autorizado')}: ${escape(t(job.dispatched.label))} · ${escape(date(job.dispatched.at))}</p>`:''}${job.waiting?.length?`<details><summary>${t('Trabajos en espera')} (${job.waiting.length})</summary><ul>${job.waiting.map(row=>`<li>${escape(t(row.label))}: ${escape(t(row.reason))}${row.restartAt?' · '+escape(date(row.restartAt)):''}</li>`).join('')}</ul></details>`:''}${action?`<button type="button" class="button" id="${action[0]}" data-process-action="${job.stage}" data-job-active="${active}" ${active?'disabled':''}>${t(action[1])}</button>`:''}</article>`;
+}
+export function closeRuns(){request++;clearTimeout(timer);}
 export async function loadRuns(){
-  const current=++request;
-  try{
-    const data=await call('getControlPanel');if(current!==request)return;
-    if(data.operational){const schedule=data.operational;$('operational-schedule').innerHTML='<ul class="operational-schedule">'+schedule.jobs.map(job=>'<li><div class="schedule-heading"><strong>'+escape(t(job.label))+'</strong><span class="status-pill" data-valid="'+job.valid+'">'+escape(t(job.valid?(job.expected?'Activa':'Inactiva'):'Revisar'))+'</span></div><p class="schedule-time">'+escape(job.hour!==undefined?String(job.hour).padStart(2,'0')+':00':job.minutes+' min')+'</p><p class="small muted">'+escape(job.timezone||t('Supervisión de colas'))+'</p></li>').join('')+'</ul>'+(schedule.archive.error?'<p class="warning">'+escape(schedule.archive.error)+'</p>':'');$('retry-archive').hidden=!schedule.archive.error;const processes=schedule.processes||[];$('operational-processes').innerHTML=processes.map(job=>'<article class="collection-job"><div class="schedule-heading"><strong>'+escape(t(job.label))+'</strong><span class="process-state" data-status="'+escape(job.status)+'">'+escape(t(job.state))+'</span></div>'+(job.total?'<progress max="'+Math.max(1,job.total)+'" value="'+job.done+'" aria-label="'+escape(t(job.label))+'"></progress><p>'+job.done+'/'+job.total+'</p>':'')+progressDetailsHtml(job.progress)+(job.comment?'<p class="small muted">'+escape(job.comment)+'</p>':'')+'</article>').join('');}
-    renderCollectionJobs(data.collection);
-    return data;
-  }catch(error){if(current===request)message(error.message,true);}
+ closeRuns();const current=request;
+ try{
+  const data=await call('getControlPanel');if(current!==request)return;
+  panelDaily=Boolean(data.daily);if(data.groups)$('control-panel-groups').innerHTML=data.groups.map(group=>`<section class="process-group" data-process-group="${group.id}"><div class="panel-header"><h3>${escape(t(group.label))}</h3><span class="small muted">${t('Prioridad')} ${group.priority}</span></div><div class="process-grid">${group.jobs.map(processCard).join('')}</div>${group.manual?`<details class="admin-action-panel"><summary>${t('Contingencia manual')}</summary>${processCard(group.manual)}<div class="recovery-control"><button class="button primary" id="collect" type="button">${t('Recopilar ahora')}</button><button class="button" id="continue-collection" type="button" hidden>${t('Continuar recuperación')}</button><button class="button" type="button" id="retry-collection">${t('Reintentar fuentes fallidas')}</button><button class="button" type="button" id="toggle-daily">${t(data.daily?'Desactivar recopilación diaria':'Activar recopilación diaria')}</button></div><p id="recovery-status" class="small muted" aria-live="polite"></p></details>`:''}</section>`).join('');
+  $('retry-archive').hidden=!data.archive?.error;$('control-panel-error').textContent=data.archive?.error||'';renderCollectionJobs(data.collection);
+  return data;
+ }catch(error){if(current===request)message(error.message,true);}
+ finally{if(current===request&&!$('runs-section').hidden&&!$('administration-section').hidden)timer=setTimeout(pollRuns,30000);}
+}
+export function renderCollectionJobs(status){syncRecovery(status);}
+export function createRecoveryControls({run}){
+ let busy=false,status={};
+ function render(next=status){status=next||{};const blocked=Boolean(status.blocked?.today),button=$('collect');if(!button)return;button.disabled=busy||blocked;$('recovery-status').textContent=blocked?t('Ya hay una recuperación diaria en curso.'):'';$('continue-collection').hidden=!blocked;for(const id of ['continue-collection','retry-collection','toggle-daily'])$(id).disabled=busy;}
+ $('runs-section').addEventListener('click',event=>{
+  const button=event.target.closest('button');if(!button)return;
+  const methods={collect:'collectNow','continue-collection':'resumeCollection','retry-collection':'retryCollectionErrors','retry-archive':'resumeOperationalArchive',classification:'startClassification',translation:'startTranslations',taxonomy:'startTaxonomy'},key=button.dataset.processAction||button.id,method=key==='toggle-daily'?(panelDaily?'disableDaily':'enableDaily'):methods[key];if(!method)return;
+  run(async()=>{const result=await call(method,...(['collectNow','resumeCollection'].includes(method)?['today']:[]));if(typeof result==='string')message(result);else if(result?.notice)message(result.notice,Boolean(result.errors?.length));await loadRuns();},false);
+ });
+ syncRecovery=render;return {setBusy(value){busy=value;render();}};
 }
 
-export function renderCollectionJobs(status){
-  syncRecovery(status);
-  const total=Number(status?.total||0),done=Number(status?.processed||0)+Number(status?.skipped||0)+Number(status?.failed||0);
-  $('collection-total').hidden=!total;$('collection-total-progress').max=Math.max(1,total);$('collection-total-progress').value=done;
-  $('collection-total-label').textContent=t('{done}/{total} consultas; {added} noticias incorporadas.',{done,total,added:status?.added||0});
-  $('collection-total-details').innerHTML=status?.progress?progressDetailsHtml(status.progress):'';
-  const jobs=(status?.jobs||[]).filter(job=>job.tipo==='daily');
-  $('collection-jobs').innerHTML=jobs.map(job=>{
-    const progress=job.progress||progressState({state:job.estado,lastExecutedAt:job.actualizada,pausedUntil:job.pausa}),done=Number(job.procesadas||0)+Number(job.omitidas||0)+Number(job.fallidas||0),total=Number(job.total||0);
-    return `<article class="collection-job" data-collection-kind="${escape(job.tipo)}"><div class="panel-header"><h3>${escape(displayRecord(job.tipo,language))}</h3><span>${escape(t(progress.state))}</span></div>${job.desde?`<p class="small muted">${escape(formatCalendarDay(job.desde,language))} — ${escape(formatCalendarDay(job.hasta,language))}</p>`:''}<progress max="${Math.max(1,total)}" value="${done}" aria-label="${escape(displayRecord(job.tipo,language))}"></progress><p>${escape(t('{done}/{total} consultas; {added} noticias incorporadas.',{done,total,added:job.nuevas||0}))}</p><p class="small muted">${Number(job.pendientes||0)} ${escape(t('Pendientes'))} · ${Number(job.fallidas||0)} ${escape(t('Errores'))}</p>${progressDetailsHtml(progress)}</article>`;
-  }).join('');
-}
-
-export function createRecoveryControls({getData,run}){
-  let busy=false,status={};
-  function render(next=status){
-    status=next||{};
-    const blocked=Boolean(status.blocked?.today);
-    $('collect').disabled=busy||blocked;
-    $('recovery-status').textContent=blocked?t('Ya hay una recuperación diaria en curso.'):'';
-    $('continue-collection').hidden=!blocked;$('continue-collection').disabled=busy;
-    $('retry-collection').disabled=busy;$('toggle-daily').disabled=busy;
-    $('toggle-daily').textContent=t(getData()?.daily?'Desactivar recopilación diaria':'Activar recopilación diaria');
-    $('recovery-schedule').textContent=getData()?.schedule||'';
-  }
-  async function recover(method,range){return run(async()=>{
-    const result=await call(method,...(range?[range]:[]));message(result.notice,result.errors.length>0);
-  });}
-  $('collect').addEventListener('click',()=>recover('collectNow','today'));
-  $('continue-collection').addEventListener('click',()=>recover('resumeCollection','today'));
-  $('toggle-daily').addEventListener('click',()=>run(async()=>{
-    const enabled=getData().daily,result=await call(enabled?'disableDaily':'enableDaily');message(enabled?'Recopilación diaria desactivada.':result);
-  }));
-  $('retry-archive').addEventListener('click',()=>run(async()=>{await call('resumeOperationalArchive');await loadRuns();}));
-  $('retry-collection').addEventListener('click',()=>run(async()=>message(await call('retryCollectionErrors'))));
-  syncRecovery=render;
-  return {setBusy(value){busy=value;render();}};
-}
+function pollRuns(){if(document.hidden){timer=setTimeout(pollRuns,30000);return;}loadRuns();}
+$('control-panel-refresh').addEventListener('click',loadRuns);

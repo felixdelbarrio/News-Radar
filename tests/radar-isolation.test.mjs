@@ -18,5 +18,5 @@ test('las búsquedas anuales conservan variantes digitales y generan menos consu
  for(const [entity,country,term] of [['BBVA','Italia','conto corrente'],['BBVA','Alemania','girokonto'],['Intesa Sanpaolo','Italia','banca digitale']])assert.ok(new URL(c.feeds_().find(row=>row.entity===entity&&row.country===country).url).searchParams.get('q').includes(term));
 });
 test('el editor, los combos y Ejecuciones muestran solo los ámbitos y las colas de News Radar',async t=>{
- const a=await app(t);await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');await a.change('#catalog-category','settings');assert.doesNotMatch(a.find('#catalog-fields').textContent,/Project Finance/);await a.click('[data-admin-view="runs"]');assert.equal(a.w.document.getElementById('collect-project-finance'),null);assert.doesNotMatch(a.find('#collection-jobs').textContent,/Project Finance/);
+ const a=await app(t);await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');await a.change('#catalog-category','settings');assert.doesNotMatch(a.find('#catalog-fields').textContent,/Project Finance/);await a.click('[data-admin-view="runs"]');assert.equal(a.w.document.getElementById('collect-project-finance'),null);assert.doesNotMatch(a.find('[data-process-group="collection"]').textContent,/Project Finance/);
 });

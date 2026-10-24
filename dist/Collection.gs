@@ -9,7 +9,7 @@ function collectionStatus_(tasks,jobs){
     if(job.actualizada>status.lastActivity)status.lastActivity=job.actualizada;
   }
   const fetchPause=Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0);
-  status.jobs=recoveryProgressJobs(jobs.map(({row,...job})=>job).concat(requests.map(request=>({id:request.id,tipo:request.kind,desde:request.range.from,hasta:request.range.to,inicio:request.created,estado:'En cola',total:0,procesadas:0,pendientes:0,omitidas:0,fallidas:0,nuevas:0})))).map(job=>{const pause=Math.max(Number(job.pausa||0),fetchPause),stage=job.tipo==='daily'?'daily':'annual';return {...job,progress:jobProgressState_(stage,{state:job.estado,updated:job.actualizada},{jobs,queued:job.estado==='En cola',pausedUntil:pause})};});
+  status.jobs=recoveryProgressJobs(jobs.map(({row,...job})=>job).concat(requests.map(request=>({id:request.id,tipo:request.kind,desde:request.range.from,hasta:request.range.to,inicio:request.created,estado:'En cola',total:0,procesadas:0,pendientes:0,omitidas:0,fallidas:0,nuevas:0})))).map(job=>{const pause=Math.max(Number(job.pausa||0),fetchPause),stage=job.tipo==='daily'?'daily':'annual';return {...job,progress:jobProgressState_(stage,{state:job.estado,updated:job.actualizada},{jobs,jobId:job.id,lastExecutedAt:job.actualizada||job.inicio||'',queued:job.estado==='En cola',pausedUntil:pause})};});
   status.progress=(status.jobs.find(job=>Number(job.pendientes)>0||job.estado==='Preparando')||status.jobs[0])?.progress;
   cacheJson_('collection-status',status,15);return status;
 }
@@ -23,7 +23,7 @@ function collectNow(mode='today'){
   requestDailyCollection_(now);
   return {...collectionStatus_(),added:0,errors:[],notice:'Recuperación diaria en cola.'};
 }
-function requestDailyCollection_(now=new Date()){requestCollection_('daily',collectionRecentRange_(now));}
+function requestDailyCollection_(now=new Date()){const id=requestCollection_('daily',collectionRecentRange_(now)),p=properties_(),day=recordDay(now,settings_().timezone);p.setProperty('COLLECTION_MANUAL_JOB',id);p.setProperty('CLASSIFICATION_REQUEST',day);p.setProperty('DAILY_TRANSLATION_REQUEST',day);return id;}
 function afternoonRadar_(){requestDailyPipeline_('afternoon');}
 function eveningRadar_(){requestDailyPipeline_('evening');}
 function dailyRadar_(){requestDailyPipeline_();backgroundTick_();}
@@ -32,7 +32,7 @@ function queueScheduledCollection_(kind){
   if(!collectionJobs_().some(job=>job.tipo===kind&&active(job))&&!collectionRequests_().some(request=>request.kind===kind)){
     const now=new Date(),range=collectionRecentRange_(now),key='COLLECTION_SCHEDULED_AT:'+kind,last=properties_().getProperty(key);
     if(last){const from=new Date(Date.parse(last)-86400000);if(Number.isFinite(from.getTime()))range.from=[range.from,recordDay(from,settings_().timezone)].sort().at(-1);}
-    requestCollection_(kind,range);properties_().setProperty(key,now.toISOString());
+    const id=requestCollection_(kind,range);properties_().setProperty(key,now.toISOString());return id;
   }
 }
 function collectionBatch_({tasks,pending,jobs,known:knownIndex}){

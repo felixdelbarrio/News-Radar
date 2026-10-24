@@ -1,12 +1,8 @@
 import {$,escape,date} from '../core/dom.js';
 import {call} from '../core/api.js';
 import {t} from '../core/language.js';
-import {createJobMonitor,jobProgressHtml} from './job-monitor.js';
-export function createNewsletterDelivery({run,isActive}){
+export function createNewsletterDelivery({run}){
   function feedback(text,error=false){const target=$('newsletter-test-result');target.hidden=false;target.textContent=text;target.classList.toggle('error',error);}
-  const monitor=createJobMonitor({id:'newsletter-delivery',get:'getNewsletterProgress',isActive,render({job}){
-    $('newsletter-delivery-progress').innerHTML=jobProgressHtml(job,{total:job.total,done:job.processed,label:'Progreso de envíos planificados',summary:t('{done}/{total} entregas; {accepted} aceptadas; {empty} sin novedades; {pending} pendientes; {review} por revisar.',{...job,done:job.processed})});
-  }});
   async function open(){
     const [status,options]=await Promise.all([call('getNewsletterDeliveryStatus'),call('getNewsletterOptions')]);
     const form=$('newsletter-test-form'),selected=form.elements.country.value;form.elements.email.placeholder=options.email;form.elements.country.innerHTML='<option value="">Sin personalizar</option>'+options.countries.map(name=>'<option>'+escape(name)+'</option>').join('');form.elements.country.value=selected;
@@ -19,5 +15,5 @@ export function createNewsletterDelivery({run,isActive}){
     $('newsletter-history').innerHTML=last?`<strong>Último intento · ${escape(date(last.fecha))}</strong><span>${escape(last.estado)} · ${escape(last.correo)}</span><span>${escape(last.detalle)}</span>`:'<span>No hay intentos de envío registrados.</span>';
   }
   $('newsletter-test-form').addEventListener('submit',event=>{event.preventDefault();const form=event.target;if(!form.reportValidity())return;const data=Object.fromEntries(new FormData(form));run(async()=>{feedback('Procesando solicitud…');try{const result=await call('sendNewsletterTest',data);feedback(result.accepted?t('Gmail ha aceptado la prueba para {recipient} · {count} novedades.',result):'No hay noticias para esta edición y geografía.');}catch(error){feedback(error.message,true);}await open();},false);});
-  return {open,openProgress:monitor.open,close:monitor.close};
+  return {open};
 }

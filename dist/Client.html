@@ -59,6 +59,67 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Cada {minutes} minutos": ["Every {minutes} minutes", "Her {minutes} dakikada"],
+    "{added} noticias incorporadas \xB7 {errors} errores": ["{added} news items added \xB7 {errors} errors", "{added} haber eklendi \xB7 {errors} hata"],
+    "Detecci\xF3n previa de canal digital": ["Digital channel pre-screening", "Dijital kanal \xF6n elemesi"],
+    "Procesos ordenados por prioridad. El supervisor reanuda los trabajos pendientes al recuperar cuota o disponibilidad.": ["Processes ordered by priority. The supervisor resumes pending work when quota or capacity becomes available.", "\u0130\u015Flemler \xF6nceli\u011Fe g\xF6re s\u0131ralan\u0131r. G\xF6zetmen, kota veya kapasite kullan\u0131labilir oldu\u011Funda bekleyen i\u015Fleri s\xFCrd\xFCr\xFCr."],
+    "Actualizar estado": ["Refresh status", "Durumu yenile"],
+    "Los cambios de horario se aplican a los activadores al guardar. Todos los horarios usan la zona configurada.": ["Schedule changes update triggers when saved. All times use the configured time zone.", "Zamanlama de\u011Fi\u015Fiklikleri kaydedildi\u011Finde tetikleyiciler g\xFCncellenir. T\xFCm saatler yap\u0131land\u0131r\u0131lan saat dilimini kullan\u0131r."],
+    "Primera recopilaci\xF3n: hora (0\u201323)": ["First collection: hour (0\u201323)", "Birinci toplama: saat (0\u201323)"],
+    "Supervisor: intervalo en minutos (1, 5, 10, 15 o 30)": ["Supervisor: interval in minutes (1, 5, 10, 15 or 30)", "G\xF6zetmen: dakika aral\u0131\u011F\u0131 (1, 5, 10, 15 veya 30)"],
+    "Primera recopilaci\xF3n: minuto (0\u201359)": ["First collection: minute (0\u201359)", "Birinci toplama: dakika (0\u201359)"],
+    "Activar primera recopilaci\xF3n": ["Enable first collection", "Birinci toplamay\u0131 etkinle\u015Ftir"],
+    "Segunda recopilaci\xF3n: hora (0\u201323)": ["Second collection: hour (0\u201323)", "\u0130kinci toplama: saat (0\u201323)"],
+    "Segunda recopilaci\xF3n: minuto (0\u201359)": ["Second collection: minute (0\u201359)", "\u0130kinci toplama: dakika (0\u201359)"],
+    "Activar segunda recopilaci\xF3n": ["Enable second collection", "\u0130kinci toplamay\u0131 etkinle\u015Ftir"],
+    "Tercera recopilaci\xF3n: hora (0\u201323)": ["Third collection: hour (0\u201323)", "\xDC\xE7\xFCnc\xFC toplama: saat (0\u201323)"],
+    "Tercera recopilaci\xF3n: minuto (0\u201359)": ["Third collection: minute (0\u201359)", "\xDC\xE7\xFCnc\xFC toplama: dakika (0\u201359)"],
+    "Activar tercera recopilaci\xF3n": ["Enable third collection", "\xDC\xE7\xFCnc\xFC toplamay\u0131 etkinle\u015Ftir"],
+    "Newsletter: hora (0\u201323)": ["Newsletter: hour (0\u201323)", "B\xFClten: saat (0\u201323)"],
+    "Newsletter: minuto (0\u201359)": ["Newsletter: minute (0\u201359)", "B\xFClten: dakika (0\u201359)"],
+    "Vocabulario de recuperaci\xF3n por idioma. Se combina con la detecci\xF3n de canal digital y las equivalencias del cat\xE1logo global de funcionalidades.": ["Collection vocabulary by language. It is combined with digital channel screening and global functionality catalogue equivalents.", "Dile g\xF6re toplama s\xF6zl\xFC\u011F\xFC. Dijital kanal tespiti ve k\xFCresel i\u015Flev katalo\u011Fu e\u015Fde\u011Ferleriyle birle\u015Ftirilir."],
+    "Equivalencias y conceptos emergentes de News Radar. Los c\xF3digos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aqu\xED. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios. La detecci\xF3n previa de canal digital y los t\xE9rminos de recuperaci\xF3n siguen en uso; se administran aqu\xED junto a las equivalencias funcionales.": ["News Radar equivalents and emerging concepts. Official codes, names and descriptions are read from the Drive master and cannot be edited here. Specific products allow one official source; trends require three news articles and two publishers. Digital channel screening and collection terms remain in use and are managed here alongside functional equivalents.", "News Radar e\u015Fde\u011Ferleri ve yeni kavramlar. Resm\xEE kodlar, adlar ve a\xE7\u0131klamalar Drive ana kayna\u011F\u0131ndan okunur ve burada d\xFCzenlenemez. Belirli \xFCr\xFCnler bir resm\xEE kaynakla desteklenebilir; e\u011Filimler \xFC\xE7 haber ve iki yay\u0131nc\u0131 gerektirir. Dijital kanal \xF6n elemesi ve toplama terimleri kullan\u0131lmaya devam eder ve i\u015Flevsel e\u015Fde\u011Ferlerle birlikte burada y\xF6netilir."],
+    "Cat\xE1logo maestro de Drive": ["Drive master catalogue", "Drive ana katalo\u011Fu"],
+    "Programaci\xF3n de procesos": ["Process schedules", "\u0130\u015Flem zamanlamas\u0131"],
+    "El supervisor respeta las prioridades y reanuda los trabajos con cuota disponible. Apps Script ejecuta cada horario con un margen aproximado de 15 minutos.": ["The supervisor respects priorities and resumes work when quota is available. Apps Script runs each schedule within an approximate 15-minute window.", "G\xF6zetmen \xF6nceliklere uyar ve kota oldu\u011Funda i\u015Fleri s\xFCrd\xFCr\xFCr. Apps Script her zamanlamay\u0131 yakla\u015F\u0131k 15 dakikal\u0131k bir aral\u0131kta \xE7al\u0131\u015Ft\u0131r\u0131r."],
+    "Supervisor de colas": ["Queue supervisor", "Kuyruk g\xF6zetmeni"],
+    "Primera recopilaci\xF3n \xB7 prioridad 1": ["First collection \xB7 priority 1", "Birinci toplama \xB7 \xF6ncelik 1"],
+    "Segunda recopilaci\xF3n \xB7 prioridad 1": ["Second collection \xB7 priority 1", "\u0130kinci toplama \xB7 \xF6ncelik 1"],
+    "Tercera recopilaci\xF3n \xB7 prioridad 1": ["Third collection \xB7 priority 1", "\xDC\xE7\xFCnc\xFC toplama \xB7 \xF6ncelik 1"],
+    "Env\xEDos planificados \xB7 prioridad 3": ["Scheduled deliveries \xB7 priority 3", "Planlanan g\xF6nderimler \xB7 \xF6ncelik 3"],
+    "Conservaci\xF3n y l\xEDmites del historial operativo. Adopci\xF3n mantiene todos los accesos.": ["Operational history retention and limits. Adoption retains all access events.", "\u0130\u015Flem ge\xE7mi\u015Fi saklama ve s\u0131n\u0131rlar\u0131. Kullan\u0131m t\xFCm eri\u015Fim olaylar\u0131n\u0131 korur."],
+    "Archivo operativo": ["Operational archive", "\u0130\u015Flem ar\u015Fivi"],
+    "Consultas y eventos": ["Queries and events", "Sorgular ve olaylar"],
+    "Estos criterios recuperan y seleccionan noticias antes de asignar funcionalidades del cat\xE1logo maestro.": ["These criteria collect and select news before assigning functionality from the master catalogue.", "Bu \xF6l\xE7\xFCtler, ana katalogdan i\u015Flev atanmadan \xF6nce haberleri toplar ve se\xE7er."],
+    "Sin ejecuciones registradas.": ["No recorded runs.", "Kay\u0131tl\u0131 \xE7al\u0131\u015Ft\u0131rma yok."],
+    "Supervisor preparado.": ["Supervisor ready.", "G\xF6zetmen haz\u0131r."],
+    "El supervisor admite intervalos de 1, 5, 10, 15 o 30 minutos.": ["The supervisor supports intervals of 1, 5, 10, 15 or 30 minutes.", "G\xF6zetmen 1, 5, 10, 15 veya 30 dakikal\u0131k aral\u0131klar\u0131 destekler."],
+    "Activaci\xF3n de recopilaciones no v\xE1lida.": ["Invalid collection activation.", "Ge\xE7ersiz toplama etkinle\u015Ftirmesi."],
+    "Categorizaci\xF3n de noticias": ["News categorization", "Haber kategorilendirme"],
+    "Generaci\xF3n de snapshots": ["Snapshot generation", "Anl\u0131k g\xF6r\xFCnt\xFC olu\u015Fturma"],
+    "Env\xEDos planificados": ["Scheduled deliveries", "Planlanan g\xF6nderimler"],
+    "Recopilaci\xF3n de noticias": ["News collection", "Haber toplama"],
+    Prioridad: ["Priority", "\xD6ncelik"],
+    "Recopilar ahora": ["Collect now", "\u015Eimdi topla"],
+    "Contingencia manual": ["Manual contingency", "Manuel yedek i\u015Flem"],
+    "Recopilaci\xF3n manual de contingencia": ["Manual contingency collection", "Manuel yedek haber toplama"],
+    "\xDAltimo proceso autorizado": ["Last authorized process", "Son izin verilen i\u015Flem"],
+    "Trabajos en espera": ["Waiting jobs", "Bekleyen i\u015Fler"],
+    "\xDAltima modificaci\xF3n": ["Last modified", "Son de\u011Fi\u015Fiklik"],
+    "Clasificar pendientes": ["Categorize pending news", "Bekleyen haberleri kategorilendir"],
+    "Actualizar cat\xE1logo": ["Update catalogue", "Katalo\u011Fu g\xFCncelle"],
+    "Detecci\xF3n de canal digital y b\xFAsquedas": ["Digital channel screening and searches", "Dijital kanal \xF6n elemesi ve aramalar"],
+    "Capacidad de detecci\xF3n": ["Screening capability", "Tespit yetene\u011Fi"],
+    "A\xF1adir capacidad de detecci\xF3n": ["Add screening capability", "Tespit yetene\u011Fi ekle"],
+    "Un t\xE9rmino por l\xEDnea": ["One term per line", "Her sat\u0131ra bir terim"],
+    funcionalidades: ["functionalities", "i\u015Flevler"],
+    equivalencias: ["equivalents", "e\u015Fde\u011Ferler"],
+    "{shown} de {total} entradas": ["{shown} of {total} entries", "{total} kay\u0131ttan {shown} tanesi"],
+    "Nombre, c\xF3digo o t\xE9rmino": ["Name, code or term", "Ad, kod veya terim"],
+    "Sin trabajos pendientes": ["No pending jobs", "Bekleyen i\u015F yok"],
+    "Esperando disponibilidad de cuota o reintento": ["Waiting for quota or retry", "Kota veya yeniden deneme bekleniyor"],
+    "Continuaci\xF3n de la cola autorizada": ["Queue continuation authorized", "Kuyru\u011Fun s\xFCrd\xFCr\xFClmesine izin verildi"],
+    "Edici\xF3n administrativa: trabajos en espera": ["Administrative edit: jobs waiting", "Y\xF6netim d\xFCzenlemesi: i\u015Fler bekliyor"],
     "Formato de archivo no v\xE1lido.": ["Invalid archive format.", "Ge\xE7ersiz ar\u015Fiv bi\xE7imi."],
     "Cabecera de archivo no v\xE1lida.": ["Invalid archive header.", "Ge\xE7ersiz ar\u015Fiv ba\u015Fl\u0131\u011F\u0131."],
     "Planificaci\xF3n diaria": ["Daily schedule", "G\xFCnl\xFCk program"],
@@ -1574,7 +1635,7 @@
   function receive(data) {
     return data?.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), data;
   }
-  var requests = /* @__PURE__ */ new Map(), initialDashboard, releaseInitialDashboard, secondaryMethods = /* @__PURE__ */ new Set(["recordEvents", "getCollectionProgress", "getClassificationStatus", "getMaintenanceStatus", "getTranslationStatus", "getTaxonomyTranslationStatus"]);
+  var requests = /* @__PURE__ */ new Map(), initialDashboard, releaseInitialDashboard, secondaryMethods = /* @__PURE__ */ new Set(["recordEvents", "getCollectionProgress"]);
   function deferSecondaryRequests() {
     initialDashboard || (initialDashboard = new Promise((resolve) => {
       releaseInitialDashboard = resolve;
@@ -1610,13 +1671,13 @@
 
   // src/client/features/llm-categorization.js
   function createLlmCategorization({ run, isActive, onRevision, refreshSelects: refreshSelects2 }) {
-    let state2, timer, closed = !0, transferring = !1;
+    let state2, timer2, closed = !0, transferring = !1;
     function render(data) {
       state2 = data, $("llm-project-url").value = data.projectUrl, $("llm-open-project").href = data.projectUrl, $("llm-count").textContent = t("{valid} v\xE1lidas / {pending} pendientes / {total} total \xB7 {percent} %", data), $("llm-progress").value = data.percent, $("llm-instructions").textContent = data.instructions, $("llm-job").textContent = data.job ? `${t(data.job.state)}${data.job.state === "Publicando" ? " \xB7 " + data.job.progress + " %" : ""}${data.job.error ? " \xB7 " + data.job.error : ""}${data.job.reviewRequired ? " \xB7 " + t("Revisi\xF3n editorial necesaria") : ""}` : "";
       let pending = data.job?.state === "Publicando";
       for (let el of [$("llm-settings-form").querySelector("button[type=submit]"), $("llm-import")])
         el.disabled = pending, el.dataset.jobActive = String(pending);
-      data.classified !== void 0 && ($("llm-count").textContent += " \xB7 " + t("{classified} clasificadas \xB7 {abstained} sin evidencia \xB7 {outOfScope} fuera de alcance", data)), refreshSelects2(), onRevision && onRevision(data.newsRevision), clearTimeout(timer), !closed && pending && !transferring && (timer = setTimeout(() => {
+      data.classified !== void 0 && ($("llm-count").textContent += " \xB7 " + t("{classified} clasificadas \xB7 {abstained} sin evidencia \xB7 {outOfScope} fuera de alcance", data)), refreshSelects2(), onRevision && onRevision(data.newsRevision), clearTimeout(timer2), !closed && pending && !transferring && (timer2 = setTimeout(() => {
         isActive() && open().catch((error) => {
           message(error.message, !0), close();
         });
@@ -1628,7 +1689,7 @@
       $("llm-transfer-label").textContent = label, $("llm-transfer-progress").setAttribute("aria-valuetext", label);
     }
     async function transfer(task) {
-      transferring = !0, clearTimeout(timer);
+      transferring = !0, clearTimeout(timer2);
       try {
         await task();
       } catch (error) {
@@ -1641,7 +1702,7 @@
       closed = !1, render(await call("getLlmCategorization"));
     }
     function close() {
-      closed = !0, clearTimeout(timer);
+      closed = !0, clearTimeout(timer2);
     }
     return $("llm-project-url").addEventListener("input", () => {
       let value = $("llm-project-url").value;
@@ -1680,24 +1741,24 @@
   }
 
   // src/client/features/date-picker.js
-  var dialog, input, month, focused, iso = (date3) => date3.toISOString().slice(0, 10), day = (value) => /* @__PURE__ */ new Date(value + "T12:00:00Z");
+  var dialog, input, month, focused, iso = (date2) => date2.toISOString().slice(0, 10), day = (value) => /* @__PURE__ */ new Date(value + "T12:00:00Z");
   function paint() {
     let title = new Intl.DateTimeFormat(language, { month: "long", year: "numeric", timeZone: "UTC" }).format(month), weekday = new Intl.DateTimeFormat(language, { weekday: "short", timeZone: "UTC" }), label = new Intl.DateTimeFormat(language, { dateStyle: "full", timeZone: "UTC" }), start = new Date(month);
     start.setUTCDate(1 - (month.getUTCDay() + 6) % 7), dialog.innerHTML = '<div class="calendar-heading"><button type="button" class="button" data-month="-1" aria-label="' + escape2(t("Mes anterior")) + '">\u2039</button><h2 id="calendar-title" aria-live="polite">' + escape2(title) + '</h2><button type="button" class="button" data-month="1" aria-label="' + escape2(t("Mes siguiente")) + '">\u203A</button></div><div class="calendar-grid" role="grid" aria-labelledby="calendar-title"><div role="row">' + Array.from({ length: 7 }, (_, i) => {
-      let date3 = new Date(start);
-      return date3.setUTCDate(date3.getUTCDate() + i), '<span role="columnheader">' + escape2(weekday.format(date3)) + "</span>";
+      let date2 = new Date(start);
+      return date2.setUTCDate(date2.getUTCDate() + i), '<span role="columnheader">' + escape2(weekday.format(date2)) + "</span>";
     }).join("") + "</div>" + Array.from({ length: 6 }, (_, week) => '<div role="row">' + Array.from({ length: 7 }, (_2, weekday2) => {
-      let date3 = new Date(start);
-      date3.setUTCDate(date3.getUTCDate() + week * 7 + weekday2);
-      let value = iso(date3);
-      return '<button type="button" role="gridcell" data-day="' + value + '" aria-label="' + escape2(label.format(date3)) + '" aria-selected="' + (value === input.value) + '" tabindex="' + (value === focused ? 0 : -1) + '" class="' + (date3.getUTCMonth() !== month.getUTCMonth() ? "calendar-adjacent" : "") + '">' + date3.getUTCDate() + "</button>";
+      let date2 = new Date(start);
+      date2.setUTCDate(date2.getUTCDate() + week * 7 + weekday2);
+      let value = iso(date2);
+      return '<button type="button" role="gridcell" data-day="' + value + '" aria-label="' + escape2(label.format(date2)) + '" aria-selected="' + (value === input.value) + '" tabindex="' + (value === focused ? 0 : -1) + '" class="' + (date2.getUTCMonth() !== month.getUTCMonth() ? "calendar-adjacent" : "") + '">' + date2.getUTCDate() + "</button>";
     }).join("") + "</div>").join("") + '</div><div class="actions"><button type="button" class="button" data-calendar-close>' + escape2(t("Cancelar")) + "</button></div>", dialog.querySelector('[data-day="' + focused + '"]')?.focus();
   }
   function openDatePicker(target) {
     input = target, focused = input.value || (/* @__PURE__ */ new Date()).toLocaleDateString("sv-SE"), month = day(focused), month.setUTCDate(1), dialog || (dialog = document.createElement("dialog"), dialog.className = "calendar-dialog", dialog.setAttribute("aria-labelledby", "calendar-title"), document.body.append(dialog), dialog.addEventListener("click", (event) => {
-      let date3 = event.target.closest("[data-day]");
-      if (date3)
-        input.value = date3.dataset.day, input.dispatchEvent(new Event("input", { bubbles: !0 })), input.dispatchEvent(new Event("change", { bubbles: !0 })), dialog.close(), input.focus();
+      let date2 = event.target.closest("[data-day]");
+      if (date2)
+        input.value = date2.dataset.day, input.dispatchEvent(new Event("input", { bubbles: !0 })), input.dispatchEvent(new Event("change", { bubbles: !0 })), dialog.close(), input.focus();
       else if (event.target.closest("[data-calendar-close]") || event.target === dialog)
         dialog.close(), input.focus();
       else {
@@ -1707,13 +1768,13 @@
     }), dialog.addEventListener("keydown", (event) => {
       let cell = event.target.closest("[data-day]");
       if (!cell) return;
-      let date3 = day(cell.dataset.day), offsets = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7, Home: -(date3.getUTCDay() + 6) % 7, End: 6 - (date3.getUTCDay() + 6) % 7 };
-      if (Object.hasOwn(offsets, event.key)) date3.setUTCDate(date3.getUTCDate() + offsets[event.key]);
+      let date2 = day(cell.dataset.day), offsets = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7, Home: -(date2.getUTCDay() + 6) % 7, End: 6 - (date2.getUTCDay() + 6) % 7 };
+      if (Object.hasOwn(offsets, event.key)) date2.setUTCDate(date2.getUTCDate() + offsets[event.key]);
       else if (["PageUp", "PageDown"].includes(event.key)) {
-        let desired = date3.getUTCDate();
-        date3.setUTCDate(1), date3.setUTCMonth(date3.getUTCMonth() + (event.key === "PageUp" ? -1 : 1) * (event.shiftKey ? 12 : 1)), date3.setUTCDate(Math.min(desired, new Date(Date.UTC(date3.getUTCFullYear(), date3.getUTCMonth() + 1, 0)).getUTCDate()));
+        let desired = date2.getUTCDate();
+        date2.setUTCDate(1), date2.setUTCMonth(date2.getUTCMonth() + (event.key === "PageUp" ? -1 : 1) * (event.shiftKey ? 12 : 1)), date2.setUTCDate(Math.min(desired, new Date(Date.UTC(date2.getUTCFullYear(), date2.getUTCMonth() + 1, 0)).getUTCDate()));
       } else return;
-      event.preventDefault(), focused = iso(date3), month = day(focused), month.setUTCDate(1), paint();
+      event.preventDefault(), focused = iso(date2), month = day(focused), month.setUTCDate(1), paint();
     })), paint(), dialog.showModal(), dialog.querySelector('[data-day="' + focused + '"]')?.focus();
   }
   function initializeDatePickers() {
@@ -1722,56 +1783,6 @@
     }), document.addEventListener("keydown", (event) => {
       event.target.matches("input[type=date]") && event.altKey && event.key === "ArrowDown" && (event.preventDefault(), openDatePicker(event.target));
     });
-  }
-
-  // src/shared/progress-state.js
-  function progressState({ state: state2 = "Pendiente", queued = !1, running = !1, lastExecutedAt = "", pausedUntil = 0, quotaUntil = 0, nextAt = 0, waitingFor = "", error = "" }, now = Date.now()) {
-    let active = queued || !["Completada", "Parcial"].includes(state2), pause = active ? Math.max(Number(pausedUntil) || 0, Number(quotaUntil) || 0) : 0;
-    return { state: running ? "En curso" : pause > now ? quotaUntil > now ? "Detenido por falta de cuota" : "En pausa" : active && waitingFor ? "En espera de otro trabajo" : queued ? "En cola" : state2, lastExecutedAt, pauseReason: pause > now ? quotaUntil > now ? "Cuota agotada" : error || "Error temporal" : "", restartAt: active && Math.max(pause, Number(nextAt) || 0) > now ? Math.max(pause, Number(nextAt) || 0) : 0, waitingFor: active && !running ? waitingFor : "" };
-  }
-
-  // src/client/features/job-monitor.js
-  function progressDetailsHtml(status) {
-    return `<div class="small muted"><p>${escape2(t("\xDAltima ejecuci\xF3n"))}: ${escape2(t(date(status.lastExecutedAt)))}</p>${status.pauseReason ? `<p>${escape2(t("Motivo de la pausa"))}: ${escape2(t(status.pauseReason))}</p>` : ""}${status.restartAt ? `<p>${escape2(t("Previsi\xF3n de reinicio"))}: ${escape2(date(status.restartAt))}</p>` : ""}${status.waitingFor ? `<p>${escape2(t("Esperando a"))}: ${escape2(t(status.waitingFor))}</p>` : ""}</div>`;
-  }
-  function jobProgressHtml(job, { total, done, label, summary, queued = !1 }) {
-    let status = job.progress || progressState({ state: job.state, queued, lastExecutedAt: job.updated, pausedUntil: job.pausedUntil, error: job.error });
-    return `<div class="panel-header"><span>${escape2(t(status.state))}</span><span>${done}/${total}</span></div><progress max="${Math.max(1, total)}" value="${done}" aria-label="${escape2(t(label))}"></progress><p>${escape2(summary)}</p>${progressDetailsHtml(status)}${job.error && job.error !== status.pauseReason ? "<p>" + escape2(t(job.error)) + "</p>" : ""}`;
-  }
-  function createJobMonitor({ id, get, start, run, isActive, render, onRevision = () => {
-  } }) {
-    let timer, request3 = 0;
-    function close() {
-      request3++, clearTimeout(timer);
-    }
-    async function refresh(provided) {
-      close();
-      let current = request3;
-      try {
-        let data = provided || await call(get);
-        if (current !== request3) return;
-        let active = data.active ?? !!(data.queued || data.job && data.job.state !== "Completada");
-        if (onRevision(data.newsRevision), start) {
-          let button = $(id + "-start");
-          button.dataset.jobActive = String(active && data.job?.state !== "En pausa"), button.disabled = button.dataset.jobActive === "true";
-        }
-        render(data), active && isActive() && (timer = setTimeout(poll, 3e4));
-      } catch (error) {
-        current === request3 && (message(error.message, !0), isActive() && (timer = setTimeout(poll, 6e4)));
-      }
-    }
-    async function poll() {
-      if (isActive()) {
-        if (document.hidden) {
-          timer = setTimeout(poll, 3e4);
-          return;
-        }
-        await refresh();
-      }
-    }
-    return start && $(id + "-start").addEventListener("click", () => run(async () => {
-      await call(start), await refresh();
-    }, !1)), { open: refresh, close };
   }
 
   // src/client/core/browser-country.js
@@ -1996,9 +2007,9 @@
     return rows.filter((row) => {
       if (fields.some((key) => query[key] && String(row[key]) !== query[key]) || term && !recordText(searchFields.map((key) => row[key] ?? "").join(" ")).includes(term)) return !1;
       if (!query.from && !query.to) return !0;
-      let date3 = new Date(row[dateKey]);
-      if (!Number.isFinite(date3.getTime())) return !1;
-      let day2 = recordDay(date3, timezone2);
+      let date2 = new Date(row[dateKey]);
+      if (!Number.isFinite(date2.getTime())) return !1;
+      let day2 = recordDay(date2, timezone2);
       return (!query.from || day2 >= query.from) && (!query.to || day2 <= query.to);
     });
   }
@@ -2017,71 +2028,77 @@
 
   // src/client/features/record-filters.js
   function createRecordFilters(id, fields, onChange, { dates = !1, placeholder = "Buscar" } = {}) {
-    let page = 0, timer, keys = ["search", ...fields.map(([key]) => key), ...dates ? ["from", "to"] : []];
-    $(id + "-filters").innerHTML = '<button type="button" class="button" id="' + id + '-open-filters">' + t("Filtros") + '<span class="filter-count" id="' + id + '-filter-count"></span></button><dialog class="filter-dialog admin-record-dialog" id="' + id + '-dialog" aria-label="' + t("Filtros") + '"><div class="panel-header"><h2>' + t("Filtros") + '</h2><button type="button" class="button" id="' + id + '-close-filters">' + t("Cerrar") + '</button></div><div class="record-filters"><label>Buscar<input type="search" id="' + id + '-search" placeholder="' + escape2(placeholder) + '"></label>' + fields.map(([key, label, values]) => "<label>" + escape2(label) + '<select id="' + id + "-" + key + '"><option value="">Todos</option>' + options(values || []) + "</select></label>").join("") + (dates ? ["from", "to"].map((key, i) => "<label>" + ["Desde", "Hasta"][i] + '<input type="date" id="' + id + "-" + key + '"></label>').join("") : "") + '<button class="button" type="button" id="' + id + '-clear">Limpiar filtros</button></div></dialog>';
-    let dialog2 = $(id + "-dialog");
-    $(id + "-open-filters").addEventListener("click", () => dialog2.showModal()), $(id + "-close-filters").addEventListener("click", () => dialog2.close()), dialog2.addEventListener("click", (event) => {
-      event.target === dialog2 && dialog2.close();
-    });
+    let page = 0, applied = {}, keys = ["search", ...fields.map(([key]) => key), ...dates ? ["from", "to"] : []], labels2 = Object.fromEntries([["search", "Buscar"], ...fields.map(([key, label]) => [key, label]), ["from", "Desde"], ["to", "Hasta"]]);
     function options(values) {
       return values.map((value) => {
         let [key, label] = Array.isArray(value) ? value : [value, value];
         return "<option" + (/^\d{2}\./.test(label) ? ' data-catalog-name="' + escape2(label) + '"' : "") + ' value="' + escape2(key) + '">' + escape2(/^\d{2}\./.test(label) ? taxonomyDisplayLabel(t(label)) : displayRecord(label, language)) + "</option>";
       }).join("");
     }
-    function change() {
-      clearTimeout(timer), page = 0;
-      let active = keys.filter((key) => $(id + "-" + key).value).length;
-      $(id + "-filter-count").textContent = active ? " \xB7 " + active : "";
+    $(id + "-filters").innerHTML = `<button type="button" class="button" id="${id}-open-filters">${t("Filtros")}<span class="filter-count" id="${id}-filter-count"></span></button><div class="active-filters" id="${id}-chips" aria-label="${t("Filtros activos")}"></div><dialog class="filter-dialog admin-record-dialog" id="${id}-dialog" aria-label="${t("Filtros")}"><div class="dialog-header"><h2>${t("Filtros")}</h2><button type="button" class="button" id="${id}-close-filters" aria-label="${t("Cerrar panel")}">\u2715</button></div><form id="${id}-filter-form"><div class="record-filters"><label>${t("Buscar")}<input type="search" id="${id}-search" placeholder="${escape2(t(placeholder))}"></label>${fields.map(([key, label, values]) => `<label>${escape2(t(label))}<select id="${id}-${key}"><option value="">${t("Todos")}</option>${options(values || [])}</select></label>`).join("")}${dates ? ["from", "to"].map((key) => `<label>${t(labels2[key])}<input type="date" id="${id}-${key}"></label>`).join("") : ""}</div><div class="filter-dialog-actions"><button class="button" type="button" id="${id}-clear">${t("Limpiar filtros")}</button><button class="button primary" type="submit" id="${id}-apply">${t("Aplicar filtros")}</button></div></form></dialog>`;
+    let dialog2 = $(id + "-dialog");
+    function chips() {
+      let values = keys.filter((key) => applied[key]);
+      $(id + "-filter-count").textContent = values.length ? " \xB7 " + values.length : "", $(id + "-chips").innerHTML = values.map((key) => {
+        let input2 = $(id + "-" + key), value = input2.tagName === "SELECT" && input2.selectedOptions[0]?.textContent || applied[key];
+        return `<button type="button" class="filter-chip" data-clear-filter="${key}" aria-label="${escape2(t("Quitar") + " " + t(labels2[key]))}"><span>${escape2(t(labels2[key]) + ": " + value)}</span><span aria-hidden="true">\xD7</span></button>`;
+      }).join("");
+    }
+    function notify() {
+      page = 0, chips(), Promise.resolve(onChange()).catch((error) => message(error.message, !0));
+    }
+    function query() {
+      return recordQuery({ ...applied, page }, fields.map(([key]) => key));
+    }
+    $(id + "-open-filters").addEventListener("click", () => {
+      keys.forEach((key) => $(id + "-" + key).value = applied[key] || ""), dialog2.showModal();
+    }), $(id + "-close-filters").addEventListener("click", () => dialog2.close()), dialog2.addEventListener("click", (event) => {
+      event.target === dialog2 && dialog2.close();
+    }), $(id + "-filter-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      let next = Object.fromEntries(keys.map((key) => [key, $(id + "-" + key).value]));
       try {
-        query(), Promise.resolve(onChange()).catch((error) => message(error.message, !0));
+        recordQuery(next, fields.map(([key]) => key)), applied = next, dialog2.close(), notify();
       } catch (error) {
         message(error.message, !0);
       }
-    }
-    function query() {
-      return recordQuery(Object.fromEntries([...keys.map((key) => [key, $(id + "-" + key).value]), ["page", page]]), fields.map(([key]) => key));
-    }
-    for (let key of keys) $(id + "-" + key).addEventListener(key === "search" ? "input" : "change", () => {
-      key === "search" ? (clearTimeout(timer), timer = setTimeout(change, 250)) : change();
-    });
-    $(id + "-clear").addEventListener("click", () => {
-      keys.forEach((key) => $(id + "-" + key).value = ""), change();
+    }), $(id + "-clear").addEventListener("click", () => {
+      keys.forEach((key) => $(id + "-" + key).value = ""), applied = {}, dialog2.close(), notify();
+    }), $(id + "-chips").addEventListener("click", (event) => {
+      let key = event.target.closest("[data-clear-filter]")?.dataset.clearFilter;
+      key && (delete applied[key], $(id + "-" + key).value = "", notify());
     });
     let pagination = $(id + "-pagination"), paginate = (event) => {
       let button = event.target.closest("[data-page]");
       !button || button.disabled || (page += Number(button.dataset.page), Promise.resolve(onChange()).catch((error) => message(error.message, !0)));
     };
     return pagination?.addEventListener("click", paginate), { query, destroy() {
-      clearTimeout(timer), pagination?.removeEventListener?.("click", paginate), dialog2.close();
+      pagination?.removeEventListener("click", paginate), dialog2.close();
     }, reset() {
-      clearTimeout(timer), page = 0;
+      page = 0;
     }, options(values) {
       for (let [key, list] of Object.entries(values)) {
         if (!fields.some(([field]) => field === key)) continue;
-        let input2 = $(id + "-" + key), value = input2.value;
-        input2.innerHTML = '<option value="">Todos</option>' + options([...list].sort((a, b) => taxonomyDisplayLabel(t(String(Array.isArray(a) ? a[1] : a))).localeCompare(taxonomyDisplayLabel(t(String(Array.isArray(b) ? b[1] : b))), language))), input2.value = list.some((item) => String(Array.isArray(item) ? item[0] : item) === value) ? value : "";
+        let input2 = $(id + "-" + key), value = applied[key] || "";
+        input2.innerHTML = '<option value="">' + t("Todos") + "</option>" + options([...list].sort((a, b) => taxonomyDisplayLabel(t(String(Array.isArray(a) ? a[1] : a))).localeCompare(taxonomyDisplayLabel(t(String(Array.isArray(b) ? b[1] : b))), language))), input2.value = value;
       }
+      chips();
     }, page(data) {
-      if (!$(id + "-pagination")) return;
+      if (!pagination) return;
       page = data.page;
       let pages = Math.max(1, Math.ceil(data.total / data.pageSize));
-      $(id + "-pagination").innerHTML = '<button class="button" type="button" data-page="-1" ' + (page === 0 ? "disabled" : "") + '>Anterior</button><span class="small muted" role="status">' + t("{total} resultados \xB7 p\xE1gina {page} de {pages}", { total: data.total, page: page + 1, pages }) + '</span><button class="button" type="button" data-page="1" ' + (page >= pages - 1 ? "disabled" : "") + ">" + t("Ver m\xE1s") + "</button>";
+      pagination.innerHTML = '<button class="button" type="button" data-page="-1" ' + (page === 0 ? "disabled" : "") + '>Anterior</button><span class="small muted" role="status">' + t("{total} resultados \xB7 p\xE1gina {page} de {pages}", { total: data.total, page: page + 1, pages }) + '</span><button class="button" type="button" data-page="1" ' + (page >= pages - 1 ? "disabled" : "") + ">" + t("Ver m\xE1s") + "</button>";
     } };
   }
 
   // src/client/features/taxonomy.js
-  function createTaxonomy({ run, isActive, onRevision }) {
+  function createTaxonomy() {
     let items = [], signature = "", filters4 = createRecordFilters("taxonomy", [["palanca", "Bloque funcional"]], render, { placeholder: "Bloque funcional, funcionalidad / sub operativa o t\xE9rmino" });
     function render() {
       let query = filters4.query(), page = recordPage(filterRecords(items, query, ["palanca"], ["palanca", "subpalanca", "terminos", "segmentos", "descripcion"]), query, 10);
       $("taxonomy-body").innerHTML = page.items.map((row) => `<tr><td data-original>${escape2(row.palanca)}</td><td><strong data-original>${escape2(row.subpalanca)}</strong></td><td>${escape2(row.segmentos.join(" \xB7 "))}</td><td>${row.noticias}</td><td data-original>${escape2(row.terminos.join(" \xB7 "))}</td><td data-original>${row.descripcion ? `<details><summary>${escape2(t("Descripci\xF3n"))}</summary>${escape2(row.descripcion)}</details>` : ""}</td><td>${escape2(row.origen === "local" ? t("Clasificaci\xF3n local") : row.origen === "tf-idf" ? "TF-IDF" : t("Cat\xE1logo maestro (Drive)"))}</td></tr>`).join("") || '<tr><td colspan="7">' + t("Sin cat\xE1logo global de funcionalidades disponible. Ejecuta el job para generarlo.") + "</td></tr>", filters4.page(page), $("taxonomy-count").textContent = t("{blocks} bloques funcionales \xB7 {functions} funcionalidades / sub operativas", { blocks: new Set(items.map((row) => row.palanca)).size, functions: items.filter((row) => row.subpalanca).length });
     }
-    let monitor = createJobMonitor({ id: "taxonomy", get: "getTaxonomyProgress", start: "startTaxonomy", run, isActive, onRevision, render(data) {
-      let job = data.job, total = Number(job?.workTotal ?? Number(job?.total || 0) * 2), done = Number(job?.processed || 0);
-      $("taxonomy-progress").innerHTML = job ? jobProgressHtml(job, { total, done, label: "Progreso de cat\xE1logo global de funcionalidades", queued: data.queued, summary: t("{done}/{total} pasos de an\xE1lisis y etiquetado; {tagged} etiquetas actualizadas.", { done, total, tagged: job.tagged }) }) : '<p class="muted">' + t(data.queued ? "En cola" : "Sin actualizaciones del cat\xE1logo ejecutadas.") + "</p>";
-    } });
-    return { openProgress: monitor.open, close: monitor.close, async open() {
+    return { async open() {
       let data = await call("getTaxonomyStatus"), next = JSON.stringify([data.items, data.pageSize, data.taxonomyTranslations, language]);
       next !== signature && (signature = next, items = data.items.filter((row) => row.subpalanca), filters4.options(recordOptions(items, ["palanca"])), render());
     } };
@@ -2113,99 +2130,84 @@
   // src/client/config.js
   var navigationCache = Object.freeze({ milliseconds: 6e4, entries: 6 }), defaultView = Object.keys(app_config_default.views)[0], config_default = app_config_default;
 
-  // src/client/features/language-settings.js
-  function createLanguageSettings({ run, isActive, onRevision }) {
-    function progress(id, data, label, summary, empty) {
-      let job = data.job || (data.queued ? { state: "En cola", total: 0, processed: 0, translated: 0 } : null), total = Number(job?.total || 0), done = Number(job?.processed || 0);
-      $(id + "-progress").innerHTML = job ? jobProgressHtml(job, { total, done, label, queued: data.queued, summary: t(summary, { done, total, translated: job.translated }) }) : '<p class="muted">' + t(empty) + "</p>";
-    }
-    let articles = createJobMonitor({ id: "translation", get: "getTranslationStatus", start: "startTranslations", run, isActive, onRevision, render(data) {
-      $("translation-schedule").textContent = t("Traducci\xF3n diaria tras completar la clasificaci\xF3n \xB7 {state}", { state: t("Activada") }), progress("translation", data, "Progreso de traducci\xF3n", "{done}/{total} noticias revisadas; {translated} traducciones guardadas.", "Sin traducciones programadas ejecutadas.");
-    } }), taxonomy2 = createJobMonitor({ id: "taxonomy-translation", get: "getTaxonomyTranslationStatus", start: "startTaxonomyTranslations", run, isActive, onRevision, render(data) {
-      progress("taxonomy-translation", data, "Progreso de traducci\xF3n de cat\xE1logo global de funcionalidades", "{done}/{total} nombres revisados; {translated} traducciones guardadas.", "Sin traducciones de cat\xE1logo global de funcionalidades ejecutadas.");
-    } });
-    return { open: () => Promise.all([articles.open(), taxonomy2.open()]), close() {
-      articles.close(), taxonomy2.close();
-    } };
-  }
-
-  // src/client/features/classification.js
-  function createClassification({ run, isActive, onRevision }) {
-    return createJobMonitor({ id: "classification", get: "getClassificationStatus", start: "startClassification", run, isActive, onRevision, render(data) {
-      let job = data.job, total = Number(job?.total || 0), done = Number(job?.processed || 0);
-      $("classification-schedule").textContent = t("Clasificaci\xF3n diaria tras completar la recopilaci\xF3n \xB7 {state}", { state: t(data.scheduled ? "Activada" : "Desactivada") }), $("classification-progress").innerHTML = jobProgressHtml(job || { state: "Completada", updated: "" }, { total, done, label: "Progreso de clasificaci\xF3n", queued: data.queued, summary: job ? t("{done}/{total} noticias revisadas; {classified} etiquetas actualizadas; {digital} digitales.", { done, total, classified: job.classified, digital: job.digital }) : t("Sin clasificaciones ejecutadas.") });
-    } });
+  // src/client/features/process-progress.js
+  function progressDetailsHtml(status) {
+    return `<div class="small muted"><p>${escape2(t("\xDAltima ejecuci\xF3n"))}: ${escape2(t(date(status.lastExecutedAt)))}</p>${status.pauseReason ? `<p>${escape2(t("Motivo de la pausa"))}: ${escape2(t(status.pauseReason))}</p>` : ""}${status.restartAt ? `<p>${escape2(t("Previsi\xF3n de reinicio"))}: ${escape2(date(status.restartAt))}</p>` : ""}${status.waitingFor ? `<p>${escape2(t("Esperando a"))}: ${escape2(t(status.waitingFor))}</p>` : ""}</div>`;
   }
 
   // src/client/features/runs.js
-  var request = 0, syncRecovery = () => {
-  };
+  var request = 0, timer, panelDaily = !1, syncRecovery = () => {
+  }, processActions = { classification: ["classification-start", "Clasificar pendientes"], translation: ["translation-start", "Traducir pendientes"], taxonomy: ["taxonomy-start", "Actualizar cat\xE1logo"] };
+  function processCard(job) {
+    let action2 = processActions[job.stage], active = !["Completada", "Parcial", "En pausa", "Detenido por falta de cuota", "Sin ejecuciones"].includes(job.progress.state), status = job.valid === !1 ? "error" : job.status, progress = job.progress;
+    return `<article class="process-card" data-process="${escape2(job.id || job.stage)}"><div class="schedule-heading"><h4>${escape2(t(job.label))}</h4><span class="process-state" data-status="${escape2(status)}">${escape2(t(job.enabled ? "Activo" : "Inactivo"))}${progress.state === "Activo" ? "" : " \xB7 " + escape2(t(progress.state))}</span></div>${job.timezone ? `<p class="small muted">${escape2(job.timezone)}</p>` : ""}${job.modified ? `<p>${t("\xDAltima modificaci\xF3n")}: ${escape2(date(job.modified))}</p>` : ""}${job.total !== void 0 ? `<div id="${job.id || (job.stage === "newsletter" ? "newsletter-delivery" : job.stage === "taxonomyTranslation" ? "taxonomy-translation" : job.stage)}-progress"><progress max="${Math.max(1, job.total)}" value="${job.done}" aria-label="${escape2(t(job.label))}"></progress><p class="small muted">${job.done}/${job.total}</p></div>` : ""}${progressDetailsHtml(progress)}${job.comment ? `<p class="small muted">${escape2(t(job.comment))}</p>` : ""}${job.active ? `<p>${t("En curso")}: ${escape2(t(job.active))}</p>` : ""}${job.dispatched ? `<p class="small muted">${t("\xDAltimo proceso autorizado")}: ${escape2(t(job.dispatched.label))} \xB7 ${escape2(date(job.dispatched.at))}</p>` : ""}${job.waiting?.length ? `<details><summary>${t("Trabajos en espera")} (${job.waiting.length})</summary><ul>${job.waiting.map((row) => `<li>${escape2(t(row.label))}: ${escape2(t(row.reason))}${row.restartAt ? " \xB7 " + escape2(date(row.restartAt)) : ""}</li>`).join("")}</ul></details>` : ""}${action2 ? `<button type="button" class="button" id="${action2[0]}" data-process-action="${job.stage}" data-job-active="${active}" ${active ? "disabled" : ""}>${t(action2[1])}</button>` : ""}</article>`;
+  }
+  function closeRuns() {
+    request++, clearTimeout(timer);
+  }
   async function loadRuns() {
-    let current = ++request;
+    closeRuns();
+    let current = request;
     try {
       let data = await call("getControlPanel");
-      if (current !== request) return;
-      if (data.operational) {
-        let schedule = data.operational;
-        $("operational-schedule").innerHTML = '<ul class="operational-schedule">' + schedule.jobs.map((job) => '<li><div class="schedule-heading"><strong>' + escape2(t(job.label)) + '</strong><span class="status-pill" data-valid="' + job.valid + '">' + escape2(t(job.valid ? job.expected ? "Activa" : "Inactiva" : "Revisar")) + '</span></div><p class="schedule-time">' + escape2(job.hour !== void 0 ? String(job.hour).padStart(2, "0") + ":00" : job.minutes + " min") + '</p><p class="small muted">' + escape2(job.timezone || t("Supervisi\xF3n de colas")) + "</p></li>").join("") + "</ul>" + (schedule.archive.error ? '<p class="warning">' + escape2(schedule.archive.error) + "</p>" : ""), $("retry-archive").hidden = !schedule.archive.error;
-        let processes = schedule.processes || [];
-        $("operational-processes").innerHTML = processes.map((job) => '<article class="collection-job"><div class="schedule-heading"><strong>' + escape2(t(job.label)) + '</strong><span class="process-state" data-status="' + escape2(job.status) + '">' + escape2(t(job.state)) + "</span></div>" + (job.total ? '<progress max="' + Math.max(1, job.total) + '" value="' + job.done + '" aria-label="' + escape2(t(job.label)) + '"></progress><p>' + job.done + "/" + job.total + "</p>" : "") + progressDetailsHtml(job.progress) + (job.comment ? '<p class="small muted">' + escape2(job.comment) + "</p>" : "") + "</article>").join("");
-      }
-      return renderCollectionJobs(data.collection), data;
+      return current !== request ? void 0 : (panelDaily = !!data.daily, data.groups && ($("control-panel-groups").innerHTML = data.groups.map((group) => `<section class="process-group" data-process-group="${group.id}"><div class="panel-header"><h3>${escape2(t(group.label))}</h3><span class="small muted">${t("Prioridad")} ${group.priority}</span></div><div class="process-grid">${group.jobs.map(processCard).join("")}</div>${group.manual ? `<details class="admin-action-panel"><summary>${t("Contingencia manual")}</summary>${processCard(group.manual)}<div class="recovery-control"><button class="button primary" id="collect" type="button">${t("Recopilar ahora")}</button><button class="button" id="continue-collection" type="button" hidden>${t("Continuar recuperaci\xF3n")}</button><button class="button" type="button" id="retry-collection">${t("Reintentar fuentes fallidas")}</button><button class="button" type="button" id="toggle-daily">${t(data.daily ? "Desactivar recopilaci\xF3n diaria" : "Activar recopilaci\xF3n diaria")}</button></div><p id="recovery-status" class="small muted" aria-live="polite"></p></details>` : ""}</section>`).join("")), $("retry-archive").hidden = !data.archive?.error, $("control-panel-error").textContent = data.archive?.error || "", renderCollectionJobs(data.collection), data);
     } catch (error) {
       current === request && message(error.message, !0);
+    } finally {
+      current === request && !$("runs-section").hidden && !$("administration-section").hidden && (timer = setTimeout(pollRuns, 3e4));
     }
   }
   function renderCollectionJobs(status) {
     syncRecovery(status);
-    let total = Number(status?.total || 0), done = Number(status?.processed || 0) + Number(status?.skipped || 0) + Number(status?.failed || 0);
-    $("collection-total").hidden = !total, $("collection-total-progress").max = Math.max(1, total), $("collection-total-progress").value = done, $("collection-total-label").textContent = t("{done}/{total} consultas; {added} noticias incorporadas.", { done, total, added: status?.added || 0 }), $("collection-total-details").innerHTML = status?.progress ? progressDetailsHtml(status.progress) : "";
-    let jobs = (status?.jobs || []).filter((job) => job.tipo === "daily");
-    $("collection-jobs").innerHTML = jobs.map((job) => {
-      let progress = job.progress || progressState({ state: job.estado, lastExecutedAt: job.actualizada, pausedUntil: job.pausa }), done2 = Number(job.procesadas || 0) + Number(job.omitidas || 0) + Number(job.fallidas || 0), total2 = Number(job.total || 0);
-      return `<article class="collection-job" data-collection-kind="${escape2(job.tipo)}"><div class="panel-header"><h3>${escape2(displayRecord(job.tipo, language))}</h3><span>${escape2(t(progress.state))}</span></div>${job.desde ? `<p class="small muted">${escape2(formatCalendarDay(job.desde, language))} \u2014 ${escape2(formatCalendarDay(job.hasta, language))}</p>` : ""}<progress max="${Math.max(1, total2)}" value="${done2}" aria-label="${escape2(displayRecord(job.tipo, language))}"></progress><p>${escape2(t("{done}/{total} consultas; {added} noticias incorporadas.", { done: done2, total: total2, added: job.nuevas || 0 }))}</p><p class="small muted">${Number(job.pendientes || 0)} ${escape2(t("Pendientes"))} \xB7 ${Number(job.fallidas || 0)} ${escape2(t("Errores"))}</p>${progressDetailsHtml(progress)}</article>`;
-    }).join("");
   }
-  function createRecoveryControls({ getData, run }) {
+  function createRecoveryControls({ run }) {
     let busy = !1, status = {};
     function render(next = status) {
       status = next || {};
-      let blocked = !!status.blocked?.today;
-      $("collect").disabled = busy || blocked, $("recovery-status").textContent = blocked ? t("Ya hay una recuperaci\xF3n diaria en curso.") : "", $("continue-collection").hidden = !blocked, $("continue-collection").disabled = busy, $("retry-collection").disabled = busy, $("toggle-daily").disabled = busy, $("toggle-daily").textContent = t(getData()?.daily ? "Desactivar recopilaci\xF3n diaria" : "Activar recopilaci\xF3n diaria"), $("recovery-schedule").textContent = getData()?.schedule || "";
+      let blocked = !!status.blocked?.today, button = $("collect");
+      if (button) {
+        button.disabled = busy || blocked, $("recovery-status").textContent = blocked ? t("Ya hay una recuperaci\xF3n diaria en curso.") : "", $("continue-collection").hidden = !blocked;
+        for (let id of ["continue-collection", "retry-collection", "toggle-daily"]) $(id).disabled = busy;
+      }
     }
-    async function recover(method, range) {
-      return run(async () => {
-        let result = await call(method, ...range ? [range] : []);
-        message(result.notice, result.errors.length > 0);
-      });
-    }
-    return $("collect").addEventListener("click", () => recover("collectNow", "today")), $("continue-collection").addEventListener("click", () => recover("resumeCollection", "today")), $("toggle-daily").addEventListener("click", () => run(async () => {
-      let enabled = getData().daily, result = await call(enabled ? "disableDaily" : "enableDaily");
-      message(enabled ? "Recopilaci\xF3n diaria desactivada." : result);
-    })), $("retry-archive").addEventListener("click", () => run(async () => {
-      await call("resumeOperationalArchive"), await loadRuns();
-    })), $("retry-collection").addEventListener("click", () => run(async () => message(await call("retryCollectionErrors")))), syncRecovery = render, { setBusy(value) {
+    return $("runs-section").addEventListener("click", (event) => {
+      let button = event.target.closest("button");
+      if (!button) return;
+      let methods = { collect: "collectNow", "continue-collection": "resumeCollection", "retry-collection": "retryCollectionErrors", "retry-archive": "resumeOperationalArchive", classification: "startClassification", translation: "startTranslations", taxonomy: "startTaxonomy" }, key = button.dataset.processAction || button.id, method = key === "toggle-daily" ? panelDaily ? "disableDaily" : "enableDaily" : methods[key];
+      method && run(async () => {
+        let result = await call(method, ...["collectNow", "resumeCollection"].includes(method) ? ["today"] : []);
+        typeof result == "string" ? message(result) : result?.notice && message(result.notice, !!result.errors?.length), await loadRuns();
+      }, !1);
+    }), syncRecovery = render, { setBusy(value) {
       busy = value, render();
     } };
   }
+  function pollRuns() {
+    if (document.hidden) {
+      timer = setTimeout(pollRuns, 3e4);
+      return;
+    }
+    loadRuns();
+  }
+  $("control-panel-refresh").addEventListener("click", loadRuns);
 
   // src/client/features/collection-progress.js
   function createCollectionProgress({ isActive, isBusy, onStatus }) {
-    let timer, polling = !1;
+    let timer2, polling = !1;
     function render(status) {
       let node = $("collection-progress");
       node.hidden = !isActive() || !(status?.total || status?.queued), onStatus(status), !node.hidden && (node.textContent = t("Recuperaci\xF3n: {processed}/{total} consultas; {pending} pendientes; {added} noticias incorporadas.", status) + (status.lastActivity ? " " + t("\xDAltima actividad") + ": " + date(status.lastActivity) + "." : "") + (status.queued ? " " + t("{queued} recargas en cola.", status) : "") + (status.failed ? " " + status.failed + " " + t("Errores") + "." : ""));
     }
     function update(data) {
-      render(data.collection), clearTimeout(timer), isActive() && (data.collection?.pending || data.collection?.queued) && (timer = setTimeout(poll, 3e4));
+      render(data.collection), clearTimeout(timer2), isActive() && (data.collection?.pending || data.collection?.queued) && (timer2 = setTimeout(poll, 3e4));
     }
     async function poll() {
       if (!isActive()) {
-        clearTimeout(timer);
+        clearTimeout(timer2);
         return;
       }
       if (document.hidden || isBusy() || polling) {
-        timer = setTimeout(poll, 3e4);
+        timer2 = setTimeout(poll, 3e4);
         return;
       }
       polling = !0;
@@ -2213,7 +2215,7 @@
         let data = await call("getCollectionProgress");
         update(data);
       } catch {
-        timer = setTimeout(poll, 6e4);
+        timer2 = setTimeout(poll, 6e4);
       } finally {
         polling = !1;
       }
@@ -2331,14 +2333,11 @@
   }
 
   // src/client/features/newsletter-delivery.js
-  function createNewsletterDelivery({ run, isActive }) {
+  function createNewsletterDelivery({ run }) {
     function feedback(text, error = !1) {
       let target = $("newsletter-test-result");
       target.hidden = !1, target.textContent = text, target.classList.toggle("error", error);
     }
-    let monitor = createJobMonitor({ id: "newsletter-delivery", get: "getNewsletterProgress", isActive, render({ job }) {
-      $("newsletter-delivery-progress").innerHTML = jobProgressHtml(job, { total: job.total, done: job.processed, label: "Progreso de env\xEDos planificados", summary: t("{done}/{total} entregas; {accepted} aceptadas; {empty} sin novedades; {pending} pendientes; {review} por revisar.", { ...job, done: job.processed }) });
-    } });
     async function open() {
       let [status, options] = await Promise.all([call("getNewsletterDeliveryStatus"), call("getNewsletterOptions")]), form = $("newsletter-test-form"), selected = form.elements.country.value;
       form.elements.email.placeholder = options.email, form.elements.country.innerHTML = '<option value="">Sin personalizar</option>' + options.countries.map((name) => "<option>" + escape2(name) + "</option>").join(""), form.elements.country.value = selected, $("newsletter-sender").textContent = status.name + " <" + status.address + ">", $("newsletter-checks").innerHTML = [["Remitente", status.available ? "Configurado" : "Pendiente"], ["Entrega", status.enabled ? "Activada" : "Desactivada"], ["Programaci\xF3n", status.scheduled ? "Instalada" : "Sin activador"]].map(([name, value]) => `<div class="delivery-check"><strong>${name}</strong><span>${value}</span></div>`).join(""), $("newsletter-sender-status").textContent = status.available ? "El remitente se utiliza en los env\xEDos autom\xE1ticos y las pruebas." : status.error, $("newsletter-budget").textContent = status.remaining + " env\xEDos disponibles dentro del l\xEDmite configurado de 24 horas.", $("newsletter-content-note").textContent = status.untracked ? status.untracked + " env\xEDos anteriores no registraron las noticias incluidas. El control de contenido se aplica a los env\xEDos con inventario; los anteriores requieren contrastar los correos originales." : "El contenido de los nuevos env\xEDos queda registrado por suscriptor. Las pruebas se excluyen del control de duplicados.";
@@ -2360,7 +2359,7 @@
         }
         await open();
       }, !1);
-    }), { open, openProgress: monitor.open, close: monitor.close };
+    }), { open };
   }
 
   // assets/admin-schema.json
@@ -2511,40 +2510,32 @@
     },
     settings: {
       label: "Operaci\xF3n y selecci\xF3n inicial",
-      help: "Los l\xEDmites se validan al guardar. Cambiar hora o zona requiere reactivar la programaci\xF3n diaria. Listas: separadas por punto y coma.",
+      help: "Los cambios de horario se aplican a los activadores al guardar. Todos los horarios usan la zona configurada.",
       labels: {
-        timezone: "Zona horaria",
         windowDays: "Ventana de recopilaci\xF3n (d\xEDas)",
         pageSize: "Noticias por p\xE1gina",
-        dailyHour: "Hora de banca digital (0\u201323)",
-        searchTerms: "T\xE9rminos de b\xFAsqueda de sector",
         disabledSources: "IDs de fuentes de perfil desactivadas",
         briefingLimit: "M\xE1ximo de novedades por geograf\xEDa",
         maxCustomFeeds: "M\xE1ximo de fuentes RSS",
         maxFeedBytes: "M\xE1ximo de caracteres de feed",
         maxItems: "M\xE1ximo de entradas por feed",
         exportLimit: "M\xE1ximo de noticias exportadas",
-        eventLimit: "M\xE1ximo de eventos conservados",
-        retentionDays: "Conservaci\xF3n de eventos (d\xEDas)",
         trendPoints: "M\xE1ximo de intervalos de gr\xE1fica",
         trendSeries: "M\xE1ximo de series (incluye otras)",
         collectionBatch: "Fuentes por lote",
         retryMinutes: "Minutos entre reintentos",
         pauseMinutes: "Minutos de pausa",
         unknownCountry: "Geograf\xEDa predeterminado de un RSS sin pa\xEDs",
-        newsletterEnabled: "Activar entrega de newsletters",
         newsletterBatch: "M\xE1ximo de destinatarios por ejecuci\xF3n",
         newsletterSender: "Remitente verificado en Gmail (correo del grupo)",
         newsletterSenderName: "Nombre visible del remitente",
         newsletterDailyLimit: "L\xEDmite de newsletters en 24 horas",
-        newsletterAppUrl: "URL publicada de News Radar (gesti\xF3n de suscripciones)",
-        taxonomyCatalogUrl: "Cat\xE1logo global de funcionalidades en Drive"
+        newsletterAppUrl: "URL publicada de News Radar (gesti\xF3n de suscripciones)"
       },
       groups: [
         {
           label: "Newsletter",
           keys: [
-            "newsletterEnabled",
             "newsletterSender",
             "newsletterSenderName",
             "newsletterAppUrl",
@@ -2556,10 +2547,7 @@
         {
           label: "Recopilaci\xF3n",
           keys: [
-            "timezone",
-            "dailyHour",
             "windowDays",
-            "searchTerms",
             "disabledSources",
             "collectionBatch",
             "retryMinutes",
@@ -2581,38 +2569,9 @@
             "maxCustomFeeds",
             "maxFeedBytes",
             "maxItems",
-            "exportLimit",
-            "eventLimit",
-            "retentionDays"
-          ]
-        },
-        {
-          label: "Fuentes de Drive",
-          keys: [
-            "taxonomyCatalogUrl"
+            "exportLimit"
           ]
         }
-      ]
-    },
-    capabilities: {
-      label: "Capacidades digitales",
-      help: "Capacidades del canal de Empresas e instituciones. Solo las activas participan en b\xFAsquedas, clasificaci\xF3n y relevancia. T\xE9rminos separados por punto y coma.",
-      fields: [
-        [
-          "name",
-          "Nombre",
-          "text"
-        ],
-        [
-          "terms",
-          "T\xE9rminos de b\xFAsqueda",
-          "list"
-        ],
-        [
-          "enabled",
-          "Activa",
-          "boolean"
-        ]
       ]
     },
     applicationScope: {
@@ -2681,7 +2640,7 @@
     },
     searchLanguages: {
       label: "B\xFAsquedas por idioma",
-      help: "Vocabulario editable de recuperaci\xF3n. Los primeros cuatro t\xE9rminos tienen prioridad en las b\xFAsquedas del idioma; se combinan con Operaci\xF3n y selecci\xF3n inicial y Capacidades digitales. Editar estas listas cambia las pr\xF3ximas consultas sin a\xF1adir fuentes ni multiplicar combinaciones.",
+      help: "Vocabulario de recuperaci\xF3n por idioma. Se combina con la detecci\xF3n de canal digital y las equivalencias del cat\xE1logo global de funcionalidades.",
       fields: [
         [
           "name",
@@ -2707,7 +2666,7 @@
     },
     taxonomy: {
       label: "Cat\xE1logo global de funcionalidades",
-      help: "Equivalencias y conceptos emergentes de News Radar. Los c\xF3digos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aqu\xED. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios."
+      help: "Equivalencias y conceptos emergentes de News Radar. Los c\xF3digos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aqu\xED. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios. La detecci\xF3n previa de canal digital y los t\xE9rminos de recuperaci\xF3n siguen en uso; se administran aqu\xED junto a las equivalencias funcionales."
     },
     storage: {
       label: "Almacenamiento y archivo",
@@ -2716,9 +2675,7 @@
         primaryFolderId: "Carpeta autorizada del libro y copias",
         logFolderId: "Carpeta de logs",
         newsletterFolderId: "Carpeta de newsletters",
-        logRows: "Filas recientes de cada log",
-        logDays: "D\xEDas de cada log",
-        newsletterDeliveries: "\xDAltimos env\xEDos por suscripci\xF3n"
+        taxonomyCatalogUrl: "Cat\xE1logo global de funcionalidades en Drive"
       },
       groups: [
         {
@@ -2730,11 +2687,106 @@
           ]
         },
         {
-          label: "Conservaci\xF3n",
+          label: "Cat\xE1logo maestro de Drive",
+          section: "settings",
+          keys: [
+            "taxonomyCatalogUrl"
+          ]
+        }
+      ]
+    },
+    schedule: {
+      label: "Programaci\xF3n de procesos",
+      help: "El supervisor respeta las prioridades y reanuda los trabajos con cuota disponible. Apps Script ejecuta cada horario con un margen aproximado de 15 minutos.",
+      labels: {
+        timezone: "Zona horaria",
+        dailyHour: "Primera recopilaci\xF3n: hora (0\u201323)",
+        newsletterEnabled: "Activar entrega de newsletters",
+        watchdogMinutes: "Supervisor: intervalo en minutos (1, 5, 10, 15 o 30)",
+        dailyMinute: "Primera recopilaci\xF3n: minuto (0\u201359)",
+        morningEnabled: "Activar primera recopilaci\xF3n",
+        afternoonHour: "Segunda recopilaci\xF3n: hora (0\u201323)",
+        afternoonMinute: "Segunda recopilaci\xF3n: minuto (0\u201359)",
+        afternoonEnabled: "Activar segunda recopilaci\xF3n",
+        eveningHour: "Tercera recopilaci\xF3n: hora (0\u201323)",
+        eveningMinute: "Tercera recopilaci\xF3n: minuto (0\u201359)",
+        eveningEnabled: "Activar tercera recopilaci\xF3n",
+        newsletterHour: "Newsletter: hora (0\u201323)",
+        newsletterMinute: "Newsletter: minuto (0\u201359)"
+      },
+      groups: [
+        {
+          label: "Supervisor de colas",
+          section: "settings",
+          keys: [
+            "timezone",
+            "watchdogMinutes"
+          ]
+        },
+        {
+          label: "Primera recopilaci\xF3n \xB7 prioridad 1",
+          section: "settings",
+          keys: [
+            "morningEnabled",
+            "dailyHour",
+            "dailyMinute"
+          ]
+        },
+        {
+          label: "Segunda recopilaci\xF3n \xB7 prioridad 1",
+          section: "settings",
+          keys: [
+            "afternoonEnabled",
+            "afternoonHour",
+            "afternoonMinute"
+          ]
+        },
+        {
+          label: "Tercera recopilaci\xF3n \xB7 prioridad 1",
+          section: "settings",
+          keys: [
+            "eveningEnabled",
+            "eveningHour",
+            "eveningMinute"
+          ]
+        },
+        {
+          label: "Env\xEDos planificados \xB7 prioridad 3",
+          section: "settings",
+          keys: [
+            "newsletterEnabled",
+            "newsletterHour",
+            "newsletterMinute"
+          ]
+        }
+      ]
+    },
+    retention: {
+      label: "Conservaci\xF3n",
+      help: "Conservaci\xF3n y l\xEDmites del historial operativo. Adopci\xF3n mantiene todos los accesos.",
+      labels: {
+        eventLimit: "M\xE1ximo de eventos conservados",
+        retentionDays: "Conservaci\xF3n de eventos (d\xEDas)",
+        logRows: "Filas recientes de cada log",
+        logDays: "D\xEDas de cada log",
+        newsletterDeliveries: "\xDAltimos env\xEDos por suscripci\xF3n"
+      },
+      groups: [
+        {
+          label: "Archivo operativo",
+          section: "storage",
           keys: [
             "logRows",
             "logDays",
             "newsletterDeliveries"
+          ]
+        },
+        {
+          label: "Consultas y eventos",
+          section: "settings",
+          keys: [
+            "eventLimit",
+            "retentionDays"
           ]
         }
       ]
@@ -2742,42 +2794,64 @@
   };
 
   // src/client/features/configuration.js
+  var capabilityFields = [["name", "Capacidad de detecci\xF3n", "text"], ["terms", "T\xE9rminos de b\xFAsqueda", "list"], ["enabled", "Activa", "boolean"]];
   function createConfiguration({ run }) {
-    let config, revision, category = "entities", capabilityDefaults, storagePrimaryId, entries = () => category === "capabilities" ? config.capabilities.Empresas : config[category], setEntries = (rows) => {
-      category === "capabilities" ? config.capabilities.Empresas = rows : config[category] = rows;
-    };
+    let config, revision, category = "entities", capabilityDefaults, storagePrimaryId, entries = () => config[category], list = (input2) => input2.value.split(/[;\n]/).map((value) => value.trim()).filter(Boolean), read = (input2) => input2.type === "checkbox" ? input2.checked : input2.type === "number" ? Number(input2.value) : input2.dataset.list === "true" ? list(input2) : input2.value.trim(), filters4 = createRecordFilters("configuration", [["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]], filterRows, { placeholder: "Nombre, c\xF3digo o t\xE9rmino" });
     async function fetchConfig() {
       let snapshot = await call("getConfiguration");
       config = snapshot.config, revision = snapshot.revision, capabilityDefaults = snapshot.capabilityDefaults, storagePrimaryId = snapshot.storagePrimaryId;
     }
+    function record(row) {
+      return Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input2) => [input2.dataset.key, read(input2)]));
+    }
     function readFields() {
       if (config)
-        if (category === "applicationScope")
-          config.applicationScope = [...$("catalog-fields").querySelectorAll("[data-scope]")].map((group) => ({ name: group.dataset.scope, countries: [...group.querySelectorAll("[data-country]:checked")].map((input2) => input2.dataset.country) }));
-        else if (category === "taxonomy") {
-          let list = (input2) => input2.value.split(";").map((value) => value.trim()).filter(Boolean), records = (block, selector) => [...block.querySelectorAll(selector)].map((row) => Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input2) => [input2.dataset.key, input2.dataset.key === "primary" ? input2.checked : input2.dataset.list === "true" ? list(input2) : input2.value.trim()])));
-          config.taxonomy = [...$("catalog-fields").children].map((block) => ({ name: block.querySelector('[data-key="name"]').value.trim(), terms: list(block.querySelector('[data-key="terms"]')), emerging: records(block, "[data-emerging]"), functions: records(block, "[data-function]") }));
-        } else if (["settings", "storage"].includes(category))
-          for (let input2 of $("catalog-fields").querySelectorAll("[data-key]")) config[category][input2.dataset.key] = input2.type === "checkbox" ? input2.checked : input2.type === "number" ? Number(input2.value) : input2.dataset.list === "true" ? input2.value.split(";").map((value) => value.trim()).filter(Boolean) : input2.value;
-        else setEntries([...$("catalog-fields").children].map((row) => Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input2) => [input2.dataset.key, input2.type === "checkbox" ? input2.checked : input2.dataset.list === "true" ? input2.value.split(";").map((value) => value.trim()).filter(Boolean) : input2.value]))));
+        if (category === "applicationScope") config.applicationScope = [...$("catalog-fields").querySelectorAll("[data-scope]")].map((group) => ({ name: group.dataset.scope, countries: [...group.querySelectorAll("[data-country]:checked")].map((input2) => input2.dataset.country) }));
+        else if (category === "taxonomy")
+          config.settings.searchTerms = list($("catalog-search-terms")), config.capabilities.Empresas = [...$("catalog-fields").querySelectorAll("[data-capability]")].map(record), config.taxonomy = [...$("catalog-fields").querySelectorAll("[data-taxonomy-block]")].map((block) => ({ name: block.querySelector('[data-key="name"]').value.trim(), terms: list(block.querySelector('[data-key="terms"]')), emerging: [...block.querySelectorAll("[data-emerging]")].map(record), functions: [...block.querySelectorAll("[data-function]")].map(record) }));
+        else if (admin_schema_default[category].groups)
+          for (let group of $("catalog-fields").querySelectorAll("[data-config-section]")) for (let input2 of group.querySelectorAll("[data-key]")) config[group.dataset.configSection][input2.dataset.key] = read(input2);
+        else config[category] = [...$("catalog-fields").children].map(record);
     }
-    function fields(fields2, row) {
-      return fields2.map(([key, label, type, choices]) => `<label>${escape2(label)}${type === "choice" ? `<select data-key="${key}">${choices.map(([value, label2]) => `<option value="${escape2(value)}" ${row[key] === value ? "selected" : ""}>${escape2(label2)}</option>`).join("")}</select>` : type === "boolean" ? `<input type="checkbox" data-key="${key}" ${row[key] ? "checked" : ""}>` : `<input data-key="${key}" ${type === "list" ? 'data-list="true"' : ""} type="${type === "number" ? "number" : "text"}" ${type === "readonly" ? "readonly" : ""} value="${escape2(type === "list" ? (row[key] || []).join("; ") : row[key] ?? "")}">`}</label>`).join("");
+    function fields(definitions, row) {
+      return definitions.map(([key, label, type, choices]) => `<label class="${type === "list" ? "catalog-terms" : ""}">${escape2(t(label))}${type === "choice" ? `<select data-key="${key}">${choices.map(([value, label2]) => `<option value="${escape2(value)}" ${row[key] === value ? "selected" : ""}>${escape2(t(label2))}</option>`).join("")}</select>` : type === "boolean" ? `<input type="checkbox" data-key="${key}" ${row[key] ? "checked" : ""}>` : type === "list" ? `<textarea data-key="${key}" data-list="true" rows="${Math.min(8, Math.max(3, (row[key] || []).length))}" spellcheck="false">${escape2((row[key] || []).join(`
+`))}</textarea><span class="small muted">${t("Un t\xE9rmino por l\xEDnea")} \xB7 ${(row[key] || []).length}</span>` : `<input data-key="${key}" type="${type === "number" ? "number" : "text"}" ${type === "readonly" ? "readonly" : ""} value="${escape2(row[key] ?? "")}">`}</label>`).join("");
+    }
+    function filterRows() {
+      let query = filters4.query(), term = recordText(query.search), rows = [...$("catalog-fields").children], shown = 0;
+      for (let row of rows) {
+        let enabled = row.querySelector('[data-key="enabled"]');
+        enabled && (row.dataset.enabled = String(enabled.checked));
+        let text = row.textContent + " " + [...row.querySelectorAll("input,textarea")].map((input2) => input2.value).join(" "), match = (!term || recordText(text).includes(term)) && (!query.enabled || !row.hasAttribute("data-enabled") || row.dataset.enabled === query.enabled);
+        row.hidden = !match, match && shown++;
+      }
+      $("catalog-count").textContent = t("{shown} de {total} entradas", { shown, total: rows.length });
     }
     function render() {
       let meta = admin_schema_default[category];
-      if ($("capability-toolbar").hidden = category !== "capabilities", $("catalog-help").textContent = meta.help + (category === "storage" ? " ID: " + storagePrimaryId : ""), $("catalog-add").hidden = ["settings", "storage", "applicationScope", "taxonomy"].includes(category), category === "taxonomy") {
-        $("catalog-fields").innerHTML = config.taxonomy.map((block, index) => `<details class="catalog-row"><summary><strong>${escape2(block.name)}</strong><span>${block.functions.length}</span></summary><div class="catalog-grid">${fields([["name", "Bloque funcional", "readonly"], ["terms", "Equivalencias del bloque", "list"]], block)}</div>${block.functions.map((row) => `<div class="catalog-grid" data-function>${fields([["id", "C\xF3digo", "readonly"], ["name", "Funcionalidad / Sub Operativa", "readonly"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"]], row)}</div>`).join("")}<h3>${t("Conceptos emergentes admitidos")}</h3><button type="button" class="button" data-add-emerging="${index}">${t("A\xF1adir concepto emergente")}</button>${block.emerging.map((row) => `<div class="catalog-grid" data-emerging>${fields([["name", "Funcionalidad / Sub Operativa", "text"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"], ["primaryTerms", "Productos concretos de fuente oficial", "list"], ["primary", "Producto concreto respaldado por fuente oficial", "boolean"]], row)}<button type="button" class="button" data-remove-emerging>${t("Eliminar")}</button></div>`).join("")}</details>`).join("");
-        return;
-      }
-      $("catalog-fields").innerHTML = category === "applicationScope" ? config.applicationScope.map((scope) => `<fieldset class="catalog-group scope-group" data-scope="${escape2(scope.name)}"><legend>${escape2(scope.name)}</legend><div class="scope-countries">${config.geographies.map((country) => `<label class="scope-country"><input type="checkbox" data-country="${escape2(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${escape2(country.name)}</span></label>`).join("")}</div></fieldset>`).join("") : ["settings", "storage"].includes(category) ? meta.groups.map((group) => `<fieldset class="catalog-group"><legend>${escape2(group.label)}</legend><div class="catalog-settings">${group.keys.map((key) => {
-        let value = config[category][key];
-        return fields([[key, meta.labels[key], Array.isArray(value) ? "list" : typeof value == "number" ? "number" : typeof value == "boolean" ? "boolean" : "text"]], config[category]);
-      }).join("")}</div></fieldset>`).join("") : entries().map((row) => `<details class="catalog-row" ${row.name ? "" : "open"}><summary><strong>${escape2(row.name || "Nueva entrada")}</strong><span>${escape2(row.type || "")} \xB7 ${row.enabled ? "Activa" : "Inactiva"}</span></summary><div class="catalog-grid">${fields(meta.fields, row)}</div><div class="actions"><button type="button" class="button" data-move="-1">Subir</button><button type="button" class="button" data-move="1">Bajar</button><button type="button" class="button" data-remove>Eliminar</button></div></details>`).join("");
+      $("capability-toolbar").hidden = category !== "taxonomy", $("catalog-help").textContent = t(meta.help) + (category === "storage" ? " ID: " + storagePrimaryId : ""), $("catalog-add").hidden = !!meta.groups || ["applicationScope", "taxonomy"].includes(category);
+      let html;
+      category === "taxonomy" ? html = `<details class="catalog-row" data-config-detection><summary><strong>${t("Detecci\xF3n de canal digital y b\xFAsquedas")}</strong></summary><p class="muted">${t("Estos criterios recuperan y seleccionan noticias antes de asignar funcionalidades del cat\xE1logo maestro.")}</p><label class="catalog-terms">${t("T\xE9rminos de b\xFAsqueda de sector")}<textarea id="catalog-search-terms" rows="5">${escape2(config.settings.searchTerms.join(`
+`))}</textarea><span class="small muted">${t("Un t\xE9rmino por l\xEDnea")}</span></label><button class="button" type="button" data-add-capability>${t("A\xF1adir capacidad de detecci\xF3n")}</button>${config.capabilities.Empresas.map((row) => `<details class="catalog-row" data-capability><summary><strong>${escape2(row.name)}</strong><span>${t(row.enabled ? "Activa" : "Inactiva")}</span></summary><div class="catalog-grid">${fields(capabilityFields, row)}</div><div class="actions"><button class="button" type="button" data-remove-capability>${t("Eliminar")}</button></div></details>`).join("")}</details>` + config.taxonomy.map((block, index) => `<details class="catalog-row" data-taxonomy-block><summary><strong>${escape2(block.name)}</strong><span>${block.functions.length} ${t("funcionalidades")}</span></summary><div class="catalog-grid">${fields([["name", "Bloque funcional", "readonly"], ["terms", "Equivalencias del bloque", "list"]], block)}</div>${block.functions.map((row) => `<details class="catalog-function" data-function><summary><strong>${escape2(row.id + " \xB7 " + row.name)}</strong><span>${row.terms.length} ${t("equivalencias")}</span></summary><div class="catalog-grid">${fields([["id", "C\xF3digo", "readonly"], ["name", "Funcionalidad / Sub Operativa", "readonly"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"]], row)}</div></details>`).join("")}<h3>${t("Conceptos emergentes admitidos")}</h3><button type="button" class="button" data-add-emerging="${index}">${t("A\xF1adir concepto emergente")}</button>${block.emerging.map((row) => `<div class="catalog-grid" data-emerging>${fields([["name", "Funcionalidad / Sub Operativa", "text"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"], ["primaryTerms", "Productos concretos de fuente oficial", "list"], ["primary", "Producto concreto respaldado por fuente oficial", "boolean"]], row)}<button type="button" class="button" data-remove-emerging>${t("Eliminar")}</button></div>`).join("")}</details>`).join("") : category === "applicationScope" ? html = config.applicationScope.map((scope) => `<fieldset class="catalog-group scope-group" data-scope="${escape2(scope.name)}"><legend>${escape2(scope.name)}</legend><div class="scope-countries">${config.geographies.map((country) => `<label class="scope-country"><input type="checkbox" data-country="${escape2(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${escape2(country.name)}</span></label>`).join("")}</div></fieldset>`).join("") : meta.groups ? html = meta.groups.map((group) => {
+        let section = group.section || category;
+        return `<fieldset class="catalog-group" data-config-section="${section}"><legend>${escape2(t(group.label))}</legend><div class="catalog-settings">${group.keys.map((key) => {
+          let value = config[section][key];
+          return fields([[key, meta.labels[key], Array.isArray(value) ? "list" : typeof value == "number" ? "number" : typeof value == "boolean" ? "boolean" : "text"]], config[section]);
+        }).join("")}</div></fieldset>`;
+      }).join("") : html = entries().map((row) => `<details class="catalog-row" data-enabled="${row.enabled}" ${row.name ? "" : "open"}><summary><strong>${escape2(row.name || t("Nueva entrada"))}</strong><span>${escape2(row.type || "")}${row.type ? " \xB7 " : ""}${t(row.enabled ? "Activa" : "Inactiva")}</span></summary><div class="catalog-grid">${fields(meta.fields, row)}</div><div class="actions"><button type="button" class="button" data-move="-1">${t("Subir")}</button><button type="button" class="button" data-move="1">${t("Bajar")}</button><button type="button" class="button" data-remove>${t("Eliminar")}</button></div></details>`).join(""), $("catalog-fields").innerHTML = html, filterRows();
     }
-    return $("catalog-category").innerHTML = Object.entries(admin_schema_default).map(([key, meta]) => `<option value="${key}">${escape2(meta.label)}</option>`).join(""), $("catalog-category").addEventListener("change", () => {
+    return $("catalog-category").innerHTML = Object.entries(admin_schema_default).map(([key, meta]) => `<option value="${key}">${escape2(t(meta.label))}</option>`).join(""), $("catalog-category").addEventListener("change", () => {
       readFields(), category = $("catalog-category").value, render();
     }), $("catalog-fields").addEventListener("click", (event) => {
+      if (event.target.closest("[data-add-capability]")) {
+        readFields(), config.capabilities.Empresas.push({ name: "", terms: [], enabled: !0 }), render();
+        return;
+      }
+      let removeCapability = event.target.closest("[data-remove-capability]");
+      if (removeCapability) {
+        removeCapability.closest("[data-capability]").remove();
+        return;
+      }
       let add = event.target.closest("[data-add-emerging]");
       if (add) {
         readFields(), config.taxonomy[Number(add.dataset.addEmerging)].emerging.push({ name: "", terms: [] }), render();
@@ -2789,16 +2863,19 @@
         return;
       }
       let remove = event.target.closest("[data-remove]");
-      remove && remove.closest(".catalog-row").remove();
+      if (remove) {
+        remove.closest(".catalog-row").remove();
+        return;
+      }
       let move = event.target.closest("[data-move]");
       if (move) {
         let row = move.closest(".catalog-row"), index = [...$("catalog-fields").children].indexOf(row), target = index + Number(move.dataset.move);
         readFields(), target >= 0 && target < entries().length && ([entries()[index], entries()[target]] = [entries()[target], entries()[index]], render());
       }
     }), $("capability-restore").addEventListener("click", () => {
-      readFields(), config.capabilities.Empresas = JSON.parse(JSON.stringify(capabilityDefaults.Empresas)), render();
+      readFields(), config.capabilities.Empresas = capabilityDefaults.Empresas.map((row) => ({ ...row, terms: row.terms.slice() })), render();
     }), $("catalog-add").addEventListener("click", () => {
-      readFields(), entries().push(Object.fromEntries(admin_schema_default[category].fields.map(([key, , type]) => [key, type === "list" ? [] : type === "boolean" ? !0 : type === "choice" ? admin_schema_default[category].fields.find((field) => field[0] === key)[3][0][0] : ""]))), render();
+      readFields(), entries().push(Object.fromEntries(admin_schema_default[category].fields.map(([key, , type, choices]) => [key, type === "list" ? [] : type === "boolean" ? !0 : type === "choice" ? choices[0][0] : ""]))), render();
     }), $("catalog-form").addEventListener("submit", (event) => {
       event.preventDefault(), readFields(), run(async () => {
         message(await call("saveConfiguration", { config, revision })), await fetchConfig(), render();
@@ -3105,13 +3182,13 @@
   }
 
   // src/client/features/administration.js
-  function createAdministration({ isAdmin, track: track2, onConfiguration, onSubscribers, onRuns, onLeaveRuns, onLeaveSubscribers, onTaxonomy, onLeaveTaxonomy, onLlm, onLeaveLlm }) {
+  function createAdministration({ isAdmin, track: track2, onConfiguration, onSubscribers, onRuns, onLeaveRuns, onTaxonomy, onLlm, onLeaveLlm }) {
     let content = document.querySelector("#administration-section .admin-content");
     enhanceAdminTables(content);
     let current = Object.keys(config_default.adminViews)[0];
     async function open(view2 = Object.keys(config_default.adminViews)[0]) {
       if (!(!isAdmin() || !(view2 in config_default.adminViews))) {
-        current === "runs" && view2 !== current && onLeaveRuns(), current === "subscribers" && view2 !== current && onLeaveSubscribers(), current === "taxonomy" && view2 !== current && onLeaveTaxonomy(), current === "llm" && view2 !== current && onLeaveLlm(), current = view2, track2("vista");
+        current === "runs" && view2 !== current && onLeaveRuns(), current === "llm" && view2 !== current && onLeaveLlm(), current = view2, track2("vista");
         for (let name of Object.keys(config_default.adminViews)) $(name + "-section").hidden = name !== view2;
         if ($("admin-tabs").querySelectorAll("[data-admin-view]").forEach((button) => {
           button.setAttribute("aria-selected", String(button.dataset.adminView === view2)), button.tabIndex = button.dataset.adminView === view2 ? 0 : -1, button.dataset.adminView === view2 && button.scrollIntoView?.({ block: "nearest", inline: "nearest" });
@@ -3200,7 +3277,7 @@
         button.dataset.removeFilter === "benchmark" ? delete applied.benchmark : form.elements[button.dataset.removeFilter].value = "", filterChanged({ type: "change" });
       }
     });
-    let timer;
+    let timer2;
     function filterChanged(event) {
       if (edition && ["from", "to"].includes(event.target?.name) && !event.target.value) {
         current();
@@ -3210,9 +3287,9 @@
       syncTaxonomyControls(form, taxonomy2, event.target?.name);
       let next = Object.fromEntries(new FormData(form));
       if (event.type === "submit" && JSON.stringify(Object.entries(next).sort()) === JSON.stringify(Object.entries(applied).filter(([key]) => form.elements[key]).sort())) return;
-      clearTimeout(timer), page = 0, initialized.add(view2), onInvalidate();
+      clearTimeout(timer2), page = 0, initialized.add(view2), onInvalidate();
       let from = form.elements.from.value, to = form.elements.to.value;
-      form.elements.to.setCustomValidity(from && to && from > to ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : ""), $("message").hidden = !0, dirty = !1, applied = { ...edition && applied.benchmark ? { benchmark: applied.benchmark } : {}, ...Object.fromEntries(new FormData(form)) }, renderChips(), event.notify !== !1 && (event.type === "input" ? timer = setTimeout(onChange, 250) : onChange());
+      form.elements.to.setCustomValidity(from && to && from > to ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : ""), $("message").hidden = !0, dirty = !1, applied = { ...edition && applied.benchmark ? { benchmark: applied.benchmark } : {}, ...Object.fromEntries(new FormData(form)) }, renderChips(), event.notify !== !1 && (event.type === "input" ? timer2 = setTimeout(onChange, 250) : onChange());
     }
     function draftChanged(event) {
       if (!event.target?.name) return;
@@ -3233,32 +3310,32 @@
         queueMicrotask(current);
         return;
       }
-      clearTimeout(timer), onInvalidate(), queueMicrotask(() => {
+      clearTimeout(timer2), onInvalidate(), queueMicrotask(() => {
         for (let name of [...form.elements].filter((input2) => input2.name).map((input2) => input2.name)) form.elements[name].value = "";
         filterChanged({ type: "reset" });
       });
     }), form.addEventListener("submit", (event) => {
       event.preventDefault(), form.reportValidity() && (filterChanged({ type: "submit" }), $("filters-dialog").close());
     });
-    function resetContext(nextEdition) {
-      edition = nextEdition, dirty = !1, applied = {}, newsGeography = "", clearTimeout(timer), page = 0;
+    function resetContext(nextEdition, notify = !0) {
+      edition = nextEdition, dirty = !1, applied = {}, newsGeography = "", clearTimeout(timer2), page = 0;
       for (let name of ["news", "briefing", "radar"])
         initialized.delete(name), selections.delete(name);
       for (let input2 of form.elements) input2.name && (input2.value = "");
-      form.elements.to.setCustomValidity(""), onInvalidate(), onChange();
+      form.elements.to.setCustomValidity(""), onInvalidate(), notify && onChange();
     }
     function current() {
       resetContext("");
     }
     return {
-      useEdition: (id, selection = {}) => {
-        editionSelection = selection, resetContext(id);
+      useEdition: (id, selection = {}, notify = !0) => {
+        editionSelection = selection, resetContext(id, notify);
       },
       current,
       query: () => ({ ...applied, page, view: view2, language, ...edition && view2 === "news" ? { edition, ...initialized.has(view2) ? {} : editionSelection } : {}, ...view2 === "news" && newsGeography ? { newsGeography } : {}, initial: !initialized.has(view2) }),
       show: (next) => {
         if (next === view2) return !1;
-        clearTimeout(timer), onInvalidate();
+        clearTimeout(timer2), onInvalidate();
         let selection = { ...applied };
         selections.set(view2, selection), view2 = next, page = 0, newsGeography = "", layout();
         for (let input2 of form.elements) input2.name && (input2.value = (selections.get(view2) || defaults)[input2.name] || "");
@@ -3532,28 +3609,20 @@
   initializeLocalization();
   var refreshSelects = initializeSearchableSelects();
   initializeDatePickers();
-  var state = { data: null, request: 0, busy: !1, contentStale: !1, attribution: "", view: null, ready: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data, getAttribution: () => state.attribution && state.data?.context?.id === state.attribution ? state.attribution : "" }), { track, flush } = usage, dashboards = /* @__PURE__ */ new Map(), selectionKey = (query) => JSON.stringify(Object.entries(query).filter(([, value]) => value !== "" && value != null).sort(([a], [b]) => a.localeCompare(b))), configuration = createConfiguration({ run: action }), taxonomy = createTaxonomy({ run: action, isActive: () => navigation.current === "administration" && administration.current === "runs" }), llmCategorization = createLlmCategorization({ run: action, refreshSelects, isActive: () => navigation.current === "administration" && administration.current === "llm", onRevision: (revision) => {
+  var state = { data: null, request: 0, busy: !1, contentStale: !1, attribution: "", view: null, ready: !1 }, usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady: () => !!state.data, getAttribution: () => state.attribution && state.data?.context?.id === state.attribution ? state.attribution : "" }), { track, flush } = usage, dashboards = /* @__PURE__ */ new Map(), selectionKey = (query) => JSON.stringify(Object.entries(query).filter(([, value]) => value !== "" && value != null).sort(([a], [b]) => a.localeCompare(b))), configuration = createConfiguration({ run: action }), taxonomy = createTaxonomy(), llmCategorization = createLlmCategorization({ run: action, refreshSelects, isActive: () => navigation.current === "administration" && administration.current === "llm", onRevision: (revision) => {
     state.data && revision !== state.data.newsRevision && (state.contentStale = !0, dashboards.clear());
-  } }), subscriptions = createSubscriptions({ run: action }), classification = createClassification({ run: action, isActive: () => navigation.current === "administration" && administration.current === "runs" }), maintenance = createJobMonitor({ id: "maintenance", get: "getMaintenanceStatus", isActive: () => navigation.current === "administration" && administration.current === "runs", render({ job }) {
-    $("maintenance-progress").innerHTML = job ? jobProgressHtml(job, { total: job.total, done: job.reviewed, label: "Mantenimiento incremental", summary: job.reviewed + " revisados \xB7 " + job.corrected + " corregidos \xB7 " + job.consolidated + " consolidados \xB7 " + job.removed + " eliminados" }) : "<p>Sin mantenimiento pendiente.</p>";
-  } }), newsletterDelivery = createNewsletterDelivery({ run: action, isActive: () => navigation.current === "administration" && administration.current === "runs" }), languageSettings = createLanguageSettings({ run: action, isActive: () => navigation.current === "administration" && administration.current === "runs" }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]), onRuns: async () => {
-    let data = await loadRuns();
-    data && await Promise.all([classification.open(data.classification), maintenance.open(), languageSettings.open(), taxonomy.openProgress(), newsletterDelivery.openProgress()]);
-  }, onLeaveRuns: () => {
-    classification.close(), maintenance.close(), languageSettings.close(), taxonomy.close(), newsletterDelivery.close();
-  }, onLeaveSubscribers: () => newsletterDelivery.close(), onTaxonomy: () => taxonomy.open(), onLeaveTaxonomy: () => taxonomy.close(), onLlm: () => llmCategorization.open(), onLeaveLlm: () => llmCategorization.close() }), panel = createFilterPanel(), navigation = createNavigation({ onPanel: (view2) => {
-    view2 !== "administration" && (llmCategorization.close(), classification.close(), maintenance.close(), newsletterDelivery.close(), languageSettings.close(), taxonomy.close()), ++state.request, panel.show(view2), state.data && collectionProgress.update(state.data), refreshLoading();
+  } }), subscriptions = createSubscriptions({ run: action }), newsletterDelivery = createNewsletterDelivery({ run: action }), administration = createAdministration({ isAdmin: () => !!state.data?.admin, track, onConfiguration: () => configuration.open(), onSubscribers: () => Promise.all([subscriptions.open(!0), newsletterDelivery.open()]), onRuns: loadRuns, onLeaveRuns: closeRuns, onTaxonomy: () => taxonomy.open(), onLlm: () => llmCategorization.open(), onLeaveLlm: () => llmCategorization.close() }), panel = createFilterPanel(), navigation = createNavigation({ onPanel: (view2) => {
+    view2 !== "administration" && (llmCategorization.close(), closeRuns()), ++state.request, panel.show(view2), state.data && collectionProgress.update(state.data), refreshLoading();
   }, onSelection: (view2) => {
-    taxonomy.close();
     let changed = filters3.show(view2);
     state.ready && (changed || state.contentStale || state.view !== view2) && load(!0);
-  }, onSubscriptions: () => (taxonomy.close(), subscriptions.open()), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters3 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
+  }, onSubscriptions: () => subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters3 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
   } }), reading = createReadingContext({ run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing({ onExplore: (query) => navigateSelection("news", query) }), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters3.setGeography(name));
   function navigateSelection(view2, query) {
     filters3.show(view2), filters3.apply(query, !1), state.contentStale = !0, track("filtro"), navigation.show(view2);
   }
-  var radar = createRadar({ onOutage: (query) => navigateSelection("news", { ...state.data.selection, ...query, page: 0 }), onSource: (source) => navigateSelection("news", { ...state.data.selection, source }), onCountry: (country) => navigateSelection("news", { ...state.data.selection, country }), onEntity: (entity) => navigateSelection("news", { ...state.data.selection, entity }) }), sources = createSources({ getData: () => state.data, run: action }), recoveryControls = createRecoveryControls({ getData: () => state.data, run: action }), collectionProgress = createCollectionProgress({ isActive: () => navigation.current === "administration", isBusy: () => state.busy || !$("loading").hidden, onStatus: (status) => {
+  var radar = createRadar({ onOutage: (query) => navigateSelection("news", { ...state.data.selection, ...query, page: 0 }), onSource: (source) => navigateSelection("news", { ...state.data.selection, source }), onCountry: (country) => navigateSelection("news", { ...state.data.selection, country }), onEntity: (entity) => navigateSelection("news", { ...state.data.selection, entity }) }), sources = createSources({ getData: () => state.data, run: action }), recoveryControls = createRecoveryControls({ run: action }), collectionProgress = createCollectionProgress({ isActive: () => navigation.current === "administration", isBusy: () => state.busy || !$("loading").hidden, onStatus: (status) => {
     state.data && (state.data.collection = status), state.data?.admin && renderCollectionJobs(status);
   } });
   function renderSelection(data, view2 = navigation.current, appended = null) {
@@ -3585,7 +3654,7 @@
         request3 === state.request && (track("error"), releaseSecondaryRequests(), message(error.message || String(error), !0));
       }
   }
-  var actionControls = "#llm-section button,#llm-section input,#llm-section select,#classification-start,#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
+  var actionControls = "#llm-section button,#llm-section input,#llm-section select,#runs-section button,#language-section button,.actions button,.recovery-control button,#sources-form button,#retry-collection,.recovery-range input,#save-source-settings,#catalog-form button,#catalog-reload,#personal-editor button,#admin-subscription-editor button,#subscriptions-list button,.newsletter-delivery button";
   async function action(fn, refresh = !0) {
     if (!state.busy) {
       state.busy = !0, sources.setBusy(!0), recoveryControls.setBusy(!0), document.querySelectorAll(actionControls).forEach((el) => el.disabled = !0);
@@ -3631,11 +3700,11 @@
   }
   !window.RADAR_PREVIEW && typeof google < "u" ? google.script.url.getLocation((location) => startApplication(location.parameter)) : startApplication(Object.fromEntries(new URLSearchParams(window.location?.search || "")));
   window.addEventListener("news-radar-language-change", async () => {
-    await load(), navigation.current === "administration" && administration.current === "language" && await languageSettings.open(), navigation.current === "administration" && administration.current === "taxonomy" && await taxonomy.open();
+    await load(), navigation.current === "administration" && administration.current === "taxonomy" && await taxonomy.open();
   });
   document.querySelector(".admin-content").addEventListener("click", (event) => {
     let button = event.target.closest("[data-open-edition]");
-    button && (filters3.show("news"), filters3.useEdition(button.dataset.openEdition), navigation.show("news"));
+    button && (filters3.show("news"), filters3.useEdition(button.dataset.openEdition, {}, !1), state.contentStale = !0, navigation.show("news"));
   });
 })();
 </script>

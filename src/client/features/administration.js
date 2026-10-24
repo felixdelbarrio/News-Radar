@@ -3,15 +3,13 @@ import config from "../config.js";
 import { loadMetrics } from "./metrics.js";
 import { loadAudit } from "./audit.js";
 import {enhanceAdminTables} from "./admin-tables.js";
-function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,onRuns,onLeaveRuns,onLeaveSubscribers,onTaxonomy,onLeaveTaxonomy,onLlm,onLeaveLlm }) {
+function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,onRuns,onLeaveRuns,onTaxonomy,onLlm,onLeaveLlm }) {
   const content=document.querySelector('#administration-section .admin-content');
   enhanceAdminTables(content);
   let current = Object.keys(config.adminViews)[0];
   async function open(view = Object.keys(config.adminViews)[0]) {
     if (!isAdmin() || !(view in config.adminViews)) return;
     if(current==='runs'&&view!==current)onLeaveRuns();
-    if(current==='subscribers'&&view!==current)onLeaveSubscribers();
-    if(current==="taxonomy"&&view!==current)onLeaveTaxonomy();
     if(current==='llm'&&view!==current)onLeaveLlm();
     current = view;
     track("vista");

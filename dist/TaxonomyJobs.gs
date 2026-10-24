@@ -38,8 +38,8 @@ function taxonomyJob_(){const raw=properties_().getProperty('TAXONOMY_JOB');retu
 function taxonomyPending_(){const job=taxonomyJob_();return Boolean(job&&job.state!=='Completada');}
 function taxonomyReadyAt_(){const job=taxonomyJob_();return job&&!['Completada','Publicando'].includes(job.state)?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
 function writeTaxonomyJob_(job){progressContextMemory_=undefined;properties_().setProperty('TAXONOMY_JOB',JSON.stringify(snapshotJob_('TAXONOMY_JOB',job)));}
-function requestTaxonomy_(request=''){
-  const catalog=refreshFunctionalCatalog_();
+function requestTaxonomy_(request='',refresh=true){
+  const catalog=refresh?refreshFunctionalCatalog_():{source:'espejo'};
   const lastRow=newsSheet_().getLastRow(),candidateTotal=Math.max(0,candidateSheet_().getLastRow()-1),total=Math.max(0,lastRow-1),now=new Date().toISOString();
   const id=Utilities.getUuid();
   writeTaxonomyJob_({request,catalog,id,source:newsStorageKey_(),state:'Pendiente',phase:'scan',next:2,candidateTotal,candidateRevision:properties_().getProperty('CANDIDATES_REVISION')||'0',total,workTotal:total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});
@@ -196,5 +196,3 @@ function clearTaxonomyCheckpoints_(keep=null){
  const rows=sheet.getRange(first,1,count,2).getDisplayValues();
  for(let start=0;start<rows.length;){if(rows[start][0]!=='taxonomy-checkpoint'||rows[start][1]===keep?.generation){start++;continue;}let end=start+1;while(end<rows.length&&rows[end][0]==='taxonomy-checkpoint'&&rows[end][1]!==keep?.generation)end++;sheet.getRange(first+start,1,end-start,4).clearContent();start=end;}
 }
-
-function getTaxonomyProgress(){authorize_(true);return {newsRevision:publishedNewsRevision_(),job:withJobProgress_('taxonomy',taxonomyJob_(),Boolean(properties_().getProperty('TAXONOMY_REQUEST'))),queued:Boolean(properties_().getProperty('TAXONOMY_REQUEST'))};}
