@@ -7,7 +7,6 @@ function maintenance_(force=false){
  saveMaintenanceJob_({version:RADAR.version,newsTotal,candidateTotal,total:newsTotal+candidateTotal,next:2,firstRow:2,state:'Pendiente',phase:'logs',reviewed:0,corrected:0,consolidated:0,removed:0,started:new Date().toISOString()});ensureBackgroundWorker_();
 }
 function maintenanceReadyAt_(){const job=maintenanceJob_();return job&&!['Completada','Publicando','Revisar'].includes(job.state)?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
-function getMaintenanceStatus(){authorize_(true);const job=maintenanceJob_();return {job:withJobProgress_('maintenance',job?{...job,processed:job.reviewed+Math.max(0,(job.candidateNext||2)-2)}:null),active:Boolean(job&&!['Completada','Revisar'].includes(job.state))};}
 function compactOperationalLogs_(){
  for(const name of LOG_TABLES)if(book_().getSheetByName(name)&&!archiveLogBatch_(name))return false;
  properties_().deleteProperty('LOG_ARCHIVE_PENDING');return true;

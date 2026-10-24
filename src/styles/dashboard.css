@@ -16,11 +16,14 @@
 .radar-outage{margin-top:var(--space-3)}
 .radar-outage-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
 .radar-outage-kpis .metric{min-width:0}
-.radar-outage-timeline{display:flex;align-items:end;gap:8px;margin:20px 0}
-.radar-outage-timeline>div{display:grid;text-align:center;flex:1;min-width:0;font-size:12px}
-.radar-outage meter{display:block;width:100%;height:10px;accent-color:var(--color-primary-bg-action)}
-.radar-outage-timeline meter{height:64px;writing-mode:vertical-lr;direction:rtl;margin:auto;width:18px}
-.radar-outage-countries{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 12px}
-.radar-outage-evidence{padding:12px 0;border-bottom:1px solid var(--color-primary-border)}
+.radar-outage-timeline{display:flex;align-items:end;gap:var(--space-1);margin:var(--space-3) 0}
+.radar-outage-timeline>div{display:grid;text-align:center;flex:1;min-width:0;font-size:var(--text-s)}
+.radar-outage meter{display:block;width:100%;height:var(--space-1);accent-color:var(--color-primary-bg-action)}
+.radar-outage-timeline meter{height:var(--space-8);writing-mode:vertical-lr;direction:rtl;margin:auto;width:var(--space-2)}
+.radar-outage-countries{display:flex;flex-wrap:wrap;gap:var(--space-1);padding:0 var(--space-2) var(--space-2)}
+.radar-outage-evidence{padding:var(--space-2) 0;border-bottom:var(--stroke) solid var(--color-primary-border)}
 .radar-outage-evidence a{font-weight:600}
 @media(max-width:760px){.radar-outage-grid{grid-template-columns:1fr}.radar-outage-kpis{grid-template-columns:1fr 1fr}}
+
+.radar-outage,.radar-outage-grid>*{min-width:0}.radar-outage :is(p,a,strong,button){overflow-wrap:anywhere}.radar-outage .panel-header{gap:var(--space-2)}
+@media(max-width:767px){.radar-outage .panel-header{flex-direction:column;align-items:stretch}.radar-outage .panel-header .button{white-space:normal}.radar-outage-timeline{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--space-2) var(--space-1)}.radar-outage-kpis{gap:var(--space-1)}.radar-outage-kpis .metric{padding:var(--space-2)}.radar-outage-kpis .metric strong{font-size:var(--text-xl)}.activity-chart{grid-template-columns:repeat(7,minmax(0,1fr));padding:var(--space-2)}.activity-column{min-width:0}.activity-column>span:last-child{font-size:var(--text-s);overflow-wrap:anywhere}}

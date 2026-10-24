@@ -19,7 +19,7 @@ function client(responses={}){
   }
   const context=vm.createContext({document:{addEventListener(){},documentElement:{},body:{nodeType:0},title:"",getElementById:element,querySelector:element,querySelectorAll:()=>[],createElement:()=>({click(){}})},
     navigator:{languages:['es-ES'],language:'es-ES'},URLSearchParams,Blob,URL:{createObjectURL:()=> 'blob:local',revokeObjectURL(){}},
-    window:{location:{search:'?view=briefing'},addEventListener(){},scrollTo(){},matchMedia:()=>({matches:false,addEventListener(){}}),RADAR_PREVIEW:{call(method,query){rpc.push({method,query});if(method!=='getDashboard')return Promise.resolve(responses[method]||(method==='getNewsletterHistory'?{items:[],total:0,page:0,pageSize:30,options:{},limit:20000}:method==='getSubscriptions'?[]:method==='getNewsletterOptions'?{email:'reader@bbva.com',defaults:{name:'Mi canal',periodicity:'quarterly',filters:{}},catalogs:{}}:method==='getConfiguration'?{config:configurationDefaults(),revision:'test'}:{saved:true}));return new Promise(resolve=>requests.push({query,resolve}));}}},
+    window:{location:{search:'?view=briefing'},addEventListener(){},scrollTo(){},matchMedia:()=>({matches:false,addEventListener(){}}),RADAR_PREVIEW:{call(method,query){rpc.push({method,query:method==='getAdminLogs'?arguments[2]:query});if(method!=='getDashboard')return Promise.resolve(responses[method]||(method==='getNewsletterHistory'?{items:[],total:0,page:0,pageSize:30,options:{},limit:20000}:method==='getSubscriptions'?[]:method==='getNewsletterOptions'?{email:'reader@bbva.com',defaults:{name:'Mi canal',periodicity:'quarterly',filters:{}},catalogs:{}}:method==='getConfiguration'?{config:configurationDefaults(),revision:'test'}:{saved:true}));return new Promise(resolve=>requests.push({query,resolve}));}}},
     FormData:class {constructor(){return Object.entries(form.elements).map(([name,input])=>[name,input.value]);}},
     MutationObserver:class {observe(){}disconnect(){}takeRecords(){return [];}},
     ResizeObserver:class {observe(){}},crypto:{randomUUID:()=> 'test-session'},performance:{now:()=>0},setInterval(){},queueMicrotask,
@@ -66,7 +66,7 @@ test('módulos administrativos renderizan fuentes y métricas sin depender del r
   assert.equal(c.element('source-fields').innerHTML,edited);
   await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'administration'}})}});await settle();
   await c.element('admin-tabs').listeners.click({target:{closest:()=>({dataset:{adminView:'adoption'}})}});await settle();
-  assert.match(c.element('adoption-body').innerHTML,/owner@bbva.com/);assert.equal(c.element('news-section').hidden,true);
+  assert.match(c.element('adoption-metrics').innerHTML,/DAU/);assert.equal(c.element('news-section').hidden,true);
 });
 
 
@@ -107,14 +107,14 @@ test('el mapa refleja el volumen filtrado y comunica entidad y ausencia de notic
 
 test('el administrador transmite el período seleccionado al recuperar noticias',async()=>{
  const c=client({collectNow:{added:0,pending:1,errors:[],notice:'Recuperación anual en cola.'}});c.requests[0].resolve({...dashboard('Inicial'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{total:0}});await settle();
- const action=c.element('collect').listeners.click();await settle();c.requests.at(-1).resolve({...dashboard('Recuperada'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{total:0}});await action;assert.equal(c.rpc.find(r=>r.method==='collectNow').query,'today');assert.match(c.element('message').textContent,/anual en cola/);
+ const action=c.element('runs-section').listeners.click({target:{closest:()=>({id:'collect',dataset:{}})}});await settle();c.requests.at(-1).resolve({...dashboard('Recuperada'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{total:0}});await action;assert.equal(c.rpc.find(r=>r.method==='collectNow').query,'today');assert.match(c.element('message').textContent,/anual en cola/);
 });
 
 test('la activación de fuentes persiste al buscar y paginar antes de guardar',async()=>{
  const c=client(),feeds=Array.from({length:31},(_,i)=>({id:String(i),name:'Fuente '+i,country:'España',kind:'profile',url:'https://example.com/rss',enabled:true}));
  c.requests[0].resolve({...dashboard('Inicial'),admin:true,feeds:[],configuredFeeds:feeds,runs:[],collection:{}});await settle();
  c.element('configured-sources-body').listeners.change({target:{matches:()=>true,dataset:{id:'0'},checked:false}});c.element('source-pagination').listeners.click({target:{closest:()=>({dataset:{page:'1'}})}});assert.match(c.element('configured-sources-body').innerHTML,/Fuente 10/);
- c.element('source-search').value='Fuente 0';c.element('source-search').listeners.input();c.debounce();assert.doesNotMatch(c.element('configured-sources-body').innerHTML,/ checked/);
+ c.element('source-search').value='Fuente 0';c.element('source-filter-form').listeners.submit({preventDefault(){}});c.debounce();assert.doesNotMatch(c.element('configured-sources-body').innerHTML,/ checked/);
  c.element('save-source-settings').listeners.click();await settle();const saved=c.rpc.find(row=>row.method==='saveSourceSettings').query;assert.equal(saved.length,30);assert.ok(!saved.includes('0'));assert.ok(saved.includes('30'));
 });
 
@@ -162,17 +162,17 @@ test('los desplegables no disparan una consulta por input y otra por change',asy
 
 test('filtros administrativos consultan sin recargar el dashboard y reinician la página',async()=>{
  const data={items:[{fecha:'2026-10-11T10:00:00Z',fuente:'BBVA',resultado:'Error',motivo:'HTTP 302'}],options:{fuente:['BBVA'],resultado:['Error'],ejecucion:['cycle']},total:45,page:0,pageSize:30,limit:20000};
- const c=client({getAudit:data});c.requests[0].resolve({...dashboard('Inicial'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{}});await settle();
+ const c=client({getAdminLogs:{...data,fields:['fuente','resultado'],columns:['fecha','fuente','resultado','motivo'],metrics:{total:45,errors:1}}});c.element('logs-view').value='audit';c.requests[0].resolve({...dashboard('Inicial'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{}});await settle();
  await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'administration'}})}});await c.element('admin-tabs').listeners.click({target:{closest:()=>({dataset:{adminView:'audit'}})}});await settle();
- c.element('audit-fuente').value='BBVA';c.element('audit-fuente').listeners.change();await settle();assert.equal(c.rpc.filter(row=>row.method==='getAudit').at(-1).query.fuente,'BBVA');
- c.element('audit-pagination').listeners.click({target:{closest:()=>({dataset:{page:'1'}})}});await settle();assert.equal(c.rpc.filter(row=>row.method==='getAudit').at(-1).query.page,1);
- c.element('audit-resultado').value='Error';c.element('audit-resultado').listeners.change();await settle();assert.equal(c.rpc.filter(row=>row.method==='getAudit').at(-1).query.page,0);assert.equal(c.rpc.filter(row=>row.method==='getDashboard').length,1);
- c.element('audit-from').value='2026-10-12';c.element('audit-to').value='2026-10-11';const before=c.rpc.length;c.element('audit-to').listeners.change();await settle();assert.equal(c.rpc.length,before);assert.match(c.element('message').textContent,/anterior/);
+ c.element('logs-fuente').value='BBVA';c.element('logs-filter-form').listeners.submit({preventDefault(){}});await settle();assert.equal(c.rpc.filter(row=>row.method==='getAdminLogs').at(-1).query.fuente,'BBVA');
+ c.element('logs-pagination').listeners.click({target:{closest:()=>({dataset:{page:'1'}})}});await settle();assert.equal(c.rpc.filter(row=>row.method==='getAdminLogs').at(-1).query.page,1);
+ c.element('logs-resultado').value='Error';c.element('logs-filter-form').listeners.submit({preventDefault(){}});await settle();assert.equal(c.rpc.filter(row=>row.method==='getAdminLogs').at(-1).query.page,0);assert.equal(c.rpc.filter(row=>row.method==='getDashboard').length,1);
+ c.element('logs-from').value='2026-10-12';c.element('logs-to').value='2026-10-11';const before=c.rpc.length;c.element('logs-filter-form').listeners.submit({preventDefault(){}});await settle();assert.equal(c.rpc.length,before);assert.match(c.element('message').textContent,/anterior/);
 });
 test('filtrar Fuentes por estado conserva la selección de las filas ocultas',async()=>{
  const c=client(),feeds=[{id:'active',name:'BBVA',entity:'BBVA',country:'España',kind:'profile',url:'https://example.com/a',enabled:true},{id:'off',name:'Santander',entity:'Santander',country:'México',kind:'rss',url:'https://example.com/b',enabled:false}];
  c.requests[0].resolve({...dashboard('Inicial'),admin:true,feeds:[],configuredFeeds:feeds,runs:[],collection:{}});await settle();
- c.element('source-enabled').value='false';c.element('source-enabled').listeners.change();assert.match(c.element('configured-sources-body').innerHTML,/Santander/);assert.doesNotMatch(c.element('configured-sources-body').innerHTML,/data-id="active"/);
+ c.element('source-enabled').value='false';c.element('source-filter-form').listeners.submit({preventDefault(){}});assert.match(c.element('configured-sources-body').innerHTML,/Santander/);assert.doesNotMatch(c.element('configured-sources-body').innerHTML,/data-id="active"/);
  c.element('configured-sources-body').listeners.change({target:{matches:()=>true,dataset:{id:'off'},checked:true}});assert.match(c.element('configured-sources-body').innerHTML,/No hay fuentes/);
  c.element('save-source-settings').listeners.click();await settle();const saved=c.rpc.find(row=>row.method==='saveSourceSettings').query;assert.equal(saved.length,2);assert.ok(saved.includes('active'));assert.ok(saved.includes('off'));
 });

@@ -41,13 +41,13 @@ test('feedback es opcional, propio, deduplicado y administrable; no lee el corpu
  assert.equal(c.saveNewsletterFeedback({edition:'edition',rating:'',comment:''}).feedback,null);
  const first=c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:'<b>Útil</b>'}).feedback;assert.equal(first.comentario,'Útil');
  c.saveNewsletterFeedback({edition:'edition',rating:'negative',comment:'Mejorar cobertura'});assert.equal(c.rows_('NewsletterFeedback').length,1);assert.equal(c.rows_('NewsletterFeedback')[0].id,first.id);
- c.setNewsletterFeedbackState({id:first.id,state:'atendido'});assert.equal(c.getNewsletterInsights().feedback.items[0].estado,'atendido');assert.throws(()=>c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:'a'.repeat(1001)}),/no válido/);
- s.setEmail('reader@bbva.com');assert.throws(()=>c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:''}),/no disponible/);assert.throws(()=>c.setNewsletterFeedbackState({id:first.id,state:'pendiente'}),/no autorizado/);assert.throws(()=>c.getNewsletterInsights(),/no autorizado/);
+ c.setNewsletterFeedbackState({id:first.id,state:'atendido'});assert.equal(c.getAdminFeedback().items[0].estado,'atendido');assert.throws(()=>c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:'a'.repeat(1001)}),/no válido/);
+ s.setEmail('reader@bbva.com');assert.throws(()=>c.saveNewsletterFeedback({edition:'edition',rating:'positive',comment:''}),/no disponible/);assert.throws(()=>c.setNewsletterFeedbackState({id:first.id,state:'pendiente'}),/no autorizado/);assert.throws(()=>c.getAdminFeedback(),/no autorizado/);
 });
 test('las visitas de newsletter usan identidad autenticada, IDs estables y deduplicación de reenvíos',()=>{
  const s=server(),c=s.c;edition(s);const input=[{id:'event-entry-123456',edition:'edition',session:'session-123456789',event:'acceso',view:'news',email:'spoof@bbva.com'},{id:'event-radar-123456',edition:'edition',session:'session-123456789',event:'vista',view:'radar'}];
  c.recordEvents(input);s.cache.clear();c.recordEvents(input);assert.equal(c.rows_('NewsletterEventos').length,2);assert.ok(c.rows_('NewsletterEventos').every(row=>row.correo==='owner@bbva.com'));
- const metrics=c.getNewsletterInsights().adoption.items[0];assert.equal(metrics.users,1);assert.equal(metrics.sessions,1);assert.equal(metrics.entries,1);assert.equal(metrics.recipients,1);assert.deepEqual(Array.from(metrics.destinations),['news','radar']);
+ const metrics=c.getAdminLogs('accesses');assert.equal(metrics.total,1);assert.equal(metrics.metrics.cards.find(row=>row[0]==='Usuarios')[1],1);assert.equal(metrics.items[0].correo,'owner@bbva.com');
  s.setEmail('reader@bbva.com');assert.throws(()=>c.recordEvents(input),/no disponible/);
 });
 test('el feedback actualizado conserva su retención mientras elimina otro registro antiguo',()=>{
@@ -63,7 +63,7 @@ test('la traducción prioriza Empresas digital antes de Retail más reciente sin
 });
 test('una cuota diaria suspende ambos traductores y no se pierde la solicitud prioritaria',()=>{
  const s=server(),c=s.c,row=news(s);row.clasificacion=JSON.stringify(row.etiquetas);add(s,'Noticias',row);let calls=0;c.LanguageApp={translate(){calls++;throw Error('Service invoked too many times for one day: translate');}};
- c.requestTranslations_(true);c.translationBatch_();c.requestTranslations_(true);c.translationBatch_();c.startTaxonomyTranslations();c.taxonomyTranslationBatch_();assert.equal(calls,1);assert.ok(c.translationReadyAt_()>Date.now());assert.ok(c.taxonomyTranslationReadyAt_()>Date.now());assert.ok(s.properties.TRANSLATION_PRIORITY_REQUEST);
+ c.requestTranslations_(true);c.translationBatch_();c.requestTranslations_(true);c.translationBatch_();c.requestTaxonomyTranslations_();c.taxonomyTranslationBatch_();assert.equal(calls,1);assert.ok(c.translationReadyAt_()>Date.now());assert.ok(c.taxonomyTranslationReadyAt_()>Date.now());assert.ok(s.properties.TRANSLATION_PRIORITY_REQUEST);
 });
 test('una solicitud recibida durante la traducción persiste para incorporar el siguiente contenido',()=>{
  const s=server(),c=s.c;add(s,'Noticias',news(s));c.requestTranslations_();c.LanguageApp={translate:html=>{s.properties.TRANSLATION_REQUEST=new Date(Date.now()+1000).toISOString();return html;}};c.translationBatch_();assert.ok(s.properties.TRANSLATION_REQUEST);drainSnapshots(c);assert.equal(c.translationJob_().state,'Completada');

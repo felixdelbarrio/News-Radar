@@ -34,7 +34,8 @@ test('vista autónoma comparte filtros, normalización de entidades y CSV con Ap
 test('vista local registra actividad real de la sesión y bloquea el correo remoto',async()=>{
  const fs=await import('node:fs'),vm=await import('node:vm');const html=fs.readFileSync('output/preview.html','utf8'),adapter=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].find(match=>match[1].includes('window.RADAR_PREVIEW='))[1].replace('admin=false','admin=true');
  const c=vm.createContext({window:{}});vm.runInContext(adapter,c);const preview=c.window.RADAR_PREVIEW;assert.equal((await preview.call('getAdoption')).events,0);
- await preview.call('recordEvents',[{session:'local-session',event:'rendimiento',view:'radar',duration:120}]);const activity=await preview.call('getAdoption');assert.equal(activity.events,1);assert.equal(activity.dau,1);assert.equal((await preview.call('getTelemetry')).latencyP95,120);assert.equal((await preview.call('getAudit')).total,0);
+ await preview.call('recordEvents',[{session:'local-session',event:'rendimiento',view:'radar',duration:120}]);const activity=await preview.call('getAdoption');assert.equal(activity.events,1);assert.equal(activity.dau,1);assert.equal((await preview.call('getAdminLogs','daily')).items[0].eventos,1);assert.equal((await preview.call('getAdminLogs','audit')).total,0);
+ const csv=await preview.call('exportAdminLogs','daily');assert.equal(csv.csv.charCodeAt(0),0xfeff);assert.match(csv.csv,/\r\n/);assert.doesNotMatch(csv.csv,/\\r\\n/);
  await assert.rejects(preview.call('sendNewsletterTest'),/no envía correos/);
 });
 

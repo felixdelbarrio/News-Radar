@@ -79,5 +79,3 @@ function completeNewsletterDelivery_(sheet,index,sender,recipient,content){
     sheet.getRange(index,6,1,3).setValues([[error.rejected?'No enviado':'Revisar',new Date().toISOString(),String(error.message).slice(0,500)+'; '+newsletterContentDetail_(content)]]);throw error;
   }
 }
-
-function getNewsletterHistory(query={}){authorize_(true);return newsletterHistoryRecords_(query);}

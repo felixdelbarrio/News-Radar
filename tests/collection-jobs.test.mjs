@@ -40,7 +40,7 @@ test('cada lote guarda contadores por ciclo y deduplica noticias compartidas ent
  const date=new Date('2026-10-10T12:00:00Z');c.parseFeed_=()=>[{title:'BBVA lanza financiación digital para empresas',date:date.toISOString(),url:'https://bbva.com/nueva-noticia',excerpt:'Nueva cuenta para empresas'}];
  const result=c.backgroundTick_();assert.equal(result.added,1);c.processBackground_(40);assert.equal(c.rows_('Noticias').length,1);assert.equal(c.rows_('Ejecuciones').length,2);
  const status=c.collectionStatus_();assert.equal(status.jobs.length,2);assert.equal(status.jobs.reduce((n,job)=>n+Number(job.nuevas),0),1);assert.ok(status.jobs.every(job=>job.estado==='Completada'));
- const runs=c.getRuns({id:'daily'});assert.equal(runs.total,1);assert.equal(runs.items[0].tipo,'daily');assert.ok(runs.collection.jobs.length);
+ const runs=c.getAdminLogs('runs',{id:'daily'});assert.equal(runs.total,1);assert.equal(runs.items[0].id,'daily');assert.ok(c.getControlPanel().collection.jobs.length);
 });
 test('preparar una solicitud es idempotente incluso si quedó una parte de la cola escrita',()=>{
  const s=server(),c=s.c;c.requestCollection_('annual',{from:'2025-01-01',to:'2026-01-01'});const request=c.collectionRequests_()[0];

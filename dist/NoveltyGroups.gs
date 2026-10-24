@@ -10,17 +10,11 @@ function noveltyOverview(items,signalNames=[],country=row=>geographyLabel(row.pa
   const counts=values=>[...values].map(([name,total])=>({name,total}));
   return {total:items.length,entities:entities.size,bySignal:counts(signals),geographies:[...geographies.values()].map(({signals,entities,...row})=>({...row,entityCount:entities.size,bySignal:counts(signals)})).sort(geographyOrder)};
 }
+// Publication dates are stored as ISO calendar dates; identity makes ties deterministic.
+function publicationOrder(a,b){return String(b.fecha||'').localeCompare(String(a.fecha||''))||String(a.id||a.url||a.titular||'').localeCompare(String(b.id||b.url||b.titular||''),'es');}
 function noveltyGroups(items,country=row=>geographyLabel(row.pais)){
   const geographies=new Map();
-  for(const row of items){
-    const name=country(row),entity=row.entidad||'Entidad no identificada',segment=[...new Set(row.segmentos||[])].sort((a,b)=>a.localeCompare(b,'es')).join(' · ')||'Segmento no identificado';
-    if(!geographies.has(name))geographies.set(name,{name,items:[],entities:new Map()});
-    const geography=geographies.get(name);geography.items.push(row);
-    if(!geography.entities.has(entity))geography.entities.set(entity,{name:entity,items:[],segments:new Map()});
-    const group=geography.entities.get(entity);group.items.push(row);
-    if(!group.segments.has(segment))group.segments.set(segment,{name:segment,items:[]});
-    group.segments.get(segment).items.push(row);
-  }
-  return [...geographies.values()].map(row=>({...row,entities:[...row.entities.values()].map(entity=>({...entity,total:entity.items.length,segments:[...entity.segments.values()]})).sort(entityVolumeOrder)})).sort(geographyOrder);
+  for(const row of items){const name=country(row);if(!geographies.has(name))geographies.set(name,{name,items:[]});geographies.get(name).items.push(row);}
+  return [...geographies.values()].map(group=>({...group,items:group.items.sort(publicationOrder)})).sort(geographyOrder);
 }
 function noveltyCount(count,singular,plural,translate=value=>value){return count+' '+translate(count===1?singular:plural);}

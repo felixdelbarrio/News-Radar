@@ -94,15 +94,15 @@ function createFilters({ onInvalidate, onChange }) {
     if(!form.reportValidity())return;
     filterChanged({ type: "submit" });$('filters-dialog').close();
   });
-  function resetContext(nextEdition){
+  function resetContext(nextEdition,notify=true){
     edition=nextEdition;dirty=false;applied={};newsGeography='';clearTimeout(timer);page=0;
     for(const name of ['news','briefing','radar']){initialized.delete(name);selections.delete(name);}
     for(const input of form.elements)if(input.name)input.value='';
-    form.elements.to.setCustomValidity('');onInvalidate();onChange();
+    form.elements.to.setCustomValidity('');onInvalidate();if(notify)onChange();
   }
   function current(){resetContext('');}
   return {
-    useEdition:(id,selection={})=>{editionSelection=selection;resetContext(id);},current,
+    useEdition:(id,selection={},notify=true)=>{editionSelection=selection;resetContext(id,notify);},current,
     query: () => ({ ...applied, page,view,language,...(edition&&view==='news'?{edition,...(!initialized.has(view)?editionSelection:{})}:{}),...(view==='news'&&newsGeography?{newsGeography}:{}),initial:!initialized.has(view) }),
     show: next => {
       if(next===view)return false;

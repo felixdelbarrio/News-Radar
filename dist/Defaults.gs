@@ -1,4 +1,4 @@
-const APPLICATION_NAVIGATION = Object.freeze({"views":{"briefing":"Novedades","news":"Noticias","radar":"Radar","subscriptions":"Mi Newsletter","administration":"Administración"},"adminViews":{"runs":"Ejecuciones","taxonomy":"Catálogo global de funcionalidades","llm":"Categorización LLM","language":"Idioma","subscribers":"Suscripciones","adoption":"Adopción","feedback":"Feedback","telemetry":"Telemetría","sources":"Fuentes","audit":"Auditoría","configuration":"Configuración de negocio"}});
+const APPLICATION_NAVIGATION = Object.freeze({"views":{"briefing":"Novedades","news":"Noticias","radar":"Radar","subscriptions":"Mi Newsletter","administration":"Administración"},"adminViews":{"runs":"Panel de control","taxonomy":"Catálogo global de funcionalidades","llm":"Categorización LLM","language":"Idioma","subscribers":"Suscripciones","adoption":"Adopción","feedback":"Feedback","sources":"Fuentes","audit":"Logs","configuration":"Configuración de negocio"}});
 const FUNCTIONAL_CATALOG_SEED = Object.freeze([
   {
     "name": "01.Home",
@@ -2173,7 +2173,18 @@ const CONFIGURATION_DEFAULTS = {
     "newsletterSenderName": "News Radar · BBVA Empresas",
     "newsletterDailyLimit": 100,
     "newsletterAppUrl": "",
-    "taxonomyCatalogUrl": "https://docs.google.com/spreadsheets/d/1hsFp-ZiiSsSt_ka73oKAWFlHEySdmJM_IrkBmK6YfH8/edit?gid=1593939800#gid=1593939800"
+    "taxonomyCatalogUrl": "https://docs.google.com/spreadsheets/d/1hsFp-ZiiSsSt_ka73oKAWFlHEySdmJM_IrkBmK6YfH8/edit?gid=1593939800#gid=1593939800",
+    "watchdogMinutes": 5,
+    "dailyMinute": 0,
+    "morningEnabled": true,
+    "afternoonHour": 13,
+    "afternoonMinute": 0,
+    "afternoonEnabled": true,
+    "eveningHour": 21,
+    "eveningMinute": 0,
+    "eveningEnabled": true,
+    "newsletterHour": 9,
+    "newsletterMinute": 0
   },
   "entities": [
     {

@@ -2,11 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {app,tick} from './helpers/app.mjs';
 const items=[{id:'pay',palanca:'Pagos y cobros',subpalanca:'Pagos biométricos',segmentos:['Empresas','Retail'],terminos:['pagos biometricos'],noticias:10,peso:1.2,origen:'tf-idf'}, {id:'api',palanca:'Integración y automatización',subpalanca:'APIs',segmentos:['Empresas'],terminos:['api'],noticias:4,peso:1,origen:'regla'}];
-test('la fuente de Drive se guarda desde Taxonomía con revisión y conserva el catálogo del Excel',async t=>{
- const a=await app(t,{configure({replies}){replies.getTaxonomyStatus={items,configurationRevision:'revision-1',catalogUrl:'https://docs.google.com/spreadsheets/d/catalog/edit',};replies.saveTaxonomySource='Configuración guardada.';}});
- await a.click('[data-view="administration"]');await a.click('[data-admin-view="taxonomy"]');assert.match(a.find('#taxonomy-catalog-status').textContent,/Drive/);a.find('#taxonomy-catalog-url').value='https://docs.google.com/spreadsheets/d/new/edit';await a.submit('#taxonomy-source-form');
- const request=a.calls.find(row=>row.method==='saveTaxonomySource').query;assert.equal(request.revision,'revision-1');assert.equal(Object.hasOwn(request,'refresh'),false);assert.equal(a.w.document.querySelector('#taxonomy-catalog-refresh'),null);assert.equal(request.url,'https://docs.google.com/spreadsheets/d/new/edit');assert.equal(a.find('#taxonomy-body').querySelectorAll('tr').length,2);
-});
+test('la fuente del catálogo se configura con las rutas de negocio',async t=>{const a=await app(t);await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');await a.change('#catalog-category','storage');assert.ok(a.find('#catalog-fields [data-key="taxonomyCatalogUrl"]'));assert.equal(a.w.document.getElementById('taxonomy-source-form'),null);});
 test('Taxonomía muestra jerarquía, paginación, progreso único y lanzamiento administrativo; abandona el sondeo al salir',async t=>{
   const timers=new Map();let id=0;
   const a=await app(t,{configure({w,replies}){
@@ -17,12 +13,12 @@ test('Taxonomía muestra jerarquía, paginación, progreso único y lanzamiento 
   assert.equal(a.find('#taxonomy-section').hidden,false);assert.equal(a.w.document.querySelector('#taxonomy-schedule'),null);assert.match(a.find('#taxonomy-count').textContent,/2 bloques funcionales · 2 funcionalidades/);
   assert.equal(a.find('#taxonomy-body').querySelectorAll('tr').length,2);assert.match(a.find('#taxonomy-body').textContent,/Pagos biométricos/);assert.match(a.find('#taxonomy-body').textContent,/Empresas · Retail/);
   await a.change('#taxonomy-palanca','Pagos y cobros');assert.equal(a.find('#taxonomy-body').querySelectorAll('tr').length,1);
-  a.replies.getTaxonomyStatus.job={total:100,processed:30,tagged:0,state:'En curso',updated:'2026-10-12T06:00:00Z'};await a.click('#taxonomy-start');
-  assert.equal(a.find('#taxonomy-progress progress').max,200);assert.equal(a.find('#taxonomy-progress progress').value,30);assert.equal(a.find('#taxonomy-start').disabled,true);assert.equal(a.find('#taxonomy-section').querySelectorAll('progress').length,1);assert.equal(a.calls.filter(row=>row.method==='startTaxonomy').length,1);
+  a.replies.getTaxonomyStatus.job={workTotal:200,total:100,processed:30,tagged:0,state:'En curso',updated:'2026-10-12T06:00:00Z'};await a.click('[data-admin-view="runs"]');await a.click('#taxonomy-start');
+  assert.equal(a.find('#taxonomy-progress progress').max,200);assert.equal(a.find('#taxonomy-progress progress').value,30);assert.equal(a.find('#taxonomy-start').disabled,true);assert.equal(a.find('#runs-section').querySelectorAll('#taxonomy-progress progress').length,1);assert.equal(a.calls.filter(row=>row.method==='startTaxonomy').length,0);
   await a.click('[data-admin-view="sources"]');assert.equal(timers.size,0);
-  a.replies.getTaxonomyStatus.job={total:100,processed:200,tagged:10,state:'Completada',updated:'2026-10-12T07:00:00Z'};await a.click('[data-admin-view="taxonomy"]');assert.equal(a.find('#taxonomy-start').disabled,false);assert.equal(a.find('#taxonomy-progress progress').value,200);
-  await a.click('#taxonomy-start');assert.equal(a.find('#taxonomy-section').querySelectorAll('progress').length,1);
-  a.replies.getTaxonomyStatus.job.state='En pausa';a.replies.getTaxonomyStatus.job.error='<script>fallo</script>';await a.click('[data-admin-view="sources"]');await a.click('[data-admin-view="taxonomy"]');assert.equal(a.find('#taxonomy-progress').querySelector('script'),null);assert.match(a.find('#taxonomy-progress').textContent,/fallo/);assert.equal(a.find('#taxonomy-start').disabled,false);
+  a.replies.getTaxonomyStatus.job={workTotal:200,total:100,processed:200,tagged:10,state:'Completada',updated:'2026-10-12T07:00:00Z'};await a.click('[data-admin-view="runs"]');assert.equal(a.find('#taxonomy-start').disabled,false);assert.equal(a.find('#taxonomy-progress progress').value,200);
+  await a.click('[data-admin-view="runs"]');await a.click('#taxonomy-start');assert.equal(a.find('#runs-section').querySelectorAll('#taxonomy-progress progress').length,1);
+  a.replies.getTaxonomyStatus.job.state='En pausa';a.replies.getTaxonomyStatus.job.error='<script>fallo</script>';await a.click('[data-admin-view="sources"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('#taxonomy-progress').querySelector('script'),null);assert.match(a.find('[data-process="taxonomy"]').textContent,/fallo/);assert.equal(a.find('#taxonomy-start').disabled,false);
   await a.click('[data-view="news"]');assert.equal(timers.size,0);await tick();
 });
 test('solo los filtros de Noticias envían palanca y subpalanca',async t=>{const path='Pagos y cobros › Pagos biométricos',a=await app(t,{configure({data}){data.palanca=['Pagos y cobros'];data.subpalanca=[path];}});await a.click('[data-view="news"]');await a.change('#filters [name="subpalanca"]',path);assert.equal(a.calls.filter(r=>r.method==='getDashboard').at(-1).query.subpalanca,path);await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('#personal-editor [name="subpalanca"]'),null);});
@@ -47,8 +43,8 @@ test('Idiomas reutiliza una sola barra de taxonomía, reanuda manualmente y deti
   Object.defineProperty(w.document,'hidden',{value:false});
   replies.getTaxonomyTranslationStatus={job:{state:'En pausa',total:9,processed:3,translated:3,error:'Traducción temporalmente no disponible. Se reintentará automáticamente.'},queued:false,newsRevision:'new'};
  }});
- await a.click('[data-view="administration"]');await a.click('[data-admin-view="language"]');assert.equal(a.find('#taxonomy-translation-progress progress').value,3);assert.equal(timers.size,1);assert.equal(a.find('#taxonomy-translation-start').disabled,false);
- a.replies.getTaxonomyTranslationStatus.job={state:'Pendiente',total:9,processed:3,translated:3};await a.click('#taxonomy-translation-start');assert.ok(a.calls.some(row=>row.method==='startTaxonomyTranslations'));assert.equal(a.w.document.querySelectorAll('#taxonomy-translation-progress progress').length,1);assert.equal(a.find('#taxonomy-translation-start').disabled,true);assert.equal(timers.size,1);
- a.replies.getTaxonomyTranslationStatus.job={state:'Completada',total:9,processed:9,translated:6};await [...timers.values()][0].fn();await tick();assert.equal(a.find('#taxonomy-translation-progress progress').value,9);assert.equal(timers.size,0);
- await a.click('[data-admin-view="runs"]');assert.equal(timers.size,0);
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('#taxonomy-translation-progress progress').value,3);assert.equal(timers.size,1);assert.equal(a.w.document.querySelector('#taxonomy-translation-start'),null);
+ a.replies.getTaxonomyTranslationStatus.job={state:'Pendiente',total:9,processed:3,translated:3};await a.click('#control-panel-refresh');assert.ok(!a.calls.some(row=>row.method==='startTaxonomyTranslations'));assert.equal(a.w.document.querySelectorAll('#taxonomy-translation-progress progress').length,1);assert.equal(a.w.document.querySelector('#taxonomy-translation-start'),null);assert.equal(timers.size,1);
+ a.replies.getTaxonomyTranslationStatus.job={state:'Completada',total:9,processed:9,translated:6};await [...timers.values()][0].fn();await tick();assert.equal(a.find('#taxonomy-translation-progress progress').value,9);assert.equal(timers.size,1);
+ await a.click('[data-admin-view="language"]');assert.equal(timers.size,0);
 });
