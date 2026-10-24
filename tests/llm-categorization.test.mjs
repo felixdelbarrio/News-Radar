@@ -63,7 +63,7 @@ test('resolver determinista/LLM con fallback, CSV y las tres vistas usan la mism
  const saved=c.llmState_().sheet;assert.equal(c.llmState_().sheet,saved);assert.deepEqual(c.annotateNews_(rows)[0].taxonomia.map(row=>row.id),det);
 });
 test('fallo de snapshot y reintento conservan la generación anterior y completan solo tras verificar',()=>{
- const s=setup(),c=s.c,before=s.properties.DATA_GENERATION;c.importLlmResults(payload([result(c)]));c.dashboardSnapshotBatch_();c.dashboardSnapshotBatch_();const verify=c.verifyDashboardSnapshot_;c.verifyDashboardSnapshot_=(view,...args)=>{if(view==='radar')throw Error('Fallo simulado');return verify(view,...args);};
+ const s=setup(),c=s.c,before=s.properties.DATA_GENERATION;c.importLlmResults(payload([result(c)]));const verify=c.verifyDashboardSnapshot_;c.verifyDashboardSnapshot_=(view,...args)=>{if(view==='radar')throw Error('Fallo simulado');return verify(view,...args);};
  assert.throws(()=>c.dashboardSnapshotBatch_(),/Fallo simulado/);assert.equal(s.properties.DATA_GENERATION,before);assert.equal(c.llmJob_().state,'Publicando');assert.match(c.llmJob_().error,/Fallo simulado/);c.verifyDashboardSnapshot_=verify;finish(c);assert.equal(c.getLlmCategorization().valid,1);
 });
 test('cambios concurrentes del corpus invalidan resultados, reinician construcción y no mezclan modos',()=>{
@@ -257,8 +257,6 @@ test('la interfaz descarga una vez al terminar y no descarga archivos parciales 
 
 test('el porcentaje de publicación avanza con cada snapshot y llega a 100 solo al publicar',()=>{
  const {c}=setup();assert.equal(c.getLlmCategorization().valid,0);assert.equal(c.importLlmResults(payload([result(c)])).valid,0);assert.equal(c.llmJob_().progress,0);
- c.dashboardSnapshotBatch_();assert.equal(c.llmJob_().progress,33);assert.equal(c.llmJob_().state,'Publicando');
- c.dashboardSnapshotBatch_();assert.equal(c.llmJob_().progress,67);assert.equal(c.getLlmCategorization().valid,0);
  c.dashboardSnapshotBatch_();assert.equal(c.llmJob_().progress,100);assert.equal(c.llmJob_().state,'Completada');assert.equal(c.getLlmCategorization().valid,1);
 });
 test('importación muestra avance por archivo y espera las tres vistas antes del 100 %',async t=>{
@@ -308,7 +306,7 @@ test('publicación LLM dispersa mantiene filtros y lecturas sin snapshot en la r
  const orphan=sheets.get('CategorizacionLLM').grid[1].slice();orphan[1]='corrupt';orphan[13]='unpublished-orphan';sheets.get('CategorizacionLLM').grid.push(orphan);vm.runInContext('llmIndexMemory_=undefined;',c);assert.equal(c.llmResultHash_(c.llmIndex_().get('news-0')),previous);
  c.importLlmResults(payload([changed]));
  const active=()=>{vm.runInContext('llmIndexMemory_=undefined;',c);assert.equal(c.llmResultHash_(c.llmIndex_().get('news-0')),previous);assert.equal(c.getLlmCategorization().classified,1);assert.equal(c.exportLlmPending({selection:'abstentions'}).count,1);};
- active();c.dashboardSnapshotBatch_();active();c.dashboardSnapshotBatch_();active();
+ active();
  vm.runInContext('llmStateOverride_=llmJob_().categorization;llmIndexMemory_=undefined;',c);assert.equal(c.llmIndex_().get('news-0').status,changed.status);vm.runInContext('llmStateOverride_=undefined;llmIndexMemory_=undefined;',c);
  c.dashboardSnapshotBatch_();assert.equal(c.llmIndex_().get('news-0').status,changed.status);assert.equal(c.getLlmCategorization().classified,0);
  assert.equal(sheets.get('CategorizacionLLM').getLastRow()-1,2);

@@ -1,5 +1,10 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "Mantenimiento incremental en cola.": ["Incremental maintenance queued.", "Artımlı bakım sıraya alındı."],
+  "Archivado de logs": ["Log archiving", "Günlük arşivleme"],
+  "Generar snapshots": ["Build snapshots", "Anlık görüntü oluştur"],
+  "Iniciar mantenimiento": ["Start maintenance", "Bakımı başlat"],
+
   "Cada {minutes} minutos": ["Every {minutes} minutes", "Her {minutes} dakikada"],
   "{added} noticias incorporadas · {errors} errores": ["{added} news items added · {errors} errors", "{added} haber eklendi · {errors} hata"],
   "Detección previa de canal digital": ["Digital channel pre-screening", "Dijital kanal ön elemesi"],

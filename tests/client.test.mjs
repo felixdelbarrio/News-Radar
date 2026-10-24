@@ -19,7 +19,7 @@ function client(responses={}){
   }
   const context=vm.createContext({document:{addEventListener(){},documentElement:{},body:{nodeType:0},title:"",getElementById:element,querySelector:element,querySelectorAll:()=>[],createElement:()=>({click(){}})},
     navigator:{languages:['es-ES'],language:'es-ES'},URLSearchParams,Blob,URL:{createObjectURL:()=> 'blob:local',revokeObjectURL(){}},
-    window:{location:{search:'?view=briefing'},addEventListener(){},scrollTo(){},matchMedia:()=>({matches:false,addEventListener(){}}),RADAR_PREVIEW:{call(method,query){rpc.push({method,query:method==='getAdminLogs'?arguments[2]:query});if(method!=='getDashboard')return Promise.resolve(responses[method]||(method==='getNewsletterHistory'?{items:[],total:0,page:0,pageSize:30,options:{},limit:20000}:method==='getSubscriptions'?[]:method==='getNewsletterOptions'?{email:'reader@bbva.com',defaults:{name:'Mi canal',periodicity:'quarterly',filters:{}},catalogs:{}}:method==='getConfiguration'?{config:configurationDefaults(),revision:'test'}:{saved:true}));return new Promise(resolve=>requests.push({query,resolve}));}}},
+    window:{requestIdleCallback(){},location:{search:'?view=briefing'},addEventListener(){},scrollTo(){},matchMedia:()=>({matches:false,addEventListener(){}}),RADAR_PREVIEW:{call(method,query){rpc.push({method,query:method==='getAdminLogs'?arguments[2]:query});if(method!=='getDashboard')return Promise.resolve(responses[method]||(method==='getNewsletterHistory'?{items:[],total:0,page:0,pageSize:30,options:{},limit:20000}:method==='getSubscriptions'?[]:method==='getNewsletterOptions'?{email:'reader@bbva.com',defaults:{name:'Mi canal',periodicity:'quarterly',filters:{}},catalogs:{}}:method==='getConfiguration'?{config:configurationDefaults(),revision:'test'}:{saved:true}));return new Promise(resolve=>requests.push({query,resolve}));}}},
     FormData:class {constructor(){return Object.entries(form.elements).map(([name,input])=>[name,input.value]);}},
     MutationObserver:class {observe(){}disconnect(){}takeRecords(){return [];}},
     ResizeObserver:class {observe(){}},crypto:{randomUUID:()=> 'test-session'},performance:{now:()=>0},setInterval(){},queueMicrotask,
@@ -105,9 +105,9 @@ test('el mapa refleja el volumen filtrado y comunica entidad y ausencia de notic
   assert.match(areas[1]['aria-label'],/0 publicaciones/);
 });
 
-test('el administrador transmite el período seleccionado al recuperar noticias',async()=>{
- const c=client({collectNow:{added:0,pending:1,errors:[],notice:'Recuperación anual en cola.'}});c.requests[0].resolve({...dashboard('Inicial'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{total:0}});await settle();
- const action=c.element('runs-section').listeners.click({target:{closest:()=>({id:'collect',dataset:{}})}});await settle();c.requests.at(-1).resolve({...dashboard('Recuperada'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{total:0}});await action;assert.equal(c.rpc.find(r=>r.method==='collectNow').query,'today');assert.match(c.element('message').textContent,/anual en cola/);
+test('la recopilación manual transmite la franja seleccionada y actualiza solo el panel',async()=>{
+ const c=client({collectSlot:'Recuperación diaria en cola.'});c.requests[0].resolve({...dashboard('Inicial'),admin:true,feeds:[],configuredFeeds:[],runs:[],collection:{total:0}});await settle();
+ const reads=c.requests.length;c.element('runs-section').listeners.click({target:{closest:()=>({dataset:{collectionSlot:'afternoon'}})}});await settle();assert.equal(c.rpc.find(r=>r.method==='collectSlot').query,'afternoon');assert.match(c.element('message').textContent,/diaria en cola/);assert.equal(c.requests.length,reads);
 });
 
 test('la activación de fuentes persiste al buscar y paginar antes de guardar',async()=>{

@@ -91,7 +91,7 @@ function classification_(title,text,includeLabels=true){
   const index=businessIndex_(),assessment=digitalAssessment_(title,text,index);
   const signals=assessment.signals;
   const segments=assessment.relevant?[sectorNewsDefaults.segment]:index.segments.filter(row=>row.pattern.test(text)).map(row=>row.name);
-  return {signals,assessment,segments,labels:includeLabels?{...newsLabels_(assessment),contentHash:sha256_(JSON.stringify([title,text]))}:undefined};
+  return {signals,assessment,segments,labels:includeLabels?newsLabels_(assessment,sha256_(JSON.stringify([title,text]))):undefined};
 }
 let sourceGeographyMemory_;
 function sourceCountry_(feed,index=businessIndex_()){

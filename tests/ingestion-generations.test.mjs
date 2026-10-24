@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {storage} from './helpers/server.mjs';
-import {TestDate} from './helpers/clock.mjs';
-function server(){const s=storage();s.c.Date=TestDate;s.c.initializeConfiguration();return s;}
+import {TestDate,limitSnapshotBatch} from './helpers/clock.mjs';
+function server(){const s=storage();s.c.Date=TestDate;s.c.initializeConfiguration();limitSnapshotBatch(s.c);return s;}
 function add(s,id='one',title='BBVA lanza pagos digitales para empresas'){
  const c=s.c,labels=c.classification_(c.searchText_(title),c.searchText_(title)).labels,row={id,fecha:'2026-10-10',pais:'España',medio:'Editor',entidad:'BBVA',titular:title,extracto:'',url:'https://www.bbva.com/'+id,fuente:'Editor',idioma:'es',clasificacion:JSON.stringify(labels)};
  c.append_('Noticias',[vm.runInContext('RADAR.sheets.Noticias',c).map(key=>row[key]||'')]);c.invalidateNews_();return row;

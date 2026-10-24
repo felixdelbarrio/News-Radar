@@ -10,8 +10,8 @@ test('Ejecuciones incluye una sola clasificación bajo las recargas y usa el est
 });
 test('la interfaz solo permite recopilación diaria y conserva la continuación diaria',async t=>{
  const a=await app(t,{entry:'',configure({data,replies}){data.collection={pending:20,blocked:{today:true},jobs:[]};replies.getRuns.collection=data.collection;}});
- await a.click('[data-view="administration"]');assert.equal(a.w.document.querySelector('[name="recovery-range"]'),null);assert.equal(a.find('#collect').disabled,true);
- await a.click('#continue-collection');assert.equal(a.calls.find(c=>c.method==='resumeCollection').query,'today');assert.equal(a.calls.filter(c=>c.method==='collectNow').length,0);
+ await a.click('[data-view="administration"]');assert.equal(a.w.document.querySelector('[name="recovery-range"]'),null);assert.equal(a.find('[data-collection-slot="daily"]').disabled,true);
+ await a.click('#control-panel-refresh');assert.equal(a.calls.filter(c=>c.method==='getControlPanel').length,2);assert.equal(a.calls.filter(c=>c.method==='collectNow').length,0);
 });
 test('el supervisor repone un trabajador perdido y conserva las pausas y los datos pendientes',()=>{
  const s=fixture(),c=s.c;c.requestCollection_('annual',{from:'2025-10-01',to:'2026-10-01'});for(const trigger of c.scheduledTriggers_('backgroundTick_'))c.ScriptApp.deleteTrigger(trigger);c.backgroundWatchdog_();assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);assert.equal(c.collectionRequests_().length,1);
@@ -27,7 +27,7 @@ test('el progreso de newsletter deduplica intentos, detecta revisiones y nunca l
  const plan=c.newsletterDeliveryPlan_(new Date(),[]),period=plan.periods.get('quarterly'),id=plan.planned[0].id;
  s.sheets.get('NewsletterEnvios').grid.push([id,'0','owner@bbva.com',period.from,period.to,'No enviado',new Date().toISOString(),'',''],[id,'0','owner@bbva.com',period.from,period.to,'Enviada',new Date().toISOString(),'','']);
  const second=plan.planned[1].id;s.sheets.get('NewsletterEnvios').grid.push([second,'1','owner@bbva.com',period.from,period.to,'Revisar',new Date().toISOString(),'','']);
- s.sheets.get('Noticias').getRange=()=>{throw Error('No debe leer noticias');};c.newsletterSender_=()=>{throw Error('No debe consultar Gmail');};const progress=c.getNewsletterProgress();assert.equal(progress.job.total,3);assert.equal(progress.job.processed,1);assert.equal(progress.job.pending,1);assert.equal(progress.job.review,1);assert.equal(progress.job.state,'En pausa');
+ c.refreshNewsletterStatus_();s.sheets.get('Noticias').getRange=()=>{throw Error('No debe leer noticias');};c.newsletterSender_=()=>{throw Error('No debe consultar Gmail');};const progress=c.getNewsletterProgress();assert.equal(progress.job.total,3);assert.equal(progress.job.processed,1);assert.equal(progress.job.pending,1);assert.equal(progress.job.review,1);assert.equal(progress.job.state,'En pausa');
  const reads=s.reads;c.getNewsletterProgress();assert.equal(s.reads,reads);s.setEmail('reader@bbva.com');assert.throws(()=>c.getNewsletterProgress(),/administrador/);
 });
 test('envíos acotados mantienen progreso entre lotes y la taxonomía se completa antes de todas las trimestrales',()=>{

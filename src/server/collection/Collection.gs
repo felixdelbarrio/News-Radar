@@ -1,4 +1,5 @@
 function collectionStatus_(tasks,jobs){
+  progressContextMemory_=undefined;
   const cache=CacheService.getScriptCache();if(!tasks&&!jobs){const cached=cache.get('collection-status');if(cached){const status=JSON.parse(cached);progressContext_(status.jobs);return status;}}
   jobs=jobs||collectionJobs_();if(tasks)collectionSnapshots_(tasks,jobs);
   const requests=collectionRequests_().filter(request=>!jobs.some(job=>job.id===request.id));
@@ -9,7 +10,7 @@ function collectionStatus_(tasks,jobs){
     if(job.actualizada>status.lastActivity)status.lastActivity=job.actualizada;
   }
   const fetchPause=Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0);
-  status.jobs=recoveryProgressJobs(jobs.map(({row,...job})=>job).concat(requests.map(request=>({id:request.id,tipo:request.kind,desde:request.range.from,hasta:request.range.to,inicio:request.created,estado:'En cola',total:0,procesadas:0,pendientes:0,omitidas:0,fallidas:0,nuevas:0})))).map(job=>{const pause=Math.max(Number(job.pausa||0),fetchPause),stage=job.tipo==='daily'?'daily':'annual';return {...job,progress:jobProgressState_(stage,{state:job.estado,updated:job.actualizada},{jobs,jobId:job.id,lastExecutedAt:job.actualizada||job.inicio||'',queued:job.estado==='En cola',pausedUntil:pause})};});
+  status.jobs=recoveryProgressJobs(jobs.map(({row,...job})=>job).concat(requests.map(request=>({id:request.id,tipo:request.kind,desde:request.range.from,hasta:request.range.to,inicio:request.created,estado:'En cola',total:0,procesadas:0,pendientes:0,omitidas:0,fallidas:0,nuevas:0})))).map(job=>{const pause=Math.max(Number(job.pausa||0),fetchPause),stage='daily';return {...job,progress:jobProgressState_(stage,{state:job.estado,updated:job.actualizada},{jobs,jobId:job.id,lastExecutedAt:job.actualizada||job.inicio||'',queued:job.estado==='En cola',pausedUntil:pause})};});
   status.progress=(status.jobs.find(job=>Number(job.pendientes)>0||job.estado==='Preparando')||status.jobs[0])?.progress;
   cacheJson_('collection-status',status,15);return status;
 }
@@ -71,7 +72,7 @@ function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
     append_('Noticias',news);
     append_('Auditoria',audit);append_('Recopilacion',newTasks);
     writeCollectionTasks_(pending,updates);
-    if(news.length){SpreadsheetApp.flush();invalidateNews_();requestEnrichment_();}
+    if(news.length){SpreadsheetApp.flush();invalidateNews_();}
     if(news.some(row=>businessNews_(Object.fromEntries(RADAR.sheets.Noticias.map((key,index)=>[key,row[index]])))))requestTranslations_(true);
     append_('Ejecuciones',[...affected].map(id=>{const batch=pending.filter(task=>task.ciclo===id),rows=batch.map(task=>updates.get(task.row)),failures=rows.map(row=>row[5]).filter(Boolean);return [id,now.toISOString(),new Date().toISOString(),failures.length?'Parcial':'Completada',batch.length,rows.reduce((sum,row)=>sum+Number(row[3]),0),rows.reduce((sum,row)=>sum+Number(row[4]),0),failures.join(' | ')];}));
     for(const job of jobs)if(pending.filter(task=>task.ciclo===job.id&&updates.get(task.row)[5]).length>=2)job.pausa=String(Date.now()+settings_().pauseMinutes*60000);
@@ -118,7 +119,7 @@ function collectionWork_(started){
   const retryMs=settings_().retryMinutes*60000,batch=settings_().collectionBatch,fetchPausedUntil=Number(properties_().getProperty('FETCH_PAUSED_UNTIL')||0);
   const eligible=tasks.filter(task=>jobIndex.has(task.ciclo)&&Math.max(Number(jobIndex.get(task.ciclo).pausa||0),fetchPausedUntil)<=started&&(task.estado==='Pendiente'||(task.estado==='Reintento programado'&&started-Date.parse(task.actualizada)>=retryMs)))
     .sort((a,b)=>a.prioridad===b.prioridad?a.row-b.row:a.prioridad>b.prioridad?-1:1);
-  const selected=eligible.find(task=>jobIndex.get(task.ciclo).tipo==='daily')||eligible[0],size=selected&&jobIndex.get(selected.ciclo).tipo==='annual'?Math.min(20,batch*4):batch;
+  const selected=eligible.find(task=>jobIndex.get(task.ciclo).tipo==='daily')||eligible[0],size=batch;
   const pending=selected?eligible.filter(task=>task.ciclo===selected.ciclo).slice(0,size).sort((a,b)=>a.row-b.row):[];
   let start=0;
   for(let end=1;end<=pending.length;end++){
@@ -128,3 +129,5 @@ function collectionWork_(started){
   }
   return {tasks,pending,jobs};
 }
+
+function collectSlot(slot){authorize_(true);if(!collectionPipelineSlots_().includes(slot))throw Error('Franja de recopilación no válida.');return withForegroundWrite_(()=>{if(recoveryAvailability(collectionJobs_(),collectionRequests_()).today)throw Error('Ya hay una recuperación diaria en curso.');const id=requestDailyCollection_();properties_().setProperty(collectionPipelineKey_(slot,'JOB'),id);return 'Recuperación diaria en cola.';});}

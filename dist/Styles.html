@@ -156,8 +156,8 @@ button.signal-card{text-align:left;font:inherit;color:inherit;cursor:pointer}but
 .admin-content>section{scroll-margin-top:var(--space-3)}
 .admin-content :is(p,td,th,summary,a,strong){overflow-wrap:anywhere}
 .admin-content .panel-header{align-items:flex-start;gap:var(--space-2)}
-.admin-content .panel-header h2{font:500 var(--text-xl)/var(--line-xl) var(--font-body)}
-.admin-content h3{margin-block:var(--space-3) var(--space-2);font:500 var(--text-m)/var(--line-m) var(--font-body)}
+.admin-content .panel-header h2{font:500 var(--text-xl)/var(--line-xl) var(--font-heading)}
+.admin-content h3{margin-block:var(--space-3) var(--space-2);font:500 var(--text-m)/var(--line-m) var(--font-heading)}
 .admin-content .metrics{grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--sidebar-width)),1fr));gap:var(--space-2)}
 .admin-content .metric strong{font-size:var(--text-2xl);line-height:var(--line-2xl)}
 .admin-content .subscription-editor:empty{display:none}
@@ -172,7 +172,7 @@ button.signal-card{text-align:left;font:inherit;color:inherit;cursor:pointer}but
 .record-detail[open] summary{margin-bottom:var(--space-1)}.record-detail>div{white-space:pre-wrap;max-height:var(--map-height);overflow:auto;padding:var(--space-2);border-radius:var(--radius-component);background:var(--color-primary-bg-surface)}
 
 
-.schedule-heading{display:flex;align-items:start;justify-content:space-between;gap:var(--space-2)}.schedule-heading strong{min-width:0;font:500 var(--text-s)/var(--line-m) var(--font-body)}
+.schedule-heading{display:flex;align-items:start;justify-content:space-between;gap:var(--space-2)}.schedule-heading strong{min-width:0;font:500 var(--text-s)/var(--line-m) var(--font-heading)}
 
 .status-pill{flex-shrink:0;display:inline-block;padding:calc(var(--space-1)/2) var(--space-1);border-radius:var(--radius-component);background:var(--color-primary-bg-alternative);color:var(--color-primary-bg-action);font-size:var(--text-s);line-height:var(--line-s);border:var(--stroke) solid var(--color-primary-border)}
 .status-pill[data-valid=false]{color:var(--color-primary-text-main)}
@@ -219,7 +219,7 @@ button.signal-card{text-align:left;font:inherit;color:inherit;cursor:pointer}but
 .process-group h3,.process-card h4{margin:0;font-weight:500}
 .process-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--sidebar-width)),1fr));gap:var(--space-2)}
 .process-card{min-width:0;padding:var(--space-2);border:var(--stroke) solid var(--color-primary-border);border-radius:var(--radius-container);background:var(--color-primary-bg-alternative)}
-.process-card .schedule-heading{flex-wrap:wrap}.process-card .schedule-heading h4{font:500 var(--text-l)/var(--line-l) var(--font-body)}
+.process-card .schedule-heading{flex-wrap:wrap}.process-card .schedule-heading h4{font:500 var(--text-l)/var(--line-l) var(--font-heading)}
 .process-card progress{width:100%;margin-top:var(--space-2)}.process-card p{margin-block:var(--space-1)}
 .process-card ul{padding-left:var(--space-3)}.process-card .button{margin-top:var(--space-2)}
 .catalog-row,.catalog-function{min-width:0;max-width:100%;margin-block:var(--space-2)}
@@ -235,5 +235,15 @@ button.signal-card{text-align:left;font:inherit;color:inherit;cursor:pointer}but
 @media(max-width:767px){.process-grid{grid-template-columns:minmax(0,1fr)}.process-card .schedule-heading{flex-direction:column}.catalog-row>summary,.catalog-function>summary{align-items:flex-start;flex-wrap:wrap}.catalog-row>summary>span,.catalog-function>summary>span{flex-basis:100%}.admin-record-dialog{padding:var(--space-2)}}
 
 .catalog-function>summary::after{content:'+';color:var(--color-primary-bg-action)}.catalog-function[open]>summary::after{content:'−'}.catalog-function[open]>.catalog-grid{margin-top:var(--space-2)}
+
+/* All record controls use the reading toolbar and its shared button tokens. */
+.admin-content,.admin-layout,#subscriptions-section{min-width:0;max-width:100%;overflow-x:hidden}
+.admin-content :is(.panel-header,.record-toolbar,.process-grid)>*,#subscriptions-section :is(.panel-header,.metrics)>*{min-width:0;max-width:100%}
+.admin-content :is(td,p,a,code),#subscriptions-section :is(p,a,td){overflow-wrap:anywhere}
+.record-toolbar>[id$="-filters"]{display:flex;align-items:center;flex:1;flex-wrap:wrap;gap:var(--space-1);min-width:0}
+.record-toolbar .active-filters{display:flex;flex-wrap:wrap;gap:var(--space-1)}
+@media(max-width:768px){.record-toolbar,.admin-content .panel-header{flex-wrap:wrap}.admin-content :is(input,select,textarea){max-width:100%;min-width:0}.admin-content .record-filters{grid-template-columns:minmax(0,1fr)}}
+
+#subscriptions-section :is(h2,h3,h4){font-family:var(--font-heading)}
 
 </style>

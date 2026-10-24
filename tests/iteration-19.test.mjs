@@ -45,8 +45,8 @@ test('las ediciones antiguas se leen desde un archivo verificado sin perder cont
  }
  const before=c.newsletterEdition_('edition-0','owner@bbva.com');assert.equal(c.getMyNewsletterHistory().total,3);assert.equal(c.archiveNewsletterBatch_(),false);assert.equal(s.sheets.get('NewsletterContenido').grid[1][1],'');const after=c.newsletterEdition_('edition-0','owner@bbva.com');assert.equal(after.items[0].titular,before.items[0].titular);assert.equal(c.getNewsletterSummary('edition-0').topics[0],before.items[0].titular);assert.equal(c.rows_('NewsletterEnvios').length,5);assert.ok([...s.archiveFiles.values()].some(file=>file.parent===c.configuration_().storage.newsletterFolderId));assert.throws(()=>c.newsletterEdition_('edition-0','other@bbva.com'),/no disponible/);
 });
-test('las generaciones activas y pestañas desconocidas se conservan incluso con backup, y sin backup no se retira ninguna',()=>{
- const s=server(),c=s.c;for(const name of ['Noticias_tax_active','Noticias_tax_pending','Noticias_tax_old','personal'])s.book.insertSheet(name).grid.push(['id']);s.properties.DATA_GENERATION=JSON.stringify({newsSheet:'Noticias_tax_active'});vm.runInContext('dataGenerationMemory_=undefined',c);s.properties.TAXONOMY_JOB=JSON.stringify({state:'Pendiente',generation:{newsSheet:'Noticias_tax_pending'}});assert.equal(c.pruneNewsGenerations_().length,0);const removed=c.pruneNewsGenerations_(true);assert.deepEqual(Array.from(removed),['Noticias_tax_old']);assert.ok(s.sheets.has('personal'));assert.ok(s.sheets.has('Noticias_tax_active'));assert.ok(s.sheets.has('Noticias_tax_pending'));
+test('las generaciones activas y pestañas desconocidas se conservan incluso con backup, y se retiran las huérfanas sin exigir un backup',()=>{
+ const s=server(),c=s.c;for(const name of ['Noticias_tax_active','Noticias_tax_pending','Noticias_tax_old','personal'])s.book.insertSheet(name).grid.push(['id']);s.properties.DATA_GENERATION=JSON.stringify({newsSheet:'Noticias_tax_active'});vm.runInContext('dataGenerationMemory_=undefined',c);s.properties.TAXONOMY_JOB=JSON.stringify({state:'Pendiente',generation:{newsSheet:'Noticias_tax_pending'}});const removed=c.pruneNewsGenerations_();assert.deepEqual(Array.from(removed),['Noticias_tax_old']);assert.ok(s.sheets.has('personal'));assert.ok(s.sheets.has('Noticias_tax_active'));assert.ok(s.sheets.has('Noticias_tax_pending'));
 });
 
 test('una recopilación activa conserva la solicitud adicional hasta poder iniciar otro ciclo',()=>{
@@ -56,8 +56,8 @@ test('auditoría incremental verifica cabeceras y bloquea IDs ambiguos sin modif
  const s=server(),c=s.c,job={};let done=false;for(let i=0;i<20&&!done;i++)done=c.auditMaintenanceIntegrity_(job);assert.equal(done,true);assert.ok(job.integrityTable>=20);const news=s.sheets.get('Noticias');Array.prototype.push.call(news.grid,['same','2026-10-10'],['same','2026-10-11']);const before=JSON.stringify(news.grid);assert.throws(()=>{const next={};for(let i=0;i<20;i++)c.auditMaintenanceIntegrity_(next);},/IDs/);assert.equal(JSON.stringify(news.grid),before);
 });
 
-test('los errores de archivo tienen tres reintentos y reanudación administrativa explícita',()=>{
- const s=server(),c=s.c;logs(s);s.properties.LOG_ARCHIVE_PENDING='true';c.DriveApp.getFolderById=()=>{throw Error('Sin permiso');};for(let i=0;i<3;i++)c.operationalArchiveBatch_();assert.equal(c.logArchiveReadyAt_(),Infinity);assert.equal(c.getOperationalSchedule().archive.attempts,3);assert.match(c.getOperationalSchedule().archive.error,/permiso/);c.resumeOperationalArchive();assert.equal(s.properties.LOG_ARCHIVE_ATTEMPTS,undefined);assert.ok(Number.isFinite(c.logArchiveReadyAt_()));
+test('los errores de archivo reintentan automáticamente con backoff y conservan el diagnóstico',()=>{
+ const s=server(),c=s.c;logs(s);s.properties.LOG_ARCHIVE_PENDING='true';c.DriveApp.getFolderById=()=>{throw Error('Sin permiso');};for(let i=0;i<3;i++)c.operationalArchiveBatch_();assert.ok(c.logArchiveReadyAt_()>Date.now());assert.ok(c.logArchiveReadyAt_()<=Date.now()+21600000);assert.equal(c.getOperationalSchedule().archive.attempts,3);assert.match(c.getOperationalSchedule().archive.error,/permiso/);c.resumeOperationalArchive();assert.equal(s.properties.LOG_ARCHIVE_ATTEMPTS,undefined);assert.ok(Number.isFinite(c.logArchiveReadyAt_()));
 });
 
 test('Administración edita la conservación sin duplicar el ID primario y acerca el alta a la lista',async t=>{
@@ -68,20 +68,12 @@ test('las dos franjas adicionales esperan por separado y se ejecutan sin perder 
  const s=server(),c=s.c;let active=true;const calls=[];c.dailyCollectionPending_=()=>active;c.queueScheduledCollection_=()=>{calls.push(1);active=true;};c.requestNewsletterDelivery_=()=>{};
  c.afternoonRadar_();c.eveningRadar_();c.drainDailyPipeline_();assert.equal(calls.length,0);active=false;c.drainDailyPipeline_();assert.equal(calls.length,1);assert.ok(s.properties.COLLECTION_EVENING_REQUEST);active=false;c.drainDailyPipeline_();assert.equal(calls.length,2);assert.equal(c.dailyPipelineRequested_(),false);
 });
-test('cancelar la anual conserva noticias y registros y evita reintentar sus errores',()=>{
- const s=server(),c=s.c,keys=vm.runInContext('RADAR.sheets.Recargas',c),job={id:'annual',tipo:'annual',estado:'Pendiente',pendientes:2,total:2};
- c.append_('Recargas',[keys.map(key=>job[key]??'')]);c.append_('Recopilacion',[['annual','A','https://example.com/a','Pendiente',0,'',0,0,'','2026-10-23'],['annual','B','https://example.com/b','Error',1,'',0,0,'HTTP 503','2026-10-23']]);
- const news=c.newsSheet_().getLastRow();assert.equal(c.cancelAnnualRecovery_().cancelled,2);assert.equal(c.collectionJobs_()[0].estado,'Cancelada');assert.equal(c.collectionJobs_()[0].pendientes,'0');assert.ok(c.rows_('Recopilacion').every(task=>task.estado==='Omitida'));assert.equal(c.newsSheet_().getLastRow(),news);c.retryCollectionErrors();assert.equal(c.collectionWork_(Date.now()).pending.length,0);assert.throws(()=>c.collectNow('year'),/diaria/);assert.throws(()=>c.resumeCollection('year'),/no válido/);
-});
+
 test('Logs conserva detalles largos y usa filtros modales',async t=>{
  const a=await app(t,{configure({replies}){replies.getAdminLogs.items=[{fecha:'2026-10-24',estado:'OK',detalle:'Detalle largo '.repeat(40)}];}});
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="audit"]');const detail=a.find('#logs-body .record-detail');assert.equal(detail.open,false);assert.ok(detail.textContent.includes('Detalle largo'));await a.click('#logs-open-filters');assert.equal(a.find('#logs-dialog').open,true);await a.click('#logs-close-filters');assert.equal(a.find('#logs-dialog').open,false);
 });
-test('reintentar fuentes no reactiva recuperaciones anuales históricas parciales',()=>{
- const s=server(),c=s.c,keys=vm.runInContext('RADAR.sheets.Recargas',c);
- for(const [id,tipo] of [['old','annual'],['today','daily']]){const job={id,tipo,estado:'Parcial',pendientes:0,total:1,fallidas:1};c.append_('Recargas',[keys.map(key=>job[key]??'')]);c.append_('Recopilacion',[[id,'Fuente','https://example.com/'+id,'Error',1,'',0,0,'HTTP 503','2026-10-23']]);}
- c.retryCollectionErrors();assert.equal(c.rows_('Recopilacion')[0].estado,'Error');assert.equal(c.rows_('Recopilacion')[1].estado,'Pendiente');c.cancelAnnualRecovery_();assert.equal(c.collectionJobs_().find(job=>job.id==='old').estado,'Cancelada');assert.equal(c.rows_('Recopilacion')[0].estado,'Omitida');assert.equal(c.rows_('Recopilacion')[1].estado,'Pendiente');
-});
+
 test('la telemetría acepta todas las pestañas del catálogo central y rechaza las administrativas al lector',()=>{
  const s=server(),c=s.c,navigation=vm.runInContext('APPLICATION_NAVIGATION',c),admin=Object.keys(navigation.adminViews),event=view=>({session:'telemetry-admin-session-123',event:'vista',view,duration:0});
  assert.equal(c.recordEvents(admin.map(event)).saved,true);assert.deepEqual([...c.rows_('Adopcion')].map(row=>row.vista).sort(),admin.sort());s.setEmail('reader@bbva.com');for(const view of admin)assert.throws(()=>c.recordEvents([event(view)]),/Vista restringida/);assert.throws(()=>c.recordEvents([event('unknown-view')]),/Evento no válido/);

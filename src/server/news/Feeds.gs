@@ -23,7 +23,7 @@ function ingestFeed_(feed,known,cycle,now,response) {
       if(result.relevant)relevant++;
       if(known.has(newsUrlIdentity_(item.url))){state='Duplicada';reason='URL ya recopilada';}
       else if(duplicateTitle_(known,item)){state='Duplicada';reason='Titular sindicado equivalente en fecha próxima';known.add(newsUrlIdentity_(item.url));}
-      else{known.add(newsUrlIdentity_(item.url));rememberTitle_(known,item);state='Incluida';reason=feed.kind==='profile'?'Noticia integrada desde RSS de Google News':'Noticia integrada desde RSS del editor';const record=newsRecord_(item,feed,now);news.push(record);enrichmentRss_(record[0],{feedUrl:feed.url});if(item.labels.digital)digital++;}
+      else{known.add(newsUrlIdentity_(item.url));rememberTitle_(known,item);state='Incluida';reason=feed.kind==='profile'?'Noticia integrada desde RSS de Google News':'Noticia integrada desde RSS del editor';const record=newsRecord_(item,feed,now);news.push(record);if(item.labels.digital)digital++;}
     }
     if(state==='Excluida'){excluded++;reasons[reason]=(reasons[reason]||0)+1;}else if(state==='Duplicada')duplicated++;
     if(state==='Incluida')audit.push([cycle,date,feed.name,item?.url||String(raw.url||''),state,reason]);
