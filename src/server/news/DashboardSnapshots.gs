@@ -13,6 +13,7 @@ function defaultDashboardSnapshot_(view,query,language){
   if(manifest?.periodFallback&&query.from===manifest.period.from&&query.to===manifest.period.to)Object.assign(defaults,manifest.period);
   if(Object.entries(query).some(([key,value])=>value!==''&&value!=null&&key!=='newsGeography'&&!(key==='page'&&Number(value)===0)&&value!==defaults[key]))return null;
   if(manifest?.revision!==revision){requestDashboardSnapshots_();if(!manifest)return null;}
+  if(manifest.schema!==NEWS_CACHE.schema)return null;
   const cache=CacheService.getScriptCache(),key='dashboard-snapshot:'+manifest.revision+':'+language+':'+(query.newsGeography||''),cached=readDashboardCache_(cache,key);if(cached)return cached;
   try{
     const rows=book_().getSheetByName(manifest.sheet||'DashboardSnapshots')?.getRange(manifest.first,1,manifest.parts,4).getDisplayValues();
@@ -72,7 +73,7 @@ function buildPreparedDashboardSnapshotBatch_(job=null){
   const previous=dashboardSnapshotManifest_(view),slot=previous?.slot===0?1:0,first=2+(DASHBOARD_SNAPSHOTS.views.indexOf(view)*2+slot)*DASHBOARD_SNAPSHOTS.parts,generation=Utilities.getUuid(),needed=first+parts-1;
   if(needed>sheet.getMaxRows())sheet.insertRowsAfter(sheet.getMaxRows(),needed-sheet.getMaxRows());
   sheet.getRange(first,1,parts,4).setNumberFormat('@').setValues(Array.from({length:parts},(_,index)=>[view,generation,String(index),encoded.slice(index*DASHBOARD_SNAPSHOTS.chars,(index+1)*DASHBOARD_SNAPSHOTS.chars)]));SpreadsheetApp.flush();
-  build.manifests[view]={revision,generation,slot,first,parts,digest:sha256_(encoded),generated:new Date().toISOString(),period,periodFallback};
+  build.manifests[view]={schema:NEWS_CACHE.schema,revision,generation,slot,first,parts,digest:sha256_(encoded),generated:new Date().toISOString(),period,periodFallback};
   properties_().setProperty('DASHBOARD_SNAPSHOT_BUILD',JSON.stringify(build));
   telemetry_('dashboard-snapshot',Date.now()-started,'OK',view+'; '+period.from+' — '+period.to+'; anterior '+periodFallback+'; variantes '+(view==='news'?1:Object.keys(payload.variants).length)+'; comprimido '+encoded.length+' caracteres');
   if(DASHBOARD_SNAPSHOTS.views.every(view=>build.manifests[view]))return publishDashboardSnapshotSet_(build,job);
@@ -104,17 +105,17 @@ function hydrateDashboardSnapshot_(cache,revision,variants,view,period,periodFal
 
 // One shared catalogue and article table replace country × language copies of the same payload.
 function compactNewsSnapshot_(rows,query,data){
-  const selected=selectAnnotatedNews_(rows,query),geography=newsReadingGeography_(null,query),groups=new Map(data.newsGeographies.map(row=>[row.name,[]]));
-  for(const row of selected)groups.get(geography(row))?.push(row);
+  const selected=selectAnnotatedNews_(rows,query),geography=newsReadingGeography_(null,query),groups=new Map([...data.newsGeographies,...regionalGeographies(selected,geography)].map(row=>[row.name,[]]));
+  for(const row of selected){const name=geography(row);groups.get(name)?.push(row);if(name===otherGeography)groups.get(countryRegion(row.pais))?.push(row);}
   const articles=[],positions=new Map(),pages={};
-  for(const [name,items] of groups){const page=newsEntityPage(items,0,data.pageSize);pages[name]={total:items.length,items:page.map(row=>{if(!positions.has(row)){positions.set(row,articles.length);articles.push(row);}return positions.get(row);})};}
+  for(const [name,items] of groups){const page=newsEntityPage(items,0,data.pageSize);pages[name]={total:items.length,positions:page.map(row=>{if(!positions.has(row)){positions.set(row,articles.length);articles.push(row);}return positions.get(row);})};}
   const fields=[...new Set(articles.flatMap(row=>Object.keys(row)))].filter(key=>!['_sheetRow','identityTitles'].includes(key)),records=articles.map(row=>fields.map(key=>row[key]??null)),translations={};
   for(const language of Object.keys(languageNames))translations[language]=savedArticleTranslations_(articles,language).map((row,index)=>[snapshotTextDelta_(articles[index].titular,row.titular),snapshotTextDelta_(articles[index].extracto??'',row.extracto??''),row.translation]);
   const {items,page,newsGeography,total,...metadata}=data;return {metadata,fields,records,translations,pages,defaultGeography:newsGeography};
 }
 function compactNewsSnapshotData_(bundle,geography,language){
-  const name=Object.hasOwn(bundle.pages,geography)?geography:bundle.defaultGeography,page=bundle.pages[name]||{total:0,items:[]};
-  const items=page.items.map(index=>{
+  const name=Object.hasOwn(bundle.pages,geography)?geography:bundle.defaultGeography,page=bundle.pages[name]||{total:0,positions:[]};
+  const items=page.positions.map(index=>{
     const row=Object.fromEntries(bundle.fields.flatMap((key,position)=>bundle.records[index][position]===null?[]:[[key,bundle.records[index][position]]])),[titular,extracto,translation]=bundle.translations[language][index];
     return {...row,titular:snapshotTextValue_(row.titular,titular),extracto:snapshotTextValue_(row.extracto??'',extracto),...(translation.state==='translated'?{original:{titular:row.titular,extracto:row.extracto}}:{}),translation};
   });

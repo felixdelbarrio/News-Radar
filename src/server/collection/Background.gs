@@ -12,12 +12,14 @@ function collectionPipelineSlots_(){return COLLECTION_SLOTS.map(job=>job.slot);}
 function collectionPipelineKey_(slot,suffix){return slot==='daily'?'DAILY_PIPELINE_'+suffix:'COLLECTION_'+slot.toUpperCase()+'_'+suffix;}
 function collectionHandlers_(){return COLLECTION_SLOTS.map(job=>job.handler);}
 function replaceDailySchedule_(handler,hour,minute=0,timezone=settings_().timezone){
+  CacheService.getScriptCache().remove('operational-trigger-counts');
   scheduledTriggers_(handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
   ScriptApp.newTrigger(handler).timeBased().atHour(hour).nearMinute(minute).everyDays(1).inTimezone(timezone).create();
 }
 function scheduleTime_(job){return String(job.hour).padStart(2,'0')+':'+String(job.minute||0).padStart(2,'0');}
 function collectionScheduleLabel_(){return 'Banca digital: '+collectionSchedules_().filter(job=>job.enabled).map(scheduleTime_).join(' · ')+' · '+settings_().timezone;}
 function replaceCollectionSchedule_(){
+  CacheService.getScriptCache().remove('operational-trigger-counts');
   const installed=new Set();
   for(const job of collectionSchedules_()){
     scheduledTriggers_(job.handler).forEach(trigger=>ScriptApp.deleteTrigger(trigger));
@@ -152,6 +154,7 @@ function processBackground_Request_(batchLimit=BACKGROUND_WORK.maxBatches){
   }
 }
 function initializeBackgroundSchedules_(){
+  CacheService.getScriptCache().remove('operational-trigger-counts');
   const p=properties_();
   installFunctionalCatalogWatcher_();
   CacheService.getScriptCache().remove('daily-schedule');
@@ -190,7 +193,8 @@ function backgroundStageComplete_(task,work,collectionJob){
 function getOperationalSchedule(){
  authorize_(true);const config=settings_(),enabled=properties_().getProperty('DAILY_ENABLED')==='true';
  const times=new Set(),jobs=[...collectionSchedules_().map((job,index)=>{const key=scheduleTime_(job)+'|'+job.timezone,expected=enabled&&job.enabled&&!times.has(key)?1:0;if(expected)times.add(key);return {...job,label:'Recopilación '+(index+1),expected};}),{label:'Envíos planificados',handler:'scheduledNewsletters_',hour:config.newsletterHour,minute:config.newsletterMinute,timezone:config.timezone,expected:config.newsletterEnabled?1:0},{label:'Supervisor de colas',handler:'backgroundWatchdog_',minutes:config.watchdogMinutes,expected:1}];
- const counts=new Map();operationalTriggersMemory_=ScriptApp.getProjectTriggers();for(const trigger of operationalTriggersMemory_){const handler=trigger.getHandlerFunction();counts.set(handler,(counts.get(handler)||0)+1);}
+ const cache=CacheService.getScriptCache(),cached=cache.get('operational-trigger-counts'),counts=new Map(cached?JSON.parse(cached):[]);
+ if(!cached){operationalTriggersMemory_=ScriptApp.getProjectTriggers();for(const trigger of operationalTriggersMemory_){const handler=trigger.getHandlerFunction();counts.set(handler,(counts.get(handler)||0)+1);}cache.put('operational-trigger-counts',JSON.stringify([...counts]),90);}
  for(const job of jobs){job.installed=counts.get(job.handler)||0;job.valid=job.installed===job.expected;}
  return {jobs,valid:jobs.every(job=>job.valid),archive:{attempts:Number(properties_().getProperty('LOG_ARCHIVE_ATTEMPTS')||0),error:properties_().getProperty('LOG_ARCHIVE_ERROR')||'',next:Number(properties_().getProperty('LOG_ARCHIVE_NEXT')||0)},workerTriggers:counts.get('backgroundTick_')||0,queued:dailyPipelineRequested_()||Boolean(properties_().getProperty('BACKGROUND_PENDING'))};
 }

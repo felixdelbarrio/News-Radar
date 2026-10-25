@@ -1,9 +1,9 @@
 function newsletterWords_(text,limit){const words=plainText_(text).split(/\s+/).filter(Boolean);return words.slice(0,limit).join(' ')+(words.length>limit?'…':'');}
-function newsletterSelectionQuery_(query){return {...query,country:''};}
+function newsletterSelectionQuery_(query){return {...query,country:query.country===otherGeography||REGION_CODES.includes(query.country)?query.country:''};}
 function newsletterDigest_(items,query,language,t,known=new Set()){
- items=items.filter(briefingAllowed);
+ items=items.filter(briefingAllowed);if(query.country===otherGeography||REGION_CODES.includes(query.country))items=selectAnnotatedNews_(items,{country:query.country});
  const cadence=Object.entries(newsletterCadences).find(([,value])=>value.view===(query.view||'briefing'))?.[0];if(!cadence)throw Error('Periodicidad no válida.');
- const fortnightly=cadence==='fortnightly',focused=Boolean(query.country),scopeOf=row=>focused&&row.pais===query.country?'local':'global',buckets={local:[],global:[]},groups=new Map();
+ const fortnightly=cadence==='fortnightly',focused=Boolean(query.country)&&query.country!==otherGeography&&!REGION_CODES.includes(query.country),scopeOf=row=>focused&&row.pais===query.country?'local':'global',buckets={local:[],global:[]},groups=new Map();
  for(const row of items){const scope=scopeOf(row);buckets[scope].push(row);for(const tag of row.taxonomia.length?row.taxonomia:[{palanca:'Otros',subpalanca:''}]){if(query.palanca&&tag.palanca!==query.palanca||query.subpalanca&&taxonomyPath(tag)!==query.subpalanca)continue;const key=scope+'|'+tag.palanca;if(!groups.has(key))groups.set(key,{scope,tag,rows:new Map()});groups.get(key).rows.set(row.id,row);}}
  const candidates=[...groups.values()].map(group=>{const rows=[...group.rows.values()].sort((a,b)=>Number(newsletterWasSent_(a,known))-Number(newsletterWasSent_(b,known))||newsRelevance_(b)-newsRelevance_(a)||b.fecha.localeCompare(a.fecha)||a.id.localeCompare(b.id));return {...group,rows,row:rows[0],entities:new Set(rows.map(row=>row.entidad)).size};});
  // Count distinct evidence in the same geography/block, as in the heatmap; relevance breaks ties.

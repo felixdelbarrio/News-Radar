@@ -59,6 +59,7 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Pesta\xF1a propia": ["Own tab", "Ayr\u0131 sekme"],
     "Mantenimiento incremental en cola.": ["Incremental maintenance queued.", "Art\u0131ml\u0131 bak\u0131m s\u0131raya al\u0131nd\u0131."],
     "Archivado de logs": ["Log archiving", "G\xFCnl\xFCk ar\u015Fivleme"],
     "Generar snapshots": ["Build snapshots", "Anl\u0131k g\xF6r\xFCnt\xFC olu\u015Ftur"],
@@ -1000,7 +1001,7 @@
     "Alias de b\xFAsqueda": ["Search aliases", "Arama takma adlar\u0131"],
     "Pa\xEDses del cat\xE1logo": ["Catalog countries", "Katalog \xFClkeleri"],
     "C\xF3digo ISO": ["ISO code", "ISO kodu"],
-    "C\xF3digo ISO de dos letras e identificador cartogr\xE1fico ISO num\xE9rico de tres cifras. Ejemplo: Espa\xF1a, ES, es, 724.": ["Two-letter ISO code and three-digit numeric ISO map identifier. Example: Spain, ES, es, 724.", "\u0130ki harfli ISO kodu ve \xFC\xE7 haneli say\u0131sal ISO harita tan\u0131mlay\u0131c\u0131s\u0131. \xD6rnek: \u0130spanya, ES, es, 724."],
+    "C\xF3digo ISO de dos letras e identificador cartogr\xE1fico ISO num\xE9rico de tres cifras. Ejemplo: Espa\xF1a, ES, es, 724. Selecciona los pa\xEDses con pesta\xF1a propia en Noticias y Novedades; los restantes se agrupan por regi\xF3n en Otras geograf\xEDas.": ["Two-letter ISO code and three-digit numeric ISO map identifier. Example: Spain, ES, es, 724. Select the countries with their own tab in News and Updates; the rest are grouped by region under Other geographies.", "\u0130ki harfli ISO kodu ve \xFC\xE7 haneli say\u0131sal ISO harita tan\u0131mlay\u0131c\u0131s\u0131. \xD6rnek: \u0130spanya, ES, es, 724. Haberler ve Yenilikler b\xF6l\xFCmlerinde ayr\u0131 sekmesi olan \xFClkeleri se\xE7in; di\u011Ferleri Di\u011Fer co\u011Frafyalar alt\u0131nda b\xF6lgelere g\xF6re gruplan\u0131r."],
     "Nombre del pa\xEDs en b\xFAsquedas": ["Country name in searches", "Aramalarda kullan\u0131lan \xFClke ad\u0131"],
     "Idioma de Google News": ["Google News language", "Google News dili"],
     "ISO num\xE9rico del mapa": ["Numeric map ISO code", "Say\u0131sal ISO harita kodu"],
@@ -1484,7 +1485,10 @@
       return key === key.toUpperCase() ? result.toLocaleUpperCase(language2) : result;
     });
   }
-  var calendarFormatters = /* @__PURE__ */ new Map(), trendFormatters = /* @__PURE__ */ new Map();
+  var calendarFormatters = /* @__PURE__ */ new Map(), trendFormatters = /* @__PURE__ */ new Map(), monthFormatters = /* @__PURE__ */ new Map();
+  function formatCalendarMonth(value, language2 = "es") {
+    return monthFormatters.has(language2) || monthFormatters.set(language2, new Intl.DateTimeFormat(language2, { month: "short", timeZone: "UTC" })), monthFormatters.get(language2).format(/* @__PURE__ */ new Date(value + "-01T00:00:00Z"));
+  }
   function formatTrendDay(value, language2 = "es") {
     return trendFormatters.has(language2) || trendFormatters.set(language2, new Intl.DateTimeFormat(language2, { day: "numeric", month: "short", timeZone: "UTC" })), trendFormatters.get(language2).format(new Date(value));
   }
@@ -1604,7 +1608,7 @@
   }
 
   // src/client/core/browser-country.js
-  var zoneCountries = Object.freeze({ "Europe/Madrid": "ES", "Atlantic/Canary": "ES", "America/Mexico_City": "MX", "America/Lima": "PE", "America/Bogota": "CO", "America/Argentina/Buenos_Aires": "AR", "Europe/Istanbul": "TR", "America/Montevideo": "UY", "America/Caracas": "VE", "America/Sao_Paulo": "BR", "America/Toronto": "CA", "America/Vancouver": "CA", "America/Montreal": "CA", "Asia/Dubai": "AE", "Europe/London": "GB", "Europe/Paris": "FR", "Europe/Berlin": "DE", "Europe/Rome": "IT", "Europe/Lisbon": "PT", "Asia/Singapore": "SG", "Asia/Tokyo": "JP", "Asia/Kolkata": "IN" });
+  var zoneCountries = Object.freeze({ "Europe/Madrid": "ES", "Atlantic/Canary": "ES", "America/Mexico_City": "MX", "America/Lima": "PE", "America/Bogota": "CO", "America/Argentina/Buenos_Aires": "AR", "Europe/Istanbul": "TR", "America/Montevideo": "UY", "America/Caracas": "VE", "America/Sao_Paulo": "BR", "America/Toronto": "CA", "America/Vancouver": "CA", "America/Montreal": "CA", "Asia/Dubai": "AE", "Europe/London": "GB", "Europe/Paris": "FR", "Europe/Berlin": "DE", "Europe/Rome": "IT", "Europe/Lisbon": "PT", "Asia/Singapore": "SG", "Asia/Tokyo": "JP", "Asia/Kolkata": "IN", "Asia/Shanghai": "CN", "Asia/Hong_Kong": "HK", "Asia/Seoul": "KR", "Asia/Bangkok": "TH", "Asia/Jakarta": "ID", "Asia/Manila": "PH", "Asia/Kuala_Lumpur": "MY", "Asia/Ho_Chi_Minh": "VN", "Australia/Sydney": "AU", "Australia/Melbourne": "AU", "America/New_York": "US", "America/Chicago": "US", "America/Los_Angeles": "US" });
   function inferredCountryCode(languages = [], timeZone = "") {
     if (zoneCountries[timeZone]) return zoneCountries[timeZone];
     for (let language2 of languages) {
@@ -1656,7 +1660,7 @@
   function receive(data) {
     return data?.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), data;
   }
-  var requests = /* @__PURE__ */ new Map(), dashboards = /* @__PURE__ */ new Map(), dashboardStorage = "radar-dashboards:v22", dashboardRevision = "", prefetched = !1, dashboardKey = (query) => JSON.stringify(Object.entries(query || {}).filter(([key, value]) => value !== "" && value != null && !(key === "page" && Number(value) === 0) && !(key === "initial" && value === !1)).sort(([a], [b]) => a.localeCompare(b)));
+  var requests = /* @__PURE__ */ new Map(), dashboards = /* @__PURE__ */ new Map(), dashboardStorage = "radar-dashboards:v24", dashboardRevision = "", prefetched = !1, dashboardKey = (query) => JSON.stringify(Object.entries(query || {}).filter(([key, value]) => value !== "" && value != null && !(key === "page" && Number(value) === 0) && !(key === "initial" && value === !1)).sort(([a], [b]) => a.localeCompare(b)));
   try {
     let saved = JSON.parse(sessionStorage.getItem(dashboardStorage) || "null");
     if (saved && Date.now() - saved.at < 3e5) {
@@ -1941,13 +1945,35 @@
   function entityOrder(a, b) {
     return +(b.name === "BBVA") - +(a.name === "BBVA") || a.name.localeCompare(b.name, "es");
   }
+  var REGION_CODES = Object.freeze(["APAC", "EMEA", "AMER"]), countryRegions = Object.freeze({ China: "APAC", "Hong Kong": "APAC", Jap\u00F3n: "APAC", Singapur: "APAC", India: "APAC", Australia: "APAC", Indonesia: "APAC", "Corea del Sur": "APAC", Vietnam: "APAC", Filipinas: "APAC", Malasia: "APAC", Tailandia: "APAC", M\u00E9xico: "AMER", Per\u00FA: "AMER", Colombia: "AMER", Argentina: "AMER", Uruguay: "AMER", "Estados Unidos": "AMER", Brasil: "AMER", Chile: "AMER", Venezuela: "AMER", Canad\u00E1: "AMER", Espa\u00F1a: "EMEA", Turqu\u00EDa: "EMEA", Italia: "EMEA", Alemania: "EMEA", Francia: "EMEA", Portugal: "EMEA", "Reino Unido": "EMEA", Suiza: "EMEA", "Pa\xEDses Bajos": "EMEA", B\u00E9lgica: "EMEA", Ruman\u00EDa: "EMEA", "Emiratos \xC1rabes Unidos": "EMEA" });
+  function countryRegion(country) {
+    return countryRegions[country] || "";
+  }
+  function geographyMatches(row, selection, geography) {
+    return REGION_CODES.includes(selection) ? geography(row) === otherGeography && countryRegion(row.pais) === selection : geography(row) === selection;
+  }
+  function regionalGeographies(rows, geography) {
+    let totals = new Map(REGION_CODES.map((name) => [name, 0]));
+    for (let row of rows) if (geography(row) === otherGeography) {
+      let region = countryRegion(row.pais);
+      totals.has(region) && totals.set(region, totals.get(region) + 1);
+    }
+    return [...totals].map(([name, total]) => ({ name, total }));
+  }
+  function geographyTabQuery(query) {
+    return query.view === "news" && (query.country === otherGeography || REGION_CODES.includes(query.country)) ? { ...query, country: "", newsGeography: query.country } : query;
+  }
 
   // src/client/features/geography-tabs.js
   function createGeographyTabs(id, panelId, onSelect) {
-    let tabs = $(id), panel2 = $(panelId), rows = [], active = "", focus = !1;
+    let tabs = $(id), panel2 = $(panelId), rows = [], regions = [], active = "", focus = !1;
     function select(name) {
+      if (name === otherGeography && active !== otherGeography && !REGION_CODES.includes(active) && regions.some((row) => row.total)) {
+        let preferred = countryRegion(browserCountry());
+        name = regions.find((row) => row.name === preferred && row.total)?.name || regions.find((row) => row.total).name;
+      }
       if (name === active) {
-        tabs.querySelector('[aria-selected="true"]').focus();
+        tabs.querySelector('[tabindex="0"]').focus();
         return;
       }
       focus = !0, onSelect(name);
@@ -1960,11 +1986,16 @@
       event.preventDefault();
       let index = rows.findIndex((row) => row.name === active), next = event.key === "Home" ? 0 : event.key === "End" ? rows.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + rows.length) % rows.length;
       tabs.querySelectorAll('[role="tab"]')[next].focus(), select(rows[next].name);
-    }), { render(geographies, selected) {
-      rows = geographies, active = selected, tabs.hidden = !rows.length, tabs.innerHTML = rows.map((row, index2) => `<button type="button" class="button" role="tab" id="${id}-${index2}" aria-controls="${panelId}" aria-selected="${row.name === active}" tabindex="${row.name === active ? 0 : -1}" data-geography="${escape2(row.name)}">${identityMark("countries", row.name, escape2)}${escape2(t(geographyLabel(row.name)))}<span class="geography-count">${row.total}</span></button>`).join("");
+    }), { render(geographies, selected, regionalRows = []) {
+      regions = regionalRows;
+      let regional = selected === otherGeography || REGION_CODES.includes(selected);
+      rows = [...geographies, ...regional ? regions : []], active = selected, tabs.hidden = !rows.length, tabs.innerHTML = rows.map((row, index2) => `<button type="button" class="button${REGION_CODES.includes(row.name) ? " geography-region" : ""}" role="tab" id="${id}-${index2}" aria-controls="${panelId}" aria-selected="${row.name === active || row.name === otherGeography && REGION_CODES.includes(active)}" tabindex="${row.name === active ? 0 : -1}" data-geography="${escape2(row.name)}">${REGION_CODES.includes(row.name) ? regionMark(row.name) : identityMark("countries", row.name, escape2)}${escape2(t(geographyLabel(row.name)))}<span class="geography-count">${row.total}</span></button>`).join("");
       let index = rows.findIndex((row) => row.name === active);
-      index >= 0 ? panel2.setAttribute("aria-labelledby", id + "-" + index) : panel2.removeAttribute("aria-labelledby"), focus && (tabs.querySelector('[aria-selected="true"]')?.focus(), focus = !1);
+      index >= 0 ? panel2.setAttribute("aria-labelledby", id + "-" + index) : panel2.removeAttribute("aria-labelledby"), focus && (tabs.querySelector('[tabindex="0"]')?.focus(), focus = !1);
     } };
+  }
+  function regionMark(name) {
+    return `<svg class="geography-flag region-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor"/><path d="${["M13 5l5 3-2 4 3 3-2 4-4-2-1-5-3-2z", "M10 4l5 3-2 4 3 2-4 7-3-4 1-5-4-2z", "M5 5l5-1 2 4-4 4 3 3-1 5-3-4 1-4-4-3z"][REGION_CODES.indexOf(name)]}" fill="currentColor"/></svg>`;
   }
 
   // src/client/features/reading-context.js
@@ -2447,47 +2478,6 @@
         ]
       ]
     },
-    geographies: {
-      label: "Geograf\xEDas",
-      help: "C\xF3digo ISO de dos letras e identificador cartogr\xE1fico ISO num\xE9rico de tres cifras. Ejemplo: Espa\xF1a, ES, es, 724.",
-      fields: [
-        [
-          "name",
-          "Nombre",
-          "text"
-        ],
-        [
-          "searchName",
-          "Nombre del pa\xEDs en b\xFAsquedas",
-          "text"
-        ],
-        [
-          "terms",
-          "Nombres alternativos del pa\xEDs",
-          "list"
-        ],
-        [
-          "code",
-          "C\xF3digo ISO",
-          "text"
-        ],
-        [
-          "language",
-          "Idioma de Google News",
-          "text"
-        ],
-        [
-          "mapId",
-          "ISO num\xE9rico del mapa",
-          "text"
-        ],
-        [
-          "enabled",
-          "Activo",
-          "boolean"
-        ]
-      ]
-    },
     segments: {
       label: "Segmentos",
       help: "Contexto de Empresas e instituciones, pymes y aut\xF3nomos. T\xE9rminos separados por punto y coma; * al final de una palabra admite sus variantes. Las capacidades transversales pueden ser relevantes aunque el titular no mencione el segmento.",
@@ -2627,8 +2617,45 @@
       ]
     },
     applicationScope: {
-      label: "\xC1mbito de aplicaci\xF3n",
-      help: "Pa\xEDses con pesta\xF1a propia por segmento en Noticias y Novedades. Los restantes y las noticias sin pa\xEDs se agrupan en Otras geograf\xEDas. Radar conserva todas las geograf\xEDas conocidas."
+      label: "Geograf\xEDas",
+      help: "C\xF3digo ISO de dos letras e identificador cartogr\xE1fico ISO num\xE9rico de tres cifras. Ejemplo: Espa\xF1a, ES, es, 724. Selecciona los pa\xEDses con pesta\xF1a propia en Noticias y Novedades; los restantes se agrupan por regi\xF3n en Otras geograf\xEDas.",
+      fields: [
+        [
+          "name",
+          "Nombre",
+          "text"
+        ],
+        [
+          "searchName",
+          "Nombre del pa\xEDs en b\xFAsquedas",
+          "text"
+        ],
+        [
+          "terms",
+          "Nombres alternativos del pa\xEDs",
+          "list"
+        ],
+        [
+          "code",
+          "C\xF3digo ISO",
+          "text"
+        ],
+        [
+          "language",
+          "Idioma de Google News",
+          "text"
+        ],
+        [
+          "mapId",
+          "ISO num\xE9rico del mapa",
+          "text"
+        ],
+        [
+          "enabled",
+          "Activo",
+          "boolean"
+        ]
+      ]
     },
     relevanceRules: {
       label: "Criterios de relevancia",
@@ -2848,7 +2875,7 @@
   // src/client/features/configuration.js
   var capabilityFields = [["name", "Capacidad de detecci\xF3n", "text"], ["terms", "T\xE9rminos de b\xFAsqueda", "list"], ["enabled", "Activa", "boolean"]];
   function createConfiguration({ run }) {
-    let config, revision, category = "entities", capabilityDefaults, storagePrimaryId, entries = () => config[category], list = (input2) => input2.value.split(/[;\n]/).map((value) => value.trim()).filter(Boolean), read = (input2) => input2.type === "checkbox" ? input2.checked : input2.type === "number" ? Number(input2.value) : input2.dataset.list === "true" ? list(input2) : input2.value.trim(), filters4 = createRecordFilters("configuration", [["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]], filterRows, { placeholder: "Nombre, c\xF3digo o t\xE9rmino" });
+    let config, revision, category = "entities", capabilityDefaults, storagePrimaryId, entries = () => config[category === "applicationScope" ? "geographies" : category], list = (input2) => input2.value.split(/[;\n]/).map((value) => value.trim()).filter(Boolean), read = (input2) => input2.type === "checkbox" ? input2.checked : input2.type === "number" ? Number(input2.value) : input2.dataset.list === "true" ? list(input2) : input2.value.trim(), filters4 = createRecordFilters("configuration", [["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]], filterRows, { placeholder: "Nombre, c\xF3digo o t\xE9rmino" });
     async function fetchConfig() {
       let snapshot = await call("getConfiguration");
       config = snapshot.config, revision = snapshot.revision, capabilityDefaults = snapshot.capabilityDefaults, storagePrimaryId = snapshot.storagePrimaryId;
@@ -2858,8 +2885,10 @@
     }
     function readFields() {
       if (config)
-        if (category === "applicationScope") config.applicationScope = [...$("catalog-fields").querySelectorAll("[data-scope]")].map((group) => ({ name: group.dataset.scope, countries: [...group.querySelectorAll("[data-country]:checked")].map((input2) => input2.dataset.country) }));
-        else if (category === "taxonomy")
+        if (category === "applicationScope") {
+          let countries = [...$("catalog-fields").querySelectorAll("[data-geography]")];
+          config.geographies = countries.map(record), config.applicationScope = [{ name: config.applicationScope[0].name, countries: countries.filter((row) => row.querySelector("[data-country]").checked).map((row) => record(row).name) }];
+        } else if (category === "taxonomy")
           config.settings.searchTerms = list($("catalog-search-terms")), config.capabilities.Empresas = [...$("catalog-fields").querySelectorAll("[data-capability]")].map(record), config.taxonomy = [...$("catalog-fields").querySelectorAll("[data-taxonomy-block]")].map((block) => ({ name: block.querySelector('[data-key="name"]').value.trim(), terms: list(block.querySelector('[data-key="terms"]')), emerging: [...block.querySelectorAll("[data-emerging]")].map(record), functions: [...block.querySelectorAll("[data-function]")].map(record) }));
         else if (admin_schema_default[category].groups)
           for (let group of $("catalog-fields").querySelectorAll("[data-config-section]")) for (let input2 of group.querySelectorAll("[data-key]")) config[group.dataset.configSection][input2.dataset.key] = read(input2);
@@ -2870,7 +2899,7 @@
 `))}</textarea><span class="small muted">${t("Un t\xE9rmino por l\xEDnea")} \xB7 ${(row[key] || []).length}</span>` : `<input data-key="${key}" type="${type === "number" ? "number" : "text"}" ${type === "readonly" ? "readonly" : ""} value="${escape2(row[key] ?? "")}">`}</label>`).join("");
     }
     function filterRows() {
-      let query = filters4.query(), term = recordText(query.search), rows = [...$("catalog-fields").children], shown = 0;
+      let query = filters4.query(), term = recordText(query.search), rows = [...$("catalog-fields").querySelectorAll(category === "applicationScope" ? "[data-geography]" : ":scope > *")], shown = 0;
       for (let row of rows) {
         let enabled = row.querySelector('[data-key="enabled"]');
         enabled && (row.dataset.enabled = String(enabled.checked));
@@ -2881,16 +2910,26 @@
     }
     function render() {
       let meta = admin_schema_default[category];
-      $("capability-toolbar").hidden = category !== "taxonomy", $("catalog-help").textContent = t(meta.help) + (category === "storage" ? " ID: " + storagePrimaryId : ""), $("catalog-add").hidden = !!meta.groups || ["applicationScope", "taxonomy"].includes(category);
+      $("capability-toolbar").hidden = category !== "taxonomy", $("catalog-help").textContent = t(meta.help) + (category === "storage" ? " ID: " + storagePrimaryId : ""), $("catalog-add").hidden = !!meta.groups || category === "taxonomy";
       let html;
-      category === "taxonomy" ? html = `<details class="catalog-row" data-config-detection><summary><strong>${t("Detecci\xF3n de canal digital y b\xFAsquedas")}</strong></summary><p class="muted">${t("Estos criterios recuperan y seleccionan noticias antes de asignar funcionalidades del cat\xE1logo maestro.")}</p><label class="catalog-terms">${t("T\xE9rminos de b\xFAsqueda de sector")}<textarea id="catalog-search-terms" rows="5">${escape2(config.settings.searchTerms.join(`
-`))}</textarea><span class="small muted">${t("Un t\xE9rmino por l\xEDnea")}</span></label><button class="button" type="button" data-add-capability>${t("A\xF1adir capacidad de detecci\xF3n")}</button>${config.capabilities.Empresas.map((row) => `<details class="catalog-row" data-capability><summary><strong>${escape2(row.name)}</strong><span>${t(row.enabled ? "Activa" : "Inactiva")}</span></summary><div class="catalog-grid">${fields(capabilityFields, row)}</div><div class="actions"><button class="button" type="button" data-remove-capability>${t("Eliminar")}</button></div></details>`).join("")}</details>` + config.taxonomy.map((block, index) => `<details class="catalog-row" data-taxonomy-block><summary><strong>${escape2(block.name)}</strong><span>${block.functions.length} ${t("funcionalidades")}</span></summary><div class="catalog-grid">${fields([["name", "Bloque funcional", "readonly"], ["terms", "Equivalencias del bloque", "list"]], block)}</div>${block.functions.map((row) => `<details class="catalog-function" data-function><summary><strong>${escape2(row.id + " \xB7 " + row.name)}</strong><span>${row.terms.length} ${t("equivalencias")}</span></summary><div class="catalog-grid">${fields([["id", "C\xF3digo", "readonly"], ["name", "Funcionalidad / Sub Operativa", "readonly"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"]], row)}</div></details>`).join("")}<h3>${t("Conceptos emergentes admitidos")}</h3><button type="button" class="button" data-add-emerging="${index}">${t("A\xF1adir concepto emergente")}</button>${block.emerging.map((row) => `<div class="catalog-grid" data-emerging>${fields([["name", "Funcionalidad / Sub Operativa", "text"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"], ["primaryTerms", "Productos concretos de fuente oficial", "list"], ["primary", "Producto concreto respaldado por fuente oficial", "boolean"]], row)}<button type="button" class="button" data-remove-emerging>${t("Eliminar")}</button></div>`).join("")}</details>`).join("") : category === "applicationScope" ? html = config.applicationScope.map((scope) => `<fieldset class="catalog-group scope-group" data-scope="${escape2(scope.name)}"><legend>${escape2(scope.name)}</legend><div class="scope-countries">${config.geographies.map((country) => `<label class="scope-country"><input type="checkbox" data-country="${escape2(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${escape2(country.name)}</span></label>`).join("")}</div></fieldset>`).join("") : meta.groups ? html = meta.groups.map((group) => {
+      if (category === "taxonomy") html = `<details class="catalog-row" data-config-detection><summary><strong>${t("Detecci\xF3n de canal digital y b\xFAsquedas")}</strong></summary><p class="muted">${t("Estos criterios recuperan y seleccionan noticias antes de asignar funcionalidades del cat\xE1logo maestro.")}</p><label class="catalog-terms">${t("T\xE9rminos de b\xFAsqueda de sector")}<textarea id="catalog-search-terms" rows="5">${escape2(config.settings.searchTerms.join(`
+`))}</textarea><span class="small muted">${t("Un t\xE9rmino por l\xEDnea")}</span></label><button class="button" type="button" data-add-capability>${t("A\xF1adir capacidad de detecci\xF3n")}</button>${config.capabilities.Empresas.map((row) => `<details class="catalog-row" data-capability><summary><strong>${escape2(row.name)}</strong><span>${t(row.enabled ? "Activa" : "Inactiva")}</span></summary><div class="catalog-grid">${fields(capabilityFields, row)}</div><div class="actions"><button class="button" type="button" data-remove-capability>${t("Eliminar")}</button></div></details>`).join("")}</details>` + config.taxonomy.map((block, index) => `<details class="catalog-row" data-taxonomy-block><summary><strong>${escape2(block.name)}</strong><span>${block.functions.length} ${t("funcionalidades")}</span></summary><div class="catalog-grid">${fields([["name", "Bloque funcional", "readonly"], ["terms", "Equivalencias del bloque", "list"]], block)}</div>${block.functions.map((row) => `<details class="catalog-function" data-function><summary><strong>${escape2(row.id + " \xB7 " + row.name)}</strong><span>${row.terms.length} ${t("equivalencias")}</span></summary><div class="catalog-grid">${fields([["id", "C\xF3digo", "readonly"], ["name", "Funcionalidad / Sub Operativa", "readonly"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"]], row)}</div></details>`).join("")}<h3>${t("Conceptos emergentes admitidos")}</h3><button type="button" class="button" data-add-emerging="${index}">${t("A\xF1adir concepto emergente")}</button>${block.emerging.map((row) => `<div class="catalog-grid" data-emerging>${fields([["name", "Funcionalidad / Sub Operativa", "text"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"], ["primaryTerms", "Productos concretos de fuente oficial", "list"], ["primary", "Producto concreto respaldado por fuente oficial", "boolean"]], row)}<button type="button" class="button" data-remove-emerging>${t("Eliminar")}</button></div>`).join("")}</details>`).join("");
+      else if (category === "applicationScope") {
+        let regions = new Map(REGION_CODES.map((region) => [region, []]));
+        for (let country of config.geographies) {
+          let region = countryRegion(country.name) || otherGeography;
+          regions.has(region) || regions.set(region, []), regions.get(region).push(country);
+        }
+        let scope = config.applicationScope[0];
+        html = [...regions].map(([region, countries]) => `<fieldset class="catalog-group scope-group"><legend>${escape2(t(region))}</legend><div class="scope-countries">${countries.map((country) => `<details class="catalog-row" data-geography data-enabled="${country.enabled}" ${country.name ? "" : "open"}><summary><strong>${escape2(country.name || t("Nueva entrada"))}</strong><span>${t(country.enabled ? "Activa" : "Inactiva")}</span></summary><label class="scope-country"><input type="checkbox" data-country="${escape2(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${t("Pesta\xF1a propia")}</span></label><div class="catalog-grid">${fields(meta.fields, country)}</div><button type="button" class="button" data-remove>${t("Eliminar")}</button></details>`).join("")}</div></fieldset>`).join("");
+      } else meta.groups ? html = meta.groups.map((group) => {
         let section = group.section || category;
         return `<fieldset class="catalog-group" data-config-section="${section}"><legend>${escape2(t(group.label))}</legend><div class="catalog-settings">${group.keys.map((key) => {
           let value = config[section][key];
           return fields([[key, meta.labels[key], Array.isArray(value) ? "list" : typeof value == "number" ? "number" : typeof value == "boolean" ? "boolean" : "text"]], config[section]);
         }).join("")}</div></fieldset>`;
-      }).join("") : html = entries().map((row) => `<details class="catalog-row" data-enabled="${row.enabled}" ${row.name ? "" : "open"}><summary><strong>${escape2(row.name || t("Nueva entrada"))}</strong><span>${escape2(row.type || "")}${row.type ? " \xB7 " : ""}${t(row.enabled ? "Activa" : "Inactiva")}</span></summary><div class="catalog-grid">${fields(meta.fields, row)}</div><div class="actions"><button type="button" class="button" data-move="-1">${t("Subir")}</button><button type="button" class="button" data-move="1">${t("Bajar")}</button><button type="button" class="button" data-remove>${t("Eliminar")}</button></div></details>`).join(""), $("catalog-fields").innerHTML = html, filterRows();
+      }).join("") : html = entries().map((row) => `<details class="catalog-row" data-enabled="${row.enabled}" ${row.name ? "" : "open"}><summary><strong>${escape2(row.name || t("Nueva entrada"))}</strong><span>${escape2(row.type || "")}${row.type ? " \xB7 " : ""}${t(row.enabled ? "Activa" : "Inactiva")}</span></summary><div class="catalog-grid">${fields(meta.fields, row)}</div><div class="actions"><button type="button" class="button" data-move="-1">${t("Subir")}</button><button type="button" class="button" data-move="1">${t("Bajar")}</button><button type="button" class="button" data-remove>${t("Eliminar")}</button></div></details>`).join("");
+      $("catalog-fields").innerHTML = html, filterRows();
     }
     return $("catalog-category").innerHTML = Object.entries(admin_schema_default).map(([key, meta]) => `<option value="${key}">${escape2(t(meta.label))}</option>`).join(""), $("catalog-category").addEventListener("change", () => {
       readFields(), category = $("catalog-category").value, render();
@@ -2938,6 +2977,19 @@
   }
 
   // src/shared/novelty-groups.js
+  function noveltyOverview(items, signalNames = [], country = (row) => geographyLabel(row.pais)) {
+    let signals = new Map(signalNames.map((name) => [name, 0])), geographies = /* @__PURE__ */ new Map(), entities = /* @__PURE__ */ new Set();
+    for (let row of items) {
+      let name = country(row);
+      geographies.has(name) || geographies.set(name, { name, total: 0, entities: /* @__PURE__ */ new Set(), signals: new Map(signalNames.map((name2) => [name2, 0])) });
+      let geography = geographies.get(name);
+      geography.total++, geography.entities.add(row.entidad || "Entidad no identificada"), entities.add(row.entidad || "Entidad no identificada");
+      for (let signal of new Set(row.senales || []))
+        signals.set(signal, (signals.get(signal) || 0) + 1), geography.signals.set(signal, (geography.signals.get(signal) || 0) + 1);
+    }
+    let counts = (values) => [...values].map(([name, total]) => ({ name, total }));
+    return { total: items.length, entities: entities.size, bySignal: counts(signals), geographies: [...geographies.values()].map(({ signals: signals2, entities: entities2, ...row }) => ({ ...row, entityCount: entities2.size, bySignal: counts(signals2) })).sort(geographyOrder) };
+  }
   function publicationOrder(a, b) {
     return String(b.fecha || "").localeCompare(String(a.fecha || "")) || String(a.id || a.url || a.titular || "").localeCompare(String(b.id || b.url || b.titular || ""), "es");
   }
@@ -2980,13 +3032,19 @@
   }
 
   // src/client/features/briefing.js
-  function createBriefing({ onExplore }) {
-    let briefing2, groups = [], active = "", selection = {}, tabs = createGeographyTabs("briefing-geographies", "briefing-list", (name) => {
-      active = name, paint2();
+  function createBriefing({ onExplore, onGeography = () => {
+  } }) {
+    let briefing2, groups = [], active = "", selection = {}, scope = [], tabs = createGeographyTabs("briefing-geographies", "briefing-list", (name) => {
+      active = name, onGeography(name), paint2();
     });
     function paint2() {
-      let group = groups.find((row) => row.name === active), stats = group || briefing2;
-      tabs.render(groups, active), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: briefing2.total }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" ${row.total ? "" : "disabled"} data-signal="${escape2(row.name)}"><strong>${row.total}</strong><span>${escape2(t(row.name === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : row.name))}</span></button>`).join("");
+      let geography = applicationGeography(scope, selection.segment), group = groups.find((row) => row.name === active);
+      if (REGION_CODES.includes(active)) {
+        let items = briefing2.items.filter((row) => geographyMatches(row, active, geography)), overview = briefing2.regions?.find((row) => row.name === active) || noveltyOverview(items, BRIEFING_ALLOWED_SIGNALS, () => active).geographies[0];
+        group = { total: 0, entityCount: 0, bySignal: BRIEFING_ALLOWED_SIGNALS.map((name) => ({ name, total: 0 })), ...overview, name: active, items };
+      }
+      let stats = group || briefing2;
+      tabs.render(groups, active, regionalGeographies(briefing2.items, geography).map((row) => briefing2.regions?.find((region) => region.name === row.name) || row)), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: briefing2.total }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" ${row.total ? "" : "disabled"} data-signal="${escape2(row.name)}"><strong>${row.total}</strong><span>${escape2(t(row.name === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : row.name))}</span></button>`).join("");
       let rows = group?.items || [];
       $("briefing-list").innerHTML = rows.map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join("") || '<div class="panel empty"><h3>' + t("No hay novedades de producto en esta selecci\xF3n.") + "</h3></div>", $("briefing-limit").hidden = !group || stats.total <= group.items.length, $("briefing-explore").hidden = $("briefing-limit").hidden;
     }
@@ -2994,9 +3052,9 @@
       let button = event.target.closest("[data-signal]");
       button && onExplore({ ...selection, country: "", newsGeography: active, signal: button.dataset.signal, page: 0 });
     }), { render(data) {
-      selection = data.selection || {}, briefing2 = data.briefing || { total: 0, bySignal: [], geographies: [], items: [] }, briefing2 = { ...briefing2, items: briefing2.items.filter(briefingAllowed), bySignal: briefing2.bySignal.filter((row) => BRIEFING_ALLOWED_SIGNALS.includes(row.name)) };
+      scope = data.applicationScope, selection = data.selection || {}, briefing2 = data.briefing || { total: 0, bySignal: [], geographies: [], items: [] }, briefing2 = { ...briefing2, items: briefing2.items.filter(briefingAllowed), bySignal: briefing2.bySignal.filter((row) => BRIEFING_ALLOWED_SIGNALS.includes(row.name)) };
       let stats = new Map(briefing2.geographies.map((row) => [row.name, row]));
-      groups = noveltyGroups(briefing2.items, applicationGeography(data.applicationScope, data.selection?.segment)).map((group) => ({ ...group, ...stats.get(group.name) })), groups.some((row) => row.name === active) || (active = browserCountry(groups.map((row) => row.name)) || groups[0]?.name || ""), paint2();
+      groups = noveltyGroups(briefing2.items, applicationGeography(data.applicationScope, data.selection?.segment)).map((group) => ({ ...group, ...stats.get(group.name) })), selection.country && (active = REGION_CODES.includes(selection.country) ? selection.country : applicationGeography(scope, selection.segment)({ pais: selection.country })), !REGION_CODES.includes(active) && !groups.some((row) => row.name === active) && (active = browserCountry(groups.map((row) => row.name)) || groups[0]?.name || ""), paint2();
     } };
   }
 
@@ -3101,8 +3159,8 @@
         $("radar-outage-kpis").innerHTML = metricCards([["Incidencias registradas (A\xF1o)", outage.total, comparison], ["Entidades afectadas", outage.affected, `${outage.ratio}% de ${outage.active} entidades activas`], ["Entidad m\xE1s expuesta", outage.top?.entity || "\u2014", outage.top ? `${outage.top.total} eventos \xB7 ${outage.concentration}% de concentraci\xF3n` : "Sin incidencias"], ["Vector / Operativa cr\xEDtica", outage.vector?.name || "\u2014", outage.vector ? `${outage.vector.total} evidencias` : "Sin incidencias"]]);
         let topLabel = $("radar-outage-kpis").children[2]?.querySelector("strong");
         topLabel && outage.top && topLabel.insertAdjacentHTML("afterbegin", identityMark("entities", outage.top.entity, escape2)), $("radar-outage-kpis").children[0]?.querySelector("span").classList.add("badge"), $("radar-outage-grid").hidden = !outage.total;
-        let maximum = Math.max(1, ...outage.months.map((row) => row.total)), bar = (value, max2) => `<meter min="0" max="${max2}" value="${value}">${value}</meter>`;
-        $("radar-outage-timeline").innerHTML = outage.months.map((row) => `<div title="${escape2(row.month)}: ${row.total}"><span>${row.total}</span>${bar(row.total, maximum)}<time>${escape2(row.month.slice(5))}</time></div>`).join(""), $("radar-outage-entities").innerHTML = outage.ranking.map((row) => `<div class="radar-outage-entity"><button type="button" class="ranking-row" data-outage-explore data-entity="${escape2(row.entity)}">${identityMark("entities", row.entity, escape2)}<span class="ranking-name">${escape2(row.entity)}${bar(row.total, outage.top.total)}</span><strong>${row.total}</strong></button><div class="radar-outage-countries">${row.countries.map((area) => `<button type="button" class="button" data-outage-explore data-entity="${escape2(row.entity)}" data-country="${escape2(area.country)}">${identityMark("countries", area.country, escape2)}${escape2(area.country)} \xB7 ${area.total}</button>`).join("")}</div></div>`).join(""), $("radar-outage-vectors").innerHTML = outage.vectors.map((row) => `<button type="button" class="ranking-row" data-outage-explore data-vector="${escape2(row.name)}"><span class="ranking-name">${escape2(row.name)}${bar(row.total, outage.vector.total)}</span><strong>${row.total}</strong></button>`).join(""), $("radar-outage-evidence").innerHTML = outage.latest.map((row) => `<article class="radar-outage-evidence"><p class="identity-label">${identityMark("entities", row.entity, escape2)}${escape2(row.entity)} ${identityMark("countries", row.country, escape2)}${escape2(row.country)}</p><a href="${escape2(row.url)}" target="_blank" rel="noopener noreferrer" data-original>${escape2(row.title)}</a><p class="small muted"><time>${escape2(row.date)}</time> \xB7 ${identityMark("publishers", row.publisher, escape2)}${escape2(row.publisher)}</p></article>`).join("");
+        let maximum = Math.max(1, ...outage.months.map((row) => row.total)), bar = (value, max2) => `<span class="ranking-track"><span style="width:${value / max2 * 100}%"></span></span>`;
+        $("radar-outage-timeline").innerHTML = outage.months.map((row) => `<div title="${escape2(formatCalendarMonth(row.month, language))} ${row.month.slice(0, 4)}: ${row.total}"><span>${row.total}</span><div class="outage-bar" style="--outage-share:${row.total / maximum * 100}%"><span></span></div><time datetime="${row.month}">${escape2(formatCalendarMonth(row.month, language))}</time></div>`).join(""), $("radar-outage-entities").innerHTML = outage.ranking.map((row) => `<div class="radar-outage-entity"><button type="button" class="ranking-row" data-outage-explore data-entity="${escape2(row.entity)}">${identityMark("entities", row.entity, escape2)}<span class="ranking-name">${escape2(row.entity)}${bar(row.total, outage.top.total)}</span><strong>${row.total}</strong></button><div class="radar-outage-countries">${row.countries.map((area) => `<button type="button" class="button" data-outage-explore data-entity="${escape2(row.entity)}" data-country="${escape2(area.country)}">${identityMark("countries", area.country, escape2)}${escape2(area.country)} \xB7 ${area.total}</button>`).join("")}</div></div>`).join(""), $("radar-outage-vectors").innerHTML = outage.vectors.map((row) => `<button type="button" class="ranking-row" data-outage-explore data-vector="${escape2(row.name)}"><span class="ranking-name">${escape2(row.name)}${bar(row.total, outage.vector.total)}</span><strong>${row.total}</strong></button>`).join(""), $("radar-outage-evidence").innerHTML = outage.latest.map((row) => `<article class="radar-outage-evidence"><p class="identity-label">${identityMark("entities", row.entity, escape2)}${escape2(row.entity)} ${identityMark("countries", row.country, escape2)}${escape2(row.country)}</p><a href="${escape2(row.url)}" target="_blank" rel="noopener noreferrer" data-original>${escape2(row.titles?.[language] || row.title)}</a><p class="small muted"><time>${escape2(row.date)}</time> \xB7 ${identityMark("publishers", row.publisher, escape2)}${escape2(row.publisher)}</p></article>`).join("");
       }
     } };
   }
@@ -3287,7 +3345,7 @@
     function options(name, values, selected) {
       let el = form.elements[name];
       if (!el) return;
-      name === "country" && view2 === "news" && (values = [.../* @__PURE__ */ new Set([...values, otherGeography])]);
+      name === "country" && ["news", "briefing"].includes(view2) && (values = [.../* @__PURE__ */ new Set([...values, otherGeography, ...REGION_CODES])]);
       let current2 = selected ?? el.value;
       name === "signal" && view2 === "briefing" && (values = values.filter((value) => BRIEFING_ALLOWED_SIGNALS.includes(value)), values.includes(current2) || (current2 = "")), name !== "year" && !(name === "signal" && view2 === "briefing") && current2 && !values.includes(current2) && (values = [...values, current2]);
       let signature = JSON.stringify(values);
@@ -3341,7 +3399,7 @@
       if (event.type === "submit" && JSON.stringify(Object.entries(next).sort()) === JSON.stringify(Object.entries(applied).filter(([key]) => form.elements[key]).sort())) return;
       clearTimeout(timer2), page = 0, initialized.add(view2), onInvalidate();
       let from = form.elements.from.value, to = form.elements.to.value;
-      form.elements.to.setCustomValidity(from && to && from > to ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : ""), $("message").hidden = !0, dirty = !1, applied = { ...edition && applied.benchmark ? { benchmark: applied.benchmark } : {}, ...Object.fromEntries(new FormData(form)) }, renderChips(), event.notify !== !1 && (event.type === "input" ? timer2 = setTimeout(onChange, 250) : onChange());
+      form.elements.to.setCustomValidity(from && to && from > to ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : ""), $("message").hidden = !0, view2 === "news" && !event.preserveGeography && next.country !== applied.country && (newsGeography = next.country || ""), dirty = !1, applied = { ...edition && applied.benchmark ? { benchmark: applied.benchmark } : {}, ...Object.fromEntries(new FormData(form)) }, renderChips(), event.notify !== !1 && (event.type === "input" ? timer2 = setTimeout(onChange, 250) : onChange());
     }
     function draftChanged(event) {
       if (!event.target?.name) return;
@@ -3384,7 +3442,7 @@
         editionSelection = selection, resetContext(id, notify);
       },
       current,
-      query: () => ({ ...applied, page, view: view2, language, ...edition && view2 === "news" ? { edition, ...initialized.has(view2) ? {} : editionSelection } : {}, ...view2 === "news" && newsGeography ? { newsGeography } : {}, initial: !initialized.has(view2) }),
+      query: () => geographyTabQuery({ ...applied, page, view: view2, language, ...edition && view2 === "news" ? { edition, ...initialized.has(view2) ? {} : editionSelection } : {}, ...view2 === "news" && newsGeography ? { newsGeography } : {}, initial: !initialized.has(view2) }),
       show: (next) => {
         if (next === view2) return !1;
         clearTimeout(timer2), onInvalidate();
@@ -3404,18 +3462,22 @@
           let value = query[input2.name] || "";
           value && input2.tagName === "SELECT" && options(input2.name, [value]), input2.value = value;
         }
-        filterChanged({ type: "change", notify });
+        filterChanged({ type: "change", notify, preserveGeography: Object.hasOwn(query, "newsGeography") });
+      },
+      syncGeography: (name) => {
+        let select = form.elements.country, values = [...select.options].map((option) => option.value).filter(Boolean);
+        options("country", [.../* @__PURE__ */ new Set([...values, name])], name), select.value = name, applied = { ...applied, country: name }, page = 0, initialized.add(view2), renderChips();
       },
       setGeography: (name) => {
-        newsGeography = name, page = 0, onInvalidate(), onChange();
+        newsGeography = name, applied.country = REGION_CODES.includes(name) ? name : "", page = 0, onInvalidate(), onChange();
       },
       setPage: (value) => page = value,
       render: (data) => {
-        let draft = dirty ? Object.fromEntries(new FormData(form)) : null;
+        let draft = dirty ? Object.fromEntries(new FormData(form)) : null, selection = data.selection ? { ...data.selection, country: data.selection.country || (view2 === "news" && REGION_CODES.includes(data.newsGeography) ? data.newsGeography : "") } : null;
         view2 === "radar" && options("year", data.years || [], data.selection?.from?.slice(0, 4)), taxonomy2 = data.subpalanca || [], page = data.page, newsGeography = data.newsGeography || "", defaults = data.defaults || defaults, initialized.add(view2);
-        for (let [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type", "types"], ["segment", "segments"], ["signal", "signals"], ["palanca", "palanca"], ["subpalanca", "subpalanca"]]) options(name, data[key] || [], data.selection?.[name]);
-        if (data.selection) for (let input2 of form.elements) input2.name && (input2.value = (input2.name === "year" && view2 === "radar" ? data.selection.from?.slice(0, 4) : data.selection[input2.name]) || "");
-        if (syncTaxonomyControls(form, taxonomy2), applied = data.selection ? { ...data.selection } : Object.fromEntries(new FormData(form)), renderChips(), draft) {
+        for (let [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type", "types"], ["segment", "segments"], ["signal", "signals"], ["palanca", "palanca"], ["subpalanca", "subpalanca"]]) options(name, data[key] || [], selection?.[name]);
+        if (selection) for (let input2 of form.elements) input2.name && (input2.value = (input2.name === "year" && view2 === "radar" ? selection.from?.slice(0, 4) : selection[input2.name]) || "");
+        if (syncTaxonomyControls(form, taxonomy2), applied = selection || Object.fromEntries(new FormData(form)), renderChips(), draft) {
           for (let input2 of form.elements) input2.name && (input2.value = draft[input2.name] || "");
           syncTaxonomyControls(form, taxonomy2);
         }
@@ -3670,7 +3732,9 @@
     state.ready && (changed || state.contentStale || state.view !== view2) && load(!0);
   }, onSubscriptions: () => subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters3 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load();
-  } }), reading = createReadingContext({ run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing({ onExplore: (query) => navigateSelection("news", query) }), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters3.setGeography(name));
+  } }), reading = createReadingContext({ run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing({ onExplore: (query) => navigateSelection("news", query), onGeography: (country) => {
+    filters3.syncGeography(country), refreshSelects();
+  } }), newsTabs = createGeographyTabs("news-geographies", "news-list", (name) => filters3.setGeography(name));
   function navigateSelection(view2, query) {
     filters3.show(view2), filters3.apply(query, !1), state.contentStale = !0, track("filtro"), navigation.show(view2);
   }
@@ -3678,7 +3742,7 @@
     state.data && (state.data.collection = status), state.data?.admin && renderCollectionJobs(status);
   } });
   function renderSelection(data, view2 = navigation.current, appended = null, reuse = !1) {
-    reading.render(data, view2), !reuse && (view2 === "news" && (renderNews(data, appended), newsTabs.render(data.newsGeographies || [], data.newsGeography || "")), view2 === "radar" && (radar.render(data), heatmap.render(data)), view2 === "briefing" && briefing.render(data));
+    reading.render(data, view2), !reuse && (view2 === "news" && (renderNews(data, appended), newsTabs.render(data.newsGeographies || [], data.newsGeography || "", data.newsRegions || [])), view2 === "radar" && (radar.render(data), heatmap.render(data)), view2 === "briefing" && briefing.render(data));
   }
   function renderApplicationShell(data) {
     data.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), setTimezone(data.preferences?.timezone), window.RADAR_PREVIEW && data.admin && ($("preview-banner").textContent = "Administraci\xF3n local \xB7 cambios en memoria, sin acceso a Google. Al recargar se restauran los valores iniciales."), data.preferences && (document.querySelector(".app-footer").hidden = !1, $("retention-days").textContent = data.preferences.retentionDays, $("event-limit").textContent = data.preferences.eventLimit), renderShell(data), data.admin && sources.render(data), collectionProgress.update(data), refreshSelects(), flushLocalization();

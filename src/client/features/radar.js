@@ -1,3 +1,4 @@
+import {formatCalendarMonth} from '../../shared/locales.js';
 import {identityMark} from '../../shared/visual-identity.js';
 import { $, escape, metricCards } from "../core/dom.js";
 import {language,t} from '../core/language.js';
@@ -104,11 +105,11 @@ function createRadar({ onCountry, onEntity, onSource, onOutage }) {
       const topLabel=$('radar-outage-kpis').children[2]?.querySelector('strong');if(topLabel&&outage.top)topLabel.insertAdjacentHTML('afterbegin',identityMark('entities',outage.top.entity,escape));
       $('radar-outage-kpis').children[0]?.querySelector('span').classList.add('badge');
       $('radar-outage-grid').hidden=!outage.total;
-      const maximum=Math.max(1,...outage.months.map(row=>row.total)),bar=(value,max)=>`<meter min="0" max="${max}" value="${value}">${value}</meter>`;
-      $('radar-outage-timeline').innerHTML=outage.months.map(row=>`<div title="${escape(row.month)}: ${row.total}"><span>${row.total}</span>${bar(row.total,maximum)}<time>${escape(row.month.slice(5))}</time></div>`).join('');
+      const maximum=Math.max(1,...outage.months.map(row=>row.total)),bar=(value,max)=>`<span class="ranking-track"><span style="width:${value/max*100}%"></span></span>`;
+      $('radar-outage-timeline').innerHTML=outage.months.map(row=>`<div title="${escape(formatCalendarMonth(row.month,language))} ${row.month.slice(0,4)}: ${row.total}"><span>${row.total}</span><div class="outage-bar" style="--outage-share:${row.total/maximum*100}%"><span></span></div><time datetime="${row.month}">${escape(formatCalendarMonth(row.month,language))}</time></div>`).join('');
       $('radar-outage-entities').innerHTML=outage.ranking.map(row=>`<div class="radar-outage-entity"><button type="button" class="ranking-row" data-outage-explore data-entity="${escape(row.entity)}">${identityMark('entities',row.entity,escape)}<span class="ranking-name">${escape(row.entity)}${bar(row.total,outage.top.total)}</span><strong>${row.total}</strong></button><div class="radar-outage-countries">${row.countries.map(area=>`<button type="button" class="button" data-outage-explore data-entity="${escape(row.entity)}" data-country="${escape(area.country)}">${identityMark('countries',area.country,escape)}${escape(area.country)} · ${area.total}</button>`).join('')}</div></div>`).join('');
       $('radar-outage-vectors').innerHTML=outage.vectors.map(row=>`<button type="button" class="ranking-row" data-outage-explore data-vector="${escape(row.name)}"><span class="ranking-name">${escape(row.name)}${bar(row.total,outage.vector.total)}</span><strong>${row.total}</strong></button>`).join('');
-      $('radar-outage-evidence').innerHTML=outage.latest.map(row=>`<article class="radar-outage-evidence"><p class="identity-label">${identityMark('entities',row.entity,escape)}${escape(row.entity)} ${identityMark('countries',row.country,escape)}${escape(row.country)}</p><a href="${escape(row.url)}" target="_blank" rel="noopener noreferrer" data-original>${escape(row.title)}</a><p class="small muted"><time>${escape(row.date)}</time> · ${identityMark('publishers',row.publisher,escape)}${escape(row.publisher)}</p></article>`).join('');
+      $('radar-outage-evidence').innerHTML=outage.latest.map(row=>`<article class="radar-outage-evidence"><p class="identity-label">${identityMark('entities',row.entity,escape)}${escape(row.entity)} ${identityMark('countries',row.country,escape)}${escape(row.country)}</p><a href="${escape(row.url)}" target="_blank" rel="noopener noreferrer" data-original>${escape(row.titles?.[language]||row.title)}</a><p class="small muted"><time>${escape(row.date)}</time> · ${identityMark('publishers',row.publisher,escape)}${escape(row.publisher)}</p></article>`).join('');
     }
 
   } };
