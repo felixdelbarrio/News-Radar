@@ -1,5 +1,10 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Espera a que terminen clasificación, taxonomía y publicación LLM antes de actualizar reglas.": ["Wait for classification, taxonomy and LLM publication to finish before upgrading rules.", "Kuralları güncellemeden önce sınıflandırma, taksonomi ve LLM yayınının tamamlanmasını bekleyin."],
+  "Configuración escrita incompleta.": ["Configuration write is incomplete.", "Yapılandırma yazımı eksik."],
+  "No hay backup de reglas.": ["No rule backup is available.", "Kural yedeği bulunmuyor."],
+  "Restauración de configuración no verificada.": ["Configuration restoration could not be verified.", "Yapılandırma geri yüklemesi doğrulanamadı."],
+  "Clasificación candidata persistida incompleta.": ["Stored candidate classification is incomplete.", "Kaydedilen aday sınıflandırma eksik."],
   "Términos exclusivos de turco conservados en searchLanguages.tr y retirados de la búsqueda transversal.": ["Turkish-only terms preserved in searchLanguages.tr and removed from cross-language search.", "Yalnızca Türkçe terimler searchLanguages.tr içinde korundu ve ortak aramadan kaldırıldı."],
   "Recuperación de extractos RSS en cola; se conservan clasificaciones y asignaciones LLM verificadas.": ["RSS excerpt recovery queued; classifications and verified LLM assignments are preserved.", "RSS özet kurtarma sıraya alındı; sınıflandırmalar ve doğrulanmış LLM atamaları korunur."],
   "La generación cambió durante la recuperación de extractos; revisa el cursor antes de reiniciar.": ["The generation changed during excerpt recovery; review the cursor before restarting.", "Özet kurtarma sırasında nesil değişti; yeniden başlatmadan önce imleci inceleyin."],

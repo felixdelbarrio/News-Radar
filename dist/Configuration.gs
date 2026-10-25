@@ -30,6 +30,7 @@ function initializeConfiguration(){
         if(key==='capabilities'){
           for(const segment of Object.keys(value))if(!Object.hasOwn(defaults,segment))delete value[segment];
           for(const segment of Object.keys(defaults)){
+            for(const row of value[segment])if(['API bancarias','Asistentes digitales'].includes(row.name)){const seed=defaults[segment].find(item=>item.name===row.name);if(seed)row.terms=[...new Set([...row.terms,...seed.terms])];}
             const names=new Set(value[segment].map(row=>searchText_(row.name)));
             value[segment].push(...defaults[segment].filter(row=>!names.has(searchText_(row.name))).slice(0,Math.max(0,60-value[segment].length)));
           }

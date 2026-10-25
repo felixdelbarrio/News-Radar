@@ -4016,7 +4016,9 @@ const CONFIGURATION_DEFAULTS = {
           "api bancaria",
           "banking api",
           "banking apis",
-          "api"
+          "api",
+          "mcp",
+          "model context protocol"
         ],
         "enabled": true
       },
@@ -4066,7 +4068,13 @@ const CONFIGURATION_DEFAULTS = {
           "asistente virtual",
           "virtual assistant",
           "chatbot",
-          "chatbots"
+          "chatbots",
+          "banking assistant",
+          "banking assistants",
+          "digital assistants",
+          "virtual assistants",
+          "asistente bancario",
+          "asistentes bancarios"
         ],
         "enabled": true
       },
@@ -5102,7 +5110,11 @@ const CONFIGURATION_DEFAULTS = {
         "comedor escolar",
         "tarjeta infantil",
         "kids card",
-        "teen card"
+        "teen card",
+        "personal loan",
+        "personal loans",
+        "consumer loan",
+        "consumer loans"
       ],
       "enabled": true
     },
@@ -5391,7 +5403,9 @@ const CONFIGURATION_DEFAULTS = {
         "stablecoin",
         "stablecoins",
         "remesas",
-        "remittances"
+        "remittances",
+        "transferir",
+        "traspasar"
       ],
       "functions": [
         {
@@ -6352,7 +6366,13 @@ const CONFIGURATION_DEFAULTS = {
         "wallet",
         "wallets",
         "gestion de gastos",
-        "expense management"
+        "expense management",
+        "tarjetas virtuales",
+        "virtual cards",
+        "credit cards",
+        "tarjetas corporativas",
+        "tarjetas de empresa",
+        "corporate cards"
       ],
       "functions": [
         {
@@ -6366,38 +6386,68 @@ const CONFIGURATION_DEFAULTS = {
         },
         {
           "id": "09.02",
-          "terms": []
+          "terms": [
+            "extractos de tarjetas",
+            "estados de cuenta de tarjetas",
+            "card statements"
+          ]
         },
         {
           "id": "09.03",
-          "terms": []
+          "terms": [
+            "alias de tarjeta",
+            "card nickname"
+          ]
         },
         {
           "id": "09.04",
-          "terms": []
+          "terms": [
+            "movimientos de tarjetas de credito",
+            "credit card transactions"
+          ]
         },
         {
           "id": "09.05",
-          "terms": []
+          "terms": [
+            "limites de tarjetas de credito",
+            "limites de la tarjeta de credito",
+            "credit card spending limits",
+            "credit card payment controls"
+          ]
         },
         {
           "id": "09.06",
           "terms": [
             "bloquear tarjeta de credito",
-            "credit card freeze"
+            "credit card freeze",
+            "bloquear la tarjeta de credito",
+            "congelar tarjeta de credito",
+            "freeze credit card"
           ]
         },
         {
           "id": "09.07",
-          "terms": []
+          "terms": [
+            "contratar tarjeta de credito",
+            "issue corporate credit cards"
+          ]
         },
         {
           "id": "09.08",
-          "terms": []
+          "terms": [
+            "emision masiva de tarjetas de credito",
+            "bulk credit card issuance"
+          ]
         },
         {
           "id": "09.09",
-          "terms": [],
+          "terms": [
+            "pago de la tarjeta de credito",
+            "pago de tarjeta de credito",
+            "pago del saldo de tarjeta",
+            "credit card repayment",
+            "credit card bill"
+          ],
           "context": [
             "pago de tarjeta",
             "pago de la tarjeta",
@@ -6416,44 +6466,75 @@ const CONFIGURATION_DEFAULTS = {
           "id": "09.10",
           "terms": [
             "bloquear tarjeta de debito",
-            "debit card freeze"
+            "debit card freeze",
+            "bloquear la tarjeta de debito",
+            "congelar tarjeta de debito",
+            "freeze debit card"
           ]
         },
         {
           "id": "09.11",
-          "terms": []
+          "terms": [
+            "movimientos de tarjetas de debito",
+            "debit card transactions"
+          ]
         },
         {
           "id": "09.12",
-          "terms": []
+          "terms": [
+            "contrato de tarjeta de debito",
+            "debit card agreement"
+          ]
         },
         {
           "id": "09.13",
-          "terms": []
+          "terms": [
+            "solicitar tarjeta de debito",
+            "request a debit card"
+          ]
         },
         {
           "id": "09.14",
-          "terms": []
+          "terms": [
+            "pagos con tarjeta de debito",
+            "pagos contactless con tarjetas de debito",
+            "debit card payments"
+          ]
         },
         {
           "id": "09.15",
-          "terms": []
+          "terms": [
+            "contratar tarjeta de debito",
+            "issue business debit cards"
+          ]
         },
         {
           "id": "09.16",
-          "terms": []
+          "terms": [
+            "emision masiva de tarjetas de debito",
+            "bulk debit card issuance"
+          ]
         },
         {
           "id": "09.17",
-          "terms": []
+          "terms": [
+            "movimientos de tarjetas prepago",
+            "prepaid card transactions"
+          ]
         },
         {
           "id": "09.18",
-          "terms": []
+          "terms": [
+            "pagos con tarjetas prepago",
+            "prepaid card payments"
+          ]
         },
         {
           "id": "09.19",
-          "terms": []
+          "terms": [
+            "contrato de tarjeta de credito",
+            "credit card agreement"
+          ]
         },
         {
           "id": "09.20",
@@ -6464,15 +6545,24 @@ const CONFIGURATION_DEFAULTS = {
         },
         {
           "id": "09.21",
-          "terms": []
+          "terms": [
+            "contrato de tarjeta prepago",
+            "prepaid card agreement"
+          ]
         },
         {
           "id": "09.22",
-          "terms": []
+          "terms": [
+            "cancelar tarjeta de credito",
+            "cancel credit card"
+          ]
         },
         {
           "id": "09.23",
-          "terms": []
+          "terms": [
+            "cancelar tarjeta de debito",
+            "cancel debit card"
+          ]
         }
       ],
       "emerging": []
@@ -7366,7 +7456,11 @@ const CONFIGURATION_DEFAULTS = {
             "accounting integration",
             "integren banca y contabilidad",
             "integracion banca y contabilidad",
-            "integra banca y contabilidad"
+            "integra banca y contabilidad",
+            "banking apis",
+            "apis bancarias",
+            "treasury api",
+            "api de tesoreria"
           ],
           "exclude": [
             "google cloud customers",
@@ -7452,7 +7546,30 @@ const CONFIGURATION_DEFAULTS = {
           "terms": []
         }
       ],
-      "emerging": []
+      "emerging": [
+        {
+          "name": "Agentes de IA para banca de empresas",
+          "terms": [
+            "agentic ai",
+            "ai agents",
+            "agentes de ia",
+            "agentes de inteligencia artificial"
+          ],
+          "context": [
+            "corporate bankers",
+            "relationship managers",
+            "credit risk managers",
+            "credit assessments",
+            "credit memos",
+            "analisis crediticio",
+            "expedientes de credito"
+          ],
+          "exclude": [
+            "marketing slides",
+            "image generation"
+          ]
+        }
+      ]
     },
     {
       "name": "19.Core",

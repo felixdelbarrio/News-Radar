@@ -7,6 +7,7 @@ export function functionalCatalogRules(catalogue,rules){
  });
 }
 export function functionalRuleSettings(blocks){
- return blocks.map(({name,terms,emerging,functions})=>({name,terms,emerging:emerging.map(functionalConditions),functions:functions.map(({id,terms,context,exclude})=>functionalConditions({id,terms,context,exclude}))}));
+ const key=value=>String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ return blocks.map(({name,terms,emerging,functions})=>({name,terms,emerging:emerging.map(functionalConditions),functions:functions.map(({id,name,terms,context,exclude})=>functionalConditions({id,terms:terms.filter(term=>!name||key(term)!==key(name)),context,exclude}))}));
 }
 function functionalConditions({context,exclude,...row}){return {...row,...(context?.length?{context}:{}),...(exclude?.length?{exclude}:{})};}

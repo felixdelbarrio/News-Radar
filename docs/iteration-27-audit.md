@@ -1,3 +1,5 @@
+> Estado histórico del diagnóstico inicial. La implementación posterior de reglas 3.27.0 y su decisión de publicación están documentadas en [Auditoría funcional global](functional-quality-3.27.0.md). Las métricas de este documento no se reutilizan como una validación del nuevo candidato.
+
 # Iteración 27: diagnóstico y NO-GO
 
 ## Alcance y decisión
