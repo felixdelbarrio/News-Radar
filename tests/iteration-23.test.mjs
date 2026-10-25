@@ -63,3 +63,11 @@ test('Noticias conserva todas las pestañas al elegir regiones y sincroniza el s
 test('un snapshot de otro esquema se descarta antes de consultar sus variantes cacheadas',()=>{
  const {c}=server();for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();const manifest=c.dashboardSnapshotManifest_('news');delete manifest.schema;manifest.revision='obsolete-schema';let requested=0;c.requestDashboardSnapshots_=()=>requested++;c.readDashboardCache_=()=>{throw Error('No debe leer variantes incompatibles');};assert.equal(c.defaultDashboardSnapshot_('news',c.dashboardQuery_({view:'news',initial:true}),'es'),null);assert.equal(requested,1);
 });
+
+test('el ámbito conserva y permite editar países personalizados sin región',async t=>{
+ const a=await app(t);a.config.geographies.push({name:'Arabia Saudí',code:'SA',enabled:true});a.config.applicationScope[0].countries.push('Arabia Saudí');
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');await a.change('#catalog-category','applicationScope');
+ const country=a.find('[data-country="Arabia Saudí"]');assert.equal(country.checked,true);assert.equal(country.closest('fieldset').querySelector('legend').textContent,'Otras geografías');
+ await a.submit('#catalog-form');assert.ok(a.calls.findLast(r=>r.method==='saveConfiguration').query.config.applicationScope[0].countries.includes('Arabia Saudí'));
+ a.find('[data-country="Arabia Saudí"]').checked=false;await a.submit('#catalog-form');assert.equal(a.calls.findLast(r=>r.method==='saveConfiguration').query.config.applicationScope[0].countries.includes('Arabia Saudí'),false);
+});
