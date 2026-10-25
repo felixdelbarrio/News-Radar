@@ -26,3 +26,7 @@ export function regionalGeographies(rows,geography){
   for(const row of rows)if(geography(row)===otherGeography){const region=countryRegion(row.pais);if(totals.has(region))totals.set(region,totals.get(region)+1);}
   return [...totals].map(([name,total])=>({name,total}));
 }
+
+export function geographyTabQuery(query){
+  return query.view==='news'&&(query.country===otherGeography||REGION_CODES.includes(query.country))?{...query,country:'',newsGeography:query.country}:query;
+}

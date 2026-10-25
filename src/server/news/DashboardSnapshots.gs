@@ -13,6 +13,7 @@ function defaultDashboardSnapshot_(view,query,language){
   if(manifest?.periodFallback&&query.from===manifest.period.from&&query.to===manifest.period.to)Object.assign(defaults,manifest.period);
   if(Object.entries(query).some(([key,value])=>value!==''&&value!=null&&key!=='newsGeography'&&!(key==='page'&&Number(value)===0)&&value!==defaults[key]))return null;
   if(manifest?.revision!==revision){requestDashboardSnapshots_();if(!manifest)return null;}
+  if(manifest.schema!==NEWS_CACHE.schema)return null;
   const cache=CacheService.getScriptCache(),key='dashboard-snapshot:'+manifest.revision+':'+language+':'+(query.newsGeography||''),cached=readDashboardCache_(cache,key);if(cached)return cached;
   try{
     const rows=book_().getSheetByName(manifest.sheet||'DashboardSnapshots')?.getRange(manifest.first,1,manifest.parts,4).getDisplayValues();
@@ -72,7 +73,7 @@ function buildPreparedDashboardSnapshotBatch_(job=null){
   const previous=dashboardSnapshotManifest_(view),slot=previous?.slot===0?1:0,first=2+(DASHBOARD_SNAPSHOTS.views.indexOf(view)*2+slot)*DASHBOARD_SNAPSHOTS.parts,generation=Utilities.getUuid(),needed=first+parts-1;
   if(needed>sheet.getMaxRows())sheet.insertRowsAfter(sheet.getMaxRows(),needed-sheet.getMaxRows());
   sheet.getRange(first,1,parts,4).setNumberFormat('@').setValues(Array.from({length:parts},(_,index)=>[view,generation,String(index),encoded.slice(index*DASHBOARD_SNAPSHOTS.chars,(index+1)*DASHBOARD_SNAPSHOTS.chars)]));SpreadsheetApp.flush();
-  build.manifests[view]={revision,generation,slot,first,parts,digest:sha256_(encoded),generated:new Date().toISOString(),period,periodFallback};
+  build.manifests[view]={schema:NEWS_CACHE.schema,revision,generation,slot,first,parts,digest:sha256_(encoded),generated:new Date().toISOString(),period,periodFallback};
   properties_().setProperty('DASHBOARD_SNAPSHOT_BUILD',JSON.stringify(build));
   telemetry_('dashboard-snapshot',Date.now()-started,'OK',view+'; '+period.from+' — '+period.to+'; anterior '+periodFallback+'; variantes '+(view==='news'?1:Object.keys(payload.variants).length)+'; comprimido '+encoded.length+' caracteres');
   if(DASHBOARD_SNAPSHOTS.views.every(view=>build.manifests[view]))return publishDashboardSnapshotSet_(build,job);

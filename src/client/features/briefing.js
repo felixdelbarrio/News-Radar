@@ -15,7 +15,7 @@ export function createBriefing({onExplore,onGeography=()=>{}}){
       group={total:0,entityCount:0,bySignal:BRIEFING_ALLOWED_SIGNALS.map(name=>({name,total:0})),...overview,name:active,items};
     }
     const stats=group||briefing;
-    tabs.render(groups,active,regionalGeographies(briefing.items,geography));
+    tabs.render(groups,active,regionalGeographies(briefing.items,geography).map(row=>briefing.regions?.find(region=>region.name===row.name)||row));
     $('briefing-geography-summary').textContent=group?t('{geography} · {updates} · {entities}',{geography:t(geographyLabel(group.name)),updates:noveltyCount(stats.total,'novedad','novedades',t),entities:noveltyCount(group.entityCount,'entidad','entidades',t)}):'';
 
     $('briefing-count').textContent=t('{count} publicaciones',{count:briefing.total});

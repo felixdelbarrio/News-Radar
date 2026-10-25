@@ -33,3 +33,9 @@ No se ha publicado en Apps Script, inicializado la hoja remota, modificado una i
 - Chrome: 70 combinaciones administrativas de vista y ancho, sin desbordamiento horizontal ni errores de JavaScript.
 - Cambio de región en Novedades: sincronización del selector nativo, su control visible y los filtros aplicados sin RPC y conservando las demás opciones.
 - `git diff --check`: sin errores. Se conserva la eliminación previa de `dist.txt`.
+
+## Publicación y corrección 3.22.1
+
+La versión 3.22.0 se publicó por el navegador de Codex como implementación 109, en la URL productiva existente, y la inicialización terminó correctamente. La medición en Apps Script dio 44, 30, 28 y 30 ms para el panel, sin nuevas filas `control-panel`; Bankinter devolvió HTTP 200. La primera medición de Noticias aún encontró un snapshot previo a la regeneración y no se considera validación del rendimiento final.
+
+La corrección 3.22.1 evita consumir snapshots de un esquema incompatible antes de acceder a sus variantes cacheadas. Mantiene todo el contexto de países al cambiar entre regiones en Noticias, sincroniza selector y pestañas y renueva la caché de navegación del cliente. Los SVG regionales tienen dimensiones explícitas y heredan el contraste de las pestañas BBVA. Los contadores de Novedades usan los totales regionales del servidor. Las pruebas específicas cubren el cambio EMEA/APAC/AMER y el rechazo temprano del snapshot incompatible.

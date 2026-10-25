@@ -52,3 +52,14 @@ test('regional edition filters respect the original direct scope and a bank publ
  const {c}=server(),geo=c.newsReadingGeography_({cadence:'fortnightly',scope:c.configuration_().applicationScope},{benchmark:'international',newsGeography:'EMEA'});assert.equal(c.geographyMatches(row('es','España'),'EMEA',geo),false);assert.equal(c.geographyMatches(row('it','Italia'),'EMEA',geo),true);
  const title=c.searchText_('BBVA customers report business banking app outage');assert.equal(c.classification_(title,title,true,'BBVA').labels.digital,true);
 });
+test('Noticias conserva todas las pestañas al elegir regiones y sincroniza el selector visible',async t=>{
+ const a=await app(t,{configure({data}){data.selection={};data.newsGeographies=[{name:'España',total:5},{name:'Otras geografías',total:12}];data.newsRegions=[{name:'APAC',total:3},{name:'EMEA',total:5},{name:'AMER',total:4}];}});
+ await a.click('[data-view="news"]');await a.click('#news-geographies [data-geography="Otras geografías"]');
+ assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.country,'');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'EMEA');
+ assert.equal(a.find('#geography-filter summary').textContent,'EMEA');assert.ok(a.find('#news-geographies [data-geography="España"]'));assert.equal(a.w.document.querySelectorAll('#news-geographies .region-icon[width="24"]').length,3);
+ await a.click('#news-geographies [data-geography="APAC"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'APAC');assert.equal(a.find('#geography-filter summary').textContent,'APAC');
+ await a.change('#filters [name="country"]','AMER');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.country,'');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'AMER');
+});
+test('un snapshot de otro esquema se descarta antes de consultar sus variantes cacheadas',()=>{
+ const {c}=server();for(let i=0;i<3;i++)c.dashboardSnapshotBatch_();const manifest=c.dashboardSnapshotManifest_('news');delete manifest.schema;manifest.revision='obsolete-schema';let requested=0;c.requestDashboardSnapshots_=()=>requested++;c.readDashboardCache_=()=>{throw Error('No debe leer variantes incompatibles');};assert.equal(c.defaultDashboardSnapshot_('news',c.dashboardQuery_({view:'news',initial:true}),'es'),null);assert.equal(requested,1);
+});

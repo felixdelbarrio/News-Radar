@@ -2,7 +2,7 @@ import {openDatePicker} from './date-picker.js';
 import {newsletterComparisonLabels} from '../../shared/newsletter-cadences.js';
 import {taxonomySubLabel,taxonomyDisplayLabel} from '../../shared/taxonomy-path.js';
 import {syncTaxonomyControls} from './taxonomy-controls.js';
-import {coverageOptions,BRIEFING_ALLOWED_SIGNALS,otherGeography,REGION_CODES} from '../../shared/selection-policy.js';
+import {coverageOptions,BRIEFING_ALLOWED_SIGNALS,otherGeography,REGION_CODES,geographyTabQuery} from '../../shared/selection-policy.js';
 import {defaultView} from '../config.js';
 import {t,language} from '../core/language.js';
 import {formatCalendarDay} from '../../shared/locales.js';
@@ -65,6 +65,7 @@ function createFilters({ onInvalidate, onChange }) {
     const from = form.elements.from.value, to = form.elements.to.value;
     form.elements.to.setCustomValidity(from && to && from > to ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : "");
     $("message").hidden = true;
+    if(view==='news'&&!event.preserveGeography&&next.country!==applied.country)newsGeography=next.country||'';
     dirty=false;applied={...(edition&&applied.benchmark?{benchmark:applied.benchmark}:{}),...Object.fromEntries(new FormData(form))};renderChips();
     if(event.notify===false)return;
     if (event.type === "input") timer = setTimeout(onChange, 250);
@@ -103,7 +104,7 @@ function createFilters({ onInvalidate, onChange }) {
   function current(){resetContext('');}
   return {
     useEdition:(id,selection={},notify=true)=>{editionSelection=selection;resetContext(id,notify);},current,
-    query: () => ({ ...applied, page,view,language,...(edition&&view==='news'?{edition,...(!initialized.has(view)?editionSelection:{})}:{}),...(view==='news'&&newsGeography?{newsGeography}:{}),initial:!initialized.has(view) }),
+    query: () => geographyTabQuery({ ...applied, page,view,language,...(edition&&view==='news'?{edition,...(!initialized.has(view)?editionSelection:{})}:{}),...(view==='news'&&newsGeography?{newsGeography}:{}),initial:!initialized.has(view) }),
     show: next => {
       if(next===view)return false;
       clearTimeout(timer);onInvalidate();
@@ -120,19 +121,19 @@ function createFilters({ onInvalidate, onChange }) {
       form.elements[name].value = value;
       filterChanged({ type: "change" });
     },
-    apply:(query,notify=true)=>{initialized.add(view);if(Object.hasOwn(query,'newsGeography'))newsGeography=query.newsGeography;for(const input of form.elements)if(input.name){const value=query[input.name]||'';if(value&&input.tagName==='SELECT')options(input.name,[value]);input.value=value;}filterChanged({type:'change',notify});},
+    apply:(query,notify=true)=>{initialized.add(view);if(Object.hasOwn(query,'newsGeography'))newsGeography=query.newsGeography;for(const input of form.elements)if(input.name){const value=query[input.name]||'';if(value&&input.tagName==='SELECT')options(input.name,[value]);input.value=value;}filterChanged({type:'change',notify,preserveGeography:Object.hasOwn(query,'newsGeography')});},
     syncGeography:name=>{const select=form.elements.country,values=[...select.options].map(option=>option.value).filter(Boolean);options('country',[...new Set([...values,name])],name);select.value=name;applied={...applied,country:name};page=0;initialized.add(view);renderChips();},
     setGeography:name=>{newsGeography=name;applied.country=REGION_CODES.includes(name)?name:'';page=0;onInvalidate();onChange();},
     setPage: (value) => page = value,
     render: (data) => {
-      const draft=dirty?Object.fromEntries(new FormData(form)):null;
+      const draft=dirty?Object.fromEntries(new FormData(form)):null,selection=data.selection?{...data.selection,country:data.selection.country||(view==='news'&&REGION_CODES.includes(data.newsGeography)?data.newsGeography:'')}:null;
       if(view==='radar')options('year',data.years||[],data.selection?.from?.slice(0,4));
       taxonomy=data.subpalanca||[];page = data.page;newsGeography=data.newsGeography||'';
       defaults=data.defaults||defaults;
       initialized.add(view);
-      for (const [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type","types"], ["segment","segments"], ["signal","signals"], ["palanca","palanca"], ["subpalanca","subpalanca"]]) options(name, data[key]||[],data.selection?.[name]);
-      if(data.selection)for(const input of form.elements)if(input.name)input.value=(input.name==='year'&&view==='radar'?data.selection.from?.slice(0,4):data.selection[input.name])||'';
-      syncTaxonomyControls(form,taxonomy);applied=data.selection?{...data.selection}:Object.fromEntries(new FormData(form));renderChips();
+      for (const [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type","types"], ["segment","segments"], ["signal","signals"], ["palanca","palanca"], ["subpalanca","subpalanca"]]) options(name, data[key]||[],selection?.[name]);
+      if(selection)for(const input of form.elements)if(input.name)input.value=(input.name==='year'&&view==='radar'?selection.from?.slice(0,4):selection[input.name])||'';
+      syncTaxonomyControls(form,taxonomy);applied=selection||Object.fromEntries(new FormData(form));renderChips();
       if(draft){for(const input of form.elements)if(input.name)input.value=draft[input.name]||'';syncTaxonomyControls(form,taxonomy);}
     }
   };

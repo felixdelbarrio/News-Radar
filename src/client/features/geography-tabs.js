@@ -20,5 +20,5 @@ export function createGeographyTabs(id,panelId,onSelect){
 
 function regionMark(name){
  const path=['M13 5l5 3-2 4 3 3-2 4-4-2-1-5-3-2z','M10 4l5 3-2 4 3 2-4 7-3-4 1-5-4-2z','M5 5l5-1 2 4-4 4 3 3-1 5-3-4 1-4-4-3z'][REGION_CODES.indexOf(name)];
- return `<svg class="geography-flag region-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor"/><path d="${path}" fill="currentColor"/></svg>`;
+ return `<svg class="geography-flag region-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor"/><path d="${path}" fill="currentColor"/></svg>`;
 }

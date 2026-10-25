@@ -20,5 +20,5 @@
 main,.panel,.catalog-group,.admin-layout,.filter-grid,.actions,.table-wrap{min-width:0;max-width:100%}
 .catalog-group,.table-wrap td,.table-wrap th,.filter-chip{overflow-wrap:anywhere}
 input,select,textarea,button{min-width:0;max-width:100%}
-.region-icon{color:var(--color-primary-bg-action);flex-shrink:0}
+.region-icon{inline-size:var(--identity-flag-width);block-size:var(--identity-flag-height);flex-shrink:0;box-shadow:none}
 @media(max-width:767px){.filter-grid{grid-template-columns:minmax(0,1fr)}.actions{flex-wrap:wrap}}

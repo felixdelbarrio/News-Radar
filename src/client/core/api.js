@@ -4,7 +4,7 @@ export {refreshLoading} from './loading.js';
 import {t,setTaxonomyTranslations} from './language.js';
 function receive(data){if(data?.taxonomyTranslations)setTaxonomyTranslations(data.taxonomyTranslations);return data;}
 const requests=new Map(),dashboards=new Map();
-const dashboardStorage='radar-dashboards:v22';let dashboardRevision='',prefetched=false;
+const dashboardStorage='radar-dashboards:v23';let dashboardRevision='',prefetched=false;
 const dashboardKey=query=>JSON.stringify(Object.entries(query||{}).filter(([key,value])=>value!==''&&value!=null&&!(key==='page'&&Number(value)===0)&&!(key==='initial'&&value===false)).sort(([a],[b])=>a.localeCompare(b)));
 try{const saved=JSON.parse(sessionStorage.getItem(dashboardStorage)||'null');if(saved&&Date.now()-saved.at<300000){dashboardRevision=saved.revision;for(const [key,value] of saved.entries)dashboards.set(key,value);}}catch(_){}
 function rememberDashboard(query,data){
