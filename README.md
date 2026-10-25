@@ -1,5 +1,7 @@
 > Revisión local 3.26.0: [Iteraciones 25 y 26](docs/iteration-25-26-3.26.0.md), recuperación de archivos y publicación, compactación atómica de newsletters, extractos RSS y clasificación conservadora.
 
+> Auditoría local de Iteración 27: [diagnóstico reproducible y resultado NO-GO](docs/iteration-27-audit.md). Herramientas de desarrollo sin cambios en las reglas ni en producción.
+
 > Revisión 3.22.1: [Iteración 23](docs/iteration-23-3.22.0.md), regiones APAC/EMEA/AMER, panel sin escrituras de lectura, clasificación y limpieza taxonómica.
 
 > Revisión 3.21.0: [Iteración 22](docs/iteration-22-3.21.0.md), cachés de navegación y snapshots, panel ligero, limpieza de almacenamiento y controles por proceso.
