@@ -30,7 +30,7 @@ export function createBriefing({onExplore,onGeography=()=>{}}){
   return {render(data){
     scope=data.applicationScope;selection=data.selection||{};briefing=data.briefing||{total:0,bySignal:[],geographies:[],items:[]};briefing={...briefing,items:briefing.items.filter(briefingAllowed),bySignal:briefing.bySignal.filter(row=>BRIEFING_ALLOWED_SIGNALS.includes(row.name))};
     const stats=new Map(briefing.geographies.map(row=>[row.name,row]));groups=noveltyGroups(briefing.items,applicationGeography(data.applicationScope,data.selection?.segment)).map(group=>({...group,...stats.get(group.name)}));
-    if(REGION_CODES.includes(selection.country))active=selection.country;
+    if(selection.country)active=REGION_CODES.includes(selection.country)?selection.country:applicationGeography(scope,selection.segment)({pais:selection.country});
     if(!REGION_CODES.includes(active)&&!groups.some(row=>row.name===active))active=browserCountry(groups.map(row=>row.name))||groups[0]?.name||'';
     paint();
   }};

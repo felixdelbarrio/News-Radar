@@ -1,4 +1,4 @@
-> Revisión 3.23.0: [Iteración 24](docs/iteration-24-3.23.0.md), evidencias traducidas, meses legibles, Geografías unificadas y navegación regional en segundo nivel.
+> Revisión 3.23.1: [Iteración 24](docs/iteration-24-3.23.0.md), evidencias traducidas, meses legibles, Geografías unificadas y navegación regional en segundo nivel.
 
 > Revisión 3.22.1: [Iteración 23](docs/iteration-23-3.22.0.md), regiones APAC/EMEA/AMER, panel sin escrituras de lectura, clasificación y limpieza taxonómica.
 

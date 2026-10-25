@@ -1,4 +1,4 @@
-# Iteración 24 · 3.23.0
+# Iteración 24 · 3.23.1
 
 Los requisitos funcionales y las capturas del documento adjunto se incorporan al trabajo autorizado en el chat. Las instrucciones operativas del PDF se distinguen de esa autorización: la promoción por navegador y la actualización de PR74 ya habían sido solicitadas expresamente por el usuario.
 
@@ -16,3 +16,11 @@ Los requisitos funcionales y las capturas del documento adjunto se incorporan al
 Las regresiones específicas cubren recuperación de traducciones guardadas sin cuerpos duplicados, meses sin mezcla de años, nombres por idioma, render del titular traducido y edición conjunta de campos geográficos y pestañas propias, incluyendo países personalizados. Se mantiene la batería de selección, snapshots, newsletters y filtros administrativos de Iteración 23.
 
 Las mediciones de 3.22.1 y la promoción previa constan en el informe de Iteración 23. La publicación y las medidas finales de 3.23.0 se completan tras las comprobaciones de esta iteración.
+
+## Revisión final de negocio y navegación
+
+Se añaden exclusiones configurables para caídas y pérdidas bursátiles, sangría bursátil y expresiones equivalentes en inglés y turco. La regresión usa el titular concreto de Bankinter y contrasta caídas reales de su aplicación y banca online, que continúan siendo incidencias admitidas. La actualización de catálogo preserva las selecciones de países ya editadas.
+
+La selección explícita de un país restablece su pestaña desde una región. Al entrar en Otras geografías solo se elige una región preferida si tiene contenido; pulsar de nuevo el agregado desde una región permite consultar también noticias sin región o de países personalizados. Se verifican ambos casos y la conservación de la navegación anterior.
+
+La batería completa de 3.23.0 terminó con 773 pruebas aprobadas. Los siete casos de Iteración 24 y las regresiones de ámbito/navegación pasan tras los ajustes de 3.23.1. La verificación final de CI se realiza sobre el último commit, sin modificar la distribución durante las pruebas.

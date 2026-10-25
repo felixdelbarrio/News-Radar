@@ -3667,7 +3667,19 @@ const CONFIGURATION_DEFAULTS = {
         "sin incidencias",
         "sin caidas",
         "no hay caidas",
-        "no outage"
+        "no outage",
+        "sangría bursátil",
+        "desplome bursátil",
+        "caída bursátil",
+        "caída en bolsa",
+        "caen en bolsa",
+        "pérdidas bursátiles",
+        "bolsa de valores",
+        "stock market crash",
+        "market selloff",
+        "shares plunge",
+        "shares tumble",
+        "hisse senedi"
       ]
     }
   ],

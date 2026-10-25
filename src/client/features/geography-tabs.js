@@ -5,7 +5,7 @@ import {$,escape} from '../core/dom.js';
 import {t} from '../core/language.js';
 export function createGeographyTabs(id,panelId,onSelect){
   const tabs=$(id),panel=$(panelId);let rows=[],regions=[],active='',focus=false;
-  function select(name){if(name===otherGeography&&regions.some(row=>row.total))name=countryRegion(browserCountry())||regions.find(row=>row.total)?.name||REGION_CODES[0];if(name===active){tabs.querySelector('[tabindex="0"]').focus();return;}focus=true;onSelect(name);}
+  function select(name){if(name===otherGeography&&active!==otherGeography&&!REGION_CODES.includes(active)&&regions.some(row=>row.total)){const preferred=countryRegion(browserCountry());name=regions.find(row=>row.name===preferred&&row.total)?.name||regions.find(row=>row.total).name;}if(name===active){tabs.querySelector('[tabindex="0"]').focus();return;}focus=true;onSelect(name);}
   tabs.addEventListener('click',event=>{const button=event.target.closest('[data-geography]');if(button)select(button.dataset.geography);});
   tabs.addEventListener('keydown',event=>{
     if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)||!event.target.closest('[role="tab"]'))return;

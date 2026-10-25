@@ -1968,7 +1968,11 @@
   function createGeographyTabs(id, panelId, onSelect) {
     let tabs = $(id), panel2 = $(panelId), rows = [], regions = [], active = "", focus = !1;
     function select(name) {
-      if (name === otherGeography && regions.some((row) => row.total) && (name = countryRegion(browserCountry()) || regions.find((row) => row.total)?.name || REGION_CODES[0]), name === active) {
+      if (name === otherGeography && active !== otherGeography && !REGION_CODES.includes(active) && regions.some((row) => row.total)) {
+        let preferred = countryRegion(browserCountry());
+        name = regions.find((row) => row.name === preferred && row.total)?.name || regions.find((row) => row.total).name;
+      }
+      if (name === active) {
         tabs.querySelector('[tabindex="0"]').focus();
         return;
       }
@@ -3050,7 +3054,7 @@
     }), { render(data) {
       scope = data.applicationScope, selection = data.selection || {}, briefing2 = data.briefing || { total: 0, bySignal: [], geographies: [], items: [] }, briefing2 = { ...briefing2, items: briefing2.items.filter(briefingAllowed), bySignal: briefing2.bySignal.filter((row) => BRIEFING_ALLOWED_SIGNALS.includes(row.name)) };
       let stats = new Map(briefing2.geographies.map((row) => [row.name, row]));
-      groups = noveltyGroups(briefing2.items, applicationGeography(data.applicationScope, data.selection?.segment)).map((group) => ({ ...group, ...stats.get(group.name) })), REGION_CODES.includes(selection.country) && (active = selection.country), !REGION_CODES.includes(active) && !groups.some((row) => row.name === active) && (active = browserCountry(groups.map((row) => row.name)) || groups[0]?.name || ""), paint2();
+      groups = noveltyGroups(briefing2.items, applicationGeography(data.applicationScope, data.selection?.segment)).map((group) => ({ ...group, ...stats.get(group.name) })), selection.country && (active = REGION_CODES.includes(selection.country) ? selection.country : applicationGeography(scope, selection.segment)({ pais: selection.country })), !REGION_CODES.includes(active) && !groups.some((row) => row.name === active) && (active = browserCountry(groups.map((row) => row.name)) || groups[0]?.name || ""), paint2();
     } };
   }
 

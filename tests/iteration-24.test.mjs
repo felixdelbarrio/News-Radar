@@ -27,3 +27,20 @@ test('Geografías concentra catálogo, estado y pestañas propias sin perder pa�
  const saved=a.calls.findLast(call=>call.method==='saveConfiguration').query.config;assert.ok(saved.applicationScope[0].countries.includes('Arabia Saudí'));assert.equal(saved.geographies.find(country=>country.code==='SA').searchName,'Kingdom of Saudi Arabia');
  await a.click('#catalog-add');assert.equal(a.find('[data-country=""]').closest('[data-geography]').querySelector('[data-key="name"]').value,'');
 });
+import {noveltyOverview} from '../src/shared/novelty-groups.js';
+import {applicationGeography} from '../src/shared/selection-policy.js';
+test('las caídas bursátiles no son incidencias de canal y las interrupciones reales siguen admitidas',()=>{
+ const {c}=storage();c.initializeConfiguration();
+ for(const title of ['La banca de Wall Street revive la crisis de 2008: la caída de Bankinter anticipa la sangría bursátil en España','Bankinter sufre una caída bursátil y pérdidas en bolsa','Bank of America goes down in stock market crash as shares tumble']){const text=c.searchText_(title),labels=c.classification_(text,text).labels;assert.equal(labels.digital,false,title);assert.equal(labels.senales.includes(incident),false,title);}
+ for(const title of ['Bankinter sufre una caída de la app: los clientes no pueden acceder a sus cuentas','Bankinter reports online banking outage and failed payments for businesses']){const text=c.searchText_(title),labels=c.classification_(text,text).labels;assert.equal(labels.digital,true,title);assert.ok(labels.senales.includes(incident),title);}
+});
+test('Otras geografías permite el agregado residual, evita regiones vacías y vuelve a un país explícito',async t=>{
+ const items=['España','India','Arabia Saudí'].map((pais,i)=>({...article,id:String(i),pais,titular:'BBVA lanza producto '+pais,senales:['Lanzamiento de producto'],segmentos:['Empresas e instituciones'],etiquetas:{digital:true}}));
+ const a=await app(t,{configure({data}){data.selection={country:''};data.countries=items.map(row=>row.pais);data.briefing={...noveltyOverview(items,[],applicationGeography(data.applicationScope)),items};}});
+ await a.click('#briefing-geographies [data-geography="Otras geografías"]');assert.equal(a.find('#briefing-geographies [data-geography="APAC"]').getAttribute('aria-selected'),'true');
+ await a.click('#briefing-geographies [data-geography="Otras geografías"]');assert.match(a.find('#briefing-list').textContent,/Arabia Saudí/);assert.match(a.find('#briefing-list').textContent,/India/);
+ await a.click('#briefing-geographies [data-geography="APAC"]');a.data.selection.country='España';await a.change('#filters [name="country"]','España');assert.equal(a.find('#briefing-geographies [data-geography="España"]').getAttribute('aria-selected'),'true');assert.match(a.find('#briefing-list').textContent,/producto España/);
+});
+test('actualizar las reglas del catálogo preserva los países propios editados',()=>{
+ const {c}=storage();c.initializeConfiguration();const saved=c.getConfiguration();saved.config.applicationScope[0].countries=['España'];c.saveConfiguration(saved);c.properties_().setProperty('CATALOG_VERSION','anterior');c.initializeConfiguration();assert.deepEqual(Array.from(c.configuration_().applicationScope[0].countries),['España']);assert.ok(c.configuration_().signals.find(row=>row.group==='Problema').exclude.includes('sangría bursátil'));
+});

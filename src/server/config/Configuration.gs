@@ -35,7 +35,6 @@ function initializeConfiguration(){
           }
         }else{
           if(['segments','applicationScope'].includes(key))value.splice(0,value.length,...value.filter(row=>row.name===sectorNewsDefaults.segment));
-          if(key==='applicationScope')for(const row of value){row.countries=[...new Set([...row.countries,...(defaults.find(seed=>seed.name===row.name)?.countries||[])])];}
           if(['relevanceRules','searchLanguages'].includes(key))for(const row of value){const seed=defaults.find(item=>key==='searchLanguages'?item.language===row.language:item.role===row.role);if(seed)row.terms=[...new Set([...row.terms,...seed.terms])];}
           if(key==='feeds')for(const row of value){const seed=defaults.find(item=>item.id===row.id);if(seed&&row.id==='bankinter-blog')Object.assign(row,{url:seed.url,domain:seed.domain,country:seed.country});}
           if(key==='signals')value.splice(0,value.length,...canonicalSignalRules_(value,defaults));
