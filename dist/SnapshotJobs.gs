@@ -21,3 +21,30 @@ function recordSnapshotFailure_(error){
   telemetry_('dashboard-snapshot',0,'Error',message);
 }
 
+
+// Retry only the publication phase. Durable processing cursors and isolated tables survive.
+function recoverBackgroundJobs_(now=Date.now()){
+ const p=properties_(),values=p.getProperties(),build=JSON.parse(values.DASHBOARD_SNAPSHOT_BUILD||'null');let recovered=false;
+ const validPause=value=>Number.isFinite(Number(value))&&Number(value)>=0&&Number(value)<=now+86400000;
+ for(const [key,value] of Object.entries(values)){
+  if(!/_JOB$/.test(key))continue;
+  let job;try{job=JSON.parse(value);}catch(_){continue;}if(!job||typeof job!=='object')continue;
+  let changed=false;
+  if(job.pausedUntil!=null&&!validPause(job.pausedUntil)){job.pausedUntil=0;changed=true;}
+  const progress=Date.parse(build?.updated||job.publicationRetriedAt||job.updated||job.started||'');
+  if(job.state==='Publicando'&&(!Number.isFinite(progress)||now-progress>600000)){
+   job.publicationRetriedAt=new Date(now).toISOString();changed=true;recovered=true;
+   telemetry_('supervisor',0,'Recuperación',key+': publicación sin progreso; reintento desde los cursores guardados');
+  }
+  if(changed)p.setProperty(key,JSON.stringify(job));
+ }
+ for(const job of collectionJobs_()){
+  let changed=false;if(job.pausa&&!validPause(job.pausa)){job.pausa=0;changed=true;}
+  const progress=Date.parse(build?.updated||job.actualizada||job.inicio||'');
+  if(job.estado==='Publicando'&&(!Number.isFinite(progress)||now-progress>600000)){job.actualizada=new Date(now).toISOString();changed=true;recovered=true;telemetry_('supervisor',0,'Recuperación',job.id+': reintento de publicación');}
+  if(changed)writeCollectionJob_(job);
+ }
+ for(const key of ['CATALOG_SYNC_RETRY_AT','FETCH_PAUSED_UNTIL','NEWSLETTER_NEXT','TRANSLATION_PAUSED_UNTIL'])if(values[key]&&!validPause(values[key]))p.deleteProperty(key);
+ if(recovered){p.deleteProperty('DASHBOARD_SNAPSHOT_BUILD');p.setProperty('DASHBOARD_SNAPSHOT_REQUEST','ready');p.setProperty('DASHBOARD_SNAPSHOT_REQUESTED_AT',String(now));p.deleteProperty('BACKGROUND_NEXT');}
+ progressContextMemory_=undefined;return recovered;
+}

@@ -1751,10 +1751,6 @@ const CONFIGURATION_DEFAULTS = {
       "pagos",
       "producto",
       "lanzamiento",
-      "ticari bankacılık",
-      "nakit yönetimi",
-      "KOBİ",
-      "kredi",
       "business",
       "SME",
       "account",
@@ -1762,11 +1758,7 @@ const CONFIGURATION_DEFAULTS = {
       "finance",
       "payment",
       "product",
-      "launch",
-      "hesap",
-      "kart",
-      "ürün",
-      "lansman"
+      "launch"
     ],
     "disabledSources": [],
     "unknownCountry": "Sin determinar",

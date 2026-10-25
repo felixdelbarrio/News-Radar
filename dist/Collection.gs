@@ -56,7 +56,7 @@ function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
       try{
         if(!feed){status='Omitida';audit.push([task.ciclo,now.toISOString(),task.fuente,task.url,status,'Fuente desactivada o eliminada']);}
         else{const response=responses[responseIndex++];if(response.error)throw response.error;
-          const result=ingestFeed_(feed,known,task.ciclo,now,response.response);news.push(...result.news);audit.push(...result.audit);candidates.push(...result.candidates);coverage.push([task.ciclo,now.toISOString(),feed.name,feed.country||'',feed.range?.from||'',feed.range?.to||'',result.evaluated,result.inside,result.saturated?'sí':'no',result.saturated?splitCollectionFeed_(feed).length:0,'OK','']);count=result.evaluated;added=result.news.length;evaluated+=count;
+          const result=ingestFeed_(feed,known,task.ciclo,now,response.response);news.push(...result.news);audit.push(...result.audit);candidates.push(...result.candidates);coverage.push([task.ciclo,now.toISOString(),feed.name,feed.country||'',feed.range?.from||'',feed.range?.to||'',result.evaluated,result.inside,result.saturated?'sí':'no',result.saturated?splitCollectionFeed_(feed).length:0,result.saturated?'Parcial':'OK',result.saturated?'Consulta saturada; cobertura pendiente de particiones':'']);count=result.evaluated;added=result.news.length;evaluated+=count;
           relevant+=result.relevant||0;digital+=result.digital||0;duplicated+=result.duplicated||0;excluded+=result.excluded||0;
           if(result.saturated){saturated++;
             const split=splitCollectionFeed_(feed);queued=queued||collectionQueuedKeys_(tasks);

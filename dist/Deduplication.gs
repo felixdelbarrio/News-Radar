@@ -3,27 +3,46 @@ function newsUrlIdentity_(value){
   const [path,query='']=url.split('?'),google=domainMatches_(url,'news.google.com'),parameters=query.split('&').filter(value=>value&&!/^msclkid=/i.test(value)&&!(google&&/^oc=/i.test(value))).join('&');
   return (google?path.replace('/rss/articles/','/articles/'):path)+(parameters?'?'+parameters:'');
 }
-function titleKey_(title,publisher){
-  let text=searchText_(plainText_(title));const source=searchText_(publisher);
-  if(source&&text.endsWith(source)){
-    const prefix=text.slice(0,-source.length);if(/\s*[-–—|:]\s*$/.test(prefix))text=prefix.replace(/\s*[-–—|:]\s*$/,'');
+function cleanNewsTitle_(title,...publishers){
+  let text=plainText_(title);
+  for(const publisher of publishers){
+    const source=plainText_(publisher);if(!source)continue;
+    const suffix=text.slice(-source.length);
+    if(searchText_(suffix)!==searchText_(source))continue;
+    const prefix=text.slice(0,-source.length);
+    if(/\s+[-–—|:]\s*$/.test(prefix))text=prefix.replace(/\s+[-–—|:]\s*$/,'').trim();
   }
-  const normalized=text.replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+  return text;
+}
+function titleKey_(title,publisher){
+  const normalized=searchText_(cleanNewsTitle_(title,publisher)).replace(/[^\p{L}\p{N}]+/gu,' ').trim();
   return normalized.length>=30&&normalized.split(' ').length>=5?normalized:'';
 }
+const titleIdentityMemory_=new WeakMap(),editorialIdentityMemory_=new WeakMap();
 function titleIdentity_(item){
+  const dateValue=String(item.date),cached=titleIdentityMemory_.get(item);if(cached&&cached.title===item.title&&cached.publisher===item.publisher&&cached.date===dateValue)return cached.identity;
   const key=titleKey_(item.title,item.publisher),date=new Date(item.date);
   if(!key||!Number.isFinite(date.getTime()))return null;
   const day=typeof item.date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(item.date)?date:calendarDate_(date);
-  return {key,day:day.getTime()/86400000};
+  const identity={key,day:day.getTime()/86400000};titleIdentityMemory_.set(item,{title:item.title,publisher:item.publisher,date:dateValue,identity});return identity;
 }
 const EDITORIAL_STOPWORDS=new Set('para por con sin del las los una uno unos unas que como desde hasta sobre entre este esta sus the and for with from into this that are was has have not but you your their its dos das uma uns nas nos com sem pelo pela aos sao por que nao em as os de da do es en el la un o a e y i di il lo gli le dei delle per nel nella con che non der die das den dem des ein eine und oder von zur zum mit auf aus bei ist im zu et les des une dans sur pour pas aux du au ne ou ce ces se son sa ses un entre um ao pelo para sem ve bir bu ile icin gibi olan mais como foi'.split(' '));
+const editorialGeographyIndexes_=new WeakMap();
+function editorialGeographies_(title,index=businessIndex_()){
+ let compiled=editorialGeographyIndexes_.get(index);
+ if(!compiled){
+  const terms=new Map();for(const geo of index.geographies)for(const term of geo.terms){if(!terms.has(term))terms.set(term,new Set());terms.get(term).add(geo.name);}
+  compiled={terms,pattern:phrasePattern_([...terms.keys()].sort((a,b)=>b.length-a.length),'g')};editorialGeographyIndexes_.set(index,compiled);
+ }
+ const countries=new Set();for(const match of title.matchAll(compiled.pattern))for(const name of compiled.terms.get(match[0].replace(/^[^a-z0-9]+/,''))||[])countries.add(name);return [...countries].sort();
+}
 function editorialIdentity_(item,identity=titleIdentity_(item)){
+  const index=businessIndex_(),cached=editorialIdentityMemory_.get(item);if(cached&&cached.identity===identity&&cached.entity===item.entity&&cached.index===index)return cached.editorial;
   const entity=item.entity?searchText_(entityKey_(item.entity)):'';if(!identity||!entity)return null;
   const excluded=new Set([...entity.split(' '),...searchText_(item.publisher).split(/[^\p{L}\p{N}]+/u)]);
-  const catalog=businessIndex_().entities.get(entity);for(const alias of catalog?.aliases||[])for(const token of searchText_(alias).split(' '))excluded.add(token);
+  const catalog=index.entities.get(entity);for(const alias of catalog?.aliases||[])for(const token of searchText_(alias).split(' '))excluded.add(token);
   const tokens=[...new Set(identity.key.split(' ').filter(token=>(token.length>=3||/\d/.test(token))&&!EDITORIAL_STOPWORDS.has(token)&&!excluded.has(token)))];
-  return tokens.length>=4?{key:JSON.stringify([entity,tokens.filter(token=>/\d/.test(token)).sort(),/\b(?:no|not|never|nao|non|nicht|yok)\b/.test(identity.key)]),tokens}:null;
+  const editorial=tokens.length>=4?{key:JSON.stringify([entity,tokens.filter(token=>/\d/.test(token)).sort(),/\b(?:no|not|never|nao|non|nicht|yok)\b/.test(identity.key)]),tokens}:null;editorialIdentityMemory_.set(item,{identity,entity:item.entity,index,editorial});return editorial;
 }
 function rememberTitle_(known,item,entry=true){
   const identity=titleIdentity_(item);if(!identity)return;
@@ -32,7 +51,7 @@ function rememberTitle_(known,item,entry=true){
   known.editorial=known.editorial||new Map();if(!known.editorial.has(editorial.key))known.editorial.set(editorial.key,new Map());
   const days=known.editorial.get(editorial.key);if(!days.has(identity.day))days.set(identity.day,[]);
   const candidates=days.get(identity.day);
-  candidates.push({tokens:editorial.tokens,entry});
+  candidates.push({tokens:editorial.tokens,entry,title:identity.key});
 }
 function equivalentEditorialTitle_(a,b){
   if(a.length<4||b.length<4)return false;
@@ -45,7 +64,7 @@ function* duplicateTitleEntries_(known,item){
   const days=known.titles.get(identity.key);
   if(days)for(let offset=-COLLECTION_POLICY.duplicateDays;offset<=COLLECTION_POLICY.duplicateDays;offset++)if(days.has(identity.day+offset))yield days.get(identity.day+offset);
   const editorial=editorialIdentity_(item,identity),candidates=editorial&&known.editorial?.get(editorial.key);if(!candidates)return;
-  for(let offset=-COLLECTION_POLICY.duplicateDays;offset<=COLLECTION_POLICY.duplicateDays;offset++)for(const candidate of candidates.get(identity.day+offset)||[])if(equivalentEditorialTitle_(editorial.tokens,candidate.tokens))yield candidate.entry;
+  for(let offset=-COLLECTION_POLICY.duplicateDays;offset<=COLLECTION_POLICY.duplicateDays;offset++)for(const candidate of candidates.get(identity.day+offset)||[])if(equivalentEditorialTitle_(editorial.tokens,candidate.tokens)&&JSON.stringify(editorialGeographies_(identity.key))===JSON.stringify(editorialGeographies_(candidate.title)))yield candidate.entry;
 }
 function duplicateTitleEntry_(known,item){return duplicateTitleEntries_(known,item).next().value;}
 function duplicateTitle_(known,item){return duplicateTitleEntry_(known,item)!==undefined;}
