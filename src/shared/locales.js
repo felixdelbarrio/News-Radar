@@ -968,7 +968,7 @@ export const translations = Object.freeze({
   "Alias de búsqueda": ["Search aliases", "Arama takma adları"],
   "Países del catálogo": ["Catalog countries", "Katalog ülkeleri"],
   "Código ISO": ["ISO code", "ISO kodu"],
-  "Código ISO de dos letras e identificador cartográfico ISO numérico de tres cifras. Ejemplo: España, ES, es, 724.": ["Two-letter ISO code and three-digit numeric ISO map identifier. Example: Spain, ES, es, 724.", "İki harfli ISO kodu ve üç haneli sayısal ISO harita tanımlayıcısı. Örnek: İspanya, ES, es, 724."],
+  "Código ISO de dos letras e identificador cartográfico ISO numérico de tres cifras. Ejemplo: España, ES, es, 724. Selecciona los países con pestaña propia en Noticias y Novedades; los restantes se agrupan por región en Otras geografías.": ["Two-letter ISO code and three-digit numeric ISO map identifier. Example: Spain, ES, es, 724. Select the countries with their own tab in News and Updates; the rest are grouped by region under Other geographies.", "İki harfli ISO kodu ve üç haneli sayısal ISO harita tanımlayıcısı. Örnek: İspanya, ES, es, 724. Haberler ve Yenilikler bölümlerinde ayrı sekmesi olan ülkeleri seçin; diğerleri Diğer coğrafyalar altında bölgelere göre gruplanır."],
   "Nombre del país en búsquedas": ["Country name in searches", "Aramalarda kullanılan ülke adı"],
   "Idioma de Google News": ["Google News language", "Google News dili"],
   "ISO numérico del mapa": ["Numeric map ISO code", "Sayısal ISO harita kodu"],
