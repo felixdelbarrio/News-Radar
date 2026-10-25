@@ -19,11 +19,11 @@ test('RSS source URL survives evaluation and persistence and repairs country ind
 test('historical Bre-B stories from Semana BBVA and ABC Economía map to Colombia without assigning all BBVA stories there',()=>{
  const {c}=fixture();for(const medio of ['Semana','BBVA','ABC Economía'])assert.equal(c.newsCountry_({titular:'Pagar por Bre-B sin tener saldo disponible será posible',extracto:'Transferencias y pagos inmediatos',medio,fuente:'BBVA · España',pais:'España',url:'https://news.google.com/articles/story'}),'Colombia',medio);
  assert.equal(c.newsCountry_({titular:'BBVA presenta nuevo canal digital',extracto:'Pagos empresariales mediante Bre‑B',medio:'BBVA',fuente:'BBVA · España',pais:'España'}),'Colombia');
- assert.equal(c.newsCountry_({titular:'BBVA presenta nuevo canal digital',medio:'BBVA',fuente:'BBVA · España',pais:'España'}),'España');
+ assert.equal(c.newsCountry_({titular:'BBVA presenta nuevo canal digital',medio:'BBVA',fuente:'BBVA · España',pais:'España'}),c.settings_().unknownCountry);
  assert.equal(c.newsCountry_({titular:'BBVA presenta Bre-B en México',medio:'BBVA',fuente:'BBVA · España',pais:'España'}),'México');
  assert.equal(c.newsCountry_({titular:'Bre-B y los pagos empresariales',url:'https://publisher.es/story',medio:'Editor',fuente:'BBVA · España',pais:'España'}),'Colombia');
 });
 test('publisher evidence uses ccTLD or BBVA regional path without interpreting language alone as country',()=>{
  const {c}=fixture();assert.equal(c.domainCountry_('https://www.bbva.com/es/co/innovacion/pagos','',''),'Colombia');assert.equal(c.domainCountry_('https://www.bbva.com/es/mx/empresas','',''),'México');assert.equal(c.domainCountry_('https://www.bbva.com/es/innovacion/pagos','',''),'');assert.equal(c.domainCountry_('https://www.bbva.com.tr/es/co/story','',''),'Turquía');
- const base={titular:'Nueva plataforma de pagos',medio:'Editor',fuente:'BBVA · España',pais:'España',url:'https://news.google.com/articles/story'};assert.equal(c.newsCountry_({...base,sourceUrl:'https://editor.co/story'}),'Colombia');assert.equal(c.newsCountry_({...base,sourceUrl:'javascript:alert(1)'}),'España');assert.equal(c.newsCountry_({...base,medio:'Semana'}),'Colombia');assert.equal(c.newsCountry_({...base,medio:'Semana Económica'}),'Perú');
+ const base={titular:'Nueva plataforma de pagos',medio:'Editor',fuente:'BBVA · España',pais:'España',url:'https://news.google.com/articles/story'};assert.equal(c.newsCountry_({...base,sourceUrl:'https://editor.co/story'}),'Colombia');assert.equal(c.newsCountry_({...base,sourceUrl:'javascript:alert(1)'}),c.settings_().unknownCountry);assert.equal(c.newsCountry_({...base,medio:'Semana'}),'Colombia');assert.equal(c.newsCountry_({...base,medio:'Semana Económica'}),'Perú');
 });
