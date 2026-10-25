@@ -92,8 +92,8 @@ function dashboardOperation_(admin){
 }
 
 function getControlPanel(){authorize_(true);return withScriptProperties_(()=>{
- progressContextMemory_=undefined;const started=Date.now(),p=properties_().getProperties(),now=Date.now(),signature=sha256_(JSON.stringify(Object.entries(p).filter(([key])=>/JOB|REQUEST|SUPERVISOR|BACKGROUND|PIPELINE|LOG_ARCHIVE|CONFIG_REVISION|SUBSCRIPTIONS_REVISION|NEWSLETTER_STATUS_SUMMARY|DATA_GENERATION/.test(key)).sort())),key='control-panel:'+RADAR.version+':'+signature,cache=CacheService.getScriptCache(),cached=cache.get(key);
+ progressContextMemory_=undefined;const p=properties_().getProperties(),now=Date.now(),signature=sha256_(JSON.stringify(Object.entries(p).filter(([key])=>/JOB|REQUEST|SUPERVISOR|BACKGROUND|PIPELINE|LOG_ARCHIVE|CONFIG_REVISION|SUBSCRIPTIONS_REVISION|NEWSLETTER_STATUS_SUMMARY|DATA_GENERATION/.test(key)).sort())),key='control-panel:'+RADAR.version+':'+signature,cache=CacheService.getScriptCache(),cached=cache.get(key);
  if(cached){const entry=JSON.parse(cached);if(now-entry.at<15000)return entry.value;}
  const collection=collectionStatus_(),schedule=getOperationalSchedule(),result={groups:controlPanelGroups_(collection,schedule),collection,archive:schedule.archive,daily:dailyScheduleStatus_()};cacheJson_(key,{at:now,value:result},15);
- const previous=cache.get('control-panel-state:'+RADAR.version);if(previous!==signature||Date.now()-started>1000){telemetry_('control-panel',Date.now()-started,'OK',result.groups.length+' grupos operativos');cache.put('control-panel-state:'+RADAR.version,signature,300);}return result;
+ return result;
  });}

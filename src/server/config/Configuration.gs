@@ -24,7 +24,7 @@ function initializeConfiguration(){
     // Add only absent defaults when the catalog version changes; preserve existing edits and activations.
     if(refreshCatalog){
       const data=count?sheet.getRange(2,1,count,2).getValues():[];
-      for(const key of ['geographies','segments','signals','feeds','entities','capabilities','applicationScope']){
+      for(const key of ['geographies','segments','signals','feeds','entities','capabilities','applicationScope','relevanceRules','searchLanguages']){
         const index=data.findIndex(row=>row[0]===key);if(index<0)continue;
         const value=JSON.parse(data[index][1]),defaults=CONFIGURATION_DEFAULTS[key];
         if(key==='capabilities'){
@@ -36,6 +36,8 @@ function initializeConfiguration(){
         }else{
           if(['segments','applicationScope'].includes(key))value.splice(0,value.length,...value.filter(row=>row.name===sectorNewsDefaults.segment));
           if(key==='applicationScope')for(const row of value){row.countries=[...new Set([...row.countries,...(defaults.find(seed=>seed.name===row.name)?.countries||[])])];}
+          if(['relevanceRules','searchLanguages'].includes(key))for(const row of value){const seed=defaults.find(item=>key==='searchLanguages'?item.language===row.language:item.role===row.role);if(seed)row.terms=[...new Set([...row.terms,...seed.terms])];}
+          if(key==='feeds')for(const row of value){const seed=defaults.find(item=>item.id===row.id);if(seed&&row.id==='bankinter-blog')Object.assign(row,{url:seed.url,domain:seed.domain,country:seed.country});}
           if(key==='signals')value.splice(0,value.length,...canonicalSignalRules_(value,defaults));
           const names=new Set(value.map(row=>key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))),ids=new Set(value.map(row=>row.id));
           if(key==='geographies')for(const row of value){const seed=defaults.find(item=>item.code===row.code);if(seed)row.terms=[...new Set([...(row.terms||[]),...seed.terms])];}
@@ -100,7 +102,7 @@ function validateConfiguration_(config){
     for(const row of list){
       if(!row||typeof row.name!=='string'||!row.name.trim()||row.name.length>100||names.has(row.name)||typeof row.enabled!=='boolean')throw Error('Nombre duplicado, vacío o activación no válida: '+key);
       names.add(row.name);
-      for(const field of ['terms','context','aliases','countries','exclude'])if(field in row&&(!Array.isArray(row[field])||row[field].length>(key==='searchLanguages'?160:key==='signals'?120:80)||row[field].some(value=>typeof value!=='string'||!value.trim()||value.length>100)))throw Error('Lista de términos no válida: '+row.name);
+      for(const field of ['terms','context','aliases','countries','exclude'])if(field in row&&(!Array.isArray(row[field])||row[field].length>(['searchLanguages','segments'].includes(key)?160:key==='signals'?120:80)||row[field].some(value=>typeof value!=='string'||!value.trim()||value.length>100)))throw Error('Lista de términos no válida: '+row.name);
       if(['segments','signals'].includes(key)&&!row.terms?.length)throw Error('Añade términos a '+row.name);
       if(key==='signals'&&(!Array.isArray(row.context)||!Array.isArray(row.exclude)||!['headline','fullText'].includes(row.scope)))throw Error('Define el contexto de '+row.name+' (puede estar vacío).');
       if(key==='signals'&&!['Novedad','Problema'].includes(row.group))throw Error('Define el tipo de señal: '+row.name);

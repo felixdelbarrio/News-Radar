@@ -43,7 +43,7 @@ function businessIndex_(){
   const serviceNames=phrasePattern_(aliases.filter(([alias])=>alias.includes(' ')&&relevance.service.test(alias)).map(([alias])=>alias),'g');
   const catalogue=config.taxonomy.flatMap(block=>block.functions.map(row=>({name:row.id+'.'+row.name,segment:'Empresas',pattern:phrasePattern_([row.name,...row.terms].map(searchText_))})));
   const cataloguePattern=phrasePattern_(config.taxonomy.flatMap(block=>block.functions.flatMap(row=>[row.name,...row.terms])).map(searchText_));
-  return businessIndexMemory_={cataloguePattern,catalogue,config,entities,entityTerms,aliases,serviceNames,relevance,capabilities,segments:rules(config.segments),signals:rules(config.signals),geographies:config.geographies.filter(row=>row.enabled).map(row=>({...row,terms:[...new Set([row.name,row.searchName,...(row.terms||[])].map(searchText_))]}))};
+  return businessIndexMemory_={publisherPatterns:new Map(),cataloguePattern,catalogue,config,entities,entityTerms,aliases,serviceNames,relevance,capabilities,segments:rules(config.segments),signals:rules(config.signals),geographies:config.geographies.filter(row=>row.enabled).map(row=>({...row,terms:[...new Set([row.name,row.searchName,...(row.terms||[])].map(searchText_))]}))};
 }
 function phrasePattern_(terms,flags=''){return new RegExp('(?:^|[^a-z0-9])(?:'+(terms.map(term=>term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\\\*/g,'[a-z0-9]*')).join('|')||'(?!)')+')(?![a-z0-9])',flags);}
 function phrasePosition_(text,term){
@@ -74,21 +74,23 @@ function businessSignals_(title,text,index=businessIndex_()){
 }
 function digitalAssessment_(title,text,index=businessIndex_()){
   // Entity names are not evidence of a service (for example, Mercado Pago).
-  const headline=title;title=title.replace(index.serviceNames,' ');text=text.replace(index.serviceNames,' ');
+  const headline=title,clean=value=>value.replace(/\b(?:business news|business standard|the business|expansion empresas|cinco dias)\b/g,' ');title=clean(title).replace(index.serviceNames,' ');text=clean(text).replace(index.serviceNames,' ');
   const capabilities=index.capabilities.filter(row=>row.pattern.test(text));
   let business=index.segments.some(row=>row.pattern.test(text.replace(/\bbusiness (?:days?|hours?)\b/g,' '))),channel=index.relevance.channel.test(text),shared=index.relevance.shared.test(title);
   if(!capabilities.length&&business&&channel&&index.cataloguePattern.test(text))capabilities.push(...index.catalogue.filter(row=>row.pattern.test(text)));
   const signals=businessSignals_(title,text,index),change=signals.length>0,problem=signals.some(row=>row.group==='Problema'),liveReport=/\b(?:users|customers) report\b/.test(title),editorial=!liveReport&&index.relevance.editorial.test(title)&&!change,excluded=headlineEntity_(headline,index)?.name==='Santander'&&santanderExcluded_(text)||index.relevance.corporate.test(title)||index.relevance.incidental.test(title)||!problem&&!business&&index.relevance.retail.test(text);
   const incident=problem&&(channel||index.relevance.service.test(text))&&Boolean(headlineEntity_(text,index))&&!excluded&&!editorial;
   if(incident){business=true;channel=true;if(!capabilities.length)capabilities.push({segment:'Empresas',name:/\b(?:pagos|transferencias|payments|transfers)\b/.test(text)?'Pagos':/\b(?:app|movil|mobile)\b/.test(text)?'Aplicaciones móviles empresariales':'Banca electrónica corporativa',pattern:index.relevance.service});}
-  const relevant=incident||Boolean(capabilities.length&&!excluded&&!editorial&&(!problem||business||index.relevance.infrastructure.test(text))&&(business&&(channel||shared)&&(index.relevance.service.test(text)||headlineEntity_(headline,index))||shared&&(channel||change||index.relevance.infrastructure.test(title))));
+  const aiOnly=channel&&!index.relevance.channel.test(text.replace(/\b(?:ai|ia|artificial intelligence|inteligencia artificial)\b/g,' ')),workforce=/\b(?:cut|slash)\b.{0,35}\bjobs\b/.test(title),bilateral=/\b(?:secures?\b.{0,60}\bfacility|grants?\b.{0,60}\bloan to|syndicated loan|bilateral facility|otorga prestamo a|firma prestamo con)\b/.test(text),explicitDigital=/\b(?:platform|plataforma|app|api|online|portal|digital banking|banca digital)\b/.test(text);
+  const relevant=incident||Boolean(!workforce&&!(aiOnly&&(!/\b(?:payments?|pagos?|treasury|tesoreria|onboarding|kyb|trade finance|credit|credito|reconciliation|conciliacion|api|erp|asistente|assistant)\b/.test(text)))&&!(bilateral&&!explicitDigital)&&capabilities.length&&!excluded&&!editorial&&(!problem||business||index.relevance.infrastructure.test(text))&&(business&&(channel||shared)&&(index.relevance.service.test(text)||headlineEntity_(headline,index))||shared&&(channel||change||index.relevance.infrastructure.test(title))));
   if(relevant&&!signals.length)signals.push({name:'Mejora de oferta',group:'Novedad',scope:'fullText',pattern:/(?!) /});
   const score=relevant?4+Math.min(3,capabilities.length)+(business?2:0)+(change?2:0):0;
   const evidence=(pattern,value)=>pattern.exec(value)?.[0]?.trim().slice(0,120)||'';
   return {capabilities,score,channel,change,editorial,excluded,relevant,business,shared,signals:signals.map(row=>row.name),evidence:{segmento:index.segments.map(row=>evidence(row.pattern,text)).filter(Boolean).slice(0,3),canal:evidence(index.relevance.channel,text),capacidades:capabilities.slice(0,8).map(row=>({nombre:row.name,texto:evidence(row.pattern,text)})),senales:signals.map(row=>({nombre:row.name,texto:evidence(row.pattern,row.scope==='headline'?title:text)})),corporativa:evidence(index.relevance.corporate,title),retail:!business?evidence(index.relevance.retail,text):'',editorial:evidence(index.relevance.editorial,title)}};
 }
-function classification_(title,text,includeLabels=true){
-  const index=businessIndex_(),assessment=digitalAssessment_(title,text,index);
+function classification_(title,text,includeLabels=true,publisher=''){
+  const index=businessIndex_(),key=searchText_(publisher);if(key&&!index.publisherPatterns.has(key))index.publisherPatterns.set(key,phrasePattern_([key],'g'));
+  const publisherPattern=index.entities.has(key)?null:index.publisherPatterns.get(key),assessment=digitalAssessment_(publisherPattern?title.replace(publisherPattern,' '):title,publisherPattern?text.replace(publisherPattern,' '):text,index);
   const signals=assessment.signals;
   const segments=assessment.relevant?[sectorNewsDefaults.segment]:index.segments.filter(row=>row.pattern.test(text)).map(row=>row.name);
   return {signals,assessment,segments,labels:includeLabels?newsLabels_(assessment,sha256_(JSON.stringify([title,text]))):undefined};
@@ -157,7 +159,7 @@ function evaluate_(item, feed, now) {
   else if(now-date>settings_().windowDays*86400000)return {reason:'Fuera de la ventana de '+settings_().windowDays+' días'};
   const excerpt=plainText_(item.excerpt).slice(0,1500),headline=searchText_(title),text=searchText_(title+' '+excerpt),index=businessIndex_();
   const entity=feed.entity==='Sector'?headlineEntity_(headline,index):index.entities.get(searchText_(feed.entity));
-  const classification=classification_(headline,text);
+  const classification=classification_(headline,text,true,publisher);
   const candidate={date,title,excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country:newsCountry_({titular:title,extracto:excerpt,url,sourceUrl:item.sourceUrl,medio:publisher,fuente:feed.name,pais:feed.country},index),language:item.language||feed.language||'',publisher:publisher||'',sourceUrl:canonicalUrl_(item.sourceUrl),provenance:item.excerptSource||'rss:description'};
   const reject=reason=>({inRange:true,reason,candidate});
   if(feed.entity==='Sector'&&!entity)return reject('Sin entidad de seguimiento en el titular');

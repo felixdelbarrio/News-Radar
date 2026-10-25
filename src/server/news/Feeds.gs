@@ -45,7 +45,7 @@ function knownUrls_(){
 function fetchFeedBatch_(feeds){
   const results=feeds.map(()=>({}));let pending=feeds.map((feed,index)=>({feed,index,url:feed.url}));
   for(let hop=0;pending.length;hop++){
-    let responses;const requests=pending.map(({url})=>({url,muteHttpExceptions:true,followRedirects:false,headers:{Accept:'application/rss+xml, application/xml','User-Agent':'NewsRadar/1.0'}}));
+    let responses;const requests=pending.map(({url,feed})=>({url,muteHttpExceptions:true,followRedirects:false,headers:{Accept:'application/rss+xml, application/atom+xml, application/xml, text/xml;q=0.9', 'Accept-Language':feed.language||'en'}}));
     try{responses=UrlFetchApp.fetchAll(requests);}
     catch(error){
       const pause=serviceQuotaPause_(error);if(pause){error.quota=true;error.retryable=true;properties_().setProperty('FETCH_PAUSED_UNTIL',String(Date.now()+pause));for(const item of pending)results[item.index]={error};break;}

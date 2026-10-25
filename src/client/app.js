@@ -47,7 +47,7 @@ const filters = createFilters({ onInvalidate: () => ++state.request, onChange: (
 } });
 const reading=createReadingContext({run:action});
 const heatmap=createTaxonomyHeatmap({onExplore:query=>navigateSelection('news',query)});
-const briefing=createBriefing({onExplore:query=>navigateSelection('news',query)});
+const briefing=createBriefing({onExplore:query=>navigateSelection('news',query),onGeography:country=>{filters.syncGeography(country);refreshSelects();}});
 const newsTabs=createGeographyTabs('news-geographies','news-list',name=>filters.setGeography(name));
 function navigateSelection(view,query){filters.show(view);filters.apply(query,false);state.contentStale=true;track('filtro');navigation.show(view);}
 const radar=createRadar({onOutage:query=>navigateSelection('news',{...state.data.selection,...query,page:0}),onSource:source=>navigateSelection('news',{...state.data.selection,source}),onCountry:country=>navigateSelection('news',{...state.data.selection,country}),onEntity:entity=>navigateSelection('news',{...state.data.selection,entity})});
@@ -57,7 +57,7 @@ const recoveryControls=createRecoveryControls({run:action});
 const collectionProgress=createCollectionProgress({isActive:()=>navigation.current==='administration',isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
 function renderSelection(data,view=navigation.current,appended=null,reuse=false){
   reading.render(data,view);if(reuse)return;
-  if(view==='news'){renderNews(data,appended);newsTabs.render(data.newsGeographies||[],data.newsGeography||'');}
+  if(view==='news'){renderNews(data,appended);newsTabs.render(data.newsGeographies||[],data.newsGeography||'',data.newsRegions||[]);}
   if(view==='radar'){radar.render(data);heatmap.render(data);}
   if(view==='briefing')briefing.render(data);
 }
