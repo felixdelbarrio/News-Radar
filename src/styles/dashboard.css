@@ -19,11 +19,11 @@
 .radar-outage-timeline{display:flex;align-items:end;gap:var(--space-1);margin:var(--space-3) 0}
 .radar-outage-timeline>div{display:grid;text-align:center;flex:1;min-width:0;font-size:var(--text-s)}
 .radar-outage meter{display:block;width:100%;height:var(--space-1);accent-color:var(--color-primary-bg-action)}
-.radar-outage-timeline meter{height:var(--space-8);writing-mode:vertical-lr;direction:rtl;margin:auto;width:var(--space-2)}
+.outage-bar{height:var(--space-8);width:var(--space-2);margin-inline:auto;display:flex;align-items:end;background:var(--color-primary-border);border-radius:var(--radius-component);overflow:hidden}.outage-bar>span{display:block;width:100%;height:var(--outage-share,0%);background:var(--color-primary-bg-action)}
 .radar-outage-countries{display:flex;flex-wrap:wrap;gap:var(--space-1);padding:0 var(--space-2) var(--space-2)}
-.radar-outage-evidence{padding:var(--space-2) 0;border-bottom:var(--stroke) solid var(--color-primary-border)}
-.radar-outage-evidence a{font-weight:600}
+.radar-outage-evidence{display:grid;gap:var(--space-1);padding:var(--space-2) 0;border-bottom:var(--stroke) solid var(--color-primary-border)}
+.radar-outage-evidence a{display:block;font-weight:600}.radar-outage-evidence .identity-label{display:flex;flex-wrap:wrap;gap:var(--space-1);align-items:center}.radar-outage-timeline>div{gap:var(--space-1)}
 @media(max-width:760px){.radar-outage-grid{grid-template-columns:1fr}.radar-outage-kpis{grid-template-columns:1fr 1fr}}
 
 .radar-outage,.radar-outage-grid>*{min-width:0}.radar-outage :is(p,a,strong,button){overflow-wrap:anywhere}.radar-outage .panel-header{gap:var(--space-2)}
-@media(max-width:767px){.radar-outage .panel-header{flex-direction:column;align-items:stretch}.radar-outage .panel-header .button{white-space:normal}.radar-outage-timeline{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--space-2) var(--space-1)}.radar-outage-kpis{gap:var(--space-1)}.radar-outage-kpis .metric{padding:var(--space-2)}.radar-outage-kpis .metric strong{font-size:var(--text-xl)}.activity-chart{grid-template-columns:repeat(7,minmax(0,1fr));padding:var(--space-2)}.activity-column{min-width:0}.activity-column>span:last-child{font-size:var(--text-s);overflow-wrap:anywhere}}
+@media(max-width:767px){.radar-outage .panel-header{flex-direction:column;align-items:stretch}.radar-outage .panel-header .button{white-space:normal}.radar-outage-timeline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-2) var(--space-1)}.radar-outage-kpis{gap:var(--space-1)}.radar-outage-kpis .metric{padding:var(--space-2)}.radar-outage-kpis .metric strong{font-size:var(--text-xl)}.activity-chart{grid-template-columns:repeat(7,minmax(0,1fr));padding:var(--space-2)}.activity-column{min-width:0}.activity-column>span:last-child{font-size:var(--text-s);overflow-wrap:anywhere}}

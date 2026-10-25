@@ -13,7 +13,7 @@ export function createGeographyTabs(id,panelId,onSelect){
     tabs.querySelectorAll('[role="tab"]')[next].focus();select(rows[next].name);
   });
   return {render(geographies,selected,regionalRows=[]){regions=regionalRows;const regional=selected===otherGeography||REGION_CODES.includes(selected);rows=[...geographies,...(regional?regions:[])];active=selected;tabs.hidden=!rows.length;
-    tabs.innerHTML=rows.map((row,index)=>`<button type="button" class="button" role="tab" id="${id}-${index}" aria-controls="${panelId}" aria-selected="${row.name===active||row.name===otherGeography&&REGION_CODES.includes(active)}" tabindex="${row.name===active?0:-1}" data-geography="${escape(row.name)}">${REGION_CODES.includes(row.name)?regionMark(row.name):identityMark('countries',row.name,escape)}${escape(t(geographyLabel(row.name)))}<span class="geography-count">${row.total}</span></button>`).join('');
+    tabs.innerHTML=rows.map((row,index)=>`<button type="button" class="button${REGION_CODES.includes(row.name)?' geography-region':''}" role="tab" id="${id}-${index}" aria-controls="${panelId}" aria-selected="${row.name===active||row.name===otherGeography&&REGION_CODES.includes(active)}" tabindex="${row.name===active?0:-1}" data-geography="${escape(row.name)}">${REGION_CODES.includes(row.name)?regionMark(row.name):identityMark('countries',row.name,escape)}${escape(t(geographyLabel(row.name)))}<span class="geography-count">${row.total}</span></button>`).join('');
     const index=rows.findIndex(row=>row.name===active);if(index>=0)panel.setAttribute('aria-labelledby',id+'-'+index);else panel.removeAttribute('aria-labelledby');if(focus){tabs.querySelector('[tabindex="0"]')?.focus();focus=false;}
   }};
 }

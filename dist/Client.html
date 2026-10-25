@@ -59,6 +59,7 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Pesta\xF1a propia": ["Own tab", "Ayr\u0131 sekme"],
     "Mantenimiento incremental en cola.": ["Incremental maintenance queued.", "Art\u0131ml\u0131 bak\u0131m s\u0131raya al\u0131nd\u0131."],
     "Archivado de logs": ["Log archiving", "G\xFCnl\xFCk ar\u015Fivleme"],
     "Generar snapshots": ["Build snapshots", "Anl\u0131k g\xF6r\xFCnt\xFC olu\u015Ftur"],
@@ -1484,7 +1485,10 @@
       return key === key.toUpperCase() ? result.toLocaleUpperCase(language2) : result;
     });
   }
-  var calendarFormatters = /* @__PURE__ */ new Map(), trendFormatters = /* @__PURE__ */ new Map();
+  var calendarFormatters = /* @__PURE__ */ new Map(), trendFormatters = /* @__PURE__ */ new Map(), monthFormatters = /* @__PURE__ */ new Map();
+  function formatCalendarMonth(value, language2 = "es") {
+    return monthFormatters.has(language2) || monthFormatters.set(language2, new Intl.DateTimeFormat(language2, { month: "short", timeZone: "UTC" })), monthFormatters.get(language2).format(/* @__PURE__ */ new Date(value + "-01T00:00:00Z"));
+  }
   function formatTrendDay(value, language2 = "es") {
     return trendFormatters.has(language2) || trendFormatters.set(language2, new Intl.DateTimeFormat(language2, { day: "numeric", month: "short", timeZone: "UTC" })), trendFormatters.get(language2).format(new Date(value));
   }
@@ -1656,7 +1660,7 @@
   function receive(data) {
     return data?.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), data;
   }
-  var requests = /* @__PURE__ */ new Map(), dashboards = /* @__PURE__ */ new Map(), dashboardStorage = "radar-dashboards:v23", dashboardRevision = "", prefetched = !1, dashboardKey = (query) => JSON.stringify(Object.entries(query || {}).filter(([key, value]) => value !== "" && value != null && !(key === "page" && Number(value) === 0) && !(key === "initial" && value === !1)).sort(([a], [b]) => a.localeCompare(b)));
+  var requests = /* @__PURE__ */ new Map(), dashboards = /* @__PURE__ */ new Map(), dashboardStorage = "radar-dashboards:v24", dashboardRevision = "", prefetched = !1, dashboardKey = (query) => JSON.stringify(Object.entries(query || {}).filter(([key, value]) => value !== "" && value != null && !(key === "page" && Number(value) === 0) && !(key === "initial" && value === !1)).sort(([a], [b]) => a.localeCompare(b)));
   try {
     let saved = JSON.parse(sessionStorage.getItem(dashboardStorage) || "null");
     if (saved && Date.now() - saved.at < 3e5) {
@@ -1981,7 +1985,7 @@
     }), { render(geographies, selected, regionalRows = []) {
       regions = regionalRows;
       let regional = selected === otherGeography || REGION_CODES.includes(selected);
-      rows = [...geographies, ...regional ? regions : []], active = selected, tabs.hidden = !rows.length, tabs.innerHTML = rows.map((row, index2) => `<button type="button" class="button" role="tab" id="${id}-${index2}" aria-controls="${panelId}" aria-selected="${row.name === active || row.name === otherGeography && REGION_CODES.includes(active)}" tabindex="${row.name === active ? 0 : -1}" data-geography="${escape2(row.name)}">${REGION_CODES.includes(row.name) ? regionMark(row.name) : identityMark("countries", row.name, escape2)}${escape2(t(geographyLabel(row.name)))}<span class="geography-count">${row.total}</span></button>`).join("");
+      rows = [...geographies, ...regional ? regions : []], active = selected, tabs.hidden = !rows.length, tabs.innerHTML = rows.map((row, index2) => `<button type="button" class="button${REGION_CODES.includes(row.name) ? " geography-region" : ""}" role="tab" id="${id}-${index2}" aria-controls="${panelId}" aria-selected="${row.name === active || row.name === otherGeography && REGION_CODES.includes(active)}" tabindex="${row.name === active ? 0 : -1}" data-geography="${escape2(row.name)}">${REGION_CODES.includes(row.name) ? regionMark(row.name) : identityMark("countries", row.name, escape2)}${escape2(t(geographyLabel(row.name)))}<span class="geography-count">${row.total}</span></button>`).join("");
       let index = rows.findIndex((row) => row.name === active);
       index >= 0 ? panel2.setAttribute("aria-labelledby", id + "-" + index) : panel2.removeAttribute("aria-labelledby"), focus && (tabs.querySelector('[tabindex="0"]')?.focus(), focus = !1);
     } };
@@ -2470,47 +2474,6 @@
         ]
       ]
     },
-    geographies: {
-      label: "Geograf\xEDas",
-      help: "C\xF3digo ISO de dos letras e identificador cartogr\xE1fico ISO num\xE9rico de tres cifras. Ejemplo: Espa\xF1a, ES, es, 724.",
-      fields: [
-        [
-          "name",
-          "Nombre",
-          "text"
-        ],
-        [
-          "searchName",
-          "Nombre del pa\xEDs en b\xFAsquedas",
-          "text"
-        ],
-        [
-          "terms",
-          "Nombres alternativos del pa\xEDs",
-          "list"
-        ],
-        [
-          "code",
-          "C\xF3digo ISO",
-          "text"
-        ],
-        [
-          "language",
-          "Idioma de Google News",
-          "text"
-        ],
-        [
-          "mapId",
-          "ISO num\xE9rico del mapa",
-          "text"
-        ],
-        [
-          "enabled",
-          "Activo",
-          "boolean"
-        ]
-      ]
-    },
     segments: {
       label: "Segmentos",
       help: "Contexto de Empresas e instituciones, pymes y aut\xF3nomos. T\xE9rminos separados por punto y coma; * al final de una palabra admite sus variantes. Las capacidades transversales pueden ser relevantes aunque el titular no mencione el segmento.",
@@ -2650,8 +2613,45 @@
       ]
     },
     applicationScope: {
-      label: "\xC1mbito de aplicaci\xF3n",
-      help: "Pa\xEDses con pesta\xF1a propia por segmento en Noticias y Novedades. Los restantes y las noticias sin pa\xEDs se agrupan en Otras geograf\xEDas. Radar conserva todas las geograf\xEDas conocidas."
+      label: "Geograf\xEDas",
+      help: "C\xF3digo ISO de dos letras e identificador cartogr\xE1fico ISO num\xE9rico de tres cifras. Ejemplo: Espa\xF1a, ES, es, 724. Selecciona los pa\xEDses con pesta\xF1a propia en Noticias y Novedades; los restantes se agrupan por regi\xF3n en Otras geograf\xEDas.",
+      fields: [
+        [
+          "name",
+          "Nombre",
+          "text"
+        ],
+        [
+          "searchName",
+          "Nombre del pa\xEDs en b\xFAsquedas",
+          "text"
+        ],
+        [
+          "terms",
+          "Nombres alternativos del pa\xEDs",
+          "list"
+        ],
+        [
+          "code",
+          "C\xF3digo ISO",
+          "text"
+        ],
+        [
+          "language",
+          "Idioma de Google News",
+          "text"
+        ],
+        [
+          "mapId",
+          "ISO num\xE9rico del mapa",
+          "text"
+        ],
+        [
+          "enabled",
+          "Activo",
+          "boolean"
+        ]
+      ]
     },
     relevanceRules: {
       label: "Criterios de relevancia",
@@ -2871,7 +2871,7 @@
   // src/client/features/configuration.js
   var capabilityFields = [["name", "Capacidad de detecci\xF3n", "text"], ["terms", "T\xE9rminos de b\xFAsqueda", "list"], ["enabled", "Activa", "boolean"]];
   function createConfiguration({ run }) {
-    let config, revision, category = "entities", capabilityDefaults, storagePrimaryId, entries = () => config[category], list = (input2) => input2.value.split(/[;\n]/).map((value) => value.trim()).filter(Boolean), read = (input2) => input2.type === "checkbox" ? input2.checked : input2.type === "number" ? Number(input2.value) : input2.dataset.list === "true" ? list(input2) : input2.value.trim(), filters4 = createRecordFilters("configuration", [["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]], filterRows, { placeholder: "Nombre, c\xF3digo o t\xE9rmino" });
+    let config, revision, category = "entities", capabilityDefaults, storagePrimaryId, entries = () => config[category === "applicationScope" ? "geographies" : category], list = (input2) => input2.value.split(/[;\n]/).map((value) => value.trim()).filter(Boolean), read = (input2) => input2.type === "checkbox" ? input2.checked : input2.type === "number" ? Number(input2.value) : input2.dataset.list === "true" ? list(input2) : input2.value.trim(), filters4 = createRecordFilters("configuration", [["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]], filterRows, { placeholder: "Nombre, c\xF3digo o t\xE9rmino" });
     async function fetchConfig() {
       let snapshot = await call("getConfiguration");
       config = snapshot.config, revision = snapshot.revision, capabilityDefaults = snapshot.capabilityDefaults, storagePrimaryId = snapshot.storagePrimaryId;
@@ -2881,8 +2881,10 @@
     }
     function readFields() {
       if (config)
-        if (category === "applicationScope") config.applicationScope = [...$("catalog-fields").querySelectorAll("[data-scope]")].map((group) => ({ name: group.dataset.scope, countries: [...group.querySelectorAll("[data-country]:checked")].map((input2) => input2.dataset.country) }));
-        else if (category === "taxonomy")
+        if (category === "applicationScope") {
+          let countries = [...$("catalog-fields").querySelectorAll("[data-geography]")];
+          config.geographies = countries.map(record), config.applicationScope = [{ name: config.applicationScope[0].name, countries: countries.filter((row) => row.querySelector("[data-country]").checked).map((row) => record(row).name) }];
+        } else if (category === "taxonomy")
           config.settings.searchTerms = list($("catalog-search-terms")), config.capabilities.Empresas = [...$("catalog-fields").querySelectorAll("[data-capability]")].map(record), config.taxonomy = [...$("catalog-fields").querySelectorAll("[data-taxonomy-block]")].map((block) => ({ name: block.querySelector('[data-key="name"]').value.trim(), terms: list(block.querySelector('[data-key="terms"]')), emerging: [...block.querySelectorAll("[data-emerging]")].map(record), functions: [...block.querySelectorAll("[data-function]")].map(record) }));
         else if (admin_schema_default[category].groups)
           for (let group of $("catalog-fields").querySelectorAll("[data-config-section]")) for (let input2 of group.querySelectorAll("[data-key]")) config[group.dataset.configSection][input2.dataset.key] = read(input2);
@@ -2893,7 +2895,7 @@
 `))}</textarea><span class="small muted">${t("Un t\xE9rmino por l\xEDnea")} \xB7 ${(row[key] || []).length}</span>` : `<input data-key="${key}" type="${type === "number" ? "number" : "text"}" ${type === "readonly" ? "readonly" : ""} value="${escape2(row[key] ?? "")}">`}</label>`).join("");
     }
     function filterRows() {
-      let query = filters4.query(), term = recordText(query.search), rows = [...$("catalog-fields").children], shown = 0;
+      let query = filters4.query(), term = recordText(query.search), rows = [...$("catalog-fields").querySelectorAll(category === "applicationScope" ? "[data-geography]" : ":scope > *")], shown = 0;
       for (let row of rows) {
         let enabled = row.querySelector('[data-key="enabled"]');
         enabled && (row.dataset.enabled = String(enabled.checked));
@@ -2904,7 +2906,7 @@
     }
     function render() {
       let meta = admin_schema_default[category];
-      $("capability-toolbar").hidden = category !== "taxonomy", $("catalog-help").textContent = t(meta.help) + (category === "storage" ? " ID: " + storagePrimaryId : ""), $("catalog-add").hidden = !!meta.groups || ["applicationScope", "taxonomy"].includes(category);
+      $("capability-toolbar").hidden = category !== "taxonomy", $("catalog-help").textContent = t(meta.help) + (category === "storage" ? " ID: " + storagePrimaryId : ""), $("catalog-add").hidden = !!meta.groups || category === "taxonomy";
       let html;
       if (category === "taxonomy") html = `<details class="catalog-row" data-config-detection><summary><strong>${t("Detecci\xF3n de canal digital y b\xFAsquedas")}</strong></summary><p class="muted">${t("Estos criterios recuperan y seleccionan noticias antes de asignar funcionalidades del cat\xE1logo maestro.")}</p><label class="catalog-terms">${t("T\xE9rminos de b\xFAsqueda de sector")}<textarea id="catalog-search-terms" rows="5">${escape2(config.settings.searchTerms.join(`
 `))}</textarea><span class="small muted">${t("Un t\xE9rmino por l\xEDnea")}</span></label><button class="button" type="button" data-add-capability>${t("A\xF1adir capacidad de detecci\xF3n")}</button>${config.capabilities.Empresas.map((row) => `<details class="catalog-row" data-capability><summary><strong>${escape2(row.name)}</strong><span>${t(row.enabled ? "Activa" : "Inactiva")}</span></summary><div class="catalog-grid">${fields(capabilityFields, row)}</div><div class="actions"><button class="button" type="button" data-remove-capability>${t("Eliminar")}</button></div></details>`).join("")}</details>` + config.taxonomy.map((block, index) => `<details class="catalog-row" data-taxonomy-block><summary><strong>${escape2(block.name)}</strong><span>${block.functions.length} ${t("funcionalidades")}</span></summary><div class="catalog-grid">${fields([["name", "Bloque funcional", "readonly"], ["terms", "Equivalencias del bloque", "list"]], block)}</div>${block.functions.map((row) => `<details class="catalog-function" data-function><summary><strong>${escape2(row.id + " \xB7 " + row.name)}</strong><span>${row.terms.length} ${t("equivalencias")}</span></summary><div class="catalog-grid">${fields([["id", "C\xF3digo", "readonly"], ["name", "Funcionalidad / Sub Operativa", "readonly"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"]], row)}</div></details>`).join("")}<h3>${t("Conceptos emergentes admitidos")}</h3><button type="button" class="button" data-add-emerging="${index}">${t("A\xF1adir concepto emergente")}</button>${block.emerging.map((row) => `<div class="catalog-grid" data-emerging>${fields([["name", "Funcionalidad / Sub Operativa", "text"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"], ["primaryTerms", "Productos concretos de fuente oficial", "list"], ["primary", "Producto concreto respaldado por fuente oficial", "boolean"]], row)}<button type="button" class="button" data-remove-emerging>${t("Eliminar")}</button></div>`).join("")}</details>`).join("");
@@ -2914,7 +2916,8 @@
           let region = countryRegion(country.name) || otherGeography;
           regions.has(region) || regions.set(region, []), regions.get(region).push(country);
         }
-        html = config.applicationScope.map((scope) => `<fieldset class="catalog-group scope-group" data-scope="${escape2(scope.name)}"><legend>${escape2(scope.name)}</legend><div class="scope-regions">${[...regions].map(([region, countries]) => `<fieldset class="scope-group"><legend>${escape2(t(region))}</legend><div class="scope-countries">${countries.map((country) => `<label class="scope-country"><input type="checkbox" data-country="${escape2(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${escape2(country.name)}</span></label>`).join("")}</div></fieldset>`).join("")}</div></fieldset>`).join("");
+        let scope = config.applicationScope[0];
+        html = [...regions].map(([region, countries]) => `<fieldset class="catalog-group scope-group"><legend>${escape2(t(region))}</legend><div class="scope-countries">${countries.map((country) => `<details class="catalog-row" data-geography data-enabled="${country.enabled}" ${country.name ? "" : "open"}><summary><strong>${escape2(country.name || t("Nueva entrada"))}</strong><span>${t(country.enabled ? "Activa" : "Inactiva")}</span></summary><label class="scope-country"><input type="checkbox" data-country="${escape2(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${t("Pesta\xF1a propia")}</span></label><div class="catalog-grid">${fields(meta.fields, country)}</div><button type="button" class="button" data-remove>${t("Eliminar")}</button></details>`).join("")}</div></fieldset>`).join("");
       } else meta.groups ? html = meta.groups.map((group) => {
         let section = group.section || category;
         return `<fieldset class="catalog-group" data-config-section="${section}"><legend>${escape2(t(group.label))}</legend><div class="catalog-settings">${group.keys.map((key) => {
@@ -3153,7 +3156,7 @@
         let topLabel = $("radar-outage-kpis").children[2]?.querySelector("strong");
         topLabel && outage.top && topLabel.insertAdjacentHTML("afterbegin", identityMark("entities", outage.top.entity, escape2)), $("radar-outage-kpis").children[0]?.querySelector("span").classList.add("badge"), $("radar-outage-grid").hidden = !outage.total;
         let maximum = Math.max(1, ...outage.months.map((row) => row.total)), bar = (value, max2) => `<meter min="0" max="${max2}" value="${value}">${value}</meter>`;
-        $("radar-outage-timeline").innerHTML = outage.months.map((row) => `<div title="${escape2(row.month)}: ${row.total}"><span>${row.total}</span>${bar(row.total, maximum)}<time>${escape2(row.month.slice(5))}</time></div>`).join(""), $("radar-outage-entities").innerHTML = outage.ranking.map((row) => `<div class="radar-outage-entity"><button type="button" class="ranking-row" data-outage-explore data-entity="${escape2(row.entity)}">${identityMark("entities", row.entity, escape2)}<span class="ranking-name">${escape2(row.entity)}${bar(row.total, outage.top.total)}</span><strong>${row.total}</strong></button><div class="radar-outage-countries">${row.countries.map((area) => `<button type="button" class="button" data-outage-explore data-entity="${escape2(row.entity)}" data-country="${escape2(area.country)}">${identityMark("countries", area.country, escape2)}${escape2(area.country)} \xB7 ${area.total}</button>`).join("")}</div></div>`).join(""), $("radar-outage-vectors").innerHTML = outage.vectors.map((row) => `<button type="button" class="ranking-row" data-outage-explore data-vector="${escape2(row.name)}"><span class="ranking-name">${escape2(row.name)}${bar(row.total, outage.vector.total)}</span><strong>${row.total}</strong></button>`).join(""), $("radar-outage-evidence").innerHTML = outage.latest.map((row) => `<article class="radar-outage-evidence"><p class="identity-label">${identityMark("entities", row.entity, escape2)}${escape2(row.entity)} ${identityMark("countries", row.country, escape2)}${escape2(row.country)}</p><a href="${escape2(row.url)}" target="_blank" rel="noopener noreferrer" data-original>${escape2(row.title)}</a><p class="small muted"><time>${escape2(row.date)}</time> \xB7 ${identityMark("publishers", row.publisher, escape2)}${escape2(row.publisher)}</p></article>`).join("");
+        $("radar-outage-timeline").innerHTML = outage.months.map((row) => `<div title="${escape2(formatCalendarMonth(row.month, language))} ${row.month.slice(0, 4)}: ${row.total}"><span>${row.total}</span><div class="outage-bar" style="--outage-share:${row.total / maximum * 100}%"><span></span></div><time datetime="${row.month}">${escape2(formatCalendarMonth(row.month, language))}</time></div>`).join(""), $("radar-outage-entities").innerHTML = outage.ranking.map((row) => `<div class="radar-outage-entity"><button type="button" class="ranking-row" data-outage-explore data-entity="${escape2(row.entity)}">${identityMark("entities", row.entity, escape2)}<span class="ranking-name">${escape2(row.entity)}${bar(row.total, outage.top.total)}</span><strong>${row.total}</strong></button><div class="radar-outage-countries">${row.countries.map((area) => `<button type="button" class="button" data-outage-explore data-entity="${escape2(row.entity)}" data-country="${escape2(area.country)}">${identityMark("countries", area.country, escape2)}${escape2(area.country)} \xB7 ${area.total}</button>`).join("")}</div></div>`).join(""), $("radar-outage-vectors").innerHTML = outage.vectors.map((row) => `<button type="button" class="ranking-row" data-outage-explore data-vector="${escape2(row.name)}"><span class="ranking-name">${escape2(row.name)}${bar(row.total, outage.vector.total)}</span><strong>${row.total}</strong></button>`).join(""), $("radar-outage-evidence").innerHTML = outage.latest.map((row) => `<article class="radar-outage-evidence"><p class="identity-label">${identityMark("entities", row.entity, escape2)}${escape2(row.entity)} ${identityMark("countries", row.country, escape2)}${escape2(row.country)}</p><a href="${escape2(row.url)}" target="_blank" rel="noopener noreferrer" data-original>${escape2(row.titles?.[language] || row.title)}</a><p class="small muted"><time>${escape2(row.date)}</time> \xB7 ${identityMark("publishers", row.publisher, escape2)}${escape2(row.publisher)}</p></article>`).join("");
       }
     } };
   }

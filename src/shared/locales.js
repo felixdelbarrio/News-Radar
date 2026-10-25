@@ -1,5 +1,6 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Pestaña propia": ["Own tab", "Ayrı sekme"],
   "Mantenimiento incremental en cola.": ["Incremental maintenance queued.", "Artımlı bakım sıraya alındı."],
   "Archivado de logs": ["Log archiving", "Günlük arşivleme"],
   "Generar snapshots": ["Build snapshots", "Anlık görüntü oluştur"],
@@ -1452,7 +1453,11 @@ export function translateText(value,language='es',source='es'){
   });
 }
 
-const calendarFormatters=new Map(),trendFormatters=new Map();
+const calendarFormatters=new Map(),trendFormatters=new Map(),monthFormatters=new Map();
+export function formatCalendarMonth(value,language='es'){
+  if(!monthFormatters.has(language))monthFormatters.set(language,new Intl.DateTimeFormat(language,{month:'short',timeZone:'UTC'}));
+  return monthFormatters.get(language).format(new Date(value+'-01T00:00:00Z'));
+}
 export function formatTrendDay(value,language='es'){
   if(!trendFormatters.has(language))trendFormatters.set(language,new Intl.DateTimeFormat(language,{day:'numeric',month:'short',timeZone:'UTC'}));
   return trendFormatters.get(language).format(new Date(value));

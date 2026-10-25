@@ -75,6 +75,10 @@ function dashboardMetadata_(){
 function dashboardArticleFields_(data){
   const clean=({_sheetRow,identityTitles,...row})=>row;
   data.items=data.items.map(clean);if(data.briefing)data.briefing.items=data.briefing.items.map(clean);
+  if(data.radar?.outages){
+   const rows=data.radar.outages.latest,translations=Object.fromEntries(Object.keys(languageNames).map(language=>[language,savedArticleTranslations_(rows.map(row=>row.text),language)]));
+   data.radar.outages.latest=rows.map(({text,...row},index)=>({...row,titles:Object.fromEntries(Object.entries(translations).filter(([,items])=>items[index].translation.state==='translated').map(([language,items])=>[language,items[index].titular]))}));
+  }
 }
 
 function dashboardCacheKey_(selection,view,language,edition=null){
