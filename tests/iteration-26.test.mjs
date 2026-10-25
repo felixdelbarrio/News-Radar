@@ -91,3 +91,10 @@ test('un archivo verificado que diverge nunca se sobrescribe ni autoriza retirar
 test('solicitar extractos no reinicia el mantenimiento ni crea dos recuperaciones',()=>{
  const s=server(),c=s.c;c.maintenance_();const maintenance=c.maintenanceJob_();maintenance.next=88;c.saveMaintenanceJob_(maintenance);c.startExcerptRecovery();const recovery=s.properties.EXCERPT_RECOVERY_JOB;c.startExcerptRecovery();assert.equal(c.maintenanceJob_().next,88);assert.equal(s.properties.EXCERPT_RECOVERY_JOB,recovery);
 });
+
+test('el archivo conserva las filas vacías finales del prefijo y verifica su digest',()=>{
+ const s=server(),c=s.c,sheet=logs(s);sheet.grid[100]=Array(5).fill('');assert.equal(c.archiveLogBatch_('Telemetria'),false);const [id]=s.archiveBooks.keys(),payload=JSON.parse(c.archivePayload_(id));assert.equal(payload.rows.length,100);assert.ok(payload.rows.at(-1).every(value=>value===''));assert.equal(sheet.getLastRow()-1,10);assert.equal(s.properties['ARCHIVE_SHEET:Telemetria'],undefined);
+});
+test('un tamaño de archivo inválido bloquea su lectura sin truncar el contenido',()=>{
+ const s=server(),c=s.c;logs(s);c.archiveLogBatch_('Telemetria');const [id]=s.archiveBooks.keys(),info=s.archiveBooks.get(id).getSheetByName('Archivo');info.grid[0][3]='99';assert.throws(()=>c.archivePayload_(id),/no verificado/);info.grid[0][3]='invalid';assert.throws(()=>c.archivePayload_(id),/no verificado/);
+});

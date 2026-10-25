@@ -9,7 +9,7 @@ function fileInFolder_(id,folder){
  if(found!==1)throw Error('No se ha verificado la carpeta del archivo: '+id);return file;
 }
 function archivePayload_(id){
- const book=SpreadsheetApp.openById(id),info=book.getSheetByName('Archivo').getRange(1,1,1,3).getDisplayValues()[0],headers=JSON.parse(info[2]);
+ const book=SpreadsheetApp.openById(id),info=book.getSheetByName('Archivo').getRange(1,1,1,4).getDisplayValues()[0],headers=JSON.parse(info[2]);
  if(info[0]!=='1')throw Error('Formato de archivo no válido.');
  let rows;
  if(info[1]==='NewsletterEdiciones'){
@@ -18,7 +18,9 @@ function archivePayload_(id){
  }else{
   const sheet=book.getSheetByName('Datos');
   if(JSON.stringify(sheet.getRange(1,1,1,headers.length).getDisplayValues()[0])!==JSON.stringify(headers))throw Error('Cabecera de archivo no válida.');
-  rows=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,headers.length).getDisplayValues():[];
+  const count=info[3]!==''?Number(info[3]):Math.max(0,sheet.getLastRow()-1);
+  if(!Number.isSafeInteger(count)||count<0||count>sheet.getMaxRows()-1||sheet.getLastRow()-1>count)throw Error('Contenido de archivo no verificado: '+info[1]);
+  rows=count?sheet.getRange(2,1,count,headers.length).getDisplayValues():[];
  }
  return JSON.stringify({schema:1,table:info[1],headers,rows});
 }
@@ -36,7 +38,7 @@ function archiveSpreadsheet_(name,headers,rows,folderId,key){
   checkpoint={id:book.getId(),digest,count:rows.length};p.setProperty(property,JSON.stringify(checkpoint));
  }
  fileInFolder_(checkpoint.id,folder);const book=SpreadsheetApp.openById(checkpoint.id);
- const info=book.getSheetByName('Archivo')||book.insertSheet('Archivo');info.getRange(1,1,1,3).setNumberFormat('@').setValues([['1',name,JSON.stringify(headers)]]);
+ const info=book.getSheetByName('Archivo')||book.insertSheet('Archivo');info.getRange(1,1,1,4).setNumberFormat('@').setValues([['1',name,JSON.stringify(headers),String(rows.length)]]);
  if(name==='NewsletterEdiciones'){
   const metadata=rows[0].metadata,keys=Object.keys(metadata);writeArchiveTable_(book,'Edicion',keys,[keys.map(key=>metadata[key])]);writeArchiveTable_(book,'Contenido',['edicion','contenido'],rows[0].items);
  }else writeArchiveTable_(book,'Datos',headers,rows);
