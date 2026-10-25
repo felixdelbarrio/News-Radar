@@ -2,7 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {digest} from './quality-audit.mjs';
-export const SOURCE_PROBE_REVISION=1;
+import frozenAudit from '../tests/fixtures/iteration-27-audit.json' with {type:'json'};
+export const SOURCE_PROBE_REVISION=2;
+// Request values come exclusively from the reviewed, versioned corpus. Input
+// files can select a known URL, but cannot supply network request data.
+const approvedSourceUrls=new Map(frozenAudit.cases.map(({url})=>[url,url]));
 
 // A bounded transport probe, not an editorial verifier. Google/consent HTML is
 // never promoted to article evidence. Do not follow arbitrary redirects or run
@@ -13,8 +17,10 @@ export async function probeSource(url,{fetcher=fetch,timeoutMs=4000,maxBytes=131
  let parsed;
  try{parsed=new URL(url);}catch{return {...result,status:'invalid_url'};}
  if(parsed.protocol!=='https:'||parsed.hostname!=='news.google.com'||parsed.port||parsed.username||parsed.password)return {...result,status:'unsupported_source_host'};
+ const requestUrl=approvedSourceUrls.get(url);
+ if(!requestUrl)return {...result,status:'unapproved_source_url'};
  try{
-  const response=await fetcher(url,{redirect:'manual',signal:AbortSignal.timeout(timeoutMs),headers:{Accept:'text/html'}});
+  const response=await fetcher(requestUrl,{redirect:'manual',signal:AbortSignal.timeout(timeoutMs),headers:{Accept:'text/html'}});
   if(response.status>=300&&response.status<400){await response.body?.cancel();return {...result,status:'redirect_requires_source_verification',http_status:response.status,redirect_target:response.headers.get('location')||''};}
   if(!response.ok){await response.body?.cancel();return {...result,status:'http_error',http_status:response.status};}
   let bytes=0;const chunks=[];

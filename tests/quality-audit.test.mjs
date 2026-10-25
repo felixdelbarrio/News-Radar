@@ -77,11 +77,12 @@ test('CSV protects formula cells and escapes evidence and trace fields',()=>{
  assert.ok(csv.includes('{""value"":false}'));
 });
 test('source probes bound content and never mistake aggregator or redirect for evidence',async()=>{
- const url='https://news.google.com/rss/articles/abc';
+ const url=cases.cases.find(row=>row.url.startsWith('https://news.google.com/')).url;
  for(const input of ['http://news.google.com/','https://127.0.0.1/','https://news.google.com.evil.example/','https://a:b@news.google.com/'])assert.equal((await probeSource(input,{fetcher:()=>{throw Error('Must not fetch');}})).status,'unsupported_source_host');
+ for(const input of ['https://news.google.com/rss/articles/private-file-content',url+'&secret=private-file-content','https://news.google.com/upload?data=private-file-content'])assert.equal((await probeSource(input,{fetcher:()=>{throw Error('Must not fetch');}})).status,'unapproved_source_url');
  const redirect=await probeSource(url,{fetcher:async()=>new Response('',{status:302,headers:{location:'https://127.0.0.1/private'}})});
  assert.equal(redirect.status,'redirect_requires_source_verification');assert.equal(redirect.verification_status,'unknown');
- const success=await probeSource(url,{fetcher:async(_url,options)=>{assert.equal(options.redirect,'manual');return new Response('consent page');}});
+ const success=await probeSource(url,{fetcher:async(requestUrl,options)=>{assert.equal(requestUrl,url);assert.equal(options.redirect,'manual');return new Response('consent page');}});
  assert.equal(success.label_auto,'unknown');assert.equal(success.evidence_excerpt,'');assert.equal(success.status,'aggregator_not_original_evidence');
  assert.equal((await probeSource(url,{maxBytes:2,fetcher:async()=>new Response('too long')})).status,'response_limit');
  assert.equal((await probeSource(url,{fetcher:async()=>new Response('',{status:403})})).status,'http_error');
@@ -95,5 +96,7 @@ test('source checkpoint resumes without fetching completed IDs and refuses anoth
   await probeAudit(fixture,output,{probe});assert.equal(count,5);
   await probeAudit(fixture,output,{probe});assert.equal(count,5);
   await assert.rejects(probeAudit({...fixture,source_sha256:'other'},output,{probe}),/different audit/);
+  const checkpoint=JSON.parse(fs.readFileSync(output,'utf8'));checkpoint.probe_revision=1;fs.writeFileSync(output,JSON.stringify(checkpoint));
+  await assert.rejects(probeAudit(fixture,output,{probe}),/different source probe revision/);
  }finally{fs.rmSync(directory,{recursive:true,force:true});}
 });
