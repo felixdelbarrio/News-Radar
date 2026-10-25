@@ -5,8 +5,9 @@ function newsletterSubject_(filters,language='es',t=taxonomyLanguage_(language))
 }
 function briefing_(rows,perGeography=false,geography=row=>geographyLabel(row.pais)){
   const ranked=rows.filter(briefingAllowed).sort(publicationOrder),overview=noveltyOverview(ranked,BRIEFING_ALLOWED_SIGNALS,geography),items=[],counts=new Map(),limit=settings_().briefingLimit;
-  for(const row of ranked){const key=perGeography?geography(row):'',count=counts.get(key)||0;if(count<limit){items.push(row);counts.set(key,count+1);}}
-  return {...overview,items,limited:overview.total>items.length};
+  for(const row of ranked){const key=perGeography?(geography(row)===otherGeography?countryRegion(row.pais)||otherGeography:geography(row)):'',count=counts.get(key)||0;if(count<limit){items.push(row);counts.set(key,count+1);}}
+  const regions=noveltyOverview(ranked.filter(row=>geography(row)===otherGeography&&countryRegion(row.pais)),BRIEFING_ALLOWED_SIGNALS,row=>countryRegion(row.pais)).geographies;
+  return {...overview,regions,items,limited:overview.total>items.length};
 }
 function newsletter_(rows,query,title,now,subscriptionId,language='es',editionId='',known=new Set()){
   return newsletterContent_(selectNews_(rows,newsletterSelectionQuery_(query)),query,title,now,subscriptionId,language,editionId,known);

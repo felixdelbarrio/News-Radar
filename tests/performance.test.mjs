@@ -54,7 +54,7 @@ test('las tablas adaptables conservan sus encabezados y etiquetas al cambiar el 
 
 test('la caché de navegación se reutiliza durante un minuto sin prolongarse al volver',async t=>{
  let now=0;
- const a=await app(t,{configure({w,data}){w.performance.now=()=>now;data.newsRevision='news-1';data.configurationRevision='config-1';}});
+ const a=await app(t,{configure({w,data}){const epoch=w.Date.now();w.Date.now=()=>epoch+now;w.performance.now=()=>now;data.newsRevision='news-1';data.configurationRevision='config-1';}});
  await a.click('[data-view="radar"]');now=10;await a.click('[data-view="news"]');
  const count=a.calls.filter(row=>row.method==='getDashboard').length;
  now=50000;await a.click('[data-view="radar"]');now=55000;await a.click('[data-view="news"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,count);

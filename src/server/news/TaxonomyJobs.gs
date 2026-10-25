@@ -26,10 +26,10 @@ function taxonomyRecord_(title,excerpt,items=taxonomyCatalog_(),providedLabels=n
  const fingerprint=taxonomyFingerprint_(title,excerpt),text=taxonomyText(title+' '+excerpt);
  if(!taxonomyMatchingMemory_.has(items))taxonomyMatchingMemory_.set(items,{rows:items.map(item=>({...item,terms:item.terminos,description:item.descripcion||''})),revision:taxonomyModelRevision_(items)});
  const model=taxonomyMatchingMemory_.get(items),metadata={fingerprint,version:TAXONOMY_POLICY.version,model:model.revision};
- const labels=providedLabels||classification_(searchText_(title),text).labels;
  if(!items.length||!taxonomyEligible_(searchText_(title),text))return {...metadata,ids:[],reason:'insufficient'};
  const decision=taxonomyDecision(text,model.rows,title),match=decision.matches[0];
  if(match)return {...metadata,ids:decision.matches.map(match=>match.row.id),primary:match.row.id,reason:decision.reason,evidence:{...match.evidence,assignments:decision.matches.map(({row,evidence})=>({id:row.id,...evidence}))}};
+ const labels=providedLabels||classification_(searchText_(title),text).labels;
  const fallback=labels.digital&&fallbackTaxonomy_(text,labels,items);
  const evidence=fallback?.id?{method:'capability-fallback',rule:fallback.rule,capabilities:fallback.capabilities,signal:fallback.signal}:null;
  return evidence?{...metadata,ids:[fallback.id],primary:fallback.id,reason:'capability-fallback',evidence:{...evidence,assignments:[{id:fallback.id,...evidence}]}}:{...metadata,ids:[],reason:decision.reason};
@@ -40,6 +40,8 @@ function taxonomyReadyAt_(){const job=taxonomyJob_();return job&&!['Completada',
 function writeTaxonomyJob_(job){progressContextMemory_=undefined;properties_().setProperty('TAXONOMY_JOB',JSON.stringify(snapshotJob_('TAXONOMY_JOB',job)));}
 function requestTaxonomy_(request='',refresh=true){
   const catalog=refresh?refreshFunctionalCatalog_():{source:'espejo'};
+  const previous=taxonomyJob_(),published=dataGeneration_();
+  if(previous?.generation)for(const name of [previous.generation.newsSheet,previous.generation.taxonomySheet])if(name!==published.newsSheet&&name!==published.taxonomySheet){const sheet=book_().getSheetByName(name);if(sheet)book_().deleteSheet(sheet);}
   const lastRow=newsSheet_().getLastRow(),candidateTotal=Math.max(0,candidateSheet_().getLastRow()-1),total=Math.max(0,lastRow-1),now=new Date().toISOString();
   const id=Utilities.getUuid();
   writeTaxonomyJob_({request,catalog,id,source:newsStorageKey_(),state:'Pendiente',phase:'scan',next:2,candidateTotal,candidateRevision:properties_().getProperty('CANDIDATES_REVISION')||'0',total,workTotal:total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});

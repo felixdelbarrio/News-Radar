@@ -8,21 +8,27 @@ function maintenance_(force=false){
 }
 function maintenanceReadyAt_(){const job=maintenanceJob_();return job&&!['Completada','Publicando','Revisar'].includes(job.state)?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
 function compactOperationalLogs_(){
- for(const name of LOG_TABLES)if(book_().getSheetByName(name)&&!archiveLogBatch_(name))return false;
- properties_().deleteProperty('LOG_ARCHIVE_PENDING');return true;
+ let done=0,complete=true;const conflicts=[];
+ for(const name of LOG_TABLES){
+  try{if(book_().getSheetByName(name)&&!archiveLogBatch_(name)){properties_().setProperty('LOG_ARCHIVE_DONE',String(done));complete=false;break;}done++;}
+  catch(error){conflicts.push(String(error.message));}
+ }
+ properties_().setProperty('LOG_ARCHIVE_DONE',String(done));if(conflicts.length)throw Error(conflicts.join('; '));
+ if(complete)properties_().deleteProperty('LOG_ARCHIVE_PENDING');return complete;
 }
+
 function deleteSheetRows_(sheet,positions){
  const rows=[...new Set(positions)].sort((a,b)=>b-a);for(let i=0;i<rows.length;){let end=i+1;while(end<rows.length&&rows[end]===rows[end-1]-1)end++;sheet.deleteRows(rows[end-1],end-i);i=end;}
 }
 function deduplicateNews_(){
  const sheet=newsSheet_(),keys=RADAR.sheets.Noticias,count=Math.max(0,sheet.getLastRow()-1);if(!count)return 0;
- const revision=newsClassificationRevision_(),remove=[],rows=[];
+ const revision=newsClassificationRevision_(),remove=[],rows=[],protectedIds=new Set(llmIndex_().keys());
  for(const [index,values] of sheet.getRange(2,1,count,keys.length).getDisplayValues().entries()){
   const row={...Object.fromEntries(keys.map((key,i)=>[key,values[i]])),_sheetRow:index+2},labels=savedNewsLabels_(row.clasificacion),title=searchText_(row.titular),text=searchText_(row.titular+' '+row.extracto);
   const current=labels.schema===1&&labels.version===CLASSIFICATION_WORK.rulesVersion&&labels.revision===revision&&labels.contentHash===sha256_(JSON.stringify([title,text]));
-  if(current&&(!labels.digital||entityKey_(row.entidad)==='Santander'&&santanderExcluded_(text)))remove.push(row._sheetRow);else rows.push(row);
+  if(!protectedIds.has(row.id)&&current&&(!labels.digital||entityKey_(row.entidad)==='Santander'&&santanderExcluded_(text)))remove.push(row._sheetRow);else rows.push(row);
  }
- const aliases=[];uniqueNews_(translationIdentityRows_(rows),aliases);remove.push(...aliases.map(alias=>rows[alias.index]._sheetRow));if(!remove.length)return 0;
+ const aliases=[];uniqueNews_(translationIdentityRows_(rows),aliases);remove.push(...aliases.filter(alias=>!protectedIds.has(rows[alias.index].id)).map(alias=>rows[alias.index]._sheetRow));if(!remove.length)return 0;
  // Archived editions already contain complete frozen articles, so their IDs and content remain intact.
  const archives=[];for(let start=0;start<remove.length;start+=ARCHIVE_WORK.rows){const positions=remove.slice(start,start+ARCHIVE_WORK.rows),records=new Map(newsRowsAt_(positions.slice().sort((a,b)=>a-b)).map(row=>[row._sheetRow,keys.map(key=>row[key]||'')])),values=positions.map(position=>records.get(position));archives.push(archiveSpreadsheet_('Noticias',keys,values,configuration_().storage.primaryFolderId,'news:'+sha256_(JSON.stringify(values))));}
  deleteSheetRows_(sheet,remove);SpreadsheetApp.flush();for(const archive of archives)properties_().deleteProperty(archive.property);invalidateNews_();return remove.length;
@@ -31,8 +37,9 @@ function cleanDuplicateNews(){authorize_(true);return withForegroundWrite_(()=>(
 function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
  const job=maintenanceJob_();if(!job||['Completada','Publicando','Revisar'].includes(job.state)||backgroundPaused_())return;
  const started=Date.now();try{
-  if(job.phase==='logs'){if(compactOperationalLogs_()===false){saveMaintenanceJob_(job);return;}job.phase='newsletters';saveMaintenanceJob_(job);}
-  if(job.phase==='newsletters'){if(!archiveNewsletterBatch_()){saveMaintenanceJob_(job);return;}job.phase='dedup';saveMaintenanceJob_(job);}
+  if(!recoverMissingExcerptsBatch_(Math.min(maxMs,4000))){saveMaintenanceJob_(job);return;}
+  if(job.phase==='logs'){compactCollectionTasks_();persistCandidates_([]);pruneNewsGenerations_();if(compactOperationalLogs_()===false){saveMaintenanceJob_(job);return;}job.phase='newsletters';saveMaintenanceJob_(job);}
+  if(job.phase==='newsletters'){if(!archiveNewsletterBatch_()||!compactNewsletterBatch_()){saveMaintenanceJob_(job);return;}job.phase='dedup';saveMaintenanceJob_(job);}
   if(classificationPending_()||dailyCollectionPending_())return;
   if(job.phase==='dedup'){if(!auditMaintenanceIntegrity_(job)){saveMaintenanceJob_(job);return;}job.removed+=deduplicateNews_();job.phase='news';job.newsTotal=Math.max(0,newsSheet_().getLastRow()-1);job.total=job.newsTotal+job.candidateTotal;}
   if(job.phase==='news'){
@@ -78,7 +85,7 @@ function archiveAndCompactOperationalStorage(){
   }
   const changedCycles=new Set(remove.map(position=>rows[position-2][0]));
   for(const job of collectionSnapshots_(rows_('Recopilacion'),jobs.filter(job=>changedCycles.has(job.id)&&!archivedCycles.has(job.id))))writeCollectionJob_(job);
-  compactOperationalLogs_();const generations=pruneNewsGenerations_(true);compactStorageDimensions_();
+  compactOperationalLogs_();const generations=pruneNewsGenerations_();compactStorageDimensions_();
   CacheService.getScriptCache().remove('collection-status');
   return {archive:archive.getUrl(),duplicateTasks,archivedTasks,generations};
  });
@@ -98,4 +105,58 @@ function auditMaintenanceIntegrity_(job){
   job.integrityChecked=true;
  }
  return true;
+}
+
+function startMaintenance(){authorize_(true);return withForegroundWrite_(()=>{maintenance_(true);return 'Mantenimiento incremental en cola.';});}
+
+function startExcerptRecovery(){
+ authorize_(true);return withForegroundWrite_(()=>{
+  const p=properties_(),job=JSON.parse(p.getProperty('EXCERPT_RECOVERY_JOB')||'null');
+  if(!job||job.state==='Completada')p.setProperty('EXCERPT_RECOVERY_JOB',JSON.stringify({state:'Pendiente',source:newsStorageKey_(),next:2,reviewed:0,recovered:0,failed:0,protected:0,started:new Date().toISOString()}));
+  maintenance_();ensureBackgroundWorker_();return 'Recuperación de extractos RSS en cola; se conservan clasificaciones y asignaciones LLM verificadas.';
+ });
+}
+function recoverMissingExcerptsBatch_(maxMs){
+ const p=properties_(),job=JSON.parse(p.getProperty('EXCERPT_RECOVERY_JOB')||'null');if(!job||job.state==='Completada')return true;
+ if(job.source!==newsStorageKey_())throw Error('La generación cambió durante la recuperación de extractos; revisa el cursor antes de reiniciar.');
+ const started=Date.now(),sheet=newsSheet_(),keys=RADAR.sheets.Noticias,total=sheet.getLastRow(),size=Math.min(50,Math.max(0,total-job.next+1)),rows=size?sheet.getRange(job.next,1,size,keys.length).getDisplayValues():[],feeds=new Map(feeds_().map(feed=>[feed.name,feed])),responses=new Map(),updates=[];let requests=0,processed=0;
+ for(const values of rows){
+  if(Date.now()-started>=maxMs||backgroundPaused_(true))break;
+  const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]]));
+  if(row.extracto){processed++;continue;}
+  if(llmStrongResult_(llmIndex_().get(row.id),row)){job.protected++;processed++;continue;}
+  const feed=feeds.get(row.fuente);let status='sin fuente RSS configurada';
+  if(feed){
+   if(!responses.has(feed.url)){
+    if(requests>=2)break;requests++;
+    try{const response=UrlFetchApp.fetch(feed.url,{muteHttpExceptions:true,followRedirects:true}),xml=response.getContentText();if(response.getResponseCode()!==200||xml.length>settings_().maxFeedBytes)throw Error('RSS no disponible o demasiado grande');responses.set(feed.url,{items:parseFeed_(xml)});}catch(error){responses.set(feed.url,{error:String(error.message).slice(0,120)});}
+   }
+   const response=responses.get(feed.url),item=response.items?.find(item=>newsUrlIdentity_(item.url)===newsUrlIdentity_(row.url));
+   const extracted=item&&newsExcerpt_(item,row.titular,item.source);
+   status=response.error||(!item?'artículo ausente del RSS':!extracted.text?'RSS sin extracto':'recuperado');
+   if(extracted?.text){
+    const labels=savedNewsLabels_(row.clasificacion);labels.procedencia={...labels.procedencia,recuperacionExtracto:{sourceUrl:canonicalUrl_(item.sourceUrl)||feed.url,mechanism:extracted.mechanism,date:new Date().toISOString(),status}};
+    updates.push({row:job.next+processed,column:keys.indexOf('extracto')+1,value:extracted.text},{row:job.next+processed,column:keys.indexOf('clasificacion')+1,value:JSON.stringify(labels)});job.recovered++;
+   }
+  }
+  if(status!=='recuperado')job.failed++;
+  telemetry_('extractos',Date.now()-started,status==='recuperado'?'OK':'Sin evidencia',row.id+'; '+row.fuente+'; '+status);processed++;
+ }
+ writeNewsCells_(updates);if(updates.length)invalidateNews_();job.next+=processed;job.reviewed+=processed;job.updated=new Date().toISOString();job.state=job.next>total?'Completada':'Pendiente';p.setProperty('EXCERPT_RECOVERY_JOB',JSON.stringify(job));return job.state==='Completada';
+}
+function getCorpusQualityAudit(){
+ authorize_(true);const generation=dataGeneration_(),candidate=taxonomyJob_()?.generation?.newsSheet,names=[...new Set([newsStorageKey_(),candidate].filter(Boolean))],corpora=[];
+ for(const name of names){
+  const sheet=book_().getSheetByName(name),keys=RADAR.sheets.Noticias,ids=new Set(),urls=new Set(),counts={rows:0,missingExcerpt:0,duplicateIds:0,duplicateUrls:0,invalidDates:0,invalidTaxonomy:0},states={},strata=new Map();
+  if(!sheet)throw Error('Falta generación: '+name);
+  for(let first=2;first<=sheet.getLastRow();first+=100){
+   for(const values of sheet.getRange(first,1,Math.min(100,sheet.getLastRow()-first+1),keys.length).getDisplayValues()){
+    const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]])),labels=savedNewsLabels_(row.clasificacion),state=labels.estado||'unknown';counts.rows++;if(!row.extracto.trim())counts.missingExcerpt++;if(!row.id||ids.has(row.id))counts.duplicateIds++;ids.add(row.id);const url=newsUrlIdentity_(row.url);if(!url||urls.has(url))counts.duplicateUrls++;urls.add(url);if(!/^\d{4}-\d{2}-\d{2}$/.test(row.fecha)||!Number.isFinite(Date.parse(row.fecha)))counts.invalidDates++;if(taxonomySaved_(row.taxonomia).invalid)counts.invalidTaxonomy++;states[state]=(states[state]||0)+1;
+    const stratum=JSON.stringify([row.pais,row.entidad,row.fuente,row.fecha.slice(0,7),row.idioma,state]),sample={id:row.id,rank:sha256_(row.id)};
+    if(!strata.has(stratum)||sample.rank<strata.get(stratum).rank)strata.set(stratum,sample);
+   }
+  }
+  corpora.push({sheet:name,...counts,states,idDigest:sha256_(JSON.stringify([...ids].sort())),urlDigest:sha256_(JSON.stringify([...urls].sort())),sample:[...strata].sort(([a],[b])=>a.localeCompare(b)).slice(0,250).map(([stratum,{id}])=>({stratum:JSON.parse(stratum),id})),llmMissingReferences:[...llmIndex_().keys()].filter(id=>!ids.has(id)).length});
+ }
+ return {generation,corpora,excerptJob:JSON.parse(properties_().getProperty('EXCERPT_RECOVERY_JOB')||'null')};
 }

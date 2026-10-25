@@ -32,14 +32,18 @@ function rows_(sheet, limit, width=RADAR.sheets[sheet].length,period=null) {
   const keys=RADAR.sheets[sheet].slice(0,width);
   return s.getRange(count-size+2,1,size,keys.length).getDisplayValues().map(r=>Object.fromEntries(keys.map((k,i)=>[k,r[i]])));
 }
-function append_(name, rows) {
-  if (!rows.length) return;
+function append_(name,rows){
+ const valid=rows.filter(row=>Array.isArray(row)&&row.some(cell=>cell!==''&&cell!=null));if(!valid.length)return;
+ const lock=LockService.getScriptLock(),owned=Boolean(foregroundWriteDepth_||lock.hasLock?.());
+ if(!owned&&!lock.tryLock(10000))throw Error('No se ha podido bloquear la escritura de '+name+'.');
+ try{
   if(NEWSLETTER_ARCHIVE_TABLES.includes(name))markNewsletterArchiveEdited_();
-  const s=recordSheet_(name), start=s.getLastRow()+1, needed=start+rows.length-1;
-  if (needed>s.getMaxRows()) s.insertRowsAfter(s.getMaxRows(),needed-s.getMaxRows());
-  const range=s.getRange(start,1,rows.length,rows[0].length);range.setNumberFormat('@').setValues(rows.map(r=>r.map(safeCell_)));
-  enforceLogLimit_(name,s);
-  if(name==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);
+  const sheet=recordSheet_(name),start=sheet.getLastRow()+1,needed=start+valid.length-1;
+  if(needed>sheet.getMaxRows())sheet.insertRowsAfter(sheet.getMaxRows(),needed-sheet.getMaxRows());
+  sheet.getRange(start,1,valid.length,valid[0].length).setNumberFormat('@').setValues(valid.map(row=>row.map(safeCell_)));
+  enforceLogLimit_(name,sheet);if(name==='Ejecuciones')CacheService.getScriptCache().remove('dashboard-runs:'+RADAR.version);
+  SpreadsheetApp.flush();
+ }finally{if(!owned)lock.releaseLock();}
 }
 
 function rowsById_(name,ids,limit=Infinity){
@@ -130,8 +134,9 @@ function newsletterArchiveKey_(){return JSON.stringify([newsletterArchiveVersion
 function markNewsletterArchiveEdited_(){properties_().setProperty('NEWSLETTER_ARCHIVE_REVISION',Utilities.getUuid());}
 function recordSheet_(name){return name==='Noticias'?newsSheet_():name==='Taxonomia'?taxonomySheet_():NEWSLETTER_ARCHIVE_TABLES.includes(name)?newsletterSheet_(name):book_().getSheetByName(name);}
 
-const LOG_TABLES=Object.freeze(['Auditoria','Telemetria','Ejecuciones','Cobertura','NewsletterEventos']);
+const LOG_TABLES=Object.freeze(['Auditoria','Telemetria','Ejecuciones','Cobertura','NewsletterEventos','Adopcion']);
+function logRetention_(name){const storage=configuration_().storage;return name==='Adopcion'?{rows:settings_().eventLimit,days:settings_().retentionDays}:{rows:storage.logRows,days:storage.logDays};}
 function enforceLogLimit_(name,sheet=recordSheet_(name)){
- if(!LOG_TABLES.includes(name)||sheet.getLastRow()-1<=configuration_().storage.logRows)return;
+ if(!LOG_TABLES.includes(name)||sheet.getLastRow()-1<logRetention_(name).rows+ARCHIVE_WORK.rows)return;
  properties_().setProperty('LOG_ARCHIVE_PENDING','true');
 }

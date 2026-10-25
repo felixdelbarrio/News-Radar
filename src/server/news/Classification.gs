@@ -2,9 +2,9 @@ function businessNews_(row){
   const labels=row.etiquetas||savedNewsLabels_(row.clasificacion);
   return labels.digital&&labels.capacidades.some(name=>name.startsWith('Empresas: '));
 }
-function newsLabels_(assessment){
+function newsLabels_(assessment,hash){
   const state=assessment.relevant?'relevante':assessment.excluded||assessment.editorial?'no relevante':'indeterminado';
-  return {digital:assessment.relevant,capacidades:[...new Set(assessment.capabilities.map(row=>row.segment+': '+row.name))],schema:1,version:CLASSIFICATION_WORK.rulesVersion,revision:newsClassificationRevision_(),estado:state,segmento:assessment.business?sectorNewsDefaults.segment:'indeterminado',segmentos:assessment.relevant||assessment.business?[sectorNewsDefaults.segment]:[],canal:assessment.channel?'digital':'indeterminado',evento:assessment.signals.includes(INCIDENT_SIGNAL)?INCIDENT_SIGNAL:assessment.signals[0]||'indeterminado',senales:assessment.excluded?[]:assessment.signals,score:assessment.score,evidencia:assessment.evidence};
+  return {contentHash:hash,digital:assessment.relevant,capacidades:[...new Set(assessment.capabilities.map(row=>row.segment+': '+row.name))],schema:1,version:CLASSIFICATION_WORK.rulesVersion,revision:newsClassificationRevision_(),estado:state,segmento:assessment.business?sectorNewsDefaults.segment:'indeterminado',segmentos:assessment.relevant||assessment.business?[sectorNewsDefaults.segment]:[],canal:assessment.channel?'digital':'indeterminado',evento:assessment.signals.includes(INCIDENT_SIGNAL)?INCIDENT_SIGNAL:assessment.signals[0]||'indeterminado',senales:assessment.excluded?[]:assessment.signals,score:assessment.score,evidencia:assessment.evidence};
 }
 function savedNewsLabels_(value){
   if(!value)return {digital:false,capacidades:[]};
@@ -55,7 +55,7 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
    const current=saved.schema===1&&saved.version===CLASSIFICATION_WORK.rulesVersion&&saved.revision===revision&&saved.contentHash===hash;
    const nextCountry=newsCountry_(row),nextEntity=entityKey_(row.entidad);
    if(!job.force&&current&&taxonomyValid&&nextEntity===row.entidad&&nextCountry===row.pais&&cleanTitle===row.titular&&cleanExcerpt===row.extracto)continue;
-   const labels=current&&!job.force?saved:{...classification_(title,text).labels,...(saved.procedencia?{procedencia:saved.procedencia}:{})};
+   const labels=current&&!job.force?saved:{...classification_(title,text,true,row.medio).labels,...(saved.procedencia?{procedencia:saved.procedencia}:{})};
    const changed={titular:cleanTitle,extracto:cleanExcerpt,clasificacion:JSON.stringify(labels),pais:nextCountry,entidad:nextEntity,taxonomia:JSON.stringify(necessaryTaxonomyRecord_({...row,titular:cleanTitle,extracto:cleanExcerpt,clasificacion:JSON.stringify(labels)},items))};
    for(const [key,value] of Object.entries(changed))if(value!==row[key])updates.push({row:position,column:keys.indexOf(key)+1,value});
    if(changed.clasificacion!==row.clasificacion)classified++;if(labels.digital)digital++;

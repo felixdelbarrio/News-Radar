@@ -22,12 +22,12 @@ test('el etiquetado conserva el cursor al fallar y reanuda la pareja preparada',
  const s=setup(205),c=s.c;c.startTaxonomy();c.taxonomyBatch_();c.taxonomyBatch_();assert.equal(c.taxonomyJob_().next,102);const write=c.writeNewsCells_;c.writeNewsCells_=()=>{throw Error('Escritura temporal');};c.taxonomyBatch_();assert.equal(c.taxonomyJob_().next,102);assert.equal(c.taxonomyJob_().state,'En pausa');c.writeNewsCells_=write;c.startTaxonomy();stage(c);finish(c);assert.equal(c.taxonomyJob_().next,207);assert.match(c.newsStorageKey_(),/^Noticias_tax_/);
 });
 test('fallar tras preparar dos snapshots conserva el manifiesto y reintentar publica las tres vistas juntas',()=>{
- const s=setup(),c=s.c,previous=s.properties.DATA_GENERATION;stage(c);c.dashboardSnapshotBatch_();c.dashboardSnapshotBatch_();const verify=c.verifyDashboardSnapshot_;c.verifyDashboardSnapshot_=(view,...args)=>{if(view==='radar')throw Error('Verificación temporal');return verify(view,...args);};
+ const s=setup(),c=s.c,previous=s.properties.DATA_GENERATION;stage(c);const verify=c.verifyDashboardSnapshot_;c.verifyDashboardSnapshot_=(view,...args)=>{if(view==='radar')throw Error('Verificación temporal');return verify(view,...args);};
  assert.throws(()=>c.dashboardSnapshotBatch_(),/Verificación temporal/);assert.equal(s.properties.DATA_GENERATION,previous);assert.equal(c.taxonomyJob_().state,'Publicando');c.verifyDashboardSnapshot_=verify;finish(c);
  for(const view of ['news','briefing','radar'])c.verifyDashboardSnapshot_(view,c.dashboardSnapshotManifest_(view));assert.equal(c.dashboardSnapshotsPending_(),false);
 });
 test('un cambio de corpus invalida snapshots preparados sin crear una generación de noticias',()=>{
- const s=setup(),c=s.c;stage(c);c.dashboardSnapshotBatch_();const old=JSON.parse(s.properties.DASHBOARD_SNAPSHOT_BUILD).signature;c.invalidateNews_();c.dashboardSnapshotBatch_();const next=JSON.parse(s.properties.DASHBOARD_SNAPSHOT_BUILD).signature;assert.notEqual(next,old);assert.equal(c.newsStorageKey_(),'Noticias');finish(c);
+ const s=setup(),c=s.c;stage(c);c.dashboardSnapshotBatch_();const old=JSON.parse(s.properties.DATA_GENERATION).revision;c.invalidateNews_();c.dashboardSnapshotBatch_();const next=JSON.parse(s.properties.DATA_GENERATION).revision;assert.notEqual(next,old);assert.match(c.newsStorageKey_(),/^Noticias_tax_/);finish(c);
 });
 test('la publicación de snapshots completa todos los jobs in-place que esperaban las mismas vistas',()=>{
  const s=setup(),c=s.c;stage(c);s.properties.MAINTENANCE_JOB=JSON.stringify({state:'Publicando'});s.properties.SNAPSHOT_JOBS=JSON.stringify(['TAXONOMY_JOB','MAINTENANCE_JOB']);finish(c);assert.equal(c.maintenanceJob_().state,'Completada');assert.equal(s.properties.SNAPSHOT_JOBS,undefined);assert.match(c.newsStorageKey_(),/^Noticias_tax_/);

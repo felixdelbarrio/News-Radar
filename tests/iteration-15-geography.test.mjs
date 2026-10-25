@@ -10,7 +10,7 @@ test('medios colombianos y Bre-B corrigen feeds españoles antes del fallback na
  assert.equal(c.newsCountry_(row({medio:'ABC Economía',extracto:'El banco mejora pagos Bre-B para empresas.'})),'Colombia');
 });
 test('cabeceras homónimas respetan el mercado RSS y los dominios explícitos desambiguan',()=>{
- const {c}=server();for(const medio of ['El Economista','Expansión','Demócrata','EL PAÍS','Infobae','Bloomberg Línea','Yahoo','TradingView','CoinDesk','Unite.AI','DiarioBitcoin','CriptoNoticias'])for(const country of ['México','Colombia','Argentina','Brasil','Uruguay','Reino Unido'])assert.equal(c.newsCountry_(row({medio,fuente:'BBVA · '+country,pais:country})),country,medio+' '+country);
+ const {c}=server();for(const medio of ['El Economista','Expansión','Demócrata','EL PAÍS','Infobae','Bloomberg Línea','Yahoo','TradingView','CoinDesk','Unite.AI','DiarioBitcoin','CriptoNoticias'])for(const country of ['México','Colombia','Argentina','Brasil','Uruguay','Reino Unido'])assert.equal(c.newsCountry_(row({medio,fuente:'BBVA · '+country,pais:country})),country==='Uruguay'?c.settings_().unknownCountry:country,medio+' '+country);
  assert.equal(c.newsCountry_(row({medio:'Expansión',fuente:'BBVA · México',clasificacion:JSON.stringify({procedencia:{medioUrl:'https://www.expansion.com.mx/'}})})),'México');
  assert.equal(c.newsCountry_(row({medio:'El Economista',fuente:'BBVA · México',sourceUrl:'https://www.eleconomista.es/'})),'España');
  assert.equal(c.newsCountry_(row({medio:'Editor',extracto:'La plataforma SPEI de pagos para empresas'})),'México');

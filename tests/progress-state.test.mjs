@@ -16,8 +16,8 @@ test('la traducción y los envíos identifican la clasificación pendiente y su 
  let state=c.getTranslationStatus().job.progress;assert.equal(state.waitingFor,'Clasificación de noticias');assert.ok(state.restartAt>=until);assert.equal(state.state,'En espera de otro trabajo');
  c.writeTranslationJob_({state:'En pausa',calls:3000,callDay:c.recordDay(new Date(),c.settings_().timezone)});state=c.getTranslationStatus().job.progress;assert.equal(state.state,'Detenido por falta de cuota');assert.equal(state.pauseReason,'Cuota agotada');assert.equal(state.restartAt,c.nextDailyReset(Date.now(),c.settings_().timezone));
 });
-test('recopilación diaria y anual muestran la pausa global por cuota y no pierden sus contadores',()=>{
+test('recopilación diaria muestra la pausa global por cuota y no pierden sus contadores',()=>{
  const s=storage(),c=s.c;c.initializeConfiguration();s.properties.FETCH_PAUSED_UNTIL=String(Date.now()+3600000);
- const job={id:'annual',tipo:'annual',inicio:'2026-10-14',estado:'Pendiente',total:10,procesadas:3,pendientes:7,actualizada:'2026-10-14T08:00:00Z'};
+ const job={id:'daily',tipo:'daily',inicio:'2026-10-14',estado:'Pendiente',total:10,procesadas:3,pendientes:7,actualizada:'2026-10-14T08:00:00Z'};
  const status=c.collectionStatus_(null,[job]);assert.equal(status.jobs[0].progress.state,'Detenido por falta de cuota');assert.equal(status.jobs[0].progress.restartAt,Number(s.properties.FETCH_PAUSED_UNTIL));assert.equal(status.jobs[0].progress.lastExecutedAt,job.actualizada);assert.equal(status.processed,3);assert.equal(status.pending,7);
 });

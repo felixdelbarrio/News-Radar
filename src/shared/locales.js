@@ -1,5 +1,16 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Términos exclusivos de turco conservados en searchLanguages.tr y retirados de la búsqueda transversal.": ["Turkish-only terms preserved in searchLanguages.tr and removed from cross-language search.", "Yalnızca Türkçe terimler searchLanguages.tr içinde korundu ve ortak aramadan kaldırıldı."],
+  "Recuperación de extractos RSS en cola; se conservan clasificaciones y asignaciones LLM verificadas.": ["RSS excerpt recovery queued; classifications and verified LLM assignments are preserved.", "RSS özet kurtarma sıraya alındı; sınıflandırmalar ve doğrulanmış LLM atamaları korunur."],
+  "La generación cambió durante la recuperación de extractos; revisa el cursor antes de reiniciar.": ["The generation changed during excerpt recovery; review the cursor before restarting.", "Özet kurtarma sırasında nesil değişti; yeniden başlatmadan önce imleci inceleyin."],
+  "Las newsletters cambiaron durante la compactación; conserva las generaciones y revisa el checkpoint.": ["Newsletters changed during compaction; preserve the generations and review the checkpoint.", "Sıkıştırma sırasında bültenler değişti; nesilleri koruyun ve kontrol noktasını inceleyin."],
+
+  "Pestaña propia": ["Own tab", "Ayrı sekme"],
+  "Mantenimiento incremental en cola.": ["Incremental maintenance queued.", "Artımlı bakım sıraya alındı."],
+  "Archivado de logs": ["Log archiving", "Günlük arşivleme"],
+  "Generar snapshots": ["Build snapshots", "Anlık görüntü oluştur"],
+  "Iniciar mantenimiento": ["Start maintenance", "Bakımı başlat"],
+
   "Cada {minutes} minutos": ["Every {minutes} minutes", "Her {minutes} dakikada"],
   "{added} noticias incorporadas · {errors} errores": ["{added} news items added · {errors} errors", "{added} haber eklendi · {errors} hata"],
   "Detección previa de canal digital": ["Digital channel pre-screening", "Dijital kanal ön elemesi"],
@@ -962,7 +973,7 @@ export const translations = Object.freeze({
   "Alias de búsqueda": ["Search aliases", "Arama takma adları"],
   "Países del catálogo": ["Catalog countries", "Katalog ülkeleri"],
   "Código ISO": ["ISO code", "ISO kodu"],
-  "Código ISO de dos letras e identificador cartográfico ISO numérico de tres cifras. Ejemplo: España, ES, es, 724.": ["Two-letter ISO code and three-digit numeric ISO map identifier. Example: Spain, ES, es, 724.", "İki harfli ISO kodu ve üç haneli sayısal ISO harita tanımlayıcısı. Örnek: İspanya, ES, es, 724."],
+  "Código ISO de dos letras e identificador cartográfico ISO numérico de tres cifras. Ejemplo: España, ES, es, 724. Selecciona los países con pestaña propia en Noticias y Novedades; los restantes se agrupan por región en Otras geografías.": ["Two-letter ISO code and three-digit numeric ISO map identifier. Example: Spain, ES, es, 724. Select the countries with their own tab in News and Updates; the rest are grouped by region under Other geographies.", "İki harfli ISO kodu ve üç haneli sayısal ISO harita tanımlayıcısı. Örnek: İspanya, ES, es, 724. Haberler ve Yenilikler bölümlerinde ayrı sekmesi olan ülkeleri seçin; diğerleri Diğer coğrafyalar altında bölgelere göre gruplanır."],
   "Nombre del país en búsquedas": ["Country name in searches", "Aramalarda kullanılan ülke adı"],
   "Idioma de Google News": ["Google News language", "Google News dili"],
   "ISO numérico del mapa": ["Numeric map ISO code", "Sayısal ISO harita kodu"],
@@ -1447,7 +1458,11 @@ export function translateText(value,language='es',source='es'){
   });
 }
 
-const calendarFormatters=new Map(),trendFormatters=new Map();
+const calendarFormatters=new Map(),trendFormatters=new Map(),monthFormatters=new Map();
+export function formatCalendarMonth(value,language='es'){
+  if(!monthFormatters.has(language))monthFormatters.set(language,new Intl.DateTimeFormat(language,{month:'short',timeZone:'UTC'}));
+  return monthFormatters.get(language).format(new Date(value+'-01T00:00:00Z'));
+}
 export function formatTrendDay(value,language='es'){
   if(!trendFormatters.has(language))trendFormatters.set(language,new Intl.DateTimeFormat(language,{day:'numeric',month:'short',timeZone:'UTC'}));
   return trendFormatters.get(language).format(new Date(value));

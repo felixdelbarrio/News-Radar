@@ -31,7 +31,8 @@ const refreshSelects=initializeSearchableSelects();initializeDatePickers();
 const state = { data: null, request: 0, busy: false,contentStale:false,attribution:'',view:null,ready:false };
 const usage = createUsage({ getView: () => navigation.current === "administration" ? administration.current : navigation.current, isReady:()=>Boolean(state.data),getAttribution:()=>state.attribution&&state.data?.context?.id===state.attribution?state.attribution:'' }), { track, flush } = usage;
 const dashboards=new Map();
-const selectionKey=query=>JSON.stringify(Object.entries(query).filter(([,value])=>value!==''&&value!=null).sort(([a],[b])=>a.localeCompare(b)));
+const renderedSelections=new Map();
+const selectionKey=query=>JSON.stringify(Object.entries(query).filter(([key,value])=>value!==''&&value!=null&&!(key==='page'&&Number(value)===0)&&!(key==='initial'&&value===false)).sort(([a],[b])=>a.localeCompare(b)));
 const configuration = createConfiguration({run:action});
 const taxonomy=createTaxonomy();
 const llmCategorization=createLlmCategorization({run:action,refreshSelects,isActive:()=>navigation.current==='administration'&&administration.current==='llm',onRevision:revision=>{if(state.data&&revision!==state.data.newsRevision){state.contentStale=true;dashboards.clear();}}});
@@ -46,7 +47,7 @@ const filters = createFilters({ onInvalidate: () => ++state.request, onChange: (
 } });
 const reading=createReadingContext({run:action});
 const heatmap=createTaxonomyHeatmap({onExplore:query=>navigateSelection('news',query)});
-const briefing=createBriefing({onExplore:query=>navigateSelection('news',query)});
+const briefing=createBriefing({onExplore:query=>navigateSelection('news',query),onGeography:country=>{filters.syncGeography(country);refreshSelects();}});
 const newsTabs=createGeographyTabs('news-geographies','news-list',name=>filters.setGeography(name));
 function navigateSelection(view,query){filters.show(view);filters.apply(query,false);state.contentStale=true;track('filtro');navigation.show(view);}
 const radar=createRadar({onOutage:query=>navigateSelection('news',{...state.data.selection,...query,page:0}),onSource:source=>navigateSelection('news',{...state.data.selection,source}),onCountry:country=>navigateSelection('news',{...state.data.selection,country}),onEntity:entity=>navigateSelection('news',{...state.data.selection,entity})});
@@ -54,8 +55,9 @@ const radar=createRadar({onOutage:query=>navigateSelection('news',{...state.data
 const sources = createSources({ getData: () => state.data, run: action });
 const recoveryControls=createRecoveryControls({run:action});
 const collectionProgress=createCollectionProgress({isActive:()=>navigation.current==='administration',isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
-function renderSelection(data,view=navigation.current,appended=null){
-  reading.render(data,view);if(view==='news'){renderNews(data,appended);newsTabs.render(data.newsGeographies||[],data.newsGeography||'');}
+function renderSelection(data,view=navigation.current,appended=null,reuse=false){
+  reading.render(data,view);if(reuse)return;
+  if(view==='news'){renderNews(data,appended);newsTabs.render(data.newsGeographies||[],data.newsGeography||'',data.newsRegions||[]);}
   if(view==='radar'){radar.render(data);heatmap.render(data);}
   if(view==='briefing')briefing.render(data);
 }
@@ -80,7 +82,7 @@ async function load(reuse=false) {
     if(query.view==='news'&&!query.edition&&!query.newsGeography)query.newsGeography=browserCountry();
     const key=selectionKey(query),cached=reuse&&!administrative&&!state.contentStale&&dashboards.get(key);
     const clientCacheHit=Boolean(cached&&performance.now()-cached.time<navigationCache.milliseconds);
-    let data=clientCacheHit?{...cached.data,collection:state.data.collection,lastRun:state.data.lastRun,daily:state.data.daily}:await call("getDashboard",query),appended=null;
+    let data=clientCacheHit?{...cached.data,collection:state.data.collection,lastRun:state.data.lastRun,daily:state.data.daily}:await call("getDashboard",query,{reuse}),appended=null;
     if(request!==state.request)return;
     if(query.view==='news'&&query.page>0){
       if(state.data?.newsRevision===data.newsRevision&&data.page===query.page){appended=data.items;data={...data,items:[...state.data.items,...appended]};}
@@ -100,10 +102,12 @@ async function load(reuse=false) {
         if(data.newsRevision&&data.configurationRevision)dashboards.set(key,{data,time:clientCacheHit?cached.time:performance.now()});
         if(dashboards.size>navigationCache.entries)dashboards.delete(dashboards.keys().next().value);
       }
-      renderSelection(data,navigation.current,appended);
+      const renderedKey=selectionKey(filters.query())+':'+data.newsRevision+':'+data.configurationRevision;
+      renderSelection(data,navigation.current,appended,Boolean(clientCacheHit||data.performance.clientCacheHit)&&renderedSelections.get(query.view)===renderedKey);
+      if(!administrative)renderedSelections.set(query.view,renderedKey);
       renderApplicationShell(data);
       releaseSecondaryRequests();
-      track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true,snapshotHit:false}:{}),clientCacheHit,sharedRequest:!clientCacheHit&&data.performance.transportMs>performance.now()-started+5,rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
+      track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true,snapshotHit:false}:{}),clientCacheHit:clientCacheHit||Boolean(data.performance.clientCacheHit),sharedRequest:Boolean(data.performance.sharedRequest),rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
       if (first) {
         track("acceso");
         track("vista");

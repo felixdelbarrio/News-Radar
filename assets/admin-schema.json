@@ -30,47 +30,6 @@
       ]
     ]
   },
-  "geographies": {
-    "label": "Geografías",
-    "help": "Código ISO de dos letras e identificador cartográfico ISO numérico de tres cifras. Ejemplo: España, ES, es, 724.",
-    "fields": [
-      [
-        "name",
-        "Nombre",
-        "text"
-      ],
-      [
-        "searchName",
-        "Nombre del país en búsquedas",
-        "text"
-      ],
-      [
-        "terms",
-        "Nombres alternativos del país",
-        "list"
-      ],
-      [
-        "code",
-        "Código ISO",
-        "text"
-      ],
-      [
-        "language",
-        "Idioma de Google News",
-        "text"
-      ],
-      [
-        "mapId",
-        "ISO numérico del mapa",
-        "text"
-      ],
-      [
-        "enabled",
-        "Activo",
-        "boolean"
-      ]
-    ]
-  },
   "segments": {
     "label": "Segmentos",
     "help": "Contexto de Empresas e instituciones, pymes y autónomos. Términos separados por punto y coma; * al final de una palabra admite sus variantes. Las capacidades transversales pueden ser relevantes aunque el titular no mencione el segmento.",
@@ -210,8 +169,45 @@
     ]
   },
   "applicationScope": {
-    "label": "Ámbito de aplicación",
-    "help": "Países con pestaña propia por segmento en Noticias y Novedades. Los restantes y las noticias sin país se agrupan en Otras geografías. Radar conserva todas las geografías conocidas."
+    "label": "Geografías",
+    "help": "Código ISO de dos letras e identificador cartográfico ISO numérico de tres cifras. Ejemplo: España, ES, es, 724. Selecciona los países con pestaña propia en Noticias y Novedades; los restantes se agrupan por región en Otras geografías.",
+    "fields": [
+      [
+        "name",
+        "Nombre",
+        "text"
+      ],
+      [
+        "searchName",
+        "Nombre del país en búsquedas",
+        "text"
+      ],
+      [
+        "terms",
+        "Nombres alternativos del país",
+        "list"
+      ],
+      [
+        "code",
+        "Código ISO",
+        "text"
+      ],
+      [
+        "language",
+        "Idioma de Google News",
+        "text"
+      ],
+      [
+        "mapId",
+        "ISO numérico del mapa",
+        "text"
+      ],
+      [
+        "enabled",
+        "Activo",
+        "boolean"
+      ]
+    ]
   },
   "relevanceRules": {
     "label": "Criterios de relevancia",
