@@ -10,7 +10,7 @@ test('medios colombianos y Bre-B corrigen feeds españoles antes del fallback na
  assert.equal(c.newsCountry_(row({medio:'ABC Economía',extracto:'El banco mejora pagos Bre-B para empresas.'})),'Colombia');
 });
 test('cabeceras homónimas respetan el mercado RSS y los dominios explícitos desambiguan',()=>{
- const {c}=server();for(const medio of ['El Economista','Expansión','Demócrata','EL PAÍS','Infobae','Bloomberg Línea','Yahoo','TradingView','CoinDesk','Unite.AI','DiarioBitcoin','CriptoNoticias'])for(const country of ['México','Colombia','Argentina','Brasil','Uruguay','Reino Unido'])assert.equal(c.newsCountry_(row({medio,fuente:'BBVA · '+country,pais:country})),country==='Uruguay'?c.settings_().unknownCountry:country,medio+' '+country);
+ const {c}=server();for(const medio of ['El Economista','Expansión','Demócrata','EL PAÍS','Infobae','Bloomberg Línea','Yahoo','TradingView','CoinDesk','Unite.AI','DiarioBitcoin','CriptoNoticias'])for(const country of ['México','Colombia','Argentina','Brasil','Uruguay','Reino Unido'])assert.equal(c.newsCountry_(row({medio,fuente:'BBVA · '+country,pais:country})),c.settings_().unknownCountry,medio+' '+country);
  assert.equal(c.newsCountry_(row({medio:'Expansión',fuente:'BBVA · México',clasificacion:JSON.stringify({procedencia:{medioUrl:'https://www.expansion.com.mx/'}})})),'México');
  assert.equal(c.newsCountry_(row({medio:'El Economista',fuente:'BBVA · México',sourceUrl:'https://www.eleconomista.es/'})),'España');
  assert.equal(c.newsCountry_(row({medio:'Editor',extracto:'La plataforma SPEI de pagos para empresas'})),'México');
@@ -36,8 +36,8 @@ test('candidatos se actualizan por lotes acotados y mantenimiento no publica ant
  c.maintenance_();c.dailyCollectionPending_=()=>false;let attempts=0;while(c.maintenanceJob_().state!=='Publicando'&&c.maintenanceJob_().state!=='Completada'&&attempts++<20)c.maintenanceBatch_();assert.ok(attempts>=3);assert.equal(c.maintenanceJob_().candidateNext,207);const rows=c.rows_('Candidatos');assert.equal(rows.length,205);assert.ok(rows.every(row=>row.pais==='Colombia'&&row.entidad==='BBVA'&&JSON.parse(row.clasificacion).version===vm.runInContext('CLASSIFICATION_WORK.rulesVersion',c)));
  const reads=s.reads;assert.equal(c.reclassifyCandidates_(207,100,8000).changed,0);assert.ok(s.reads-reads<=1);
 });
-test('el país del RSS resuelve alias empresariales aunque el país persistido sea incorrecto',()=>{
- const {c}=server();for(const medio of ['El Economista','Expansión','Demócrata'])assert.equal(c.newsCountry_(row({entidad:'Santander',medio,fuente:'Santander Empresas · México',pais:'España'})),'México');
+test('un alias del perfil de búsqueda no demuestra la geografía de la noticia',()=>{
+ const {c}=server();for(const medio of ['El Economista','Expansión','Demócrata'])assert.equal(c.newsCountry_(row({entidad:'Santander',medio,fuente:'Santander Empresas · México',pais:'España'})),c.settings_().unknownCountry);
 });
 test('La República y otras cabeceras homónimas conservan Perú y el mercado RSS salvo dominio concluyente',()=>{
  const {c}=server();for(const medio of ['La República','La Nación','La Opinión','El Universal','Vanguardia','El Heraldo'])assert.equal(c.newsCountry_(row({medio,fuente:'Interbank · Perú',pais:'Colombia'})),'Perú',medio);

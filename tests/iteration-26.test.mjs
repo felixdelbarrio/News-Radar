@@ -98,3 +98,7 @@ test('el archivo conserva las filas vacías finales del prefijo y verifica su di
 test('un tamaño de archivo inválido bloquea su lectura sin truncar el contenido',()=>{
  const s=server(),c=s.c;logs(s);c.archiveLogBatch_('Telemetria');const [id]=s.archiveBooks.keys(),info=s.archiveBooks.get(id).getSheetByName('Archivo');info.grid[0][3]='99';assert.throws(()=>c.archivePayload_(id),/no verificado/);info.grid[0][3]='invalid';assert.throws(()=>c.archivePayload_(id),/no verificado/);
 });
+
+test('una noticia global no hereda España de una búsqueda de Google ni de un banco multinacional',()=>{
+ const {c}=server();const row={titular:'Stripe y Plasma preparan tarjetas con stablecoins para más de cien países',extracto:'Una alianza para ampliar su oferta global.',medio:'DiarioBitcoin',fuente:'BBVA · España',pais:'España',url:'https://news.google.com/articles/global'};assert.equal(c.newsCountry_(row),c.settings_().unknownCountry);assert.equal(c.newsCountry_({...row,medio:'Cinco Días'}),'España');assert.equal(c.newsCountry_({...row,titular:'BBVA presenta una solución',extracto:'BBVA lanza la solución en México. También operará en España.',sourceUrl:'https://publisher.es/story'}),'México');
+});
