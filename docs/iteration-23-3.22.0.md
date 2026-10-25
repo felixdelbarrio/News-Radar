@@ -1,4 +1,4 @@
-# Iteración 23 · 3.22.0
+# Iteración 23 · 3.22.1
 
 ## Alcance y diagnóstico
 
@@ -23,7 +23,7 @@ Las pruebas de Iteración 23 cubren selección regional, exclusión de países p
 
 La auditoría local con Chrome comprueba las diez vistas administrativas a 320, 360, 375, 390, 768, 1280 y 1440 píxeles mediante `scrollWidth <= clientWidth`. La inspección visual del ámbito regional complementa esta comprobación: no basta con ocultar el desbordamiento si las etiquetas quedan ilegibles.
 
-No se ha publicado en Apps Script, inicializado la hoja remota, modificado una implementación productiva, enviado correo, creado una PR ni medido latencias reales de Google. El objetivo de 300 ms necesita verificación posterior en el entorno publicado. La prueba local usa el adaptador autónomo del proyecto, no credenciales ni datos productivos.
+La verificación local usa el adaptador autónomo del proyecto. La publicación y las medidas reales posteriores se documentan abajo; no se han enviado correos de prueba.
 
 ## Resultado local final
 
@@ -39,3 +39,23 @@ No se ha publicado en Apps Script, inicializado la hoja remota, modificado una i
 La versión 3.22.0 se publicó por el navegador de Codex como implementación 109, en la URL productiva existente, y la inicialización terminó correctamente. La medición en Apps Script dio 44, 30, 28 y 30 ms para el panel, sin nuevas filas `control-panel`; Bankinter devolvió HTTP 200. La primera medición de Noticias aún encontró un snapshot previo a la regeneración y no se considera validación del rendimiento final.
 
 La corrección 3.22.1 evita consumir snapshots de un esquema incompatible antes de acceder a sus variantes cacheadas. Mantiene todo el contexto de países al cambiar entre regiones en Noticias, sincroniza selector y pestañas y renueva la caché de navegación del cliente. Los SVG regionales tienen dimensiones explícitas y heredan el contraste de las pestañas BBVA. Los contadores de Novedades usan los totales regionales del servidor. Las pruebas específicas cubren el cambio EMEA/APAC/AMER y el rechazo temprano del snapshot incompatible.
+
+## Verificación productiva final
+
+3.22.1 publicada desde el navegador de Codex, sin clasp, como implementación 110. Los seis archivos del parche se copiaron y verificaron completos contra dist. Los diagnósticos temporales se retiraron del editor después de ejecutarlos.
+
+La clasificación y el catálogo finalizaron sobre 974 noticias y 3000 candidatos examinados por el catálogo. El timeout transitorio de Sheets se recuperó reanudando el trabajo; los snapshots terminaron sin pendientes.
+
+Medición real de Apps Script del 25/10/2026 a las 00:25 UTC, con snapshots válidos y caché caliente:
+
+| Vista | Servidor | Preparación | Metadatos | Noticias |
+| --- | ---: | ---: | ---: | ---: |
+| Novedades | 62 ms | 11 ms | 11 ms | 42 ms |
+| Noticias EMEA | 93 ms | 1 ms | 9 ms | 83 ms |
+| Radar | 107 ms | 1 ms | 9 ms | 97 ms |
+
+Panel: primera consulta 461 ms, siguientes 17/20/18 ms, cero filas de Telemetria añadidas por las consultas. Bankinter: HTTP 200 desde Apps Script. No se presenta esta muestra como p95 ni como latencia extremo a extremo: los RPC de Google añaden segundos, y antes de publicar snapshots Noticias registró 3,8–5,1 s de servidor.
+
+En la publicación se comprobó Noticias > Otras geografías > EMEA/APAC/AMER, conservando países y sincronizando filtros. Los tres SVG miden 24 × 16 y heredan azul BBVA/blanco según la pestaña activa. Logs y su diálogo de filtros no desbordan a 375 y 1440 píxeles. Se mantiene la auditoría local de las diez vistas a siete anchos.
+
+Permanece visible una incidencia anterior de archivado de Telemetria: el origen cambió respecto al checkpoint; no se descarta ni se elimina el archivo para ocultarla. Las consultas y la publicación no dependen de ese archivado.
