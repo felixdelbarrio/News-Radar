@@ -11,16 +11,16 @@ const english='Santander bank launches a new digital payments platform for busin
 function story(id,changes={}){return {id,fecha:'2026-10-09',titular:spanish,extracto:'Nueva oferta de pagos digitales para empresas y pymes',entidad:'Santander',pais:'Sin determinar',medio:'Editor',fuente:'Santander · Perú',url:'https://news.google.com/articles/'+id,capturada:'2026-10-10T00:00:00Z',clasificacion:JSON.stringify({digital:true,generalista:true,capacidades:['Empresas: Pagos']}),taxonomia:JSON.stringify({ids:[]}),...changes};}
 function add(s,rows){const keys=vm.runInContext('RADAR.sheets.Noticias',s.c);s.sheets.get('Noticias').grid.push(...rows.map(row=>keys.map(key=>row[key]||'')));}
 function translate(c,row,title=english){c.LanguageApp={translate:()=>'<p>'+title+'</p><p>New digital payments for businesses</p>'};c.storeArticleTranslation_(row,'en');}
-test('la geografía del RSS se conserva sin mención local y una edición identificada resuelve fuentes de Google News',()=>{
+test('el mercado de búsqueda RSS se identifica sin atribuir esa geografía al artículo',()=>{
  const {c}=server(),raw={title:spanish,excerpt:'Nueva oferta digital para empresas',date:'2026-10-09T12:00:00Z',url:'https://news.google.com/articles/a'};
  const feed={name:'Google News RSS Perú',entity:'Santander',country:'Perú',domain:'news.google.com',url:'https://news.google.com/rss/search?gl=PE',kind:'rss'};
- const item=c.evaluate_(raw,feed,new Date('2026-10-10T12:00:00Z')).item;assert.equal(item.country,'Perú');const row=c.newsRecord_(item,feed,new Date());assert.equal(row[2],'Perú');assert.equal(row[9],feed.name);
+ const item=c.evaluate_(raw,feed,new Date('2026-10-10T12:00:00Z')).item;assert.equal(item.country,'Sin determinar');const row=c.newsRecord_(item,feed,new Date());assert.equal(row[2],'Sin determinar');assert.equal(row[9],feed.name);
  assert.equal(c.sourceCountry_({...feed,country:'Sin determinar'}),'Perú');assert.equal(c.sourceCountry_({...feed,country:'Sin determinar',url:'https://news.google.com/rss/search?q=bank'}),'Perú');
  assert.equal(c.sourceCountry_({...feed,name:'Google News RSS',country:'Sin determinar',url:'https://news.google.com/rss/search?q=bank'}),'');
  const global=c.evaluate_(raw,{...feed,name:'Global',country:'Sin determinar',url:'https://news.google.com/rss/search?q=bank'},new Date('2026-10-10T12:00:00Z'));assert.equal(global.item.country,'Sin determinar');
 });
-test('el histórico usa el origen para filtros y banderas y la clasificación persiste el país sin modificar origen ni URL',()=>{
- const s=server(),c=s.c,input=story('old');add(s,[input]);
+test('la clasificación persiste el país explícito sin modificar origen ni URL',()=>{
+ const s=server(),c=s.c,input=story('old',{titular:spanish+' en Perú'});add(s,[input]);
  assert.equal(c.cachedNewsRecords_()[0].pais,'Sin determinar');assert.equal(c.selectNews_([input],{country:'Perú'}).length,0);assert.equal(c.newsCsv_([input],{country:'Perú'}).count,0);
  c.requestNewsClassification_(true);c.newsClassificationBatch_();drainSnapshots(c);const stored=c.rows_('Noticias')[0];assert.equal(stored.pais,'Perú');assert.equal(c.cachedNewsRecords_()[0].pais,'Perú');assert.equal(c.selectNews_([stored],{country:'Perú'}).length,1);assert.equal(stored.fuente,input.fuente);assert.equal(stored.url,input.url);drainSnapshots(c);assert.equal(c.classificationJob_().state,'Completada');
 });
