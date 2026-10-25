@@ -58,7 +58,7 @@ test('todas las fuentes RSS son editables y rechazan duplicados o dominios falso
 test('noticias agregadas se integran sin intervención y mantienen medio y enlace de Google News',()=>{
   const c=context(),profile=c.defaultFeeds_().find(feed=>feed.entity==='Santander'&&feed.country==='España');
   const raw={title:'Banco Santander lanza pagos digitales para empresas - Diario',source:'Diario',excerpt:'Banco Santander lanza pagos digitales para empresas Diario',date:'2026-10-08',url:'https://news.google.com/rss/articles/123'};
-  const result=c.evaluate_(raw,profile,now);assert.equal(result.item.title,'Banco Santander lanza pagos digitales para empresas');assert.equal(result.item.publisher,'Diario');assert.ok(result.item.excerpt);assert.equal(result.item.url,raw.url);
+  const result=c.evaluate_(raw,profile,now);assert.equal(result.item.title,'Banco Santander lanza pagos digitales para empresas');assert.equal(result.item.publisher,'Diario');assert.equal(result.item.excerpt,'');assert.equal(result.item.url,raw.url);
   const record=c.newsRecord_(result.item,profile,now);assert.equal(record.length,13);assert.equal(record[3],'Diario');assert.equal(record[9],profile.name);
 });
 test('recopila por lotes, integra automáticamente, deduplica y conserva reintentos parciales',()=>{

@@ -73,6 +73,7 @@ function buildPreparedDashboardSnapshotBatch_(job=null){
   const previous=dashboardSnapshotManifest_(view),slot=previous?.slot===0?1:0,first=2+(DASHBOARD_SNAPSHOTS.views.indexOf(view)*2+slot)*DASHBOARD_SNAPSHOTS.parts,generation=Utilities.getUuid(),needed=first+parts-1;
   if(needed>sheet.getMaxRows())sheet.insertRowsAfter(sheet.getMaxRows(),needed-sheet.getMaxRows());
   sheet.getRange(first,1,parts,4).setNumberFormat('@').setValues(Array.from({length:parts},(_,index)=>[view,generation,String(index),encoded.slice(index*DASHBOARD_SNAPSHOTS.chars,(index+1)*DASHBOARD_SNAPSHOTS.chars)]));SpreadsheetApp.flush();
+  build.updated=new Date().toISOString();
   build.manifests[view]={schema:NEWS_CACHE.schema,revision,generation,slot,first,parts,digest:sha256_(encoded),generated:new Date().toISOString(),period,periodFallback};
   properties_().setProperty('DASHBOARD_SNAPSHOT_BUILD',JSON.stringify(build));
   telemetry_('dashboard-snapshot',Date.now()-started,'OK',view+'; '+period.from+' — '+period.to+'; anterior '+periodFallback+'; variantes '+(view==='news'?1:Object.keys(payload.variants).length)+'; comprimido '+encoded.length+' caracteres');
@@ -87,6 +88,7 @@ function publishDashboardSnapshotSet_(build,job){
   for(const view of DASHBOARD_SNAPSHOTS.views)try{verifyDashboardSnapshot_(view,build.manifests[view]);}catch(error){delete build.manifests[view];properties_().setProperty('DASHBOARD_SNAPSHOT_BUILD',JSON.stringify(build));throw error;}
   const previous=dataGeneration_(),generation={...previous,...(job?.categorization?{categorization:job.categorization}:{}),newsSheet:newsStorageKey_(),taxonomySheet:taxonomyStorageKey_(),snapshots:build.manifests,revision:build.signature,published:new Date().toISOString()};
   // All view manifests and the historical corpus switch together. The previous slots remain intact.
+  properties_().setProperty('DATA_GENERATION_ROLLBACK',JSON.stringify(previous));
   properties_().setProperty('DATA_GENERATION',JSON.stringify(generation));dataGenerationMemory_=generation;
   clearDashboardSnapshotRequest_();completeSnapshotJobs_();if(job?.llm){const llm=llmJob_();properties_().setProperty('LLM_JOB',JSON.stringify({...llm,state:'Completada',progress:100,error:'',published:generation.published}));}pruneNewsGenerations_();return true;
 }

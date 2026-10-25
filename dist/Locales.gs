@@ -1,5 +1,10 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "Términos exclusivos de turco conservados en searchLanguages.tr y retirados de la búsqueda transversal.": ["Turkish-only terms preserved in searchLanguages.tr and removed from cross-language search.", "Yalnızca Türkçe terimler searchLanguages.tr içinde korundu ve ortak aramadan kaldırıldı."],
+  "Recuperación de extractos RSS en cola; se conservan clasificaciones y asignaciones LLM verificadas.": ["RSS excerpt recovery queued; classifications and verified LLM assignments are preserved.", "RSS özet kurtarma sıraya alındı; sınıflandırmalar ve doğrulanmış LLM atamaları korunur."],
+  "La generación cambió durante la recuperación de extractos; revisa el cursor antes de reiniciar.": ["The generation changed during excerpt recovery; review the cursor before restarting.", "Özet kurtarma sırasında nesil değişti; yeniden başlatmadan önce imleci inceleyin."],
+  "Las newsletters cambiaron durante la compactación; conserva las generaciones y revisa el checkpoint.": ["Newsletters changed during compaction; preserve the generations and review the checkpoint.", "Sıkıştırma sırasında bültenler değişti; nesilleri koruyun ve kontrol noktasını inceleyin."],
+
   "Pestaña propia": ["Own tab", "Ayrı sekme"],
   "Mantenimiento incremental en cola.": ["Incremental maintenance queued.", "Artımlı bakım sıraya alındı."],
   "Archivado de logs": ["Log archiving", "Günlük arşivleme"],

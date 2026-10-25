@@ -27,7 +27,7 @@ function persistCandidates_(records,now=new Date()){
 function appendCoverage_(records){
   if(!records.length)return;
   let sheet=book_().getSheetByName('Cobertura');if(!sheet){sheet=book_().insertSheet('Cobertura');sheet.getRange(1,1,1,RADAR.sheets.Cobertura.length).setValues([RADAR.sheets.Cobertura]);}
-  const overflow=Math.max(0,sheet.getLastRow()-1+records.length-20000);if(overflow)sheet.deleteRows(2,Math.min(overflow,sheet.getLastRow()-1));append_('Cobertura',records);
+  append_('Cobertura',records);
 }
 
 function reclassifyCandidates_(first,limit,maxMs){

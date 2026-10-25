@@ -18,8 +18,11 @@ function writeVerifiedRows_(sheet,records){
 
 function pruneNewsGenerations_(){
  const generation=dataGeneration_(),active=new Set([generation.newsSheet,generation.taxonomySheet,generation.categorization?.sheet,...Object.values(generation.newsletterTables||{})].filter(Boolean));
+ const rollback=JSON.parse(properties_().getProperty('DATA_GENERATION_ROLLBACK')||'{}');
+ for(const value of [rollback.newsSheet,rollback.taxonomySheet,rollback.categorization?.sheet,...Object.values(rollback.newsletterTables||{})])if(value)active.add(value);
+ const compaction=JSON.parse(properties_().getProperty('NEWSLETTER_COMPACTION_JOB')||'null');if(compaction&&compaction.state!=='Completada')for(const value of [compaction.editions,compaction.content,compaction.source?.editions,compaction.source?.content])if(value)active.add(value);
  const taxonomy=taxonomyJob_();clearTaxonomyCheckpoints_(['scan','publish'].includes(taxonomy?.phase)?taxonomy.checkpoint:null);
- for(const key of ['TAXONOMY_JOB','CLASSIFICATION_JOB','LLM_JOB','MAINTENANCE_JOB']){
+ for(const key of ['TAXONOMY_JOB','CLASSIFICATION_JOB','LLM_JOB','MAINTENANCE_JOB','EXCERPT_RECOVERY_JOB']){
   const job=JSON.parse(properties_().getProperty(key)||'null');if(!job||job.state==='Completada')continue;
   for(const value of [job.source,job.target,job.sheet,job.generation?.source,job.generation?.newsSheet,job.generation?.taxonomySheet,job.categorization?.sheet])if(value)active.add(value);
  }

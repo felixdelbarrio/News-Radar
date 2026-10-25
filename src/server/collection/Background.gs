@@ -174,6 +174,7 @@ function backgroundWatchdog_(){
   if(scheduledTriggers_('backgroundTick_').length&&Number(p.getProperty('BACKGROUND_NEXT'))>Date.now()-BACKGROUND_WORK.maxMs*2)return;
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return;
   try{
+    recoverBackgroundJobs_();
     const now=Date.now(),jobs=collectionJobs_(),next=backgroundNextAt_({jobs});
     if(Number.isFinite(next)){p.setProperty('SUPERVISOR_DECISION',next>now?'Esperando disponibilidad de cuota o reintento':'Continuación de la cola autorizada');p.deleteProperty('BACKGROUND_NEXT');ensureBackgroundWorker_(next-now);}else{p.setProperty('SUPERVISOR_DECISION','Sin trabajos pendientes');p.deleteProperty('BACKGROUND_PENDING');}
   }finally{lock.releaseLock();}

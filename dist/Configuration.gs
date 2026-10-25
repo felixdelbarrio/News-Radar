@@ -62,7 +62,11 @@ function initializeConfiguration(){
     const settingsRow=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues().findIndex(row=>row[0]==='settings')+2,stored=JSON.parse(sheet.getRange(settingsRow,2,1,1).getValues()[0][0]);
     const settings=Object.fromEntries(Object.entries(CONFIGURATION_DEFAULTS.settings).map(([key,value])=>[key,key in stored?stored[key]:value]));
     settings.newsletterEnabled=true;
-    if(refreshCatalog)settings.searchTerms=[...new Set([...settings.searchTerms,...CONFIGURATION_DEFAULTS.settings.searchTerms])];
+    if(refreshCatalog){
+      const languages=JSON.parse(sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues().find(row=>row[0]==='searchLanguages')[1]),turkish=new Set((languages.find(row=>row.language==='tr')?.terms||[]).map(searchText_)),shared=new Set(languages.filter(row=>row.language!=='tr').flatMap(row=>row.terms.map(searchText_))),before=settings.searchTerms;
+      settings.searchTerms=[...new Set([...before.filter(term=>!turkish.has(searchText_(term))||shared.has(searchText_(term))),...CONFIGURATION_DEFAULTS.settings.searchTerms])];
+      if(before.some(term=>!settings.searchTerms.includes(term)))telemetry_('configuracion',0,'OK','Términos exclusivos de turco conservados en searchLanguages.tr y retirados de la búsqueda transversal.');
+    }
     sheet.getRange(settingsRow,2,1,1).setValues([[JSON.stringify(settings)]]);
     if(!ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='configurationEdited_'))ScriptApp.newTrigger('configurationEdited_').forSpreadsheet(book_()).onEdit().create();
     const subscriptions=book_().getSheetByName('Suscripciones'),countSubscriptions=subscriptions.getLastRow()-1;

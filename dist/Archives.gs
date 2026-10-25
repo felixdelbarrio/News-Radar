@@ -33,7 +33,7 @@ function archiveSpreadsheet_(name,headers,rows,folderId,key){
  if(checkpoint&&checkpoint.digest!==digest)throw Error('El origen del archivo ha cambiado. Revisa el checkpoint '+key+'.');
  if(!checkpoint){
   const book=SpreadsheetApp.create(recordDay(new Date(),settings_().timezone).replace(/-/g,'')+'_'+name+'_'+digest.slice(0,12));book.getSheets()[0]?.setName('Archivo');
-  checkpoint={id:book.getId(),digest};p.setProperty(property,JSON.stringify(checkpoint));
+  checkpoint={id:book.getId(),digest,count:rows.length};p.setProperty(property,JSON.stringify(checkpoint));
  }
  fileInFolder_(checkpoint.id,folder);const book=SpreadsheetApp.openById(checkpoint.id);
  const info=book.getSheetByName('Archivo')||book.insertSheet('Archivo');info.getRange(1,1,1,3).setNumberFormat('@').setValues([['1',name,JSON.stringify(headers)]]);
@@ -41,35 +41,62 @@ function archiveSpreadsheet_(name,headers,rows,folderId,key){
   const metadata=rows[0].metadata,keys=Object.keys(metadata);writeArchiveTable_(book,'Edicion',keys,[keys.map(key=>metadata[key])]);writeArchiveTable_(book,'Contenido',['edicion','contenido'],rows[0].items);
  }else writeArchiveTable_(book,'Datos',headers,rows);
  SpreadsheetApp.flush();if(sha256_(archivePayload_(checkpoint.id))!==digest)throw Error('Contenido de archivo no verificado: '+name);
- return {id:checkpoint.id,digest,property};
+ p.setProperty(property,JSON.stringify({...checkpoint,verified:true}));
+ return {id:checkpoint.id,digest,property,verified:true};
 }
 function archiveLogBatch_(name){
- const sheet=recordSheet_(name),count=sheet.getLastRow()-1,policy=configuration_().storage;
+ const sheet=recordSheet_(name),count=sheet.getLastRow()-1,policy={...configuration_().storage,...logRetention_(name)};
  const expected=RADAR.sheets[name];if(JSON.stringify(sheet.getRange(1,1,1,expected.length).getDisplayValues()[0])!==JSON.stringify(expected))throw Error('Cabecera del log no válida: '+name);
  const checkpointKey='ARCHIVE_SHEET:'+name,checkpoint=JSON.parse(properties_().getProperty(checkpointKey)||'null');
- if(checkpoint?.deleting){
-  const first=sheet.getLastRow()>1?sheet.getRange(2,1,1,RADAR.sheets[name].length).getDisplayValues()[0]:null;
-  if(JSON.stringify(first)===JSON.stringify(checkpoint.nextRow)){
-   if(sha256_(archivePayload_(checkpoint.id))!==checkpoint.digest)throw Error('Archivo previo no verificado.');
-   properties_().deleteProperty(checkpointKey);return false;
-  }
- }
+ if(checkpoint)return recoverLogArchive_(name,sheet,checkpoint,checkpointKey);
  if(count<=0)return true;
- const keys=RADAR.sheets[name],date=keys.indexOf(name==='Ejecuciones'?'inicio':'fecha'),cutoff=Date.now()-policy.logDays*86400000;
- const rows=sheet.getRange(2,1,Math.min(count,ARCHIVE_WORK.rows),keys.length).getDisplayValues();let size=0,chars=0;
+ const keys=RADAR.sheets[name],date=keys.indexOf(name==='Ejecuciones'?'inicio':'fecha'),cutoff=Date.now()-policy.days*86400000;
+ const rows=sheet.getRange(2,1,Math.min(count,ARCHIVE_WORK.rows),keys.length).getDisplayValues();
+ if(count<policy.rows+ARCHIVE_WORK.rows&&!(Number.isFinite(Date.parse(rows[0][date]))&&Date.parse(rows[0][date])<cutoff))return true;
+ let size=0,chars=0;
  for(const row of rows){
   const expired=Number.isFinite(Date.parse(row[date]))&&Date.parse(row[date])<cutoff;
-  if(count-size<=policy.logRows&&!expired)break;
+  if(count-size<=policy.rows&&!expired)break;
   const length=JSON.stringify(row).length;if(size&&chars+length>ARCHIVE_WORK.chars)break;size++;chars+=length;
  }
  if(!size)return true;
  const values=rows.slice(0,size),archive=archiveSpreadsheet_(name,keys,values,policy.logFolderId,name);
  if(sha256_(JSON.stringify(sheet.getRange(2,1,size,keys.length).getDisplayValues()))!==sha256_(JSON.stringify(values)))throw Error('El log cambió durante el archivo: '+name);
  const nextRow=count>size?sheet.getRange(size+2,1,1,keys.length).getDisplayValues()[0]:null;
- properties_().setProperty(archive.property,JSON.stringify({...archive,deleting:true,nextRow}));
+ properties_().setProperty(archive.property,JSON.stringify({...archive,count:size,deleting:true,nextRow}));
  sheet.deleteRows(2,size);SpreadsheetApp.flush();properties_().setProperty('LOG_ARCHIVE_ACTION',name+': '+size+' filas archivadas y verificadas.');
  if(sheet.getLastRow()-1!==count-size)throw Error('Retirada del log no verificada: '+name);
  properties_().deleteProperty(archive.property);return false;
+}
+// A checkpoint owns a frozen prefix. Appends must never change its payload or digest.
+function recoverLogArchive_(name,sheet,checkpoint,key){
+ const headers=RADAR.sheets[name],conflict=()=>{throw Error('Conflicto de archivo '+name+': conserva origen y checkpoint; revisa el archivo '+checkpoint.id+'.');};
+ let payload,stored;
+ try{const raw=archivePayload_(checkpoint.id);stored=JSON.parse(raw);if(sha256_(raw)===checkpoint.digest)payload=stored;}catch(_){}
+ if(payload&&(payload.table!==name||JSON.stringify(payload.headers)!==JSON.stringify(headers)))return conflict();
+ const size=payload?.rows.length||Number(checkpoint.count||0),count=sheet.getLastRow()-1;
+ if(!size||size>ARCHIVE_WORK.rows)return conflict();
+ const first=count>0?sheet.getRange(2,1,1,headers.length).getDisplayValues()[0]:null;
+ // The next row proves that deletion finished. An identical boundary is ambiguous.
+ if(checkpoint.deleting&&JSON.stringify(first)===JSON.stringify(checkpoint.nextRow)){
+  if(!payload||JSON.stringify(first)===JSON.stringify(payload.rows[0]))return conflict();
+  properties_().deleteProperty(key);return false;
+ }
+ if(count<size)return conflict();
+ const prefix=sheet.getRange(2,1,size,headers.length).getDisplayValues(),digest=sha256_(JSON.stringify({schema:1,table:name,headers,rows:prefix}));
+ if(digest!==checkpoint.digest)return conflict();
+ if(!payload){
+  if(checkpoint.deleting||checkpoint.verified)return conflict();
+  if(stored&&(stored.table!==name||JSON.stringify(stored.headers)!==JSON.stringify(headers)||stored.rows.length>=size||stored.rows.some((row,index)=>JSON.stringify(row)!==JSON.stringify(prefix[index]))))return conflict();
+  if(!stored&&(SpreadsheetApp.openById(checkpoint.id).getSheetByName('Datos')?.getLastRow()||0)>1)return conflict();
+  archiveSpreadsheet_(name,headers,prefix,configuration_().storage.logFolderId,name);payload={rows:prefix};
+ }
+ const nextRow=count>size?sheet.getRange(size+2,1,1,headers.length).getDisplayValues()[0]:null;
+ if(checkpoint.deleting&&JSON.stringify(nextRow)===JSON.stringify(first))return conflict();
+ properties_().setProperty(key,JSON.stringify({...checkpoint,count:size,deleting:true,nextRow}));
+ sheet.deleteRows(2,size);SpreadsheetApp.flush();
+ if(sheet.getLastRow()-1!==count-size)throw Error('Retirada del log no verificada: '+name);
+ properties_().deleteProperty(key);properties_().setProperty('LOG_ARCHIVE_ACTION',name+': checkpoint recuperado; '+size+' filas verificadas.');return false;
 }
 function validateStorageFolders_(storage){for(const key of ['primaryFolderId','logFolderId','newsletterFolderId'])archiveFolder_(storage[key]);}
 function verifyPrimaryStorage(){authorize_(true);const storage=configuration_().storage;validateStorageFolders_(storage);fileInFolder_(properties_().getProperty('SPREADSHEET_ID'),archiveFolder_(storage.primaryFolderId));return {primaryId:properties_().getProperty('SPREADSHEET_ID'),folderId:storage.primaryFolderId};}
@@ -114,3 +141,33 @@ function operationalArchiveBatch_(){
  catch(error){p.setProperty('LOG_ARCHIVE_ATTEMPTS',String(Number(p.getProperty('LOG_ARCHIVE_ATTEMPTS')||0)+1));p.setProperty('LOG_ARCHIVE_NEXT',String(Date.now()+Math.min(21600000,settings_().retryMinutes*60000*2**Math.min(8,Number(p.getProperty('LOG_ARCHIVE_ATTEMPTS')||0)-1))));p.setProperty('LOG_ARCHIVE_ERROR',String(error.message).slice(0,180));return false;}
 }
 function resumeOperationalArchive(){authorize_(true);return withForegroundWrite_(()=>{for(const key of ['LOG_ARCHIVE_ATTEMPTS','LOG_ARCHIVE_NEXT','LOG_ARCHIVE_ERROR'])properties_().deleteProperty(key);properties_().setProperty('LOG_ARCHIVE_PENDING','true');const job=maintenanceJob_();if(job?.state==='Revisar'){job.state='Pendiente';job.attempts=0;job.pausedUntil=0;saveMaintenanceJob_(job);}ensureBackgroundWorker_();return getOperationalSchedule();});}
+// Stage content and offsets together; no positional reader observes a partial move.
+function compactNewsletterBatch_(){
+ const p=properties_(),revision=newsletterArchiveVersion_(),source={editions:newsletterStorageKey_('NewsletterEdiciones'),content:newsletterStorageKey_('NewsletterContenido')},keys=RADAR.sheets.NewsletterEdiciones;
+ let job=JSON.parse(p.getProperty('NEWSLETTER_COMPACTION_JOB')||'null');
+ if(job?.state==='Completada'&&job.published===revision)return true;
+ if(!job||job.state==='Completada'){
+  const editions=rows_('NewsletterEdiciones'),active=editions.filter(row=>!JSON.parse(row.editorial||'null')?.archive).reduce((sum,row)=>sum+Number(row.cantidad),0);
+  if(newsletterSheet_('NewsletterContenido').getLastRow()-1<=active)return true;
+  const id=Utilities.getUuid();job={state:'Pendiente',revision,source,next:2,offset:2,total:editions.length,editions:'NewsletterEdiciones_gen_'+id,content:'NewsletterContenido_gen_'+id};
+  generationSheet_(job.editions,keys);generationSheet_(job.content,RADAR.sheets.NewsletterContenido);p.setProperty('NEWSLETTER_COMPACTION_JOB',JSON.stringify(job));
+ }
+ if(source.editions===job.editions&&source.content===job.content){markNewsletterArchiveEdited_();job.state='Completada';job.published=newsletterArchiveVersion_();p.setProperty('NEWSLETTER_COMPACTION_JOB',JSON.stringify(job));return true;}
+ if(job.revision!==revision||job.source.editions!==source.editions||job.source.content!==source.content)throw Error('Las newsletters cambiaron durante la compactación; conserva las generaciones y revisa el checkpoint.');
+ const editionSheet=book_().getSheetByName(source.editions),contentSheet=book_().getSheetByName(source.content);
+ if(job.next<=job.total+1){
+  const values=editionSheet.getRange(job.next,1,1,keys.length).getDisplayValues()[0],row=Object.fromEntries(keys.map((key,i)=>[key,values[i]])),marker=JSON.parse(row.editorial||'null');
+  let nextOffset=job.offset;
+  if(marker?.archive){archivedNewsletter_(row);values[keys.indexOf('inicio')]='0';}
+  else{
+   const size=Number(row.cantidad),items=size?contentSheet.getRange(Number(row.inicio),1,size,2).getDisplayValues():[];
+   if(items.some(([id,value])=>id!==row.id||!value))throw Error('Contenido activo incompleto: '+row.id);
+   if(items.length)writeVerifiedRows_(book_().getSheetByName(job.content),items.map((values,index)=>({row:job.offset+index,values})));
+   values[keys.indexOf('inicio')]=String(job.offset);nextOffset+=items.length;
+  }
+  writeVerifiedRows_(book_().getSheetByName(job.editions),[{row:job.next,values}]);job.next++;job.offset=nextOffset;p.setProperty('NEWSLETTER_COMPACTION_JOB',JSON.stringify(job));return false;
+ }
+ const previous=dataGeneration_(),generation={...previous,newsletterTables:{NewsletterEdiciones:job.editions,NewsletterContenido:job.content}};
+ p.setProperty('DATA_GENERATION_ROLLBACK',JSON.stringify(previous));p.setProperty('DATA_GENERATION',JSON.stringify(generation));dataGenerationMemory_=generation;
+ markNewsletterArchiveEdited_();job.state='Completada';job.published=newsletterArchiveVersion_();p.setProperty('NEWSLETTER_COMPACTION_JOB',JSON.stringify(job));return true;
+}
