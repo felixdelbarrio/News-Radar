@@ -101,49 +101,6 @@ function classification_(title,text,includeLabels=true,publisher=''){
   const segments=assessment.relevant?[sectorNewsDefaults.segment]:index.segments.filter(row=>row.pattern.test(text)).map(row=>row.name);
   return {signals,assessment,segments,labels:includeLabels?newsLabels_(assessment,sha256_(JSON.stringify([title,text]))):undefined};
 }
-let sourceGeographyMemory_;
-function sourceCountry_(feed,index=businessIndex_()){
-  const country=index.config.geographies.find(geo=>searchText_(geo.name)===searchText_(feed.country));
-  if(country){const market=(String(feed.url||'').match(/[?&](?:gl|ceid)=([a-z]{2})(?:[&:]|%3A|$)/i)||[])[1];if(domainMatches_(feed.url||'','news.google.com')&&market&&market.toUpperCase()!==country.code)return '';return country.name;}
-  if(!domainMatches_(feed.url||'','news.google.com'))return '';
-  const text=searchText_(feed.name),matches=index.geographies.filter(geo=>geo.terms.some(term=>phraseMatch_(text,term)));
-  if(matches.length===1)return matches[0].name;
-  const code=(String(feed.url).match(/[?&](?:gl|ceid)=([a-z]{2})(?:[&:]|%3A|$)/i)||[])[1];
-  return index.config.geographies.find(geo=>geo.code===code?.toUpperCase())?.name||'';
-}
-function sourceGeographies_(index=businessIndex_()){
-  if(sourceGeographyMemory_?.config===index.config)return sourceGeographyMemory_.values;
-  const values=new Map(),allFeeds=feeds_(),searched=new Set(allFeeds.filter(feed=>domainMatches_(feed.url,'news.google.com')).map(feed=>searchText_(feed.name)));
-  for(const feed of index.config.feeds){const country=sourceCountry_(feed,index);if(country)values.set(searchText_(feed.name),country);}
-  const profileCountries=new Set(allFeeds.filter(feed=>feed.kind==='profile'&&sourceCountry_(feed,index)).map(feed=>feed.country));
-  for(const entity of index.config.entities)for(const geo of index.config.geographies)if(profileCountries.has(geo.name))for(const name of [entity.name,...entity.aliases]){const key=searchText_(name+' · '+geo.name);values.set(key,geo.name);searched.add(key);}
-  sourceGeographyMemory_={config:index.config,values,searched};return values;
-}
-const DOMAIN_COUNTRY_CODES=Object.freeze({es:'ES',co:'CO',mx:'MX',ar:'AR',pe:'PE',cl:'CL',br:'BR',uy:'UY',it:'IT',de:'DE',fr:'FR',pt:'PT',uk:'GB',tr:'TR',nl:'NL',be:'BE',ch:'CH',ro:'RO',ca:'CA',au:'AU',in:'IN',sg:'SG',hk:'HK',jp:'JP',kr:'KR',vn:'VN',ph:'PH',my:'MY',th:'TH',ve:'VE',ae:'AE',nz:'NZ',ke:'KE',za:'ZA',id:'ID',il:'IL'});
-const DOMAIN_COUNTRY_PUBLISHERS=Object.freeze({"es":["Cinco Días","Bolsamanía","Noticias Bancarias","Territorio Fintech","El Mundo Financiero"],"co":["El Tiempo","Portafolio","La República","Valora Analitik","Revista Semana","Semana","El Espectador","El Colombiano","Caracol Radio","Noticias Caracol","Blu Radio","RCN Radio","Noticias RCN","La FM","W Radio","Pulzo","RED+ Noticias","Más Colombia","Pluralidad Z","Colombia.com","La Opinión Cúcuta","La Opinión","El Frente","Vanguardia","Diario del Norte","El Heraldo","El País Cali","KienyKe","Las2orillas","Cambio Colombia","Dinero"],"mx":["El Economista México","El CEO","Expansión MX","Radio Fórmula","Milenio","El Financiero","El Universal","Excélsior","Grupo en Concreto","Eje Central","TresPm | Noticias"],"ar":["El Cronista","Ámbito","iProfesional","iProUP","Clarín","La Nación","Perfil","FM Noticias 88.1 Salta","TyC Sports"],"pe":["Gestión","Semana Económica"],"cl":["Diario Financiero","La Tercera","Portal Innova","The Clinic","PortalPortuario"],"br":["Valor Econômico","InfoMoney"],"uy":["El Observador","El País Uruguay"]});
-const domainCountryIndexes_=new WeakMap();
-function domainCountry_(url,publisher,sourceName,index=businessIndex_()){
-  let lookup=domainCountryIndexes_.get(index);
-  if(!lookup){const countries=new Map(index.geographies.map(geo=>[String(geo.code||'').toLowerCase(),geo.name])),publishers=new Map();for(const [code,names] of Object.entries(DOMAIN_COUNTRY_PUBLISHERS))for(const name of names)publishers.set(searchText_(name),countries.get((DOMAIN_COUNTRY_CODES[code]||code).toLowerCase())||'');lookup={countries,publishers,ambiguous:new Set(['La Nación','La República','La Opinión','El Universal','Vanguardia','El Heraldo'].map(searchText_))};domainCountryIndexes_.set(index,lookup);}
-  const country=code=>lookup.countries.get(String(DOMAIN_COUNTRY_CODES[code]||code).toLowerCase())||'';
-  if(domainMatches_(url||'','bbva.com')){const region=String(url).match(/^https:\/\/[^/]+\/[a-z]{2}\/([a-z]{2})(?:\/|$)/i),found=region&&country(region[1].toLowerCase());if(found)return found;}
-  for(const value of [url,publisher,sourceName]){
-    const domains=String(value||'').toLowerCase().match(/(?:[a-z0-9-]+\.)+[a-z]{2,}(?![a-z])/g)||[];
-    for(const host of domains){if(host==='t.co'||host==='news.google.com'||host.endsWith('.news.google.com'))continue;const found=country(host.split('.').at(-1));if(found)return found;}
-  }
-  for(const value of [publisher,sourceName]){const key=searchText_(value),found=lookup.publishers.get(key);if(found){const market=lookup.ambiguous.has(key)&&sourceGeographies_(index).get(searchText_(sourceName));return market&&market!==country('es')?market:found;}}
-  return '';
-}
-function newsCountry_(row,index=businessIndex_()){
-  for(const value of [row.titular]){const text=searchText_(value).replace(/[\u2010-\u2015]/g,'-');for(const terms of [geo=>[geo.name,geo.searchName].map(searchText_),geo=>geo.terms]){const matches=index.geographies.filter(geo=>terms(geo).some(term=>phraseMatch_(text,term)));if(matches.length===1)return matches[0].name;}}
-  const provenance=savedNewsLabels_(row.clasificacion).procedencia||{},editorUrl=canonicalUrl_(row.sourceUrl||provenance.medioUrl||'');
-  const lead=searchText_(String(row.extracto||'').split(/[.!?](?:\s|$)/)[0]),leadMatches=index.geographies.filter(geo=>geo.terms.some(term=>phraseMatch_(lead,term)));
-  if(leadMatches.length===1&&headlineEntity_(lead,index))return leadMatches[0].name;
-  const domain=domainCountry_(row.url,'','',index)||domainCountry_(editorUrl,row.medio,row.fuente,index);if(domain)return domain;
-  const excerpt=searchText_(row.extracto).replace(/[\u2010-\u2015]/g,'-'),context=index.geographies.filter(geo=>geo.terms.some(term=>phraseMatch_(excerpt,term)));
-  const sources=sourceGeographies_(index),searchSource=domainMatches_(row.url||'','news.google.com')||sourceGeographyMemory_.searched.has(searchText_(row.fuente));
-  return (context.length===1?context[0].name:'')||(!searchSource&&(sources.get(searchText_(row.fuente))||(index.geographies.some(geo=>geo.name===row.pais)?row.pais:'')))||settings_().unknownCountry;
-}
 function santanderExcluded_(text){
   if(!phraseMatch_(text,'santander'))return false;
   if(phrasePattern_(['ayuntamiento de santander','alcaldia de santander','alcalde de santander','alcaldesa de santander','concejal','vecinos de santander','mercado de mexico','bahia de santander','puerto de santander','universidad de cantabria','gobierno de cantabria','diputacion','gobernador de santander','gobernacion de santander','departamento de santander','bucaramanga','barrancabermeja','policia de santander','bomberos de santander','eln','bus incinerado','extorsion','norte de santander','santander y cesar']).test(text))return true;
@@ -178,13 +135,14 @@ function evaluate_(item, feed, now) {
   const extracted=newsExcerpt_(item,title,publisher),excerpt=extracted.text,headline=searchText_(title),text=searchText_(title+' '+excerpt),index=businessIndex_();
   const entity=feed.entity==='Sector'?headlineEntity_(headline,index):index.entities.get(searchText_(feed.entity));
   const classification=classification_(headline,text,true,publisher);
-  const candidate={date,title,excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country:newsCountry_({titular:title,extracto:excerpt,url,sourceUrl:item.sourceUrl,medio:publisher,fuente:feed.name,pais:feed.country},index),language:item.language||feed.language||'',publisher:publisher||'',sourceUrl:canonicalUrl_(item.sourceUrl),provenance:extracted.mechanism};
+  const country=newsCountry_({titular:title,extracto:excerpt,url,sourceUrl:item.sourceUrl,medio:publisher,fuente:feed.name,rssCountry:feed.country,entidad:entity?.name||feed.entity},index);
+  const candidate={date,title,excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country,language:item.language||feed.language||'',publisher:publisher||'',sourceUrl:canonicalUrl_(item.sourceUrl),provenance:extracted.mechanism};
   const reject=reason=>({inRange:true,reason,candidate});
   if(feed.entity==='Sector'&&!entity)return reject('Sin entidad de seguimiento en el titular');
   if(feed.kind==='profile'&&entity&&!index.entityTerms.get(entity.name).some(alias=>phraseMatch_(text,alias)))return reject('Sin evidencia de la entidad buscada');
   if(entityKey_(entity?.name||feed.entity)==='Santander'&&santanderExcluded_(text))return reject('Santander geográfico o municipal');
   if(!classification.labels.digital||!classification.labels.capacidades.some(name=>name.startsWith('Empresas: ')))return reject('Fuera de canal digital de Empresas e instituciones');
-  const country=newsCountry_({titular:title,extracto:excerpt,url,sourceUrl:canonicalUrl_(item.sourceUrl),medio:publisher,fuente:feed.name,pais:feed.country},index);
+  if(!country)return reject('Sin país ni sede de entidad configurada');
   if(feed.capabilitySearch&&classification.assessment.excluded)return reject('Información corporativa sin novedad de canal digital');
   if(feed.capabilitySearch&&(!classification.assessment.capabilities.length||!classification.assessment.channel))return reject('Sin capacidad digital activa en contexto de canal');
   return {inRange:true,relevant:classification.labels.digital||(!classification.assessment.excluded&&classification.assessment.score>0),item:{date,title,excerpt:excerpt===title?'':excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country,language:item.language||feed.language||'',publisher:publisher||'',sourceUrl:canonicalUrl_(item.sourceUrl),provenance:extracted.mechanism}};
@@ -194,3 +152,68 @@ function safeCell_(value) {
 }
 
 function sha256_(value){return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,value,Utilities.Charset.UTF_8).map(byte=>(byte&255).toString(16).padStart(2,'0')).join('');}
+let sourceGeographyMemory_;
+function sourceCountry_(feed,index=businessIndex_()){
+ const country=index.config.geographies.find(row=>row.name===feed.country);if(country)return country.name;
+ const text=searchText_(feed.name),named=index.geographies.find(row=>row.terms.some(term=>phraseMatch_(text,term)));
+ if(named)return named.name;
+ const code=(String(feed.url||'').match(/[?&](?:gl|ceid)=([a-z]{2})(?:[&:]|%3A|$)/i)||[])[1];
+ return index.config.geographies.find(row=>row.code===code?.toUpperCase())?.name||'';
+}
+function sourceGeographies_(index=businessIndex_()){
+ if(sourceGeographyMemory_?.config===index.config)return sourceGeographyMemory_.values;
+ const values=new Map();
+ for(const feed of index.config.feeds){const country=sourceCountry_(feed,index);if(country)values.set(searchText_(feed.name),country);}
+ for(const entity of index.config.entities)for(const country of entity.countries)for(const alias of [entity.name,...entity.aliases])values.set(searchText_(alias+' · '+country),country);
+ sourceGeographyMemory_={config:index.config,values};return values;
+}
+const domainCountryIndexes_=new WeakMap();
+function domainCountry_(url,index=businessIndex_()){
+ let countries=domainCountryIndexes_.get(index);
+ if(!countries){countries=new Map(index.config.geographies.map(row=>[row.code.toLowerCase(),row.name]));countries.set('uk',countries.get('gb'));domainCountryIndexes_.set(index,countries);}
+ const host=String(canonicalUrl_(url)||'').match(/^https:\/\/([^/:?#]+)/i)?.[1].toLowerCase();
+ return host&&host!=='t.co'&&!domainMatches_(url,'news.google.com')?countries.get(host.split('.').at(-1))||'':'';
+}
+function newsCountryDecision_(row,index=businessIndex_()){
+ const title=searchText_(row.titular).replace(/[\u2010-\u2015]/g,'-');
+ let country='',position=Infinity,evidence='';
+ for(const geo of index.geographies)for(const term of [geo.name,geo.searchName]){const normalized=searchText_(term),at=phrasePosition_(title,normalized);if(at>=0&&at<position){country=geo.name;position=at;evidence=term;}}
+ if(country)return {country,reason:'headline',evidence};
+ const provenance=savedNewsLabels_(row.clasificacion).procedencia||{};
+ for(const url of [row.sourceUrl||provenance.medioUrl,row.url]){const country=domainCountry_(url,index);if(country)return {country,reason:'domain',evidence:canonicalUrl_(url)};}
+ const rssCountry=index.config.geographies.find(geo=>geo.name===(row.rssCountry||provenance.paisRSS))?.name||sourceGeographies_(index).get(searchText_(row.fuente));
+ if(rssCountry)return {country:rssCountry,reason:'rss',evidence:row.fuente||rssCountry};
+ const entity=index.entities.get(searchText_(row.entidad))||headlineEntity_(title,index);
+ return {country:entity?.headquartersCountry||'',reason:'headquarters',evidence:entity?.name||''};
+}
+function newsCountry_(row,index=businessIndex_()){return newsCountryDecision_(row,index).country;}
+function getGeographyUpgrade(){
+ authorize_(true);
+ const checkpoint=JSON.parse(properties_().getProperty('GEOGRAPHY_UPGRADE')||'null'),job=classificationJob_();
+ return {...checkpoint,classification:job?{state:job.state,processed:Math.min(job.total,job.next-2),total:job.total,error:job.error||''}:null};
+}
+function reportGeographyUpgrade(){const status=getGeographyUpgrade();console.log(JSON.stringify(status));return status;}
+function applyGeographyUpgrade(){
+ authorize_(true);
+ return withForegroundWrite_(()=>{
+  const sheet=book_().getSheetByName('Configuracion'),rows=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues(),index=rows.findIndex(([key])=>key==='entities');
+  if(index<0)throw Error('No se encuentra el catálogo de entidades.');
+  const entities=JSON.parse(rows[index][1]),seeds=new Map(CONFIGURATION_DEFAULTS.entities.map(row=>[row.name,row.headquartersCountry]));
+  if(entities.some(row=>!row.headquartersCountry&&!seeds.has(row.name)))throw Error('Hay entidades sin país de sede configurado.');
+  const updated=entities.map(row=>({...row,headquartersCountry:row.headquartersCountry||seeds.get(row.name)}));
+  const previous=properties_().getProperty('GEOGRAPHY_UPGRADE');if(previous&&updated.every((row,i)=>row.headquartersCountry===entities[i].headquartersCountry))return getGeographyUpgrade();
+  const source=book_(),backup=source.copy('News Radar · Geografías '+RADAR.version+' · '+new Date().toISOString()),original=rows[index][1];
+  fileInFolder_(backup.getId(),archiveFolder_(JSON.parse(rows.find(([key])=>key==='storage')[1]).primaryFolderId));
+  for(const name of ['Configuracion',newsStorageKey_()]){
+   const active=source.getSheetByName(name),copy=backup.getSheetByName(name),height=active.getLastRow(),width=active.getLastColumn();
+   if(!copy||copy.getLastRow()!==height||copy.getLastColumn()!==width||sha256_(JSON.stringify(active.getRange(1,1,height,width).getDisplayValues()))!==sha256_(JSON.stringify(copy.getRange(1,1,height,width).getDisplayValues())))throw Error('Backup no verificado: '+name);
+  }
+  try{
+   sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(updated)]]);SpreadsheetApp.flush();invalidateConfiguration_();
+   if(configuration_().entities.some(row=>!row.headquartersCountry))throw Error('Sedes no verificadas.');
+   requestNewsClassification_(true);
+   properties_().setProperty('GEOGRAPHY_UPGRADE',JSON.stringify({version:RADAR.version,backupId:backup.getId(),backupUrl:backup.getUrl(),updatedAt:new Date().toISOString(),entities:updated.length}));
+   return getGeographyUpgrade();
+  }catch(error){sheet.getRange(index+2,2,1,1).setValues([[original]]);invalidateConfiguration_();throw error;}
+ });
+}

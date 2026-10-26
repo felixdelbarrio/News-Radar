@@ -59,6 +59,11 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "No se encuentra el cat\xE1logo de entidades.": ["The entity catalogue was not found.", "Kurum katalo\u011Fu bulunamad\u0131."],
+    "Hay entidades sin pa\xEDs de sede configurado.": ["Some entities have no headquarters country configured.", "Baz\u0131 kurumlar\u0131n genel merkez \xFClkesi yap\u0131land\u0131r\u0131lmam\u0131\u015F."],
+    "Sedes no verificadas.": ["Headquarters countries were not verified.", "Genel merkez \xFClkeleri do\u011Frulanmad\u0131."],
+    "Pa\xEDs de la sede": ["Headquarters country", "Genel merkez \xFClkesi"],
+    "La noticia requiere un pa\xEDs del cat\xE1logo.": ["The article requires a catalogue country.", "Haber i\xE7in katalogdan bir \xFClke gereklidir."],
     "Espera a que terminen clasificaci\xF3n, taxonom\xEDa y publicaci\xF3n LLM antes de actualizar reglas.": ["Wait for classification, taxonomy and LLM publication to finish before upgrading rules.", "Kurallar\u0131 g\xFCncellemeden \xF6nce s\u0131n\u0131fland\u0131rma, taksonomi ve LLM yay\u0131n\u0131n\u0131n tamamlanmas\u0131n\u0131 bekleyin."],
     "Configuraci\xF3n escrita incompleta.": ["Configuration write is incomplete.", "Yap\u0131land\u0131rma yaz\u0131m\u0131 eksik."],
     "No hay backup de reglas.": ["No rule backup is available.", "Kural yede\u011Fi bulunmuyor."],
@@ -1977,10 +1982,6 @@
   function createGeographyTabs(id, panelId, onSelect) {
     let tabs = $(id), panel2 = $(panelId), rows = [], regions = [], active = "", focus = !1;
     function select(name) {
-      if (name === otherGeography && active !== otherGeography && !REGION_CODES.includes(active) && regions.some((row) => row.total)) {
-        let preferred = countryRegion(browserCountry());
-        name = regions.find((row) => row.name === preferred && row.total)?.name || regions.find((row) => row.total).name;
-      }
       if (name === active) {
         tabs.querySelector('[tabindex="0"]').focus();
         return;
@@ -1998,7 +1999,7 @@
     }), { render(geographies, selected, regionalRows = []) {
       regions = regionalRows;
       let regional = selected === otherGeography || REGION_CODES.includes(selected);
-      rows = [...geographies, ...regional ? regions : []], active = selected, tabs.hidden = !rows.length, tabs.innerHTML = rows.map((row, index2) => `<button type="button" class="button${REGION_CODES.includes(row.name) ? " geography-region" : ""}" role="tab" id="${id}-${index2}" aria-controls="${panelId}" aria-selected="${row.name === active || row.name === otherGeography && REGION_CODES.includes(active)}" tabindex="${row.name === active ? 0 : -1}" data-geography="${escape2(row.name)}">${REGION_CODES.includes(row.name) ? regionMark(row.name) : identityMark("countries", row.name, escape2)}${escape2(t(geographyLabel(row.name)))}<span class="geography-count">${row.total}</span></button>`).join("");
+      rows = [...geographies, ...regional ? regions : []], active = selected, tabs.hidden = !rows.length, tabs.innerHTML = rows.map((row, index2) => `<button type="button" class="button${REGION_CODES.includes(row.name) ? " geography-region" : ""}" role="tab" id="${id}-${index2}" aria-controls="${panelId}" aria-selected="${row.name === active}" tabindex="${row.name === active ? 0 : -1}" data-geography="${escape2(row.name)}">${REGION_CODES.includes(row.name) ? regionMark(row.name) : identityMark("countries", row.name, escape2)}${escape2(t(geographyLabel(row.name)))}<span class="geography-count">${row.total}</span></button>`).join("");
       let index = rows.findIndex((row) => row.name === active);
       index >= 0 ? panel2.setAttribute("aria-labelledby", id + "-" + index) : panel2.removeAttribute("aria-labelledby"), focus && (tabs.querySelector('[tabindex="0"]')?.focus(), focus = !1);
     } };
@@ -2468,6 +2469,11 @@
         [
           "type",
           "Tipo de entidad",
+          "text"
+        ],
+        [
+          "headquartersCountry",
+          "Pa\xEDs de la sede",
           "text"
         ],
         [
@@ -3478,11 +3484,11 @@
         options("country", [.../* @__PURE__ */ new Set([...values, name])], name), select.value = name, applied = { ...applied, country: name }, page = 0, initialized.add(view2), renderChips();
       },
       setGeography: (name) => {
-        newsGeography = name, applied.country = REGION_CODES.includes(name) ? name : "", page = 0, onInvalidate(), onChange();
+        newsGeography = name, applied.country = REGION_CODES.includes(name) || name === otherGeography ? name : "", page = 0, onInvalidate(), onChange();
       },
       setPage: (value) => page = value,
       render: (data) => {
-        let draft = dirty ? Object.fromEntries(new FormData(form)) : null, selection = data.selection ? { ...data.selection, country: data.selection.country || (view2 === "news" && REGION_CODES.includes(data.newsGeography) ? data.newsGeography : "") } : null;
+        let draft = dirty ? Object.fromEntries(new FormData(form)) : null, selection = data.selection ? { ...data.selection, country: data.selection.country || view2 === "news" && data.newsGeography || "" } : null;
         view2 === "radar" && options("year", data.years || [], data.selection?.from?.slice(0, 4)), taxonomy2 = data.subpalanca || [], page = data.page, newsGeography = data.newsGeography || "", defaults = data.defaults || defaults, initialized.add(view2);
         for (let [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type", "types"], ["segment", "segments"], ["signal", "signals"], ["palanca", "palanca"], ["subpalanca", "subpalanca"]]) options(name, data[key] || [], selection?.[name]);
         if (selection) for (let input2 of form.elements) input2.name && (input2.value = (input2.name === "year" && view2 === "radar" ? selection.from?.slice(0, 4) : selection[input2.name]) || "");

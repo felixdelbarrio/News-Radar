@@ -123,10 +123,10 @@ function createFilters({ onInvalidate, onChange }) {
     },
     apply:(query,notify=true)=>{initialized.add(view);if(Object.hasOwn(query,'newsGeography'))newsGeography=query.newsGeography;for(const input of form.elements)if(input.name){const value=query[input.name]||'';if(value&&input.tagName==='SELECT')options(input.name,[value]);input.value=value;}filterChanged({type:'change',notify,preserveGeography:Object.hasOwn(query,'newsGeography')});},
     syncGeography:name=>{const select=form.elements.country,values=[...select.options].map(option=>option.value).filter(Boolean);options('country',[...new Set([...values,name])],name);select.value=name;applied={...applied,country:name};page=0;initialized.add(view);renderChips();},
-    setGeography:name=>{newsGeography=name;applied.country=REGION_CODES.includes(name)?name:'';page=0;onInvalidate();onChange();},
+    setGeography:name=>{newsGeography=name;applied.country=REGION_CODES.includes(name)||name===otherGeography?name:'';page=0;onInvalidate();onChange();},
     setPage: (value) => page = value,
     render: (data) => {
-      const draft=dirty?Object.fromEntries(new FormData(form)):null,selection=data.selection?{...data.selection,country:data.selection.country||(view==='news'&&REGION_CODES.includes(data.newsGeography)?data.newsGeography:'')}:null;
+      const draft=dirty?Object.fromEntries(new FormData(form)):null,selection=data.selection?{...data.selection,country:data.selection.country||(view==='news'?data.newsGeography||'':'')}:null;
       if(view==='radar')options('year',data.years||[],data.selection?.from?.slice(0,4));
       taxonomy=data.subpalanca||[];page = data.page;newsGeography=data.newsGeography||'';
       defaults=data.defaults||defaults;

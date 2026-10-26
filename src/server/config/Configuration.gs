@@ -42,7 +42,7 @@ function initializeConfiguration(){
           const names=new Set(value.map(row=>key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))),ids=new Set(value.map(row=>row.id));
           if(key==='geographies')for(const row of value){const seed=defaults.find(item=>item.code===row.code);if(seed)row.terms=[...new Set([...(row.terms||[]),...seed.terms])];}
           if(key==='segments')for(const row of value){const seed=defaults.find(item=>item.name===row.name);if(seed)row.terms=[...new Set([...row.terms,...seed.terms])];}
-          if(key==='entities')for(const row of value){const seed=defaults.find(item=>searchText_(item.name)===searchText_(row.name));if(seed){row.countries=[...new Set([...row.countries,...seed.countries])];row.aliases=[...new Set([...row.aliases,...seed.aliases])];}}
+          if(key==='entities')for(const row of value){const seed=defaults.find(item=>searchText_(item.name)===searchText_(row.name));if(seed){row.headquartersCountry=row.headquartersCountry||seed.headquartersCountry;row.countries=[...new Set([...row.countries,...seed.countries])];row.aliases=[...new Set([...row.aliases,...seed.aliases])];}}
           value.push(...defaults.filter(row=>!names.has(key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))&&(key!=='feeds'||!ids.has(row.id))));
         }
         sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(value)]]);
@@ -126,12 +126,12 @@ function validateConfiguration_(config){
   if(Object.keys(config).sort().join(',')!=='applicationScope,capabilities,entities,feeds,geographies,relevanceRules,searchLanguages,segments,settings,signals,storage,taxonomy')throw Error('Claves de configuración no reconocidas.');
   for(const key of ['searchTerms','disabledSources'])if(!Array.isArray(config.settings[key])||config.settings[key].length>1000||config.settings[key].some(value=>typeof value!=='string'||value.length>160))throw Error('Lista operativa no válida: '+key);
   if(!config.settings.searchTerms.length||config.settings.searchTerms.length>80)throw Error('Define entre 1 y 80 términos de búsqueda.');
-  if(encodeURIComponent(JSON.stringify(functionalConfigurationSettings_(config))).replace(/%[A-F\d]{2}/gi,'x').length>90000)throw Error('Configuración demasiado grande para la caché.');
+  if(encodeURIComponent(JSON.stringify(functionalConfigurationSettings_(config))).replace(/%[A-F\d]{2}/gi,'x').length>96000)throw Error('Configuración demasiado grande para la caché.');
   const countries=new Set(config.geographies.map(row=>row.name)),aliases=new Set();
   const scopes=config.applicationScope,scopeNames=applicationScopeSegments;
   if(!Array.isArray(scopes)||scopes.length!==scopeNames.length||new Set(scopes.map(row=>row?.name)).size!==scopeNames.length||scopes.some(row=>!row||!scopeNames.includes(row.name)||Object.keys(row).sort().join(',')!=='countries,name'||!Array.isArray(row.countries)||row.countries.some(country=>!countries.has(country))||new Set(row.countries).size!==row.countries.length))throw Error('Ámbito de aplicación no válido.');
   for(const row of config.entities){
-    if(row.countries.some(country=>!countries.has(country)))throw Error('País desconocido en '+row.name);
+    if(!countries.has(row.headquartersCountry)||row.countries.some(country=>!countries.has(country)))throw Error('País desconocido en '+row.name);
     for(const name of [row.name,...row.aliases]){const key=searchText_(name);if(aliases.has(key))throw Error('Alias compartido por varias entidades: '+name);aliases.add(key);}
   }
   if(new Set(config.geographies.map(row=>row.code)).size!==config.geographies.length||new Set(config.geographies.map(row=>row.mapId)).size!==config.geographies.length)throw Error('Código de país duplicado.');

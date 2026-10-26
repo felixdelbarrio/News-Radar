@@ -18,13 +18,13 @@ test('regional filters, CSV and compact snapshots exclude every country with its
  assert.equal(geographyMatches(rows[0],'EMEA',geo),false);
  assert.equal(new Set(bundle.records.map(record=>JSON.stringify(record))).size,bundle.records.length);
 });
-test('Spain selects EMEA on entering other geographies and exposes regional SVG tabs',async t=>{
+test('Otras geografías opens the full aggregate and exposes regional tabs',async t=>{
  const scope=[{name:'Empresas e instituciones',countries:['España','Turquía']}],items=[row('es','España'),row('it','Italia'),row('in','India')],geo=applicationGeography(scope);
  const a=await app(t,{configure({data}){data.applicationScope=scope;data.selection={};data.briefing={...noveltyOverview(items,[],geo),items};}});
  await a.click('#briefing-geographies [data-geography="Otras geografías"]');
- assert.equal(a.find('#briefing-geographies [data-geography="EMEA"]').getAttribute('aria-selected'),'true');assert.equal(a.find('#filters [name="country"]').value,'EMEA');assert.equal(a.find('#geography-filter summary').textContent,'EMEA');assert.ok([...a.find('#filters [name="country"]').options].some(option=>option.value==='España'));
+ assert.equal(a.find('#briefing-geographies [data-geography="Otras geografías"]').getAttribute('aria-selected'),'true');assert.equal(a.find('#filters [name="country"]').value,'Otras geografías');assert.equal(a.find('#geography-filter summary').textContent,'Otras geografías');assert.ok([...a.find('#filters [name="country"]').options].some(option=>option.value==='España'));
  assert.equal(a.w.document.querySelectorAll('#briefing-geographies svg').length,3);
- assert.match(a.find('#briefing-list').textContent,/empresas it/);assert.doesNotMatch(a.find('#briefing-list').textContent,/empresas es|empresas in/);
+ assert.match(a.find('#briefing-list').textContent,/empresas it/);assert.match(a.find('#briefing-list').textContent,/empresas in/);assert.doesNotMatch(a.find('#briefing-list').textContent,/empresas es/);
  await a.click('#briefing-geographies [data-geography="APAC"]');assert.match(a.find('#briefing-list').textContent,/empresas in/);
 });
 test('warm operational polling never writes telemetry and reuses installed trigger counts',()=>{
@@ -55,8 +55,8 @@ test('regional edition filters respect the original direct scope and a bank publ
 test('Noticias conserva todas las pestañas al elegir regiones y sincroniza el selector visible',async t=>{
  const a=await app(t,{configure({data}){data.selection={};data.newsGeographies=[{name:'España',total:5},{name:'Otras geografías',total:12}];data.newsRegions=[{name:'APAC',total:3},{name:'EMEA',total:5},{name:'AMER',total:4}];}});
  await a.click('[data-view="news"]');await a.click('#news-geographies [data-geography="Otras geografías"]');
- assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.country,'');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'EMEA');
- assert.equal(a.find('#geography-filter summary').textContent,'EMEA');assert.ok(a.find('#news-geographies [data-geography="España"]'));assert.equal(a.w.document.querySelectorAll('#news-geographies .region-icon[width="24"]').length,3);
+ assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.country,'');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'Otras geografías');
+ assert.equal(a.find('#geography-filter summary').textContent,'Otras geografías');assert.ok(a.find('#news-geographies [data-geography="España"]'));assert.equal(a.w.document.querySelectorAll('#news-geographies [aria-selected="true"]').length,1);assert.equal(a.w.document.querySelectorAll('#news-geographies .region-icon[width="24"]').length,3);
  await a.click('#news-geographies [data-geography="APAC"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'APAC');assert.equal(a.find('#geography-filter summary').textContent,'APAC');
  await a.change('#filters [name="country"]','AMER');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.country,'');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'AMER');
 });
