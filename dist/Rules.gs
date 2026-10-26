@@ -180,7 +180,8 @@ function newsCountryDecision_(row,index=businessIndex_()){
  for(const geo of index.geographies)for(const term of [geo.name,geo.searchName]){const normalized=searchText_(term),at=phrasePosition_(title,normalized);if(at>=0&&at<position){country=geo.name;position=at;evidence=term;}}
  if(country)return {country,reason:'headline',evidence};
  const provenance=savedNewsLabels_(row.clasificacion).procedencia||{};
- for(const url of [row.sourceUrl||provenance.medioUrl,row.url]){const country=domainCountry_(url,index);if(country)return {country,reason:'domain',evidence:canonicalUrl_(url)};}
+ const publisherUrl=/^(?:[a-z\d](?:[a-z\d-]*[a-z\d])?\.)+[a-z]{2,}$/i.test(row.medio||'')?'https://'+row.medio:'';
+ for(const url of [row.sourceUrl||provenance.medioUrl,row.url,publisherUrl]){const country=domainCountry_(url,index);if(country)return {country,reason:'domain',evidence:canonicalUrl_(url)};}
  const rssCountry=index.config.geographies.find(geo=>geo.name===(row.rssCountry||provenance.paisRSS))?.name||sourceGeographies_(index).get(searchText_(row.fuente));
  if(rssCountry)return {country:rssCountry,reason:'rss',evidence:row.fuente||rssCountry};
  const entity=index.entities.get(searchText_(row.entidad))||headlineEntity_(title,index);
@@ -201,7 +202,7 @@ function applyGeographyUpgrade(){
   const entities=JSON.parse(rows[index][1]),seeds=new Map(CONFIGURATION_DEFAULTS.entities.map(row=>[row.name,row.headquartersCountry]));
   if(entities.some(row=>!row.headquartersCountry&&!seeds.has(row.name)))throw Error('Hay entidades sin país de sede configurado.');
   const updated=entities.map(row=>({...row,headquartersCountry:row.headquartersCountry||seeds.get(row.name)}));
-  const previous=properties_().getProperty('GEOGRAPHY_UPGRADE');if(previous&&updated.every((row,i)=>row.headquartersCountry===entities[i].headquartersCountry))return getGeographyUpgrade();
+  const previous=JSON.parse(properties_().getProperty('GEOGRAPHY_UPGRADE')||'null');if(previous?.version===RADAR.version&&updated.every((row,i)=>row.headquartersCountry===entities[i].headquartersCountry))return getGeographyUpgrade();
   const source=book_(),backup=source.copy('News Radar · Geografías '+RADAR.version+' · '+new Date().toISOString()),original=rows[index][1];
   fileInFolder_(backup.getId(),archiveFolder_(JSON.parse(rows.find(([key])=>key==='storage')[1]).primaryFolderId));
   for(const name of ['Configuracion',newsStorageKey_()]){

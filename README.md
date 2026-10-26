@@ -1,4 +1,4 @@
-> Revisión 3.28.0: [Auditoría y corrección geográfica](docs/geography-audit-3.28.0.md), asignación obligatoria por titular, dominio, RSS o sede y acceso directo al agregado de Otras geografías.
+> Revisión 3.28.1: [Auditoría y corrección geográfica](docs/geography-audit-3.28.0.md), asignación obligatoria por titular, dominio, RSS o sede y acceso directo al agregado de Otras geografías.
 
 > Revisión 3.27.1: [Radar móvil](docs/mobile-radar-3.27.1.md), columnas responsivas, cronología legible y medición antes/después sin añadir JavaScript.
 

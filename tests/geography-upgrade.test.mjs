@@ -8,6 +8,10 @@ test('country assignment follows the four business priorities and always returns
  const cases=[
   [{...base,titular:'Revolut lanza servicio en Colombia',sourceUrl:'https://editor.es/story'},'Colombia','headline'],
   [{...base,sourceUrl:'https://editor.co/story'},'Colombia','domain'],
+  [{...base,medio:'LaRepublica.co'},'Colombia','domain'],
+  [{...base,medio:'Portafolio.co'},'Colombia','domain'],
+  [{...base,medio:'Portafolio.co',titular:'Nuevo servicio digital en España'},'España','headline'],
+  [{...base,medio:'Portafolio.co informa'},'Italia','rss'],
   [base,'Italia','rss'],
   [{...base,fuente:''},'Reino Unido','headquarters']
  ];
@@ -22,4 +26,5 @@ test('upgrade preserves published rows, installs headquarters and queues country
  s.book.copy=()=>({getId:()=> 'backup-geography',getUrl:()=> 'https://docs.google.com/spreadsheets/d/backup-geography/edit',getSheetByName:name=>s.book.getSheetByName(name)});
  const result=c.applyGeographyUpgrade();assert.equal(result.entities,89);assert.ok(result.backupId);assert.equal(c.configuration_().entities.find(row=>row.name==='Revolut').headquartersCountry,'Reino Unido');
  c.newsClassificationBatch_();assert.equal(c.classificationJob_().state,'Publicando');assert.equal(c.rows_('Noticias')[0].pais,'Italia');assert.equal(c.rows_('Noticias')[0].id,record.id);assert.equal(c.getGeographyUpgrade().classification.processed,1);
+ s.properties.GEOGRAPHY_UPGRADE=JSON.stringify({...result,version:'3.28.0'});c.applyGeographyUpgrade();assert.equal(c.classificationJob_().next,2);
 });
