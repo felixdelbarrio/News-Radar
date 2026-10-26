@@ -1821,7 +1821,8 @@ const CONFIGURATION_DEFAULTS = {
         "Singapur",
         "Venezuela"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "Santander",
@@ -1846,7 +1847,8 @@ const CONFIGURATION_DEFAULTS = {
         "Brasil",
         "Chile"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "CaixaBank",
@@ -1857,7 +1859,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "Sabadell",
@@ -1868,7 +1871,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "Bankinter",
@@ -1879,7 +1883,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "Banorte",
@@ -1890,7 +1895,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "México"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "México"
     },
     {
       "name": "Banco del Bajío",
@@ -1899,7 +1905,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "México"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "México"
     },
     {
       "name": "HSBC",
@@ -1918,7 +1925,8 @@ const CONFIGURATION_DEFAULTS = {
         "India",
         "Australia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "BCP",
@@ -1929,7 +1937,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Perú"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Perú"
     },
     {
       "name": "Interbank",
@@ -1940,7 +1949,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Perú"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Perú"
     },
     {
       "name": "Scotiabank",
@@ -1952,7 +1962,8 @@ const CONFIGURATION_DEFAULTS = {
         "Perú",
         "Uruguay"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Canadá"
     },
     {
       "name": "Bancolombia",
@@ -1963,7 +1974,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Colombia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Colombia"
     },
     {
       "name": "Banco de Bogotá",
@@ -1972,7 +1984,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Colombia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Colombia"
     },
     {
       "name": "Banco de Occidente",
@@ -1981,7 +1994,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Colombia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Colombia"
     },
     {
       "name": "Davivienda",
@@ -1992,7 +2006,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Colombia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Colombia"
     },
     {
       "name": "Banco Galicia",
@@ -2001,7 +2016,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Argentina"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Argentina"
     },
     {
       "name": "Banco Nación",
@@ -2010,7 +2026,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Argentina"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Argentina"
     },
     {
       "name": "Banco Macro",
@@ -2019,7 +2036,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Argentina"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Argentina"
     },
     {
       "name": "Akbank",
@@ -2028,7 +2046,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Turquía"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Turquía"
     },
     {
       "name": "İşbank",
@@ -2037,7 +2056,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Turquía"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Turquía"
     },
     {
       "name": "Yapı Kredi",
@@ -2046,7 +2066,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Turquía"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Turquía"
     },
     {
       "name": "Halkbank",
@@ -2055,7 +2076,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Turquía"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Turquía"
     },
     {
       "name": "BROU",
@@ -2064,7 +2086,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Uruguay"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Uruguay"
     },
     {
       "name": "Itaú",
@@ -2077,7 +2100,8 @@ const CONFIGURATION_DEFAULTS = {
         "Brasil",
         "Chile"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Brasil"
     },
     {
       "name": "Revolut",
@@ -2090,7 +2114,8 @@ const CONFIGURATION_DEFAULTS = {
         "Reino Unido",
         "Francia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "N26",
@@ -2102,7 +2127,8 @@ const CONFIGURATION_DEFAULTS = {
         "Italia",
         "Francia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Alemania"
     },
     {
       "name": "Qonto",
@@ -2114,7 +2140,8 @@ const CONFIGURATION_DEFAULTS = {
         "Alemania",
         "Francia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Francia"
     },
     {
       "name": "Wise",
@@ -2123,7 +2150,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "Nubank",
@@ -2136,7 +2164,8 @@ const CONFIGURATION_DEFAULTS = {
         "Colombia",
         "Brasil"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Brasil"
     },
     {
       "name": "Mercado Pago",
@@ -2147,7 +2176,8 @@ const CONFIGURATION_DEFAULTS = {
         "Argentina",
         "Uruguay"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Uruguay"
     },
     {
       "name": "Ualá",
@@ -2157,7 +2187,8 @@ const CONFIGURATION_DEFAULTS = {
         "México",
         "Argentina"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Argentina"
     },
     {
       "name": "Klar",
@@ -2166,7 +2197,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "México"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "México"
     },
     {
       "name": "Konfío",
@@ -2175,7 +2207,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "México"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "México"
     },
     {
       "name": "Yape",
@@ -2184,7 +2217,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Perú"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Perú"
     },
     {
       "name": "Openbank",
@@ -2195,7 +2229,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "bunq",
@@ -2207,7 +2242,8 @@ const CONFIGURATION_DEFAULTS = {
         "Alemania",
         "Italia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Países Bajos"
     },
     {
       "name": "myPOS",
@@ -2218,7 +2254,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "Stripe",
@@ -2229,7 +2266,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Estados Unidos"
     },
     {
       "name": "Intesa Sanpaolo",
@@ -2238,7 +2276,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Italia"
     },
     {
       "name": "UniCredit",
@@ -2250,7 +2289,8 @@ const CONFIGURATION_DEFAULTS = {
         "HypoVereinsbank"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Italia"
     },
     {
       "name": "Deutsche Bank",
@@ -2259,7 +2299,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Alemania"
     },
     {
       "name": "Commerzbank",
@@ -2268,7 +2309,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Alemania"
     },
     {
       "name": "ING",
@@ -2278,7 +2320,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Países Bajos"
     },
     {
       "name": "BNP Paribas",
@@ -2288,7 +2331,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Francia"
     },
     {
       "name": "Crédit Agricole",
@@ -2298,7 +2342,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Francia"
     },
     {
       "name": "Société Générale",
@@ -2307,7 +2352,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Francia"
     },
     {
       "name": "Millennium bcp",
@@ -2316,7 +2362,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Portugal"
     },
     {
       "name": "Caixa Geral de Depósitos",
@@ -2325,7 +2372,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Portugal"
     },
     {
       "name": "Barclays",
@@ -2334,7 +2382,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "NatWest",
@@ -2343,7 +2392,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "JPMorgan Chase",
@@ -2354,7 +2404,8 @@ const CONFIGURATION_DEFAULTS = {
         "JPMorgan"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Estados Unidos"
     },
     {
       "name": "Bank of America",
@@ -2365,7 +2416,8 @@ const CONFIGURATION_DEFAULTS = {
         "CashPro"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Estados Unidos"
     },
     {
       "name": "Citi",
@@ -2380,7 +2432,8 @@ const CONFIGURATION_DEFAULTS = {
         "CitiBusiness"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Estados Unidos"
     },
     {
       "name": "UBS",
@@ -2389,7 +2442,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Suiza"
     },
     {
       "name": "KBC",
@@ -2398,7 +2452,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Bélgica"
     },
     {
       "name": "Banca Transilvania",
@@ -2407,7 +2462,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Rumanía"
     },
     {
       "name": "Bradesco",
@@ -2416,7 +2472,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Brasil"
     },
     {
       "name": "Banco de Chile",
@@ -2425,7 +2482,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Chile"
     },
     {
       "name": "DBS",
@@ -2439,7 +2497,8 @@ const CONFIGURATION_DEFAULTS = {
         "DBS Bank"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Singapur"
     },
     {
       "name": "OCBC",
@@ -2451,7 +2510,8 @@ const CONFIGURATION_DEFAULTS = {
         "Oversea-Chinese Banking Corporation"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Singapur"
     },
     {
       "name": "UOB",
@@ -2463,7 +2523,8 @@ const CONFIGURATION_DEFAULTS = {
         "United Overseas Bank"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Singapur"
     },
     {
       "name": "MUFG",
@@ -2475,7 +2536,8 @@ const CONFIGURATION_DEFAULTS = {
         "Mitsubishi UFJ"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Japón"
     },
     {
       "name": "SMBC",
@@ -2487,7 +2549,8 @@ const CONFIGURATION_DEFAULTS = {
         "Sumitomo Mitsui Banking Corporation"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Japón"
     },
     {
       "name": "Mizuho",
@@ -2496,7 +2559,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Japón"
     },
     {
       "name": "Standard Chartered",
@@ -2508,7 +2572,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "ICBC",
@@ -2519,7 +2584,8 @@ const CONFIGURATION_DEFAULTS = {
         "Industrial and Commercial Bank of China"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "China"
     },
     {
       "name": "Bank of China",
@@ -2529,7 +2595,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "China"
     },
     {
       "name": "China Construction Bank",
@@ -2538,7 +2605,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "China"
     },
     {
       "name": "State Bank of India",
@@ -2547,7 +2615,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "India"
     },
     {
       "name": "HDFC Bank",
@@ -2556,7 +2625,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "India"
     },
     {
       "name": "ICICI Bank",
@@ -2565,7 +2635,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "India"
     },
     {
       "name": "ANZ",
@@ -2576,7 +2647,8 @@ const CONFIGURATION_DEFAULTS = {
         "Australia and New Zealand Banking Group"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "Commonwealth Bank",
@@ -2585,7 +2657,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "Macquarie",
@@ -2594,7 +2667,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "National Australia Bank",
@@ -2603,7 +2677,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "Westpac",
@@ -2612,7 +2687,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "Bank Mandiri",
@@ -2621,7 +2697,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Indonesia"
     },
     {
       "name": "Bank Central Asia",
@@ -2630,7 +2707,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Indonesia"
     },
     {
       "name": "KB Kookmin",
@@ -2641,7 +2719,8 @@ const CONFIGURATION_DEFAULTS = {
         "Kookmin Bank"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Corea del Sur"
     },
     {
       "name": "Shinhan Bank",
@@ -2650,7 +2729,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Corea del Sur"
     },
     {
       "name": "Vietcombank",
@@ -2659,7 +2739,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Vietnam"
     },
     {
       "name": "BDO Unibank",
@@ -2668,7 +2749,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Filipinas"
     },
     {
       "name": "Maybank",
@@ -2677,7 +2759,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Malasia"
     },
     {
       "name": "Bangkok Bank",
@@ -2686,7 +2769,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Tailandia"
     },
     {
       "name": "Asian Development Bank",
@@ -2697,7 +2781,8 @@ const CONFIGURATION_DEFAULTS = {
         "ADB"
       ],
       "type": "Multilateral",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Filipinas"
     },
     {
       "name": "Asian Infrastructure Investment Bank",
@@ -2708,7 +2793,8 @@ const CONFIGURATION_DEFAULTS = {
         "AIIB"
       ],
       "type": "Multilateral",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "China"
     },
     {
       "name": "Mercantil Banco",
@@ -2719,7 +2805,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Venezuela"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Venezuela"
     },
     {
       "name": "RBC",
@@ -2731,7 +2818,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Canadá"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Canadá"
     },
     {
       "name": "Emirates NBD",
@@ -2743,7 +2831,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Emiratos Árabes Unidos"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Emiratos Árabes Unidos"
     }
   ],
   "geographies": [

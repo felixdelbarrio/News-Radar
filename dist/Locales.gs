@@ -1,5 +1,10 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "No se encuentra el catálogo de entidades.": ["The entity catalogue was not found.", "Kurum kataloğu bulunamadı."],
+  "Hay entidades sin país de sede configurado.": ["Some entities have no headquarters country configured.", "Bazı kurumların genel merkez ülkesi yapılandırılmamış."],
+  "Sedes no verificadas.": ["Headquarters countries were not verified.", "Genel merkez ülkeleri doğrulanmadı."],
+  "País de la sede": ["Headquarters country", "Genel merkez ülkesi"],
+  "La noticia requiere un país del catálogo.": ["The article requires a catalogue country.", "Haber için katalogdan bir ülke gereklidir."],
   "Espera a que terminen clasificación, taxonomía y publicación LLM antes de actualizar reglas.": ["Wait for classification, taxonomy and LLM publication to finish before upgrading rules.", "Kuralları güncellemeden önce sınıflandırma, taksonomi ve LLM yayınının tamamlanmasını bekleyin."],
   "Configuración escrita incompleta.": ["Configuration write is incomplete.", "Yapılandırma yazımı eksik."],
   "No hay backup de reglas.": ["No rule backup is available.", "Kural yedeği bulunmuyor."],

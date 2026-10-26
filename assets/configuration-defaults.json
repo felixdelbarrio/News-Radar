@@ -98,7 +98,8 @@
         "Singapur",
         "Venezuela"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "Santander",
@@ -123,7 +124,8 @@
         "Brasil",
         "Chile"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "CaixaBank",
@@ -134,7 +136,8 @@
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "Sabadell",
@@ -145,7 +148,8 @@
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "Bankinter",
@@ -156,7 +160,8 @@
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "Banorte",
@@ -167,7 +172,8 @@
       "countries": [
         "México"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "México"
     },
     {
       "name": "Banco del Bajío",
@@ -176,7 +182,8 @@
       "countries": [
         "México"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "México"
     },
     {
       "name": "HSBC",
@@ -195,7 +202,8 @@
         "India",
         "Australia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "BCP",
@@ -206,7 +214,8 @@
       "countries": [
         "Perú"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Perú"
     },
     {
       "name": "Interbank",
@@ -217,7 +226,8 @@
       "countries": [
         "Perú"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Perú"
     },
     {
       "name": "Scotiabank",
@@ -229,7 +239,8 @@
         "Perú",
         "Uruguay"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Canadá"
     },
     {
       "name": "Bancolombia",
@@ -240,7 +251,8 @@
       "countries": [
         "Colombia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Colombia"
     },
     {
       "name": "Banco de Bogotá",
@@ -249,7 +261,8 @@
       "countries": [
         "Colombia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Colombia"
     },
     {
       "name": "Banco de Occidente",
@@ -258,7 +271,8 @@
       "countries": [
         "Colombia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Colombia"
     },
     {
       "name": "Davivienda",
@@ -269,7 +283,8 @@
       "countries": [
         "Colombia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Colombia"
     },
     {
       "name": "Banco Galicia",
@@ -278,7 +293,8 @@
       "countries": [
         "Argentina"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Argentina"
     },
     {
       "name": "Banco Nación",
@@ -287,7 +303,8 @@
       "countries": [
         "Argentina"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Argentina"
     },
     {
       "name": "Banco Macro",
@@ -296,7 +313,8 @@
       "countries": [
         "Argentina"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Argentina"
     },
     {
       "name": "Akbank",
@@ -305,7 +323,8 @@
       "countries": [
         "Turquía"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Turquía"
     },
     {
       "name": "İşbank",
@@ -314,7 +333,8 @@
       "countries": [
         "Turquía"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Turquía"
     },
     {
       "name": "Yapı Kredi",
@@ -323,7 +343,8 @@
       "countries": [
         "Turquía"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Turquía"
     },
     {
       "name": "Halkbank",
@@ -332,7 +353,8 @@
       "countries": [
         "Turquía"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Turquía"
     },
     {
       "name": "BROU",
@@ -341,7 +363,8 @@
       "countries": [
         "Uruguay"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Uruguay"
     },
     {
       "name": "Itaú",
@@ -354,7 +377,8 @@
         "Brasil",
         "Chile"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Brasil"
     },
     {
       "name": "Revolut",
@@ -367,7 +391,8 @@
         "Reino Unido",
         "Francia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "N26",
@@ -379,7 +404,8 @@
         "Italia",
         "Francia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Alemania"
     },
     {
       "name": "Qonto",
@@ -391,7 +417,8 @@
         "Alemania",
         "Francia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Francia"
     },
     {
       "name": "Wise",
@@ -400,7 +427,8 @@
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "Nubank",
@@ -413,7 +441,8 @@
         "Colombia",
         "Brasil"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Brasil"
     },
     {
       "name": "Mercado Pago",
@@ -424,7 +453,8 @@
         "Argentina",
         "Uruguay"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Uruguay"
     },
     {
       "name": "Ualá",
@@ -434,7 +464,8 @@
         "México",
         "Argentina"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Argentina"
     },
     {
       "name": "Klar",
@@ -443,7 +474,8 @@
       "countries": [
         "México"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "México"
     },
     {
       "name": "Konfío",
@@ -452,7 +484,8 @@
       "countries": [
         "México"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "México"
     },
     {
       "name": "Yape",
@@ -461,7 +494,8 @@
       "countries": [
         "Perú"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Perú"
     },
     {
       "name": "Openbank",
@@ -472,7 +506,8 @@
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "bunq",
@@ -484,7 +519,8 @@
         "Alemania",
         "Italia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Países Bajos"
     },
     {
       "name": "myPOS",
@@ -495,7 +531,8 @@
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "Stripe",
@@ -506,7 +543,8 @@
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Estados Unidos"
     },
     {
       "name": "Intesa Sanpaolo",
@@ -515,7 +553,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Italia"
     },
     {
       "name": "UniCredit",
@@ -527,7 +566,8 @@
         "HypoVereinsbank"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Italia"
     },
     {
       "name": "Deutsche Bank",
@@ -536,7 +576,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Alemania"
     },
     {
       "name": "Commerzbank",
@@ -545,7 +586,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Alemania"
     },
     {
       "name": "ING",
@@ -555,7 +597,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Países Bajos"
     },
     {
       "name": "BNP Paribas",
@@ -565,7 +608,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Francia"
     },
     {
       "name": "Crédit Agricole",
@@ -575,7 +619,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Francia"
     },
     {
       "name": "Société Générale",
@@ -584,7 +629,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Francia"
     },
     {
       "name": "Millennium bcp",
@@ -593,7 +639,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Portugal"
     },
     {
       "name": "Caixa Geral de Depósitos",
@@ -602,7 +649,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Portugal"
     },
     {
       "name": "Barclays",
@@ -611,7 +659,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "NatWest",
@@ -620,7 +669,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "JPMorgan Chase",
@@ -631,7 +681,8 @@
         "JPMorgan"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Estados Unidos"
     },
     {
       "name": "Bank of America",
@@ -642,7 +693,8 @@
         "CashPro"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Estados Unidos"
     },
     {
       "name": "Citi",
@@ -657,7 +709,8 @@
         "CitiBusiness"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Estados Unidos"
     },
     {
       "name": "UBS",
@@ -666,7 +719,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Suiza"
     },
     {
       "name": "KBC",
@@ -675,7 +729,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Bélgica"
     },
     {
       "name": "Banca Transilvania",
@@ -684,7 +739,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Rumanía"
     },
     {
       "name": "Bradesco",
@@ -693,7 +749,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Brasil"
     },
     {
       "name": "Banco de Chile",
@@ -702,7 +759,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Chile"
     },
     {
       "name": "DBS",
@@ -716,7 +774,8 @@
         "DBS Bank"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Singapur"
     },
     {
       "name": "OCBC",
@@ -728,7 +787,8 @@
         "Oversea-Chinese Banking Corporation"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Singapur"
     },
     {
       "name": "UOB",
@@ -740,7 +800,8 @@
         "United Overseas Bank"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Singapur"
     },
     {
       "name": "MUFG",
@@ -752,7 +813,8 @@
         "Mitsubishi UFJ"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Japón"
     },
     {
       "name": "SMBC",
@@ -764,7 +826,8 @@
         "Sumitomo Mitsui Banking Corporation"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Japón"
     },
     {
       "name": "Mizuho",
@@ -773,7 +836,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Japón"
     },
     {
       "name": "Standard Chartered",
@@ -785,7 +849,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "ICBC",
@@ -796,7 +861,8 @@
         "Industrial and Commercial Bank of China"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "China"
     },
     {
       "name": "Bank of China",
@@ -806,7 +872,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "China"
     },
     {
       "name": "China Construction Bank",
@@ -815,7 +882,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "China"
     },
     {
       "name": "State Bank of India",
@@ -824,7 +892,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "India"
     },
     {
       "name": "HDFC Bank",
@@ -833,7 +902,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "India"
     },
     {
       "name": "ICICI Bank",
@@ -842,7 +912,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "India"
     },
     {
       "name": "ANZ",
@@ -853,7 +924,8 @@
         "Australia and New Zealand Banking Group"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "Commonwealth Bank",
@@ -862,7 +934,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "Macquarie",
@@ -871,7 +944,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "National Australia Bank",
@@ -880,7 +954,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "Westpac",
@@ -889,7 +964,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "Bank Mandiri",
@@ -898,7 +974,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Indonesia"
     },
     {
       "name": "Bank Central Asia",
@@ -907,7 +984,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Indonesia"
     },
     {
       "name": "KB Kookmin",
@@ -918,7 +996,8 @@
         "Kookmin Bank"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Corea del Sur"
     },
     {
       "name": "Shinhan Bank",
@@ -927,7 +1006,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Corea del Sur"
     },
     {
       "name": "Vietcombank",
@@ -936,7 +1016,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Vietnam"
     },
     {
       "name": "BDO Unibank",
@@ -945,7 +1026,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Filipinas"
     },
     {
       "name": "Maybank",
@@ -954,7 +1036,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Malasia"
     },
     {
       "name": "Bangkok Bank",
@@ -963,7 +1046,8 @@
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Tailandia"
     },
     {
       "name": "Asian Development Bank",
@@ -974,7 +1058,8 @@
         "ADB"
       ],
       "type": "Multilateral",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Filipinas"
     },
     {
       "name": "Asian Infrastructure Investment Bank",
@@ -985,7 +1070,8 @@
         "AIIB"
       ],
       "type": "Multilateral",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "China"
     },
     {
       "name": "Mercantil Banco",
@@ -996,7 +1082,8 @@
       "countries": [
         "Venezuela"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Venezuela"
     },
     {
       "name": "RBC",
@@ -1008,7 +1095,8 @@
       "countries": [
         "Canadá"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Canadá"
     },
     {
       "name": "Emirates NBD",
@@ -1020,7 +1108,8 @@
       "countries": [
         "Emiratos Árabes Unidos"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Emiratos Árabes Unidos"
     }
   ],
   "geographies": [
