@@ -20,3 +20,7 @@ function reportGeographyMigration(){
  do{const batch=auditGeographyMigration({offset,limit:200});result.total=batch.total;for(const key of ['changed','multicountry','missing'])result[key]+=batch[key];for(const [method,count] of Object.entries(batch.byMethod))result.byMethod[method]=(result.byMethod[method]||0)+count;result.samples.push(...batch.samples);offset=batch.next;}while(offset<result.total);
  console.log(JSON.stringify({status,...result}));return result;
 }
+function continueGeographyMigration(){
+ authorize_(true);const status=getGeographyMigrationStatus();if(status.version!==RADAR.version||!status.backupId)throw Error('Primero crea una copia verificada con applyGeographyMigration.');
+ const result=processBackground_();console.log(JSON.stringify(getGeographyMigrationStatus()));return result;
+}
