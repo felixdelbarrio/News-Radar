@@ -69,3 +69,11 @@ test('high-value official BBVA evidence is retained as a documented editorial ex
 test('functional filters and quality beat raw article volume',()=>{
  const {c}=setup(),many=Array.from({length:20},(_,i)=>({...row('weak'+i,'España','Qonto',1),taxonomia:[{palanca:'Pagos',subpalanca:'Transferencias'}]})),strong={...row('strong','España','Revolut',15),taxonomia:[{palanca:'Enablers',subpalanca:'API'}]};const input=[...many,strong];assert.equal(c.newsletterDigest_(input,{view:'news'},'es',s=>s).cards[0].id,'strong');const selected=c.newsletterDigest_(input,{view:'news',palanca:'Enablers'},'es',s=>s);assert.equal(selected.cards.length,1);assert.equal(selected.cards[0].id,'strong');assert.equal(selected.audit.eligible,1);
 });
+
+test('initial dashboard is embedded safely and archived editions retain their own load',()=>{
+ const {c}=setup();let calls=0;
+ const output={setTitle(){return this;},addMetaTag(){return this;}},template={evaluate:()=>output};
+ c.HtmlService={createTemplateFromFile:()=>template};c.getDashboard=query=>{calls++;assert.equal(query.view,'briefing');return {title:'</script><script>alert(1)</script>',items:[]};};
+ assert.equal(c.doGet(),output);assert.equal(calls,1);assert.doesNotMatch(template.bootstrap,/<\/script>/);assert.equal(JSON.parse(template.bootstrap).data.title,'</script><script>alert(1)</script>');
+ c.doGet({parameter:{edition:'archived'}});assert.equal(template.bootstrap,'null');assert.equal(calls,1);
+});

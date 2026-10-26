@@ -26,7 +26,7 @@ test('cambios rápidos de vista comparten el RPC pendiente y solo presentan la �
  assert.equal(a.find('#radar-section').hidden,false);assert.equal(a.find('#news-section').hidden,true);assert.equal(a.find('#loading').hidden,true);assert.equal(a.find('.content').getAttribute('aria-busy'),'false');
 });
 
-test('la navegación de lectura no sondea revisiones ni refresca contenido automáticamente',async t=>{const a=await app(t);for(const view of ['news','radar','briefing','subscriptions'])await a.click('[data-view="'+view+'"]');assert.ok(!a.calls.some(r=>r.method==='getCollectionProgress'));});
+test('la navegación de lectura no sondea progreso de recopilación',async t=>{const a=await app(t);for(const view of ['news','radar','briefing','subscriptions'])await a.click('[data-view="'+view+'"]');assert.ok(!a.calls.some(r=>r.method==='getCollectionProgress'));});
 
 test('caché fragmentada conserva Unicode, respeta bytes y se recupera si se pierde un fragmento',()=>{
  const s=storage(),cache=s.c.CacheService.getScriptCache(),data={items:['€😀\\"'.repeat(18000)]};
@@ -52,7 +52,7 @@ test('las tablas adaptables conservan sus encabezados y etiquetas al cambiar el 
  assert.deepEqual([...a.find('#logs-body').rows[0].cells].map(cell=>cell.dataset.label),[...subscriptionTable.tHead.rows[0].cells].map(cell=>cell.textContent));
 });
 
-test('la caché de navegación se reutiliza durante un minuto sin prolongarse al volver',async t=>{
+test('la caché reutiliza contenido y comprueba revisiones tras un minuto',async t=>{
  let now=0;
  const a=await app(t,{configure({w,data}){const epoch=w.Date.now();w.Date.now=()=>epoch+now;w.performance.now=()=>now;data.newsRevision='news-1';data.configurationRevision='config-1';}});
  await a.click('[data-view="radar"]');now=10;await a.click('[data-view="news"]');
@@ -87,4 +87,16 @@ test('Configuración solicita únicamente el catálogo y la pestaña activa no r
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');assert.deepEqual(pending.map(row=>row.method).sort(),['getConfiguration']);
  pending[0].resolve();await tick();assert.equal(a.find('#loading').hidden,true);
  await a.click('[data-admin-view="configuration"]');assert.equal(pending.length,1);
+});
+
+test('una revisión publicada reemplaza la selección cacheada en segundo plano',async t=>{
+ let now=0;
+ const a=await app(t,{configure({w,data}){const epoch=w.Date.now();w.Date.now=()=>epoch+now;w.performance.now=()=>now;data.newsRevision='revision-1';data.configurationRevision='config-1';data.readingDay='2026-10-26';}});
+ await a.click('[data-view="radar"]');await a.click('[data-view="news"]');
+ const count=a.calls.filter(row=>row.method==='getDashboard').length;
+ a.data.newsRevision='revision-2';now=61000;await a.click('[data-view="radar"]');await tick();
+ assert.ok(a.calls.some(row=>row.method==='getReadingRevision'));
+ assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,count+1);
+ assert.equal(a.find('#radar-section').hidden,false);
+ assert.equal(a.find('#loading').hidden,true);
 });
