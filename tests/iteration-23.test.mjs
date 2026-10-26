@@ -7,7 +7,7 @@ import {noveltyOverview} from '../src/shared/novelty-groups.js';
 const row=(id,pais)=>({id,pais,fecha:'2026-10-20',entidad:'BBVA',medio:'Editor',fuente:'Editor',titular:'BBVA lanza pagos digitales para empresas '+id,extracto:'Tesorería online para pymes',url:'https://example.com/'+id,tipo:'Banco',segmentos:['Empresas e instituciones'],senales:['Lanzamiento de producto'],etiquetas:{digital:true},taxonomia:[]});
 function server(){const s=storage();s.c.initializeConfiguration();return s;}
 test('regional filters, CSV and compact snapshots exclude every country with its own tab',()=>{
- const {c}=server(),rows=['España','Turquía','México','Perú','Colombia','Argentina','Uruguay','Venezuela','Italia','Reino Unido','Estados Unidos','India'].map((country,i)=>row(String(i),country)),query={segment:'Empresas e instituciones',coverage:'digital'},geo=applicationGeography(c.configuration_().applicationScope,query.segment),data=c.newsDashboard_(rows,query,[],'news'),bundle=c.compactNewsSnapshot_(rows,query,data);
+ const {c}=server(),rows=['España','Turquía','México','Perú','Colombia','Argentina','Uruguay','Venezuela','Italia','Reino Unido','Estados Unidos','India'].map((country,i)=>row(String(i),country)),query={segment:'Empresas e instituciones',coverage:'digital'},geo=applicationGeography(c.configuration_().applicationScope,query.segment,c.configuration_().geographies),data=c.newsDashboard_(rows,query,[],'news'),bundle=c.compactNewsSnapshot_(rows,query,data);
  for(const [region,expected] of [['EMEA',['Italia','Reino Unido']],['AMER',['Estados Unidos']],['APAC',['India']]]){
   const selected=c.selectAnnotatedNews_(rows,{...query,country:region});assert.deepEqual(Array.from(selected,r=>r.pais).sort(),expected.sort());
   assert.deepEqual(Array.from(c.newsGeographySelection_(rows,{newsGeography:region}),r=>r.pais).sort(),expected.sort());
@@ -18,10 +18,10 @@ test('regional filters, CSV and compact snapshots exclude every country with its
  assert.equal(geographyMatches(rows[0],'EMEA',geo),false);
  assert.equal(new Set(bundle.records.map(record=>JSON.stringify(record))).size,bundle.records.length);
 });
-test('Otras geografías opens the full aggregate and exposes regional tabs',async t=>{
+test('Otras geografías defaults to the browser region and offers the full aggregate',async t=>{
  const scope=[{name:'Empresas e instituciones',countries:['España','Turquía']}],items=[row('es','España'),row('it','Italia'),row('in','India')],geo=applicationGeography(scope);
  const a=await app(t,{configure({data}){data.applicationScope=scope;data.selection={};data.briefing={...noveltyOverview(items,[],geo),items};}});
- await a.click('#briefing-geographies [data-geography="Otras geografías"]');
+ await a.click('#briefing-geographies [data-geography="Otras geografías"]');assert.equal(a.find('#briefing-geographies [data-geography="EMEA"]').getAttribute('aria-selected'),'true');assert.doesNotMatch(a.find('#briefing-list').textContent,/empresas in/);await a.click('#briefing-geographies [data-all-regions]');
  assert.equal(a.find('#briefing-geographies [data-geography="Otras geografías"]').getAttribute('aria-selected'),'true');assert.equal(a.find('#filters [name="country"]').value,'Otras geografías');assert.equal(a.find('#geography-filter summary').textContent,'Otras geografías');assert.ok([...a.find('#filters [name="country"]').options].some(option=>option.value==='España'));
  assert.equal(a.w.document.querySelectorAll('#briefing-geographies svg').length,3);
  assert.match(a.find('#briefing-list').textContent,/empresas it/);assert.match(a.find('#briefing-list').textContent,/empresas in/);assert.doesNotMatch(a.find('#briefing-list').textContent,/empresas es/);
@@ -55,8 +55,8 @@ test('regional edition filters respect the original direct scope and a bank publ
 test('Noticias conserva todas las pestañas al elegir regiones y sincroniza el selector visible',async t=>{
  const a=await app(t,{configure({data}){data.selection={};data.newsGeographies=[{name:'España',total:5},{name:'Otras geografías',total:12}];data.newsRegions=[{name:'APAC',total:3},{name:'EMEA',total:5},{name:'AMER',total:4}];}});
  await a.click('[data-view="news"]');await a.click('#news-geographies [data-geography="Otras geografías"]');
- assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.country,'');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'Otras geografías');
- assert.equal(a.find('#geography-filter summary').textContent,'Otras geografías');assert.ok(a.find('#news-geographies [data-geography="España"]'));assert.equal(a.w.document.querySelectorAll('#news-geographies [aria-selected="true"]').length,1);assert.equal(a.w.document.querySelectorAll('#news-geographies .region-icon[width="24"]').length,3);
+ assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.country,'');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'EMEA');
+ assert.equal(a.find('#geography-filter summary').textContent,'EMEA');assert.ok(a.find('#news-geographies [data-geography="España"]'));assert.equal(a.w.document.querySelectorAll('#news-geographies [aria-selected="true"]').length,1);assert.equal(a.w.document.querySelectorAll('#news-geographies .region-icon[width="24"]').length,3);
  await a.click('#news-geographies [data-geography="APAC"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'APAC');assert.equal(a.find('#geography-filter summary').textContent,'APAC');
  await a.change('#filters [name="country"]','AMER');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.country,'');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'AMER');
 });
@@ -65,9 +65,9 @@ test('un snapshot de otro esquema se descarta antes de consultar sus variantes c
 });
 
 test('el ámbito conserva y permite editar países personalizados sin región',async t=>{
- const a=await app(t);a.config.geographies.push({name:'Arabia Saudí',code:'SA',enabled:true});a.config.applicationScope[0].countries.push('Arabia Saudí');
+ const a=await app(t);a.config.geographies.push({name:'Marruecos',code:'MA',enabled:true});a.config.applicationScope[0].countries.push('Marruecos');
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');await a.change('#catalog-category','applicationScope');
- const country=a.find('[data-country="Arabia Saudí"]');assert.equal(country.checked,true);assert.equal(country.closest('fieldset').querySelector('legend').textContent,'Otras geografías');
- await a.submit('#catalog-form');assert.ok(a.calls.findLast(r=>r.method==='saveConfiguration').query.config.applicationScope[0].countries.includes('Arabia Saudí'));
- a.find('[data-country="Arabia Saudí"]').checked=false;await a.submit('#catalog-form');assert.equal(a.calls.findLast(r=>r.method==='saveConfiguration').query.config.applicationScope[0].countries.includes('Arabia Saudí'),false);
+ const country=a.find('[data-country="Marruecos"]');assert.equal(country.checked,true);assert.equal(country.closest('fieldset').querySelector('legend').textContent,'Otras geografías');
+ await a.submit('#catalog-form');assert.ok(a.calls.findLast(r=>r.method==='saveConfiguration').query.config.applicationScope[0].countries.includes('Marruecos'));
+ a.find('[data-country="Marruecos"]').checked=false;await a.submit('#catalog-form');assert.equal(a.calls.findLast(r=>r.method==='saveConfiguration').query.config.applicationScope[0].countries.includes('Marruecos'),false);
 });

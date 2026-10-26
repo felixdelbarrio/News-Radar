@@ -139,10 +139,20 @@ function applyFunctionalRuleUpgrade(){
 }
 function restoreFunctionalRuleUpgrade_(){
  const p=properties_(),checkpoint=JSON.parse(p.getProperty('FUNCTIONAL_RULE_UPGRADE')||'null');if(!checkpoint)throw Error('No hay backup de reglas.');
- const source=SpreadsheetApp.openById(checkpoint.backupId).getSheetByName('Configuracion'),target=book_().getSheetByName('Configuracion'),rows=source.getRange(1,1,source.getLastRow(),2).getValues();
+ const backup=SpreadsheetApp.openById(checkpoint.backupId);
+ const generation=checkpoint.generation,restored=new Map(),suffix=Utilities.getUuid();
+ for(const name of new Set([generation.newsSheet,generation.taxonomySheet,generation.categorization?.sheet,...Object.values(generation.newsletterTables||{})].filter(Boolean))){
+  const saved=backup.getSheetByName(name);if(!saved)throw Error('Falta tabla en el backup: '+name);
+  const target=book_().insertSheet(name.split('_')[0]+'_gen_'+suffix);
+  const height=saved.getLastRow(),width=saved.getLastColumn(),values=height?saved.getRange(1,1,height,width).getDisplayValues():[];
+  if(height)writeVerifiedRows_(target,values.map((values,index)=>({row:index+1,values})));
+  if(target.getLastRow()!==height||height&&sha256_(JSON.stringify(values))!==sha256_(JSON.stringify(target.getRange(1,1,height,width).getDisplayValues())))throw Error('Restauración no verificada: '+name);
+  restored.set(name,target.getName());
+ }
+ const source=backup.getSheetByName('Configuracion'),target=book_().getSheetByName('Configuracion'),rows=source.getRange(1,1,source.getLastRow(),2).getValues();
  target.getRange(1,1,Math.max(target.getLastRow(),rows.length),2).clearContent();target.getRange(1,1,rows.length,2).setValues(rows);SpreadsheetApp.flush();
  if(sha256_(JSON.stringify(rows))!==sha256_(JSON.stringify(target.getRange(1,1,rows.length,2).getValues())))throw Error('Restauración de configuración no verificada.');
- p.setProperty('DATA_GENERATION',JSON.stringify(checkpoint.generation));dataGenerationMemory_=undefined;
+ p.setProperty('DATA_GENERATION',JSON.stringify({...generation,newsSheet:restored.get(generation.newsSheet),taxonomySheet:restored.get(generation.taxonomySheet),...(generation.categorization?{categorization:{...generation.categorization,sheet:restored.get(generation.categorization.sheet)}}:{}),...(generation.newsletterTables?{newsletterTables:Object.fromEntries(Object.entries(generation.newsletterTables).map(([key,value])=>[key,restored.get(value)]))}:{})}));dataGenerationMemory_=undefined;
  for(const [key,value] of Object.entries(checkpoint.properties)){if(value===null)p.deleteProperty(key);else p.setProperty(key,value);}
  for(const key of ['SNAPSHOT_JOBS','DASHBOARD_SNAPSHOT_BUILD','CLASSIFICATION_REQUEST','TAXONOMY_REQUEST'])p.deleteProperty(key);
  invalidateConfiguration_();p.setProperty('FUNCTIONAL_RULE_UPGRADE',JSON.stringify({...checkpoint,state:'RolledBack'}));

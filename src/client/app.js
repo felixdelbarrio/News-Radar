@@ -43,7 +43,7 @@ const panel=createFilterPanel();
 const navigation = createNavigation({onPanel:view=>{if(view!=='administration'){llmCategorization.close();closeRuns();}++state.request;panel.show(view);if(state.data)collectionProgress.update(state.data);refreshLoading();}, onSelection:view=>{const changed=filters.show(view);if(state.ready&&(changed||state.contentStale||state.view!==view))load(true);}, onSubscriptions:()=>subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
 const filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
   track("filtro");
-  load();
+  load(true);
 } });
 const reading=createReadingContext({run:action});
 const heatmap=createTaxonomyHeatmap({onExplore:query=>navigateSelection('news',query)});
@@ -57,7 +57,7 @@ const recoveryControls=createRecoveryControls({run:action});
 const collectionProgress=createCollectionProgress({isActive:()=>navigation.current==='administration',isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
 function renderSelection(data,view=navigation.current,appended=null,reuse=false){
   reading.render(data,view);if(reuse)return;
-  if(view==='news'){renderNews(data,appended);newsTabs.render(data.newsGeographies||[],data.newsGeography||'',data.newsRegions||[]);}
+  if(view==='news'){renderNews(data,appended);newsTabs.render(data.newsGeographies||[],data.newsGeography||'',data.newsRegions||[],data.geographies||[]);}
   if(view==='radar'){radar.render(data);heatmap.render(data);}
   if(view==='briefing')briefing.render(data);
 }
@@ -169,7 +169,7 @@ async function startApplication(params={}){
   }
   try{
     if(params.view==='subscriptions'){state.data=await call('getDashboard',{view:'subscriptions'});releaseSecondaryRequests();renderApplicationShell(state.data);state.ready=true;await navigation.show('subscriptions');}
-    else{navigation.show(defaultView);state.ready=true;await load();}
+    else{const view=['briefing','news','radar'].includes(params.view)?params.view:defaultView;filters.show(view);navigation.show(view);state.ready=true;await load(true);}
     const id=params.unsubscribe;if(!id||params.view!=='subscriptions')return;
     message('Confirma la baja de esta suscripción.');const button=document.createElement('button');button.type='button';button.className='button';button.textContent='Confirmar baja';
     button.addEventListener('click',()=>action(async()=>{message(await call('deleteSubscription',id));await subscriptions.open();},false));$('message').appendChild(button);
@@ -181,3 +181,5 @@ else startApplication(Object.fromEntries(new URLSearchParams(window.location?.se
 window.addEventListener('news-radar-language-change',async()=>{await load();if(navigation.current==='administration'&&administration.current==='taxonomy')await taxonomy.open();});
 
 document.querySelector('.admin-content').addEventListener('click',event=>{const button=event.target.closest('[data-open-edition]');if(button){filters.show('news');filters.useEdition(button.dataset.openEdition,{},false);state.contentStale=true;navigation.show('news');}});
+
+window.addEventListener('news-radar-revision',()=>{dashboards.clear();state.contentStale=true;if(['briefing','news','radar'].includes(navigation.current))load(true);});

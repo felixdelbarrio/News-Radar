@@ -36,9 +36,9 @@ test('las caídas bursátiles no son incidencias de canal y las interrupciones r
 });
 test('Otras geografías permite el agregado residual, evita regiones vacías y vuelve a un país explícito',async t=>{
  const items=['España','India','Arabia Saudí'].map((pais,i)=>({...article,id:String(i),pais,titular:'BBVA lanza producto '+pais,senales:['Lanzamiento de producto'],segmentos:['Empresas e instituciones'],etiquetas:{digital:true}}));
- const a=await app(t,{configure({data}){data.selection={country:''};data.countries=items.map(row=>row.pais);data.briefing={...noveltyOverview(items,[],applicationGeography(data.applicationScope)),items};}});
- await a.click('#briefing-geographies [data-geography="Otras geografías"]');assert.equal(a.find('#briefing-geographies [data-geography="Otras geografías"]').getAttribute('aria-selected'),'true');
- await a.click('#briefing-geographies [data-geography="Otras geografías"]');assert.match(a.find('#briefing-list').textContent,/Arabia Saudí/);assert.match(a.find('#briefing-list').textContent,/India/);
+ const a=await app(t,{configure({data}){data.selection={country:''};data.countries=items.map(row=>row.pais);data.briefing={...noveltyOverview(items,[],applicationGeography(data.applicationScope,undefined,data.geographies)),items};}});
+ await a.click('#briefing-geographies [data-geography="Otras geografías"]');await a.click('#briefing-geographies [data-all-regions]');assert.equal(a.find('#briefing-geographies [data-geography="Otras geografías"]').getAttribute('aria-selected'),'true');
+ await a.click('#briefing-geographies [data-all-regions]');assert.match(a.find('#briefing-list').textContent,/Arabia Saudí/);assert.match(a.find('#briefing-list').textContent,/India/);
  await a.click('#briefing-geographies [data-geography="APAC"]');a.data.selection.country='España';await a.change('#filters [name="country"]','España');assert.equal(a.find('#briefing-geographies [data-geography="España"]').getAttribute('aria-selected'),'true');assert.match(a.find('#briefing-list').textContent,/producto España/);
 });
 test('actualizar las reglas del catálogo preserva los países propios editados',()=>{

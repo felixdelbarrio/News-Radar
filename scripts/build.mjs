@@ -19,7 +19,9 @@ const views=files('src/views').filter(file=>file.endsWith('.html'));
 for(const file of views)parts[path.basename(file,'.html')]=read(file);
 function template(html){return html.replace(/\{\{(\w+)\}\}/g,(_,name)=>{if(!(name in parts))throw Error('Bloque desconocido: '+name);return template(String(parts[name]));});}
 const design=designOutputs(),tokens=JSON.parse(read('src/design/tokens.json')).css;
-const newsletterStyle=(read('src/styles/identity.css')+'\n'+read('src/styles/newsletter.css')).replace(/var\(--([\w-]+)\)/g,(_,key)=>tokens[key]);
+const identityStyles=newsletterInlineStyles(read('src/styles/identity.css'));
+const emailIdentity=['.entity-logo','.geography-flag','.entity-monogram'].map(selector=>selector+'{'+identityStyles[selector].replace(/display:inline-grid;|place-items:center;/g,'')+(selector==='.entity-monogram'?'display:inline-block;':'')+'}').join('');
+const newsletterStyle=(emailIdentity+'\n'+read('src/styles/newsletter.css')).replace(/var\(--([\w-]+)\)/g,(_,key)=>tokens[key]);
 const newsletterInline=newsletterInlineStyles(newsletterStyle);
 const output={
   'Defaults.gs':'const APPLICATION_NAVIGATION = Object.freeze('+JSON.stringify(navigation)+');\nconst FUNCTIONAL_CATALOG_SEED = Object.freeze('+read('assets/functional-catalogue.json').trim()+');\nconst CONFIGURATION_DEFAULTS = '+read('assets/configuration-defaults.json').trim()+';\nCONFIGURATION_DEFAULTS.taxonomy=functionalCatalogRules(FUNCTIONAL_CATALOG_SEED,CONFIGURATION_DEFAULTS.taxonomy);Object.freeze(CONFIGURATION_DEFAULTS);\n',

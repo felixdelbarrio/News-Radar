@@ -817,6 +817,118 @@
       "width": 40,
       "height": 20,
       "source": "https://flagcdn.com/w40/ae.png"
+    },
+    "Nigeria": {
+      "id": "country-ng",
+      "file": "country-ng.png",
+      "width": 40,
+      "height": 20,
+      "source": "https://flagcdn.com/w40/ng.png"
+    },
+    "Panamá": {
+      "id": "country-pa",
+      "file": "country-pa.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/pa.png"
+    },
+    "Bolivia": {
+      "id": "country-bo",
+      "file": "country-bo.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/bo.png"
+    },
+    "Paraguay": {
+      "id": "country-py",
+      "file": "country-py.png",
+      "width": 40,
+      "height": 22,
+      "source": "https://flagcdn.com/w40/py.png"
+    },
+    "Bangladés": {
+      "id": "country-bd",
+      "file": "country-bd.png",
+      "width": 40,
+      "height": 24,
+      "source": "https://flagcdn.com/w40/bd.png"
+    },
+    "Pakistán": {
+      "id": "country-pk",
+      "file": "country-pk.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/pk.png"
+    },
+    "Chipre": {
+      "id": "country-cy",
+      "file": "country-cy.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/cy.png"
+    },
+    "Arabia Saudí": {
+      "id": "country-sa",
+      "file": "country-sa.png",
+      "width": 40,
+      "height": 27,
+      "source": "https://flagcdn.com/w40/sa.png"
+    },
+    "Polonia": {
+      "id": "country-pl",
+      "file": "country-pl.png",
+      "width": 40,
+      "height": 25,
+      "source": "https://flagcdn.com/w40/pl.png"
+    },
+    "Irlanda": {
+      "id": "country-ie",
+      "file": "country-ie.png",
+      "width": 40,
+      "height": 20,
+      "source": "https://flagcdn.com/w40/ie.png"
+    },
+    "Andorra": {
+      "id": "country-ad",
+      "file": "country-ad.png",
+      "width": 40,
+      "height": 28,
+      "source": "https://flagcdn.com/w40/ad.png"
+    },
+    "Luxemburgo": {
+      "id": "country-lu",
+      "file": "country-lu.png",
+      "width": 40,
+      "height": 24,
+      "source": "https://flagcdn.com/w40/lu.png"
+    },
+    "Fiyi": {
+      "id": "country-fj",
+      "file": "country-fj.png",
+      "width": 40,
+      "height": 20,
+      "source": "https://flagcdn.com/w40/fj.png"
+    },
+    "Nueva Zelanda": {
+      "id": "country-nz",
+      "file": "country-nz.png",
+      "width": 40,
+      "height": 20,
+      "source": "https://flagcdn.com/w40/nz.png"
+    },
+    "Hungría": {
+      "id": "country-hu",
+      "file": "country-hu.png",
+      "width": 40,
+      "height": 20,
+      "source": "https://flagcdn.com/w40/hu.png"
+    },
+    "Azerbaiyán": {
+      "id": "country-az",
+      "file": "country-az.png",
+      "width": 40,
+      "height": 20,
+      "source": "https://flagcdn.com/w40/az.png"
     }
   },
   "publishers": {
