@@ -1,3 +1,5 @@
+> Revisión 3.27.1: [Radar móvil](docs/mobile-radar-3.27.1.md), columnas responsivas, cronología legible y medición antes/después sin añadir JavaScript.
+
 > Revisión 3.26.1: [Iteraciones 25 y 26](docs/iteration-25-26-3.26.0.md), recuperación de archivos y publicación, compactación atómica de newsletters, extractos RSS y clasificación conservadora.
 
 > Auditoría local de Iteración 27: [diagnóstico reproducible y resultado NO-GO](docs/iteration-27-audit.md). Herramientas de desarrollo sin cambios en las reglas ni en producción.
