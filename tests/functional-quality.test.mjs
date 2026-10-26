@@ -61,7 +61,7 @@ test('staged classification does not change published news before taxonomy and s
  s.sheets.get('Noticias').grid.push(keys.map(key=>row[key]||''));const original=JSON.stringify(s.sheets.get('Noticias').grid);
  c.applyFunctionalRuleUpgrade();for(let i=0;i<10&&c.taxonomyJob_().state!=='Publicando';i++)c.taxonomyBatch_();
  assert.equal(c.taxonomyJob_().state,'Publicando');assert.equal(JSON.stringify(s.sheets.get('Noticias').grid),original);const candidate=s.book.getSheetByName(c.taxonomyJob_().generation.newsSheet),record=Object.fromEntries(keys.map((key,i)=>[key,candidate.grid[1][i]]));
- assert.equal(record.id,row.id);assert.equal(record.fecha,row.fecha);assert.equal(record.url,row.url);assert.equal(JSON.parse(record.clasificacion).version,'3.27.0');
+ assert.equal(record.id,row.id);assert.equal(record.fecha,row.fecha);assert.equal(record.url,row.url);assert.equal(JSON.parse(record.clasificacion).version,vm.runInContext('CLASSIFICATION_WORK.rulesVersion',c));
  assert.ok(JSON.parse(record.taxonomia).ids.length);c.rollbackFunctionalRuleUpgrade();assert.equal(c.newsStorageKey_(),'Noticias');assert.equal(JSON.stringify(s.sheets.get('Noticias').grid),original);
 });
 

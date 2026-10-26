@@ -59,6 +59,36 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Importar CSV": ["Import CSV", "CSV i\xE7e aktar"],
+    "Importar sin reemplazar ediciones": ["Import without replacing edits", "D\xFCzenlemeleri de\u011Fi\u015Ftirmeden i\xE7e aktar"],
+    "Medios de comunicaci\xF3n": ["News publishers", "Haber yay\u0131nc\u0131lar\u0131"],
+    "Reglas idioma \u2192 geograf\xEDa": ["Language \u2192 geography rules", "Dil \u2192 co\u011Frafya kurallar\u0131"],
+    "Selecciona un archivo CSV.": ["Select a CSV file.", "Bir CSV dosyas\u0131 se\xE7in."],
+    "Cat\xE1logo geogr\xE1fico demasiado grande.": ["Geography catalog is too large.", "Co\u011Frafya katalo\u011Fu \xE7ok b\xFCy\xFCk."],
+    "CSV con comillas incompletas.": ["CSV has unmatched quotes.", "CSV dosyas\u0131nda e\u015Fle\u015Fmeyen t\u0131rnak i\u015Faretleri var."],
+    "Cat\xE1logo desconocido.": ["Unknown catalog.", "Bilinmeyen katalog."],
+    "Detectado autom\xE1ticamente en source.url; sin verificaci\xF3n editorial.": ["Automatically detected from source.url; editorial origin unverified.", "source.url \xFCzerinden otomatik alg\u0131land\u0131; yay\u0131n kayna\u011F\u0131 do\u011Frulanmad\u0131."],
+    "80 propuestas con dominio gen\xE9rico, pendientes e inactivas. Active solo entradas verificadas. La importaci\xF3n CSV conserva ediciones existentes.": ["80 generic domain proposals, pending and inactive. Activate only verified entries. CSV import preserves existing edits.", "80 genel alan ad\u0131 \xF6nerisi beklemede ve pasif. Yaln\u0131zca do\u011Frulanm\u0131\u015F kay\u0131tlar\u0131 etkinle\u015Ftirin. CSV i\xE7e aktarma mevcut d\xFCzenlemeleri korur."],
+    "Fallback solo tras agotar contenido, dominio y pa\xEDs RSS. EMEA es el identificador can\xF3nico de EMAE.": ["Fallback only after checking content, domain and RSS country. EMEA is the canonical identifier for EMAE.", "Yedekleme yaln\u0131zca i\xE7erik, alan ad\u0131 ve RSS \xFClkesi kontrol edildikten sonra uygulan\u0131r. EMEA, EMAE i\xE7in standart tan\u0131mlay\u0131c\u0131d\u0131r."],
+    "Nombre RSS": ["RSS name", "RSS ad\u0131"],
+    "ID de semilla": ["Seed ID", "Tohum kimli\u011Fi"],
+    Dominio: ["Domain", "Alan ad\u0131"],
+    "Pa\xEDs editorial propuesto": ["Proposed editorial country", "\xD6nerilen yay\u0131n \xFClkesi"],
+    "ISO2 propuesto": ["Proposed ISO2", "\xD6nerilen ISO2"],
+    Verificaci\u00F3n: ["Verification", "Do\u011Frulama"],
+    "Tipo de regla": ["Rule type", "Kural t\xFCr\xFC"],
+    "Pa\xEDs de edici\xF3n": ["Edition country", "Yay\u0131n \xFClkesi"],
+    "Patr\xF3n de edici\xF3n": ["Edition pattern", "Yay\u0131n deseni"],
+    "Noticias hist\xF3ricas": ["Historical news", "Ge\xE7mi\u015F haberler"],
+    "URL de referencia": ["Reference URL", "Referans URL"],
+    Procedencia: ["Source", "Kaynak"],
+    "C\xF3digo de idioma": ["Language code", "Dil kodu"],
+    "Destino ISO2 o regi\xF3n": ["ISO2 or region destination", "ISO2 veya b\xF6lge hedefi"],
+    "Tipo de geograf\xEDa": ["Geography type", "Co\u011Frafya t\xFCr\xFC"],
+    Regi\u00F3n: ["Region", "B\xF6lge"],
+    M\u00E9todo: ["Method", "Y\xF6ntem"],
+    Precedencia: ["Precedence", "\xD6ncelik"],
+    Confianza: ["Confidence", "G\xFCven"],
     "Fuera del bloque funcional solicitado.": ["Outside the requested functional block.", "\u0130stenen i\u015Flevsel blo\u011Fun d\u0131\u015F\u0131nda."],
     "Evidencia oficial BBVA con relevancia superior a alternativas.": ["Official BBVA evidence with higher relevance than alternatives.", "Alternatiflerden daha ilgili resm\xEE BBVA kan\u0131t\u0131."],
     "Se excluyen indisponibilidades e incidencias operativas; se muestran en su secci\xF3n propia.": ["Outages and operational incidents are excluded; they have their own section.", "Kesintiler ve operasyonel olaylar hari\xE7 tutulur; kendi b\xF6l\xFCmlerinde g\xF6sterilir."],
@@ -97,7 +127,6 @@
     "Nombres de medios verificados en el pa\xEDs": ["Names of publishers verified in the country", "\xDClkede do\u011Frulanan yay\u0131nc\u0131 adlar\u0131"],
     "Otros nombres del pa\xEDs": ["Other country names", "Di\u011Fer \xFClke adlar\u0131"],
     "T\xE9rminos de contexto nacional": ["National context terms", "Ulusal ba\u011Flam terimleri"],
-    "Todas las regiones": ["All regions", "T\xFCm b\xF6lgeler"],
     "Sin incidencias operativas": ["Exclude operational incidents", "Operasyonel olaylar hari\xE7"],
     "Consultar la fuente": ["Read the source", "Kayna\u011F\u0131 oku"],
     "Lo que merece tu atenci\xF3n": ["What deserves your attention", "Dikkate de\u011Fer geli\u015Fmeler"],
@@ -2017,12 +2046,12 @@
   function geographyLabel(name) {
     return !name || name === "Sin determinar" ? otherGeography : name;
   }
+  function articleGeographies(row) {
+    return [...new Set(Array.isArray(row.geografias) && row.geografias.length ? row.geografias : [row.pais || ""])];
+  }
   function applicationGeography(scopes, segment, geographies = []) {
-    let countries = new Set(scopes.filter((scope) => !segment || scope.name === segment).flatMap((scope) => scope.countries)), region = new Map(geographies.map((row) => [row.name, row.region || ""])), geography = (row) => {
-      let name = geographyLabel(row.pais);
-      return countries.has(name) ? name : otherGeography;
-    };
-    return geography.region = (country) => region.get(country) || "", geography.regions = [.../* @__PURE__ */ new Set([...REGION_CODES.filter((code) => [...region.values()].includes(code)), ...[...region.values()].filter(Boolean)])], geography;
+    let countries = new Set(scopes.filter((scope) => !segment || scope.name === segment).flatMap((scope) => scope.countries)), region = new Map(geographies.map((row) => [row.name, row.region || ""])), geography = (row) => articleGeographies(row).find((value) => countries.has(value)) || otherGeography;
+    return geography.own = (country) => countries.has(country), geography.members = (row) => [...new Set(articleGeographies(row).map((value) => countries.has(value) ? value : otherGeography))], geography.region = (country) => region.get(country) || (REGION_CODES.includes(country) ? country : ""), geography.regions = [.../* @__PURE__ */ new Set([...REGION_CODES, ...[...region.values()].filter(Boolean)])], geography;
   }
   function geographyOrder(a, b) {
     return +(a.name === otherGeography) - +(b.name === otherGeography) || a.name.localeCompare(b.name, "es");
@@ -2035,14 +2064,11 @@
     return geographies.find((row) => row.name === country)?.region || "";
   }
   function geographyMatches(row, selection, geography) {
-    return geography.regions.includes(selection) ? geography(row) === otherGeography && geography.region(row.pais) === selection : geography(row) === selection;
+    return geography.regions.includes(selection) ? articleGeographies(row).some((country) => !geography.own(country) && geography.region(country) === selection) : selection === otherGeography ? geography.members(row).includes(otherGeography) : articleGeographies(row).includes(selection);
   }
   function regionalGeographies(rows, geography) {
     let totals = new Map(geography.regions.map((name) => [name, 0]));
-    for (let row of rows) if (geography(row) === otherGeography) {
-      let region = geography.region(row.pais);
-      totals.has(region) && totals.set(region, totals.get(region) + 1);
-    }
+    for (let row of rows) for (let region of new Set(articleGeographies(row).filter((country) => !geography.own(country)).map((country) => geography.region(country)).filter(Boolean))) totals.has(region) && totals.set(region, totals.get(region) + 1);
     return [...totals].map(([name, total]) => ({ name, total }));
   }
   function geographyTabQuery(query, regions = REGION_CODES) {
@@ -2052,8 +2078,8 @@
   // src/client/features/geography-tabs.js
   function createGeographyTabs(id, panelId, onSelect) {
     let tabs = $(id), panel2 = $(panelId), rows = [], regions = [], active = "", focus = !1, geographyCatalog = [];
-    function select(name, all = !1) {
-      if (name === otherGeography && !all) {
+    function select(name) {
+      if (name === otherGeography) {
         let preferred = countryRegion(browserCountry(), geographyCatalog);
         regions.some((row) => row.name === preferred && row.total) && (name = preferred);
       }
@@ -2065,7 +2091,7 @@
     }
     return tabs.addEventListener("click", (event) => {
       let button = event.target.closest("[data-geography]");
-      button && select(button.dataset.geography, button.hasAttribute("data-all-regions"));
+      button && select(button.dataset.geography);
     }), tabs.addEventListener("keydown", (event) => {
       if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key) || !event.target.closest('[role="tab"]')) return;
       event.preventDefault();
@@ -2074,7 +2100,7 @@
     }), { render(geographies, selected, regionalRows = [], catalog = []) {
       geographyCatalog = catalog, regions = regionalRows;
       let regional = selected === otherGeography || regions.some((row) => row.name === selected);
-      rows = [...geographies, ...regional ? regions : []], active = selected, tabs.hidden = !rows.length, tabs.innerHTML = rows.map((row, index2) => `<button type="button" class="button${regions.some((region) => region.name === row.name) ? " geography-region" : ""}" role="tab" id="${id}-${index2}" aria-controls="${panelId}" aria-selected="${row.name === active}" tabindex="${row.name === active ? 0 : -1}" data-geography="${escape2(row.name)}">${regions.some((region) => region.name === row.name) ? regionMark(row.name) : identityMark("countries", row.name, escape2)}${escape2(t(geographyLabel(row.name)))}<span class="geography-count">${row.total}</span></button>`).join("") + (regional ? `<button type="button" class="button geography-region" data-geography="${otherGeography}" data-all-regions aria-pressed="${active === otherGeography}">${escape2(t("Todas las regiones"))}</button>` : "");
+      rows = [...geographies, ...regional ? regions : []], active = selected, tabs.hidden = !rows.length, tabs.innerHTML = rows.map((row, index2) => `<button type="button" class="button${regions.some((region) => region.name === row.name) ? " geography-region" : ""}" role="tab" id="${id}-${index2}" aria-controls="${panelId}" aria-selected="${row.name === active}" tabindex="${row.name === active ? 0 : -1}" data-geography="${escape2(row.name)}">${regions.some((region) => region.name === row.name) ? regionMark(row.name) : identityMark("countries", row.name, escape2)}${escape2(t(geographyLabel(row.name)))}<span class="geography-count">${row.total}</span></button>`).join("");
       let index = rows.findIndex((row) => row.name === active);
       index >= 0 ? panel2.setAttribute("aria-labelledby", id + "-" + index) : panel2.removeAttribute("aria-labelledby"), focus && (tabs.querySelector('[tabindex="0"]')?.focus(), focus = !1);
     } };
@@ -2979,6 +3005,167 @@
           ]
         }
       ]
+    },
+    mediaCatalog: {
+      label: "Medios de comunicaci\xF3n",
+      help: "80 propuestas con dominio gen\xE9rico, pendientes e inactivas. Active solo entradas verificadas. La importaci\xF3n CSV conserva ediciones existentes.",
+      fields: [
+        [
+          "seedId",
+          "ID de semilla",
+          "readonly"
+        ],
+        [
+          "name",
+          "Nombre RSS",
+          "text"
+        ],
+        [
+          "domain",
+          "Dominio",
+          "text"
+        ],
+        [
+          "country",
+          "Pa\xEDs editorial propuesto",
+          "text"
+        ],
+        [
+          "iso2",
+          "ISO2 propuesto",
+          "text"
+        ],
+        [
+          "status",
+          "Verificaci\xF3n",
+          "choice",
+          [
+            [
+              "PENDIENTE",
+              "Pendiente"
+            ],
+            [
+              "VERIFICADO",
+              "Verificado"
+            ],
+            [
+              "RECHAZADO",
+              "Rechazado"
+            ]
+          ]
+        ],
+        [
+          "enabled",
+          "Activa",
+          "boolean"
+        ],
+        [
+          "ruleType",
+          "Tipo de regla",
+          "text"
+        ],
+        [
+          "editionCountry",
+          "Pa\xEDs de edici\xF3n",
+          "text"
+        ],
+        [
+          "editionPattern",
+          "Patr\xF3n de edici\xF3n",
+          "text"
+        ],
+        [
+          "historical",
+          "Noticias hist\xF3ricas",
+          "number"
+        ],
+        [
+          "sourceUrl",
+          "URL de referencia",
+          "text"
+        ],
+        [
+          "notes",
+          "Observaciones",
+          "text"
+        ],
+        [
+          "source",
+          "Procedencia",
+          "text"
+        ],
+        [
+          "updated",
+          "Fecha",
+          "text"
+        ]
+      ]
+    },
+    localeRules: {
+      label: "Reglas idioma \u2192 geograf\xEDa",
+      help: "Fallback solo tras agotar contenido, dominio y pa\xEDs RSS. EMEA es el identificador can\xF3nico de EMAE.",
+      fields: [
+        [
+          "name",
+          "C\xF3digo de idioma",
+          "text"
+        ],
+        [
+          "destination",
+          "Destino ISO2 o regi\xF3n",
+          "text"
+        ],
+        [
+          "type",
+          "Tipo de geograf\xEDa",
+          "choice",
+          [
+            [
+              "PAIS",
+              "Pa\xEDs"
+            ],
+            [
+              "REGION",
+              "Regi\xF3n"
+            ]
+          ]
+        ],
+        [
+          "method",
+          "M\xE9todo",
+          "text"
+        ],
+        [
+          "enabled",
+          "Activa",
+          "boolean"
+        ],
+        [
+          "precedence",
+          "Precedencia",
+          "number"
+        ],
+        [
+          "confidence",
+          "Confianza",
+          "text"
+        ],
+        [
+          "source",
+          "Procedencia",
+          "text"
+        ],
+        [
+          "updated",
+          "Fecha",
+          "text"
+        ],
+        [
+          "notes",
+          "Observaciones",
+          "text"
+        ]
+      ]
     }
   };
 
@@ -3013,14 +3200,14 @@
       for (let row of rows) {
         let enabled = row.querySelector('[data-key="enabled"]');
         enabled && (row.dataset.enabled = String(enabled.checked));
-        let text = row.textContent + " " + [...row.querySelectorAll("input,textarea")].map((input2) => input2.value).join(" "), match = (!term || recordText(text).includes(term)) && (!query.enabled || !row.hasAttribute("data-enabled") || row.dataset.enabled === query.enabled);
+        let text = row.textContent + " " + [...row.querySelectorAll("input,textarea")].map((input2) => input2.value).join(" "), status = category === "mediaCatalog" && $("catalog-media-status")?.value, match = (!term || recordText(text).includes(term)) && (!query.enabled || !row.hasAttribute("data-enabled") || row.dataset.enabled === query.enabled) && (!status || row.querySelector('[data-key="status"]')?.value === status);
         row.hidden = !match, match && shown++;
       }
       $("catalog-count").textContent = t("{shown} de {total} entradas", { shown, total: rows.length });
     }
     function render() {
       let meta = admin_schema_default[category];
-      $("capability-toolbar").hidden = category !== "taxonomy", $("catalog-help").textContent = t(meta.help) + (category === "storage" ? " ID: " + storagePrimaryId : ""), $("catalog-add").hidden = !!meta.groups || category === "taxonomy";
+      $("capability-toolbar").hidden = category !== "taxonomy", $("catalog-import") && ($("catalog-import").hidden = !["mediaCatalog", "localeRules"].includes(category)), $("catalog-media-filter") && ($("catalog-media-filter").hidden = category !== "mediaCatalog"), $("catalog-help").textContent = t(meta.help) + (category === "storage" ? " ID: " + storagePrimaryId : ""), $("catalog-add").hidden = !!meta.groups || category === "taxonomy";
       let html;
       if (category === "taxonomy") html = `<details class="catalog-row" data-config-detection><summary><strong>${t("Detecci\xF3n de canal digital y b\xFAsquedas")}</strong></summary><p class="muted">${t("Estos criterios recuperan y seleccionan noticias antes de asignar funcionalidades del cat\xE1logo maestro.")}</p><label class="catalog-terms">${t("T\xE9rminos de b\xFAsqueda de sector")}<textarea id="catalog-search-terms" rows="5">${escape2(config.settings.searchTerms.join(`
 `))}</textarea><span class="small muted">${t("Un t\xE9rmino por l\xEDnea")}</span></label><button class="button" type="button" data-add-capability>${t("A\xF1adir capacidad de detecci\xF3n")}</button>${config.capabilities.Empresas.map((row) => `<details class="catalog-row" data-capability><summary><strong>${escape2(row.name)}</strong><span>${t(row.enabled ? "Activa" : "Inactiva")}</span></summary><div class="catalog-grid">${fields(capabilityFields, row)}</div><div class="actions"><button class="button" type="button" data-remove-capability>${t("Eliminar")}</button></div></details>`).join("")}</details>` + config.taxonomy.map((block, index) => `<details class="catalog-row" data-taxonomy-block><summary><strong>${escape2(block.name)}</strong><span>${block.functions.length} ${t("funcionalidades")}</span></summary><div class="catalog-grid">${fields([["name", "Bloque funcional", "readonly"], ["terms", "Equivalencias del bloque", "list"]], block)}</div>${block.functions.map((row) => `<details class="catalog-function" data-function><summary><strong>${escape2(row.id + " \xB7 " + row.name)}</strong><span>${row.terms.length} ${t("equivalencias")}</span></summary><div class="catalog-grid">${fields([["id", "C\xF3digo", "readonly"], ["name", "Funcionalidad / Sub Operativa", "readonly"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"]], row)}</div></details>`).join("")}<h3>${t("Conceptos emergentes admitidos")}</h3><button type="button" class="button" data-add-emerging="${index}">${t("A\xF1adir concepto emergente")}</button>${block.emerging.map((row) => `<div class="catalog-grid" data-emerging>${fields([["name", "Funcionalidad / Sub Operativa", "text"], ["terms", "Equivalencias de b\xFAsqueda", "list"], ["context", "Contexto operativo requerido", "list"], ["exclude", "Excluir coincidencias", "list"], ["primaryTerms", "Productos concretos de fuente oficial", "list"], ["primary", "Producto concreto respaldado por fuente oficial", "boolean"]], row)}<button type="button" class="button" data-remove-emerging>${t("Eliminar")}</button></div>`).join("")}</details>`).join("");
@@ -3077,7 +3264,16 @@
       readFields(), config.capabilities.Empresas = capabilityDefaults.Empresas.map((row) => ({ ...row, terms: row.terms.slice() })), render();
     }), $("catalog-add").addEventListener("click", () => {
       readFields(), entries().push(Object.fromEntries(admin_schema_default[category].fields.map(([key, , type, choices]) => [key, type === "list" ? [] : type === "boolean" ? !0 : type === "choice" ? choices[0][0] : ""]))), render();
-    }), $("catalog-form").addEventListener("submit", (event) => {
+    }), $("catalog-import-run")?.addEventListener("click", () => {
+      let file = $("catalog-import-file").files[0];
+      if (!file) {
+        message(t("Selecciona un archivo CSV."));
+        return;
+      }
+      run(async () => {
+        message(await call("importGeographyCatalog", { category, csv: await file.text() })), await fetchConfig(), render();
+      });
+    }), $("catalog-media-status")?.addEventListener("change", filterRows), $("catalog-form").addEventListener("submit", (event) => {
       event.preventDefault(), readFields(), run(async () => {
         message(await call("saveConfiguration", { config, revision })), await fetchConfig(), render();
       });
@@ -3087,15 +3283,18 @@
   }
 
   // src/shared/novelty-groups.js
-  function noveltyOverview(items, signalNames = [], country = (row) => geographyLabel(row.pais)) {
+  function noveltyOverview(items, signalNames = [], country = (row) => articleGeographies(row).map(geographyLabel)) {
     let signals = new Map(signalNames.map((name) => [name, 0])), geographies = /* @__PURE__ */ new Map(), entities = /* @__PURE__ */ new Set();
     for (let row of items) {
-      let name = country(row);
-      geographies.has(name) || geographies.set(name, { name, total: 0, entities: /* @__PURE__ */ new Set(), signals: new Map(signalNames.map((name2) => [name2, 0])) });
-      let geography = geographies.get(name);
-      geography.total++, geography.entities.add(row.entidad || "Entidad no identificada"), entities.add(row.entidad || "Entidad no identificada");
-      for (let signal of new Set(row.senales || []))
-        signals.set(signal, (signals.get(signal) || 0) + 1), geography.signals.set(signal, (geography.signals.get(signal) || 0) + 1);
+      let names = new Set(country.members?.(row) || [country(row)].flat());
+      entities.add(row.entidad || "Entidad no identificada");
+      for (let signal of new Set(row.senales || [])) signals.set(signal, (signals.get(signal) || 0) + 1);
+      for (let name of names) {
+        geographies.has(name) || geographies.set(name, { name, total: 0, entities: /* @__PURE__ */ new Set(), signals: new Map(signalNames.map((name2) => [name2, 0])) });
+        let geography = geographies.get(name);
+        geography.total++, geography.entities.add(row.entidad || "Entidad no identificada");
+        for (let signal of new Set(row.senales || [])) geography.signals.set(signal, (geography.signals.get(signal) || 0) + 1);
+      }
     }
     let counts = (values) => [...values].map(([name, total]) => ({ name, total }));
     return { total: items.length, entities: entities.size, bySignal: counts(signals), geographies: [...geographies.values()].map(({ signals: signals2, entities: entities2, ...row }) => ({ ...row, entityCount: entities2.size, bySignal: counts(signals2) })).sort(geographyOrder) };
@@ -3103,12 +3302,10 @@
   function publicationOrder(a, b) {
     return String(b.fecha || "").localeCompare(String(a.fecha || "")) || String(a.id || a.url || a.titular || "").localeCompare(String(b.id || b.url || b.titular || ""), "es");
   }
-  function noveltyGroups(items, country = (row) => geographyLabel(row.pais)) {
+  function noveltyGroups(items, country = (row) => articleGeographies(row).map(geographyLabel)) {
     let geographies = /* @__PURE__ */ new Map();
-    for (let row of items) {
-      let name = country(row);
+    for (let row of items) for (let name of new Set(country.members?.(row) || [country(row)].flat()))
       geographies.has(name) || geographies.set(name, { name, items: [] }), geographies.get(name).items.push(row);
-    }
     return [...geographies.values()].map((group) => ({ ...group, items: group.items.sort(publicationOrder) })).sort(geographyOrder);
   }
   function noveltyCount(count, singular, plural, translate = (value) => value) {

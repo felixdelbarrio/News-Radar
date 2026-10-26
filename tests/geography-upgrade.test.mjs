@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {storage} from './helpers/server.mjs';
 function setup(){const s=storage();s.c.initializeConfiguration();return s;}
-test('country assignment follows the four business priorities and always returns a configured country',()=>{
+test('country assignment follows content, publisher URL, RSS and regional fallback',()=>{
  const {c}=setup(),base={titular:'Nuevo servicio digital para empresas',entidad:'Revolut',url:'https://news.google.com/rss/articles/a',fuente:'Revolut · Italia'};
  const cases=[
   [{...base,titular:'Revolut lanza servicio en Colombia',sourceUrl:'https://editor.es/story'},'Colombia','headline'],
@@ -11,9 +11,9 @@ test('country assignment follows the four business priorities and always returns
   [{...base,medio:'LaRepublica.co'},'Colombia','domain'],
   [{...base,medio:'Portafolio.co'},'Colombia','domain'],
   [{...base,medio:'Portafolio.co',titular:'Nuevo servicio digital en España'},'España','headline'],
-  [{...base,medio:'Portafolio.co informa'},'Italia','rss'],
-  [base,'Italia','rss'],
-  [{...base,fuente:''},'Reino Unido','headquarters']
+  [{...base,medio:'Portafolio.co informa'},'Italia','rss_fallback'],
+  [base,'Italia','rss_fallback'],
+  [{...base,fuente:''},'APAC','apac_fallback']
  ];
  for(const [row,country,reason] of cases){const result=c.newsCountryDecision_(row);assert.equal(result.country,country);assert.equal(result.reason,reason);}
  assert.equal(c.domainCountry_('https://bank.co.uk/story'),'Reino Unido');

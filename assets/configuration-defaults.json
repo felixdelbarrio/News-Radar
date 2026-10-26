@@ -1330,7 +1330,10 @@
       "region": "EMEA",
       "publisherDomains": [],
       "publisherNames": [],
-      "aliases": []
+      "aliases": [
+        "UK",
+        "Great Britain"
+      ]
     },
     {
       "name": "Estados Unidos",
@@ -1462,7 +1465,9 @@
       "mapId": "344",
       "searchName": "Hong Kong",
       "enabled": true,
-      "terms": [],
+      "terms": [
+        "HKMA"
+      ],
       "region": "APAC",
       "publisherDomains": [],
       "publisherNames": [],

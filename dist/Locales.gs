@@ -1,5 +1,35 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "Importar CSV": ["Import CSV","CSV içe aktar"],
+  "Importar sin reemplazar ediciones": ["Import without replacing edits","Düzenlemeleri değiştirmeden içe aktar"],
+  "Medios de comunicación": ["News publishers","Haber yayıncıları"],
+  "Reglas idioma → geografía": ["Language → geography rules","Dil → coğrafya kuralları"],
+  "Selecciona un archivo CSV.": ["Select a CSV file.","Bir CSV dosyası seçin."],
+  "Catálogo geográfico demasiado grande.": ["Geography catalog is too large.","Coğrafya kataloğu çok büyük."],
+  "CSV con comillas incompletas.": ["CSV has unmatched quotes.","CSV dosyasında eşleşmeyen tırnak işaretleri var."],
+  "Catálogo desconocido.": ["Unknown catalog.","Bilinmeyen katalog."],
+  "Detectado automáticamente en source.url; sin verificación editorial.": ["Automatically detected from source.url; editorial origin unverified.","source.url üzerinden otomatik algılandı; yayın kaynağı doğrulanmadı."],
+  "80 propuestas con dominio genérico, pendientes e inactivas. Active solo entradas verificadas. La importación CSV conserva ediciones existentes.": ["80 generic domain proposals, pending and inactive. Activate only verified entries. CSV import preserves existing edits.","80 genel alan adı önerisi beklemede ve pasif. Yalnızca doğrulanmış kayıtları etkinleştirin. CSV içe aktarma mevcut düzenlemeleri korur."],
+  "Fallback solo tras agotar contenido, dominio y país RSS. EMEA es el identificador canónico de EMAE.": ["Fallback only after checking content, domain and RSS country. EMEA is the canonical identifier for EMAE.","Yedekleme yalnızca içerik, alan adı ve RSS ülkesi kontrol edildikten sonra uygulanır. EMEA, EMAE için standart tanımlayıcıdır."],
+  "Nombre RSS": ["RSS name","RSS adı"],
+  "ID de semilla": ["Seed ID","Tohum kimliği"],
+  "Dominio": ["Domain","Alan adı"],
+  "País editorial propuesto": ["Proposed editorial country","Önerilen yayın ülkesi"],
+  "ISO2 propuesto": ["Proposed ISO2","Önerilen ISO2"],
+  "Verificación": ["Verification","Doğrulama"],
+  "Tipo de regla": ["Rule type","Kural türü"],
+  "País de edición": ["Edition country","Yayın ülkesi"],
+  "Patrón de edición": ["Edition pattern","Yayın deseni"],
+  "Noticias históricas": ["Historical news","Geçmiş haberler"],
+  "URL de referencia": ["Reference URL","Referans URL"],
+  "Procedencia": ["Source","Kaynak"],
+  "Código de idioma": ["Language code","Dil kodu"],
+  "Destino ISO2 o región": ["ISO2 or region destination","ISO2 veya bölge hedefi"],
+  "Tipo de geografía": ["Geography type","Coğrafya türü"],
+  "Región": ["Region","Bölge"],
+  "Método": ["Method","Yöntem"],
+  "Precedencia": ["Precedence","Öncelik"],
+  "Confianza": ["Confidence","Güven"],
   "Fuera del bloque funcional solicitado.": ["Outside the requested functional block.","İstenen işlevsel bloğun dışında."],
   "Evidencia oficial BBVA con relevancia superior a alternativas.": ["Official BBVA evidence with higher relevance than alternatives.","Alternatiflerden daha ilgili resmî BBVA kanıtı."],
   "Se excluyen indisponibilidades e incidencias operativas; se muestran en su sección propia.": ["Outages and operational incidents are excluded; they have their own section.","Kesintiler ve operasyonel olaylar hariç tutulur; kendi bölümlerinde gösterilir."],
@@ -38,7 +68,6 @@ const translations = Object.freeze({
   "Nombres de medios verificados en el país": ["Names of publishers verified in the country","Ülkede doğrulanan yayıncı adları"],
   "Otros nombres del país": ["Other country names","Diğer ülke adları"],
   "Términos de contexto nacional": ["National context terms","Ulusal bağlam terimleri"],
-  "Todas las regiones": ["All regions","Tüm bölgeler"],
   "Sin incidencias operativas": ["Exclude operational incidents","Operasyonel olaylar hariç"],
   "Consultar la fuente": ["Read the source","Kaynağı oku"],
   "Lo que merece tu atención": ["What deserves your attention","Dikkate değer gelişmeler"],
@@ -1554,6 +1583,6 @@ function formatCalendarDay(value,language='es'){
 }
 function formatText(text,values,language='es'){return translateText(text,language).replace(/\{(\w+)\}/g,(_,key)=>String(values[key]??''));}
 
-function feedLanguage(value){const tag=String(value||'').trim();return /^[a-z]{2}(?:-[A-Za-z0-9]{2,8})?$/.test(tag)?tag:'';}
+function feedLanguage(value){const tag=String(value||'').trim().replace(/_/g,'-');return /^[a-z]{2}(?:-[A-Za-z0-9]{2,8})*$/.test(tag)?tag:'';}
 const recordLabels={llm:'Categorización LLM',radar:'Radar',news:'Noticias',briefing:'Novedades',subscriptions:'Mi Newsletter',administration:'Administración',configuration:'Configuración de negocio',daily:'Recopilación diaria',annual:'Recuperación anual',sources:'Fuentes',runs:'Ejecuciones',language:'Idioma',audit:'Auditoría',telemetry:'Telemetría',adoption:'Adopción',subscribers:'Suscripciones',acceso:'Acceso',vista:'Vista',filtro:'Filtro',lectura:'Lectura',exportacion:'Exportación',rendimiento:'Rendimiento',error:'Error',dashboard:'Carga de selección',recopilacion:'Recopilación',traduccion:'Traducción de noticias'};
 function displayRecord(value,language='es'){return translateText(Object.prototype.hasOwnProperty.call(recordLabels,value)?recordLabels[value]:value,language);}
