@@ -57,10 +57,10 @@ function newsletterTest_(session,input){
     const edition=Utilities.getUuid(),delivery='prueba:'+Utilities.getUuid();
     const query=subscriptionQuery_({periodicidad:input.cadence,filtros:{country}},now,true),title=newsletterSubject_(query,language),content=newsletter_(rows_('Noticias',undefined,undefined,query).filter(businessNews_),query,title,now,undefined,language,edition);
 
-    content.subject='['+translateText('PRUEBA',language)+'] '+content.subject;
+    content.subject=newsletterIdentity_(query,now,translateText('PRUEBA',language)).subject;
     if(!content.count){append_('NewsletterEnvios',[[delivery,'',recipient,query.from,query.to,'Sin novedades',now.toISOString(),newsletterContentDetail_(content)]]);return {accepted:false,recipient,count:0,from:query.from,to:query.to};}
     const sender=newsletterSender_();
-    saveNewsletterEdition_(edition,delivery,recipient,title,query,language,content.evidence,content.editorial);
+    saveNewsletterEdition_(edition,delivery,recipient,content.subject,query,language,content.evidence,content.editorial);
     append_('NewsletterEnvios',[[delivery,'',recipient,query.from,query.to,'Enviando',now.toISOString(),'Prueba del administrador']]);
     claimed=true;
     const sheet=book_().getSheetByName('NewsletterEnvios'),id=completeNewsletterDelivery_(sheet,sheet.getLastRow(),sender,recipient,content);

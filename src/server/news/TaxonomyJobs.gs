@@ -46,7 +46,7 @@ function requestTaxonomy_(request='',refresh=true){
   if(previous?.generation)for(const name of [previous.generation.newsSheet,previous.generation.taxonomySheet])if(name!==published.newsSheet&&name!==published.taxonomySheet){const sheet=book_().getSheetByName(name);if(sheet)book_().deleteSheet(sheet);}
   const lastRow=newsSheet_().getLastRow(),candidateTotal=Math.max(0,candidateSheet_().getLastRow()-1),total=Math.max(0,lastRow-1),now=new Date().toISOString();
   const id=Utilities.getUuid();
-  writeTaxonomyJob_({request,catalog,id,source:newsStorageKey_(),state:'Pendiente',phase:'scan',next:2,candidateTotal,candidateRevision:properties_().getProperty('CANDIDATES_REVISION')||'0',total,workTotal:total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});
+  writeTaxonomyJob_({request,catalog,id,reclassify:Boolean(previous?.reclassify&&previous.state!=='Completada'),source:newsStorageKey_(),state:'Pendiente',phase:'scan',next:2,candidateTotal,candidateRevision:properties_().getProperty('CANDIDATES_REVISION')||'0',total,workTotal:total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});
   clearTaxonomyCheckpoints_();properties_().deleteProperty('DASHBOARD_SNAPSHOT_BUILD');ensureBackgroundWorker_();
 }
 function drainTaxonomyRequest_(){

@@ -37,5 +37,5 @@ export function readClientScript(coverage=false){
   return buildSync({entryPoints:[path.join(root,'src/client/app.js')],bundle:true,write:false,define:identityDefine(),format:'iife',target:'es2022',minifySyntax:true,legalComments:'none'}).outputFiles[0].text;
 }
 export function renderIncludes(html){
-  return html.replace(/<\?!= include_\('([\w]+)'\); \?>/g,(_,name)=>read('dist/'+name+'.html'));
+  return html.replace('<?!= bootstrap; ?>','null').replace(/<\?!= include_\('([\w]+)'\); \?>/g,(_,name)=>read('dist/'+name+'.html'));
 }

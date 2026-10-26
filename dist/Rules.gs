@@ -42,7 +42,9 @@ function businessIndex_(){
   const relevance=Object.fromEntries(RELEVANCE_ROLES.map(role=>[role,phrasePattern_(config.relevanceRules.filter(row=>row.enabled&&row.role===role).flatMap(row=>row.terms.map(searchText_)))]));
   const serviceNames=phrasePattern_(aliases.filter(([alias])=>alias.includes(' ')&&relevance.service.test(alias)).map(([alias])=>alias),'g');
   const cataloguePattern=phrasePattern_(config.taxonomy.flatMap(block=>block.functions.flatMap(row=>[row.name,...row.terms])).map(searchText_));
-  return businessIndexMemory_={publisherPatterns:new Map(),cataloguePattern,config,entities,entityTerms,aliases,serviceNames,relevance,capabilities,segments:rules(config.segments),signals:rules(config.signals),geographies:config.geographies.filter(row=>row.enabled).map(row=>({...row,terms:[...new Set([row.name,row.searchName,...(row.terms||[])].map(searchText_))]}))};
+  const geographies=config.geographies.filter(row=>row.enabled).map(row=>({...row,names:[...new Set([row.name,row.searchName,...(row.aliases||[])].map(searchText_))],terms:[...new Set([row.name,row.searchName,...(row.aliases||[]),...(row.terms||[])].map(searchText_))]})),publisherCountries=new Map(),publisherDomains=new Map(),marketCountries=[];
+ for(const geo of geographies){for(const name of geo.publisherNames||[])publisherCountries.set(searchText_(name),geo.name);for(const domain of geo.publisherDomains||[])publisherDomains.set(domain.toLowerCase(),geo.name);for(const term of geo.terms)if(!geo.names.includes(term))marketCountries.push({term,country:geo.name});}
+ return businessIndexMemory_={publisherPatterns:new Map(),cataloguePattern,config,entities,entityTerms,aliases,serviceNames,relevance,capabilities,segments:rules(config.segments),signals:rules(config.signals),geographies,publisherCountries,publisherDomains,marketCountries,countryNames:new Set(config.geographies.map(row=>row.name))};
 }
 function phrasePattern_(terms,flags=''){return new RegExp('(?:^|[^a-z0-9])(?:'+(terms.map(term=>term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\\\*/g,'[a-z0-9]*')).join('|')||'(?!)')+')(?![a-z0-9])',flags);}
 function phrasePosition_(text,term){
@@ -177,12 +179,16 @@ function domainCountry_(url,index=businessIndex_()){
 function newsCountryDecision_(row,index=businessIndex_()){
  const title=searchText_(row.titular).replace(/[\u2010-\u2015]/g,'-');
  let country='',position=Infinity,evidence='';
- for(const geo of index.geographies)for(const term of [geo.name,geo.searchName]){const normalized=searchText_(term),at=phrasePosition_(title,normalized);if(at>=0&&at<position){country=geo.name;position=at;evidence=term;}}
+ for(const geo of index.geographies)for(const term of geo.names){const at=phrasePosition_(title,term);if(at>=0&&at<position){country=geo.name;position=at;evidence=term;}}
  if(country)return {country,reason:'headline',evidence};
  const provenance=savedNewsLabels_(row.clasificacion).procedencia||{};
  const publisherUrl=/^(?:[a-z\d](?:[a-z\d-]*[a-z\d])?\.)+[a-z]{2,}$/i.test(row.medio||'')?'https://'+row.medio:'';
- for(const url of [row.sourceUrl||provenance.medioUrl,row.url,publisherUrl]){const country=domainCountry_(url,index);if(country)return {country,reason:'domain',evidence:canonicalUrl_(url)};}
- const rssCountry=index.config.geographies.find(geo=>geo.name===(row.rssCountry||provenance.paisRSS))?.name||sourceGeographies_(index).get(searchText_(row.fuente));
+ const urls=[row.sourceUrl||provenance.medioUrl,row.url,publisherUrl];
+ for(const url of urls){const country=domainCountry_(url,index);if(country)return {country,reason:'domain',evidence:canonicalUrl_(url)};}
+ for(const {term,country} of index.marketCountries)if(phraseMatch_(title,term))return {country,reason:'market',evidence:term};
+ for(const url of urls){let host=canonicalUrl_(url).match(/^https:\/\/([^/]+)/)?.[1]||'';while(host.includes('.')){const country=index.publisherDomains.get(host);if(country)return {country,reason:'publisher',evidence:host};host=host.slice(host.indexOf('.')+1);}}
+ const publisherCountry=index.publisherCountries.get(searchText_(row.medio));if(publisherCountry)return {country:publisherCountry,reason:'publisher',evidence:row.medio};
+ const explicitRSS=row.rssCountry||provenance.paisRSS,rssCountry=(index.countryNames.has(explicitRSS)?explicitRSS:'')||sourceGeographies_(index).get(searchText_(row.fuente));
  if(rssCountry)return {country:rssCountry,reason:'rss',evidence:row.fuente||rssCountry};
  const entity=index.entities.get(searchText_(row.entidad))||headlineEntity_(title,index);
  return {country:entity?.headquartersCountry||'',reason:'headquarters',evidence:entity?.name||''};
@@ -202,7 +208,10 @@ function applyGeographyUpgrade(){
   const entities=JSON.parse(rows[index][1]),seeds=new Map(CONFIGURATION_DEFAULTS.entities.map(row=>[row.name,row.headquartersCountry]));
   if(entities.some(row=>!row.headquartersCountry&&!seeds.has(row.name)))throw Error('Hay entidades sin país de sede configurado.');
   const updated=entities.map(row=>({...row,headquartersCountry:row.headquartersCountry||seeds.get(row.name)}));
-  const previous=JSON.parse(properties_().getProperty('GEOGRAPHY_UPGRADE')||'null');if(previous?.version===RADAR.version&&updated.every((row,i)=>row.headquartersCountry===entities[i].headquartersCountry))return getGeographyUpgrade();
+  const geoIndex=rows.findIndex(([key])=>key==='geographies'),geographies=JSON.parse(rows[geoIndex][1]),geoSeeds=new Map(CONFIGURATION_DEFAULTS.geographies.map(row=>[row.code,row]));
+  const merged=geographies.map(row=>{const seed=geoSeeds.get(row.code);return {...row,region:row.region||seed?.region||'',...Object.fromEntries(['publisherDomains','publisherNames','aliases'].map(key=>[key,[...new Set([...(row[key]||[]),...(seed?.[key]||[])])]]))};});
+  merged.push(...CONFIGURATION_DEFAULTS.geographies.filter(seed=>!geographies.some(row=>row.code===seed.code)));
+  const previous=JSON.parse(properties_().getProperty('GEOGRAPHY_UPGRADE')||'null');if(previous?.version===RADAR.version&&updated.every((row,i)=>row.headquartersCountry===entities[i].headquartersCountry)&&JSON.stringify(merged)===JSON.stringify(geographies))return getGeographyUpgrade();
   const source=book_(),backup=source.copy('News Radar · Geografías '+RADAR.version+' · '+new Date().toISOString()),original=rows[index][1];
   fileInFolder_(backup.getId(),archiveFolder_(JSON.parse(rows.find(([key])=>key==='storage')[1]).primaryFolderId));
   for(const name of ['Configuracion',newsStorageKey_()]){
@@ -210,11 +219,11 @@ function applyGeographyUpgrade(){
    if(!copy||copy.getLastRow()!==height||copy.getLastColumn()!==width||sha256_(JSON.stringify(active.getRange(1,1,height,width).getDisplayValues()))!==sha256_(JSON.stringify(copy.getRange(1,1,height,width).getDisplayValues())))throw Error('Backup no verificado: '+name);
   }
   try{
-   sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(updated)]]);SpreadsheetApp.flush();invalidateConfiguration_();
+   sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(updated)]]);sheet.getRange(geoIndex+2,2,1,1).setValues([[JSON.stringify(merged)]]);SpreadsheetApp.flush();invalidateConfiguration_();
    if(configuration_().entities.some(row=>!row.headquartersCountry))throw Error('Sedes no verificadas.');
    requestNewsClassification_(true);
    properties_().setProperty('GEOGRAPHY_UPGRADE',JSON.stringify({version:RADAR.version,backupId:backup.getId(),backupUrl:backup.getUrl(),updatedAt:new Date().toISOString(),entities:updated.length}));
    return getGeographyUpgrade();
-  }catch(error){sheet.getRange(index+2,2,1,1).setValues([[original]]);invalidateConfiguration_();throw error;}
+  }catch(error){sheet.getRange(index+2,2,1,1).setValues([[original]]);sheet.getRange(geoIndex+2,2,1,1).setValues([[rows[geoIndex][1]]]);invalidateConfiguration_();throw error;}
  });
 }

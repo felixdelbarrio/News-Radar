@@ -5,17 +5,21 @@ import {createRecordFilters} from './record-filters.js';
 import {activityChart} from './activity-chart.js';
 import {newsletterCadences} from '../../shared/newsletter-cadences.js';
 import {t} from '../core/language.js';
-const filters={},requests={};
+const filters={},requests={};let adoptionCohort='dau';
+const adoptionCohorts=[['dau','DAU','Usuarios · 24 horas'],['wau','WAU','Usuarios · 7 días'],['mau','MAU','Usuarios · 30 días'],['returning','Recurrentes','Más de una sesión · 30 días'],['total','Total usuarios','Usuarios · período filtrado']];
+$('adoption-metrics').addEventListener('click',event=>{const cohort=event.target.closest('[data-cohort]')?.dataset.cohort;if(cohort&&cohort!==adoptionCohort){adoptionCohort=cohort;filters.adoption.reset();loadMetrics('adoption',()=>!$('adoption-section').hidden&&!$('administration-section').hidden);}});
 async function loadMetrics(view, isCurrent) {
   if(view==='feedback')return loadFeedback(isCurrent);
   filters[view]||=createRecordFilters(view,[['correo','Usuario'],['vista','Vista'],['evento','Evento']],()=>loadMetrics(view,isCurrent),{dates:true});
   const request=requests[view]=(requests[view]||0)+1;
   try {
-    const data=await call('getAdoption',filters[view].query());
+    const data=await call('getAdoption',{...filters[view].query(),cohort:adoptionCohort});
     if (!isCurrent()||requests[view]!==request) return;
     filters[view].options(data.options);
     if (view === "adoption") {
-      $("adoption-metrics").innerHTML = metricCards([["DAU", data.dau, "Usuarios · 24 horas"], ["WAU", data.wau, "Usuarios · 7 días"], ["MAU", data.mau, "Usuarios · 30 días"], ["Recurrentes", data.returning, "Más de una sesión · 30 días"]]);
+      $('adoption-metrics').innerHTML=adoptionCohorts.map(([key,label,hint])=>'<button type="button" class="metric" data-cohort="'+key+'" aria-pressed="'+(key===adoptionCohort)+'"><span>'+escape(t(label))+'</span><strong>'+Number(data[key==='total'?'totalUsers':key]||0)+'</strong><span class="small">'+escape(t(hint))+'</span></button>').join('');
+      filters[view].page(data);$('adoption-users-label').textContent=t(adoptionCohorts.find(([key])=>key===adoptionCohort)[1])+' · '+t('{count} usuarios',{count:data.total});
+      $('adoption-body').innerHTML=data.users.map(row=>'<tr>'+[row.correo,date(row.last),row.sessions,row.actions,date(row.first)].map((value,index)=>'<td data-label="'+escape(t(['Usuario','Último acceso','Sesiones','Eventos','Primer acceso'][index]))+'">'+escape(value)+'</td>').join('')+'</tr>').join('')||'<tr><td colspan="5">'+t('No hay usuarios en este grupo.')+'</td></tr>';
       $("adoption-note").textContent = t('{sessions} sesiones y {events} eventos que cumplen los filtros en los últimos 30 días. Incluye al administrador; sesiones identificadas por apertura del navegador.',data)+' ' + (data.limited ? "Límite de eventos alcanzado; métricas parciales." : "");
       $("adoption-chart").innerHTML=activityChart(data.daily);
 

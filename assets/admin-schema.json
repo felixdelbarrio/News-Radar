@@ -188,8 +188,28 @@
         "text"
       ],
       [
+        "aliases",
+        "Otros nombres del país",
+        "list"
+      ],
+      [
+        "region",
+        "Zona regional",
+        "text"
+      ],
+      [
+        "publisherDomains",
+        "Dominios genéricos de medios verificados en el país",
+        "list"
+      ],
+      [
+        "publisherNames",
+        "Nombres de medios verificados en el país",
+        "list"
+      ],
+      [
         "terms",
-        "Nombres alternativos del país",
+        "Términos de contexto nacional",
         "list"
       ],
       [

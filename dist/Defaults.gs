@@ -2846,6 +2846,12 @@ const CONFIGURATION_DEFAULTS = {
       "terms": [
         "Spain",
         "Espanha"
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": [
+        "Spain"
       ]
     },
     {
@@ -2863,6 +2869,12 @@ const CONFIGURATION_DEFAULTS = {
         "spei",
         "cnbv",
         "condusef"
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": [
+        "Mexico"
       ]
     },
     {
@@ -2879,6 +2891,12 @@ const CONFIGURATION_DEFAULTS = {
         "bcrp",
         "sunat",
         "sbs peru"
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": [
+        "Peru"
       ]
     },
     {
@@ -2900,7 +2918,18 @@ const CONFIGURATION_DEFAULTS = {
         "superfinanciera",
         "banco de la republica",
         "ach colombia"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [
+        "hsbnoticias.com",
+        "semana.com"
+      ],
+      "publisherNames": [
+        "HSB Noticias",
+        "Revista Semana",
+        "Semana"
+      ],
+      "aliases": []
     },
     {
       "name": "Argentina",
@@ -2916,7 +2945,11 @@ const CONFIGURATION_DEFAULTS = {
         "bcra",
         "afip",
         "arca"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Turquía",
@@ -2927,7 +2960,11 @@ const CONFIGURATION_DEFAULTS = {
       "searchName": "Türkiye",
       "terms": [
         "Turkey"
-      ]
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Uruguay",
@@ -2941,7 +2978,11 @@ const CONFIGURATION_DEFAULTS = {
         "uruguaya",
         "uruguayos",
         "bcu"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Italia",
@@ -2950,7 +2991,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "380",
       "searchName": "Italy",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Alemania",
@@ -2961,7 +3006,11 @@ const CONFIGURATION_DEFAULTS = {
       "enabled": true,
       "terms": [
         "Deutschland"
-      ]
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Francia",
@@ -2970,7 +3019,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "250",
       "searchName": "France",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Portugal",
@@ -2981,7 +3034,11 @@ const CONFIGURATION_DEFAULTS = {
       "enabled": true,
       "terms": [
         "Portogallo"
-      ]
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Reino Unido",
@@ -2992,7 +3049,11 @@ const CONFIGURATION_DEFAULTS = {
       "enabled": true,
       "terms": [
         "Britain"
-      ]
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Estados Unidos",
@@ -3004,7 +3065,11 @@ const CONFIGURATION_DEFAULTS = {
       "terms": [
         "USA",
         "United States of America"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Suiza",
@@ -3017,7 +3082,11 @@ const CONFIGURATION_DEFAULTS = {
         "Schweiz",
         "Suisse",
         "Svizzera"
-      ]
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Países Bajos",
@@ -3028,7 +3097,11 @@ const CONFIGURATION_DEFAULTS = {
       "enabled": true,
       "terms": [
         "Nederland"
-      ]
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Bélgica",
@@ -3040,7 +3113,11 @@ const CONFIGURATION_DEFAULTS = {
       "terms": [
         "Belgique",
         "België"
-      ]
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Rumanía",
@@ -3049,7 +3126,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "642",
       "searchName": "Romania",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Brasil",
@@ -3060,7 +3141,11 @@ const CONFIGURATION_DEFAULTS = {
       "enabled": true,
       "terms": [
         "Brasil"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Chile",
@@ -3074,7 +3159,11 @@ const CONFIGURATION_DEFAULTS = {
         "chilena",
         "chilenos",
         "cmf chile"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "China",
@@ -3083,7 +3172,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "156",
       "searchName": "China",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Hong Kong",
@@ -3092,7 +3185,13 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "344",
       "searchName": "Hong Kong",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": [
+        "Hong Kong SAR China"
+      ]
     },
     {
       "name": "Japón",
@@ -3101,7 +3200,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "392",
       "searchName": "Japan",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Singapur",
@@ -3110,7 +3213,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "702",
       "searchName": "Singapore",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "India",
@@ -3119,7 +3226,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "356",
       "searchName": "India",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Australia",
@@ -3128,7 +3239,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "036",
       "searchName": "Australia",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Indonesia",
@@ -3137,7 +3252,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "360",
       "searchName": "Indonesia",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Corea del Sur",
@@ -3148,7 +3267,11 @@ const CONFIGURATION_DEFAULTS = {
       "enabled": true,
       "terms": [
         "Republic of Korea"
-      ]
+      ],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Vietnam",
@@ -3159,7 +3282,11 @@ const CONFIGURATION_DEFAULTS = {
       "enabled": true,
       "terms": [
         "Viet Nam"
-      ]
+      ],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Filipinas",
@@ -3168,7 +3295,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "608",
       "searchName": "Philippines",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Malasia",
@@ -3177,7 +3308,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "458",
       "searchName": "Malaysia",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Tailandia",
@@ -3186,7 +3321,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "764",
       "searchName": "Thailand",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Venezuela",
@@ -3198,7 +3337,11 @@ const CONFIGURATION_DEFAULTS = {
       "terms": [
         "Venezuela",
         "venezolano"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Canadá",
@@ -3210,7 +3353,11 @@ const CONFIGURATION_DEFAULTS = {
       "terms": [
         "Canada",
         "Canadian"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Emiratos Árabes Unidos",
@@ -3224,7 +3371,221 @@ const CONFIGURATION_DEFAULTS = {
         "United Arab Emirates",
         "Dubai",
         "Abu Dhabi"
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": [
+        "United Arab Emirates"
       ]
+    },
+    {
+      "name": "Nigeria",
+      "code": "NG",
+      "language": "en",
+      "mapId": "566",
+      "enabled": true,
+      "searchName": "Nigeria",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Panamá",
+      "code": "PA",
+      "language": "en",
+      "mapId": "591",
+      "enabled": true,
+      "searchName": "Panama",
+      "terms": [],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Bolivia",
+      "code": "BO",
+      "language": "en",
+      "mapId": "068",
+      "enabled": true,
+      "searchName": "Bolivia",
+      "terms": [],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Paraguay",
+      "code": "PY",
+      "language": "en",
+      "mapId": "600",
+      "enabled": true,
+      "searchName": "Paraguay",
+      "terms": [],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Bangladés",
+      "code": "BD",
+      "language": "en",
+      "mapId": "050",
+      "enabled": true,
+      "searchName": "Bangladesh",
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Pakistán",
+      "code": "PK",
+      "language": "en",
+      "mapId": "586",
+      "enabled": true,
+      "searchName": "Pakistan",
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Chipre",
+      "code": "CY",
+      "language": "en",
+      "mapId": "196",
+      "enabled": true,
+      "searchName": "Cyprus",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Arabia Saudí",
+      "code": "SA",
+      "language": "en",
+      "mapId": "682",
+      "enabled": true,
+      "searchName": "Saudi Arabia",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Polonia",
+      "code": "PL",
+      "language": "en",
+      "mapId": "616",
+      "enabled": true,
+      "searchName": "Poland",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Irlanda",
+      "code": "IE",
+      "language": "en",
+      "mapId": "372",
+      "enabled": true,
+      "searchName": "Ireland",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Andorra",
+      "code": "AD",
+      "language": "en",
+      "mapId": "020",
+      "enabled": true,
+      "searchName": "Andorra",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Luxemburgo",
+      "code": "LU",
+      "language": "en",
+      "mapId": "442",
+      "enabled": true,
+      "searchName": "Luxembourg",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Fiyi",
+      "code": "FJ",
+      "language": "en",
+      "mapId": "242",
+      "enabled": true,
+      "searchName": "Fiji",
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Nueva Zelanda",
+      "code": "NZ",
+      "language": "en",
+      "mapId": "554",
+      "enabled": true,
+      "searchName": "New Zealand",
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Hungría",
+      "code": "HU",
+      "language": "en",
+      "mapId": "348",
+      "enabled": true,
+      "searchName": "Hungary",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Azerbaiyán",
+      "code": "AZ",
+      "language": "en",
+      "mapId": "031",
+      "enabled": true,
+      "searchName": "Azerbaijan",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     }
   ],
   "segments": [

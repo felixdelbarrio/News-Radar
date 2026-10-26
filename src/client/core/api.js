@@ -3,17 +3,18 @@ import {beginLoading} from './loading.js';
 export {refreshLoading} from './loading.js';
 import {t,setTaxonomyTranslations} from './language.js';
 function receive(data){if(data?.taxonomyTranslations)setTaxonomyTranslations(data.taxonomyTranslations);return data;}
-const requests=new Map(),dashboards=new Map();
-const dashboardStorage='radar-dashboards:v24';let dashboardRevision='',prefetched=false;
+const requests=new Map(),dashboards=new Map(),validations=new Map();
+const applicationVersion=document.querySelector('meta[name=application-version]')?.content||'preview',dashboardStorage='radar-dashboards:'+applicationVersion;let dashboardRevision='',prefetched=false;
 const dashboardKey=query=>JSON.stringify(Object.entries(query||{}).filter(([key,value])=>value!==''&&value!=null&&!(key==='page'&&Number(value)===0)&&!(key==='initial'&&value===false)).sort(([a],[b])=>a.localeCompare(b)));
-try{const saved=JSON.parse(sessionStorage.getItem(dashboardStorage)||'null');if(saved&&Date.now()-saved.at<300000){dashboardRevision=saved.revision;for(const [key,value] of saved.entries)dashboards.set(key,value);}}catch(_){}
+try{const saved=JSON.parse(sessionStorage.getItem(dashboardStorage)||'null');if(saved&&Date.now()-saved.at<21600000){dashboardRevision=saved.revision;for(const [key,value] of saved.entries)dashboards.set(key,value);}}catch(_){}
 function rememberDashboard(query,data){
- const revision=JSON.stringify([data.newsRevision,data.configurationRevision]);if(revision!==dashboardRevision){dashboards.clear();dashboardRevision=revision;}
+ const revision=JSON.stringify([data.newsRevision,data.configurationRevision,data.readingDay]);if(revision!==dashboardRevision){dashboards.clear();dashboardRevision=revision;}
  const value={data,at:Date.now()};dashboards.set(dashboardKey(query),value);
  const selection={...data.selection,...(query.newsGeography&&!data.selection?.newsGeography?{newsGeography:query.newsGeography}:{}),view:query.view,language:query.language,initial:false};dashboards.set(dashboardKey(selection),value);
  while(dashboards.size>12)dashboards.delete(dashboards.keys().next().value);
  try{sessionStorage.setItem(dashboardStorage,JSON.stringify({at:Date.now(),revision:dashboardRevision,entries:[...dashboards]}));}catch(_){}
 }
+if(window.RADAR_BOOTSTRAP){rememberDashboard(window.RADAR_BOOTSTRAP.query,window.RADAR_BOOTSTRAP.data);delete window.RADAR_BOOTSTRAP;}
 function prefetchDashboards(query){
  if(prefetched||query.edition)return;prefetched=true;
  const idle=window.requestIdleCallback|| (callback=>setTimeout(callback,1000));
@@ -31,8 +32,8 @@ function call(method, ...args) {
   const dashboard=method==='getDashboard'&&['briefing','news','radar'].includes(args[0]?.view)&&!args[0]?.edition;
   const cached=dashboard&&args[1]?.reuse&&dashboards.get(dashboardKey(args[0]));
   if(cached){
-    if(Date.now()-cached.at>=60000){const refresh=send(method,args[0]).then(data=>{rememberDashboard(args[0],data);return data;});requests.set(key,refresh);refresh.then(()=>requests.delete(key),()=>requests.delete(key));}
-    return Promise.resolve(receive({...cached.data,performance:{...cached.data.performance,clientCacheHit:true,serverMs:0,transportMs:0}}));
+    if(Date.now()-cached.at>=60000&&!validations.has(key)){cached.at=Date.now();const refresh=send('getReadingRevision').then(revision=>{if(JSON.stringify([revision.newsRevision,revision.configurationRevision,revision.readingDay])===dashboardRevision)return cached.data;return send(method,args[0]).then(data=>{rememberDashboard(args[0],data);window.dispatchEvent(new CustomEvent('news-radar-revision'));return data;});});validations.set(key,refresh);refresh.then(()=>validations.delete(key),()=>validations.delete(key));}
+    prefetchDashboards(args[0]);return Promise.resolve(receive({...cached.data,performance:{...cached.data.performance,clientCacheHit:true,serverMs:0,transportMs:0}}));
   }
   const finishLoading=beginLoading(method,args);
   let response;const started=performance.now();

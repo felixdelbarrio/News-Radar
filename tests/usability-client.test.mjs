@@ -10,7 +10,7 @@ test('editar criterios conserva resultados y chips hasta Aplicar filtros; restau
  await a.click('#open-filters');const before=dashboards(a).length;
  await draft(a,'entity','Santander');assert.equal(dashboards(a).length,before);assert.match(a.find('#active-filters').textContent,/BBVA/);
  a.data.selection.entity='Santander';await a.submit('#filters');assert.equal(dashboards(a).length,before+1);assert.equal(dashboards(a).at(-1).query.entity,'Santander');assert.equal(a.find('#filters-dialog').open,false);
- await a.click('#restore-filters');assert.equal(dashboards(a).at(-1).query.initial,true);assert.equal(dashboards(a).at(-1).query.entity,undefined);
+ await a.click('#restore-filters');assert.equal(dashboards(a).length,before+1);assert.match(a.find('#active-filters').textContent,/BBVA/);
 });
 
 test('chips de fecha abren el calendario sin eliminar el período y fechas inválidas no consultan',async t=>{

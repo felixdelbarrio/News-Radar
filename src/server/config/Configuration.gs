@@ -2,12 +2,12 @@ let configurationMemory_,configurationVersionMemory_;
 function settings_(){return configuration_().settings;}
 function configuration_(){
   if(configurationMemory_)return configurationMemory_;
-  const cache=CacheService.getScriptCache(),key='configuration:'+(configurationVersionMemory_=String(properties_().getProperty('CONFIG_REVISION')||'0')),cached=cache.get(key);
-  if(cached)return configurationMemory_=functionalConfiguration_(JSON.parse(cached));
+  const cache=CacheService.getScriptCache(),key='configuration:fragments:'+(configurationVersionMemory_=String(properties_().getProperty('CONFIG_REVISION')||'0')),cached=readDashboardCache_(cache,key);
+  if(cached)return configurationMemory_=functionalConfiguration_(cached);
   const sheet=book_().getSheetByName('Configuracion');
   if(!sheet)throw Error('Inicializa la configuración desde el editor: initializeConfiguration.');
   const count=sheet.getLastRow()-1,config=Object.fromEntries(count?sheet.getRange(2,1,count,2).getValues().map(([key,value])=>[key,JSON.parse(value)]):[]);
-  const resolved=functionalConfiguration_(config);validateConfiguration_(resolved);cacheJson_(key,functionalConfigurationSettings_(resolved),21600);
+  const resolved=functionalConfiguration_(config);validateConfiguration_(resolved);writeDashboardCache_(cache,key,functionalConfigurationSettings_(resolved));
   return configurationMemory_=resolved;
 }
 function invalidateConfiguration_(){invalidateDashboardSnapshots_();configurationMemory_=undefined;configurationVersionMemory_=undefined;properties_().setProperty('CONFIG_REVISION',Date.now()+'-'+Math.random().toString(36).slice(2));}
@@ -106,11 +106,12 @@ function validateConfiguration_(config){
     for(const row of list){
       if(!row||typeof row.name!=='string'||!row.name.trim()||row.name.length>100||names.has(row.name)||typeof row.enabled!=='boolean')throw Error('Nombre duplicado, vacío o activación no válida: '+key);
       names.add(row.name);
-      for(const field of ['terms','context','aliases','countries','exclude'])if(field in row&&(!Array.isArray(row[field])||row[field].length>(['searchLanguages','segments'].includes(key)?160:key==='signals'?120:80)||row[field].some(value=>typeof value!=='string'||!value.trim()||value.length>100)))throw Error('Lista de términos no válida: '+row.name);
+      for(const field of ['terms','context','aliases','countries','exclude','publisherDomains','publisherNames'])if(field in row&&(!Array.isArray(row[field])||row[field].length>(['searchLanguages','segments'].includes(key)?160:key==='signals'?120:80)||row[field].some(value=>typeof value!=='string'||!value.trim()||value.length>100)))throw Error('Lista de términos no válida: '+row.name);
       if(['segments','signals'].includes(key)&&!row.terms?.length)throw Error('Añade términos a '+row.name);
       if(key==='signals'&&(!Array.isArray(row.context)||!Array.isArray(row.exclude)||!['headline','fullText'].includes(row.scope)))throw Error('Define el contexto de '+row.name+' (puede estar vacío).');
       if(key==='signals'&&!['Novedad','Problema'].includes(row.group))throw Error('Define el tipo de señal: '+row.name);
       if(key==='entities'&&(!row.type||!Array.isArray(row.aliases)||!Array.isArray(row.countries)))throw Error('Entidad incompleta: '+row.name);
+      if(key==='geographies'&&row.region!=null&&(typeof row.region!=='string'||row.region.length>40))throw Error('Zona regional no válida.');
       if(key==='geographies'&&(!row.searchName||!/^[A-Z]{2}$/.test(row.code)||!/^\d{3}$/.test(row.mapId)||!/^[a-z]{2}(?:-[A-Za-z0-9]{2,8})?$/.test(row.language)))throw Error('País: código ISO, identificador cartográfico o idioma incorrectos.');
       if(key==='feeds'&&row.language&&feedLanguage(row.language)!==row.language)throw Error('Idioma de fuente no válido.');
       if(key==='feeds'&&(!row.id||!canonicalUrl_(row.url)||!domainMatches_(row.url,row.domain)||!/^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(row.domain)||!row.entity))throw Error('Fuente RSS no válida: '+row.name);
@@ -126,8 +127,9 @@ function validateConfiguration_(config){
   if(Object.keys(config).sort().join(',')!=='applicationScope,capabilities,entities,feeds,geographies,relevanceRules,searchLanguages,segments,settings,signals,storage,taxonomy')throw Error('Claves de configuración no reconocidas.');
   for(const key of ['searchTerms','disabledSources'])if(!Array.isArray(config.settings[key])||config.settings[key].length>1000||config.settings[key].some(value=>typeof value!=='string'||value.length>160))throw Error('Lista operativa no válida: '+key);
   if(!config.settings.searchTerms.length||config.settings.searchTerms.length>80)throw Error('Define entre 1 y 80 términos de búsqueda.');
-  if(encodeURIComponent(JSON.stringify(functionalConfigurationSettings_(config))).replace(/%[A-F\d]{2}/gi,'x').length>96000)throw Error('Configuración demasiado grande para la caché.');
+  if(encodeURIComponent(JSON.stringify(functionalConfigurationSettings_(config))).replace(/%[A-F\d]{2}/gi,'x').length>500000)throw Error('Configuración demasiado grande.');
   const countries=new Set(config.geographies.map(row=>row.name)),aliases=new Set();
+  const publisherDomains=new Map(),publisherNames=new Map();for(const geo of config.geographies){for(const domain of geo.publisherDomains||[]){if(!/^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(domain)||publisherDomains.has(domain)&&publisherDomains.get(domain)!==geo.name)throw Error('Dominio de medio no válido o compartido.');publisherDomains.set(domain,geo.name);}for(const name of geo.publisherNames||[]){const key=searchText_(name);if(publisherNames.has(key)&&publisherNames.get(key)!==geo.name)throw Error('Medio asignado a más de un país.');publisherNames.set(key,geo.name);}}
   const scopes=config.applicationScope,scopeNames=applicationScopeSegments;
   if(!Array.isArray(scopes)||scopes.length!==scopeNames.length||new Set(scopes.map(row=>row?.name)).size!==scopeNames.length||scopes.some(row=>!row||!scopeNames.includes(row.name)||Object.keys(row).sort().join(',')!=='countries,name'||!Array.isArray(row.countries)||row.countries.some(country=>!countries.has(country))||new Set(row.countries).size!==row.countries.length))throw Error('Ámbito de aplicación no válido.');
   for(const row of config.entities){

@@ -58,7 +58,7 @@ test('la caché de navegación se reutiliza durante un minuto sin prolongarse al
  await a.click('[data-view="radar"]');now=10;await a.click('[data-view="news"]');
  const count=a.calls.filter(row=>row.method==='getDashboard').length;
  now=50000;await a.click('[data-view="radar"]');now=55000;await a.click('[data-view="news"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,count);
- now=61000;await a.click('[data-view="radar"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,count+1);
+ now=61000;await a.click('[data-view="radar"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,count);assert.ok(a.calls.some(row=>row.method==='getReadingRevision'));
 });
 
 test('el spinner y los skeletons pertenecen al panel activo; una respuesta abandonada no prolonga su carga',async t=>{
