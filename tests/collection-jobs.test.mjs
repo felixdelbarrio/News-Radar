@@ -15,7 +15,7 @@ function addJob(s,id,type,count,priority='2026-10-11'){
  for(let i=0;i<count;i++)s.sheets.get('Recopilacion').grid.push([id,s.feed.name,s.feed.url,'Pendiente',0,'',0,0,'',priority]);return job;
 }
 test('la diaria queda registrada con el trabajador ocupado y se procesa junto a la anual sin perder el día',()=>{
- const s=server(),c=s.c,range=c.collectionRange_('year',new Date());c.requestCollection_('annual',range);
+ const s=server(),c=s.c,range={from:'2025-10-27',to:'2026-10-27'};c.requestCollection_('annual',range);
  const locks=c.LockService;c.LockService={getScriptLock:()=>({tryLock:()=>false})};c.dailyRadar_();
  assert.equal(c.collectionRequests_().length,1);assert.ok(s.properties.DAILY_PIPELINE_REQUEST);
  c.LockService=locks;const result=c.backgroundTick_();for(let i=0;i<40;i++)c.backgroundTick_();const jobs=c.collectionJobs_();assert.equal(jobs.length,2);assert.equal(result.errors.length,0);assert.ok(jobs.some(job=>job.tipo==='annual'));assert.ok(jobs.some(job=>job.tipo==='daily'));assert.ok(jobs.every(job=>job.estado==='Completada'));assert.equal(c.collectionRequests_().length,0);

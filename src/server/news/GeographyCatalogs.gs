@@ -24,8 +24,8 @@ function writeGeographyCatalog_(name,rows){
 }
 function initializeGeographyCatalogs_(){for(const [name,seed] of Object.entries(GEOGRAPHY_CATALOG_SEEDS))if(book_().getSheetByName(name).getLastRow()<2)writeGeographyCatalog_(name,seed);}
 function registerUnknownMedia_(news){
- if(!news.length)return 0;const name='CatalogoMedios',known=new Set(geographyCatalog_(name).map(row=>row.domain)),pending=[];
- for(const values of news){const row=Object.fromEntries(RADAR.sheets.Noticias.map((key,index)=>[key,values[index]])),domain=savedNewsLabels_(row.clasificacion).procedencia?.dominioMedio||'';
+ if(!news.length)return 0;const name='CatalogoMedios',catalog=geographyCatalog_(name),known=new Set(catalog.map(row=>row.domain)),pending=[];
+ for(const values of news){if(catalog.length+pending.length>=600)break;const row=Object.fromEntries(RADAR.sheets.Noticias.map((key,index)=>[key,values[index]])),domain=savedNewsLabels_(row.clasificacion).procedencia?.dominioMedio||'';
   if(!domain||known.has(domain)||domain==='news.google.com')continue;known.add(domain);
   const candidate={name:row.medio||domain,domain,country:'',iso2:'',status:'PENDIENTE',enabled:false,ruleType:'DOMINIO_OBSERVADO',editionCountry:'',editionPattern:'',historical:0,sourceUrl:'https://'+domain,notes:'Detectado automáticamente en source.url; sin verificación editorial.',source:'RSS',updated:new Date().toISOString().slice(0,10)};
   pending.push([geographyCatalogKey_(name,candidate),JSON.stringify(candidate)]);

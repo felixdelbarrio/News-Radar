@@ -8,7 +8,7 @@ test('country priority is headline, article domain, queried RSS country, regiona
  assert.equal(c.newsCountry_({...base,titular:'BBVA presenta pagos en Colombia',sourceUrl:'https://editor.es/story'}),'Colombia');
  assert.equal(c.newsCountry_({...base,sourceUrl:'https://editor.co/story'}),'Colombia');
  assert.equal(c.newsCountry_(base),'México');
- assert.equal(c.newsCountry_({...base,fuente:'',entidad:'Revolut'}),'APAC');
+ assert.equal(c.newsCountry_({...base,fuente:'',entidad:'Revolut'}),'Sin determinar');
  assert.equal(c.domainCountry_('https://bank.co.uk/a'),'Reino Unido');
  assert.equal(c.domainCountry_('https://t.co/a'),'');
 });

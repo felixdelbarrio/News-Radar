@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {storage} from './helpers/server.mjs';
-function server(){const s=storage();s.c.initializeConfiguration();return s;}
+function server(){const s=storage();s.c.initializeConfiguration();s.c.configuration_().storage.logRows=10;return s;}
 function logs(s,count=110){const sheet=s.sheets.get('Telemetria');sheet.grid.splice(1);for(let i=0;i<count;i++)sheet.grid.push([new Date().toISOString(),'dashboard','10','OK',String(i)]);return sheet;}
 for(const point of ['before-write','after-write','verify','before-delete','after-delete','checkpoint-clear'])test('archivo recupera '+point+' con nuevas filas sin pérdida ni duplicados',()=>{
  const s=server(),c=s.c,sheet=logs(s),remove=sheet.deleteRows,write=c.writeArchiveTable_,read=c.archivePayload_,props=c.properties_();let fail=true;
@@ -73,8 +73,8 @@ test('la deduplicación no fusiona anuncios de países explícitos diferentes',(
 test('una sola fila tras archivar no reactiva el ciclo ni crea un microarchivo',()=>{
  const s=server(),c=s.c,sheet=logs(s);c.archiveLogBatch_('Telemetria');delete s.properties.LOG_ARCHIVE_PENDING;c.append_('Telemetria',[[new Date().toISOString(),'dashboard','1','OK','new']]);assert.equal(s.properties.LOG_ARCHIVE_PENDING,undefined);assert.equal(c.archiveLogBatch_('Telemetria'),true);assert.equal(s.archiveBooks.size,1);assert.equal(sheet.getLastRow()-1,11);
 });
-test('Adopción conserva sus límites propios y archiva por edad con verificación',()=>{
- const s=server(),c=s.c,keys=vm.runInContext('RADAR.sheets.Adopcion',c),sheet=s.sheets.get('Adopcion');sheet.grid.push(keys.map(key=>key==='fecha'?'2000-01-01T00:00:00Z':'old'));const recent=keys.map(key=>key==='fecha'?new Date().toISOString():'recent');sheet.grid.push(recent);assert.equal(c.archiveLogBatch_('Adopcion'),false);assert.equal(sheet.getLastRow()-1,1);assert.deepEqual(sheet.grid[1],recent);const [id]=s.archiveBooks.keys();assert.equal(JSON.parse(c.archivePayload_(id)).rows.length,1);
+test('Adopción queda fuera de la poda aunque contenga eventos antiguos',()=>{
+ const s=server(),c=s.c,keys=vm.runInContext('RADAR.sheets.Adopcion',c),sheet=s.sheets.get('Adopcion');sheet.grid.push(keys.map(key=>key==='fecha'?'2000-01-01T00:00:00Z':'old'));const recent=keys.map(key=>key==='fecha'?new Date().toISOString():'recent');sheet.grid.push(recent);const before=JSON.stringify(sheet.grid);assert.equal(c.archiveLogBatch_('Adopcion'),true);assert.equal(sheet.getLastRow()-1,2);assert.equal(JSON.stringify(sheet.grid),before);assert.equal(s.archiveBooks.size,0);
 });
 test('la limpieza física conserva todos los IDs referenciados por LLM',()=>{
  const s=server(),c=s.c,keys=vm.runInContext('RADAR.sheets.Noticias',c),title='BBVA presenta resultados trimestrales',t=c.searchText_(title),labels=c.classification_(t,t).labels,row={id:'protected',fecha:'2026-10-10',titular:title,url:'https://example.com/protected',clasificacion:JSON.stringify(labels)};Array.prototype.push.call(s.sheets.get('Noticias').grid,keys.map(key=>row[key]||''));c.llmIndex_=()=>new Map([['protected',{status:'insufficient_evidence'}]]);assert.equal(c.deduplicateNews_(),0);assert.equal(c.rows_('Noticias')[0].id,'protected');

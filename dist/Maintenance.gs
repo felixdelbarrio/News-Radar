@@ -23,8 +23,9 @@ function deleteSheetRows_(sheet,positions){
 function deduplicateNews_(){
  const sheet=newsSheet_(),keys=RADAR.sheets.Noticias,count=Math.max(0,sheet.getLastRow()-1);if(!count)return 0;
  const revision=newsClassificationRevision_(),remove=[],rows=[],protectedIds=new Set(llmIndex_().keys());
- for(const [index,values] of sheet.getRange(2,1,count,keys.length).getDisplayValues().entries()){
-  const row={...Object.fromEntries(keys.map((key,i)=>[key,values[i]])),_sheetRow:index+2},labels=savedNewsLabels_(row.clasificacion),title=searchText_(row.titular),text=searchText_(row.titular+' '+row.extracto);
+ const metadata=sheet.getRange(2,1,count,8).getDisplayValues(),classifications=sheet.getRange(2,keys.indexOf('clasificacion')+1,count,1).getDisplayValues();
+ for(const [index,values] of metadata.entries()){
+  const row={...Object.fromEntries(keys.slice(0,8).map((key,i)=>[key,values[i]])),clasificacion:classifications[index][0],_sheetRow:index+2},labels=savedNewsLabels_(row.clasificacion),title=searchText_(row.titular),text=searchText_(row.titular+' '+row.extracto);
   const current=labels.schema===1&&labels.version===CLASSIFICATION_WORK.rulesVersion&&labels.revision===revision&&labels.contentHash===sha256_(JSON.stringify([title,text]));
   if(!protectedIds.has(row.id)&&current&&(!labels.digital||entityKey_(row.entidad)==='Santander'&&santanderExcluded_(text)))remove.push(row._sheetRow);else rows.push(row);
  }
@@ -37,7 +38,6 @@ function cleanDuplicateNews(){authorize_(true);return withForegroundWrite_(()=>(
 function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
  const job=maintenanceJob_();if(!job||['Completada','Publicando','Revisar'].includes(job.state)||backgroundPaused_())return;
  const started=Date.now();try{
-  if(!recoverMissingExcerptsBatch_(Math.min(maxMs,4000))){saveMaintenanceJob_(job);return;}
   if(job.phase==='logs'){compactCollectionTasks_();persistCandidates_([]);pruneNewsGenerations_();if(compactOperationalLogs_()===false){saveMaintenanceJob_(job);return;}job.phase='newsletters';saveMaintenanceJob_(job);}
   if(job.phase==='newsletters'){if(!archiveNewsletterBatch_()||!compactNewsletterBatch_()){saveMaintenanceJob_(job);return;}job.phase='dedup';saveMaintenanceJob_(job);}
   if(classificationPending_()||dailyCollectionPending_())return;
@@ -51,6 +51,7 @@ function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
   if(job.phase==='candidates'){
    const result=reclassifyCandidates_(job.candidateNext,MAINTENANCE_POLICY.batchRows,Math.max(0,maxMs-(Date.now()-started)));job.candidateNext=result.next;job.candidateTotal=result.total;job.total=job.newsTotal+result.total;job.corrected+=result.changed;job.state=result.done?'Completada':'Pendiente';
   }
+  if(job.state==='Completada'&&!recoverMissingExcerptsBatch_(Math.min(Math.max(0,maxMs-(Date.now()-started)),4000)))job.state='Pendiente';
   job.error='';job.attempts=0;job.pausedUntil=0;if(job.state==='Completada'){compactOperationalLogs_();compactStorageDimensions_();requestDashboardSnapshots_(true);}saveMaintenanceJob_(job);
   telemetry_('mantenimiento',Date.now()-started,'OK',job.reviewed+' revisadas; '+job.removed+' noticias compactadas');
  }catch(error){job.attempts=Number(job.attempts||0)+1;job.state=job.attempts>=3?'Revisar':'En pausa';job.error=String(error.message).slice(0,180);job.pausedUntil=Date.now()+settings_().retryMinutes*60000;saveMaintenanceJob_(job);telemetry_('mantenimiento',Date.now()-started,'Error',job.error);}
@@ -126,6 +127,8 @@ function recoverMissingExcerptsBatch_(maxMs){
   if(row.extracto){processed++;continue;}
   if(llmStrongResult_(llmIndex_().get(row.id),row)){job.protected++;processed++;continue;}
   const feed=feeds.get(row.fuente);let status='sin fuente RSS configurada';
+  const window=feed&&collectionQueryRange_(feed.url);
+  if(window&&row.fecha&&(row.fecha<window.from||row.fecha>window.to)){job.failed++;processed++;continue;}
   if(feed){
    if(!responses.has(feed.url)){
     if(requests>=2)break;requests++;
