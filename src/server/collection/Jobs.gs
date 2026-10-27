@@ -43,7 +43,7 @@ function collectionSnapshots_(tasks,jobs,now=new Date()){
     if(task.actualizada>count.actualizada)count.actualizada=task.actualizada;
   }
   for(const job of jobs){
-    const count=counters.get(job.id);if(!count||job.estado==='Cancelada')continue;
+    const count=counters.get(job.id);if(!count||['Cancelada','Revisar'].includes(job.estado))continue;
     Object.assign(job,count,{estado:count.pendientes?(Number(job.pausa)>now.getTime()?'En pausa':'Pendiente'):count.fallidas?'Parcial':'Completada',fin:count.pendientes?'':job.fin||now.toISOString()});
     if(!count.pendientes&&dashboardSnapshotsPending_()){job.estado='Publicando';job.fin='';requestDashboardSnapshots_(true);}
   }
@@ -51,16 +51,23 @@ function collectionSnapshots_(tasks,jobs,now=new Date()){
 }
 
 function compactCollectionTasks_(){
- const jobs=collectionJobs_(),finished=jobs.filter(job=>job.tipo==='daily'&&['Completada','Parcial'].includes(job.estado)).sort((a,b)=>String(b.fin||b.actualizada).localeCompare(String(a.fin||a.actualizada))),keep=new Set(jobs.filter(job=>!['Completada','Parcial','Cancelada'].includes(job.estado)).map(job=>job.id)),latest=finished[0],p=properties_(),summaries=JSON.parse(p.getProperty('COLLECTION_TASK_SUMMARIES')||'{}');
- const tasks=rows_('Recopilacion'),known=new Set(jobs.map(job=>job.id));for(const task of tasks)if(!known.has(task.ciclo))keep.add(task.ciclo);
- if(latest)keep.add(latest.id);for(const id of Object.keys(summaries))if(known.has(id)&&!keep.has(id))delete summaries[id];
- const remove=tasks.flatMap((task,index)=>keep.has(task.ciclo)?[]:[index+2]);
- if(latest){
-  const retained=tasks.map((task,index)=>({...task,row:index+2})).filter(task=>task.ciclo===latest.id),summary={actualizada:latest.actualizada||'',total:Math.max(0,Number(latest.total)-retained.length),procesadas:Math.max(0,Number(latest.procesadas)-retained.filter(task=>task.estado==='Completada').length),omitidas:Math.max(0,Number(latest.omitidas)-retained.filter(task=>task.estado==='Omitida').length),nuevas:Math.max(0,Number(latest.nuevas)-retained.reduce((sum,task)=>sum+Number(task.nuevas||0),0))};
-  let excess=Math.max(0,tasks.length-remove.length-COLLECTION_POLICY.retainedTasks);
-  for(const task of retained)if(excess&&['Completada','Omitida'].includes(task.estado)){remove.push(task.row);summary.total++;summary[task.estado==='Completada'?'procesadas':'omitidas']++;summary.nuevas+=Number(task.nuevas||0);excess--;}
-  if(summary.total)summaries[latest.id]=summary;
+ const jobs=collectionJobs_().filter(job=>['Completada','Parcial'].includes(job.estado)),finished=new Set(jobs.map(job=>job.id)),p=properties_(),summaries=JSON.parse(p.getProperty('COLLECTION_TASK_SUMMARIES')||'{}'),tasks=rows_('Recopilacion'),seen=new Set(),remove=[],counts=new Map();
+ for(const [index,task] of tasks.entries()){
+  const count=counts.get(task.ciclo)||{total:0,procesadas:0,omitidas:0,nuevas:0};count.total++;if(task.estado==='Completada')count.procesadas++;if(task.estado==='Omitida')count.omitidas++;count.nuevas+=Number(task.nuevas||0);counts.set(task.ciclo,count);
+  if(!finished.has(task.ciclo)||!['Completada','Omitida'].includes(task.estado))continue;
+  const key=JSON.stringify(RADAR.sheets.Recopilacion.map(key=>task[key]));if(seen.has(key))remove.push(index+2);else seen.add(key);
  }
- if(remove.length){deleteSheetRows_(book_().getSheetByName('Recopilacion'),remove);CacheService.getScriptCache().remove('collection-status');}
- const encoded=JSON.stringify(summaries);if(encoded!==p.getProperty('COLLECTION_TASK_SUMMARIES'))p.setProperty('COLLECTION_TASK_SUMMARIES',encoded);return remove.length;
+ // Persist the authoritative counters before deletion; a retry can reconstruct summaries after a partial delete.
+ const totals=jobs.map(job=>({...job}));
+ if(remove.length){
+  for(const job of totals){const summary=summaries[job.id]||{},count=counts.get(job.id)||{};for(const key of ['total','procesadas','omitidas','nuevas'])job[key]=Math.max(Number(job[key]||0),Number(summary[key]||0)+Number(count[key]||0));writeCollectionJob_(job);}
+ }
+ try{if(remove.length)deleteSheetRows_(book_().getSheetByName('Recopilacion'),remove);}
+ finally{
+  const retained=new Map();for(const task of remove.length?rows_('Recopilacion'):tasks){const count=retained.get(task.ciclo)||{total:0,procesadas:0,omitidas:0,nuevas:0};count.total++;if(task.estado==='Completada')count.procesadas++;if(task.estado==='Omitida')count.omitidas++;count.nuevas+=Number(task.nuevas||0);retained.set(task.ciclo,count);}
+  for(const job of totals){const count=retained.get(job.id)||{total:0,procesadas:0,omitidas:0,nuevas:0},summary={actualizada:job.actualizada||''};for(const key of ['total','procesadas','omitidas','nuevas'])summary[key]=Math.max(0,Number(job[key]||0)-count[key]);if(summary.total)summaries[job.id]=summary;}
+  const encoded=JSON.stringify(summaries);if(encoded!==p.getProperty('COLLECTION_TASK_SUMMARIES'))p.setProperty('COLLECTION_TASK_SUMMARIES',encoded);
+  if(remove.length)CacheService.getScriptCache().remove('collection-status');
+ }
+ return remove.length;
 }

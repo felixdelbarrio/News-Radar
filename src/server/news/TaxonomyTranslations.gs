@@ -33,7 +33,7 @@ function requestTaxonomyTranslations_(){
 function taxonomyTranslationReadyAt_(){
   if(taxonomyPending_()||properties_().getProperty('TAXONOMY_REQUEST'))return Infinity;
   const job=taxonomyTranslationJob_(),request=properties_().getProperty('TAXONOMY_TRANSLATION_REQUEST');
-  if(job?.state==='Publicando'||!request&&(!job||job.state==='Completada'))return Infinity;
+  if(job?.state==='Publicando'||publicationNeedsReview_(job)||!request&&(!job||job.state==='Completada'))return Infinity;
   const paused=Number(properties_().getProperty('TRANSLATION_PAUSED_UNTIL')||0);if(paused>Date.now())return paused;
   if(request)return Date.now();
   if(job?.pausedUntil>Date.now())return job.pausedUntil;
@@ -45,7 +45,7 @@ function taxonomyTranslationReadyAt_(){
 }
 function taxonomyTranslationBatch_(maxMs=TAXONOMY_POLICY.maxMs){
   if(Number(properties_().getProperty('TRANSLATION_PAUSED_UNTIL')||0)>Date.now())return;
-  if(taxonomyTranslationJob_()?.state==='Publicando')return;
+  if(taxonomyTranslationJob_()?.state==='Publicando'||publicationNeedsReview_(taxonomyTranslationJob_()))return;
   const started=Date.now(),p=properties_(),today=recordDay(new Date(),settings_().timezone);let job=taxonomyTranslationJob_(),written=false,touched=false;
   try{
     const {names,languages,revision}=taxonomyTranslationPlan_(),request=p.getProperty('TAXONOMY_TRANSLATION_REQUEST');

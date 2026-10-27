@@ -39,7 +39,7 @@ function dashboardSnapshotLanguages_(data,view){
 function dashboardSnapshotBatch_(){try{return llmJob_()?.state==='Publicando'?llmSnapshotBatch_():buildDashboardSnapshotBatch_();}catch(error){recordSnapshotFailure_(error);throw error;}}
 
 function buildDashboardSnapshotBatch_(job=null){
- if(!taxonomyPublicationReady_()||classificationJob_()&&!['Completada','Publicando'].includes(classificationJob_().state))return false;
+ if(!taxonomyPublicationReady_()||classificationJob_()&&!['Completada','Publicando','Revisar'].includes(classificationJob_().state))return false;
  const taxonomy=taxonomyJob_();
  if(taxonomy?.state==='Publicando'&&taxonomy.generation){
   if(taxonomy.generation.newsSheet===newsStorageKey_()&&taxonomy.generation.taxonomySheet===taxonomyStorageKey_()){
@@ -92,7 +92,7 @@ function publishDashboardSnapshotSet_(build,job){
   properties_().setProperty('DATA_GENERATION',JSON.stringify(generation));dataGenerationMemory_=generation;
   clearDashboardSnapshotRequest_();completeSnapshotJobs_();if(job?.llm){const llm=llmJob_();properties_().setProperty('LLM_JOB',JSON.stringify({...llm,state:'Completada',progress:100,error:'',published:generation.published}));}pruneNewsGenerations_();return true;
 }
-function rebuildDashboardSnapshots(){authorize_(true);return withForegroundWrite_(()=>{properties_().setProperty('DASHBOARD_SNAPSHOT_CORRUPT','true');requestDashboardSnapshots_(true);return 'Snapshots de Novedades, Noticias y Radar en cola.';});}
+function rebuildDashboardSnapshots(){authorize_(true);return withForegroundWrite_(()=>{resumeSnapshotJobs_();properties_().setProperty('DASHBOARD_SNAPSHOT_CORRUPT','true');requestDashboardSnapshots_(true);return 'Snapshots de Novedades, Noticias y Radar en cola.';});}
 
 function dashboardSnapshotsReady_(work){return taxonomyPublicationReady_()&&(!classificationPending_()||snapshotJobsPending_())&&!dailyCollectionPending_(work)&&!dailyPipelineRequested_()&&dashboardSnapshotsPending_();}
 

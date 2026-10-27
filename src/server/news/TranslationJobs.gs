@@ -9,7 +9,7 @@ function translationCandidates_(job){
 function translationCompletionRevision_(){const p=properties_().getProperties();return sha256_(JSON.stringify([RADAR.version,newsStorageKey_(),p.NEWS_CONTENT_REVISION||'0',p.NEWS_RECORDS_REVISION||'0',p.CONFIG_REVISION||'0',p.TRANSLATIONS_INDEX_REVISION||'0',Object.keys(languageNames).map(code=>[code,p['TRANSLATIONS_REVISION:'+code]||'0'])]));}
 function markTranslationComplete_(){if(!properties_().getProperty('TRANSLATION_REQUEST'))properties_().setProperty('TRANSLATION_COMPLETED_REVISION',translationCompletionRevision_());}
 function translationBatch_(maxMs=TRANSLATION_WORK.maxMs){
-  const existing=translationJob_();if(existing?.state==='Publicando')return;
+  const existing=translationJob_();if(existing?.state==='Publicando'||publicationNeedsReview_(existing))return;
   const revision=translationCompletionRevision_();if(existing?.state==='Completada'&&properties_().getProperty('TRANSLATION_COMPLETED_REVISION')===revision){properties_().deleteProperty('TRANSLATION_REQUEST');properties_().deleteProperty('TRANSLATION_PRIORITY_REQUEST');return;}
   const started=Date.now(),now=new Date(started),today=recordDay(now,settings_().timezone);let job;
   try{

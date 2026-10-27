@@ -55,7 +55,7 @@ function withTaxonomyGeneration_(job,operation){
  finally{newsSheetOverride_=previousNews;taxonomySheetOverride_=previousTaxonomy;}
 }
 function taxonomyPublicationReady_(){
- const job=taxonomyJob_();return !job||job.state==='Completada'||job.state==='Publicando'&&(!job.generation||job.verified===true);
+ const job=taxonomyJob_();return !job||job.state==='Completada'||publicationNeedsReview_(job)||job.state==='Publicando'&&(!job.generation||job.verified===true);
 }
 
 function taxonomySourceUnchanged_(job){

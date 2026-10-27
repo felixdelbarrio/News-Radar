@@ -104,7 +104,7 @@ function llmParseImport_(payload){
  for(const file of files){let value;try{value=JSON.parse(file.text);}catch(_){throw Error('JSON corrupto.');}llmExact(value,['schemaVersion','results'],'Lote');if(value.schemaVersion!==LLM_OFFLINE.schemaVersion||!Array.isArray(value.results)||!value.results.length||value.results.length>LLM_OFFLINE.importRows)throw Error('Lote vacío, esquema o límite de resultados no válido.');results.push(...value.results);}
  if(results.length>LLM_OFFLINE.importRows)throw Error('Máximo 250 resultados por importación.');return results;
 }
-function llmAssertIdle_(){if(llmJob_()?.state==='Publicando')throw Error('La generación LLM sigue publicándose. Espera a que termine.');}
+function llmAssertIdle_(){if(llmJob_()?.state==='Publicando'||publicationNeedsReview_(llmJob_()))throw Error('La generación LLM sigue publicándose. Espera a que termine.');}
 function importLlmResults(payload){
  authorize_(true);const started=Date.now(),results=llmParseImport_(payload);
  return withForegroundWrite_(()=>{
