@@ -59,6 +59,6 @@ function resumeSnapshotJobs_(){
   Object.assign(job,{state:'Publicando',publicationRetries:0,publicationRetriedAt:new Date().toISOString()});p.setProperty(key,JSON.stringify(job));
   if(key!=='LLM_JOB')snapshotJob_(key,job);
  }
- for(const job of collectionJobs_())if(job.estado==='Revisar'&&Number(JSON.parse(p.getProperty('PUBLICATION_RETRY:'+job.id)||'{}').count)>=3){job.estado='Publicando';p.deleteProperty('PUBLICATION_RETRY:'+job.id);writeCollectionJob_(job);}
+ for(const job of collectionJobs_())if(job.estado==='Revisar'&&Number(JSON.parse(p.getProperty('PUBLICATION_RETRY:'+job.id)||'{}').count)>=3){job.estado='Publicando';const key='PUBLICATION_RETRY:'+job.id;p.setProperty(key,JSON.stringify({...JSON.parse(p.getProperty(key)),count:0,at:new Date().toISOString()}));writeCollectionJob_(job);}
  progressContextMemory_=undefined;
 }
