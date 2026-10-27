@@ -1,6 +1,6 @@
 const PROCESS_PRIORITY=Object.freeze({supervisor:0,daily:1,classification:2,snapshot:3,newsletter:3,translation:4,maintenance:5,taxonomy:5,taxonomyTranslation:5,archive:5,catalogSync:5});
 function controlProcess_(stage,job,queued=false,extra={}){
- const value=job||{state:'Completada',updated:''},progress=jobProgressState_(stage,value,{queued,...(stage==='daily'?{jobId:extra.collectionJob||'',lastExecutedAt:value.updated||''}:{})}),total=Number(value.workTotal??value.total??0),done=Number(stage==='classification'?Math.max(0,(value.next||2)-2):stage==='maintenance'?(value.reviewed||0)+Math.max(0,(value.candidateNext||2)-2):value.processed??value.reviewed??0);
+ const value=job||{state:'Completada',updated:''},progress=jobProgressState_(stage,value,{queued,...(stage==='daily'?{jobId:extra.collectionJob||'',lastExecutedAt:value.updated||''}:{})}),total=Number(value.workTotal??value.total??0),done=Number(stage==='classification'?classificationProcessed_(value):stage==='maintenance'?(value.reviewed||0)+Math.max(0,(value.candidateNext||2)-2):value.processed??value.reviewed??0);
  if(!job&&!queued)progress.state='Sin ejecuciones';
  return {stage,label:PROGRESS_JOB_NAMES[stage]||stage,priority:PROCESS_PRIORITY[stage],enabled:true,total,done:Math.min(total,done),progress,status:value.error&&!progress.restartAt?'error':['Completada','Parcial'].includes(progress.state)?'complete':'pending',comment:value.error||(!job&&!queued?'Sin ejecuciones registradas.':''),...extra};
 }

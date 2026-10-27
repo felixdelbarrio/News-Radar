@@ -74,7 +74,7 @@ function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
     try{registerUnknownMedia_(news);}catch(error){telemetry_('catalogo_medios',0,'Error',String(error.message).slice(0,180));}
     append_('Auditoria',audit);append_('Recopilacion',newTasks);
     writeCollectionTasks_(pending,updates);
-    if(news.length){SpreadsheetApp.flush();invalidateNews_();}
+    if(news.length){SpreadsheetApp.flush();invalidateNews_(true,true,false);}
     if(news.some(row=>businessNews_(Object.fromEntries(RADAR.sheets.Noticias.map((key,index)=>[key,row[index]])))))requestTranslations_(true);
     append_('Ejecuciones',[...affected].map(id=>{const batch=pending.filter(task=>task.ciclo===id),rows=batch.map(task=>updates.get(task.row)),failures=rows.map(row=>row[5]).filter(Boolean);return [id,now.toISOString(),new Date().toISOString(),failures.length?'Parcial':'Completada',batch.length,rows.reduce((sum,row)=>sum+Number(row[3]),0),rows.reduce((sum,row)=>sum+Number(row[4]),0),failures.join(' | ')];}));
     for(const job of jobs)if(pending.filter(task=>task.ciclo===job.id&&updates.get(task.row)[5]).length>=2)job.pausa=String(Date.now()+settings_().pauseMinutes*60000);

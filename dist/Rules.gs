@@ -225,7 +225,7 @@ function articleEdition_(url,index){const path=canonicalUrl_(url).match(/^https:
 function getGeographyUpgrade(){
  authorize_(true);
  const checkpoint=JSON.parse(properties_().getProperty('GEOGRAPHY_UPGRADE')||'null'),job=classificationJob_();
- return {...checkpoint,classification:job?{state:job.state,processed:Math.min(job.total,job.next-2),total:job.total,error:job.error||''}:null};
+ return {...checkpoint,classification:job?{state:job.state,processed:classificationProcessed_(job),total:job.total,error:job.error||''}:null};
 }
 function reportGeographyUpgrade(){const status=getGeographyUpgrade();console.log(JSON.stringify(status));return status;}
 function applyGeographyUpgrade(){
