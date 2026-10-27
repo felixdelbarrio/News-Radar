@@ -1,8 +1,3 @@
-function collectionRange_(mode,now){
-  if(!['today','year'].includes(mode))throw Error('Selecciona Hoy o Último año.');
-  const to=calendarDate_(now),from=new Date(to);if(mode==='year'){const month=from.getUTCMonth();from.setUTCFullYear(from.getUTCFullYear()-1);if(from.getUTCMonth()!==month)from.setUTCDate(0);}
-  return {from:from.toISOString().slice(0,10),to:to.toISOString().slice(0,10)};
-}
 function collectionWindows_(range){
   const windows=[],first=Date.parse(range.from),cursor=Date.parse(range.to);
   for(let to=cursor;to>=first;to-=COLLECTION_POLICY.windowDays*86400000)windows.push({from:new Date(Math.max(first,to-(COLLECTION_POLICY.windowDays-1)*86400000)).toISOString().slice(0,10),to:new Date(to).toISOString().slice(0,10)});

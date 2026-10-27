@@ -30,7 +30,7 @@ export function compareCollection(){
   contribution.push({source:sample.id,added});
  }
  for(const strategy of ['before','after'])metrics[strategy].useful=articles[strategy].size;
- const profiles=current.feeds_().filter(feed=>feed.kind==='profile').length,annual=current.collectionRange_('year',now),daily=current.collectionRecentRange_(now),oldWindows=range=>Math.ceil((Date.parse(range.to)-Date.parse(range.from)+86400000)/(7*86400000));
+ const profiles=current.feeds_().filter(feed=>feed.kind==='profile').length,annual={from:'2025-10-12',to:'2026-10-12'},daily=current.collectionRecentRange_(now),oldWindows=range=>Math.ceil((Date.parse(range.to)-Date.parse(range.from)+86400000)/(7*86400000));
  const plans={annual:{before:oldWindows(annual)*profiles+config.feeds.filter(feed=>!feed.id.startsWith('finextra-')).length,after:current.collectionFeeds_(annual).length},daily:{before:oldWindows(daily)*profiles+config.feeds.filter(feed=>!feed.id.startsWith('finextra-')).length,after:current.collectionFeeds_(daily).length}};
  return {sampleDate:search.now,metrics,precision,contribution,plans,articles:Object.fromEntries(Object.entries(articles).map(([key,value])=>[key,[...value.values()]])),limitations:'Muestra observacional congelada, consultas no simultáneas y dos RSS adicionales. Utilidad determinista en búsquedas; precisión sobre siete entradas RSS etiquetadas manualmente en otra ventana (septiembre-octubre). No extrapolable a producción. Los planes excluyen subdivisiones y reintentos.'};
 }

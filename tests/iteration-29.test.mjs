@@ -5,11 +5,11 @@ import {storage} from './helpers/server.mjs';
 import {applicationGeography,articleGeographies,geographyMatches,regionalGeographies} from '../src/shared/selection-policy.js';
 const setup=()=>{const s=storage();s.c.initializeConfiguration();return s;};
 const base={titular:'Nueva plataforma de pagos empresariales',extracto:'',url:'https://news.google.com/rss/articles/a',fuente:'Google News RSS',entidad:'BBVA',medio:'Editor'};
-test('locale exacta, idioma base y APAC operan solo tras contenido y país RSS',()=>{
- const {c}=setup();for(const [hl,country,type] of [['es-ES','España','PAIS'],['es-CO','Colombia','PAIS'],['en-GB','Reino Unido','PAIS'],['en-UK','Reino Unido','PAIS'],['es','EMEA','REGION'],['en-US','AMER','REGION'],['es-419','AMER','REGION'],['en','AMER','REGION'],['xx-YY','APAC','REGION']]){
-  const actual=c.newsCountryDecision_({...base,feedUrl:'https://news.google.com/rss/search?hl='+hl});assert.equal(actual.country,country,hl);assert.equal(actual.type,type,hl);assert.equal(actual.reason,country==='APAC'?'apac_fallback':'locale_fallback',hl);
+test('locale exacta, idioma base y geografía desconocida operan solo tras contenido y país RSS',()=>{
+ const {c}=setup();for(const [hl,country,type] of [['es-ES','España','PAIS'],['es-CO','Colombia','PAIS'],['en-GB','Reino Unido','PAIS'],['en-UK','Reino Unido','PAIS'],['es','EMEA','REGION'],['en-US','AMER','REGION'],['es-419','AMER','REGION'],['en','AMER','REGION'],['xx-YY','Sin determinar','DESCONOCIDA']]){
+  const actual=c.newsCountryDecision_({...base,feedUrl:'https://news.google.com/rss/search?hl='+hl});assert.equal(actual.country,country,hl);assert.equal(actual.type,type,hl);assert.equal(actual.reason,country==='Sin determinar'?'undetermined':'locale_fallback',hl);
  }
- assert.equal(c.newsCountryDecision_(base).country,'APAC');
+ assert.equal(c.newsCountryDecision_(base).country,'Sin determinar');
  assert.equal(c.newsCountryDecision_({...base,feedUrl:'https://news.google.com/rss/search?gl=CO&hl=es-ES'}).country,'Colombia');
  assert.equal(c.newsCountryDecision_({...base,feedUrl:'https://news.google.com/rss/search?ceid=CO:es&hl=en-US'}).country,'Colombia');
  assert.equal(c.newsCountryDecision_({...base,rssCountry:'Colombia',feedUrl:'https://news.google.com/rss/search?gl=ES&hl=en-US'}).country,'AMER');
@@ -41,10 +41,10 @@ test('filtros OR y regiones suman subtotales sin duplicar el total de noticias',
  assert.deepEqual(articleGeographies(row),['Colombia','España']);assert.equal(geographyMatches(row,'España',geography),true);assert.equal(geographyMatches(row,'Colombia',geography),true);
  const region=geography.region('Colombia');assert.equal(regionalGeographies([row],geography).find(item=>item.name===region).total,geography.own('Colombia')?0:1);
 });
-test('una noticia empresarial sin país ni locale se admite y persiste como región APAC',()=>{
+test('una noticia empresarial sin país ni locale se admite y persiste sin geografía demostrada',()=>{
  const {c}=setup(),feed={name:'BBVA pruebas',country:'',entity:'BBVA',domain:'news.google.com',url:'https://news.google.com/rss/search?hl=xx-YY',kind:'profile'},item={title:'BBVA lanza plataforma digital de pagos para empresas',url:'https://news.google.com/rss/articles/a',date:'Mon, 26 Oct 2026 10:00:00 GMT',excerpt:'Permite realizar pagos empresariales en la banca online.',language:''},result=c.evaluate_(item,feed,new Date('2026-10-26T12:00:00Z'));
- assert.equal(result.reason,undefined);assert.equal(result.item.country,'APAC');const record=c.newsRecord_(result.item,feed,new Date('2026-10-26T12:00:00Z')),provenance=JSON.parse(record[11]).procedencia;
- assert.equal(record[2],'APAC');assert.deepEqual([...provenance.geografias],['APAC']);assert.equal(provenance.tipoGeografia,'REGION');assert.equal(provenance.paisMetodo,'apac_fallback');assert.equal(provenance.paisMedioVerificado,false);
+ assert.equal(result.reason,undefined);assert.equal(result.item.country,'Sin determinar');const record=c.newsRecord_(result.item,feed,new Date('2026-10-26T12:00:00Z')),provenance=JSON.parse(record[11]).procedencia;
+ assert.equal(record[2],'Sin determinar');assert.deepEqual([...provenance.geografias],['Sin determinar']);assert.equal(provenance.tipoGeografia,'DESCONOCIDA');assert.equal(provenance.paisMetodo,'undetermined');assert.equal(provenance.paisMedioVerificado,false);
 });
 test('el panel conserva la ejecución de las 06:00 mientras avanza la de las 13:00',()=>{
  const s=setup(),{c}=s,keys=vm.runInContext('RADAR.sheets.Recargas',c),jobs=[{id:'morning',tipo:'daily',desde:'2026-10-25',hasta:'2026-10-26',inicio:'2026-10-26T06:00:00Z',estado:'Completada',total:10,procesadas:10,pendientes:0,omitidas:0,fallidas:0,nuevas:6,actualizada:'2026-10-26T06:15:00Z'},{id:'afternoon',tipo:'daily',desde:'2026-10-25',hasta:'2026-10-26',inicio:'2026-10-26T13:00:00Z',estado:'Pendiente',total:8,procesadas:0,pendientes:8,omitidas:0,fallidas:0,nuevas:0,actualizada:'2026-10-26T13:00:00Z'}];

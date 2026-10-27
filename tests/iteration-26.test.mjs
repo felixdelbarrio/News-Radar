@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {storage} from './helpers/server.mjs';
-function server(){const s=storage();s.c.initializeConfiguration();return s;}
+function server(){const s=storage();s.c.initializeConfiguration();s.c.configuration_().storage.logRows=10;return s;}
 function logs(s,count=110){const sheet=s.sheets.get('Telemetria');sheet.grid.splice(1);for(let i=0;i<count;i++)sheet.grid.push([new Date().toISOString(),'dashboard','10','OK',String(i)]);return sheet;}
 for(const point of ['before-write','after-write','verify','before-delete','after-delete','checkpoint-clear'])test('archivo recupera '+point+' con nuevas filas sin pérdida ni duplicados',()=>{
  const s=server(),c=s.c,sheet=logs(s),remove=sheet.deleteRows,write=c.writeArchiveTable_,read=c.archivePayload_,props=c.properties_();let fail=true;

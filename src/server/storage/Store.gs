@@ -134,7 +134,7 @@ function newsletterArchiveKey_(){return JSON.stringify([newsletterArchiveVersion
 function markNewsletterArchiveEdited_(){properties_().setProperty('NEWSLETTER_ARCHIVE_REVISION',Utilities.getUuid());}
 function recordSheet_(name){return name==='Noticias'?newsSheet_():name==='Taxonomia'?taxonomySheet_():NEWSLETTER_ARCHIVE_TABLES.includes(name)?newsletterSheet_(name):book_().getSheetByName(name);}
 
-const LOG_TABLES=Object.freeze(['Auditoria','Telemetria','Ejecuciones','Cobertura','NewsletterEventos','Adopcion']);
+const LOG_TABLES=Object.freeze(['Auditoria','Telemetria','Ejecuciones','Cobertura','NewsletterEventos']);
 function logRetention_(name){const storage=configuration_().storage;return name==='Adopcion'?{rows:settings_().eventLimit,days:settings_().retentionDays}:{rows:storage.logRows,days:storage.logDays};}
 function enforceLogLimit_(name,sheet=recordSheet_(name)){
  if(!LOG_TABLES.includes(name)||sheet.getLastRow()-1<logRetention_(name).rows+ARCHIVE_WORK.rows)return;
