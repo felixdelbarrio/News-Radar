@@ -5,6 +5,7 @@ function snapshotJob_(key,job){
   const pending=JSON.parse(properties_().getProperty('SNAPSHOT_JOBS')||'[]');if(!pending.includes(key))pending.push(key);
   properties_().setProperty('SNAPSHOT_JOBS',JSON.stringify(pending));requestDashboardSnapshots_(true);return {...job,state:'Publicando'};
 }
+function publicationNeedsReview_(job){return job?.state==='Revisar'&&Number(job.publicationRetries||0)>=3;}
 function snapshotJobsPending_(){return llmJob_()?.state==='Publicando'||JSON.parse(properties_().getProperty('SNAPSHOT_JOBS')||'[]').length>0;}
 function completeSnapshotJobs_(){
   const p=properties_(),pending=JSON.parse(p.getProperty('SNAPSHOT_JOBS')||'[]');
@@ -33,7 +34,7 @@ function recoverBackgroundJobs_(now=Date.now()){
   if(job.pausedUntil!=null&&!validPause(job.pausedUntil)){job.pausedUntil=0;changed=true;}
   const progress=Date.parse([build?.updated,job.publicationRetriedAt,job.updated,job.started].filter(Boolean).sort().at(-1)||'');
   if(job.state==='Publicando'&&(!Number.isFinite(progress)||now-progress>600000)){
-   if(Number(job.publicationRetries||0)>=3){const error='Publicación sin progreso tras tres recuperaciones; revisión necesaria.';if(job.error!==error){job.error=error;p.setProperty(key,JSON.stringify(job));}continue;}
+   if(Number(job.publicationRetries||0)>=3){job.state='Revisar';job.error=job.error||'Publicación sin progreso tras tres recuperaciones; revisión necesaria.';p.setProperty(key,JSON.stringify(snapshotJob_(key,job)));continue;}
    job.publicationRetries=Number(job.publicationRetries||0)+1;job.publicationRetriedAt=new Date(now).toISOString();changed=true;recovered=true;
    telemetry_('supervisor',0,'Recuperación',key+': publicación sin progreso; reintento desde los cursores guardados');
   }
@@ -42,10 +43,22 @@ function recoverBackgroundJobs_(now=Date.now()){
  for(const job of collectionJobs_()){
   let changed=false;if(job.pausa&&!validPause(job.pausa)){job.pausa=0;changed=true;}
   const retryKey='PUBLICATION_RETRY:'+job.id,retry=JSON.parse(values[retryKey]||'{}'),progress=Date.parse([build?.updated,retry.at,job.actualizada,job.inicio].filter(Boolean).sort().at(-1)||'');
-  if(job.estado==='Publicando'&&(!Number.isFinite(progress)||now-progress>600000)){if(Number(retry.count||0)>=3){if(!retry.error){retry.error='Publicación sin progreso tras tres recuperaciones; revisión necesaria.';p.setProperty(retryKey,JSON.stringify(retry));telemetry_('supervisor',0,'Error',job.id+': '+retry.error);}continue;}p.setProperty(retryKey,JSON.stringify({count:Number(retry.count||0)+1,at:new Date(now).toISOString()}));job.actualizada=new Date(now).toISOString();changed=true;recovered=true;telemetry_('supervisor',0,'Recuperación',job.id+': reintento de publicación');}
+  if(job.estado==='Publicando'&&(!Number.isFinite(progress)||now-progress>600000)){if(Number(retry.count||0)>=3){retry.error=retry.error||'Publicación sin progreso tras tres recuperaciones; revisión necesaria.';p.setProperty(retryKey,JSON.stringify(retry));job.estado='Revisar';writeCollectionJob_(job);continue;}p.setProperty(retryKey,JSON.stringify({count:Number(retry.count||0)+1,at:new Date(now).toISOString()}));job.actualizada=new Date(now).toISOString();changed=true;recovered=true;telemetry_('supervisor',0,'Recuperación',job.id+': reintento de publicación');}
   if(changed)writeCollectionJob_(job);
  }
  for(const key of ['CATALOG_SYNC_RETRY_AT','FETCH_PAUSED_UNTIL','NEWSLETTER_NEXT','TRANSLATION_PAUSED_UNTIL'])if(values[key]&&!validPause(values[key]))p.deleteProperty(key);
  if(recovered){p.deleteProperty('DASHBOARD_SNAPSHOT_BUILD');p.setProperty('DASHBOARD_SNAPSHOT_REQUEST','ready');p.setProperty('DASHBOARD_SNAPSHOT_REQUESTED_AT',String(now));p.deleteProperty('BACKGROUND_NEXT');}
  progressContextMemory_=undefined;return recovered;
+}
+
+function resumeSnapshotJobs_(){
+ const p=properties_();
+ for(const [key,value] of Object.entries(p.getProperties())){
+  if(!/_JOB$/.test(key))continue;let job;try{job=JSON.parse(value);}catch(_){continue;}
+  if(!publicationNeedsReview_(job))continue;
+  Object.assign(job,{state:'Publicando',publicationRetries:0,publicationRetriedAt:new Date().toISOString()});p.setProperty(key,JSON.stringify(job));
+  if(key!=='LLM_JOB')snapshotJob_(key,job);
+ }
+ for(const job of collectionJobs_())if(job.estado==='Revisar'&&Number(JSON.parse(p.getProperty('PUBLICATION_RETRY:'+job.id)||'{}').count)>=3){job.estado='Publicando';const key='PUBLICATION_RETRY:'+job.id;p.setProperty(key,JSON.stringify({...JSON.parse(p.getProperty(key)),count:0,at:new Date().toISOString()}));writeCollectionJob_(job);}
+ progressContextMemory_=undefined;
 }

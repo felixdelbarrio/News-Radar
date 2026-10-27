@@ -138,14 +138,17 @@ function recoverMissingExcerptsBatch_(maxMs){
    const extracted=item&&newsExcerpt_(item,row.titular,item.source);
    status=response.error||(!item?'artículo ausente del RSS':!extracted.text?'RSS sin extracto':'recuperado');
    if(extracted?.text){
-    const labels=savedNewsLabels_(row.clasificacion);labels.procedencia={...labels.procedencia,recuperacionExtracto:{sourceUrl:canonicalUrl_(item.sourceUrl)||feed.url,mechanism:extracted.mechanism,date:new Date().toISOString(),status}};
+    const labels=savedNewsLabels_(row.clasificacion),title=searchText_(plainText_(row.titular)),oldText=searchText_(plainText_(row.titular)+' '+plainText_(row.extracto)),taxonomy=taxonomySaved_(row.taxonomia);
+    if(labels.contentHash===sha256_(JSON.stringify([title,oldText])))labels.contentHash=sha256_(JSON.stringify([title,searchText_(plainText_(row.titular)+' '+plainText_(extracted.text))]));
+    if(row.taxonomia&&taxonomy.fingerprint===taxonomyFingerprint_(row.titular,row.extracto)){const saved=JSON.parse(row.taxonomia);saved.fingerprint=taxonomyFingerprint_(row.titular,extracted.text);updates.push({row:job.next+processed,column:keys.indexOf('taxonomia')+1,value:JSON.stringify(saved)});}
+    labels.procedencia={...labels.procedencia,recuperacionExtracto:{sourceUrl:canonicalUrl_(item.sourceUrl)||feed.url,mechanism:extracted.mechanism,date:new Date().toISOString(),status}};
     updates.push({row:job.next+processed,column:keys.indexOf('extracto')+1,value:extracted.text},{row:job.next+processed,column:keys.indexOf('clasificacion')+1,value:JSON.stringify(labels)});job.recovered++;
    }
   }
   if(status!=='recuperado')job.failed++;
   telemetry_('extractos',Date.now()-started,status==='recuperado'?'OK':'Sin evidencia',row.id+'; '+row.fuente+'; '+status);processed++;
  }
- writeNewsCells_(updates);if(updates.length)invalidateNews_();job.next+=processed;job.reviewed+=processed;job.updated=new Date().toISOString();job.state=job.next>total?'Completada':'Pendiente';p.setProperty('EXCERPT_RECOVERY_JOB',JSON.stringify(job));return job.state==='Completada';
+ writeNewsCells_(updates);if(updates.length)invalidateNews_(true,true,false);job.next+=processed;job.reviewed+=processed;job.updated=new Date().toISOString();job.state=job.next>total?'Completada':'Pendiente';p.setProperty('EXCERPT_RECOVERY_JOB',JSON.stringify(job));return job.state==='Completada';
 }
 function getCorpusQualityAudit(){
  authorize_(true);const generation=dataGeneration_(),candidate=taxonomyJob_()?.generation?.newsSheet,names=[...new Set([newsStorageKey_(),candidate].filter(Boolean))],corpora=[];
