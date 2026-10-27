@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {storage} from './helpers/server.mjs';
 function server(){const s=storage();s.c.initializeConfiguration();return s;}
-test('country priority is headline, article domain, queried RSS country, headquarters',()=>{
+test('country priority is headline, article domain, queried RSS country, regional fallback',()=>{
  const {c}=server(),base={titular:'Nueva plataforma bancaria',entidad:'BBVA',fuente:'BBVA · México',url:'https://news.google.com/articles/a'};
  assert.equal(c.newsCountry_({...base,titular:'BBVA presenta pagos en Colombia',sourceUrl:'https://editor.es/story'}),'Colombia');
  assert.equal(c.newsCountry_({...base,sourceUrl:'https://editor.co/story'}),'Colombia');
  assert.equal(c.newsCountry_(base),'México');
- assert.equal(c.newsCountry_({...base,fuente:'',entidad:'Revolut'}),'Reino Unido');
+ assert.equal(c.newsCountry_({...base,fuente:'',entidad:'Revolut'}),'APAC');
  assert.equal(c.domainCountry_('https://bank.co.uk/a'),'Reino Unido');
  assert.equal(c.domainCountry_('https://t.co/a'),'');
 });

@@ -19,7 +19,7 @@ test('HTML y texto de las dos cadencias contienen hecho, relevancia, fuentes y a
  const {c}=server(),input=rows().map(row=>({...row,senales:['Lanzamiento de producto']}));input[0].fecha='2026-01-12';input[1].fecha='2026-04-12';
  for(const view of ['briefing','news'])for(const language of ['es','en','tr']){
   const content=c.newsletterContent_(input,{view,segment:'Empresas e instituciones',from:'2026-01-01',to:'2026-12-31'},'Selección',new Date(),'sub',language,'edition'),dom=new JSDOM(content.html),d=dom.window.document;
-  assert.ok(content.count>0&&content.count<=3);assert.equal(content.evidence.length,content.count);assert.equal(d.querySelectorAll('.newsletter-article').length,content.count);assert.equal(d.querySelectorAll('.newsletter-insight').length,content.count);
+  assert.ok(content.count>0&&content.count<=3);assert.equal(content.evidence.length,view==='news'?content.total:content.count);assert.equal(d.querySelectorAll('.newsletter-article').length,content.count);assert.equal(d.querySelectorAll('.newsletter-insight').length,content.count);
   for(const card of content.editorial.cards){assert.ok(content.text.includes(card.url));assert.ok(content.text.includes(card.relevance));assert.ok(!card.relevance.includes('{count}'));}
   for(const anchor of d.querySelectorAll('a')){const url=new URL(anchor.href);if(url.searchParams.has('edition'))assert.equal(url.searchParams.get('edition'),'edition');}
   assert.equal(new URL(d.querySelector('.newsletter-edition-link').href).searchParams.get('view'),view==='briefing'?'news':view);assert.equal(d.querySelector('.newsletter-kpi'),null);dom.window.close();

@@ -4,7 +4,8 @@ function collectionStatus_(tasks,jobs){
   jobs=jobs||collectionJobs_();if(tasks)collectionSnapshots_(tasks,jobs);
   const requests=collectionRequests_().filter(request=>!jobs.some(job=>job.id===request.id));
   const ordered=jobs.filter(job=>job.estado!=='Cancelada').sort((a,b)=>b.inicio.localeCompare(a.inicio)),active=ordered.filter(job=>Number(job.pendientes)>0||job.estado==='Preparando'),selected=active.length?active:ordered.slice(0,1);
-  const status={blocked:recoveryAvailability(jobs,requests),total:0,processed:0,pending:0,skipped:0,failed:0,added:0,lastActivity:'',queued:requests.length,jobs:[]};
+  const slotIds=new Set(collectionPipelineSlots_().map(slot=>properties_().getProperty(collectionPipelineKey_(slot,'JOB'))).filter(Boolean));
+  const status={blocked:recoveryAvailability(jobs,requests),total:0,processed:0,pending:0,skipped:0,failed:0,added:0,lastActivity:'',queued:requests.length,jobs:[],slotJobs:jobs.filter(job=>slotIds.has(job.id)).map(({row,...job})=>job)};
   for(const job of selected){
     for(const [key,column] of [['total','total'],['processed','procesadas'],['pending','pendientes'],['skipped','omitidas'],['failed','fallidas'],['added','nuevas']])status[key]+=Number(job[column]||0);
     if(job.actualizada>status.lastActivity)status.lastActivity=job.actualizada;
@@ -70,6 +71,7 @@ function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
     const processingMs=Date.now()-processingStarted,writeStarted=Date.now();
     persistCandidates_(candidates,now);appendCoverage_(coverage);
     append_('Noticias',news);
+    try{registerUnknownMedia_(news);}catch(error){telemetry_('catalogo_medios',0,'Error',String(error.message).slice(0,180));}
     append_('Auditoria',audit);append_('Recopilacion',newTasks);
     writeCollectionTasks_(pending,updates);
     if(news.length){SpreadsheetApp.flush();invalidateNews_();}

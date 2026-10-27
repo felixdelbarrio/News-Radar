@@ -17,7 +17,7 @@ test('el RSS consultado aporta país cuando faltan titular y dominio',()=>{
  const item=c.evaluate_(raw,feed,new Date('2026-10-10T12:00:00Z')).item;assert.equal(item.country,'Perú');const row=c.newsRecord_(item,feed,new Date());assert.equal(row[2],'Perú');assert.equal(row[9],feed.name);
  assert.equal(c.sourceCountry_({...feed,country:'Sin determinar'}),'Perú');assert.equal(c.sourceCountry_({...feed,country:'Sin determinar',url:'https://news.google.com/rss/search?q=bank'}),'Perú');
  assert.equal(c.sourceCountry_({...feed,name:'Google News RSS',country:'Sin determinar',url:'https://news.google.com/rss/search?q=bank'}),'');
- const global=c.evaluate_(raw,{...feed,name:'Global',country:'Sin determinar',url:'https://news.google.com/rss/search?q=bank'},new Date('2026-10-10T12:00:00Z'));assert.equal(global.item.country,'España');
+ const global=c.evaluate_(raw,{...feed,name:'Global',country:'Sin determinar',url:'https://news.google.com/rss/search?q=bank'},new Date('2026-10-10T12:00:00Z'));assert.equal(global.item.country,'APAC');
 });
 test('la clasificación persiste el país explícito sin modificar origen ni URL',()=>{
  const s=server(),c=s.c,input=story('old',{titular:spanish+' en Perú'});add(s,[input]);

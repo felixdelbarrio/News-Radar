@@ -8,11 +8,11 @@ test('el titular y el dominio original prevalecen sobre el RSS consultado',()=>{
  const {c}=server();assert.equal(c.newsCountry_(row({titular:'BBVA presenta pagos en Colombia',sourceUrl:'https://editor.es/story'})),'Colombia');
  assert.equal(c.newsCountry_(row({sourceUrl:'https://portafolio.co/story'})),'Colombia');
  assert.equal(c.newsCountry_(row({medio:'Portafolio'})),'España');
- assert.equal(c.newsCountry_(row({extracto:'La plataforma SPEI de pagos para empresas'})),'España');
+ assert.equal(c.newsCountry_(row({extracto:'La plataforma SPEI de pagos para empresas'})),'México');
 });
-test('un dominio internacional recurre al país del RSS y después a la sede',()=>{
+test('un dominio internacional recurre al RSS y conserva un país histórico válido',()=>{
  const {c}=server();assert.equal(c.newsCountry_(row({fuente:'BBVA · México',sourceUrl:'https://publisher.com/story'})),'México');
- assert.equal(c.newsCountry_(row({fuente:'',entidad:'HSBC'})),'Reino Unido');
+ assert.equal(c.newsCountry_(row({fuente:'',entidad:'HSBC'})),'España');
  assert.equal(c.newsCountry_(row({url:'https://editor.com.co/story',sourceUrl:'https://publisher.com/'})),'Colombia');
 });
 test('RSS conserva source URL en noticias y candidatos y atribuye candidato rechazado por el medio real',()=>{

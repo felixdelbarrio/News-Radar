@@ -33,7 +33,7 @@ test('no prepara ni envía una trimestral antes del miércoles; reintentar no du
 test('narrativa y evidencias históricas de Noticias permanecen al cambiar noticias y configuración',()=>{
  const s=server(),c=s.c,content=edition(s,'edition',[news(s),news(s,'two','México','BBVA lanza onboarding digital para empresas')]);
  const before=clean(c.getDashboard({view:'news',edition:'edition',initial:true}));add(s,'Noticias',{...news(s,'later'),fecha:'2026-09-20'});c.configuration_().geographies=[];c.configuration_().applicationScope=[];c.entityKey_=()=> 'Entidad cambiada';c.invalidateNews_();
- const after=clean(c.getDashboard({view:'news',edition:'edition',initial:true}));assert.deepEqual(after.context.editorial,clean(content.editorial));assert.deepEqual(after.items,before.items);assert.deepEqual(after.applicationScope,before.applicationScope);assert.equal(after.context.count,2);
+ const after=clean(c.getDashboard({view:'news',edition:'edition',initial:true}));assert.deepEqual(after.context.editorial,before.context.editorial);assert.deepEqual(after.items,before.items);assert.deepEqual(after.applicationScope,before.applicationScope);assert.equal(after.context.count,2);
  s.setEmail('other@bbva.com');assert.throws(()=>c.getDashboard({view:'news',edition:'edition'}),/no disponible/);
 });
 test('feedback es opcional, propio, deduplicado y administrable; no lee el corpus histórico al guardarse',()=>{

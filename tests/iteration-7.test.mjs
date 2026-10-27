@@ -22,7 +22,7 @@ test('el catálogo no publica conceptos emergentes automáticos',()=>{const stat
 
 test('newsletters no solicitan reconstrucción trimestral',()=>{const {c,properties:p}=setup();c.settings_().newsletterEnabled=true;p.NEWSLETTER_REQUEST='true';assert.equal(c.queueQuarterlyTaxonomy_,undefined);assert.notEqual(c.newsletterReadyAt_({jobs:[]}),Infinity);});
 test('las pruebas administrativas llevan asunto de prueba y no contaminan el historial, y el vacío no se envía',()=>{
- const {c}=setup(),period=c.newsletterPeriod_('fortnightly',new Date()),input=[{...story('test','España','BBVA','API Channel'),fecha:period.from}],original=c.rows_;let rows=input,sent=0;
+ const {c}=setup(),period=c.newsletterWindow('fortnightly',new Date().toISOString().slice(0,10)),input=[{...story('test','España','BBVA','API Channel'),fecha:period.from}],original=c.rows_;let rows=input,sent=0;
  c.rows_=(name,...args)=>name==='Noticias'?rows:original(name,...args);c.annotateNews_=value=>value;c.newsletterSender_=()=>({address:'sender@bbva.com'});c.sendNewsletterMail_=(_sender,_email,content)=>{sent++;assert.match(content.subject,/^\[bIA\] Canal BBVA BEI · \[PRUEBA\]/);return 'gmail-test';};
  assert.equal(c.sendNewsletterTest({cadence:'fortnightly',country:'España'}).accepted,true);assert.equal(c.newsletterSentContent_(c.rows_('NewsletterEnvios')).size,0);rows=[];assert.equal(c.sendNewsletterTest({cadence:'fortnightly'}).accepted,false);assert.equal(sent,1);
 });
