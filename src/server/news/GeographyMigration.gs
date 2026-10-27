@@ -14,7 +14,7 @@ function applyGeographyMigration(){
   const state={version:RADAR.version,backupId:backup.getId(),backupUrl:backup.getUrl(),rows:Math.max(0,source.getSheetByName(newsName).getLastRow()-1),created:new Date().toISOString()};properties_().setProperty('GEOGRAPHY_MIGRATION',JSON.stringify(state));return state;
  });
 }
-function getGeographyMigrationStatus(){authorize_(true);const state=JSON.parse(properties_().getProperty('GEOGRAPHY_MIGRATION')||'null'),job=classificationJob_();return {...state,classification:job?{state:job.state,processed:Math.min(job.total,job.next-2),total:job.total,error:job.error||''}:null};}
+function getGeographyMigrationStatus(){authorize_(true);const state=JSON.parse(properties_().getProperty('GEOGRAPHY_MIGRATION')||'null'),job=classificationJob_();return {...state,classification:job?{state:job.state,processed:classificationProcessed_(job),total:job.total,error:job.error||''}:null};}
 function reportGeographyMigration(){
  const status=getGeographyMigrationStatus(),result={total:0,changed:0,multicountry:0,missing:0,byMethod:{},samples:[]};let offset=0;
  do{const batch=auditGeographyMigration({offset,limit:200});result.total=batch.total;for(const key of ['changed','multicountry','missing'])result[key]+=batch[key];for(const [method,count] of Object.entries(batch.byMethod))result.byMethod[method]=(result.byMethod[method]||0)+count;result.samples.push(...batch.samples);offset=batch.next;}while(offset<result.total);
