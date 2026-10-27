@@ -133,7 +133,7 @@ function processBackground_Request_(batchLimit=BACKGROUND_WORK.maxBatches){
       else if(task==='archive')operationalArchiveBatch_();
       else if(task==='maintenance')maintenanceBatch_(Math.min(MAINTENANCE_POLICY.maxMs,remaining));
       else if(task==='newsletter')deliverNewsletterBatch_(work,remaining);
-      else if(task==='catalogSync'){const synced=refreshFunctionalCatalog_();if(synced.error)properties_().setProperty('CATALOG_SYNC_RETRY_AT',String(Date.now()+settings_().retryMinutes*60000));else{properties_().deleteProperty('CATALOG_SYNC_REQUEST');properties_().deleteProperty('CATALOG_SYNC_RETRY_AT');if(synced.changed&&!taxonomyPending_())requestTaxonomy_('catalog-change',false);}}
+      else if(task==='catalogSync'){const synced=refreshFunctionalCatalog_();if(synced.error)properties_().setProperty('CATALOG_SYNC_RETRY_AT',String(Date.now()+settings_().retryMinutes*60000));else{properties_().deleteProperty('CATALOG_SYNC_REQUEST');properties_().deleteProperty('CATALOG_SYNC_RETRY_AT');if(synced.changed&&!taxonomyPending_()&&!publicationNeedsReview_(taxonomyJob_()))requestTaxonomy_('catalog-change',false);}}
       else if(task==='taxonomyTranslation')taxonomyTranslationBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
       else if(task==='taxonomy')taxonomyBatch_(Math.min(TAXONOMY_POLICY.maxMs,remaining));
       else if(task==='classification')newsClassificationBatch_(Math.min(CLASSIFICATION_WORK.maxMs,remaining));
