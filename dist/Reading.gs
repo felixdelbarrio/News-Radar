@@ -1,3 +1,13 @@
+const NEWSLETTER_STORAGE=Object.freeze({cellChars:50000});
+function newsletterEditorialSnapshot_(editorial){
+ if(!editorial)return null;
+ const {corpusIds,geographies,scope,audit,...snapshot}=editorial,reasons=new Map();
+ for(const row of audit?.exclusions||[])reasons.set(row.reason,(reasons.get(row.reason)||0)+(row.count||1));
+ return {...snapshot,...(geographies?{geographies:geographies.map(({name,code,region,mapId,searchName,enabled,language})=>({name,code,region,mapId,searchName,enabled,language}))}:{}),...(scope?{scope:scope.map(({name,countries})=>({name,countries}))}:{}),...(audit?{audit:{...audit,exclusions:[...reasons].map(([reason,count])=>({reason,count}))}}:{})};
+}
+function validateNewsletterCells_(rows){
+ for(const row of rows)for(const value of row)if(String(value??'').length>NEWSLETTER_STORAGE.cellChars)throw Error('La edición supera el límite de almacenamiento. No se ha guardado ni enviado.');
+}
 function saveNewsletterEdition_(id,delivery,email,name,query,language,items,editorial=null){
   const sheet=newsletterSheet_('NewsletterContenido'),start=sheet.getLastRow()+1,allNames=taxonomyTranslations_(),names={};
   for(const code of Object.keys(languageNames)){
@@ -6,8 +16,10 @@ function saveNewsletterEdition_(id,delivery,email,name,query,language,items,edit
       if(category.subpalanca)names[code][taxonomyPath(category)]=names[code][category.palanca]+' › '+names[code][category.subpalanca];
     }
   }
-  append_('NewsletterContenido',items.map(item=>{const saved={...item,entidad:entityKey_(item.entidad)};newsRelevanceMemory_.set(saved,newsRelevance_(item));return [id,JSON.stringify(packNews_(saved))];}));
-  const row={id,envio:delivery,correo:email,nombre:name,filtros:JSON.stringify(query),idioma:language,fecha:new Date().toISOString(),inicio:start,cantidad:items.length,estado:'Enviando',traducciones:JSON.stringify(names),editorial:JSON.stringify(editorial)};
+  const content=items.map(item=>{const saved={...item,entidad:entityKey_(item.entidad)};newsRelevanceMemory_.set(saved,newsRelevance_(item));return [id,JSON.stringify(packNews_(saved))];});
+  const row={id,envio:delivery,correo:email,nombre:name,filtros:JSON.stringify(query),idioma:language,fecha:new Date().toISOString(),inicio:start,cantidad:items.length,estado:'Enviando',traducciones:JSON.stringify(names),editorial:JSON.stringify(newsletterEditorialSnapshot_(editorial))};
+  validateNewsletterCells_([RADAR.sheets.NewsletterEdiciones.map(key=>row[key]),...content]);
+  append_('NewsletterContenido',content);
   append_('NewsletterEdiciones',[RADAR.sheets.NewsletterEdiciones.map(key=>row[key])]);
 }
 function completeNewsletterEdition_(id,state){

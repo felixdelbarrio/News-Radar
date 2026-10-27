@@ -53,9 +53,11 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
    read++;
    let taxonomyValid=true;try{validateTaxonomyAssignment_(taxonomy,items,row.id,true,row);}catch(_){taxonomyValid=false;}
    const current=saved.schema===1&&saved.version===CLASSIFICATION_WORK.rulesVersion&&saved.revision===revision&&saved.contentHash===hash;
-   const nextCountry=newsCountry_(row),nextEntity=entityKey_(row.entidad);
-   if(!job.force&&current&&taxonomyValid&&nextEntity===row.entidad&&nextCountry===row.pais&&cleanTitle===row.titular&&cleanExcerpt===row.extracto)continue;
-   const labels=current&&!job.force?saved:{...classification_(title,text,true,row.medio).labels,...(saved.procedencia?{procedencia:saved.procedencia}:{})};
+   const provenance=saved.procedencia||{},feedUrl=provenance.feedUrl||configuration_().feeds.find(feed=>feed.name===row.fuente)?.url||'',geography=newsCountryDecision_({...row,titular:cleanTitle,extracto:cleanExcerpt,sourceUrl:provenance.medioUrl,feedUrl,language:row.idioma}),nextCountry=geography.country,nextEntity=entityKey_(row.entidad);
+   if(!job.force&&current&&taxonomyValid&&nextEntity===row.entidad&&nextCountry===row.pais&&provenance.versionReglas===RADAR.version&&cleanTitle===row.titular&&cleanExcerpt===row.extracto)continue;
+   const labels=current&&!job.force?saved:classification_(title,text,true,row.medio).labels;
+   const prior={...provenance};delete prior.locale;delete prior.origenLocale;
+   labels.procedencia={...prior,geografias:geography.geographies,scope:geography.scope,paisMetodo:geography.reason,paisConfianza:geography.confidence,paisEvidencias:geography.countryEvidence,tipoGeografia:geography.type,...(geography.locale?{locale:geography.locale,origenLocale:geography.localeOrigin}:{}),versionReglas:RADAR.version};
    const changed={titular:cleanTitle,extracto:cleanExcerpt,clasificacion:JSON.stringify(labels),pais:nextCountry,entidad:nextEntity,taxonomia:JSON.stringify(necessaryTaxonomyRecord_({...row,titular:cleanTitle,extracto:cleanExcerpt,clasificacion:JSON.stringify(labels)},items))};
    for(const [key,value] of Object.entries(changed))if(value!==row[key])updates.push({row:position,column:keys.indexOf(key)+1,value});
    if(changed.clasificacion!==row.clasificacion)classified++;if(labels.digital)digital++;

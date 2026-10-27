@@ -9,10 +9,10 @@ import {formatCalendarDay} from '../../shared/locales.js';
 import { $, escape } from "../core/dom.js";
 function createFilters({ onInvalidate, onChange }) {
   const form = $("filters");
-  let page = 0, view=defaultView, defaults={},edition='',newsGeography='',editionSelection={},taxonomy=[],applied={},dirty=false;
+  let page = 0, view=defaultView, defaults={},edition='',newsGeography='',editionSelection={},taxonomy=[],applied={},dirty=false,regions=REGION_CODES;
   const selections=new Map(),initialized=new Set();
   function options(name, values, selected) {
-    const el = form.elements[name];if(!el)return;if(name==='country'&&['news','briefing'].includes(view))values=[...new Set([...values,otherGeography,...REGION_CODES])];let current = selected ?? el.value;if(name==='signal'&&view==='briefing'){values=values.filter(value=>BRIEFING_ALLOWED_SIGNALS.includes(value));if(!values.includes(current))current='';}
+    const el = form.elements[name];if(!el)return;if(name==='country'&&['news','briefing'].includes(view))values=[...new Set([...values,otherGeography,...regions])];let current = selected ?? el.value;if(name==='signal'&&view==='briefing'){values=values.filter(value=>BRIEFING_ALLOWED_SIGNALS.includes(value));if(!values.includes(current))current='';}
     if(name!=='year'&&!(name==='signal'&&view==='briefing')&&current&&!values.includes(current))values=[...values,current];
     const signature = JSON.stringify(values);
     if (el.dataset.options === signature) return;
@@ -104,7 +104,7 @@ function createFilters({ onInvalidate, onChange }) {
   function current(){resetContext('');}
   return {
     useEdition:(id,selection={},notify=true)=>{editionSelection=selection;resetContext(id,notify);},current,
-    query: () => geographyTabQuery({ ...applied, page,view,language,...(edition&&view==='news'?{edition,...(!initialized.has(view)?editionSelection:{})}:{}),...(view==='news'&&newsGeography?{newsGeography}:{}),initial:!initialized.has(view) }),
+    query: () => geographyTabQuery({ ...applied, page,view,language,...(edition&&view==='news'?{edition,...(!initialized.has(view)?editionSelection:{})}:{}),...(view==='news'&&newsGeography?{newsGeography}:{}),initial:!initialized.has(view) },regions),
     show: next => {
       if(next===view)return false;
       clearTimeout(timer);onInvalidate();
@@ -123,10 +123,11 @@ function createFilters({ onInvalidate, onChange }) {
     },
     apply:(query,notify=true)=>{initialized.add(view);if(Object.hasOwn(query,'newsGeography'))newsGeography=query.newsGeography;for(const input of form.elements)if(input.name){const value=query[input.name]||'';if(value&&input.tagName==='SELECT')options(input.name,[value]);input.value=value;}filterChanged({type:'change',notify,preserveGeography:Object.hasOwn(query,'newsGeography')});},
     syncGeography:name=>{const select=form.elements.country,values=[...select.options].map(option=>option.value).filter(Boolean);options('country',[...new Set([...values,name])],name);select.value=name;applied={...applied,country:name};page=0;initialized.add(view);renderChips();},
-    setGeography:name=>{newsGeography=name;applied.country=REGION_CODES.includes(name)?name:'';page=0;onInvalidate();onChange();},
+    setGeography:name=>{newsGeography=name;applied.country=regions.includes(name)||name===otherGeography?name:'';page=0;onInvalidate();onChange();},
     setPage: (value) => page = value,
     render: (data) => {
-      const draft=dirty?Object.fromEntries(new FormData(form)):null,selection=data.selection?{...data.selection,country:data.selection.country||(view==='news'&&REGION_CODES.includes(data.newsGeography)?data.newsGeography:'')}:null;
+      regions=[...new Set((data.geographies||[]).map(row=>row.region).filter(Boolean))];
+      const draft=dirty?Object.fromEntries(new FormData(form)):null,selection=data.selection?{...data.selection,country:data.selection.country||(view==='news'?data.newsGeography||'':'')}:null;
       if(view==='radar')options('year',data.years||[],data.selection?.from?.slice(0,4));
       taxonomy=data.subpalanca||[];page = data.page;newsGeography=data.newsGeography||'';
       defaults=data.defaults||defaults;

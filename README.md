@@ -1,4 +1,12 @@
-> Revisión local 3.26.0: [Iteraciones 25 y 26](docs/iteration-25-26-3.26.0.md), recuperación de archivos y publicación, compactación atómica de newsletters, extractos RSS y clasificación conservadora.
+> Revisión 3.29.0: [Iteración 28](docs/iteration-28-3.29.0.md), países, selección editorial, interfaz móvil, adopción y navegación con revisiones ligeras.
+
+> Revisión 3.28.1: [Auditoría y corrección geográfica](docs/geography-audit-3.28.0.md), asignación obligatoria por titular, dominio, RSS o sede y agregado de Otras geografías (comportamiento histórico; la Iteración 28 añade región inicial y Todas las regiones).
+
+> Revisión 3.27.1: [Radar móvil](docs/mobile-radar-3.27.1.md), columnas responsivas, cronología legible y medición antes/después sin añadir JavaScript.
+
+> Revisión 3.26.1: [Iteraciones 25 y 26](docs/iteration-25-26-3.26.0.md), recuperación de archivos y publicación, compactación atómica de newsletters, extractos RSS y clasificación conservadora.
+
+> Auditoría local de Iteración 27: [diagnóstico reproducible y resultado NO-GO](docs/iteration-27-audit.md). Herramientas de desarrollo sin cambios en las reglas ni en producción.
 
 > Revisión 3.22.1: [Iteración 23](docs/iteration-23-3.22.0.md), regiones APAC/EMEA/AMER, panel sin escrituras de lectura, clasificación y limpieza taxonómica.
 

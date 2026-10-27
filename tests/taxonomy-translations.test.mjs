@@ -51,7 +51,7 @@ test('finalizar taxonomía encola traducción automáticamente y los lectores ut
   const query={view:'news',from:'2026-01-01',to:'2026-12-31',entity:'BBVA',palanca:'Pagos y cobros',subpalanca:'Pagos y cobros › Pagos biometricos',language:'en'};
   const data=c.getDashboard(query);assert.equal(data.total,1);assert.equal(data.items[0].taxonomia[0].id,'one');assert.equal(data.taxonomyTranslations.en[query.subpalanca],'Payments and collections › en Pagos biometricos');
   assert.match(c.exportNews(query).csv,/en Pagos biometricos/);
-  const mail=newsletterFixture(c,c.rows_('Noticias'),query,'News',new Date(),undefined,'en');assert.match(mail.html,/en Pagos biometricos/);assert.match(mail.text,/en Pagos biometricos/);
+  const mail=newsletterFixture(c,c.rows_('Noticias'),query,'News',new Date(),undefined,'en');assert.match(mail.html,/Payments and collections/);assert.doesNotMatch(mail.html,/en Pagos biometricos/);assert.doesNotMatch(mail.text,/en Pagos biometricos/);
 });
 test('una diaria recibida durante la llamada detiene el lote tras guardar el resultado y un traductor lento respeta el tiempo',()=>{
  const s=server(),c=s.c;c.LanguageApp={translate(name){c.requestDailyCollection_();return name;}};c.requestTaxonomyTranslations_();c.taxonomyTranslationBatch_();assert.equal(c.taxonomyTranslationJob_().processed,1);assert.equal(c.rows_('TaxonomiaTraducciones').length,1);

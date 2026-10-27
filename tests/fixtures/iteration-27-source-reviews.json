@@ -1,0 +1,35 @@
+[
+  {
+    "id": "00050223-8aa2-46af-bdd9-a0d17ed00772",
+    "evidence_url": "https://www.dbs.com/newsroom/dbs_posb_commits_sgd_10_million_to_help_singaporeans_manage_cost_pressures_and_fortify_business_resilience",
+    "evidence_excerpt": "SMEs to receive more support to accelerate AI adoption",
+    "evidence_date": "2026-10-25T19:37:59Z",
+    "source_date": "2026-04-25",
+    "location": "Subtitle and section What's in it for businesses",
+    "evidence_kind": "primary_corroboration",
+    "rationale": "La fuente primaria corrobora un programa de apoyo empresarial y una campaña de consumo. No demuestra por sí sola una nueva capacidad del canal bancario empresarial. No convertir apoyo a adopción de IA en lanzamiento de banca digital.",
+    "label_auto": "unknown"
+  },
+  {
+    "id": "0abb00b4-aac6-4d72-954c-70b10f383dd8",
+    "evidence_url": "https://www.finextra.com/pressarticle/111261/bbva-joins-meta-backed-personal-agent-protocol-initiative",
+    "evidence_excerpt": "explore their potential application to the future of financial services",
+    "evidence_date": "2026-10-25T19:37:59Z",
+    "source_date": "2026-10-14",
+    "location": "Final article paragraph; content marked External by Finextra",
+    "evidence_kind": "original_url_accessible_external_press_release",
+    "rationale": "Confirma participación en una iniciativa y potencial futuro. La presencia de API o agentes no acredita disponibilidad operativa empresarial; el texto cita al responsable Retail. Mantener ambigüedad y distinguir relevancia sectorial de novedad de canal.",
+    "label_auto": "unknown"
+  },
+  {
+    "id": "eead61ee-43bc-451b-989a-1b39b7dafc00",
+    "evidence_url": "https://stripe.com/blog/what-stripe-data-shows-about-fraud-at-ai-startups",
+    "evidence_excerpt": "Detecting this fraud earlier in the customer lifecycle, before a payment is processed",
+    "evidence_date": "2026-10-25T19:37:59Z",
+    "source_date": "2026-09-15",
+    "location": "Section Attempted multi-account abuse at AI subscription companies increased 40% in six months",
+    "evidence_kind": "primary_original_url",
+    "rationale": "El blog aporta contexto de prevención de fraude empresarial y funciones de Radar. El ámbito editorial bancario y la novedad admisible necesitan una rúbrica independiente completa. No se usa el propio resultado del clasificador para decidir la etiqueta.",
+    "label_auto": "unknown"
+  }
+]

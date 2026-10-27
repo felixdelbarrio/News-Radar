@@ -14,6 +14,11 @@
         "text"
       ],
       [
+        "headquartersCountry",
+        "País de la sede",
+        "text"
+      ],
+      [
         "aliases",
         "Alias de búsqueda",
         "list"
@@ -183,8 +188,28 @@
         "text"
       ],
       [
+        "aliases",
+        "Otros nombres del país",
+        "list"
+      ],
+      [
+        "region",
+        "Zona regional",
+        "text"
+      ],
+      [
+        "publisherDomains",
+        "Dominios genéricos de medios verificados en el país",
+        "list"
+      ],
+      [
+        "publisherNames",
+        "Nombres de medios verificados en el país",
+        "list"
+      ],
+      [
         "terms",
-        "Nombres alternativos del país",
+        "Términos de contexto nacional",
         "list"
       ],
       [
@@ -420,6 +445,167 @@
           "retentionDays"
         ]
       }
+    ]
+  },
+  "mediaCatalog": {
+    "label": "Medios de comunicación",
+    "help": "80 propuestas con dominio genérico, pendientes e inactivas. Active solo entradas verificadas. La importación CSV conserva ediciones existentes.",
+    "fields": [
+      [
+        "seedId",
+        "ID de semilla",
+        "readonly"
+      ],
+      [
+        "name",
+        "Nombre RSS",
+        "text"
+      ],
+      [
+        "domain",
+        "Dominio",
+        "text"
+      ],
+      [
+        "country",
+        "País editorial propuesto",
+        "text"
+      ],
+      [
+        "iso2",
+        "ISO2 propuesto",
+        "text"
+      ],
+      [
+        "status",
+        "Verificación",
+        "choice",
+        [
+          [
+            "PENDIENTE",
+            "Pendiente"
+          ],
+          [
+            "VERIFICADO",
+            "Verificado"
+          ],
+          [
+            "RECHAZADO",
+            "Rechazado"
+          ]
+        ]
+      ],
+      [
+        "enabled",
+        "Activa",
+        "boolean"
+      ],
+      [
+        "ruleType",
+        "Tipo de regla",
+        "text"
+      ],
+      [
+        "editionCountry",
+        "País de edición",
+        "text"
+      ],
+      [
+        "editionPattern",
+        "Patrón de edición",
+        "text"
+      ],
+      [
+        "historical",
+        "Noticias históricas",
+        "number"
+      ],
+      [
+        "sourceUrl",
+        "URL de referencia",
+        "text"
+      ],
+      [
+        "notes",
+        "Observaciones",
+        "text"
+      ],
+      [
+        "source",
+        "Procedencia",
+        "text"
+      ],
+      [
+        "updated",
+        "Fecha",
+        "text"
+      ]
+    ]
+  },
+  "localeRules": {
+    "label": "Reglas idioma → geografía",
+    "help": "Fallback solo tras agotar contenido, dominio y país RSS. EMEA es el identificador canónico de EMAE.",
+    "fields": [
+      [
+        "name",
+        "Código de idioma",
+        "text"
+      ],
+      [
+        "destination",
+        "Destino ISO2 o región",
+        "text"
+      ],
+      [
+        "type",
+        "Tipo de geografía",
+        "choice",
+        [
+          [
+            "PAIS",
+            "País"
+          ],
+          [
+            "REGION",
+            "Región"
+          ]
+        ]
+      ],
+      [
+        "method",
+        "Método",
+        "text"
+      ],
+      [
+        "enabled",
+        "Activa",
+        "boolean"
+      ],
+      [
+        "precedence",
+        "Precedencia",
+        "number"
+      ],
+      [
+        "confidence",
+        "Confianza",
+        "text"
+      ],
+      [
+        "source",
+        "Procedencia",
+        "text"
+      ],
+      [
+        "updated",
+        "Fecha",
+        "text"
+      ],
+      [
+        "notes",
+        "Observaciones",
+        "text"
+      ]
     ]
   }
 }

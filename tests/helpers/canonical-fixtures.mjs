@@ -1,5 +1,7 @@
+import {createHash} from 'node:crypto';
 // Materialize test fixtures at creation time. Production readers never infer saved classifications.
-export function canonicalFixtures(c,rows){return rows.map(row=>{
+export function canonicalFixtures(c,rows){return rows.map(input=>{
+ const row={...input,id:input.id||createHash('sha256').update(String(input.url||input.titular)).digest('hex').slice(0,24)};
  let labels;try{labels=JSON.parse(row.clasificacion||'{}');}catch{return row;}
  if(!labels||labels.schema)return row;
  const classification=c.classification_(c.searchText_(row.titular),c.searchText_((row.titular||'')+' '+(row.extracto||'')),false);

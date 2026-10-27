@@ -53,7 +53,7 @@ test('fechas invertidas impiden la consulta y limpiar filtros elimina la validac
   c.change('from','2026-10-09');const count=c.requests.length;c.change('to','2026-10-01');
   assert.equal(c.requests.length,count);assert.match(c.form.elements.to.validation,/posterior/);
   for(const input of Object.values(c.form.elements))input.value='';c.form.listeners.reset();await settle();
-  assert.equal(c.form.elements.to.validation,'');assert.equal(c.requests.at(-1).query.from||'','');assert.equal(c.requests.at(-1).query.to||'','');
+  assert.equal(c.form.elements.to.validation,'');assert.equal(c.form.elements.from.value,'');assert.equal(c.form.elements.to.value,'');
 });
 
 
@@ -128,7 +128,7 @@ test('Radar limita sus filtros a geografía y año y conserva la selección inde
 test('abrir Noticias desde el mapa conserva el ámbito del Radar sin imponer otro período',async()=>{
  const c=client();c.requests[0].resolve({...dashboard('Inicial'),initial:true,selection:{segment:'Empresas e instituciones'},defaults:{entity:'BBVA',segment:'Empresas e instituciones',from:'2026-10-01',to:'2026-10-31'}});await settle();
  const count=c.requests.length;c.element('map-panel').listeners.click({target:{closest:()=>({dataset:{country:'México'}})}});
- assert.equal(c.requests.length,count+1);assert.equal(c.requests.at(-1).query.country,'México');assert.equal(c.requests.at(-1).query.from||'','');assert.equal(c.requests.at(-1).query.to||'','');
+ assert.equal(c.requests.length,count+1);assert.equal(c.requests.at(-1).query.country,'México');assert.equal(c.form.elements.from.value,'');assert.equal(c.form.elements.to.value,'');
 });
 
 test('cerrar un chip sincroniza panel, paginación y consulta e invalida respuestas anteriores',async()=>{

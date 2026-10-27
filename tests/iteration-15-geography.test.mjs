@@ -4,18 +4,16 @@ import vm from 'node:vm';
 import {storage} from './helpers/server.mjs';
 function server(){const s=storage();s.c.initializeConfiguration();return s;}
 function row(changes={}){return {id:'news',fecha:'2026-10-21',titular:'BBVA lanza pagos digitales para empresas',extracto:'',entidad:'BBVA',pais:'España',medio:'Editor',fuente:'BBVA · España',url:'https://news.google.com/articles/test',taxonomia:'{"ids":[]}',...changes};}
-test('medios colombianos y Bre-B corrigen feeds españoles antes del fallback nacional',()=>{
- const {c}=server();for(const medio of ['Revista Semana','ABC Economía','Demócrata','EL PAÍS','Portafolio','La República','Caracol Radio','Blu Radio'])assert.equal(c.newsCountry_(row({medio,titular:'BBVA incorpora Bre-B para empresas'})),'Colombia',medio);
- for(const medio of ['Revista Semana','El Espectador','El Colombiano','Caracol Radio','Noticias Caracol','Blu Radio','RCN Radio','Noticias RCN','La FM','W Radio','Pulzo','RED+ Noticias','Más Colombia','Pluralidad Z','La Opinión Cúcuta','Vanguardia','Cambio Colombia','Dinero'])assert.equal(c.newsCountry_(row({medio})),'Colombia',medio);
- assert.equal(c.newsCountry_(row({medio:'ABC Economía',extracto:'El banco mejora pagos Bre-B para empresas.'})),'Colombia');
+test('el titular y el dominio original prevalecen sobre el RSS consultado',()=>{
+ const {c}=server();assert.equal(c.newsCountry_(row({titular:'BBVA presenta pagos en Colombia',sourceUrl:'https://editor.es/story'})),'Colombia');
+ assert.equal(c.newsCountry_(row({sourceUrl:'https://portafolio.co/story'})),'Colombia');
+ assert.equal(c.newsCountry_(row({medio:'Portafolio'})),'España');
+ assert.equal(c.newsCountry_(row({extracto:'La plataforma SPEI de pagos para empresas'})),'México');
 });
-test('cabeceras homónimas respetan el mercado RSS y los dominios explícitos desambiguan',()=>{
- const {c}=server();for(const medio of ['El Economista','Expansión','Demócrata','EL PAÍS','Infobae','Bloomberg Línea','Yahoo','TradingView','CoinDesk','Unite.AI','DiarioBitcoin','CriptoNoticias'])for(const country of ['México','Colombia','Argentina','Brasil','Uruguay','Reino Unido'])assert.equal(c.newsCountry_(row({medio,fuente:'BBVA · '+country,pais:country})),country==='Uruguay'?c.settings_().unknownCountry:country,medio+' '+country);
- assert.equal(c.newsCountry_(row({medio:'Expansión',fuente:'BBVA · México',clasificacion:JSON.stringify({procedencia:{medioUrl:'https://www.expansion.com.mx/'}})})),'México');
- assert.equal(c.newsCountry_(row({medio:'El Economista',fuente:'BBVA · México',sourceUrl:'https://www.eleconomista.es/'})),'España');
- assert.equal(c.newsCountry_(row({medio:'Editor',extracto:'La plataforma SPEI de pagos para empresas'})),'México');
- assert.equal(c.newsCountry_(row({titular:'BBVA presenta Bre-B en México'})),'México');
- assert.equal(c.newsCountry_(row({url:'https://editor.com.co/story',sourceUrl:'https://globalpublisher.com/'})),'Colombia');
+test('un dominio internacional recurre al RSS y conserva un país histórico válido',()=>{
+ const {c}=server();assert.equal(c.newsCountry_(row({fuente:'BBVA · México',sourceUrl:'https://publisher.com/story'})),'México');
+ assert.equal(c.newsCountry_(row({fuente:'',entidad:'HSBC'})),'España');
+ assert.equal(c.newsCountry_(row({url:'https://editor.com.co/story',sourceUrl:'https://publisher.com/'})),'Colombia');
 });
 test('RSS conserva source URL en noticias y candidatos y atribuye candidato rechazado por el medio real',()=>{
  const {c}=server(),source={getText:()=> 'Portafolio',getAttribute:name=>name==='url'?{getValue:()=> 'https://www.portafolio.co/'}:null},item={getChildText:key=>({title:'BBVA lanza pagos digitales para empresas',link:'https://news.google.com/articles/rss',pubDate:'2026-10-21',description:'Nueva plataforma digital para empresas.'})[key]||'',getChild:key=>key==='source'?source:null};
@@ -28,16 +26,16 @@ test('Santander regional se excluye sin expulsar banca legítima por ciudades co
  for(const text of ['Banco Santander lanza pagos digitales para empresas en Colombia','Banco Santander mejora su banca móvil para empresas en Málaga','Santander Empresas incorpora transferencias en Cúcuta'])assert.equal(c.santanderExcluded_(c.searchText_(text)),false,text);
 });
 test('reclasifica país incorrecto aunque la revisión y el contenido de la noticia estén vigentes',()=>{
- const s=server(),c=s.c,input=row({medio:'Revista Semana'}),labels=c.classification_(c.searchText_(input.titular),c.searchText_(input.titular)).labels;input.clasificacion=JSON.stringify(labels);input.taxonomia=JSON.stringify(c.taxonomyRecord_(input.titular,''));const keys=vm.runInContext('RADAR.sheets.Noticias',c);Array.prototype.push.call(s.sheets.get('Noticias').grid,keys.map(key=>input[key]||''));
+ const s=server(),c=s.c,input=row({sourceUrl:'https://portafolio.co/story'}),labels=c.classification_(c.searchText_(input.titular),c.searchText_(input.titular)).labels;input.clasificacion=JSON.stringify({...labels,procedencia:{medioUrl:input.sourceUrl}});input.taxonomia=JSON.stringify(c.taxonomyRecord_(input.titular,''));const keys=vm.runInContext('RADAR.sheets.Noticias',c);Array.prototype.push.call(s.sheets.get('Noticias').grid,keys.map(key=>input[key]||''));
  c.requestNewsClassification_();c.newsClassificationBatch_();assert.equal(c.rows_('Noticias')[0].pais,'Colombia');assert.equal(JSON.parse(c.rows_('Noticias')[0].clasificacion).revision,labels.revision);
 });
 test('candidatos se actualizan por lotes acotados y mantenimiento no publica antes de terminar su cursor',()=>{
- const s=server(),c=s.c,keys=vm.runInContext('RADAR.sheets.Candidatos',c);for(let i=0;i<205;i++){const value={...row({id:String(i),titular:'BBVA incorpora Bre-B para empresas',entidad:'BBVA Empresas'}),procedencia:JSON.stringify({medio:'ABC Economía'}),clasificacion:'{}'};Array.prototype.push.call(s.sheets.get('Candidatos').grid,keys.map(key=>value[key]||''));}
+ const s=server(),c=s.c,keys=vm.runInContext('RADAR.sheets.Candidatos',c);for(let i=0;i<205;i++){const value={...row({id:String(i),titular:'BBVA incorpora pagos digitales para empresas en Colombia',entidad:'BBVA Empresas'}),procedencia:JSON.stringify({medio:'ABC Economía'}),clasificacion:'{}'};Array.prototype.push.call(s.sheets.get('Candidatos').grid,keys.map(key=>value[key]||''));}
  c.maintenance_();c.dailyCollectionPending_=()=>false;let attempts=0;while(c.maintenanceJob_().state!=='Publicando'&&c.maintenanceJob_().state!=='Completada'&&attempts++<20)c.maintenanceBatch_();assert.ok(attempts>=3);assert.equal(c.maintenanceJob_().candidateNext,207);const rows=c.rows_('Candidatos');assert.equal(rows.length,205);assert.ok(rows.every(row=>row.pais==='Colombia'&&row.entidad==='BBVA'&&JSON.parse(row.clasificacion).version===vm.runInContext('CLASSIFICATION_WORK.rulesVersion',c)));
  const reads=s.reads;assert.equal(c.reclassifyCandidates_(207,100,8000).changed,0);assert.ok(s.reads-reads<=1);
 });
-test('el país del RSS resuelve alias empresariales aunque el país persistido sea incorrecto',()=>{
- const {c}=server();for(const medio of ['El Economista','Expansión','Demócrata'])assert.equal(c.newsCountry_(row({entidad:'Santander',medio,fuente:'Santander Empresas · México',pais:'España'})),'México');
+test('el RSS consultado aporta país si no hay titular ni dominio geográfico',()=>{
+ const {c}=server();assert.equal(c.newsCountry_(row({entidad:'Santander',fuente:'Santander Empresas · México',pais:'España'})),'México');
 });
 test('La República y otras cabeceras homónimas conservan Perú y el mercado RSS salvo dominio concluyente',()=>{
  const {c}=server();for(const medio of ['La República','La Nación','La Opinión','El Universal','Vanguardia','El Heraldo'])assert.equal(c.newsCountry_(row({medio,fuente:'Interbank · Perú',pais:'Colombia'})),'Perú',medio);

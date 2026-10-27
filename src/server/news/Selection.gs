@@ -1,13 +1,17 @@
 function snapshotEntity_(value){return String(value||'').trim();}
-function newsReadingGeography_(context,query){return context?.cadence==='fortnightly'&&query.benchmark==='international'&&!query.country&&!REGION_CODES.includes(query.newsGeography)?()=> 'Otras geografías':applicationGeography(context?.scope||configuration_().applicationScope,query.segment);}
-function newsGeographySelection_(rows,query,geography=applicationGeography(configuration_().applicationScope,query.segment)){
+function newsReadingGeography_(context,query){
+ const current=configuration_().geographies,geographies=context?.geographies?context.geographies.map(row=>({...row,region:Object.hasOwn(row,'region')?row.region:current.find(geo=>geo.code===row.code)?.region||''})):current,geography=applicationGeography(context?.scope||configuration_().applicationScope,query.segment,geographies);
+ if(context?.cadence==='fortnightly'&&query.benchmark==='international'&&!query.country&&!geography.regions.includes(query.newsGeography)){const group=()=>otherGeography;return Object.assign(group,{region:geography.region,regions:geography.regions});}
+ return geography;
+}
+function newsGeographySelection_(rows,query,geography=applicationGeography(configuration_().applicationScope,query.segment,configuration_().geographies)){
   return query.newsGeography?rows.filter(row=>geographyMatches(row,query.newsGeography,geography)):rows;
 }
 function searchText_(value) {
   return String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ı/g,'i').trim();
 }
 function newsScope_(row,query,entity,entityName=entityKey_,geography){
-  return (!query.country||(query.country===otherGeography||REGION_CODES.includes(query.country)?geographyMatches(row,query.country,geography||applicationGeography(configuration_().applicationScope,query.segment)):row.pais===query.country))&&(!entity||entityName(row.entidad)===entity)&&(!query.source||row.medio===query.source||row.fuente===query.source)&&(!query.from||row.fecha>=query.from)&&(!query.to||row.fecha<=query.to);
+  return (!query.country||(query.country===otherGeography||REGION_CODES.includes(query.country)?geographyMatches(row,query.country,geography||applicationGeography(configuration_().applicationScope,query.segment,configuration_().geographies)):articleGeographies(row).includes(query.country)))&&(!entity||entityName(row.entidad)===entity)&&(!query.source||row.medio===query.source||row.fuente===query.source)&&(!query.from||row.fecha>=query.from)&&(!query.to||row.fecha<=query.to);
 }
 function selectNews_(rows,query){
   const entity=query.entity?entityKey_(query.entity):'';
@@ -17,7 +21,7 @@ function selectAnnotatedNews_(rows,query,entityName=entityKey_,identities=false,
   const q=searchText_(String(query.search||'').slice(0,160));
   if(query.from && query.to && query.from>query.to)throw new Error('La fecha desde debe ser anterior o igual a la fecha hasta.');
   const entity=query.entity?entityName(query.entity):'';
-  const selected=rows.filter(r=>(!q || searchText_(r.titular+' '+r.extracto+' '+r.entidad+' '+r.medio).includes(q)) && newsScope_(r,query,entity,entityName,geography) && (!query.type || r.tipo===query.type) && (!query.segment || r.segmentos.includes(query.segment)) && (!query.signal || r.senales.includes(query.signal)) && (!query.coverage || r.etiquetas?.[query.coverage]===true) && (!query.palanca || r.taxonomia.some(item=>item.palanca===query.palanca)) && (!query.subpalanca || r.taxonomia.some(item=>item.subpalanca===taxonomySubLabel(query.subpalanca)&&(!query.palanca||item.palanca===query.palanca))));
+  const selected=rows.filter(r=>(!q || searchText_(r.titular+' '+r.extracto+' '+r.entidad+' '+r.medio).includes(q)) && newsScope_(r,query,entity,entityName,geography) && (!query.type || r.tipo===query.type) && (!query.segment || r.segmentos.includes(query.segment)) && (!query.signal || (query.signal===NON_INCIDENT_SIGNAL?!r.senales.includes(INCIDENT_SIGNAL):r.senales.includes(query.signal))) && (!query.coverage || r.etiquetas?.[query.coverage]===true) && (!query.palanca || r.taxonomia.some(item=>item.palanca===query.palanca)) && (!query.subpalanca || r.taxonomia.some(item=>item.subpalanca===taxonomySubLabel(query.subpalanca)&&(!query.palanca||item.palanca===query.palanca))));
   return uniqueNews_(identities||entityName===snapshotEntity_?selected:translationIdentityRows_(selected)).sort((a,b)=>b.fecha.localeCompare(a.fecha));
 }
 function newsDashboard_(rows, query, feeds,view='radar',context=null,pagination=null,previousRows=null) {
@@ -29,11 +33,11 @@ function newsDashboard_(rows, query, feeds,view='radar',context=null,pagination=
   const ordered=view==='news'&&pagination?newsEntityGroups(visible).flatMap(group=>group.items):visible;if(pagination)pagination(ordered);
   const values=items=>[...new Set(items.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
   return {...taxonomyOptions_(),items:view==='news'&&!pagination?newsEntityPage(visible,page*settings_().pageSize,settings_().pageSize):ordered.slice(page*settings_().pageSize,(page+1)*settings_().pageSize),total:visible.length,contextTotal:selected.length,...(view==='news'?{newsGeographies,newsGeography,newsRegions:regionalGeographies(selected,geography)}:{}),page,pageSize:settings_().pageSize,
-    countries:values((query.country?selectAnnotatedNews_(rows,{...query,country:''},entityName,identities,geography):selected).map(row=>row.pais)),entities:values([...rows.map(r=>entityName(r.entidad)),...feeds.map(f=>entityName(f.entity))]),sources:values(rows.map(r=>r.medio)),types:values(configuration_().entities.filter(row=>row.enabled).map(row=>row.type)),segments:configuration_().segments.filter(row=>row.enabled).map(row=>row.name),signals:view==='briefing'?[...BRIEFING_ALLOWED_SIGNALS]:configuration_().signals.filter(row=>row.enabled).map(row=>row.name),...(radar?{radar,stats:radar.summary,heatmap:taxonomyHeatmap_(selected,entityName)}:{}),...(view==='briefing'?{briefing:briefing_(selected,true,geography)}:{})};
+    countries:values((query.country?selectAnnotatedNews_(rows,{...query,country:''},entityName,identities,geography):selected).flatMap(articleGeographies)),entities:values([...rows.map(r=>entityName(r.entidad)),...feeds.map(f=>entityName(f.entity))]),sources:values(rows.map(r=>r.medio)),types:values(configuration_().entities.filter(row=>row.enabled).map(row=>row.type)),segments:configuration_().segments.filter(row=>row.enabled).map(row=>row.name),signals:view==='briefing'?[...BRIEFING_ALLOWED_SIGNALS]:[NON_INCIDENT_SIGNAL,...configuration_().signals.filter(row=>row.enabled).map(row=>row.name)],...(radar?{radar,stats:radar.summary,heatmap:taxonomyHeatmap_(selected.filter(row=>!row.senales.includes(INCIDENT_SIGNAL)),entityName)}:{}),...(view==='briefing'?{briefing:briefing_(selected,true,geography)}:{})};
 }
 function newsCsv_(rows, query, language='es',prepared=false,names,entityName=entityKey_,geography) {
-  const label=taxonomyLanguage_(language,names),selected=prepared?selectAnnotatedNews_(rows,query,entityName,false,geography):selectNews_(rows,query),keys=[...RADAR.sheets.Noticias.filter(k=>!['id','capturada','clasificacion','taxonomia'].includes(k)),'tipo','segmentos','senales','bloques_funcionales','funcionalidades_suboperativas'];
+  const label=taxonomyLanguage_(language,names),selected=prepared?selectAnnotatedNews_(rows,query,entityName,false,geography):selectNews_(rows,query),keys=[...RADAR.sheets.Noticias.filter(k=>!['id','capturada','clasificacion','taxonomia'].includes(k)),'geografias','tipo','segmentos','senales','bloques_funcionales','funcionalidades_suboperativas'];
   if(selected.length>settings_().exportLimit)throw new Error('Reduce el período para exportar hasta '+settings_().exportLimit+' publicaciones.');
-  return {csv:'\ufeff'+[keys,...selected.map(r=>keys.map(k=>k==='bloques_funcionales'?[...new Set(r.taxonomia.map(item=>label(item.palanca)))].join(' · '):k==='funcionalidades_suboperativas'?r.taxonomia.map(item=>label(item.subpalanca)).join(' · '):r[k]))].map(row=>row.map(value=>'"'+String(safeCell_(value)||'').replace(/"/g,'""')+'"').join(';')).join('\r\n'),count:selected.length};
+  return {csv:'\ufeff'+[keys,...selected.map(r=>keys.map(k=>k==='geografias'?articleGeographies(r).join(' · '):k==='bloques_funcionales'?[...new Set(r.taxonomia.map(item=>label(item.palanca)))].join(' · '):k==='funcionalidades_suboperativas'?r.taxonomia.map(item=>label(item.subpalanca)).join(' · '):r[k]))].map(row=>row.map(value=>'"'+String(safeCell_(value)||'').replace(/"/g,'""')+'"').join(';')).join('\r\n'),count:selected.length};
 }
 function entityKey_(entity){return businessIndex_().entities.get(searchText_(entity))?.name||String(entity||'').trim();}

@@ -12,7 +12,7 @@ function taxonomyHeatmap_(rows,entityName=entityKey_){
   for(const row of rows){
     const labels=new Set();for(const category of row.taxonomia){labels.add(node(category,'palanca'));if(category.subpalanca)labels.add(node(category,'subpalanca'));}
     if(labels.size)tagged++;for(const index of labels)nodes[index].count++;
-    group(entities,entityName(row.entidad),labels);group(countries,row.pais||settings_().unknownCountry,labels);
+    group(entities,entityName(row.entidad),labels);for(const country of articleGeographies(row))group(countries,country||otherGeography,labels);
   }
   const groups=map=>[...map.values()].sort((a,b)=>Number(b.name==='BBVA')-Number(a.name==='BBVA')||b.total-a.total||a.name.localeCompare(b.name,'es')).map(row=>({...row,counts:[...row.counts]}));
   return {nodes,entities:groups(entities),countries:groups(countries),total:rows.length,tagged};

@@ -1,3 +1,4 @@
+import {NON_INCIDENT_SIGNAL} from '../../shared/selection-policy.js';
 import {identityMark} from '../../shared/visual-identity.js';
 import {$,escape} from '../core/dom.js';
 import {t,language} from '../core/language.js';
@@ -25,7 +26,7 @@ export function createTaxonomyHeatmap({onExplore}){
   $('heatmap-table').addEventListener('click',event=>{
     const button=event.target.closest('[data-node]');if(!button)return;
     const axis=$('heatmap-axis').value,page=heatmapPage(data,axis,$('heatmap-level').value,rowPage,columnPage),row=page.rows[Number(button.dataset.row)],node=data.nodes[Number(button.dataset.node)];if(!row||!node)return;
-    onExplore({...selection,[axis==='entities'?'entity':'country']:row.name,palanca:node.palanca,subpalanca:node.level==='subpalanca'?taxonomyPath(node):'',page:0});
+    onExplore({...selection,signal:NON_INCIDENT_SIGNAL,[axis==='entities'?'entity':'country']:row.name,palanca:node.palanca,subpalanca:node.level==='subpalanca'?taxonomyPath(node):'',page:0});
   });
   return {render(value){
     const next=JSON.stringify([value.heatmap,value.selection,language]);if(next===signature)return;signature=next;data=value.heatmap;selection=value.selection||{};rowPage=0;columnPage=0;render();

@@ -29,8 +29,9 @@ function recordEvents(events) {
 }
 function getAdoption(query={}) {
   authorize_(true);const events=rows_('Adopcion',settings_().eventLimit),now=Date.now();
-  const selected=filterRecords(events,query,['correo','vista','evento'],['correo','vista','evento','sesion'],'fecha',settings_().timezone),metrics=metrics_(selected,now),page=recordPage(metrics.users,query,ADMIN_PAGE_SIZE);
-  return {...metrics,users:page.items,total:page.total,page:page.page,pageSize:page.pageSize,options:recordOptions(events,['correo','vista','evento']),retentionDays:settings_().retentionDays,limited:events.length===settings_().eventLimit};
+  const selected=filterRecords(events,query,['correo','vista','evento'],['correo','vista','evento','sesion'],'fecha',settings_().timezone),metrics=metrics_(selected,now),cohort=['dau','wau','mau','returning','total'].includes(query.cohort)?query.cohort:'dau',allUsers=metrics.allUsers;delete metrics.allUsers;
+  const members=cohort==='total'?allUsers:metrics.users.filter(user=>cohort==='returning'?user.recentSessions>1:cohort==='mau'||Date.parse(user.last)>=now-(cohort==='dau'?1:7)*86400000),page=recordPage(members,query,ADMIN_PAGE_SIZE);
+  return {...metrics,cohort,users:page.items,total:page.total,page:page.page,pageSize:page.pageSize,options:recordOptions(events,['correo','vista','evento']),retentionDays:settings_().retentionDays,limited:events.length===settings_().eventLimit};
 }
 function exportTelemetry(){
   authorize_(true);const limit=settings_().eventLimit;

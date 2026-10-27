@@ -5,7 +5,7 @@ function controlProcess_(stage,job,queued=false,extra={}){
  return {stage,label:PROGRESS_JOB_NAMES[stage]||stage,priority:PROCESS_PRIORITY[stage],enabled:true,total,done:Math.min(total,done),progress,status:value.error&&!progress.restartAt?'error':['Completada','Parcial'].includes(progress.state)?'complete':'pending',comment:value.error||(!job&&!queued?'Sin ejecuciones registradas.':''),...extra};
 }
 function controlPanelGroups_(collection,schedule){
- const p=properties_().getProperties(),jobs=collection.jobs||[],scheduleByHandler=new Map(schedule.jobs.map(job=>[job.handler,job]));progressContext_(jobs);
+ const p=properties_().getProperties(),jobs=[...(collection.slotJobs||[]),...(collection.jobs||[])],scheduleByHandler=new Map(schedule.jobs.map(job=>[job.handler,job]));progressContext_(jobs);
  const processes=operationalProcesses_(),byStage=new Map(processes.map(job=>[job.stage,job]));
  const collections=collectionSchedules_().map(job=>{
   const scheduled=scheduleByHandler.get(job.handler),id=p[collectionPipelineKey_(job.slot,'JOB')],stored=jobs.find(row=>row.id===id),queued=Boolean(p[collectionPipelineKey_(job.slot,'REQUEST')]),value=stored?{state:stored.estado,updated:stored.actualizada,total:Number(stored.total),processed:Number(stored.procesadas)+Number(stored.omitidas)+Number(stored.fallidas),pausedUntil:Number(stored.pausa)}:null;

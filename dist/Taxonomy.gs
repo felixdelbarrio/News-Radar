@@ -1,7 +1,19 @@
 // Sparse statistics and bounded evidence; article bodies are never retained.
-const TAXONOMY_POLICY=Object.freeze({version:'3.11.0',batchRows:100,maxMs:10000,maxCandidates:600,maxEmergingPerLever:3,minEmergingDocuments:3,minEmergingSources:2,maxTerms:24,checkpointRows:20,checkpointChars:40000,maxAssignments:3,maxOverlapLinks:32,overlapContainment:.8,overlapSizeRatio:.5});
+const TAXONOMY_POLICY=Object.freeze({version:'3.27.0',batchRows:100,maxMs:10000,maxCandidates:600,maxEmergingPerLever:3,minEmergingDocuments:3,minEmergingSources:2,maxTerms:24,checkpointRows:20,checkpointChars:40000,maxAssignments:3,maxOverlapLinks:32,overlapContainment:.8,overlapSizeRatio:.5});
 const taxonomyDefinitionMemory=new WeakMap(),rankingIndexes=new WeakMap();
 function taxonomyText(value){return String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ı/g,'i');}
+// Instrument, interface and audience are distinct from generic words such as
+// payment, API or AI. Shared by admission, ranking and the conservative fallback.
+function functionalContext(value){
+ const text=taxonomyText(value),positive=text.replace(/\b(?:sin|without|no)\s+(?:any\s+)?(?:bank\s+)?(?:transferencias?|transfers?)(?:\s+entre cuentas)?\b/g,' ');
+ const card=/\b(?:tarjetas?|cards?)\b/.test(text),transfer=/\b(?:transferencias?|transferir|traspasos?|traspasar|bank transfers?|wire transfers?|sepa transfer|spei|spid|swift transfers?)\b/.test(positive),acquiring=/\b(?:softpos|tpv|acquiring|adquirencia|card acceptance|aceptar pagos con tarjetas?|accept(?:ing)? card payments?|merchant services|payment terminals?|tap to (?:pay|phone))\b/.test(text)||card&&/\b(?:flat transaction rate|merchant fees|tasa de descuento|comisiones de aceptacion)\b/.test(text);
+ const api=/\b(?:apis?|mcp|model context protocol|open banking|open finance)\b/.test(text);
+ const bankingApi=api&&/\b(?:banking apis?|apis? bancarias?|treasury|tesoreria|payments?|pagos?|account balances?|corporate accounts?|business accounts?|cuentas (?:bancarias|empresariales)|conto business|bank guarantee|trade finance|banking data|datos bancarios|conciliacion bancaria|bank reconciliation|concili[a-z]* (?:sus |las |de )?facturas?|reconcil[a-z]* (?:their )?invoices?|stock de pymes)\b/.test(text);
+ const agent=/\b(?:agentic|ai[ -]agents?|agentes? de (?:ia|inteligencia artificial)|(?:banking|digital|virtual) assistants?|asistentes? (?:bancarios?|digitales?|virtuales?))\b/.test(text);
+ const staffAgent=agent&&/\b(?:corporate bankers?|relationship managers?|credit risk managers?|gestores?|analistas?|empleados?|bank staff)\b/.test(text)&&/\b(?:credit (?:memos?|assessments?|analysis)|expedientes? de credito|analisis (?:de credito|crediticio)|evaluacion crediticia)\b/.test(text);
+ const agentBanking=agent&&(/\b(?:account balances?|transaction history|banking tasks?|saldos? de cuentas?|historial de (?:operaciones|transacciones)|banking assistants?|asistentes? bancarios?)\b/.test(text)||staffAgent);
+ return {card,transfer,acquiring,api,bankingApi,agent,staffAgent,agentBanking};
+}
 const words=value=>taxonomyText(value).match(/[a-z][a-z0-9]+/g)||[];
 function taxonomyDefinitions(blocks){
  if(taxonomyDefinitionMemory.has(blocks))return taxonomyDefinitionMemory.get(blocks);
@@ -35,12 +47,12 @@ function rankingIndex(definitions){
  index={weights,phrases,canonical,labels,contexts,norms,idf,blocks:new Map(definitions.filter(row=>!row.subpalanca).map(row=>[row.palanca,row]))};rankingIndexes.set(definitions,index);return index;
 }
 function taxonomyDecision(text,definitions,headline=''){
- const index=rankingIndex(definitions),title=taxonomyText(headline),tokens=new Set(words(text).map(rankingWord)),titleWords=new Set(words(title).map(rankingWord));let best,second;const ranked=[];
+ const index=rankingIndex(definitions),title=taxonomyText(headline),tokens=new Set(words(text).map(rankingWord)),titleWords=new Set(words(title).map(rankingWord)),functional=functionalContext(text);let best,second;const ranked=[];
  for(const row of definitions){
   if(!row.subpalanca||/\.xx Otros$/.test(row.subpalanca))continue;
   if(row.context?.length&&!taxonomyTermCounts(text,row.context).size||row.exclude?.length&&taxonomyTermCounts(text,row.exclude).size)continue;
   if(/(?:^|\.)landing\b/i.test(row.subpalanca)&&!/(?:landing|dashboard|visi[oó]n integral|vista (?:global|agregada)|posici[oó]n (?:global|integrada)|aggregate|aggregated|overview|bütünleşik|genel bakış)/i.test(text))continue;
-  const terms=row.terms.filter(term=>row.context?.length||index.phrases.get(term)?.some(word=>!rankingStopWords.has(word))||term===index.labels.get(row)&&index.phrases.get(term).length>1),counts=taxonomyTermCounts(text,terms),context=index.contexts.get(row),shared=context.filter(word=>tokens.has(word));
+  const terms=row.terms.filter(term=>(row.context?.length||index.phrases.get(term)?.some(word=>!rankingStopWords.has(word))||term===index.labels.get(row)&&index.phrases.get(term).length>1)&&!(row.subpalanca.startsWith('03.13.')&&functional.card&&!functional.transfer&&!/transfer|remittance/.test(term))),counts=taxonomyTermCounts(text,terms),context=index.contexts.get(row),shared=context.filter(word=>tokens.has(word));
   let semantic=0;if(shared.length>=3&&(!title||shared.some(word=>titleWords.has(word)))){const matched=shared.reduce((sum,word)=>sum+index.idf.get(word)**2,0),norm=index.norms.get(row);semantic=Math.sqrt(matched/Math.max(1,norm));}
   if(!counts.size&&semantic<.5)continue;
   const titleCounts=title?taxonomyTermCounts(title,[...counts.keys()]):new Map();
@@ -69,8 +81,9 @@ function taxonomyDecision(text,definitions,headline=''){
  // A block fallback requires a discriminating phrase, never a generic banking word.
  const used=new Set(matches.flatMap(match=>match.evidence.terms));
  for(const block of index.blocks.values()){
+  if(functional.staffAgent&&block.palanca.startsWith('17.')||block.palanca.startsWith('09.')&&(functional.transfer||functional.acquiring))continue;
   if(matches.some(match=>match.row.palanca===block.palanca)||matches.length>=TAXONOMY_POLICY.maxAssignments)continue;
-  const concepts=(block.emerging||[]).filter(concept=>(!concept.context?.length||taxonomyTermCounts(text,concept.context.map(taxonomyText)).size)&&!taxonomyTermCounts(text,(concept.exclude||[]).map(taxonomyText)).size);
+  const concepts=(block.emerging||[]).filter(concept=>!(functional.staffAgent&&block.palanca.startsWith('17.')&&concept.name==='Agentes de IA')&&(!concept.context?.length||taxonomyTermCounts(text,concept.context.map(taxonomyText)).size)&&!taxonomyTermCounts(text,(concept.exclude||[]).map(taxonomyText)).size);
   const terms=[...taxonomyTermCounts(text,[...block.terms,...concepts.flatMap(concept=>concept.terms.map(taxonomyText))]).keys()].filter(term=>words(term).some(word=>!rankingStopWords.has(rankingWord(word))));
   const evidence={terms:terms.slice(0,3),method:'literal',location:terms.some(term=>title.includes(term))?'headline':'text'};
   if(!terms.length||matches.length&&!taxonomyIndependentEvidence(evidence,[...used]))continue;

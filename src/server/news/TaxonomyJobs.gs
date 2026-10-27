@@ -12,14 +12,16 @@ function taxonomySaved_(value){try{const data=JSON.parse(value||'{}');return {..
 function taxonomyFingerprint_(title,excerpt){return sha256_(JSON.stringify([title,excerpt]));}
 function fallbackTaxonomy_(text,labels,items){
  const capability=new Set((labels.capacidades||[]).map(value=>String(value).replace(/^Empresas:\s*/,''))),event=labels.evento||'',has=pattern=>pattern.test(text),pick=prefix=>items.find(item=>String(item.subpalanca||'').startsWith(prefix))?.id||'';
- let prefix='';
- if(event===INCIDENT_SIGNAL)prefix=has(/\b(?:login|log in|logins|acceso)\b/)?'16.01':has(/\b(?:pago|pagos|payment|payments|transferencia|transferencias|bizum)\b/)?'03.01':has(/\b(?:app|web|portal|banca|banking|canal)\b/)?'17.12':'19.07';
- else if(capability.has('Transferencias')||capability.has('Pagos'))prefix=has(/\b(?:bre-b|inmediatas?|instant(?: payments?)?)\b/)?'03.04':'03.01';
- else if(capability.has('Aplicaciones móviles empresariales')||capability.has('Banca electrónica corporativa'))prefix='01.01';
- else if(capability.has('Financiación digital')||capability.has('Préstamos y líneas de crédito'))prefix='08.01';
- else if(capability.has('Cobros y recaudación'))prefix='07.01';
- else if(capability.has('Adquirencia y terminales'))prefix='11.01';
- else if(capability.has('Autenticación y seguridad')||capability.has('Biometría'))prefix='16.01';
+ const functional=functionalContext(text);let prefix='';
+ if(functional.acquiring)prefix='11.xx';
+ else if(functional.card&&!functional.transfer)prefix='09.xx';
+ else if(event===INCIDENT_SIGNAL)prefix=has(/\b(?:login|log in|logins|acceso)\b/)?'16.xx':has(/\b(?:pago|pagos|payment|payments|transferencia|transferencias|bizum)\b/)?'03.xx':has(/\b(?:app|web|portal|banca|banking|canal)\b/)?'17.xx':'19.xx';
+ else if(capability.has('Transferencias')||capability.has('Pagos'))prefix='03.xx';
+ else if(capability.has('Adquirencia y terminales'))prefix='11.xx';
+ else if(capability.has('Cobros y recaudación'))prefix='07.xx';
+ else if(capability.has('Financiación digital')||capability.has('Préstamos y líneas de crédito'))prefix='08.xx';
+ else if(capability.has('Autenticación y seguridad')||capability.has('Biometría'))prefix='16.xx';
+ else if(capability.has('API bancarias')||capability.has('Aplicaciones móviles empresariales')||capability.has('Banca electrónica corporativa'))prefix='17.xx';
  return prefix?{id:pick(prefix),rule:prefix,capabilities:[...capability].sort(),signal:event}:{};
 }
 function taxonomyRecord_(title,excerpt,items=taxonomyCatalog_(),providedLabels=null){
@@ -44,7 +46,7 @@ function requestTaxonomy_(request='',refresh=true){
   if(previous?.generation)for(const name of [previous.generation.newsSheet,previous.generation.taxonomySheet])if(name!==published.newsSheet&&name!==published.taxonomySheet){const sheet=book_().getSheetByName(name);if(sheet)book_().deleteSheet(sheet);}
   const lastRow=newsSheet_().getLastRow(),candidateTotal=Math.max(0,candidateSheet_().getLastRow()-1),total=Math.max(0,lastRow-1),now=new Date().toISOString();
   const id=Utilities.getUuid();
-  writeTaxonomyJob_({request,catalog,id,source:newsStorageKey_(),state:'Pendiente',phase:'scan',next:2,candidateTotal,candidateRevision:properties_().getProperty('CANDIDATES_REVISION')||'0',total,workTotal:total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});
+  writeTaxonomyJob_({request,catalog,id,reclassify:Boolean(previous?.reclassify&&previous.state!=='Completada'),source:newsStorageKey_(),state:'Pendiente',phase:'scan',next:2,candidateTotal,candidateRevision:properties_().getProperty('CANDIDATES_REVISION')||'0',total,workTotal:total,processed:0,tagged:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});
   clearTaxonomyCheckpoints_();properties_().deleteProperty('DASHBOARD_SNAPSHOT_BUILD');ensureBackgroundWorker_();
 }
 function drainTaxonomyRequest_(){
@@ -114,10 +116,16 @@ function taxonomyGenerationBatch_(maxMs){
    }
   }else{
    const sheet=newsSheet_(),keys=RADAR.sheets.Noticias,items=taxonomyCatalog_(),size=Math.min(TAXONOMY_POLICY.batchRows,job.total-job.next+2),updates=[];let read=0;
-   const rows=size>0?sheet.getRange(job.next,1,size,keys.length).getDisplayValues():[],expected=[];
-   for(const values of rows){if(Date.now()-started>=maxMs||backgroundPaused_(true))break;const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]]));const assignment=necessaryTaxonomyRecord_(row,items);validateTaxonomyAssignment_(assignment,items,row.id,true,row);const value=JSON.stringify(assignment);expected.push([value]);if(value!==row.taxonomia)updates.push({row:job.next+read,column:keys.indexOf('taxonomia')+1,value});read++;}
+   const rows=size>0?sheet.getRange(job.next,1,size,keys.length).getDisplayValues():[],expected=[],expectedLabels=[];
+   for(const values of rows){
+    if(Date.now()-started>=maxMs||backgroundPaused_(true))break;
+    const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]]));
+    if(job.reclassify){const saved=savedNewsLabels_(row.clasificacion),title=searchText_(plainText_(row.titular)),text=searchText_(plainText_(row.titular)+' '+plainText_(row.extracto)),labels={...classification_(title,text,true,row.medio).labels,...(saved.procedencia?{procedencia:saved.procedencia}:{})};const value=JSON.stringify(labels);if(value!==row.clasificacion)updates.push({row:job.next+read,column:keys.indexOf('clasificacion')+1,value});row.clasificacion=value;}
+    const assignment=necessaryTaxonomyRecord_(row,items);validateTaxonomyAssignment_(assignment,items,row.id,true,row);const value=JSON.stringify(assignment);expected.push([value]);expectedLabels.push([row.clasificacion]);if(value!==row.taxonomia)updates.push({row:job.next+read,column:keys.indexOf('taxonomia')+1,value});read++;
+   }
    writeNewsCells_(updates);
    if(read&&sha256_(JSON.stringify(expected))!==sha256_(JSON.stringify(sheet.getRange(job.next,keys.indexOf('taxonomia')+1,read,1).getDisplayValues())))throw Error('Etiquetado persistido incompleto.');
+   if(job.reclassify&&read&&sha256_(JSON.stringify(expectedLabels))!==sha256_(JSON.stringify(sheet.getRange(job.next,keys.indexOf('clasificacion')+1,read,1).getDisplayValues())))throw Error('Clasificación candidata persistida incompleta.');
    written=updates.length>0;job.next+=read;job.tagged+=updates.length;job.processed=job.next-2;
    if(job.next>job.total+1){job.state='Completada';job.verified=true;properties_().setProperties({TAXONOMY_APPLIED_MODEL:job.model,TAXONOMY_APPLIED_RULES:job.rules,TAXONOMY_EVALUATED_CORPUS:job.corpus});}
   }

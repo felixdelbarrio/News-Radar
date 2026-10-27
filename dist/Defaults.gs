@@ -1721,6 +1721,8 @@ const FUNCTIONAL_CATALOG_SEED = Object.freeze([
     ]
   }
 ]);
+const LOCALE_GEOGRAPHY_SEED = Object.freeze([{"name":"es-ES","destination":"ES","type":"PAIS","method":"locale_country","notes":"espanol de Espana","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-MX","destination":"MX","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-CO","destination":"CO","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-AR","destination":"AR","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-CL","destination":"CL","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-PE","destination":"PE","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-UY","destination":"UY","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-EC","destination":"EC","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-VE","destination":"VE","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-BO","destination":"BO","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-PY","destination":"PY","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-CR","destination":"CR","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-PA","destination":"PA","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-GT","destination":"GT","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-DO","destination":"DO","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-US","destination":"US","type":"PAIS","method":"locale_country","notes":"variante no equivale a lugar del hecho","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es-419","destination":"AMER","type":"REGION","method":"locale_region","notes":"America Latina; no atribuir pais","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"es","destination":"EMEA","type":"REGION","method":"locale_generic","notes":"regla de negocio solicitada; no equivale a origen","enabled":true,"precedence":50,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"en-US","destination":"AMER","type":"REGION","method":"locale_region","notes":"regla de negocio solicitada para ingles estadounidense","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"en-GB","destination":"GB","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"en-UK","destination":"GB","type":"PAIS","method":"locale_alias","notes":"alias no canonico; normalizar","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"en-CA","destination":"CA","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"en-AU","destination":"AU","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"en-NZ","destination":"NZ","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"en-IE","destination":"IE","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"en-IN","destination":"IN","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"en-SG","destination":"SG","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"en-ZA","destination":"ZA","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"en","destination":"AMER","type":"REGION","method":"locale_generic","notes":"politica configurable, baja confianza","enabled":true,"precedence":50,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"fr-FR","destination":"FR","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"fr-CA","destination":"CA","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"fr","destination":"EMEA","type":"REGION","method":"locale_generic","notes":"politica configurable","enabled":true,"precedence":50,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"pt-PT","destination":"PT","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"pt-BR","destination":"BR","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"pt","destination":"EMEA","type":"REGION","method":"locale_generic","notes":"politica configurable","enabled":true,"precedence":50,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"de-DE","destination":"DE","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"de-AT","destination":"AT","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"de-CH","destination":"CH","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"de","destination":"EMEA","type":"REGION","method":"locale_generic","notes":"politica configurable","enabled":true,"precedence":50,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"it-IT","destination":"IT","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"it","destination":"IT","type":"PAIS","method":"locale_generic","notes":"","enabled":true,"precedence":50,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"ja-JP","destination":"JP","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"ko-KR","destination":"KR","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"zh-CN","destination":"CN","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"zh-TW","destination":"TW","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"},{"name":"zh-HK","destination":"HK","type":"PAIS","method":"locale_country","notes":"","enabled":true,"precedence":100,"confidence":"low","source":"Iteración 29","updated":"2026-10-26"}]);
+const MEDIA_CATALOG_SEED = Object.freeze([{"name":"Business Insider","domain":"businessinsider.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":16,"sourceUrl":"https://businessinsider.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_d06865dca7143ee0"},{"name":"Yahoo Finance","domain":"finance.yahoo.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":16,"sourceUrl":"https://finance.yahoo.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_b742436e0264202d"},{"name":"CoinDesk","domain":"coindesk.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":15,"sourceUrl":"https://coindesk.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_8ac7a5505851838c"},{"name":"PYMNTS.com","domain":"pymnts.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":10,"sourceUrl":"https://pymnts.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_b90d161e292acceb"},{"name":"TradingView","domain":"tradingview.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":10,"sourceUrl":"https://tradingview.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_f375498eb86dd28c"},{"name":"Infobae","domain":"infobae.com","country":"Argentina","iso2":"AR","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":9,"sourceUrl":"https://infobae.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_981653c20afac89d"},{"name":"BBVA","domain":"bbva.com","country":"España","iso2":"ES","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":8,"sourceUrl":"https://bbva.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_b417a7b9c3da37ba"},{"name":"Business Standard","domain":"business-standard.com","country":"India","iso2":"IN","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":8,"sourceUrl":"https://business-standard.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_de3ce0caf7b1dda1"},{"name":"Business Wire","domain":"businesswire.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":8,"sourceUrl":"https://businesswire.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_c22c9cdbb405494c"},{"name":"Expansión","domain":"expansion.com","country":"España","iso2":"ES","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":8,"sourceUrl":"https://expansion.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_0fd7fc8ff0e04844"},{"name":"The Business Journals","domain":"bizjournals.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":8,"sourceUrl":"https://bizjournals.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_2f7c0828426ab2b9"},{"name":"Euromoney","domain":"euromoney.com","country":"Reino Unido","iso2":"GB","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":7,"sourceUrl":"https://euromoney.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_caaf7a374c2a51ff"},{"name":"South China Morning Post","domain":"scmp.com","country":"Hong Kong","iso2":"HK","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":7,"sourceUrl":"https://scmp.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_95e963ce603ac159"},{"name":"FinTech Futures","domain":"fintechfutures.com","country":"Reino Unido","iso2":"GB","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":6,"sourceUrl":"https://fintechfutures.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_8301fd9007edba9a"},{"name":"Reuters","domain":"reuters.com","country":"Reino Unido","iso2":"GB","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":6,"sourceUrl":"https://reuters.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_f2794cebcbd3de2f"},{"name":"PR Newswire","domain":"prnewswire.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":5,"sourceUrl":"https://prnewswire.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_08c0de868413303c"},{"name":"The Digital Banker","domain":"thedigitalbanker.com","country":"Singapur","iso2":"SG","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":5,"sourceUrl":"https://thedigitalbanker.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_e16ae5c957d14ac8"},{"name":"Banco Santander","domain":"santander.com","country":"España","iso2":"ES","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":4,"sourceUrl":"https://santander.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_9549f1523119e609"},{"name":"CoinMarketCap","domain":"coinmarketcap.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":4,"sourceUrl":"https://coinmarketcap.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_737f02a4f618db14"},{"name":"Cryptonews.net","domain":"cryptonews.net","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":4,"sourceUrl":"https://cryptonews.net","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_0c039d1a26016100"},{"name":"Elplural.com","domain":"elplural.com","country":"España","iso2":"ES","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":4,"sourceUrl":"https://elplural.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_9c79c4cdd50365bf"},{"name":"Finextra · Payments","domain":"finextra.com","country":"Reino Unido","iso2":"GB","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":4,"sourceUrl":"https://finextra.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_97bb803b5fd30d13"},{"name":"FinTech Magazine","domain":"fintechmagazine.com","country":"Reino Unido","iso2":"GB","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":4,"sourceUrl":"https://fintechmagazine.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_cc2a59399eca36f3"},{"name":"TheBanker.com","domain":"thebanker.com","country":"Reino Unido","iso2":"GB","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":4,"sourceUrl":"https://thebanker.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_d40fb8e9fb13ad5b"},{"name":"American Banker","domain":"americanbanker.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":3,"sourceUrl":"https://americanbanker.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_290335bfe2e3373c"},{"name":"Computer Weekly","domain":"computerweekly.com","country":"Reino Unido","iso2":"GB","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":3,"sourceUrl":"https://computerweekly.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_157aaee840b1967a"},{"name":"DiarioBitcoin","domain":"diariobitcoin.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":3,"sourceUrl":"https://diariobitcoin.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_801812561546c5a8"},{"name":"El Cronista","domain":"cronista.com","country":"Argentina","iso2":"AR","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":3,"sourceUrl":"https://cronista.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_73f57709fc0a7aec"},{"name":"El Español","domain":"elespanol.com","country":"España","iso2":"ES","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":3,"sourceUrl":"https://elespanol.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_8652abdb7d94f2b0"},{"name":"HSBC Corporate and Institutional Banking","domain":"business.hsbc.com","country":"Reino Unido","iso2":"GB","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":3,"sourceUrl":"https://business.hsbc.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_0c87a0f80dbdc820"},{"name":"Moneycontrol.com","domain":"moneycontrol.com","country":"India","iso2":"IN","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":3,"sourceUrl":"https://moneycontrol.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_94506006eff18eb8"},{"name":"Pulzo","domain":"pulzo.com","country":"Colombia","iso2":"CO","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":3,"sourceUrl":"https://pulzo.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_1cd269b45e212757"},{"name":"Revista Semana","domain":"semana.com","country":"Colombia","iso2":"CO","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":3,"sourceUrl":"https://semana.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_aea2a999b7a82d07"},{"name":"The Asian Banker","domain":"theasianbanker.com","country":"Singapur","iso2":"SG","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":3,"sourceUrl":"https://theasianbanker.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_b62ccebd2e1e8013"},{"name":"The Fintech Times","domain":"thefintechtimes.com","country":"Reino Unido","iso2":"GB","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":3,"sourceUrl":"https://thefintechtimes.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_c588ab0e8cd0a764"},{"name":"Yahoo","domain":"yahoo.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":3,"sourceUrl":"https://yahoo.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_d2d9f99bf7412337"},{"name":"Yahoo Finance Singapore","domain":"sg.finance.yahoo.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":3,"sourceUrl":"https://sg.finance.yahoo.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_c2fe299fdfd1c110"},{"name":"Yellow.com","domain":"yellow.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":3,"sourceUrl":"https://yellow.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_9f6434ce4ecc1fe4"},{"name":"ANZ","domain":"anz.com","country":"Australia","iso2":"AU","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://anz.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_d7f3f7f9746d85c9"},{"name":"AOL.com","domain":"aol.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://aol.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_a15b10ee617b3959"},{"name":"Bank of America","domain":"bankofamerica.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://bankofamerica.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_1f0cdfa1421747cc"},{"name":"Bankinter","domain":"bankinter.com","country":"España","iso2":"ES","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://bankinter.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_50089d5e62b9915a"},{"name":"BBVA · Empresas","domain":"bbva.com","country":"España","iso2":"ES","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://bbva.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_30ed4dada5f27a4d"},{"name":"bfsi.economictimes.indiatimes.com","domain":"bfsi.economictimes.indiatimes.com","country":"India","iso2":"IN","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://bfsi.economictimes.indiatimes.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_62bfb4e5cdeb46f0"},{"name":"Bolsamania","domain":"bolsamania.com","country":"España","iso2":"ES","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://bolsamania.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_497bafb068b8d9f1"},{"name":"CapitalMadrid","domain":"capitalmadrid.com","country":"España","iso2":"ES","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://capitalmadrid.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_a993362fb3deb95f"},{"name":"Cinco Días","domain":"cincodias.elpais.com","country":"España","iso2":"ES","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://cincodias.elpais.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_a5d75a2c666e0812"},{"name":"CNBC","domain":"cnbc.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://cnbc.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_162991b7b4a693c8"},{"name":"El Periódico","domain":"elperiodico.com","country":"España","iso2":"ES","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://elperiodico.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_3efcca7d7259c3f3"},{"name":"Finance Magnates","domain":"financemagnates.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://financemagnates.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_3e544034e421d867"},{"name":"Finextra Research","domain":"finextra.com","country":"Reino Unido","iso2":"GB","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://finextra.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_99abc64f76bec52c"},{"name":"Fortune","domain":"fortune.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://fortune.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_1f772d2cbe193903"},{"name":"HSBC","domain":"hsbc.com","country":"Reino Unido","iso2":"GB","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://hsbc.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_d89ecaf1f20b4384"},{"name":"iProUP","domain":"iproup.com","country":"Argentina","iso2":"AR","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://iproup.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_4149162cea70d413"},{"name":"iupana","domain":"iupana.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://iupana.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_1e016f315bd0c67d"},{"name":"LinkedIn","domain":"linkedin.com","country":"Estados Unidos","iso2":"US","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://linkedin.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_8a589b08aeee8bb1"},{"name":"Milenio","domain":"milenio.com","country":"México","iso2":"MX","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://milenio.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_a7147533a0dc9d98"},{"name":"Observatorio Blockchain","domain":"observatorioblockchain.com","country":"España","iso2":"ES","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://observatorioblockchain.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_a054be629229f793"},{"name":"OkDiario","domain":"okdiario.com","country":"España","iso2":"ES","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://okdiario.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_551f2e115fedc9ac"},{"name":"Reporte Indigo","domain":"reporteindigo.com","country":"México","iso2":"MX","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://reporteindigo.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_8a62de3b85c6419f"},{"name":"TechBullion","domain":"techbullion.com","country":"Reino Unido","iso2":"GB","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://techbullion.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_cad4bb019ff895bc"},{"name":"The Edge Singapore","domain":"theedgesingapore.com","country":"Singapur","iso2":"SG","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://theedgesingapore.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_366f7831643bd29c"},{"name":"The Paypers","domain":"thepaypers.com","country":"Países Bajos","iso2":"NL","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://thepaypers.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_194f39f8322b1064"},{"name":"The Straits Times","domain":"straitstimes.com","country":"Singapur","iso2":"SG","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://straitstimes.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_6aa35ff5a026766d"},{"name":"UBS","domain":"ubs.com","country":"Suiza","iso2":"CH","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://ubs.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_99bb5b10178b2930"},{"name":"Valora Analitik","domain":"valoraanalitik.com","country":"Colombia","iso2":"CO","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://valoraanalitik.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_c862f4ee37d4c97b"},{"name":"www.sc.com","domain":"sc.com","country":"Reino Unido","iso2":"GB","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://sc.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_fd4b71d9b69849a6"},{"name":"Zee Business","domain":"zeebiz.com","country":"India","iso2":"IN","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":2,"sourceUrl":"https://zeebiz.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_7cb8af487f049e6f"},{"name":"areacucuta.com","domain":"areacucuta.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":1,"sourceUrl":"https://areacucuta.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_5d91b92eb8f7ec42"},{"name":"Bloomberg.com","domain":"bloomberg.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":1,"sourceUrl":"https://bloomberg.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_539976b04dc2b175"},{"name":"cfo.economictimes.indiatimes.com","domain":"cfo.economictimes.indiatimes.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":1,"sourceUrl":"https://cfo.economictimes.indiatimes.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_b479771c0357d340"},{"name":"Colombia.com","domain":"colombia.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":1,"sourceUrl":"https://colombia.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_2fd20067b49951e6"},{"name":"El Tiempo","domain":"eltiempo.com","country":"Colombia","iso2":"CO","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":1,"sourceUrl":"https://eltiempo.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_0f61a39b178c747d"},{"name":"ElCapitalFinanciero.com","domain":"elcapitalfinanciero.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":1,"sourceUrl":"https://elcapitalfinanciero.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_78400ea54fc105c5"},{"name":"Euronews.com","domain":"euronews.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":1,"sourceUrl":"https://euronews.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_d0d77791676c9846"},{"name":"finance.biggo.com","domain":"finance.biggo.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":1,"sourceUrl":"https://finance.biggo.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_b416944aa5fd7221"},{"name":"marketscreener.com","domain":"marketscreener.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":1,"sourceUrl":"https://marketscreener.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_ebc418a4af075b20"},{"name":"Negocios.com","domain":"negocios.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":1,"sourceUrl":"https://negocios.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_739274ad5183f813"},{"name":"techbuzzireland.com","domain":"techbuzzireland.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":1,"sourceUrl":"https://techbuzzireland.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_17a6270f2dcbd3c4"},{"name":"TIKR.com","domain":"tikr.com","country":"Sin determinar","iso2":"","status":"PENDIENTE","enabled":false,"ruleType":"DOMINIO_GENERICO","editionCountry":"","editionPattern":"","historical":1,"sourceUrl":"https://tikr.com","notes":"Propuesta no verificada; no aplicar automaticamente hasta validacion.","source":"Iteración 29","updated":"2026-10-26","seedId":"seed_a4e1961d80683fb1"}]);
 const CONFIGURATION_DEFAULTS = {
   "settings": {
     "timezone": "Europe/Madrid",
@@ -1821,7 +1823,8 @@ const CONFIGURATION_DEFAULTS = {
         "Singapur",
         "Venezuela"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "Santander",
@@ -1846,7 +1849,8 @@ const CONFIGURATION_DEFAULTS = {
         "Brasil",
         "Chile"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "CaixaBank",
@@ -1857,7 +1861,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "Sabadell",
@@ -1868,7 +1873,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "Bankinter",
@@ -1879,7 +1885,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "Banorte",
@@ -1890,7 +1897,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "México"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "México"
     },
     {
       "name": "Banco del Bajío",
@@ -1899,7 +1907,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "México"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "México"
     },
     {
       "name": "HSBC",
@@ -1918,7 +1927,8 @@ const CONFIGURATION_DEFAULTS = {
         "India",
         "Australia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "BCP",
@@ -1929,7 +1939,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Perú"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Perú"
     },
     {
       "name": "Interbank",
@@ -1940,7 +1951,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Perú"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Perú"
     },
     {
       "name": "Scotiabank",
@@ -1952,7 +1964,8 @@ const CONFIGURATION_DEFAULTS = {
         "Perú",
         "Uruguay"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Canadá"
     },
     {
       "name": "Bancolombia",
@@ -1963,7 +1976,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Colombia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Colombia"
     },
     {
       "name": "Banco de Bogotá",
@@ -1972,7 +1986,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Colombia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Colombia"
     },
     {
       "name": "Banco de Occidente",
@@ -1981,7 +1996,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Colombia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Colombia"
     },
     {
       "name": "Davivienda",
@@ -1992,7 +2008,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Colombia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Colombia"
     },
     {
       "name": "Banco Galicia",
@@ -2001,7 +2018,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Argentina"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Argentina"
     },
     {
       "name": "Banco Nación",
@@ -2010,7 +2028,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Argentina"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Argentina"
     },
     {
       "name": "Banco Macro",
@@ -2019,7 +2038,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Argentina"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Argentina"
     },
     {
       "name": "Akbank",
@@ -2028,7 +2048,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Turquía"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Turquía"
     },
     {
       "name": "İşbank",
@@ -2037,7 +2058,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Turquía"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Turquía"
     },
     {
       "name": "Yapı Kredi",
@@ -2046,7 +2068,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Turquía"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Turquía"
     },
     {
       "name": "Halkbank",
@@ -2055,7 +2078,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Turquía"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Turquía"
     },
     {
       "name": "BROU",
@@ -2064,7 +2088,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Uruguay"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Uruguay"
     },
     {
       "name": "Itaú",
@@ -2077,7 +2102,8 @@ const CONFIGURATION_DEFAULTS = {
         "Brasil",
         "Chile"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Brasil"
     },
     {
       "name": "Revolut",
@@ -2090,7 +2116,8 @@ const CONFIGURATION_DEFAULTS = {
         "Reino Unido",
         "Francia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "N26",
@@ -2102,7 +2129,8 @@ const CONFIGURATION_DEFAULTS = {
         "Italia",
         "Francia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Alemania"
     },
     {
       "name": "Qonto",
@@ -2114,7 +2142,8 @@ const CONFIGURATION_DEFAULTS = {
         "Alemania",
         "Francia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Francia"
     },
     {
       "name": "Wise",
@@ -2123,7 +2152,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "Nubank",
@@ -2136,7 +2166,8 @@ const CONFIGURATION_DEFAULTS = {
         "Colombia",
         "Brasil"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Brasil"
     },
     {
       "name": "Mercado Pago",
@@ -2147,7 +2178,8 @@ const CONFIGURATION_DEFAULTS = {
         "Argentina",
         "Uruguay"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Uruguay"
     },
     {
       "name": "Ualá",
@@ -2157,7 +2189,8 @@ const CONFIGURATION_DEFAULTS = {
         "México",
         "Argentina"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Argentina"
     },
     {
       "name": "Klar",
@@ -2166,7 +2199,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "México"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "México"
     },
     {
       "name": "Konfío",
@@ -2175,7 +2209,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "México"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "México"
     },
     {
       "name": "Yape",
@@ -2184,7 +2219,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Perú"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Perú"
     },
     {
       "name": "Openbank",
@@ -2195,7 +2231,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "España"
     },
     {
       "name": "bunq",
@@ -2207,7 +2244,8 @@ const CONFIGURATION_DEFAULTS = {
         "Alemania",
         "Italia"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Países Bajos"
     },
     {
       "name": "myPOS",
@@ -2218,7 +2256,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "Stripe",
@@ -2229,7 +2268,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "España"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Estados Unidos"
     },
     {
       "name": "Intesa Sanpaolo",
@@ -2238,7 +2278,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Italia"
     },
     {
       "name": "UniCredit",
@@ -2250,7 +2291,8 @@ const CONFIGURATION_DEFAULTS = {
         "HypoVereinsbank"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Italia"
     },
     {
       "name": "Deutsche Bank",
@@ -2259,7 +2301,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Alemania"
     },
     {
       "name": "Commerzbank",
@@ -2268,7 +2311,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Alemania"
     },
     {
       "name": "ING",
@@ -2278,7 +2322,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Países Bajos"
     },
     {
       "name": "BNP Paribas",
@@ -2288,7 +2333,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Francia"
     },
     {
       "name": "Crédit Agricole",
@@ -2298,7 +2344,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Francia"
     },
     {
       "name": "Société Générale",
@@ -2307,7 +2354,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Francia"
     },
     {
       "name": "Millennium bcp",
@@ -2316,7 +2364,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Portugal"
     },
     {
       "name": "Caixa Geral de Depósitos",
@@ -2325,7 +2374,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Portugal"
     },
     {
       "name": "Barclays",
@@ -2334,7 +2384,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "NatWest",
@@ -2343,7 +2394,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "JPMorgan Chase",
@@ -2354,7 +2406,8 @@ const CONFIGURATION_DEFAULTS = {
         "JPMorgan"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Estados Unidos"
     },
     {
       "name": "Bank of America",
@@ -2365,7 +2418,8 @@ const CONFIGURATION_DEFAULTS = {
         "CashPro"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Estados Unidos"
     },
     {
       "name": "Citi",
@@ -2380,7 +2434,8 @@ const CONFIGURATION_DEFAULTS = {
         "CitiBusiness"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Estados Unidos"
     },
     {
       "name": "UBS",
@@ -2389,7 +2444,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Suiza"
     },
     {
       "name": "KBC",
@@ -2398,7 +2454,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Bélgica"
     },
     {
       "name": "Banca Transilvania",
@@ -2407,7 +2464,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Rumanía"
     },
     {
       "name": "Bradesco",
@@ -2416,7 +2474,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Brasil"
     },
     {
       "name": "Banco de Chile",
@@ -2425,7 +2484,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Chile"
     },
     {
       "name": "DBS",
@@ -2439,7 +2499,8 @@ const CONFIGURATION_DEFAULTS = {
         "DBS Bank"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Singapur"
     },
     {
       "name": "OCBC",
@@ -2451,7 +2512,8 @@ const CONFIGURATION_DEFAULTS = {
         "Oversea-Chinese Banking Corporation"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Singapur"
     },
     {
       "name": "UOB",
@@ -2463,7 +2525,8 @@ const CONFIGURATION_DEFAULTS = {
         "United Overseas Bank"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Singapur"
     },
     {
       "name": "MUFG",
@@ -2475,7 +2538,8 @@ const CONFIGURATION_DEFAULTS = {
         "Mitsubishi UFJ"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Japón"
     },
     {
       "name": "SMBC",
@@ -2487,7 +2551,8 @@ const CONFIGURATION_DEFAULTS = {
         "Sumitomo Mitsui Banking Corporation"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Japón"
     },
     {
       "name": "Mizuho",
@@ -2496,7 +2561,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Japón"
     },
     {
       "name": "Standard Chartered",
@@ -2508,7 +2574,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
     },
     {
       "name": "ICBC",
@@ -2519,7 +2586,8 @@ const CONFIGURATION_DEFAULTS = {
         "Industrial and Commercial Bank of China"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "China"
     },
     {
       "name": "Bank of China",
@@ -2529,7 +2597,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "China"
     },
     {
       "name": "China Construction Bank",
@@ -2538,7 +2607,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "China"
     },
     {
       "name": "State Bank of India",
@@ -2547,7 +2617,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "India"
     },
     {
       "name": "HDFC Bank",
@@ -2556,7 +2627,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "India"
     },
     {
       "name": "ICICI Bank",
@@ -2565,7 +2637,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "India"
     },
     {
       "name": "ANZ",
@@ -2576,7 +2649,8 @@ const CONFIGURATION_DEFAULTS = {
         "Australia and New Zealand Banking Group"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "Commonwealth Bank",
@@ -2585,7 +2659,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "Macquarie",
@@ -2594,7 +2669,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "National Australia Bank",
@@ -2603,7 +2679,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "Westpac",
@@ -2612,7 +2689,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Australia"
     },
     {
       "name": "Bank Mandiri",
@@ -2621,7 +2699,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Indonesia"
     },
     {
       "name": "Bank Central Asia",
@@ -2630,7 +2709,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Indonesia"
     },
     {
       "name": "KB Kookmin",
@@ -2641,7 +2721,8 @@ const CONFIGURATION_DEFAULTS = {
         "Kookmin Bank"
       ],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Corea del Sur"
     },
     {
       "name": "Shinhan Bank",
@@ -2650,7 +2731,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Corea del Sur"
     },
     {
       "name": "Vietcombank",
@@ -2659,7 +2741,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Vietnam"
     },
     {
       "name": "BDO Unibank",
@@ -2668,7 +2751,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Filipinas"
     },
     {
       "name": "Maybank",
@@ -2677,7 +2761,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Malasia"
     },
     {
       "name": "Bangkok Bank",
@@ -2686,7 +2771,8 @@ const CONFIGURATION_DEFAULTS = {
       ],
       "aliases": [],
       "type": "Banco tradicional",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Tailandia"
     },
     {
       "name": "Asian Development Bank",
@@ -2697,7 +2783,8 @@ const CONFIGURATION_DEFAULTS = {
         "ADB"
       ],
       "type": "Multilateral",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Filipinas"
     },
     {
       "name": "Asian Infrastructure Investment Bank",
@@ -2708,7 +2795,8 @@ const CONFIGURATION_DEFAULTS = {
         "AIIB"
       ],
       "type": "Multilateral",
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "China"
     },
     {
       "name": "Mercantil Banco",
@@ -2719,7 +2807,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Venezuela"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Venezuela"
     },
     {
       "name": "RBC",
@@ -2731,7 +2820,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Canadá"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Canadá"
     },
     {
       "name": "Emirates NBD",
@@ -2743,7 +2833,8 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Emiratos Árabes Unidos"
       ],
-      "enabled": true
+      "enabled": true,
+      "headquartersCountry": "Emiratos Árabes Unidos"
     }
   ],
   "geographies": [
@@ -2757,6 +2848,12 @@ const CONFIGURATION_DEFAULTS = {
       "terms": [
         "Spain",
         "Espanha"
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": [
+        "Spain"
       ]
     },
     {
@@ -2774,6 +2871,12 @@ const CONFIGURATION_DEFAULTS = {
         "spei",
         "cnbv",
         "condusef"
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": [
+        "Mexico"
       ]
     },
     {
@@ -2790,6 +2893,12 @@ const CONFIGURATION_DEFAULTS = {
         "bcrp",
         "sunat",
         "sbs peru"
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": [
+        "Peru"
       ]
     },
     {
@@ -2811,7 +2920,18 @@ const CONFIGURATION_DEFAULTS = {
         "superfinanciera",
         "banco de la republica",
         "ach colombia"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [
+        "hsbnoticias.com",
+        "semana.com"
+      ],
+      "publisherNames": [
+        "HSB Noticias",
+        "Revista Semana",
+        "Semana"
+      ],
+      "aliases": []
     },
     {
       "name": "Argentina",
@@ -2827,7 +2947,11 @@ const CONFIGURATION_DEFAULTS = {
         "bcra",
         "afip",
         "arca"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Turquía",
@@ -2838,7 +2962,11 @@ const CONFIGURATION_DEFAULTS = {
       "searchName": "Türkiye",
       "terms": [
         "Turkey"
-      ]
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Uruguay",
@@ -2852,7 +2980,11 @@ const CONFIGURATION_DEFAULTS = {
         "uruguaya",
         "uruguayos",
         "bcu"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Italia",
@@ -2861,7 +2993,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "380",
       "searchName": "Italy",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Alemania",
@@ -2872,7 +3008,11 @@ const CONFIGURATION_DEFAULTS = {
       "enabled": true,
       "terms": [
         "Deutschland"
-      ]
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Francia",
@@ -2881,7 +3021,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "250",
       "searchName": "France",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Portugal",
@@ -2892,7 +3036,11 @@ const CONFIGURATION_DEFAULTS = {
       "enabled": true,
       "terms": [
         "Portogallo"
-      ]
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Reino Unido",
@@ -2903,6 +3051,13 @@ const CONFIGURATION_DEFAULTS = {
       "enabled": true,
       "terms": [
         "Britain"
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": [
+        "UK",
+        "Great Britain"
       ]
     },
     {
@@ -2915,7 +3070,11 @@ const CONFIGURATION_DEFAULTS = {
       "terms": [
         "USA",
         "United States of America"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Suiza",
@@ -2928,7 +3087,11 @@ const CONFIGURATION_DEFAULTS = {
         "Schweiz",
         "Suisse",
         "Svizzera"
-      ]
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Países Bajos",
@@ -2939,7 +3102,11 @@ const CONFIGURATION_DEFAULTS = {
       "enabled": true,
       "terms": [
         "Nederland"
-      ]
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Bélgica",
@@ -2951,7 +3118,11 @@ const CONFIGURATION_DEFAULTS = {
       "terms": [
         "Belgique",
         "België"
-      ]
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Rumanía",
@@ -2960,7 +3131,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "642",
       "searchName": "Romania",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Brasil",
@@ -2971,7 +3146,11 @@ const CONFIGURATION_DEFAULTS = {
       "enabled": true,
       "terms": [
         "Brasil"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Chile",
@@ -2985,7 +3164,11 @@ const CONFIGURATION_DEFAULTS = {
         "chilena",
         "chilenos",
         "cmf chile"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "China",
@@ -2994,7 +3177,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "156",
       "searchName": "China",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Hong Kong",
@@ -3003,7 +3190,15 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "344",
       "searchName": "Hong Kong",
       "enabled": true,
-      "terms": []
+      "terms": [
+        "HKMA"
+      ],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": [
+        "Hong Kong SAR China"
+      ]
     },
     {
       "name": "Japón",
@@ -3012,7 +3207,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "392",
       "searchName": "Japan",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Singapur",
@@ -3021,7 +3220,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "702",
       "searchName": "Singapore",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "India",
@@ -3030,7 +3233,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "356",
       "searchName": "India",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Australia",
@@ -3039,7 +3246,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "036",
       "searchName": "Australia",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Indonesia",
@@ -3048,7 +3259,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "360",
       "searchName": "Indonesia",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Corea del Sur",
@@ -3059,7 +3274,11 @@ const CONFIGURATION_DEFAULTS = {
       "enabled": true,
       "terms": [
         "Republic of Korea"
-      ]
+      ],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Vietnam",
@@ -3070,7 +3289,11 @@ const CONFIGURATION_DEFAULTS = {
       "enabled": true,
       "terms": [
         "Viet Nam"
-      ]
+      ],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Filipinas",
@@ -3079,7 +3302,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "608",
       "searchName": "Philippines",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Malasia",
@@ -3088,7 +3315,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "458",
       "searchName": "Malaysia",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Tailandia",
@@ -3097,7 +3328,11 @@ const CONFIGURATION_DEFAULTS = {
       "mapId": "764",
       "searchName": "Thailand",
       "enabled": true,
-      "terms": []
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Venezuela",
@@ -3109,7 +3344,11 @@ const CONFIGURATION_DEFAULTS = {
       "terms": [
         "Venezuela",
         "venezolano"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Canadá",
@@ -3121,7 +3360,11 @@ const CONFIGURATION_DEFAULTS = {
       "terms": [
         "Canada",
         "Canadian"
-      ]
+      ],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     },
     {
       "name": "Emiratos Árabes Unidos",
@@ -3135,7 +3378,221 @@ const CONFIGURATION_DEFAULTS = {
         "United Arab Emirates",
         "Dubai",
         "Abu Dhabi"
+      ],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": [
+        "United Arab Emirates"
       ]
+    },
+    {
+      "name": "Nigeria",
+      "code": "NG",
+      "language": "en",
+      "mapId": "566",
+      "enabled": true,
+      "searchName": "Nigeria",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Panamá",
+      "code": "PA",
+      "language": "en",
+      "mapId": "591",
+      "enabled": true,
+      "searchName": "Panama",
+      "terms": [],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Bolivia",
+      "code": "BO",
+      "language": "en",
+      "mapId": "068",
+      "enabled": true,
+      "searchName": "Bolivia",
+      "terms": [],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Paraguay",
+      "code": "PY",
+      "language": "en",
+      "mapId": "600",
+      "enabled": true,
+      "searchName": "Paraguay",
+      "terms": [],
+      "region": "AMER",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Bangladés",
+      "code": "BD",
+      "language": "en",
+      "mapId": "050",
+      "enabled": true,
+      "searchName": "Bangladesh",
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Pakistán",
+      "code": "PK",
+      "language": "en",
+      "mapId": "586",
+      "enabled": true,
+      "searchName": "Pakistan",
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Chipre",
+      "code": "CY",
+      "language": "en",
+      "mapId": "196",
+      "enabled": true,
+      "searchName": "Cyprus",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Arabia Saudí",
+      "code": "SA",
+      "language": "en",
+      "mapId": "682",
+      "enabled": true,
+      "searchName": "Saudi Arabia",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Polonia",
+      "code": "PL",
+      "language": "en",
+      "mapId": "616",
+      "enabled": true,
+      "searchName": "Poland",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Irlanda",
+      "code": "IE",
+      "language": "en",
+      "mapId": "372",
+      "enabled": true,
+      "searchName": "Ireland",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Andorra",
+      "code": "AD",
+      "language": "en",
+      "mapId": "020",
+      "enabled": true,
+      "searchName": "Andorra",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Luxemburgo",
+      "code": "LU",
+      "language": "en",
+      "mapId": "442",
+      "enabled": true,
+      "searchName": "Luxembourg",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Fiyi",
+      "code": "FJ",
+      "language": "en",
+      "mapId": "242",
+      "enabled": true,
+      "searchName": "Fiji",
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Nueva Zelanda",
+      "code": "NZ",
+      "language": "en",
+      "mapId": "554",
+      "enabled": true,
+      "searchName": "New Zealand",
+      "terms": [],
+      "region": "APAC",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Hungría",
+      "code": "HU",
+      "language": "en",
+      "mapId": "348",
+      "enabled": true,
+      "searchName": "Hungary",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
+    },
+    {
+      "name": "Azerbaiyán",
+      "code": "AZ",
+      "language": "en",
+      "mapId": "031",
+      "enabled": true,
+      "searchName": "Azerbaijan",
+      "terms": [],
+      "region": "EMEA",
+      "publisherDomains": [],
+      "publisherNames": [],
+      "aliases": []
     }
   ],
   "segments": [
@@ -4016,7 +4473,9 @@ const CONFIGURATION_DEFAULTS = {
           "api bancaria",
           "banking api",
           "banking apis",
-          "api"
+          "api",
+          "mcp",
+          "model context protocol"
         ],
         "enabled": true
       },
@@ -4066,7 +4525,13 @@ const CONFIGURATION_DEFAULTS = {
           "asistente virtual",
           "virtual assistant",
           "chatbot",
-          "chatbots"
+          "chatbots",
+          "banking assistant",
+          "banking assistants",
+          "digital assistants",
+          "virtual assistants",
+          "asistente bancario",
+          "asistentes bancarios"
         ],
         "enabled": true
       },
@@ -5102,7 +5567,11 @@ const CONFIGURATION_DEFAULTS = {
         "comedor escolar",
         "tarjeta infantil",
         "kids card",
-        "teen card"
+        "teen card",
+        "personal loan",
+        "personal loans",
+        "consumer loan",
+        "consumer loans"
       ],
       "enabled": true
     },
@@ -5391,7 +5860,9 @@ const CONFIGURATION_DEFAULTS = {
         "stablecoin",
         "stablecoins",
         "remesas",
-        "remittances"
+        "remittances",
+        "transferir",
+        "traspasar"
       ],
       "functions": [
         {
@@ -6352,7 +6823,13 @@ const CONFIGURATION_DEFAULTS = {
         "wallet",
         "wallets",
         "gestion de gastos",
-        "expense management"
+        "expense management",
+        "tarjetas virtuales",
+        "virtual cards",
+        "credit cards",
+        "tarjetas corporativas",
+        "tarjetas de empresa",
+        "corporate cards"
       ],
       "functions": [
         {
@@ -6366,38 +6843,68 @@ const CONFIGURATION_DEFAULTS = {
         },
         {
           "id": "09.02",
-          "terms": []
+          "terms": [
+            "extractos de tarjetas",
+            "estados de cuenta de tarjetas",
+            "card statements"
+          ]
         },
         {
           "id": "09.03",
-          "terms": []
+          "terms": [
+            "alias de tarjeta",
+            "card nickname"
+          ]
         },
         {
           "id": "09.04",
-          "terms": []
+          "terms": [
+            "movimientos de tarjetas de credito",
+            "credit card transactions"
+          ]
         },
         {
           "id": "09.05",
-          "terms": []
+          "terms": [
+            "limites de tarjetas de credito",
+            "limites de la tarjeta de credito",
+            "credit card spending limits",
+            "credit card payment controls"
+          ]
         },
         {
           "id": "09.06",
           "terms": [
             "bloquear tarjeta de credito",
-            "credit card freeze"
+            "credit card freeze",
+            "bloquear la tarjeta de credito",
+            "congelar tarjeta de credito",
+            "freeze credit card"
           ]
         },
         {
           "id": "09.07",
-          "terms": []
+          "terms": [
+            "contratar tarjeta de credito",
+            "issue corporate credit cards"
+          ]
         },
         {
           "id": "09.08",
-          "terms": []
+          "terms": [
+            "emision masiva de tarjetas de credito",
+            "bulk credit card issuance"
+          ]
         },
         {
           "id": "09.09",
-          "terms": [],
+          "terms": [
+            "pago de la tarjeta de credito",
+            "pago de tarjeta de credito",
+            "pago del saldo de tarjeta",
+            "credit card repayment",
+            "credit card bill"
+          ],
           "context": [
             "pago de tarjeta",
             "pago de la tarjeta",
@@ -6416,44 +6923,75 @@ const CONFIGURATION_DEFAULTS = {
           "id": "09.10",
           "terms": [
             "bloquear tarjeta de debito",
-            "debit card freeze"
+            "debit card freeze",
+            "bloquear la tarjeta de debito",
+            "congelar tarjeta de debito",
+            "freeze debit card"
           ]
         },
         {
           "id": "09.11",
-          "terms": []
+          "terms": [
+            "movimientos de tarjetas de debito",
+            "debit card transactions"
+          ]
         },
         {
           "id": "09.12",
-          "terms": []
+          "terms": [
+            "contrato de tarjeta de debito",
+            "debit card agreement"
+          ]
         },
         {
           "id": "09.13",
-          "terms": []
+          "terms": [
+            "solicitar tarjeta de debito",
+            "request a debit card"
+          ]
         },
         {
           "id": "09.14",
-          "terms": []
+          "terms": [
+            "pagos con tarjeta de debito",
+            "pagos contactless con tarjetas de debito",
+            "debit card payments"
+          ]
         },
         {
           "id": "09.15",
-          "terms": []
+          "terms": [
+            "contratar tarjeta de debito",
+            "issue business debit cards"
+          ]
         },
         {
           "id": "09.16",
-          "terms": []
+          "terms": [
+            "emision masiva de tarjetas de debito",
+            "bulk debit card issuance"
+          ]
         },
         {
           "id": "09.17",
-          "terms": []
+          "terms": [
+            "movimientos de tarjetas prepago",
+            "prepaid card transactions"
+          ]
         },
         {
           "id": "09.18",
-          "terms": []
+          "terms": [
+            "pagos con tarjetas prepago",
+            "prepaid card payments"
+          ]
         },
         {
           "id": "09.19",
-          "terms": []
+          "terms": [
+            "contrato de tarjeta de credito",
+            "credit card agreement"
+          ]
         },
         {
           "id": "09.20",
@@ -6464,15 +7002,24 @@ const CONFIGURATION_DEFAULTS = {
         },
         {
           "id": "09.21",
-          "terms": []
+          "terms": [
+            "contrato de tarjeta prepago",
+            "prepaid card agreement"
+          ]
         },
         {
           "id": "09.22",
-          "terms": []
+          "terms": [
+            "cancelar tarjeta de credito",
+            "cancel credit card"
+          ]
         },
         {
           "id": "09.23",
-          "terms": []
+          "terms": [
+            "cancelar tarjeta de debito",
+            "cancel debit card"
+          ]
         }
       ],
       "emerging": []
@@ -7366,7 +7913,11 @@ const CONFIGURATION_DEFAULTS = {
             "accounting integration",
             "integren banca y contabilidad",
             "integracion banca y contabilidad",
-            "integra banca y contabilidad"
+            "integra banca y contabilidad",
+            "banking apis",
+            "apis bancarias",
+            "treasury api",
+            "api de tesoreria"
           ],
           "exclude": [
             "google cloud customers",
@@ -7452,7 +8003,30 @@ const CONFIGURATION_DEFAULTS = {
           "terms": []
         }
       ],
-      "emerging": []
+      "emerging": [
+        {
+          "name": "Agentes de IA para banca de empresas",
+          "terms": [
+            "agentic ai",
+            "ai agents",
+            "agentes de ia",
+            "agentes de inteligencia artificial"
+          ],
+          "context": [
+            "corporate bankers",
+            "relationship managers",
+            "credit risk managers",
+            "credit assessments",
+            "credit memos",
+            "analisis crediticio",
+            "expedientes de credito"
+          ],
+          "exclude": [
+            "marketing slides",
+            "image generation"
+          ]
+        }
+      ]
     },
     {
       "name": "19.Core",

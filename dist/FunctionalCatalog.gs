@@ -7,7 +7,8 @@ function functionalCatalogRules(catalogue,rules){
  });
 }
 function functionalRuleSettings(blocks){
- return blocks.map(({name,terms,emerging,functions})=>({name,terms,emerging:emerging.map(functionalConditions),functions:functions.map(({id,terms,context,exclude})=>functionalConditions({id,terms,context,exclude}))}));
+ const key=value=>String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ return blocks.map(({name,terms,emerging,functions})=>({name,terms,emerging:emerging.map(functionalConditions),functions:functions.map(({id,name,terms,context,exclude})=>functionalConditions({id,terms:terms.filter(term=>!name||key(term)!==key(name)),context,exclude}))}));
 }
 function functionalConditions({context,exclude,...row}){return {...row,...(context?.length?{context}:{}),...(exclude?.length?{exclude}:{})};}
 
@@ -92,3 +93,68 @@ function functionalCatalogEdited_(event){
  const modified=new Date().toISOString();properties_().setProperty('FUNCTIONAL_CATALOG_MODIFIED',modified);properties_().setProperty('CATALOG_SYNC_REQUEST',modified);properties_().deleteProperty('CATALOG_SYNC_RETRY_AT');ensureBackgroundWorker_();
 }
 function taxonomyRulesRevision_(){return sha256_(JSON.stringify([TAXONOMY_POLICY.version,'business',configuration_().taxonomy,classificationRulesRevision_()]));}
+
+// Upgrade operational aliases and audiences without modifying the official
+// catalogue, user activations, sources, geography or administrative settings.
+function functionalRuleUpgrade_(config){
+ const next=JSON.parse(JSON.stringify(config)),seeds=CONFIGURATION_DEFAULTS,union=(a,b)=>[...new Set([...a,...b])],byId=new Map(seeds.taxonomy.flatMap(block=>block.functions.map(row=>[row.id,row])));
+ for(const block of next.taxonomy){
+  const seed=seeds.taxonomy.find(row=>row.name===block.name);if(!seed)continue;
+  if(block.name.startsWith('09.')||block.name.startsWith('03.'))block.terms=union(block.terms,seed.terms);
+  if(block.name.startsWith('18.'))for(const concept of seed.emerging)if(!block.emerging.some(row=>row.name===concept.name))block.emerging.push(JSON.parse(JSON.stringify(concept)));
+  for(const row of block.functions)if(row.id.startsWith('09.')||row.id==='17.16'){const rule=byId.get(row.id);if(rule)row.terms=union(row.terms,rule.terms);}
+ }
+ for(const row of next.capabilities.Empresas)if(['API bancarias','Asistentes digitales'].includes(row.name)){const seed=seeds.capabilities.Empresas.find(item=>item.name===row.name);if(seed)row.terms=union(row.terms,seed.terms);}
+ for(const row of next.relevanceRules)if(row.role==='retail')row.terms=union(row.terms,['personal loan','personal loans','consumer loan','consumer loans']);
+ validateConfiguration_(next);return next;
+}
+function getFunctionalRuleUpgrade(){
+ authorize_(true);const before=functionalConfigurationSettings_(configuration_()),after=functionalConfigurationSettings_(functionalRuleUpgrade_(configuration_()));
+ return {version:RADAR.version,revision:configurationRevision_(),changed:Object.keys(after).filter(key=>JSON.stringify(before[key])!==JSON.stringify(after[key])),upgrade:JSON.parse(properties_().getProperty('FUNCTIONAL_RULE_UPGRADE')||'null'),taxonomy:getTaxonomyStatus().job};
+}
+function reportFunctionalRuleUpgrade(){const status=getFunctionalRuleUpgrade();console.log(JSON.stringify(status));return status;}
+function applyFunctionalRuleUpgrade(){
+ authorize_(true);return withForegroundWrite_(()=>{
+  const p=properties_(),previous=JSON.parse(p.getProperty('FUNCTIONAL_RULE_UPGRADE')||'null');
+  if(previous?.version===RADAR.version&&previous.state==='Staged')return getFunctionalRuleUpgrade();
+  if(classificationPending_()||taxonomyPending_()||llmJob_()&&llmJob_().state!=='Completada')throw Error('Espera a que terminen clasificación, taxonomía y publicación LLM antes de actualizar reglas.');
+  const config=configuration_(),next=functionalRuleUpgrade_(config),source=book_(),backup=source.copy('News Radar · Reglas '+RADAR.version+' · '+new Date().toISOString());
+  fileInFolder_(backup.getId(),archiveFolder_(config.storage.primaryFolderId));
+  for(const sheet of source.getSheets()){
+   const copy=backup.getSheetByName(sheet.getName()),rows=sheet.getLastRow(),width=sheet.getLastColumn();
+   if(!copy||rows!==copy.getLastRow()||width!==copy.getLastColumn()||rows&&width&&sha256_(JSON.stringify(sheet.getRange(1,1,rows,width).getDisplayValues()))!==sha256_(JSON.stringify(copy.getRange(1,1,rows,width).getDisplayValues())))throw Error('Backup no verificado: '+sheet.getName());
+  }
+  const checkpoint={version:RADAR.version,state:'Prepared',backupId:backup.getId(),backupUrl:backup.getUrl(),generation:dataGeneration_(),properties:Object.fromEntries(['CATALOG_VERSION','TAXONOMY_APPLIED_MODEL','TAXONOMY_APPLIED_RULES','TAXONOMY_EVALUATED_CORPUS','CLASSIFICATION_JOB','TAXONOMY_JOB'].map(key=>[key,p.getProperty(key)]))};
+  p.setProperty('FUNCTIONAL_RULE_UPGRADE',JSON.stringify(checkpoint));
+  try{
+   const settings=functionalConfigurationSettings_(next),sheet=source.getSheetByName('Configuracion'),rows=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues();
+   for(const key of ['taxonomy','capabilities','relevanceRules']){const index=rows.findIndex(row=>row[0]===key);if(index<0)throw Error('Falta catálogo '+key);sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(settings[key])]]);}
+   SpreadsheetApp.flush();invalidateConfiguration_();
+   if(JSON.stringify(functionalConfigurationSettings_(configuration_()))!==JSON.stringify(settings))throw Error('Configuración escrita incompleta.');
+   requestTaxonomy_('functional-rules:'+RADAR.version,false);const job=taxonomyJob_();job.reclassify=true;writeTaxonomyJob_(job);
+   p.setProperty('CATALOG_VERSION',CONFIGURATION_CATALOG_VERSION);p.setProperty('FUNCTIONAL_RULE_UPGRADE',JSON.stringify({...checkpoint,state:'Staged',job:job.id}));
+   return getFunctionalRuleUpgrade();
+  }catch(error){restoreFunctionalRuleUpgrade_();throw error;}
+ });
+}
+function restoreFunctionalRuleUpgrade_(){
+ const p=properties_(),checkpoint=JSON.parse(p.getProperty('FUNCTIONAL_RULE_UPGRADE')||'null');if(!checkpoint)throw Error('No hay backup de reglas.');
+ const backup=SpreadsheetApp.openById(checkpoint.backupId);
+ const generation=checkpoint.generation,restored=new Map(),suffix=Utilities.getUuid();
+ for(const name of new Set([generation.newsSheet,generation.taxonomySheet,generation.categorization?.sheet,...Object.values(generation.newsletterTables||{})].filter(Boolean))){
+  const saved=backup.getSheetByName(name);if(!saved)throw Error('Falta tabla en el backup: '+name);
+  const target=book_().insertSheet(name.split('_')[0]+'_gen_'+suffix);
+  const height=saved.getLastRow(),width=saved.getLastColumn(),values=height?saved.getRange(1,1,height,width).getDisplayValues():[];
+  if(height)writeVerifiedRows_(target,values.map((values,index)=>({row:index+1,values})));
+  if(target.getLastRow()!==height||height&&sha256_(JSON.stringify(values))!==sha256_(JSON.stringify(target.getRange(1,1,height,width).getDisplayValues())))throw Error('Restauración no verificada: '+name);
+  restored.set(name,target.getName());
+ }
+ const source=backup.getSheetByName('Configuracion'),target=book_().getSheetByName('Configuracion'),rows=source.getRange(1,1,source.getLastRow(),2).getValues();
+ target.getRange(1,1,Math.max(target.getLastRow(),rows.length),2).clearContent();target.getRange(1,1,rows.length,2).setValues(rows);SpreadsheetApp.flush();
+ if(sha256_(JSON.stringify(rows))!==sha256_(JSON.stringify(target.getRange(1,1,rows.length,2).getValues())))throw Error('Restauración de configuración no verificada.');
+ p.setProperty('DATA_GENERATION',JSON.stringify({...generation,newsSheet:restored.get(generation.newsSheet),taxonomySheet:restored.get(generation.taxonomySheet),...(generation.categorization?{categorization:{...generation.categorization,sheet:restored.get(generation.categorization.sheet)}}:{}),...(generation.newsletterTables?{newsletterTables:Object.fromEntries(Object.entries(generation.newsletterTables).map(([key,value])=>[key,restored.get(value)]))}:{})}));dataGenerationMemory_=undefined;
+ for(const [key,value] of Object.entries(checkpoint.properties)){if(value===null)p.deleteProperty(key);else p.setProperty(key,value);}
+ for(const key of ['SNAPSHOT_JOBS','DASHBOARD_SNAPSHOT_BUILD','CLASSIFICATION_REQUEST','TAXONOMY_REQUEST'])p.deleteProperty(key);
+ invalidateConfiguration_();p.setProperty('FUNCTIONAL_RULE_UPGRADE',JSON.stringify({...checkpoint,state:'RolledBack'}));
+}
+function rollbackFunctionalRuleUpgrade(){authorize_(true);return withForegroundWrite_(()=>{restoreFunctionalRuleUpgrade_();return getFunctionalRuleUpgrade();});}

@@ -9,7 +9,7 @@ function storage(){const s=createStorage();s.c.Date=Date;return s;}
 import {read,readServerScript} from '../scripts/source.mjs';
 const seed=()=>configurationDefaults();
 test('inicializa solo claves ausentes, persiste en Sheets y reutiliza e invalida la caché versionada',()=>{
-  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,22);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
+  const s=storage(),{c}=s;c.initializeConfiguration();assert.equal(s.sheets.size,24);const config=c.getConfiguration().config,reads=s.reads;c.getConfiguration();assert.equal(s.reads,reads);
   config.settings.unknownCountry='Qonto';config.segments[0].terms.push('innovación verificable');c.saveConfiguration({config,revision:c.getConfiguration().revision});assert.equal(c.getConfiguration().config.settings.unknownCountry,'Qonto');
   c.initializeConfiguration();assert.equal(c.getConfiguration().config.settings.unknownCountry,'Qonto');assert.ok(c.getConfiguration().config.segments[0].terms.includes('innovación verificable'));
   const sheet=s.sheets.get('Configuracion'),index=sheet.grid.findIndex(row=>row[0]==='settings'),settings=JSON.parse(sheet.grid[index][1]);settings.unknownCountry='Revolut';sheet.grid[index][1]=JSON.stringify(settings);
@@ -17,7 +17,7 @@ test('inicializa solo claves ausentes, persiste en Sheets y reutiliza e invalida
 });
 test('configuración deniega lectores y rechaza catálogos incoherentes antes de escribir',()=>{
   const s=storage();s.c.initializeConfiguration();const original=JSON.stringify(s.sheets.get('Configuracion').grid);s.setEmail('reader@bbva.com');assert.throws(()=>s.c.getConfiguration(),/administrador/);assert.throws(()=>s.c.saveConfiguration({config:seed(),revision:'0'}),/administrador/);assert.throws(()=>s.c.initializeConfiguration(),/administrador/);
-  s.setEmail('owner@bbva.com');for(const edit of [config=>config.entities[1].aliases.push('BBVA'),config=>config.entities[0].countries.push('País inexistente'),config=>config.settings.trendSeries=99,config=>config.signals[0].context='invalid',config=>config.feeds[0].domain='evil.com']){const config=seed();edit(config);assert.throws(()=>s.c.saveConfiguration({config,revision:s.c.getConfiguration().revision}),/Alias|País|trendSeries|contexto|Fuente|términos/);assert.equal(JSON.stringify(s.sheets.get('Configuracion').grid),original);}
+  s.setEmail('owner@bbva.com');for(const edit of [config=>config.entities[1].aliases.push('BBVA'),config=>config.entities[0].countries.push('País inexistente'),config=>config.settings.trendSeries=99,config=>config.signals[0].context='invalid',config=>config.feeds[0].domain='evil.com']){const config=JSON.parse(JSON.stringify(s.c.getConfiguration().config));edit(config);assert.throws(()=>s.c.saveConfiguration({config,revision:s.c.getConfiguration().revision}),/Alias|País|trendSeries|contexto|Fuente|términos/);assert.equal(JSON.stringify(s.sheets.get('Configuracion').grid),original);}
 });
 test('cambiar catálogos modifica clasificación, tipos, segmentos y filtros del histórico sin recompilar',()=>{
   const s=storage(),{c}=s;c.initializeConfiguration();const rows=[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-09',pais:'España',entidad:'Qonto',medio:'Editor',titular:'Qonto lanza una nueva cuenta para autónomos',extracto:'',url:'https://example.com/q'}, {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-09',pais:'España',entidad:'N26',medio:'Editor',titular:'N26 lanza tarjeta para particulares',extracto:'',url:'https://example.com/n'},{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-09',pais:'España',entidad:'Revolut',medio:'Editor',titular:'Nuevo director de Revolut',extracto:'',url:'https://example.com/r'}];
@@ -77,7 +77,7 @@ test('la próxima entrega diferencia altas nuevas, pendientes, rechazos y suscri
 test('un rechazo confirmado se puede reintentar y los mensajes de selecciones distintas conservan su nombre',()=>{
  const s=storage(),{c}=s;c.initializeConfiguration();const cfg=c.getConfiguration();cfg.config.settings.newsletterEnabled=true;c.saveConfiguration(cfg);s.book.insertSheet('Noticias').grid.push([]);
  c.queueQuarterlyTaxonomy_=()=>true;const names=[],rows=['Canal A','Canal B'].map((nombre,i)=>({id:String(i),nombre,correo:'user'+i+'@bbva.com',periodicidad:'quarterly',activa:true,actualizada:'2020-01-01',filtros:{}}));c.subscriptionRows_=()=>rows;c.newsletterSender_=()=>({});
- c.newsletterContent_=(_rows,_query,title)=>{names.push(title);return {count:1,html:title,text:title,items:[],evidence:[]};};c.sendNewsletterMail_=()=>{const error=Error('Rechazado');error.rejected=true;throw error;};
+ c.newsletterContent_=(_rows,_query,title)=>{names.push(title);return {count:1,subject:title,html:title,text:title,items:[],evidence:[],editorial:{cadence:'fortnightly',audit:{exclusions:[],eligible:1,selected:1}}};};c.sendNewsletterMail_=()=>{const error=Error('Rechazado');error.rejected=true;throw error;};
  assert.equal(c.deliverNewsletterBatch_().state,'error');assert.equal(s.sheets.get('NewsletterEnvios').grid[1][5],'No enviado');c.sendNewsletterMail_=(_s,_r,content)=>{assert.match(content.html,/Canal [AB]/);return 'accepted';};
  const result=c.deliverNewsletterBatch_();assert.equal(result.accepted,2);assert.deepEqual(names,['Canal A','Canal A','Canal B']);assert.equal(c.deliverNewsletterBatch_().state,'no_due');
 });
@@ -116,7 +116,7 @@ test('solo se reservan las noticias incluidas; el límite no bloquea las que que
  const f=deliveryFixture(),config=f.c.getConfiguration();config.config.settings.briefingLimit=1;f.c.saveConfiguration(config);
  f.add('first');f.add('second','BBVA lanza tarjeta para empresas');f.subscriptions.push({...f.subscriptions[0],id:'b'});
  const result=f.c.deliverNewsletterBatch_();assert.equal(result.accepted,2);assert.equal(f.sent[0].content.count,1);assert.equal(f.sent[1].content.count,1);assert.notEqual(f.sent[0].content.items[0].url,f.sent[1].content.items[0].url);
- assert.equal(JSON.parse(f.sheets.get('NewsletterEnvios').grid[1][8]).length,2);
+ assert.equal(JSON.parse(f.sheets.get('NewsletterEnvios').grid[1][8]).length,3);
 });
 test('un rechazo permite reintentar el contenido y un registro dañado impide enviar sin control',()=>{
  const f=deliveryFixture();f.add('first');f.c.sendNewsletterMail_=()=>{const error=Error('Rechazado');error.rejected=true;throw error;};f.c.deliverNewsletterBatch_();
