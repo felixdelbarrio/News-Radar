@@ -1,5 +1,6 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "La edición supera el límite de almacenamiento. No se ha guardado ni enviado.": ["The edition exceeds the storage limit. It has not been saved or sent.","Bülten depolama sınırını aşıyor. Kaydedilmedi veya gönderilmedi."],
   "Primero crea una copia verificada con applyGeographyMigration.": ["First create a verified backup with applyGeographyMigration.","Önce applyGeographyMigration ile doğrulanmış bir yedek oluşturun."],
   "Importar CSV": ["Import CSV","CSV içe aktar"],
   "Importar sin reemplazar ediciones": ["Import without replacing edits","Düzenlemeleri değiştirmeden içe aktar"],

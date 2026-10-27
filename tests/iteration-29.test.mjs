@@ -55,5 +55,5 @@ test('informe completo recorre lotes acotados y agrega sin saltar filas',()=>{
  const {c}=setup(),offsets=[];c.getGeographyMigrationStatus=()=>({version:'test'});c.auditGeographyMigration=({offset,limit})=>{offsets.push(offset);assert.equal(limit,200);return {total:450,next:Math.min(offset+limit,450),changed:1,multicountry:2,missing:0,byMethod:{domain:1},samples:[]};};const result=c.reportGeographyMigration();assert.deepEqual(offsets,[0,200,400]);assert.equal(result.changed,3);assert.equal(result.byMethod.domain,3);
 });
 test('continuación exige backup verificado y conserva el coordinador de prioridades',()=>{
- const {c}=setup();c.getGeographyMigrationStatus=()=>({});assert.throws(()=>c.continueGeographyMigration(),/copia verificada/);let called=0;c.getGeographyMigrationStatus=()=>({version:'3.30.0',backupId:'verified'});c.processBackground_=()=>{called++;return {added:0};};assert.equal(c.continueGeographyMigration().added,0);assert.equal(called,1);
+ const {c}=setup();c.getGeographyMigrationStatus=()=>({});assert.throws(()=>c.continueGeographyMigration(),/copia verificada/);let called=0;c.getGeographyMigrationStatus=()=>({version:vm.runInContext('RADAR.version',c),backupId:'verified'});c.processBackground_=()=>{called++;return {added:0};};assert.equal(c.continueGeographyMigration().added,0);assert.equal(called,1);
 });
