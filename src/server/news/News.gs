@@ -51,7 +51,8 @@ function dashboardContent_(query,feeds,view='radar',language='es',edition=null){
   dashboardArticleFields_(data);writeDashboardCache_(cache,key,data);
   return {data,duration:Date.now()-started,cacheHit:false};
 }
-function invalidateNews_(content=true,records=true){invalidateDashboardSnapshots_();const revision=Date.now()+'-'+Math.random().toString(36).slice(2);properties_().setProperty('NEWS_REVISION',revision);if(content)properties_().setProperty('NEWS_CONTENT_REVISION',revision);if(records)properties_().setProperty('NEWS_RECORDS_REVISION',revision);}
+function classificationInputRevision_(){const p=properties_(),records=p.getProperty('NEWS_RECORDS_REVISION')||'0',input=JSON.parse(p.getProperty('NEWS_CLASSIFICATION_INPUT')||'null');return input?.records===records?input.revision:records;}
+function invalidateNews_(content=true,records=true,reclassify=true){invalidateDashboardSnapshots_();const revision=Date.now()+'-'+Math.random().toString(36).slice(2),p=properties_();p.setProperty('NEWS_REVISION',revision);if(content)p.setProperty('NEWS_CONTENT_REVISION',revision);if(records){const input=reclassify?revision:classificationInputRevision_();p.setProperty('NEWS_CLASSIFICATION_INPUT',JSON.stringify({records:revision,revision:input}));p.setProperty('NEWS_RECORDS_REVISION',revision);}}
 
 function dashboardRuns_(){
   const cache=CacheService.getScriptCache(),key='dashboard-runs:'+RADAR.version,cached=cache.get(key);

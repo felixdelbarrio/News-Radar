@@ -60,6 +60,12 @@ function initializeConfiguration(){
       sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(functionalRuleSettings(blocks))]]);
     }
     append_('Configuracion',Object.entries(functionalConfigurationSettings_(CONFIGURATION_DEFAULTS)).filter(([key])=>!keys.has(key)).map(([key,value])=>[key,JSON.stringify(value)]));
+    // Migrate only legacy small retention values; preserve explicit larger limits.
+    if(properties_().getProperty('STORAGE_RETENTION_VERSION')!=='3.31.0'){
+      const storageRows=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues(),storageIndex=storageRows.findIndex(row=>row[0]==='storage');
+      if(storageIndex>=0){const storage=JSON.parse(storageRows[storageIndex][1]);if(Number.isInteger(storage.logRows)&&storage.logRows<=20){storage.logRows=500;sheet.getRange(storageIndex+2,2,1,1).setValues([[JSON.stringify(storage)]]);}}
+      properties_().setProperty('STORAGE_RETENTION_VERSION','3.31.0');
+    }
     initializeGeographyCatalogs_();
     const settingsRow=sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues().findIndex(row=>row[0]==='settings')+2,stored=JSON.parse(sheet.getRange(settingsRow,2,1,1).getValues()[0][0]);
     const settings=Object.fromEntries(Object.entries(CONFIGURATION_DEFAULTS.settings).map(([key,value])=>[key,key in stored?stored[key]:value]));
@@ -89,7 +95,7 @@ function initializeConfiguration(){
 }
 function validateConfiguration_(config){
   const storage=config?.storage;
-  if(!storage||['primaryFolderId','logFolderId','newsletterFolderId'].some(key=>typeof storage[key]!=='string'||!/^[-\w]{10,100}$/.test(storage[key]))||['logRows','logDays','newsletterDeliveries'].some(key=>!Number.isInteger(storage[key])||storage[key]<1||storage[key]>1000))throw Error('Configuración de almacenamiento no válida.');
+  if(!storage||['primaryFolderId','logFolderId','newsletterFolderId'].some(key=>typeof storage[key]!=='string'||!/^[-\w]{10,100}$/.test(storage[key]))||['logRows','logDays','newsletterDeliveries'].some(key=>!Number.isInteger(storage[key])||storage[key]<1||storage[key]>(key==='logRows'?5000:1000)))throw Error('Configuración de almacenamiento no válida.');
   const numeric={windowDays:[1,90],pageSize:[1,100],maxCustomFeeds:[1,100],maxFeedBytes:[10000,2000000],maxItems:[1,1000],exportLimit:[1,10000],eventLimit:[100,20000],retentionDays:[1,90],trendPoints:[2,60],trendSeries:[1,6],collectionBatch:[1,5],retryMinutes:[1,60],pauseMinutes:[1,60],dailyHour:[0,23],briefingLimit:[1,100],newsletterBatch:[1,100],newsletterDailyLimit:[1,1500]};
   if(!config||typeof config.settings!=='object')throw Error('Falta configuración operativa.');
   for(const [name,[min,max]] of Object.entries(numeric)){const n=config.settings[name];if(!Number.isInteger(n)||n<min||n>max)throw Error(name+': requiere un entero entre '+min+' y '+max+'.');}

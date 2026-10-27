@@ -26,7 +26,7 @@ test('consultas acotadas y sin producto cartesiano; idioma, país y fechas se va
  const profile=profiles.find(row=>row.entity==='Santander'&&row.country==='España'),item={...raw,title:'Banco Santander lanza nueva app para empresas en México'};assert.equal(c.evaluate_(item,profile,now).item.country,'México');
  const unlocated=c.evaluate_({...raw,title:'Banco Santander lanza nueva app para empresas'},profile,now).item;assert.equal(unlocated.country,'España');assert.equal(c.profileFeed_(c.configuration_().geographies.find(row=>row.code==='UY'),c.configuration_().entities[0]).url.includes('gl=US'),true);
  assert.equal(c.collectionQueryRange_('https://news.google.com/rss/search?q=%ZZ'),null);assert.equal(c.collectionQueryRange_('https://news.google.com/rss/search?q=after%3A2026-02-30%20before%3A2026-03-05'),null);
- const annual=c.collectionRange_('year',now),windows=c.collectionWindows_(annual);assert.equal(windows.length,14);for(let i=1;i<windows.length;i++)assert.equal(Date.parse(windows[i-1].from)-Date.parse(windows[i].to),86400000);
+ const annual={from:'2025-10-09',to:'2026-10-09'},windows=c.collectionWindows_(annual);assert.equal(windows.length,14);for(let i=1;i<windows.length;i++)assert.equal(Date.parse(windows[i-1].from)-Date.parse(windows[i].to),86400000);
 });
 test('saturación exige fechas útiles y la subdivisión no añade tareas repetidas tras una interrupción',()=>{
  const {c,sheets}=server();custom(c);const config=c.configuration_(),feed=c.profileFeed_(config.geographies[0],config.entities.find(row=>row.name==='Qonto'),range,true);feed.range=range;

@@ -13,7 +13,7 @@ test('country assignment follows content, publisher URL, RSS and regional fallba
   [{...base,medio:'Portafolio.co',titular:'Nuevo servicio digital en España'},'España','headline'],
   [{...base,medio:'Portafolio.co informa'},'Italia','rss_fallback'],
   [base,'Italia','rss_fallback'],
-  [{...base,fuente:''},'APAC','apac_fallback']
+  [{...base,fuente:''},'Sin determinar','undetermined']
  ];
  for(const [row,country,reason] of cases){const result=c.newsCountryDecision_(row);assert.equal(result.country,country);assert.equal(result.reason,reason);}
  assert.equal(c.domainCountry_('https://bank.co.uk/story'),'Reino Unido');

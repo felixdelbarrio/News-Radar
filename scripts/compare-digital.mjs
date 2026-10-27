@@ -16,7 +16,7 @@ export function compareDigital(){
  }
  const old={...config,feeds:config.feeds.slice(0,5),entities:config.entities.slice(0,-4)};
  const plans={};for(const kind of ['daily','annual']){
-  const period=kind==='daily'?c.collectionRecentRange_(now):c.collectionRange_('year',now),after=c.collectionFeeds_(period).length;c.configuration_=()=>old;const before=c.collectionFeeds_(period).length;c.configuration_=()=>config;plans[kind]={before,after,changePercent:Math.round((after/before-1)*1000)/10};
+  const period=kind==='daily'?c.collectionRecentRange_(now):{from:'2025-10-13',to:'2026-10-13'},after=c.collectionFeeds_(period).length;c.configuration_=()=>old;const before=c.collectionFeeds_(period).length;c.configuration_=()=>config;plans[kind]={before,after,changePercent:Math.round((after/before-1)*1000)/10};
  }
  const rows=additions.feeds.flatMap(sample=>sample.items).map(raw=>({title:c.searchText_(c.plainText_(raw.title)),text:c.searchText_(c.plainText_(raw.title+' '+raw.excerpt))}));
  const rounds=10,timings=[];for(let warmup=0;warmup<2;warmup++)for(const row of rows)c.classification_(row.title,row.text);

@@ -46,6 +46,22 @@ function rankingIndex(definitions){
  const norms=new Map([...contexts].map(([row,tokens])=>[row,[...tokens].reduce((sum,word)=>sum+(idf.get(word)||0)**2,0)]));const minimumIdf=Math.min(4.8,1+Math.log((1+rows.length)/2));for(const [row,tokens] of contexts)contexts.set(row,[...tokens].filter(word=>(idf.get(word)||0)>=minimumIdf));
  index={weights,phrases,canonical,labels,contexts,norms,idf,blocks:new Map(definitions.filter(row=>!row.subpalanca).map(row=>[row.palanca,row]))};rankingIndexes.set(definitions,index);return index;
 }
+// Prefer a demonstrated customer capability over its enabling instrument.
+export function functionalPrimary(value){
+ const title=taxonomyText(value),rules=[
+  ['11.',/\b(?:checkout|card acceptance|merchant acquiring|aceptacion (?:comercial|de (?:pagos|tarjetas))|adquirencia|softpos|tap to pay)\b/],
+  ['11.',/\bgetnet\b.{0,100}\b(?:pagos|cobros|payments?|comercios)\b/],
+  ['09.',/\b(?:virtual cards?|tarjetas? virtuales?)\b/],
+  ['03.',/\b(?:pagos?|pagar|payments?|transferencias?|transferir|transfers?)\b.{0,80}\bbre-b\b/],
+  ['03.',/\bbre-b\b.{0,80}\b(?:pagos?|pagar|payments?|transferencias?|transferir|transfers?)\b/],
+  ['03.',/\btokeni[sz](?:ed|ados?|adas?) deposits?\b.{0,80}\b(?:payments?|transfers?|settle)\b/],
+  ['03.',/\b(?:payments?|transfers?|settle)\b.{0,80}\btokeni[sz](?:ed|ados?|adas?) deposits?\b/]
+ ];
+ for(const [prefix,pattern] of rules){const match=title.match(pattern);if(match)return {prefix,terms:[match[0]]};}
+ if(/\b(?:revamps?|revamped|upgraded|all-new|renueva|renovacion|transforma|transforms)\b/.test(title)&&/\b(?:app|platform|plataforma|banca|digital business banking)\b/.test(title)&&/\b(?:business banking|corporate banking|empresas)\b/.test(title)&&!/\b(?:pagos|payments|cuentas|accounts|tarjetas|cards|adquirencia|tpvs?|loans|prestamos)\b/.test(title))return {prefix:'01.',terms:[title]};
+ if(/\b(?:app|plataforma|platform)\b/.test(title)&&/\b(?:gestion integral|gestion global|integrated management)\b/.test(title)&&/\b(?:business|corporate|empresas)\b/.test(title))return {prefix:'01.',terms:[title]};
+ return null;
+}
 export function taxonomyDecision(text,definitions,headline=''){
  const index=rankingIndex(definitions),title=taxonomyText(headline),tokens=new Set(words(text).map(rankingWord)),titleWords=new Set(words(title).map(rankingWord)),functional=functionalContext(text);let best,second;const ranked=[];
  for(const row of definitions){
@@ -89,6 +105,11 @@ export function taxonomyDecision(text,definitions,headline=''){
   if(!terms.length||matches.length&&!taxonomyIndependentEvidence(evidence,[...used]))continue;
   const row=definitions.find(row=>row.palanca===block.palanca&&/\.xx Otros$/.test(row.subpalanca));
   if(row){matches.push({row,count:terms.length,score:0,evidence});for(const term of evidence.terms)used.add(term);}
+ }
+ const focus=functionalPrimary(headline);
+ if(focus){
+  const primary=matches.find(match=>match.row.palanca.startsWith(focus.prefix)),row=primary?.row||definitions.find(row=>row.palanca.startsWith(focus.prefix)&&/\.xx Otros$/.test(row.subpalanca));
+  if(row){const selected=primary||{row,count:1,score:0,evidence:{terms:focus.terms,method:'literal',location:'headline'}};const secondary=[],used=[...selected.evidence.terms];for(const match of matches)if(match!==primary&&taxonomyIndependentEvidence(match.evidence,used)){secondary.push(match);used.push(...match.evidence.terms);}matches.splice(0,matches.length,selected,...secondary.slice(0,TAXONOMY_POLICY.maxAssignments-1));}
  }
  return {matches,reason:matches.length?'matched':ambiguous?'ambiguous':'insufficient'};
 }

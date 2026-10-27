@@ -52,8 +52,9 @@ function collectionSnapshots_(tasks,jobs,now=new Date()){
 
 function compactCollectionTasks_(){
  const jobs=collectionJobs_(),finished=jobs.filter(job=>job.tipo==='daily'&&['Completada','Parcial'].includes(job.estado)).sort((a,b)=>String(b.fin||b.actualizada).localeCompare(String(a.fin||a.actualizada))),keep=new Set(jobs.filter(job=>!['Completada','Parcial','Cancelada'].includes(job.estado)).map(job=>job.id)),latest=finished[0],p=properties_(),summaries=JSON.parse(p.getProperty('COLLECTION_TASK_SUMMARIES')||'{}');
- if(latest)keep.add(latest.id);for(const id of Object.keys(summaries))if(!keep.has(id))delete summaries[id];
- const tasks=rows_('Recopilacion'),remove=tasks.flatMap((task,index)=>keep.has(task.ciclo)?[]:[index+2]);
+ const tasks=rows_('Recopilacion'),known=new Set(jobs.map(job=>job.id));for(const task of tasks)if(!known.has(task.ciclo))keep.add(task.ciclo);
+ if(latest)keep.add(latest.id);for(const id of Object.keys(summaries))if(known.has(id)&&!keep.has(id))delete summaries[id];
+ const remove=tasks.flatMap((task,index)=>keep.has(task.ciclo)?[]:[index+2]);
  if(latest){
   const retained=tasks.map((task,index)=>({...task,row:index+2})).filter(task=>task.ciclo===latest.id),summary={actualizada:latest.actualizada||'',total:Math.max(0,Number(latest.total)-retained.length),procesadas:Math.max(0,Number(latest.procesadas)-retained.filter(task=>task.estado==='Completada').length),omitidas:Math.max(0,Number(latest.omitidas)-retained.filter(task=>task.estado==='Omitida').length),nuevas:Math.max(0,Number(latest.nuevas)-retained.reduce((sum,task)=>sum+Number(task.nuevas||0),0))};
   let excess=Math.max(0,tasks.length-remove.length-COLLECTION_POLICY.retainedTasks);

@@ -47,6 +47,7 @@ function archiveSpreadsheet_(name,headers,rows,folderId,key){
  return {id:checkpoint.id,digest,property,verified:true};
 }
 function archiveLogBatch_(name){
+ if(name==='Adopcion')return true;
  const sheet=recordSheet_(name),count=sheet.getLastRow()-1,policy={...configuration_().storage,...logRetention_(name)};
  const expected=RADAR.sheets[name];if(JSON.stringify(sheet.getRange(1,1,1,expected.length).getDisplayValues()[0])!==JSON.stringify(expected))throw Error('Cabecera del log no válida: '+name);
  const checkpointKey='ARCHIVE_SHEET:'+name,checkpoint=JSON.parse(properties_().getProperty(checkpointKey)||'null');

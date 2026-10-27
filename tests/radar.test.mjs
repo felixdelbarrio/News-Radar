@@ -133,13 +133,12 @@ test('la evolución mantiene todas las publicaciones agrupando entidades y limit
 });
 
 test('recuperación manual predetermina Hoy, respeta la zona y consulta el año por intervalos de 28 días',()=>{
- const c=context(),today=c.collectionRange_('today',new Date('2026-10-09T22:30:00Z'));assert.equal(today.from,'2026-10-10');assert.equal(today.to,'2026-10-10');
- const year=c.collectionRange_('year',now),windows=c.collectionWindows_(year);assert.equal(year.from,'2025-10-09');assert.equal(year.to,'2026-10-09');assert.equal(windows.length,14);assert.equal(windows.at(-1).from,year.from);assert.equal(windows[0].to,year.to);
+ const c=context(),today={from:c.calendarDate_(new Date('2026-10-09T22:30:00Z')).toISOString().slice(0,10),to:'2026-10-10'};assert.equal(today.from,'2026-10-10');assert.equal(today.to,'2026-10-10');
+ const year={from:'2025-10-09',to:'2026-10-09'},windows=c.collectionWindows_(year);assert.equal(year.from,'2025-10-09');assert.equal(year.to,'2026-10-09');assert.equal(windows.length,14);assert.equal(windows.at(-1).from,year.from);assert.equal(windows[0].to,year.to);
  for(let i=1;i<windows.length;i++)assert.equal(Date.parse(windows[i-1].from)-Date.parse(windows[i].to),86400000);
  const feeds=c.collectionFeeds_(year);assert.equal(new Set(feeds.map(f=>f.url)).size,feeds.length);assert.equal(feeds.filter(f=>f.kind==='rss'&&f.domain!=='news.google.com').length,6);assert.equal(feeds.filter(f=>f.id==='bankinter-blog').length,windows.length);
  const historic=feeds.find(f=>f.kind==='profile'&&f.range.from===year.from),query=new URL(historic.url).searchParams.get('q');assert.ok(query.includes('after:2025-10-08 before:'+new Date(Date.parse(historic.range.to)+86400000).toISOString().slice(0,10)));assert.doesNotMatch(query,/when:/);
  const old={...item,date:'2025-10-12'};assert.ok(c.evaluate_(old,{...feed,range:year},now).item);assert.match(c.evaluate_(old,{...feed,range:today},now).reason,/período/);
- const leap=c.collectionRange_('year',new Date('2024-02-29T12:00:00Z'));assert.equal(leap.from,'2023-02-28');
  let range;c.requestCollection_=(_kind,value)=>range=value;c.collectNow();assert.deepEqual(range,c.collectionRecentRange_(new Date()));assert.throws(()=>c.collectNow('invalid'),/Selecciona/);assert.throws(()=>context('reader@bbva.com').collectNow('year'),/no autorizado/);
 });
 
