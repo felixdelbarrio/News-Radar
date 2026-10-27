@@ -58,7 +58,8 @@ export function functionalPrimary(value){
   ['03.',/\b(?:payments?|transfers?|settle)\b.{0,80}\btokeni[sz](?:ed|ados?|adas?) deposits?\b/]
  ];
  for(const [prefix,pattern] of rules){const match=title.match(pattern);if(match)return {prefix,terms:[match[0]]};}
- if(/\b(?:revamps?|revamped|upgraded|all-new|renueva|renovacion|transforma|transforms)\b/.test(title)&&/\b(?:platform|plataforma|banca|digital business banking)\b/.test(title)&&/\b(?:business banking|corporate banking|empresas)\b/.test(title))return {prefix:'01.',terms:[title]};
+ if(/\b(?:revamps?|revamped|upgraded|all-new|renueva|renovacion|transforma|transforms)\b/.test(title)&&/\b(?:app|platform|plataforma|banca|digital business banking)\b/.test(title)&&/\b(?:business banking|corporate banking|empresas)\b/.test(title)&&!/\b(?:pagos|payments|cuentas|accounts|tarjetas|cards|adquirencia|tpvs?|loans|prestamos)\b/.test(title))return {prefix:'01.',terms:[title]};
+ if(/\b(?:app|plataforma|platform)\b/.test(title)&&/\b(?:gestion integral|gestion global|integrated management)\b/.test(title)&&/\b(?:business|corporate|empresas)\b/.test(title))return {prefix:'01.',terms:[title]};
  return null;
 }
 export function taxonomyDecision(text,definitions,headline=''){

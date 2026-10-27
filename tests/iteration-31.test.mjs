@@ -37,8 +37,11 @@ test('demonstrated primary capabilities preserve valid secondary assignments and
  ['DBS and Citi settle USD payments in minutes via tokenised deposits','03.'],
  ['BBVA habilitará pagos por Bre-B con tarjeta de crédito','03.'],
  ['Maybank Revamps Maybank2E Platform for Business Banking Clients','01.'],
- ['CaixaBank renueva su plataforma de banca digital para empresas','01.']
+ ['CaixaBank renueva su plataforma de banca digital para empresas','01.'],
+ ['CaixaBank renueva su app para empresas con nuevas funciones de gestión financiera y contratación digital','01.'],
+ ['CaixaBank lanza su nueva app móvil para empresas con gestión integral y contratación 100% digital','01.']
  ]){const result=c.taxonomyDecision(c.taxonomyText(title),definitions,title);assert.ok(result.matches[0]?.row.palanca.startsWith(prefix),title);assert.ok(result.matches.every(m=>definitions.includes(m.row)));}
+ assert.notEqual(c.functionalPrimary('BBVA renueva su plataforma de pagos para empresas')?.prefix,'01.');
  const result=c.taxonomyDecision(c.taxonomyText('ANZ Tests Tokenised Deposits for Cross-Border Corporate Payments'),definitions,'ANZ Tests Tokenised Deposits for Cross-Border Corporate Payments');assert.ok(result.matches.slice(1).every(m=>c.taxonomyIndependentEvidence(m.evidence,result.matches[0].evidence.terms)));
 });
 test('generic cash management recruitment is excluded without excluding a banking launch',()=>{
