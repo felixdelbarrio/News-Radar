@@ -14,7 +14,7 @@ test('operational archiving never prunes adoption',()=>{
 test('publication supervisor recovers at most three times and keeps stalled jobs incomplete',()=>{
  const {c,properties:p}=setup(),now=Date.now();p.TAXONOMY_JOB=JSON.stringify({id:'stalled',state:'Publicando',updated:new Date(now-700000).toISOString(),next:87});
  for(let i=0;i<3;i++)assert.equal(c.recoverBackgroundJobs_(now+i*600001),true);
- assert.equal(c.recoverBackgroundJobs_(now+3*600001),false);const job=JSON.parse(p.TAXONOMY_JOB);assert.equal(job.publicationRetries,3);assert.equal(job.state,'Publicando');assert.equal(job.next,87);assert.match(job.error,/tres recuperaciones/);
+ assert.equal(c.recoverBackgroundJobs_(now+3*600001),false);const job=JSON.parse(p.TAXONOMY_JOB);assert.equal(job.publicationRetries,3);assert.equal(job.state,'Revisar');assert.equal(job.next,87);assert.match(job.error,/tres recuperaciones/);
 });
 test('a stale build cannot immediately retrigger a publication recovery',()=>{
  const {c,properties:p}=setup(),now=Date.now();p.TAXONOMY_JOB=JSON.stringify({state:'Publicando',publicationRetriedAt:new Date(now).toISOString()});p.DASHBOARD_SNAPSHOT_BUILD=JSON.stringify({updated:new Date(now-700000).toISOString()});assert.equal(c.recoverBackgroundJobs_(now+1),false);
