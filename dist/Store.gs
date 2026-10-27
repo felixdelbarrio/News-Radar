@@ -46,14 +46,14 @@ function append_(name,rows){
  }finally{if(!owned)lock.releaseLock();}
 }
 
-function rowsById_(name,ids,limit=Infinity){
+function rowsById_(name,ids,limit=Infinity,includePosition=false){
   const sheet=recordSheet_(name),count=Math.min(Math.max(0,sheet.getLastRow()-1),limit),keys=RADAR.sheets[name],result=[];
   if(!count||!ids.size)return result;
   const first=sheet.getLastRow()-count+1,positions=sheet.getRange(first,1,count,1).getDisplayValues().flatMap(([id],index)=>ids.has(id)?[first+index]:[]);
   let start=0;
   for(let end=1;end<=positions.length;end++){
     if(end<positions.length&&positions[end]===positions[end-1]+1)continue;
-    for(const row of sheet.getRange(positions[start],1,end-start,keys.length).getDisplayValues())result.push(Object.fromEntries(keys.map((key,index)=>[key,row[index]])));
+    for(const [offset,row] of sheet.getRange(positions[start],1,end-start,keys.length).getDisplayValues().entries())result.push({...Object.fromEntries(keys.map((key,index)=>[key,row[index]])),...(includePosition?{_sheetRow:positions[start]+offset}:{})});
     start=end;
   }
   return result;
@@ -62,7 +62,7 @@ function rowsById_(name,ids,limit=Infinity){
 function newsRowsForCandidates_(candidates){
  const last=newsSheet_().getLastRow(),positions=[...new Set(candidates.map(candidate=>candidate.row).filter(row=>Number.isInteger(row)&&row>=2&&row<=last))].sort((a,b)=>a-b),physical=new Map(newsRowsAt_(positions).map(row=>[row._sheetRow,row])),articles=new Map(),displaced=new Set();
  for(const candidate of candidates){const row=physical.get(candidate.row);if(row?.id===candidate.id)articles.set(candidate.id,row);else displaced.add(candidate.id);}
- if(displaced.size)for(const row of rowsById_('Noticias',displaced))articles.set(row.id,row);
+ if(displaced.size)for(const row of rowsById_('Noticias',displaced,Infinity,true))articles.set(row.id,row);
  return articles;
 }
 
