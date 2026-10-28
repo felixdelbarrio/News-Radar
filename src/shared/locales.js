@@ -117,6 +117,7 @@ export const translations = Object.freeze({
 
   "Pestaña propia": ["Own tab", "Ayrı sekme"],
   "Mantenimiento incremental en cola.": ["Incremental maintenance queued.", "Artımlı bakım sıraya alındı."],
+  "Mantenimiento incremental reanudado desde el último avance.": ["Incremental maintenance resumed from its last progress point.", "Artımlı bakım son ilerleme noktasından devam ettirildi."],
   "Archivado de logs": ["Log archiving", "Günlük arşivleme"],
   "Generar snapshots": ["Build snapshots", "Anlık görüntü oluştur"],
   "Iniciar mantenimiento": ["Start maintenance", "Bakımı başlat"],

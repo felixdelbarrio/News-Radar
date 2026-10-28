@@ -16,13 +16,18 @@ for(const {name,query} of presentationCases){
   assert.deepEqual(presentationContract(result),JSON.parse(fs.readFileSync(new URL('./fixtures/newsletter-presentation/'+name+'.contract.json',import.meta.url))));
   assert.equal(d.querySelectorAll('.newsletter-article').length,result.count);
   assert.equal(d.querySelector('.newsletter-intro').textContent,query.view==='briefing'?'Novedades concretas, en los canales digitales de Banca de Empresas e Instituciones, para revisar esta quincena.':'Qué ha marcado tu canal y dónde mirar ahora.');
-  for(const [i,card] of [...d.querySelectorAll('.newsletter-article')].entries()){
-   // El HTML agrupa por ámbito, conservando la posición relativa de las tarjetas en cada ámbito.
-   const expected=[...result.editorial.cards.filter(card=>card.scope==='local'),...result.editorial.cards.filter(card=>card.scope==='global')][i];
-   assert.equal(card.querySelector('h3 a').href,expected.url);assert.equal(card.querySelector('.newsletter-read'),null);
+  for(const expected of result.editorial.cards){
+   const cards=[...d.querySelectorAll('.newsletter-article')].filter(card=>card.querySelector('h3 a')?.href===expected.url);assert.equal(cards.length,1);
+   const card=cards[0];assert.equal(card.querySelector('.newsletter-read'),null);
    assert.ok(card.querySelector('.entity-logo,.entity-monogram'));assert.ok(card.querySelector('.geography-flag'));
    assert.ok(card.querySelector('.newsletter-card-cell').style.padding);
   }
+  const scopes=[...d.querySelectorAll('.newsletter-scope')];if(query.country&&result.editorial.cards.some(card=>card.scope==='local')&&result.editorial.cards.some(card=>card.scope==='global')){
+   assert.equal(scopes.length,2);const global=scopes[1];for(const card of result.editorial.cards.filter(card=>card.scope==='local')){const element=[...d.querySelectorAll('.newsletter-article')].find(row=>row.querySelector('h3 a')?.href===card.url);assert.ok(element.compareDocumentPosition(global)&4,'la noticia local precede a la mirada internacional');}
+  }
+  if(query.view==='news'){const reports=[...d.querySelectorAll('.newsletter-report')],landscapes=Object.entries(result.editorial.landscapes).filter(([,data])=>data?.total);assert.equal(reports.length,landscapes.length);for(const [i,[scope,landscape]] of landscapes.entries()){
+   const example=reports[i].querySelector('.newsletter-article'),matching=result.editorial.cards.find(card=>card.scope===scope&&card.category===landscape.themes[0]?.name);assert.equal(Boolean(example),Boolean(matching));if(example)assert.equal(example.querySelector('h3 a').href,matching.url);
+  }}
   assert.ok(d.querySelector('.newsletter-brand').compareDocumentPosition(d.querySelector('.newsletter-feedback'))&4);
   assert.equal(d.querySelectorAll('.newsletter-feedback a').length,2);
   for(const a of d.querySelectorAll('.newsletter-feedback a')){const u=new URL(a.href);assert.equal(u.searchParams.get('edition'),'presentation-edition');assert.ok(['positive','negative'].includes(u.searchParams.get('feedback')));}
@@ -66,4 +71,16 @@ test('los controles nuevos se traducen y admiten textos extensos sin contenido e
  }
  // El historial y las reglas de repetición tienen su propia batería; la presentación admite cero tarjetas.
  const empty=presentationContent(c,presentationCases[3].query,[]);assert.equal(empty.count,0);assert.equal(document(empty.html).querySelector('.newsletter-report'),null);
+});
+test('los recursos privados se incorporan por CID y respetan la variante y el ámbito',()=>{
+ const {c}=presentationServer(),keys=Object.fromEntries(['bei-logo','fortnightly-visual','quarterly-visual','other-banks-visual'].map((name,index)=>[name,'private-visual-asset-'+index+'-1234567890']));
+ c.PropertiesService.getScriptProperties().setProperty('NEWSLETTER_VISUAL_ASSETS',JSON.stringify(keys));
+ const original=c.DriveApp.getFileById;c.DriveApp.getFileById=id=>Object.values(keys).includes(id)?{getBlob:()=>({getContentType:()=> 'image/png',getBytes:()=>[137,80,78,71,13,10,26,10]})}:original(id);
+ for(const {name,query} of presentationCases){
+  const result=presentationContent(c,query),d=document(result.html),ids=result.images.map(image=>image.id);
+  assert.ok(ids.includes('bei-logo'),name);assert.equal(d.querySelector('.newsletter-wordmark img').getAttribute('src'),'cid:bei-logo');
+  assert.ok(ids.includes(query.view==='news'?'quarterly-visual':'fortnightly-visual'),name);
+  assert.equal(ids.includes('other-banks-visual'),Boolean(query.country&&result.editorial.cards.some(card=>card.scope==='global')),name);
+  assert.doesNotMatch(result.html,/drive\.google\.com|private-visual-asset/);
+ }
 });
