@@ -6,7 +6,7 @@ La explicación «Por qué está clasificada aquí» se elimina del componente c
 
 ## Recuperación del mantenimiento
 
-La preparación de compactación escanea ocho ediciones por checkpoint, evitando una lectura completa antes de persistir progreso. Archivar y compactar tienen cursores independientes; añadir entregas no reinicia el barrido. Cada avance válido limpia el error transitorio anterior. La compactación procesa hasta ocho lotes dentro del presupuesto de ocho segundos y cede a tareas prioritarias. Se mantienen las verificaciones de integridad antes de sustituir datos y los archivos recuperables.
+La preparación de compactación escanea ocho ediciones por checkpoint, evitando una lectura completa antes de persistir progreso. Archivar y compactar tienen cursores independientes; añadir entregas no reinicia el barrido. Cada avance válido limpia el error transitorio anterior. La compactación procesa hasta ocho lotes dentro del presupuesto de ocho segundos y cede a tareas prioritarias. El plan de creación de hojas se persiste antes de llamar a Sheets: una interrupción reutiliza los mismos identificadores y no crea otra pareja de hojas. Se mantienen las verificaciones de integridad antes de sustituir datos y los archivos recuperables.
 
 ## Medidas y comprobaciones
 
@@ -21,7 +21,7 @@ Medición local con imágenes privadas, cinco calentamientos y treinta muestras,
 
 Medición de solo lectura en Apps Script antes de la última memoización: quincenal enfocada 1308–2672 ms; global 1144–1191 ms; trimestral enfocada 1354–1682 ms; global 1028–1434 ms (tres muestras). Se verificó el mismo corpus de 126 y 223 noticias antes y después. No son comparaciones equivalentes de coste por tarjeta: las enfocadas pasan de tres a seis ejemplos. La muestra de los últimos 500 registros de telemetría no contenía eventos newsletter-selection; no se infieren percentiles históricos de producción. La memoización final evita repetir consultas de propiedades y PNG dentro de una misma ejecución.
 
-59 pruebas focalizadas superadas: presentación, MIME sin transporte, iconos, caché parcialmente expulsada, recuperación de mantenimiento, conservación de evidencia y ausencia del desplegable. Las vistas privadas se revisaron a 390 y 640 px sin desbordamientos ni imágenes rotas. Validación completa en curso; no se han enviado correos.
+59 pruebas focalizadas y 38 de archivo/recuperación superadas: presentación, MIME sin transporte, iconos, caché parcialmente expulsada, recuperación de mantenimiento, conservación de evidencia y ausencia del desplegable. Las vistas privadas se revisaron a 390 y 640 px sin desbordamientos ni imágenes rotas. Validación completa en curso; no se han enviado correos.
 
 ## Publicación y reversión
 

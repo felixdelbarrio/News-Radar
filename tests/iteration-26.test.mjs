@@ -102,3 +102,13 @@ test('un tamaño de archivo inválido bloquea su lectura sin truncar el contenid
 test('una noticia global toma el RSS y el dominio original domina el extracto',()=>{
  const {c}=server();const row={titular:'Stripe y Plasma preparan tarjetas con stablecoins para más de cien países',extracto:'Una alianza para ampliar su oferta global.',medio:'DiarioBitcoin',fuente:'BBVA · España',pais:'España',url:'https://news.google.com/articles/global'};assert.equal(c.newsCountry_(row),'España');assert.equal(c.newsCountry_({...row,medio:'Cinco Días'}),'España');assert.equal(c.newsCountry_({...row,titular:'BBVA presenta una solución',extracto:'BBVA lanza la solución en México. También operará en España.',sourceUrl:'https://publisher.es/story'}),'España');
 });
+
+test('la creación interrumpida reutiliza la misma generación de compactación',()=>{
+ const s=newsletterFixture(),c=s.c,create=c.generationSheet_;let first=true;
+ c.generationSheet_=(name,headers)=>{const sheet=create(name,headers);if(first){first=false;throw Error('timeout tras crear hoja');}return sheet;};
+ assert.throws(()=>c.compactNewsletterBatch_(),/timeout tras crear hoja/);
+ const planned=JSON.parse(s.properties.NEWSLETTER_COMPACTION_JOB);assert.equal(planned.state,'Creating');assert.ok(s.sheets.has(planned.editions));
+ c.generationSheet_=create;assert.equal(c.compactNewsletterBatch_(),false);
+ const resumed=JSON.parse(s.properties.NEWSLETTER_COMPACTION_JOB);assert.equal(resumed.editions,planned.editions);assert.equal(resumed.content,planned.content);
+ assert.equal([...s.sheets.keys()].filter(name=>name.startsWith('NewsletterEdiciones_gen_')).length,1);
+});
