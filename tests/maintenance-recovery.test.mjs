@@ -61,3 +61,11 @@ test('un lote exitoso elimina la pausa y el error anterior sin perder el cursor'
  c.compactNewsletterBatch_=()=>{c.properties_().setProperty('NEWSLETTER_COMPACTION_JOB',JSON.stringify({next:18,total:103}));return false;};
  c.maintenanceBatch_();const next=c.maintenanceJob_();assert.equal(next.state,'Pendiente');assert.equal(next.error,'');assert.equal(next.pausedUntil,0);assert.equal(next.attempts,0);assert.match(next.detail,/16\/103/);
 });
+
+test('añadir envíos y ediciones no reinicia un barrido de archivo en curso',()=>{
+ const {c,sheets,properties:p}=storage();c.initializeConfiguration();
+ for(let i=0;i<25;i++)sheets.get('NewsletterEdiciones').grid.push(['edition-'+i]);
+ c.archiveNewsletterBatch_();assert.equal(JSON.parse(p.NEWSLETTER_ARCHIVE_CURSOR).next,10);
+ sheets.get('NewsletterEnvios').grid.push(['new-delivery']);sheets.get('NewsletterEdiciones').grid.push(['new-edition']);
+ c.archiveNewsletterBatch_();assert.equal(JSON.parse(p.NEWSLETTER_ARCHIVE_CURSOR).next,18);assert.equal(JSON.parse(p.NEWSLETTER_ARCHIVE_CURSOR).total,26);
+});

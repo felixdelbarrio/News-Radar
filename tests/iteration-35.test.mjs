@@ -60,3 +60,19 @@ test('los iconos privados se usan por CID y el formulario los carga sin perder l
  assert.equal(a.find('#edition-feedback').elements.rating.value,'positive');assert.equal(a.w.document.querySelectorAll('[data-rating-icon] img').length,2);
  assert.equal(a.calls.filter(call=>call.method==='saveNewsletterFeedback').length,0);
 });
+
+test('una evicción parcial de caché recarga el PNG completo',()=>{
+ const {c,cache}=presentationServer(),id='private-feedback-positive-12345',key='newsletter-visual-feedback-positive-'+id;let reads=0;
+ c.PropertiesService.getScriptProperties().setProperty('NEWSLETTER_VISUAL_ASSETS',JSON.stringify({'feedback-positive':id}));
+ c.DriveApp.getFileById=()=>({getBlob:()=>{reads++;return {getContentType:()=> 'image/png',getBytes:()=>Array(90000).fill(1)};}});
+ assert.equal(c.newsletterVisualAsset_('feedback-positive',new Map()),true);cache.delete(key+'-0');
+ const images=new Map();assert.equal(c.newsletterVisualAsset_('feedback-positive',images),true);assert.equal(reads,2);assert.equal(Buffer.from(images.get('feedback-positive').data,'base64').length,90000);
+});
+
+test('la construcción MIME se puede medir sin ejecutar transporte',()=>{
+ const {c}=presentationServer(),content=presentationContent(c,presentationCases[1].query);
+ c.gmailRequest_=()=>{throw Error('El diagnóstico no puede enviar');};
+ const raw=c.newsletterMime_({name:'News Radar',address:'news-radar.group@bbva.com'},'owner@bbva.com',content);
+ assert.match(raw,/To: owner@bbva.com/);assert.match(raw,/multipart\/related/);
+ for(const image of content.images)assert.ok(raw.includes('Content-ID: <'+image.id+'>'));
+});
