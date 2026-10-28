@@ -118,18 +118,22 @@ function archivedNewsletter_(row){
  return {...archived.metadata,archivedItems:archived.items};
 }
 function archiveNewsletterBatch_(){
- const deliveries=rows_('NewsletterEnvios',undefined,8),sent=new Set(deliveries.filter(row=>row.estado==='Enviada').map(row=>row.id)),retained=new Set(recentNewsletterDeliveries_(deliveries).map(row=>row.id)),editions=rows_('NewsletterEdiciones'),keys=RADAR.sheets.NewsletterEdiciones,sheet=newsletterSheet_('NewsletterEdiciones');
+ const deliveries=rows_('NewsletterEnvios',undefined,8),sent=new Set(deliveries.filter(row=>row.estado==='Enviada').map(row=>row.id)),retained=new Set(recentNewsletterDeliveries_(deliveries).map(row=>row.id)),keys=RADAR.sheets.NewsletterEdiciones,sheet=newsletterSheet_('NewsletterEdiciones'),p=properties_(),source=newsletterStorageKey_('NewsletterEdiciones'),deliveryRows=deliveries.length,total=Math.max(0,sheet.getLastRow()-1);
+ const checkpointKey='NEWSLETTER_ARCHIVE_CURSOR';let cursor=JSON.parse(p.getProperty(checkpointKey)||'null');if(!cursor||cursor.source!==source||cursor.deliveryRows!==deliveryRows||cursor.next<2||cursor.next>total+2)cursor={source,deliveryRows,next:2};
+ const size=Math.min(8,Math.max(0,total-cursor.next+2));if(!size){p.deleteProperty(checkpointKey);return true;}
+ const editions=sheet.getRange(cursor.next,1,size,keys.length).getDisplayValues().map(values=>Object.fromEntries(keys.map((key,index)=>[key,values[index]])));
  for(const [index,row] of editions.entries()){
+  const position=cursor.next+index;
   if(row.estado!=='Enviada'||!sent.has(row.envio)||retained.has(row.envio))continue;
   const marker=JSON.parse(row.editorial||'null');
-  if(marker?.archive){if(marker.cleared)continue;finishNewsletterArchive_(row,index,marker);return false;}
+  if(marker?.archive){if(marker.cleared)continue;finishNewsletterArchive_(row,position-2,marker);p.setProperty(checkpointKey,JSON.stringify({...cursor,next:position+1}));return false;}
   const count=Number(row.cantidad),items=count?newsletterSheet_('NewsletterContenido').getRange(Number(row.inicio),1,count,2).getDisplayValues():[];
   if(items.some(([id,value])=>id!==row.id||!value))throw Error('Contenido de newsletter incompleto.');
-  const archive=archiveSpreadsheet_('NewsletterEdiciones',[],[{metadata:row,items}],configuration_().storage.newsletterFolderId,'newsletter:'+row.id),range=sheet.getRange(index+2,keys.indexOf('editorial')+1,1,1),value=JSON.stringify({archive:archive.id,digest:archive.digest});
+  const archive=archiveSpreadsheet_('NewsletterEdiciones',[],[{metadata:row,items}],configuration_().storage.newsletterFolderId,'newsletter:'+row.id),range=sheet.getRange(position,keys.indexOf('editorial')+1,1,1),value=JSON.stringify({archive:archive.id,digest:archive.digest});
   range.setValues([[value]]);SpreadsheetApp.flush();if(range.getDisplayValues()[0][0]!==value)throw Error('Puntero de newsletter no verificado.');
-  markNewsletterArchiveEdited_();finishNewsletterArchive_(row,index,{archive:archive.id,digest:archive.digest});properties_().deleteProperty(archive.property);return false;
+  markNewsletterArchiveEdited_();finishNewsletterArchive_(row,position-2,{archive:archive.id,digest:archive.digest});properties_().deleteProperty(archive.property);p.setProperty(checkpointKey,JSON.stringify({...cursor,next:position+1}));return false;
  }
- return true;
+ cursor.next+=size;if(cursor.next>total+1){p.deleteProperty(checkpointKey);return true;}p.setProperty(checkpointKey,JSON.stringify(cursor));return false;
 }
 
 function finishNewsletterArchive_(row,index,marker){

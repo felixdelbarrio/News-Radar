@@ -19,19 +19,19 @@ function newsletterLandscape_(items){
   const leaders=[...entities.values()].sort(rank).slice(0,NEWSLETTER_EDITORIAL.cards).map((entity,index,top)=>({position:top.findIndex(row=>row.count===entity.count)+1,name:entity.name,count:entity.count,share:share(entity.count),themes:[...entity.themes].map(([name,count])=>({name,count})).sort(rank).slice(0,2)}));
   return {total:items.length,entityCount:entities.size,countryCount:countries.size,unknownCountryCount,bbvaCount:bbva.count,themes:rankedThemes,leaders};
 }
-function newsletterExecutiveReport_(editorial,query,language,t,escape,links,images){
- if(!editorial.landscapes)return {html:'',text:''};
- const label=value=>escape(t(value)),parts=[],texts=[];
+function newsletterExecutiveReport_(editorial,query,language,t,escape,links,images,examples={}){
+ if(!editorial.landscapes)return {scopes:{},note:'',text:''};
+ const label=value=>escape(t(value)),scopes={},texts=[];
  for(const [scope,data] of Object.entries(editorial.landscapes)){
   if(!data?.total)continue;const local=scope==='local',country=local?query.country:'',heading=country||'Mirada global',theme=data.themes[0];
   const link=(text,entity='',palanca='')=>links.app.includes('edition=')?'<a href="'+escape(newsletterExploreLink_(links.app,'news',country,entity,palanca,'',!local&&query.country?'international':''))+'">'+escape(text)+' ↗</a>':escape(text);
   const metrics=[['Noticias',data.total],['Noticias BBVA',data.bbvaCount],['Entidades',data.entityCount],...(!query.country?[['Geografías identificadas',data.countryCount]]:[])].map(([name,count])=>'<td class="newsletter-metric"><strong class="newsletter-metric-value">'+count+'</strong><span class="newsletter-metric-label">'+label(name)+'</span></td>').join('');
   const lead=theme?formatText('{theme} fue el bloque funcional con más noticias: {count}, el {share}% de las noticias analizadas.',{theme:t(theme.name),count:theme.count,share:theme.share},language):t('La selección no tiene noticias clasificadas por bloque funcional.');
-  const themes=data.themes.slice(0,NEWSLETTER_EDITORIAL.cards).map((row,index)=>'<div class="newsletter-ranking"><p><strong>'+link(t(row.name),'',row.name)+'</strong>'+(index?'<span class="newsletter-ranking-count">'+row.count+' · '+row.share+'%</span>':'')+'</p></div>').join('');
-  const leaders=data.leaders.map(row=>'<div class="newsletter-leader"><p>'+identityMark('entities',row.name,escape,images)+'<strong>'+link(row.name,row.name)+'</strong> · '+row.count+' · '+row.share+'%</p><p>'+row.themes.map(theme=>link(t(theme.name),row.name,theme.name)+' ('+theme.count+')').join(' · ')+'</p></div>').join('');
-  parts.push('<section class="newsletter-report"><p class="newsletter-lever-label">'+label('EL TRIMESTRE EN CIFRAS')+'</p><h2>'+label(heading)+'</h2><table role="presentation" class="newsletter-metrics"><tr>'+metrics+'</tr></table><p class="newsletter-executive">'+escape(lead)+'</p><h3>'+label('Los bloques funcionales que marcaron el trimestre')+'</h3>'+themes+'<h3>'+label('Quién ocupó la conversación')+'</h3>'+leaders+'<p class="newsletter-meta">'+label('Noticias y porcentaje de la selección. Los temas de una entidad pueden solaparse.')+'</p></section>');
+  const themes=data.themes.slice(0,NEWSLETTER_EDITORIAL.cards).map((row,index)=>'<tr><td class="newsletter-ranking"><p><strong>'+link(t(row.name),'',row.name)+'</strong>'+(index?'<span class="newsletter-ranking-count">'+row.count+' · '+row.share+'%</span>':'')+'</p></td></tr>').join('');
+  const leaders=data.leaders.map(row=>'<tr><td class="newsletter-leader"><p>'+identityMark('entities',row.name,escape,images)+'<strong>'+link(row.name,row.name)+'</strong> · '+row.count+' · '+row.share+'%</p><p>'+row.themes.map(theme=>link(t(theme.name),row.name,theme.name)+' ('+theme.count+')').join(' · ')+'</p></td></tr>').join('');
+  scopes[scope]='<table role="presentation" class="newsletter-report"><tr><td class="newsletter-report-cell"><p class="newsletter-lever-label">'+label('EL TRIMESTRE EN CIFRAS')+'</p><table role="presentation" class="newsletter-metrics"><tr>'+metrics+'</tr></table><table role="presentation" class="newsletter-highlight"><tr><td class="newsletter-highlight-cell"><p class="newsletter-executive">'+escape(lead)+'</p></td></tr></table>'+(examples[scope]?.html||'')+'<h3>'+label('Los bloques funcionales que marcaron el trimestre')+'</h3><table role="presentation" class="newsletter-rankings">'+themes+'</table><h3>'+label('Quién ocupó la conversación')+'</h3><table role="presentation" class="newsletter-leaders">'+leaders+'</table><p class="newsletter-meta">'+label('Noticias y porcentaje de la selección. Los temas de una entidad pueden solaparse.')+'</p></td></tr></table>';
   texts.push(t(heading),lead,...data.leaders.map(row=>row.name+': '+row.count));
  }
  const note=t('Presencia en las fuentes y filtros de esta edición; no mide cuota de mercado. Una noticia puede pertenecer a varios bloques funcionales.');
- return {html:parts.join('')+'<p class="newsletter-meta">'+escape(note)+'</p>',text:[...texts,note].join('\n\n')};
+ return {scopes,note:'<p class="newsletter-meta">'+escape(note)+'</p>',text:[...texts,note].join('\n\n')};
 }

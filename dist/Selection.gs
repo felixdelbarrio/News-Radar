@@ -1,7 +1,7 @@
 function snapshotEntity_(value){return String(value||'').trim();}
 function newsReadingGeography_(context,query){
  const current=configuration_().geographies,geographies=context?.geographies?context.geographies.map(row=>({...row,region:Object.hasOwn(row,'region')?row.region:current.find(geo=>geo.code===row.code)?.region||''})):current,geography=applicationGeography(context?.scope||configuration_().applicationScope,query.segment,geographies);
- if(context?.cadence==='fortnightly'&&query.benchmark==='international'&&!query.country&&!geography.regions.includes(query.newsGeography)){const group=()=>otherGeography;return Object.assign(group,{region:geography.region,regions:geography.regions});}
+ if(context?.cadence==='fortnightly'&&query.benchmark==='international'&&!query.country&&!geography.regions.includes(query.newsGeography)){const group=()=>otherGeography;return Object.assign(group,geography,{members:()=>[otherGeography]});}
  return geography;
 }
 function newsGeographySelection_(rows,query,geography=applicationGeography(configuration_().applicationScope,query.segment,configuration_().geographies)){

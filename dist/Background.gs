@@ -100,7 +100,9 @@ function backgroundTask_(work,daily){
     }
   }
   offer('collection',work.pending.length>0,daily?PROCESS_PRIORITY.daily:PROCESS_PRIORITY.maintenance+1);
-  return candidates.sort((a,b)=>a.priority-b.priority)[0]?.task||'';
+  const ordered=candidates.sort((a,b)=>a.priority-b.priority),first=ordered[0];
+  if(first?.task==='archive'&&properties_().getProperty('BACKGROUND_LAST')==='archive'&&ordered.some(candidate=>candidate.task==='maintenance'&&candidate.priority===first.priority))return 'maintenance';
+  return first?.task||'';
 }
 // Wake only for runnable work; lower queues cannot poll while their prerequisites are paused.
 function backgroundNextAt_(work,completed=true){
