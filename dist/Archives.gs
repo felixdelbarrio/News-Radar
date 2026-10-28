@@ -154,9 +154,15 @@ function compactNewsletterBatch_(){
  let job=JSON.parse(p.getProperty('NEWSLETTER_COMPACTION_JOB')||'null');
  if(job?.state==='Completada'&&job.published===revision)return true;
  if(!job||job.state==='Completada'){
-  const editions=rows_('NewsletterEdiciones'),active=editions.filter(row=>!JSON.parse(row.editorial||'null')?.archive).reduce((sum,row)=>sum+Number(row.cantidad),0);
-  if(newsletterSheet_('NewsletterContenido').getLastRow()-1<=active)return true;
-  const id=Utilities.getUuid();job={state:'Pendiente',revision,source,next:2,offset:2,total:editions.length,editions:'NewsletterEdiciones_gen_'+id,content:'NewsletterContenido_gen_'+id};
+  job={state:'Scanning',revision,source,next:2,active:0,total:Math.max(0,newsletterSheet_('NewsletterEdiciones').getLastRow()-1)};
+ }
+ if(job.state==='Scanning'){
+  if(job.revision!==revision||job.source.editions!==source.editions||job.source.content!==source.content)job={state:'Scanning',revision,source,next:2,active:0,total:Math.max(0,newsletterSheet_('NewsletterEdiciones').getLastRow()-1)};
+  const size=Math.min(8,Math.max(0,job.total-job.next+2)),rows=size?newsletterSheet_('NewsletterEdiciones').getRange(job.next,keys.indexOf('cantidad')+1,size,keys.length-keys.indexOf('cantidad')).getDisplayValues():[];
+  for(const values of rows)if(!JSON.parse(values[keys.indexOf('editorial')-keys.indexOf('cantidad')]||'null')?.archive)job.active+=Number(values[0]);
+  job.next+=size;p.setProperty('NEWSLETTER_COMPACTION_JOB',JSON.stringify(job));if(job.next<=job.total+1)return false;
+  if(newsletterSheet_('NewsletterContenido').getLastRow()-1<=job.active){job.state='Completada';job.published=revision;p.setProperty('NEWSLETTER_COMPACTION_JOB',JSON.stringify(job));return true;}
+  const id=Utilities.getUuid();job={state:'Pendiente',revision,source,next:2,offset:2,total:job.total,editions:'NewsletterEdiciones_gen_'+id,content:'NewsletterContenido_gen_'+id};
   generationSheet_(job.editions,keys);generationSheet_(job.content,RADAR.sheets.NewsletterContenido);p.setProperty('NEWSLETTER_COMPACTION_JOB',JSON.stringify(job));
  }
  if(source.editions===job.editions&&source.content===job.content){markNewsletterArchiveEdited_();job.state='Completada';job.published=newsletterArchiveVersion_();p.setProperty('NEWSLETTER_COMPACTION_JOB',JSON.stringify(job));return true;}

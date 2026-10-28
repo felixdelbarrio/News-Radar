@@ -39,3 +39,19 @@ test('el archivado de logs cede un turno al mantenimiento cuando ambos comparten
  p.BACKGROUND_LAST='maintenance';assert.equal(c.backgroundTask_(work,false),'archive');
  c.logArchiveReadyAt_=()=>Infinity;assert.equal(c.backgroundTask_(work,false),'maintenance');
 });
+
+test('la preparación de compactación lee solo ocho editoriales y reanuda sin cargar toda la tabla',()=>{
+ const {c,sheets,properties:p}=storage();c.initializeConfiguration();const sheet=sheets.get('NewsletterEdiciones');
+ for(let i=0;i<25;i++)sheet.grid.push(['edition-'+i,'','','','','','','2','1','','','{}']);
+ const range=sheet.getRange;sheet.getRange=(row,column,count,width)=>{assert.ok(count<=8,'lectura masiva de editoriales');return range(row,column,count,width);};
+ assert.equal(c.compactNewsletterBatch_(),false);assert.equal(JSON.parse(p.NEWSLETTER_COMPACTION_JOB).next,10);
+ assert.equal(c.compactNewsletterBatch_(),false);assert.equal(JSON.parse(p.NEWSLETTER_COMPACTION_JOB).next,18);
+ assert.equal(c.compactNewsletterBatch_(),false);assert.equal(JSON.parse(p.NEWSLETTER_COMPACTION_JOB).next,26);
+ assert.equal(c.compactNewsletterBatch_(),true);assert.equal(JSON.parse(p.NEWSLETTER_COMPACTION_JOB).state,'Completada');
+});
+
+test('mantenimiento no reinicia el barrido de archivos entre lotes de compactación',()=>{
+ const {c}=storage();c.initializeConfiguration();c.maintenance_();const job=c.maintenanceJob_();job.phase='newsletters';c.saveMaintenanceJob_(job);
+ let scans=0,compactions=0;c.archiveNewsletterBatch_=()=>{scans++;return true;};c.compactNewsletterBatch_=()=>{compactions++;return false;};
+ c.maintenanceBatch_();c.maintenanceBatch_();assert.equal(scans,1);assert.equal(compactions,2);assert.equal(c.maintenanceJob_().newslettersArchived,true);
+});

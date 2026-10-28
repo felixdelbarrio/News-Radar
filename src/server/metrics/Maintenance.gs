@@ -41,7 +41,10 @@ function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
  const job=maintenanceJob_();if(!job||['Completada','Publicando'].includes(job.state)||job.state==='Revisar'&&!maintenanceTransientTimeout_(job.error)||backgroundPaused_())return;
  const started=Date.now();try{
   if(job.phase==='logs'){compactCollectionTasks_();persistCandidates_([]);pruneNewsGenerations_();if(compactOperationalLogs_()===false){saveMaintenanceJob_(job);return;}job.phase='newsletters';saveMaintenanceJob_(job);}
-  if(job.phase==='newsletters'){if(!archiveNewsletterBatch_()||!compactNewsletterBatch_()){saveMaintenanceJob_(job);return;}job.phase='dedup';saveMaintenanceJob_(job);}
+  if(job.phase==='newsletters'){
+   if(!job.newslettersArchived){if(!archiveNewsletterBatch_()){saveMaintenanceJob_(job);return;}job.newslettersArchived=true;saveMaintenanceJob_(job);}
+   if(!compactNewsletterBatch_()){saveMaintenanceJob_(job);return;}job.phase='dedup';saveMaintenanceJob_(job);
+  }
   if(classificationPending_()||dailyCollectionPending_())return;
   if(job.phase==='dedup'){if(!auditMaintenanceIntegrity_(job)){saveMaintenanceJob_(job);return;}job.removed+=deduplicateNews_();job.phase='news';job.newsTotal=Math.max(0,newsSheet_().getLastRow()-1);job.total=job.newsTotal+job.candidateTotal;}
   if(job.phase==='news'){
