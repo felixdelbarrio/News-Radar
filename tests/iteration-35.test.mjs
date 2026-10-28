@@ -50,15 +50,15 @@ test('los logos fiables de medios se reutilizan y los desconocidos conservan su 
  }
 });
 
-test('los iconos privados se usan por CID y el formulario los carga sin perder la valoración',async t=>{
+test('los iconos privados se incluyen antes de abrir el formulario, sin emojis ni petición posterior',async t=>{
  const {c}=presentationServer(),keys={positive:'private-feedback-positive-12345',negative:'private-feedback-negative-12345'};
  c.PropertiesService.getScriptProperties().setProperty('NEWSLETTER_VISUAL_ASSETS',JSON.stringify({'feedback-positive':keys.positive,'feedback-negative':keys.negative}));
  const original=c.DriveApp.getFileById;c.DriveApp.getFileById=id=>Object.values(keys).includes(id)?{getBlob:()=>({getContentType:()=> 'image/png',getBytes:()=>[137,80,78,71]})}:original(id);
- const icons=c.getNewsletterFeedbackIcons(),content=presentationContent(c,presentationCases[0].query),d=document(content.html);
- for(const value of ['positive','negative']){assert.match(icons[value],/^data:image\/png;base64,/);assert.ok(content.images.some(image=>image.id==='feedback-'+value));assert.equal(d.querySelector('a[href$="feedback='+value+'"] img').getAttribute('src'),'cid:feedback-'+value);}
+ c.HtmlService={createHtmlOutputFromFile:()=>({getContent:()=>''})};const styles=c.include_('Styles'),content=presentationContent(c,presentationCases[0].query),d=document(content.html);
+ for(const value of ['positive','negative']){assert.ok(styles.includes('[data-rating-icon="'+value+'"]{background-image:url("data:image/png;base64,'));assert.ok(content.images.some(image=>image.id==='feedback-'+value));assert.equal(d.querySelector('a[href$="feedback='+value+'"] img').getAttribute('src'),'cid:feedback-'+value);}
  c.saveNewsletterEdition_('presentation-edition','delivery','owner@bbva.com',content.subject,presentationCases[0].query,'es',content.evidence,content.editorial);c.completeNewsletterEdition_('presentation-edition','Enviada');
- const a=await app(t,{location:{edition:'presentation-edition',view:'news',feedback:'positive'},configure({w,data}){const base=w.RADAR_PREVIEW.call;w.RADAR_PREVIEW.call=async(method,payload)=>method==='getDashboard'?{...data,...JSON.parse(JSON.stringify(c.getDashboard(payload)))}:method==='getNewsletterFeedbackIcons'?icons:base(method,payload);}});
- assert.equal(a.find('#edition-feedback').elements.rating.value,'positive');assert.equal(a.w.document.querySelectorAll('[data-rating-icon] img').length,2);
+ const a=await app(t,{location:{edition:'presentation-edition',view:'news',feedback:'positive'},configure({w,data}){const base=w.RADAR_PREVIEW.call;w.RADAR_PREVIEW.call=async(method,payload)=>method==='getDashboard'?{...data,...JSON.parse(JSON.stringify(c.getDashboard(payload)))}:base(method,payload);}});
+ assert.equal(a.find('#edition-feedback').elements.rating.value,'positive');assert.equal(a.w.document.querySelectorAll('[data-rating-icon]').length,2);assert.doesNotMatch(a.find('#edition-feedback').textContent,/👍|👎/);assert.equal(a.calls.filter(call=>call.method==='getNewsletterFeedbackIcons').length,0);
  assert.equal(a.calls.filter(call=>call.method==='saveNewsletterFeedback').length,0);
 });
 

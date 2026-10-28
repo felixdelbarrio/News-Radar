@@ -2139,7 +2139,7 @@
 
   // src/client/features/reading-context.js
   function createReadingContext({ run }) {
-    let edition = "", iconsRequested = !1, form = $("edition-feedback"), dialog2 = $("feedback-dialog");
+    let edition = "", form = $("edition-feedback"), dialog2 = $("feedback-dialog");
     return $("close-feedback").addEventListener("click", () => dialog2.close()), form.addEventListener("submit", (event) => {
       event.preventDefault(), run(async () => {
         await call("saveNewsletterFeedback", { edition, rating: form.elements.rating.value, comment: form.elements.comment.value }), dialog2.close(), message(t("Valoraci\xF3n guardada."));
@@ -2147,14 +2147,7 @@
     }), { render(data) {
       edition = data.context?.mode === "edition" ? data.context.id : "", data.context?.commentLimit && (form.elements.comment.maxLength = data.context.commentLimit);
     }, open(id, rating) {
-      edition = id, form.elements.rating.value = rating, dialog2.showModal(), iconsRequested || (iconsRequested = !0, call("getNewsletterFeedbackIcons").then((icons) => {
-        for (let value of ["positive", "negative"]) if (icons[value]) {
-          let image = document.createElement("img");
-          image.src = icons[value], image.alt = t(value === "positive" ? "\xDAtil" : "Mejorable"), image.width = 32, image.height = 32, form.querySelector('[data-rating-icon="' + value + '"]').replaceChildren(image);
-        }
-      }).catch(() => {
-        iconsRequested = !1;
-      }));
+      edition = id, form.elements.rating.value = rating, dialog2.showModal();
     } };
   }
 
