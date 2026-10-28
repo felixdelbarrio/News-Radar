@@ -1,5 +1,6 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "Preparación de compactación: {done}/{total} ediciones.": ["Compaction preparation: {done}/{total} editions.","Sıkıştırma hazırlığı: {done}/{total} sürüm."],
   "{count} publicación": ["{count} publication","{count} yayın"],
   "{count} publicación más de {theme}": ["{count} more publication about {theme}","{theme} hakkında {count} ek yayın"],
   "Archivo de newsletters: {done}/{total} ediciones revisadas.": ["Newsletter archive: {done}/{total} editions reviewed.","Bülten arşivi: {done}/{total} sürüm incelendi."],
@@ -307,7 +308,6 @@ const translations = Object.freeze({
   "Pendientes y abstenciones": ["Pending and abstained articles", "Bekleyen ve çekimser kalınan haberler"],
   "Todas para revisión": ["All articles for review", "İnceleme için tüm haberler"],
   "Descargar ZIP": ["Download ZIP", "ZIP indir"],
-  "Evidencia web aportada": ["Submitted web evidence", "Sunulan web kanıtı"],
   "Texto del editor": ["Publisher text", "Yayıncı metni"],
   "{classified} clasificadas · {abstained} sin evidencia · {outOfScope} fuera de alcance": ["{classified} classified · {abstained} insufficient evidence · {outOfScope} out of scope", "{classified} sınıflandırılmış · {abstained} yetersiz kanıt · {outOfScope} kapsam dışı"],
   "{count} noticias exportadas. La descarga no modifica su estado.": ["{count} articles exported. Downloading does not change their status.", "{count} haber dışa aktarıldı. İndirme durumlarını değiştirmez."],
@@ -381,10 +381,6 @@ const translations = Object.freeze({
   "Problema de servicio": ["Service problem", "Hizmet sorunu"],
   "Problema": ["Problem", "Sorun"],
   "Incidencia operativa": ["Operational incident", "İşlem sorunu"],
-  "Por qué está clasificada aquí": ["Why it is classified here", "Neden burada sınıflandırıldı"],
-  "Coincidencia operativa directa": ["Direct operational match", "Doğrudan işlem eşleşmesi"],
-  "Contexto descriptivo del catálogo": ["Catalogue description context", "Katalog açıklaması bağlamı"],
-  "Titular y extracto": ["Headline and excerpt", "Başlık ve özet"],
   "No hay novedades de producto en esta selección.": ["No product updates in this selection.", "Bu seçimde ürün yeniliği yok."],
   "No se han detectado noticias de problemas de servicio en esta selección.": ["No service problem news detected in this selection.", "Bu seçimde hizmet sorunu haberi tespit edilmedi."],
   "LANZAMIENTOS, ALIANZAS Y PROBLEMAS DE SERVICIO": ["LAUNCHES, PARTNERSHIPS AND SERVICE PROBLEMS", "LANSMANLAR, ORTAKLIKLAR VE HİZMET SORUNLARI"],

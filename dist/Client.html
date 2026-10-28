@@ -59,6 +59,7 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Preparaci\xF3n de compactaci\xF3n: {done}/{total} ediciones.": ["Compaction preparation: {done}/{total} editions.", "S\u0131k\u0131\u015Ft\u0131rma haz\u0131rl\u0131\u011F\u0131: {done}/{total} s\xFCr\xFCm."],
     "{count} publicaci\xF3n": ["{count} publication", "{count} yay\u0131n"],
     "{count} publicaci\xF3n m\xE1s de {theme}": ["{count} more publication about {theme}", "{theme} hakk\u0131nda {count} ek yay\u0131n"],
     "Archivo de newsletters: {done}/{total} ediciones revisadas.": ["Newsletter archive: {done}/{total} editions reviewed.", "B\xFClten ar\u015Fivi: {done}/{total} s\xFCr\xFCm incelendi."],
@@ -358,7 +359,6 @@
     "Pendientes y abstenciones": ["Pending and abstained articles", "Bekleyen ve \xE7ekimser kal\u0131nan haberler"],
     "Todas para revisi\xF3n": ["All articles for review", "\u0130nceleme i\xE7in t\xFCm haberler"],
     "Descargar ZIP": ["Download ZIP", "ZIP indir"],
-    "Evidencia web aportada": ["Submitted web evidence", "Sunulan web kan\u0131t\u0131"],
     "Texto del editor": ["Publisher text", "Yay\u0131nc\u0131 metni"],
     "{classified} clasificadas \xB7 {abstained} sin evidencia \xB7 {outOfScope} fuera de alcance": ["{classified} classified \xB7 {abstained} insufficient evidence \xB7 {outOfScope} out of scope", "{classified} s\u0131n\u0131fland\u0131r\u0131lm\u0131\u015F \xB7 {abstained} yetersiz kan\u0131t \xB7 {outOfScope} kapsam d\u0131\u015F\u0131"],
     "{count} noticias exportadas. La descarga no modifica su estado.": ["{count} articles exported. Downloading does not change their status.", "{count} haber d\u0131\u015Fa aktar\u0131ld\u0131. \u0130ndirme durumlar\u0131n\u0131 de\u011Fi\u015Ftirmez."],
@@ -428,10 +428,6 @@
     "Problema de servicio": ["Service problem", "Hizmet sorunu"],
     Problema: ["Problem", "Sorun"],
     "Incidencia operativa": ["Operational incident", "\u0130\u015Flem sorunu"],
-    "Por qu\xE9 est\xE1 clasificada aqu\xED": ["Why it is classified here", "Neden burada s\u0131n\u0131fland\u0131r\u0131ld\u0131"],
-    "Coincidencia operativa directa": ["Direct operational match", "Do\u011Frudan i\u015Flem e\u015Fle\u015Fmesi"],
-    "Contexto descriptivo del cat\xE1logo": ["Catalogue description context", "Katalog a\xE7\u0131klamas\u0131 ba\u011Flam\u0131"],
-    "Titular y extracto": ["Headline and excerpt", "Ba\u015Fl\u0131k ve \xF6zet"],
     "No hay novedades de producto en esta selecci\xF3n.": ["No product updates in this selection.", "Bu se\xE7imde \xFCr\xFCn yenili\u011Fi yok."],
     "No se han detectado noticias de problemas de servicio en esta selecci\xF3n.": ["No service problem news detected in this selection.", "Bu se\xE7imde hizmet sorunu haberi tespit edilmedi."],
     "LANZAMIENTOS, ALIANZAS Y PROBLEMAS DE SERVICIO": ["LAUNCHES, PARTNERSHIPS AND SERVICE PROBLEMS", "LANSMANLAR, ORTAKLIKLAR VE H\u0130ZMET SORUNLARI"],
@@ -3370,12 +3366,8 @@
   function articleTitle(row) {
     return '<h3 class="story-title" data-original><a class="story-link" href="' + escape2(validUrl(row.url)) + '" target="_blank" rel="noopener noreferrer">' + escape2(row.titular) + "</a></h3>";
   }
-  function articleEvidence(row) {
-    let evidence = row.functionalEvidence;
-    return evidence?.terms?.length ? '<details class="article-original"><summary>' + escape2(t("Por qu\xE9 est\xE1 clasificada aqu\xED")) + "</summary><p>" + escape2(t(evidence.method === "external" ? "Evidencia web aportada" : evidence.method === "literal" ? "Coincidencia operativa directa" : "Contexto descriptivo del cat\xE1logo")) + " \xB7 " + escape2(t(evidence.location === "web" ? "Texto del editor" : evidence.location === "headline" ? "Titular" : "Titular y extracto")) + "</p><p data-original>" + evidence.terms.map(escape2).join(" \xB7 ") + "</p>" + (evidence.url ? '<p><a href="' + escape2(evidence.url) + '" target="_blank" rel="noopener noreferrer">' + escape2(evidence.url) + "</a> \xB7 " + escape2(evidence.retrievedAt) + "</p>" : "") + "</details>" : "";
-  }
   function articleContent(row, selection = {}, novelty = !1) {
-    return articleHeader(row, articleTitle(row)) + (row.extracto ? "<p data-original>" + escape2(row.extracto) + "</p>" : "") + articleOriginal(row) + articleEvidence(row) + '<div class="article-metadata"><div class="news-meta">' + articleTags(row, selection, novelty) + '</div><div class="news-meta">' + articleDate(row) + newsPublisher(row) + "</div></div>";
+    return articleHeader(row, articleTitle(row)) + (row.extracto ? "<p data-original>" + escape2(row.extracto) + "</p>" : "") + articleOriginal(row) + '<div class="article-metadata"><div class="news-meta">' + articleTags(row, selection, novelty) + '</div><div class="news-meta">' + articleDate(row) + newsPublisher(row) + "</div></div>";
   }
 
   // src/client/features/briefing.js
