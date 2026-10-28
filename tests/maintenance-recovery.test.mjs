@@ -55,3 +55,9 @@ test('mantenimiento no reinicia el barrido de archivos entre lotes de compactaci
  let scans=0,compactions=0;c.archiveNewsletterBatch_=()=>{scans++;return true;};c.compactNewsletterBatch_=()=>{compactions++;return false;};
  c.maintenanceBatch_();c.maintenanceBatch_();assert.equal(scans,1);assert.equal(compactions,2);assert.equal(c.maintenanceJob_().newslettersArchived,true);
 });
+
+test('un lote exitoso elimina la pausa y el error anterior sin perder el cursor',()=>{
+ const {c}=storage();c.initializeConfiguration();c.maintenance_();const job=c.maintenanceJob_();Object.assign(job,{phase:'newsletters',newslettersArchived:true,state:'En pausa',attempts:9,error:timeout,pausedUntil:Date.now()+60000});c.saveMaintenanceJob_(job);
+ c.compactNewsletterBatch_=()=>{c.properties_().setProperty('NEWSLETTER_COMPACTION_JOB',JSON.stringify({next:18,total:103}));return false;};
+ c.maintenanceBatch_();const next=c.maintenanceJob_();assert.equal(next.state,'Pendiente');assert.equal(next.error,'');assert.equal(next.pausedUntil,0);assert.equal(next.attempts,0);assert.match(next.detail,/16\/103/);
+});

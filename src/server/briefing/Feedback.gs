@@ -1,4 +1,9 @@
 function newsletterFeedback_(id,email){return rows_('NewsletterFeedback',settings_().eventLimit).find(row=>row.edicion===id&&row.correo===email)||null;}
+function getNewsletterFeedbackIcons(){
+ authorize_();const images=new Map(),result={};
+ for(const value of ['positive','negative']){const name='feedback-'+value;if(newsletterVisualAsset_(name,images))result[value]='data:image/png;base64,'+images.get(name).data;}
+ return result;
+}
 function saveNewsletterFeedback(input){
   const session=authorize_();newsletterEditionMetadata_(input?.edition,session.email);
   if(!['positive','negative',''].includes(input.rating)||typeof input.comment!=='string'||input.comment.length>NEWSLETTER_EDITORIAL.commentChars)throw Error('Valoración o comentario no válido.');

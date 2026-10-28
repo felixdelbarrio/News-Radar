@@ -7,13 +7,13 @@ function synthetic(c){const config=structuredClone(plain(c.configuration_()));co
 test('newsletter tiers derive from configured tabs and regions, with no fixed country order',()=>{
  const {c}=setup(),config=synthetic(c),query={...q,country:'G1'};
  for(const [country,tier] of [['G2',1],['G3',2],['U1',3],['U2',4],['Z1',3],['Sin determinar',4]]){const result=c.newsletterDigest_([row('local','G1'),row('external',country)],query,'es',s=>s);assert.equal(result.cards.find(card=>card.id==='external').tier,tier);}
- const result=c.newsletterDigest_([row('local','G1'),row('t4','U2'),row('t3','U1'),row('t2','G3'),row('t1','G2')],query,'es',s=>s);assert.deepEqual(Array.from(result.cards,card=>card.id),['local','t1','t2']);
+ const result=c.newsletterDigest_([row('local','G1'),row('t4','U2'),row('t3','U1'),row('t2','G3'),row('t1','G2')],query,'es',s=>s);assert.deepEqual(Array.from(result.cards,card=>card.id),['local','t1']);
  config.applicationScope[0].countries.push('U2');assert.equal(c.newsletterDigest_([row('local','G1'),row('external','U2')],query,'es',s=>s).cards[1].tier,2);
  config.geographies.find(row=>row.name==='G1').region='';const degraded=c.newsletterDigest_([row('local','G1'),row('external','G2')],query,'es',s=>s);assert.ok(degraded.audit.warnings.length);assert.equal(degraded.cards[1].tier,2);
 });
-test('eligibility, local requirement, traceable URLs and recipient history precede selection',()=>{
+test('eligibility, traceable URLs and recipient history precede selection without suppressing international evidence',()=>{
  const {c}=setup(),local=row('local'),foreign=row('foreign','Italia'),bad={...row('bad'),url:''};
- const result=c.newsletterContent_([bad,foreign],q,'',new Date('2026-10-16'),'s');assert.equal(result.count,0);assert.match(result.editorial.audit.suppressReason,/local/);
+ const result=c.newsletterContent_([bad,foreign],q,'',new Date('2026-10-16'),'s');assert.equal(result.count,1);assert.equal(result.items[0].id,'foreign');
  const known=new Set(c.newsletterItemKeys_(local));const changed={...local,titular:'Otro título',url:'https://example.com/moved'};assert.equal(c.newsletterWasSent_(changed,known),true);
  const quarterly=c.newsletterContent_([changed,foreign],{...q,view:'news'},'',new Date('2026-10-16'),'s','es','e',known);assert.deepEqual(Array.from(quarterly.items,item=>item.id),['foreign']);assert.equal(quarterly.total,2);assert.equal(quarterly.evidence.length,2);
  known.incomplete=true;assert.equal(c.newsletterContent_([foreign],{view:'news'},'',new Date(),'s','es','e',known).count,0);
@@ -25,13 +25,13 @@ test('quarterly highlights contain at most three unique unseen items and do not 
 test('external perspective prefers competitors and justifies BBVA when it is the only eligible evidence',()=>{
  const {c}=setup(),local=row('local'),bbva=row('bbva','Italia','BBVA'),competitor=row('competitor','Italia');
  const selected=c.newsletterDigest_([local,bbva,competitor],q,'es',s=>s);assert.ok(!selected.cards.some(card=>card.id==='bbva'));
- const only=c.newsletterDigest_([local,bbva],q,'es',s=>s);assert.match(only.cards.find(card=>card.id==='bbva').selectionReason,/excepción BBVA/);
+ const only=c.newsletterDigest_([local,bbva],q,'es',s=>s);assert.match(only.cards.find(card=>card.id==='bbva').selectionReason,/ejemplo BBVA/);
 });
 test('subjects follow natural coverage periods, configured scope and exact irregular windows',()=>{
  const {c}=setup();c.Date=class extends Date{constructor(value='2026-10-26T12:00:00Z'){super(value);}};
- assert.equal(c.newsletterSubject_({view:'briefing',country:'España',from:'2026-11-01',to:'2026-11-15'}),'[bIA] Canal BBVA BEI · España · Primera quincena de noviembre');
+ assert.equal(c.newsletterSubject_({view:'briefing',country:'España',from:'2026-11-01',to:'2026-11-15'}),'[bIA] Canal BBVA BEI · España · Primera quincena de noviembre de 2026');
  assert.equal(c.newsletterSubject_({view:'briefing',from:'2024-02-16',to:'2024-02-29'}),'[bIA] Canal BBVA BEI · Mirada global · Segunda quincena de febrero de 2024');
- for(let quarter=0;quarter<4;quarter++){const start=new Date(Date.UTC(2026,quarter*3,1)),end=new Date(Date.UTC(2026,quarter*3+3,0));assert.match(c.newsletterSubject_({view:'news',country:'EMEA',from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10)}),new RegExp('EMEA · Lo más relevante, en los canales digitales de Banca de Empresas e Instituciones, del '+['primer','segundo','tercer','cuarto'][quarter]+' trimestre de 2026'));}
+ for(let quarter=0;quarter<4;quarter++){const start=new Date(Date.UTC(2026,quarter*3,1)),end=new Date(Date.UTC(2026,quarter*3+3,0));assert.match(c.newsletterSubject_({view:'news',country:'EMEA',from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10)}),new RegExp('EMEA · Lo más relevante del '+['primer','segundo','tercer','cuarto'][quarter]+' trimestre de 2026'));}
  assert.equal(c.newsletterSubject_({view:'briefing',from:'2026-12-28',to:'2027-01-05'}),'[bIA] Canal BBVA BEI · Mirada global · 28 de diciembre de 2026 — 5 de enero de 2027');
 });
 test('email uses inline table layout, visible evidence and a single hidden preheader',()=>{
@@ -66,8 +66,8 @@ test('rollback restores verified native-backup tables before changing the active
 test('high-value official BBVA evidence is retained as a documented editorial exception',()=>{
  const {c}=setup(),bbva={...row('official','Italia','BBVA',20),url:'https://www.bbva.com/es/empresas/official-release'};const result=c.newsletterDigest_([row('local'),bbva,row('alternative','Italia','Qonto',5)],q,'es',s=>s);assert.ok(result.cards.some(card=>card.id==='official'));assert.match(result.cards.find(card=>card.id==='official').selectionReason,/oficial BBVA/);
 });
-test('functional filters and quality beat raw article volume',()=>{
- const {c}=setup(),many=Array.from({length:20},(_,i)=>({...row('weak'+i,'España','Qonto',1),taxonomia:[{palanca:'Pagos',subpalanca:'Transferencias'}]})),strong={...row('strong','España','Revolut',15),taxonomia:[{palanca:'Enablers',subpalanca:'API'}]};const input=[...many,strong];assert.equal(c.newsletterDigest_(input,{view:'news'},'es',s=>s).cards[0].id,'strong');const selected=c.newsletterDigest_(input,{view:'news',palanca:'Enablers'},'es',s=>s);assert.equal(selected.cards.length,1);assert.equal(selected.cards[0].id,'strong');assert.equal(selected.audit.eligible,1);
+test('functional filters preserve scope and quarterly examples follow press activity',()=>{
+ const {c}=setup(),many=Array.from({length:20},(_,i)=>({...row('weak'+i,'España','Qonto',1),taxonomia:[{palanca:'Pagos',subpalanca:'Transferencias'}]})),strong={...row('strong','España','Revolut',15),taxonomia:[{palanca:'Enablers',subpalanca:'API'}]};const input=[...many,strong];assert.equal(c.newsletterDigest_(input,{view:'news'},'es',s=>s).cards[0].id,'weak0');const selected=c.newsletterDigest_(input,{view:'news',palanca:'Enablers'},'es',s=>s);assert.equal(selected.cards.length,1);assert.equal(selected.cards[0].id,'strong');assert.equal(selected.audit.eligible,1);
 });
 
 test('initial dashboard is embedded safely and archived editions retain their own load',()=>{

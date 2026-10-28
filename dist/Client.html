@@ -59,6 +59,29 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Archivo de newsletters: {done}/{total} ediciones revisadas.": ["Newsletter archive: {done}/{total} editions reviewed.", "B\xFClten ar\u015Fivi: {done}/{total} s\xFCr\xFCm incelendi."],
+    "Compactaci\xF3n de newsletters: {done}/{total} ediciones.": ["Newsletter compaction: {done}/{total} editions.", "B\xFClten s\u0131k\u0131\u015Ft\u0131rmas\u0131: {done}/{total} s\xFCr\xFCm."],
+    "Publicaciones de la quincena": ["Fortnightly press coverage", "\u0130ki haftal\u0131k bas\u0131n yay\u0131nlar\u0131"],
+    "Publicaciones del trimestre": ["Quarterly press coverage", "\xDC\xE7 ayl\u0131k bas\u0131n yay\u0131nlar\u0131"],
+    "Qu\xE9 se ha publicado, acerca de los canales digitales de Banca de Empresas, en los medios.": ["What the media have published about digital business banking channels.", "Medyan\u0131n kurumsal bankac\u0131l\u0131\u011F\u0131n dijital kanallar\u0131 hakk\u0131nda yay\u0131mlad\u0131klar\u0131."],
+    "Qu\xE9 se ha publicado, acerca de los canales digitales de Banca de Empresas, para revisar esta quincena.": ["What has been published about digital business banking channels to review this fortnight.", "Kurumsal bankac\u0131l\u0131\u011F\u0131n dijital kanallar\u0131 hakk\u0131nda bu iki haftada incelenecek yay\u0131nlar."],
+    "Entidades y bloques funcionales destacados en las publicaciones del trimestre.": ["Entities and functional areas highlighted in quarterly publications.", "\xDC\xE7 ayl\u0131k yay\u0131nlarda \xF6ne \xE7\u0131kan kurulu\u015Flar ve i\u015Flevsel alanlar."],
+    "Publicaciones del trimestre con ejemplos que todav\xEDa no te hemos compartido.": ["Quarterly publications with examples we have not shared with you yet.", "Hen\xFCz sizinle payla\u015Fmad\u0131\u011F\u0131m\u0131z \xF6rneklerle \xFC\xE7 ayl\u0131k yay\u0131nlar."],
+    "Menciones totales en prensa": ["Total press mentions", "Toplam bas\u0131n bahsi"],
+    "Menciones directas a BBVA": ["Direct BBVA mentions", "Do\u011Frudan BBVA bahisleri"],
+    "Menciones en prensa": ["Press mentions", "Bas\u0131n bahisleri"],
+    "Menciones de {entity} sobre el total de publicaciones del periodo": ["{entity} mentions as a share of all publications in the period", "D\xF6nemdeki t\xFCm yay\u0131nlar i\xE7inde {entity} bahislerinin pay\u0131"],
+    "Bloques funcionales mencionados en prensa": ["Functional areas mentioned in the press", "Bas\u0131nda bahsedilen i\u015Flevsel alanlar"],
+    "Bloques funcionales destacados": ["Highlighted functional areas", "\xD6ne \xE7\u0131kan i\u015Flevsel alanlar"],
+    "LA QUINCENA EN CIFRAS": ["THE FORTNIGHT IN FIGURES", "\u0130K\u0130 HAFTANIN RAKAMLARI"],
+    "Trending topic {number}": ["Trending topic {number}", "\xD6ne \xE7\u0131kan konu {number}"],
+    "{count} publicaciones": ["{count} publications", "{count} yay\u0131n"],
+    "{count} publicaciones m\xE1s de {theme}": ["{count} more publications about {theme}", "{theme} hakk\u0131nda {count} ek yay\u0131n"],
+    "{theme} fue el bloque funcional con m\xE1s menciones en prensa: {count}, el {share}% de las publicaciones analizadas.": ["{theme} was the functional area with the most press mentions: {count}, or {share}% of the publications analysed.", "{theme}, bas\u0131nda en \xE7ok bahsedilen i\u015Flevsel aland\u0131: {count}, incelenen yay\u0131nlar\u0131n %{share} kadar\u0131."],
+    "Menciones y porcentaje de las publicaciones. Los temas de una entidad pueden solaparse.": ["Mentions and share of publications. An entity's topics may overlap.", "Bahisler ve yay\u0131nlar\u0131n pay\u0131. Bir kurulu\u015Fun konular\u0131 \xF6rt\xFC\u015Febilir."],
+    "Fuera de la selecci\xF3n ejecutiva por actividad y diversidad.": ["Outside the executive selection based on activity and diversity.", "Etkinlik ve \xE7e\u015Fitlilik nedeniyle y\xF6netici se\xE7kisinin d\u0131\u015F\u0131nda."],
+    "Ejemplo de una de las entidades con m\xE1s menciones en prensa.": ["Example from one of the entities with the most press mentions.", "Bas\u0131nda en \xE7ok bahsedilen kurulu\u015Flardan birinden \xF6rnek."],
+    "Evidencia del bloque funcional destacado; ejemplo BBVA.": ["Evidence for the highlighted functional area; BBVA example.", "\xD6ne \xE7\u0131kan i\u015Flevsel alan i\xE7in kan\u0131t; BBVA \xF6rne\u011Fi."],
     "La edici\xF3n supera el l\xEDmite de almacenamiento. No se ha guardado ni enviado.": ["The edition exceeds the storage limit. It has not been saved or sent.", "B\xFClten depolama s\u0131n\u0131r\u0131n\u0131 a\u015F\u0131yor. Kaydedilmedi veya g\xF6nderilmedi."],
     "Primero crea una copia verificada con applyGeographyMigration.": ["First create a verified backup with applyGeographyMigration.", "\xD6nce applyGeographyMigration ile do\u011Frulanm\u0131\u015F bir yedek olu\u015Fturun."],
     "Importar CSV": ["Import CSV", "CSV i\xE7e aktar"],
@@ -2119,7 +2142,7 @@
 
   // src/client/features/reading-context.js
   function createReadingContext({ run }) {
-    let edition = "", form = $("edition-feedback"), dialog2 = $("feedback-dialog");
+    let edition = "", iconsRequested = !1, form = $("edition-feedback"), dialog2 = $("feedback-dialog");
     return $("close-feedback").addEventListener("click", () => dialog2.close()), form.addEventListener("submit", (event) => {
       event.preventDefault(), run(async () => {
         await call("saveNewsletterFeedback", { edition, rating: form.elements.rating.value, comment: form.elements.comment.value }), dialog2.close(), message(t("Valoraci\xF3n guardada."));
@@ -2127,7 +2150,14 @@
     }), { render(data) {
       edition = data.context?.mode === "edition" ? data.context.id : "", data.context?.commentLimit && (form.elements.comment.maxLength = data.context.commentLimit);
     }, open(id, rating) {
-      edition = id, form.elements.rating.value = rating, dialog2.showModal();
+      edition = id, form.elements.rating.value = rating, dialog2.showModal(), iconsRequested || (iconsRequested = !0, call("getNewsletterFeedbackIcons").then((icons) => {
+        for (let value of ["positive", "negative"]) if (icons[value]) {
+          let image = document.createElement("img");
+          image.src = icons[value], image.alt = t(value === "positive" ? "\xDAtil" : "Mejorable"), image.width = 32, image.height = 32, form.querySelector('[data-rating-icon="' + value + '"]').replaceChildren(image);
+        }
+      }).catch(() => {
+        iconsRequested = !1;
+      }));
     } };
   }
 

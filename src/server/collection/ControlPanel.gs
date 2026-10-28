@@ -2,7 +2,7 @@ const PROCESS_PRIORITY=Object.freeze({supervisor:0,daily:1,classification:2,snap
 function controlProcess_(stage,job,queued=false,extra={}){
  const value=job||{state:'Completada',updated:''},progress=jobProgressState_(stage,value,{queued,...(stage==='daily'?{jobId:extra.collectionJob||'',lastExecutedAt:value.updated||''}:{})}),total=Number(value.workTotal??value.total??0),done=Number(stage==='classification'?classificationProcessed_(value):stage==='maintenance'?(value.reviewed||0)+Math.max(0,(value.candidateNext||2)-2):value.processed??value.reviewed??0);
  if(!job&&!queued)progress.state='Sin ejecuciones';
- return {stage,label:PROGRESS_JOB_NAMES[stage]||stage,priority:PROCESS_PRIORITY[stage],enabled:true,total,done:Math.min(total,done),progress,status:value.error&&!progress.restartAt?'error':['Completada','Parcial'].includes(progress.state)?'complete':'pending',comment:value.error||(!job&&!queued?'Sin ejecuciones registradas.':''),...extra};
+ return {stage,label:PROGRESS_JOB_NAMES[stage]||stage,priority:PROCESS_PRIORITY[stage],enabled:true,total,done:Math.min(total,done),progress,status:value.error&&!progress.restartAt?'error':['Completada','Parcial'].includes(progress.state)?'complete':'pending',comment:value.error||value.detail||(!job&&!queued?'Sin ejecuciones registradas.':''),...extra};
 }
 function controlPanelGroups_(collection,schedule){
  const p=properties_().getProperties(),jobs=[...(collection.slotJobs||[]),...(collection.jobs||[])],scheduleByHandler=new Map(schedule.jobs.map(job=>[job.handler,job]));progressContext_(jobs);

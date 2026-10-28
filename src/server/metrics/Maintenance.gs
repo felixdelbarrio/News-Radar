@@ -1,6 +1,7 @@
 const MAINTENANCE_POLICY=Object.freeze({batchRows:100,maxMs:8000});
 function maintenanceJob_(){const raw=properties_().getProperty('MAINTENANCE_JOB');return raw?JSON.parse(raw):null;}
 function saveMaintenanceJob_(job){job.updated=new Date().toISOString();properties_().setProperty('MAINTENANCE_JOB',JSON.stringify(snapshotJob_('MAINTENANCE_JOB',job)));}
+function maintenanceCheckpoint_(job){job.state='Pendiente';job.error='';job.attempts=0;job.pausedUntil=0;saveMaintenanceJob_(job);}
 function maintenance_(force=false){
  const previous=maintenanceJob_();if(!force&&previous&&previous.version===RADAR.version&&previous.state!=='Completada')return;
  const newsTotal=Math.max(0,newsSheet_().getLastRow()-1),candidateTotal=Math.max(0,candidateSheet_().getLastRow()-1);
@@ -40,13 +41,13 @@ function cleanDuplicateNews(){authorize_(true);return withForegroundWrite_(()=>(
 function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
  const job=maintenanceJob_();if(!job||['Completada','Publicando'].includes(job.state)||job.state==='Revisar'&&!maintenanceTransientTimeout_(job.error)||backgroundPaused_())return;
  const started=Date.now();try{
-  if(job.phase==='logs'){compactCollectionTasks_();persistCandidates_([]);pruneNewsGenerations_();if(compactOperationalLogs_()===false){saveMaintenanceJob_(job);return;}job.phase='newsletters';saveMaintenanceJob_(job);}
+  if(job.phase==='logs'){compactCollectionTasks_();persistCandidates_([]);pruneNewsGenerations_();if(compactOperationalLogs_()===false){maintenanceCheckpoint_(job);return;}job.phase='newsletters';maintenanceCheckpoint_(job);}
   if(job.phase==='newsletters'){
-   if(!job.newslettersArchived){if(!archiveNewsletterBatch_()){saveMaintenanceJob_(job);return;}job.newslettersArchived=true;saveMaintenanceJob_(job);}
-   if(!compactNewsletterBatch_()){saveMaintenanceJob_(job);return;}job.phase='dedup';saveMaintenanceJob_(job);
+   if(!job.newslettersArchived){if(!archiveNewsletterBatch_()){const cursor=JSON.parse(properties_().getProperty('NEWSLETTER_ARCHIVE_CURSOR')||'{}');job.detail=formatText('Archivo de newsletters: {done}/{total} ediciones revisadas.',{done:Math.max(0,(cursor.next||2)-2),total:cursor.total||0});maintenanceCheckpoint_(job);return;}job.newslettersArchived=true;maintenanceCheckpoint_(job);}
+   if(!compactNewsletterBatch_()){const compact=JSON.parse(properties_().getProperty('NEWSLETTER_COMPACTION_JOB')||'{}');job.detail=formatText('Compactación de newsletters: {done}/{total} ediciones.',{done:Math.max(0,(compact.next||2)-2),total:compact.total||0});maintenanceCheckpoint_(job);return;}job.phase='dedup';job.detail='';maintenanceCheckpoint_(job);
   }
   if(classificationPending_()||dailyCollectionPending_())return;
-  if(job.phase==='dedup'){if(!auditMaintenanceIntegrity_(job)){saveMaintenanceJob_(job);return;}job.removed+=deduplicateNews_();job.phase='news';job.newsTotal=Math.max(0,newsSheet_().getLastRow()-1);job.total=job.newsTotal+job.candidateTotal;}
+  if(job.phase==='dedup'){if(!auditMaintenanceIntegrity_(job)){maintenanceCheckpoint_(job);return;}job.removed+=deduplicateNews_();job.phase='news';job.newsTotal=Math.max(0,newsSheet_().getLastRow()-1);job.total=job.newsTotal+job.candidateTotal;}
   if(job.phase==='news'){
   const sheet=newsSheet_(),keys=RADAR.sheets.Noticias,size=Math.min(MAINTENANCE_POLICY.batchRows,job.newsTotal-job.next+2),updates=[],items=taxonomyCatalog_();let read=0;
   const rows=size>0?sheet.getRange(job.next,1,size,keys.length).getDisplayValues():[];
@@ -113,7 +114,7 @@ function auditMaintenanceIntegrity_(job){
  return true;
 }
 
-function startMaintenance(){authorize_(true);return withForegroundWrite_(()=>{const job=maintenanceJob_();if(job?.state==='Revisar'&&maintenanceTransientTimeout_(job.error)){job.state='Pendiente';job.pausedUntil=0;job.attempts=0;saveMaintenanceJob_(job);ensureBackgroundWorker_();return 'Mantenimiento incremental reanudado desde el último avance.';}maintenance_(true);return 'Mantenimiento incremental en cola.';});}
+function startMaintenance(){authorize_(true);return withForegroundWrite_(()=>{const job=maintenanceJob_();if(job&&['Revisar','En pausa','Pendiente'].includes(job.state)&&maintenanceTransientTimeout_(job.error)){job.state='Pendiente';job.pausedUntil=0;job.attempts=0;saveMaintenanceJob_(job);ensureBackgroundWorker_();return 'Mantenimiento incremental reanudado desde el último avance.';}maintenance_(true);return 'Mantenimiento incremental en cola.';});}
 
 function startExcerptRecovery(){
  authorize_(true);return withForegroundWrite_(()=>{
