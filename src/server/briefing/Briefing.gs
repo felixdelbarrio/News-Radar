@@ -46,14 +46,19 @@ function newsletterHeaderHtml_(identity,editorial,label,escape,images){
 function newsletterIllustrationHtml_(name,alt,images){
  return newsletterVisualAsset_(name,images)?'<table role="presentation" class="newsletter-visual"><tr><td class="newsletter-visual-cell"><img src="cid:'+name+'" width="520" height="260" alt="'+alt+'"></td></tr></table>':'';
 }
+let newsletterVisualConfig_,newsletterVisualMemory_=new Map();
 function newsletterVisualAsset_(name,images){
  const allowed=['bei-logo','fortnightly-visual','quarterly-visual','other-banks-visual','feedback-positive','feedback-negative'];if(!allowed.includes(name))return false;
  try{
-  const configured=JSON.parse(PropertiesService.getScriptProperties().getProperty('NEWSLETTER_VISUAL_ASSETS')||'{}'),fileId=String(configured[name]||'');
+  const configured=newsletterVisualConfig_||(newsletterVisualConfig_=JSON.parse(PropertiesService.getScriptProperties().getProperty('NEWSLETTER_VISUAL_ASSETS')||'{}')),fileId=String(configured[name]||'');
   if(!/^[\w-]{20,100}$/.test(fileId))return false;
-  const cache=CacheService.getScriptCache(),key='newsletter-visual-'+name+'-'+fileId,chunks=Number(cache.get(key+'-count')||0);let base64='';
-  if(chunks>0&&chunks<=5){const stored=cache.getAll(Array.from({length:chunks},(_,index)=>key+'-'+index));const parts=Array.from({length:chunks},(_,index)=>stored[key+'-'+index]);if(parts.every(part=>typeof part==='string'&&part.length))base64=parts.join('');}
-  if(!base64){const blob=DriveApp.getFileById(fileId).getBlob();if(blob.getContentType()!=='image/png')return false;const bytes=blob.getBytes();if(bytes.length>200000)return false;base64=Utilities.base64Encode(bytes);const segments=base64.match(/.{1,80000}/g)||[];if(segments.length<=5){const values={};segments.forEach((segment,index)=>values[key+'-'+index]=segment);cache.putAll(values,21600);cache.put(key+'-count',String(segments.length),21600);}}
+  let base64=newsletterVisualMemory_.get(fileId);
+  if(!base64){
+   const cache=CacheService.getScriptCache(),key='newsletter-visual-'+name+'-'+fileId,stored=cache.getAll([key+'-count',...Array.from({length:5},(_,index)=>key+'-'+index)]),chunks=Number(stored[key+'-count']||0);
+   if(chunks>0&&chunks<=5){const parts=Array.from({length:chunks},(_,index)=>stored[key+'-'+index]);if(parts.every(part=>typeof part==='string'&&part.length))base64=parts.join('');}
+   if(!base64){const blob=DriveApp.getFileById(fileId).getBlob();if(blob.getContentType()!=='image/png')return false;const bytes=blob.getBytes();if(!bytes.length||bytes.length>200000)return false;base64=Utilities.base64Encode(bytes);const segments=base64.match(/.{1,80000}/g)||[];if(segments.length<=5){const values={[key+'-count']:String(segments.length)};segments.forEach((segment,index)=>values[key+'-'+index]=segment);cache.putAll(values,21600);}}
+   newsletterVisualMemory_.set(fileId,base64);
+  }
   images.set(name,{id:name,data:base64});return true;
  }catch(error){return false;}
 }

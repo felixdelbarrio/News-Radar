@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 import {presentationServer,presentationContent,presentationCases,presentationRows} from './helpers/newsletter-presentation.mjs';
 import {app} from './helpers/app.mjs';
+import vm from 'node:vm';
 const document=html=>new JSDOM(html).window.document;
 
 for(const {name,query} of presentationCases)test(name+': cabecera, menciones y ejemplos siguen el ámbito y la actividad real',()=>{
@@ -65,7 +66,8 @@ test('una evicción parcial de caché recarga el PNG completo',()=>{
  const {c,cache}=presentationServer(),id='private-feedback-positive-12345',key='newsletter-visual-feedback-positive-'+id;let reads=0;
  c.PropertiesService.getScriptProperties().setProperty('NEWSLETTER_VISUAL_ASSETS',JSON.stringify({'feedback-positive':id}));
  c.DriveApp.getFileById=()=>({getBlob:()=>{reads++;return {getContentType:()=> 'image/png',getBytes:()=>Array(90000).fill(1)};}});
- assert.equal(c.newsletterVisualAsset_('feedback-positive',new Map()),true);cache.delete(key+'-0');
+ assert.equal(c.newsletterVisualAsset_('feedback-positive',new Map()),true);assert.equal(c.newsletterVisualAsset_('feedback-positive',new Map()),true);assert.equal(reads,1);
+ cache.delete(key+'-0');vm.runInContext('newsletterVisualMemory_.clear()',c);
  const images=new Map();assert.equal(c.newsletterVisualAsset_('feedback-positive',images),true);assert.equal(reads,2);assert.equal(Buffer.from(images.get('feedback-positive').data,'base64').length,90000);
 });
 

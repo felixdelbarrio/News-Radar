@@ -1,4 +1,4 @@
-const MAINTENANCE_POLICY=Object.freeze({batchRows:100,maxMs:8000});
+const MAINTENANCE_POLICY=Object.freeze({batchRows:100,newsletterBatches:8,maxMs:8000});
 function maintenanceJob_(){const raw=properties_().getProperty('MAINTENANCE_JOB');return raw?JSON.parse(raw):null;}
 function saveMaintenanceJob_(job){job.updated=new Date().toISOString();properties_().setProperty('MAINTENANCE_JOB',JSON.stringify(snapshotJob_('MAINTENANCE_JOB',job)));}
 function maintenanceCheckpoint_(job){job.state='Pendiente';job.error='';job.attempts=0;job.pausedUntil=0;saveMaintenanceJob_(job);}
@@ -44,7 +44,8 @@ function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
   if(job.phase==='logs'){compactCollectionTasks_();persistCandidates_([]);pruneNewsGenerations_();if(compactOperationalLogs_()===false){maintenanceCheckpoint_(job);return;}job.phase='newsletters';maintenanceCheckpoint_(job);}
   if(job.phase==='newsletters'){
    if(!job.newslettersArchived){if(!archiveNewsletterBatch_()){const cursor=JSON.parse(properties_().getProperty('NEWSLETTER_ARCHIVE_CURSOR')||'{}');job.detail=formatText('Archivo de newsletters: {done}/{total} ediciones revisadas.',{done:Math.max(0,(cursor.next||2)-2),total:cursor.total||0});maintenanceCheckpoint_(job);return;}job.newslettersArchived=true;maintenanceCheckpoint_(job);}
-   if(!compactNewsletterBatch_()){const compact=JSON.parse(properties_().getProperty('NEWSLETTER_COMPACTION_JOB')||'{}');job.detail=formatText('Compactación de newsletters: {done}/{total} ediciones.',{done:Math.max(0,(compact.next||2)-2),total:compact.total||0});maintenanceCheckpoint_(job);return;}job.phase='dedup';job.detail='';maintenanceCheckpoint_(job);
+   let compacted=false;for(let batch=0;batch<MAINTENANCE_POLICY.newsletterBatches;batch++){compacted=compactNewsletterBatch_();if(compacted||Date.now()-started>=maxMs||backgroundPaused_(true))break;}
+   if(!compacted){const compact=JSON.parse(properties_().getProperty('NEWSLETTER_COMPACTION_JOB')||'{}');job.detail=formatText(compact.state==='Scanning'?'Preparación de compactación: {done}/{total} ediciones.':'Compactación de newsletters: {done}/{total} ediciones.',{done:Math.max(0,(compact.next||2)-2),total:compact.total||0});maintenanceCheckpoint_(job);return;}job.phase='dedup';job.detail='';maintenanceCheckpoint_(job);
   }
   if(classificationPending_()||dailyCollectionPending_())return;
   if(job.phase==='dedup'){if(!auditMaintenanceIntegrity_(job)){maintenanceCheckpoint_(job);return;}job.removed+=deduplicateNews_();job.phase='news';job.newsTotal=Math.max(0,newsSheet_().getLastRow()-1);job.total=job.newsTotal+job.candidateTotal;}

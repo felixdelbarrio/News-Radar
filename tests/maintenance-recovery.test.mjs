@@ -53,7 +53,7 @@ test('la preparación de compactación lee solo ocho editoriales y reanuda sin c
 test('mantenimiento no reinicia el barrido de archivos entre lotes de compactación',()=>{
  const {c}=storage();c.initializeConfiguration();c.maintenance_();const job=c.maintenanceJob_();job.phase='newsletters';c.saveMaintenanceJob_(job);
  let scans=0,compactions=0;c.archiveNewsletterBatch_=()=>{scans++;return true;};c.compactNewsletterBatch_=()=>{compactions++;return false;};
- c.maintenanceBatch_();c.maintenanceBatch_();assert.equal(scans,1);assert.equal(compactions,2);assert.equal(c.maintenanceJob_().newslettersArchived,true);
+ c.maintenanceBatch_();c.maintenanceBatch_();assert.equal(scans,1);assert.ok(compactions>2&&compactions<=16);assert.equal(c.maintenanceJob_().newslettersArchived,true);
 });
 
 test('un lote exitoso elimina la pausa y el error anterior sin perder el cursor',()=>{
@@ -68,4 +68,10 @@ test('añadir envíos y ediciones no reinicia un barrido de archivo en curso',()
  c.archiveNewsletterBatch_();assert.equal(JSON.parse(p.NEWSLETTER_ARCHIVE_CURSOR).next,10);
  sheets.get('NewsletterEnvios').grid.push(['new-delivery']);sheets.get('NewsletterEdiciones').grid.push(['new-edition']);
  c.archiveNewsletterBatch_();assert.equal(JSON.parse(p.NEWSLETTER_ARCHIVE_CURSOR).next,18);assert.equal(JSON.parse(p.NEWSLETTER_ARCHIVE_CURSOR).total,26);
+});
+
+test('los lotes de compactación ceden al agotar el presupuesto de tiempo',()=>{
+ const {c}=storage();c.initializeConfiguration();c.maintenance_();const job=c.maintenanceJob_();Object.assign(job,{phase:'newsletters',newslettersArchived:true});c.saveMaintenanceJob_(job);
+ let elapsed=0,calls=0;c.Date=class extends Date{static now(){return elapsed;}};
+ c.compactNewsletterBatch_=()=>{calls++;elapsed+=6;return false;};c.maintenanceBatch_(10);assert.equal(calls,2);assert.equal(c.maintenanceJob_().phase,'newsletters');
 });
