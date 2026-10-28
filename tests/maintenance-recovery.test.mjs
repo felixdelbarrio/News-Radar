@@ -28,3 +28,14 @@ test('el archivo de newsletters recorre ediciones en lotes y persiste el cursor'
  assert.equal(c.archiveNewsletterBatch_(),false);assert.equal(JSON.parse(properties.NEWSLETTER_ARCHIVE_CURSOR).next,26);
  assert.equal(c.archiveNewsletterBatch_(),true);assert.equal(properties.NEWSLETTER_ARCHIVE_CURSOR,undefined);
 });
+
+test('el archivado de logs cede un turno al mantenimiento cuando ambos comparten prioridad',()=>{
+ const {c,properties:p}=storage();c.initializeConfiguration();
+ c.classificationReadyAt_=()=>Infinity;c.classificationPending_=()=>false;c.snapshotPublicationPending_=()=>false;
+ c.newsletterReadyAt_=()=>Infinity;c.translationReadyAt_=()=>Infinity;c.catalogSyncReadyAt_=()=>Infinity;
+ c.taxonomyReadyAt_=()=>Infinity;c.taxonomyTranslationReadyAt_=()=>Infinity;c.logArchiveReadyAt_=()=>0;c.maintenanceReadyAt_=()=>0;
+ const work={jobs:[],pending:[]};assert.equal(c.backgroundTask_(work,false),'archive');
+ p.BACKGROUND_LAST='archive';assert.equal(c.backgroundTask_(work,false),'maintenance');
+ p.BACKGROUND_LAST='maintenance';assert.equal(c.backgroundTask_(work,false),'archive');
+ c.logArchiveReadyAt_=()=>Infinity;assert.equal(c.backgroundTask_(work,false),'maintenance');
+});
