@@ -248,7 +248,6 @@ const translations = Object.freeze({
   "Explorar incidencias en Noticias": ["Explore incidents in News", "Olayları Haberlerde incele"],
   "CONTINUIDAD OPERATIVA Y RIESGO DE CANAL · VISIÓN ANUAL": ["OPERATIONAL CONTINUITY AND CHANNEL RISK · ANNUAL VIEW", "OPERASYONEL SÜREKLİLİK VE KANAL RİSKİ · YILLIK GÖRÜNÜM"],
   "Indisponibilidad e Incidencia Operativa": ["Service Unavailability and Operational Incidents", "Hizmet Kesintileri ve Operasyonel Olaylar"],
-  "Explorar incidencias en Noticias ↗": ["Explore incidents in News ↗", "Olayları Haberlerde incele ↗"],
   "Incidencias registradas (Año)": ["Recorded incidents (Year)", "Kaydedilen olaylar (Yıl)"],
   "Entidades afectadas": ["Affected entities", "Etkilenen kuruluşlar"],
   "Entidad más expuesta": ["Most exposed entity", "En fazla etkilenen kuruluş"],

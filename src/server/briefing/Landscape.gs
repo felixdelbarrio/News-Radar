@@ -26,7 +26,7 @@ function newsletterExecutiveReport_(editorial,query,language,t,escape,links,imag
  const label=value=>escape(t(value)),scopes={},after={},texts=[],quarterly=editorial.cadence==='quarterly';
  for(const [scope,data] of Object.entries(editorial.landscapes)){
   if(!data?.total)continue;const local=scope==='local',country=local?query.country:'',heading=country||'Mirada global',theme=data.themes[0];
-  const link=(text,entity='',palanca='')=>links.app.includes('edition=')&&!/^(?:\d+[.\s]*)?Otros$/i.test(palanca)?'<a href="'+escape(newsletterExploreLink_(links.app,'news',country,entity,palanca,'',!local&&query.country?'international':''))+'">'+escape(text)+' ↗</a>':escape(text);
+  const link=(text,entity='',palanca='')=>links.app.includes('edition=')&&!/^(?:\d+[.\s]*)?Otros$/i.test(palanca)?'<a href="'+escape(newsletterExploreLink_(links.app,'news',country,entity,palanca,'',!local&&query.country?'international':''))+'">'+escape(text)+newsletterLinkIconHtml_(images)+'</a>':escape(text);
   const metrics=newsletterMetricsHtml_([['Entidades',data.entityCount],['Menciones totales en prensa',data.total],['Menciones directas a BBVA',data.bbvaCount]],label);
   const lead=theme?formatText('{theme} fue el bloque funcional con más menciones en prensa: {count}, el {share}% de las publicaciones analizadas.',{theme:t(theme.name),count:theme.count,share:theme.share},language):t('La selección no tiene noticias clasificadas por bloque funcional.');
   const highlight='<table role="presentation" class="newsletter-highlight"><tr><td class="newsletter-highlight-cell"><p class="newsletter-executive">'+escape(lead)+'</p></td></tr></table>';

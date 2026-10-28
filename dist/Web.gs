@@ -6,5 +6,8 @@ function doGet(event={}) {
 }
 function include_(name) {
   if(!['Tokens','Styles','Client'].includes(name))throw new Error('Fragmento desconocido.');
-  return HtmlService.createHtmlOutputFromFile(name).getContent();
+  const content=HtmlService.createHtmlOutputFromFile(name).getContent();
+  if(name!=='Styles')return content;
+  const images=new Map();if(!newsletterVisualAsset_('link-icon',images))return content;
+  return content+'<style>:root{--official-link-icon:url("data:image/png;base64,'+images.get('link-icon').data+'")}.link-icon{display:inline-block}</style>';
 }
