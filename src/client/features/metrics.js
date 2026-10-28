@@ -32,15 +32,15 @@ export {
   loadMetrics
 };
 
-function feedbackCards(data){return metricCards([['Total',data.total,''],['👍 Útil',data.positive,''],['👎 Mejorable',data.negative,''],['% útil',data.positiveRate+'%',''],['Pendientes',data.pending,''],['Atendidos',data.resolved,'']].map(row=>[t(row[0]),row[1],row[2]]));}
+function feedbackCards(data){return metricCards([['Total',data.total,''],['Útil',data.positive,''],['Mejorable',data.negative,''],['% útil',data.positiveRate+'%',''],['Pendientes',data.pending,''],['Atendidos',data.resolved,'']].map(row=>[t(row[0]),row[1],row[2]]));}
 async function loadFeedback(isCurrent){
-  filters.feedback||=createRecordFilters('feedback',[['valoracion','Valoración',[['positive','👍 Útil'],['negative','👎 Mejorable']]],['estado','Estado',[['pendiente','pendiente'],['atendido','atendido']]],['edicion','Edición'],['correo','Correo']],()=>loadFeedback(isCurrent),{dates:true});
+  filters.feedback||=createRecordFilters('feedback',[['valoracion','Valoración',[['positive','Útil'],['negative','Mejorable']]],['estado','Estado',[['pendiente','pendiente'],['atendido','atendido']]],['edicion','Edición'],['correo','Correo']],()=>loadFeedback(isCurrent),{dates:true});
   const request=requests.feedback=(requests.feedback||0)+1;
   try{
     const data=await call('getAdminFeedback',filters.feedback.query());if(!isCurrent()||requests.feedback!==request)return;
-    filters.feedback.options({...data.options,valoracion:[['positive','👍 Útil'],['negative','👎 Mejorable']]});filters.feedback.page(data);
+    filters.feedback.options({...data.options,valoracion:[['positive','Útil'],['negative','Mejorable']]});filters.feedback.page(data);
     $('feedback-metrics').innerHTML=feedbackCards(data.filtered);
-    $('feedback-body').innerHTML=data.items.map(row=>'<tr>'+[date(row.fecha),row.correo,row.nombre_edicion+' · '+row.edicion,row.fecha_envio?date(row.fecha_envio):'—',t(newsletterCadences[row.cadencia]?.label||row.cadencia),row.pais||'—',row.idioma,row.valoracion==='positive'?t('👍 Útil'):row.valoracion==='negative'?t('👎 Mejorable'):'—',row.comentario].map((value,index)=>'<td data-original>'+(index===2&&row.edicion?'<button class="text-button" data-open-edition="'+escape(row.edicion)+'">'+escape(value)+'</button><details data-newsletter-summary="'+escape(row.edicion)+'"><summary>'+escape(t('Resumen enviado'))+'</summary><div data-summary-content></div></details>':escape(value))+'</td>').join('')+'<td><select data-feedback="'+escape(row.id)+'" aria-label="'+escape(t('Estado'))+'">'+['pendiente','atendido'].map(state=>'<option value="'+state+'" '+(row.estado===state?'selected':'')+'>'+escape(t(state))+'</option>').join('')+'</select></td></tr>').join('')||'<tr><td colspan="10">'+t('Sin valoraciones.')+'</td></tr>';
+    $('feedback-body').innerHTML=data.items.map(row=>'<tr>'+[date(row.fecha),row.correo,row.nombre_edicion+' · '+row.edicion,row.fecha_envio?date(row.fecha_envio):'—',t(newsletterCadences[row.cadencia]?.label||row.cadencia),row.pais||'—',row.idioma,row.valoracion==='positive'?t('Útil'):row.valoracion==='negative'?t('Mejorable'):'—',row.comentario].map((value,index)=>'<td data-original>'+(index===2&&row.edicion?'<button class="text-button" data-open-edition="'+escape(row.edicion)+'">'+escape(value)+'</button><details data-newsletter-summary="'+escape(row.edicion)+'"><summary>'+escape(t('Resumen enviado'))+'</summary><div data-summary-content></div></details>':escape(value))+'</td>').join('')+'<td><select data-feedback="'+escape(row.id)+'" aria-label="'+escape(t('Estado'))+'">'+['pendiente','atendido'].map(state=>'<option value="'+state+'" '+(row.estado===state?'selected':'')+'>'+escape(t(state))+'</option>').join('')+'</select></td></tr>').join('')||'<tr><td colspan="10">'+t('Sin valoraciones.')+'</td></tr>';
 
   }catch(error){if(isCurrent()&&requests.feedback===request)message(error.message,true);}
 }

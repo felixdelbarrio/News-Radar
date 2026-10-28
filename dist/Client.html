@@ -641,8 +641,8 @@
     "\xBFTe ha resultado \xFAtil?": ["Was this useful?", "Bu i\xE7erik faydal\u0131 oldu mu?"],
     "Valorar esta edici\xF3n (opcional)": ["Rate this edition (optional)", "Bu say\u0131y\u0131 de\u011Ferlendirin (iste\u011Fe ba\u011Fl\u0131)"],
     "Valoraci\xF3n opcional": ["Optional rating", "\u0130ste\u011Fe ba\u011Fl\u0131 de\u011Ferlendirme"],
-    "\u{1F44D} \xDAtil": ["\u{1F44D} Useful", "\u{1F44D} Faydal\u0131"],
-    "\u{1F44E} Mejorable": ["\u{1F44E} Needs improvement", "\u{1F44E} Geli\u015Ftirilebilir"],
+    \u00DAtil: ["Useful", "Faydal\u0131"],
+    Mejorable: ["Needs improvement", "Geli\u015Ftirilebilir"],
     "Sin valoraci\xF3n": ["No rating", "De\u011Ferlendirme yok"],
     "Observaciones (opcional)": ["Comments (optional)", "Yorumlar (iste\u011Fe ba\u011Fl\u0131)"],
     "Guardar valoraci\xF3n": ["Save rating", "De\u011Ferlendirmeyi kaydet"],
@@ -3525,15 +3525,15 @@
     }
   }
   function feedbackCards(data) {
-    return metricCards([["Total", data.total, ""], ["\u{1F44D} \xDAtil", data.positive, ""], ["\u{1F44E} Mejorable", data.negative, ""], ["% \xFAtil", data.positiveRate + "%", ""], ["Pendientes", data.pending, ""], ["Atendidos", data.resolved, ""]].map((row) => [t(row[0]), row[1], row[2]]));
+    return metricCards([["Total", data.total, ""], ["\xDAtil", data.positive, ""], ["Mejorable", data.negative, ""], ["% \xFAtil", data.positiveRate + "%", ""], ["Pendientes", data.pending, ""], ["Atendidos", data.resolved, ""]].map((row) => [t(row[0]), row[1], row[2]]));
   }
   async function loadFeedback(isCurrent) {
-    filters.feedback ||= createRecordFilters("feedback", [["valoracion", "Valoraci\xF3n", [["positive", "\u{1F44D} \xDAtil"], ["negative", "\u{1F44E} Mejorable"]]], ["estado", "Estado", [["pendiente", "pendiente"], ["atendido", "atendido"]]], ["edicion", "Edici\xF3n"], ["correo", "Correo"]], () => loadFeedback(isCurrent), { dates: !0 });
+    filters.feedback ||= createRecordFilters("feedback", [["valoracion", "Valoraci\xF3n", [["positive", "\xDAtil"], ["negative", "Mejorable"]]], ["estado", "Estado", [["pendiente", "pendiente"], ["atendido", "atendido"]]], ["edicion", "Edici\xF3n"], ["correo", "Correo"]], () => loadFeedback(isCurrent), { dates: !0 });
     let request3 = requests2.feedback = (requests2.feedback || 0) + 1;
     try {
       let data = await call("getAdminFeedback", filters.feedback.query());
       if (!isCurrent() || requests2.feedback !== request3) return;
-      filters.feedback.options({ ...data.options, valoracion: [["positive", "\u{1F44D} \xDAtil"], ["negative", "\u{1F44E} Mejorable"]] }), filters.feedback.page(data), $("feedback-metrics").innerHTML = feedbackCards(data.filtered), $("feedback-body").innerHTML = data.items.map((row) => "<tr>" + [date(row.fecha), row.correo, row.nombre_edicion + " \xB7 " + row.edicion, row.fecha_envio ? date(row.fecha_envio) : "\u2014", t(newsletterCadences[row.cadencia]?.label || row.cadencia), row.pais || "\u2014", row.idioma, row.valoracion === "positive" ? t("\u{1F44D} \xDAtil") : row.valoracion === "negative" ? t("\u{1F44E} Mejorable") : "\u2014", row.comentario].map((value, index) => "<td data-original>" + (index === 2 && row.edicion ? '<button class="text-button" data-open-edition="' + escape2(row.edicion) + '">' + escape2(value) + '</button><details data-newsletter-summary="' + escape2(row.edicion) + '"><summary>' + escape2(t("Resumen enviado")) + "</summary><div data-summary-content></div></details>" : escape2(value)) + "</td>").join("") + '<td><select data-feedback="' + escape2(row.id) + '" aria-label="' + escape2(t("Estado")) + '">' + ["pendiente", "atendido"].map((state2) => '<option value="' + state2 + '" ' + (row.estado === state2 ? "selected" : "") + ">" + escape2(t(state2)) + "</option>").join("") + "</select></td></tr>").join("") || '<tr><td colspan="10">' + t("Sin valoraciones.") + "</td></tr>";
+      filters.feedback.options({ ...data.options, valoracion: [["positive", "\xDAtil"], ["negative", "Mejorable"]] }), filters.feedback.page(data), $("feedback-metrics").innerHTML = feedbackCards(data.filtered), $("feedback-body").innerHTML = data.items.map((row) => "<tr>" + [date(row.fecha), row.correo, row.nombre_edicion + " \xB7 " + row.edicion, row.fecha_envio ? date(row.fecha_envio) : "\u2014", t(newsletterCadences[row.cadencia]?.label || row.cadencia), row.pais || "\u2014", row.idioma, row.valoracion === "positive" ? t("\xDAtil") : row.valoracion === "negative" ? t("Mejorable") : "\u2014", row.comentario].map((value, index) => "<td data-original>" + (index === 2 && row.edicion ? '<button class="text-button" data-open-edition="' + escape2(row.edicion) + '">' + escape2(value) + '</button><details data-newsletter-summary="' + escape2(row.edicion) + '"><summary>' + escape2(t("Resumen enviado")) + "</summary><div data-summary-content></div></details>" : escape2(value)) + "</td>").join("") + '<td><select data-feedback="' + escape2(row.id) + '" aria-label="' + escape2(t("Estado")) + '">' + ["pendiente", "atendido"].map((state2) => '<option value="' + state2 + '" ' + (row.estado === state2 ? "selected" : "") + ">" + escape2(t(state2)) + "</option>").join("") + "</select></td></tr>").join("") || '<tr><td colspan="10">' + t("Sin valoraciones.") + "</td></tr>";
     } catch (error) {
       isCurrent() && requests2.feedback === request3 && message(error.message, !0);
     }
