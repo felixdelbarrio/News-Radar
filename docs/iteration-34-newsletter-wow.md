@@ -25,3 +25,11 @@ Mismo corpus sintético de 18 noticias y VM de las medidas de iteración 33; 5 c
 El tamaño MIME aumenta por las ilustraciones solicitadas; incluso la variante más grande queda bajo 0,5 MB en esta muestra. No se han enviado correos de prueba ni reales desde esta validación.
 
 Rollback: seleccionar la versión anterior de la misma implementación de Apps Script y restaurar los módulos anteriores desde `tmp/iteration33/remote-backup`. La propiedad privada de recursos puede eliminarse sin interrumpir la generación: las imágenes tienen fallback.
+
+## Publicación
+
+Los módulos `Briefing.gs`, `Landscape.gs`, `Newsletter.gs`, `Locales.gs` y `Client.html` se guardaron en Apps Script mediante el navegador integrado y se compararon byte a byte con `dist/`; `Briefing.gs` se volvió a comprobar tras recargar el editor. La propiedad privada se configuró mediante una función temporal y, en una ejecución de solo lectura, los cuatro recursos devolvieron PNG válidos de 18.597, 105.680, 142.391 y 120.209 bytes. Ambas funciones temporales se retiraron del código principal. No se invocó Gmail.
+
+La implementación existente se actualizó a la versión **129** el 28 de octubre de 2026 a las **14:26** (Madrid), conservando ID, URL, ejecución como propietario y acceso para usuarios de `bbva.com`. Captura local ignorada por Git: `output/iteration34/production-v129.png`. Rollback inmediato: volver a la versión **128** de la misma implementación; los cinco módulos previos están respaldados localmente en `tmp/iteration34/remote-backup-v128/`.
+
+El panel de producción a las 14:28 mostraba la recopilación diaria 291/320 y mantenimiento 0/4023, esperando a esa tarea y con previsión de reintento 14:29 tras un timeout de Sheets a las 12:56. Por tanto, la reanudación automática está programada, pero todavía no se declara completado el mantenimiento.
