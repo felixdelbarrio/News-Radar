@@ -1,0 +1,71 @@
+{
+  "samples": 30,
+  "runtime": "v24.1.0",
+  "scope": "Local VM; Gmail and Sheets simulated. No live send or remote latency measured.",
+  "cases": {
+    "fortnightly-focused": {
+      "totalMs": {
+        "p50": 0.5843340000000126,
+        "p95": 0.8817919999999901
+      },
+      "inlineMs": {
+        "p50": 0.07595800000001418,
+        "p95": 0.39083300000001486
+      },
+      "htmlBytes": 18375,
+      "mimeBytes": 46740,
+      "cidCount": 7,
+      "cidBytes": 12969,
+      "simulatedSheetReads": 0,
+      "heapDeltaBytes": -4972136
+    },
+    "fortnightly-global": {
+      "totalMs": {
+        "p50": 0.4765000000000157,
+        "p95": 0.7428750000000264
+      },
+      "inlineMs": {
+        "p50": 0.06954200000001265,
+        "p95": 0.12074999999998681
+      },
+      "htmlBytes": 17962,
+      "mimeBytes": 46144,
+      "cidCount": 7,
+      "cidBytes": 12969,
+      "simulatedSheetReads": 0,
+      "heapDeltaBytes": 545240
+    },
+    "quarterly-focused": {
+      "totalMs": {
+        "p50": 0.8653750000000002,
+        "p95": 1.7998340000000042
+      },
+      "inlineMs": {
+        "p50": 0.17462500000002024,
+        "p95": 0.36179200000000833
+      },
+      "htmlBytes": 31548,
+      "mimeBytes": 69060,
+      "cidCount": 9,
+      "cidBytes": 15448,
+      "simulatedSheetReads": 0,
+      "heapDeltaBytes": 3905576
+    },
+    "quarterly-global": {
+      "totalMs": {
+        "p50": 0.5284999999999798,
+        "p95": 0.7598329999999862
+      },
+      "inlineMs": {
+        "p50": 0.11120800000000486,
+        "p95": 0.16920799999999758
+      },
+      "htmlBytes": 25934,
+      "mimeBytes": 61184,
+      "cidCount": 9,
+      "cidBytes": 15448,
+      "simulatedSheetReads": 0,
+      "heapDeltaBytes": -2235344
+    }
+  }
+}

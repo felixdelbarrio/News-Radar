@@ -1,0 +1,1622 @@
+{
+  "subject": "[bIA] Canal BBVA BEI · Mirada global · Lo más relevante del cuarto trimestre de 2026",
+  "text": "[bIA] Canal BBVA BEI · Mirada global · Lo más relevante del cuarto trimestre de 2026\n\nHasta tres movimientos competitivos destacados para tu canal.\n\nSeñales competitivas del trimestre\n\nHSBC · México\n\nPagos - Transf. y traspasos\n\nTransferencias digitales y cobros para clientes corporativos 7\n\nLa nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización…\n\nLanzamiento de producto\n\nEditor de referencia\n\nhttps://example.com/presentation/7\n\nNubank · España\n\nHome\n\nNueva aplicación móvil para gestionar la tesorería de empresas 9\n\nLa nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización…\n\nLanzamiento de producto\n\nEditor de referencia\n\nhttps://example.com/presentation/9\n\nStripe · Reino Unido\n\nEnablers\n\nIntegración de pagos y permisos en el canal empresarial 8\n\nLa nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización…\n\nLanzamiento de producto\n\nEditor de referencia\n\nhttps://example.com/presentation/8\n\nMirada global\n\nEnablers fue el bloque funcional con más noticias: 6, el 33% de las noticias analizadas.\n\nBBVA: 4\n\nCaixaBank: 4\n\nHSBC: 4\n\nPresencia en las fuentes y filtros de esta edición; no mide cuota de mercado. Una noticia puede pertenecer a varios bloques funcionales.\n\nhttps://script.google.com/macros/s/test/exec?edition=presentation-edition&from=2026-10-01&to=2026-12-31&view=news&country=&entity=\n\nhttps://script.google.com/macros/s/test/exec?view=subscriptions\n\nhttps://script.google.com/macros/s/test/exec?view=subscriptions&unsubscribe=subscription",
+  "editionId": "presentation-edition",
+  "count": 3,
+  "total": 18,
+  "items": [
+    {
+      "id": "presentation-7",
+      "fecha": "2026-10-24",
+      "pais": "México",
+      "entidad": "HSBC",
+      "medio": "Editor de referencia",
+      "titular": "Transferencias digitales y cobros para clientes corporativos 7",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/7",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Pagos - Transf. y traspasos",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-9",
+      "fecha": "2026-10-26",
+      "pais": "España",
+      "entidad": "Nubank",
+      "medio": "Editor de referencia",
+      "titular": "Nueva aplicación móvil para gestionar la tesorería de empresas 9",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/9",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Home",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-8",
+      "fecha": "2026-10-25",
+      "pais": "Reino Unido",
+      "entidad": "Stripe",
+      "medio": "Editor de referencia",
+      "titular": "Integración de pagos y permisos en el canal empresarial 8",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/8",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Enablers",
+          "subpalanca": "API"
+        }
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "presentation-0",
+      "fecha": "2026-10-17",
+      "pais": "España",
+      "entidad": "BBVA",
+      "medio": "Editor de referencia",
+      "titular": "Nueva aplicación móvil para gestionar la tesorería de empresas 0",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/0",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Home",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-1",
+      "fecha": "2026-10-18",
+      "pais": "México",
+      "entidad": "CaixaBank",
+      "medio": "Editor de referencia",
+      "titular": "Transferencias digitales y cobros para clientes corporativos 1",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/1",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Pagos - Transf. y traspasos",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-2",
+      "fecha": "2026-10-19",
+      "pais": "Reino Unido",
+      "entidad": "HSBC",
+      "medio": "Editor de referencia",
+      "titular": "Integración de pagos y permisos en el canal empresarial 2",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/2",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Enablers",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-3",
+      "fecha": "2026-10-20",
+      "pais": "España",
+      "entidad": "Stripe",
+      "medio": "Editor de referencia",
+      "titular": "Nueva aplicación móvil para gestionar la tesorería de empresas 3",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/3",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Home",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-4",
+      "fecha": "2026-10-21",
+      "pais": "México",
+      "entidad": "Nubank",
+      "medio": "Editor de referencia",
+      "titular": "Transferencias digitales y cobros para clientes corporativos 4",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/4",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Pagos - Transf. y traspasos",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-5",
+      "fecha": "2026-10-22",
+      "pais": "Reino Unido",
+      "entidad": "BBVA",
+      "medio": "Editor de referencia",
+      "titular": "Integración de pagos y permisos en el canal empresarial 5",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/5",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Enablers",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-6",
+      "fecha": "2026-10-23",
+      "pais": "España",
+      "entidad": "CaixaBank",
+      "medio": "Editor de referencia",
+      "titular": "Nueva aplicación móvil para gestionar la tesorería de empresas 6",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/6",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Home",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-7",
+      "fecha": "2026-10-24",
+      "pais": "México",
+      "entidad": "HSBC",
+      "medio": "Editor de referencia",
+      "titular": "Transferencias digitales y cobros para clientes corporativos 7",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/7",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Pagos - Transf. y traspasos",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-8",
+      "fecha": "2026-10-25",
+      "pais": "Reino Unido",
+      "entidad": "Stripe",
+      "medio": "Editor de referencia",
+      "titular": "Integración de pagos y permisos en el canal empresarial 8",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/8",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Enablers",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-9",
+      "fecha": "2026-10-26",
+      "pais": "España",
+      "entidad": "Nubank",
+      "medio": "Editor de referencia",
+      "titular": "Nueva aplicación móvil para gestionar la tesorería de empresas 9",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/9",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Home",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-10",
+      "fecha": "2026-10-17",
+      "pais": "México",
+      "entidad": "BBVA",
+      "medio": "Editor de referencia",
+      "titular": "Transferencias digitales y cobros para clientes corporativos 10",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/10",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Pagos - Transf. y traspasos",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-11",
+      "fecha": "2026-10-18",
+      "pais": "Reino Unido",
+      "entidad": "CaixaBank",
+      "medio": "Editor de referencia",
+      "titular": "Integración de pagos y permisos en el canal empresarial 11",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/11",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Enablers",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-12",
+      "fecha": "2026-10-19",
+      "pais": "España",
+      "entidad": "HSBC",
+      "medio": "Editor de referencia",
+      "titular": "Nueva aplicación móvil para gestionar la tesorería de empresas 12",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/12",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Home",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-13",
+      "fecha": "2026-10-20",
+      "pais": "México",
+      "entidad": "Stripe",
+      "medio": "Editor de referencia",
+      "titular": "Transferencias digitales y cobros para clientes corporativos 13",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/13",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Pagos - Transf. y traspasos",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-14",
+      "fecha": "2026-10-21",
+      "pais": "Reino Unido",
+      "entidad": "Nubank",
+      "medio": "Editor de referencia",
+      "titular": "Integración de pagos y permisos en el canal empresarial 14",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/14",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Enablers",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-15",
+      "fecha": "2026-10-22",
+      "pais": "España",
+      "entidad": "BBVA",
+      "medio": "Editor de referencia",
+      "titular": "Nueva aplicación móvil para gestionar la tesorería de empresas 15",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/15",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Home",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-16",
+      "fecha": "2026-10-23",
+      "pais": "México",
+      "entidad": "CaixaBank",
+      "medio": "Editor de referencia",
+      "titular": "Transferencias digitales y cobros para clientes corporativos 16",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/16",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Pagos - Transf. y traspasos",
+          "subpalanca": "API"
+        }
+      ]
+    },
+    {
+      "id": "presentation-17",
+      "fecha": "2026-10-24",
+      "pais": "Reino Unido",
+      "entidad": "HSBC",
+      "medio": "Editor de referencia",
+      "titular": "Integración de pagos y permisos en el canal empresarial 17",
+      "extracto": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización y acceso a información de sus cuentas.",
+      "url": "https://example.com/presentation/17",
+      "tipo": "Banco tradicional",
+      "segmentos": [
+        "Empresas e instituciones"
+      ],
+      "etiquetas": {
+        "digital": true
+      },
+      "senales": [
+        "Lanzamiento de producto"
+      ],
+      "taxonomia": [
+        {
+          "palanca": "Enablers",
+          "subpalanca": "API"
+        }
+      ]
+    }
+  ],
+  "editorial": {
+    "cadence": "quarterly",
+    "corpusIds": [
+      "presentation-0",
+      "presentation-1",
+      "presentation-2",
+      "presentation-3",
+      "presentation-4",
+      "presentation-5",
+      "presentation-6",
+      "presentation-7",
+      "presentation-8",
+      "presentation-9",
+      "presentation-10",
+      "presentation-11",
+      "presentation-12",
+      "presentation-13",
+      "presentation-14",
+      "presentation-15",
+      "presentation-16",
+      "presentation-17"
+    ],
+    "heading": "Señales competitivas del trimestre",
+    "intro": "Movimientos verificables en canales digitales para empresas e instituciones.",
+    "cards": [
+      {
+        "id": "presentation-7",
+        "title": "Transferencias digitales y cobros para clientes corporativos 7",
+        "fact": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización…",
+        "relevance": "Lanzamiento de producto",
+        "evidenceIds": [
+          "presentation-7"
+        ],
+        "relatedCount": 1,
+        "additionalCount": 0,
+        "entityCount": 1,
+        "countryCount": 1,
+        "scope": "global",
+        "tier": 2,
+        "quality": 2,
+        "selectionReason": "Evidencia competitiva elegible; nivel geográfico 2.",
+        "countries": [
+          "México"
+        ],
+        "subcategory": "API",
+        "subcategoryPath": "Pagos - Transf. y traspasos › API",
+        "subcategories": [
+          "API"
+        ],
+        "category": "Pagos - Transf. y traspasos",
+        "entity": "HSBC",
+        "country": "México",
+        "publisher": "Editor de referencia",
+        "date": "2026-10-24",
+        "url": "https://example.com/presentation/7"
+      },
+      {
+        "id": "presentation-9",
+        "title": "Nueva aplicación móvil para gestionar la tesorería de empresas 9",
+        "fact": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización…",
+        "relevance": "Lanzamiento de producto",
+        "evidenceIds": [
+          "presentation-9"
+        ],
+        "relatedCount": 1,
+        "additionalCount": 0,
+        "entityCount": 1,
+        "countryCount": 1,
+        "scope": "global",
+        "tier": 2,
+        "quality": 2,
+        "selectionReason": "Evidencia competitiva elegible; nivel geográfico 2.",
+        "countries": [
+          "España"
+        ],
+        "subcategory": "API",
+        "subcategoryPath": "Home › API",
+        "subcategories": [
+          "API"
+        ],
+        "category": "Home",
+        "entity": "Nubank",
+        "country": "España",
+        "publisher": "Editor de referencia",
+        "date": "2026-10-26",
+        "url": "https://example.com/presentation/9"
+      },
+      {
+        "id": "presentation-8",
+        "title": "Integración de pagos y permisos en el canal empresarial 8",
+        "fact": "La nueva funcionalidad permite a las empresas gestionar sus operaciones desde el canal digital con controles de autorización…",
+        "relevance": "Lanzamiento de producto",
+        "evidenceIds": [
+          "presentation-8"
+        ],
+        "relatedCount": 1,
+        "additionalCount": 0,
+        "entityCount": 1,
+        "countryCount": 1,
+        "scope": "global",
+        "tier": 4,
+        "quality": 2,
+        "selectionReason": "Evidencia competitiva elegible; nivel geográfico 4.",
+        "countries": [
+          "Reino Unido"
+        ],
+        "subcategory": "API",
+        "subcategoryPath": "Enablers › API",
+        "subcategories": [
+          "API"
+        ],
+        "category": "Enablers",
+        "entity": "Stripe",
+        "country": "Reino Unido",
+        "publisher": "Editor de referencia",
+        "date": "2026-10-25",
+        "url": "https://example.com/presentation/8"
+      }
+    ],
+    "reusedCount": 0,
+    "landscapes": {
+      "local": null,
+      "global": {
+        "total": 18,
+        "entityCount": 5,
+        "countryCount": 3,
+        "unknownCountryCount": 0,
+        "bbvaCount": 4,
+        "themes": [
+          {
+            "name": "Enablers",
+            "count": 6,
+            "share": 33
+          },
+          {
+            "name": "Home",
+            "count": 6,
+            "share": 33
+          },
+          {
+            "name": "Pagos - Transf. y traspasos",
+            "count": 6,
+            "share": 33
+          }
+        ],
+        "leaders": [
+          {
+            "position": 1,
+            "name": "BBVA",
+            "count": 4,
+            "share": 22,
+            "themes": [
+              {
+                "name": "Home",
+                "count": 2
+              },
+              {
+                "name": "Enablers",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "position": 1,
+            "name": "CaixaBank",
+            "count": 4,
+            "share": 22,
+            "themes": [
+              {
+                "name": "Pagos - Transf. y traspasos",
+                "count": 2
+              },
+              {
+                "name": "Enablers",
+                "count": 1
+              }
+            ]
+          },
+          {
+            "position": 1,
+            "name": "HSBC",
+            "count": 4,
+            "share": 22,
+            "themes": [
+              {
+                "name": "Enablers",
+                "count": 2
+              },
+              {
+                "name": "Home",
+                "count": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "focusLabel": "Bloque funcional",
+    "focused": false,
+    "localCount": 0,
+    "globalCount": 18,
+    "context": {
+      "view": "news",
+      "country": "",
+      "coverage": "digital",
+      "segment": "Empresas e instituciones",
+      "from": "2026-10-01",
+      "to": "2026-12-31"
+    },
+    "scope": [
+      {
+        "name": "Empresas e instituciones",
+        "countries": [
+          "España",
+          "México",
+          "Perú",
+          "Colombia",
+          "Argentina",
+          "Turquía",
+          "Uruguay",
+          "Venezuela"
+        ]
+      }
+    ],
+    "geographies": [
+      {
+        "name": "España",
+        "code": "ES",
+        "language": "es",
+        "mapId": "724",
+        "enabled": true,
+        "searchName": "España",
+        "terms": [
+          "Spain",
+          "Espanha"
+        ],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": [
+          "Spain"
+        ]
+      },
+      {
+        "name": "México",
+        "code": "MX",
+        "language": "es-419",
+        "mapId": "484",
+        "enabled": true,
+        "searchName": "México",
+        "terms": [
+          "mexicano",
+          "mexicana",
+          "mexicanos",
+          "banxico",
+          "spei",
+          "cnbv",
+          "condusef"
+        ],
+        "region": "AMER",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": [
+          "Mexico"
+        ]
+      },
+      {
+        "name": "Perú",
+        "code": "PE",
+        "language": "es-419",
+        "mapId": "604",
+        "enabled": true,
+        "searchName": "Perú",
+        "terms": [
+          "peruano",
+          "peruana",
+          "peruanos",
+          "bcrp",
+          "sunat",
+          "sbs peru"
+        ],
+        "region": "AMER",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": [
+          "Peru"
+        ]
+      },
+      {
+        "name": "Colombia",
+        "code": "CO",
+        "language": "es-419",
+        "mapId": "170",
+        "enabled": true,
+        "searchName": "Colombia",
+        "terms": [
+          "colombiano",
+          "colombiana",
+          "colombianos",
+          "colombianas",
+          "bogota",
+          "medellin",
+          "barranquilla",
+          "bre-b",
+          "superfinanciera",
+          "banco de la republica",
+          "ach colombia"
+        ],
+        "region": "AMER",
+        "publisherDomains": [
+          "hsbnoticias.com",
+          "semana.com"
+        ],
+        "publisherNames": [
+          "HSB Noticias",
+          "Revista Semana",
+          "Semana"
+        ],
+        "aliases": []
+      },
+      {
+        "name": "Argentina",
+        "code": "AR",
+        "language": "es-419",
+        "mapId": "032",
+        "enabled": true,
+        "searchName": "Argentina",
+        "terms": [
+          "argentino",
+          "argentina",
+          "argentinos",
+          "bcra",
+          "afip",
+          "arca"
+        ],
+        "region": "AMER",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Turquía",
+        "code": "TR",
+        "language": "tr",
+        "mapId": "792",
+        "enabled": true,
+        "searchName": "Türkiye",
+        "terms": [
+          "Turkey"
+        ],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Uruguay",
+        "code": "UY",
+        "language": "es-419",
+        "mapId": "858",
+        "enabled": true,
+        "searchName": "Uruguay",
+        "terms": [
+          "uruguayo",
+          "uruguaya",
+          "uruguayos",
+          "bcu"
+        ],
+        "region": "AMER",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Italia",
+        "code": "IT",
+        "language": "it",
+        "mapId": "380",
+        "searchName": "Italy",
+        "enabled": true,
+        "terms": [],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Alemania",
+        "code": "DE",
+        "language": "de",
+        "mapId": "276",
+        "searchName": "Germany",
+        "enabled": true,
+        "terms": [
+          "Deutschland"
+        ],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Francia",
+        "code": "FR",
+        "language": "fr",
+        "mapId": "250",
+        "searchName": "France",
+        "enabled": true,
+        "terms": [],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Portugal",
+        "code": "PT",
+        "language": "pt-PT",
+        "mapId": "620",
+        "searchName": "Portugal",
+        "enabled": true,
+        "terms": [
+          "Portogallo"
+        ],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Reino Unido",
+        "code": "GB",
+        "language": "en",
+        "mapId": "826",
+        "searchName": "United Kingdom",
+        "enabled": true,
+        "terms": [
+          "Britain"
+        ],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": [
+          "UK",
+          "Great Britain"
+        ]
+      },
+      {
+        "name": "Estados Unidos",
+        "code": "US",
+        "language": "en",
+        "mapId": "840",
+        "searchName": "United States",
+        "enabled": true,
+        "terms": [
+          "USA",
+          "United States of America"
+        ],
+        "region": "AMER",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Suiza",
+        "code": "CH",
+        "language": "en",
+        "mapId": "756",
+        "searchName": "Switzerland",
+        "enabled": true,
+        "terms": [
+          "Schweiz",
+          "Suisse",
+          "Svizzera"
+        ],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Países Bajos",
+        "code": "NL",
+        "language": "nl",
+        "mapId": "528",
+        "searchName": "Netherlands",
+        "enabled": true,
+        "terms": [
+          "Nederland"
+        ],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Bélgica",
+        "code": "BE",
+        "language": "fr",
+        "mapId": "056",
+        "searchName": "Belgium",
+        "enabled": true,
+        "terms": [
+          "Belgique",
+          "België"
+        ],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Rumanía",
+        "code": "RO",
+        "language": "ro",
+        "mapId": "642",
+        "searchName": "Romania",
+        "enabled": true,
+        "terms": [],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Brasil",
+        "code": "BR",
+        "language": "pt-BR",
+        "mapId": "076",
+        "searchName": "Brazil",
+        "enabled": true,
+        "terms": [
+          "Brasil"
+        ],
+        "region": "AMER",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Chile",
+        "code": "CL",
+        "language": "es-419",
+        "mapId": "152",
+        "searchName": "Chile",
+        "enabled": true,
+        "terms": [
+          "chileno",
+          "chilena",
+          "chilenos",
+          "cmf chile"
+        ],
+        "region": "AMER",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "China",
+        "code": "CN",
+        "language": "en",
+        "mapId": "156",
+        "searchName": "China",
+        "enabled": true,
+        "terms": [],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Hong Kong",
+        "code": "HK",
+        "language": "en",
+        "mapId": "344",
+        "searchName": "Hong Kong",
+        "enabled": true,
+        "terms": [
+          "HKMA"
+        ],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": [
+          "Hong Kong SAR China"
+        ]
+      },
+      {
+        "name": "Japón",
+        "code": "JP",
+        "language": "en",
+        "mapId": "392",
+        "searchName": "Japan",
+        "enabled": true,
+        "terms": [],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Singapur",
+        "code": "SG",
+        "language": "en",
+        "mapId": "702",
+        "searchName": "Singapore",
+        "enabled": true,
+        "terms": [],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "India",
+        "code": "IN",
+        "language": "en",
+        "mapId": "356",
+        "searchName": "India",
+        "enabled": true,
+        "terms": [],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Australia",
+        "code": "AU",
+        "language": "en",
+        "mapId": "036",
+        "searchName": "Australia",
+        "enabled": true,
+        "terms": [],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Indonesia",
+        "code": "ID",
+        "language": "en",
+        "mapId": "360",
+        "searchName": "Indonesia",
+        "enabled": true,
+        "terms": [],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Corea del Sur",
+        "code": "KR",
+        "language": "en",
+        "mapId": "410",
+        "searchName": "South Korea",
+        "enabled": true,
+        "terms": [
+          "Republic of Korea"
+        ],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Vietnam",
+        "code": "VN",
+        "language": "en",
+        "mapId": "704",
+        "searchName": "Vietnam",
+        "enabled": true,
+        "terms": [
+          "Viet Nam"
+        ],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Filipinas",
+        "code": "PH",
+        "language": "en",
+        "mapId": "608",
+        "searchName": "Philippines",
+        "enabled": true,
+        "terms": [],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Malasia",
+        "code": "MY",
+        "language": "en",
+        "mapId": "458",
+        "searchName": "Malaysia",
+        "enabled": true,
+        "terms": [],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Tailandia",
+        "code": "TH",
+        "language": "en",
+        "mapId": "764",
+        "searchName": "Thailand",
+        "enabled": true,
+        "terms": [],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Venezuela",
+        "code": "VE",
+        "language": "es",
+        "mapId": "862",
+        "enabled": true,
+        "searchName": "Venezuela",
+        "terms": [
+          "Venezuela",
+          "venezolano"
+        ],
+        "region": "AMER",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Canadá",
+        "code": "CA",
+        "language": "en",
+        "mapId": "124",
+        "enabled": true,
+        "searchName": "Canada",
+        "terms": [
+          "Canada",
+          "Canadian"
+        ],
+        "region": "AMER",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Emiratos Árabes Unidos",
+        "code": "AE",
+        "language": "en",
+        "mapId": "784",
+        "enabled": true,
+        "searchName": "UAE",
+        "terms": [
+          "UAE",
+          "United Arab Emirates",
+          "Dubai",
+          "Abu Dhabi"
+        ],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": [
+          "United Arab Emirates"
+        ]
+      },
+      {
+        "name": "Nigeria",
+        "code": "NG",
+        "language": "en",
+        "mapId": "566",
+        "enabled": true,
+        "searchName": "Nigeria",
+        "terms": [],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Panamá",
+        "code": "PA",
+        "language": "en",
+        "mapId": "591",
+        "enabled": true,
+        "searchName": "Panama",
+        "terms": [],
+        "region": "AMER",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Bolivia",
+        "code": "BO",
+        "language": "en",
+        "mapId": "068",
+        "enabled": true,
+        "searchName": "Bolivia",
+        "terms": [],
+        "region": "AMER",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Paraguay",
+        "code": "PY",
+        "language": "en",
+        "mapId": "600",
+        "enabled": true,
+        "searchName": "Paraguay",
+        "terms": [],
+        "region": "AMER",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Bangladés",
+        "code": "BD",
+        "language": "en",
+        "mapId": "050",
+        "enabled": true,
+        "searchName": "Bangladesh",
+        "terms": [],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Pakistán",
+        "code": "PK",
+        "language": "en",
+        "mapId": "586",
+        "enabled": true,
+        "searchName": "Pakistan",
+        "terms": [],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Chipre",
+        "code": "CY",
+        "language": "en",
+        "mapId": "196",
+        "enabled": true,
+        "searchName": "Cyprus",
+        "terms": [],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Arabia Saudí",
+        "code": "SA",
+        "language": "en",
+        "mapId": "682",
+        "enabled": true,
+        "searchName": "Saudi Arabia",
+        "terms": [],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Polonia",
+        "code": "PL",
+        "language": "en",
+        "mapId": "616",
+        "enabled": true,
+        "searchName": "Poland",
+        "terms": [],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Irlanda",
+        "code": "IE",
+        "language": "en",
+        "mapId": "372",
+        "enabled": true,
+        "searchName": "Ireland",
+        "terms": [],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Andorra",
+        "code": "AD",
+        "language": "en",
+        "mapId": "020",
+        "enabled": true,
+        "searchName": "Andorra",
+        "terms": [],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Luxemburgo",
+        "code": "LU",
+        "language": "en",
+        "mapId": "442",
+        "enabled": true,
+        "searchName": "Luxembourg",
+        "terms": [],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Fiyi",
+        "code": "FJ",
+        "language": "en",
+        "mapId": "242",
+        "enabled": true,
+        "searchName": "Fiji",
+        "terms": [],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Nueva Zelanda",
+        "code": "NZ",
+        "language": "en",
+        "mapId": "554",
+        "enabled": true,
+        "searchName": "New Zealand",
+        "terms": [],
+        "region": "APAC",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Hungría",
+        "code": "HU",
+        "language": "en",
+        "mapId": "348",
+        "enabled": true,
+        "searchName": "Hungary",
+        "terms": [],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      },
+      {
+        "name": "Azerbaiyán",
+        "code": "AZ",
+        "language": "en",
+        "mapId": "031",
+        "enabled": true,
+        "searchName": "Azerbaijan",
+        "terms": [],
+        "region": "EMEA",
+        "publisherDomains": [],
+        "publisherNames": [],
+        "aliases": []
+      }
+    ],
+    "audit": {
+      "eligible": 18,
+      "unseen": 18,
+      "historyVerified": false,
+      "selected": 3,
+      "exclusions": [
+        {
+          "id": "presentation-0",
+          "reason": "Mirada exterior cubierta por evidencia de competidores."
+        },
+        {
+          "id": "presentation-5",
+          "reason": "Mirada exterior cubierta por evidencia de competidores."
+        },
+        {
+          "id": "presentation-10",
+          "reason": "Mirada exterior cubierta por evidencia de competidores."
+        },
+        {
+          "id": "presentation-15",
+          "reason": "Mirada exterior cubierta por evidencia de competidores."
+        },
+        {
+          "id": "presentation-1",
+          "reason": "Fuera de la selección ejecutiva por prioridad y diversidad."
+        },
+        {
+          "id": "presentation-2",
+          "reason": "Fuera de la selección ejecutiva por prioridad y diversidad."
+        },
+        {
+          "id": "presentation-3",
+          "reason": "Fuera de la selección ejecutiva por prioridad y diversidad."
+        },
+        {
+          "id": "presentation-4",
+          "reason": "Fuera de la selección ejecutiva por prioridad y diversidad."
+        },
+        {
+          "id": "presentation-6",
+          "reason": "Fuera de la selección ejecutiva por prioridad y diversidad."
+        },
+        {
+          "id": "presentation-11",
+          "reason": "Fuera de la selección ejecutiva por prioridad y diversidad."
+        },
+        {
+          "id": "presentation-12",
+          "reason": "Fuera de la selección ejecutiva por prioridad y diversidad."
+        },
+        {
+          "id": "presentation-13",
+          "reason": "Fuera de la selección ejecutiva por prioridad y diversidad."
+        },
+        {
+          "id": "presentation-14",
+          "reason": "Fuera de la selección ejecutiva por prioridad y diversidad."
+        },
+        {
+          "id": "presentation-16",
+          "reason": "Fuera de la selección ejecutiva por prioridad y diversidad."
+        },
+        {
+          "id": "presentation-17",
+          "reason": "Fuera de la selección ejecutiva por prioridad y diversidad."
+        }
+      ],
+      "warnings": [],
+      "suppressReason": "",
+      "competitorShare": 100,
+      "countries": [
+        "México",
+        "España",
+        "Reino Unido"
+      ],
+      "blocks": [
+        "Pagos - Transf. y traspasos",
+        "Home",
+        "Enablers"
+      ]
+    }
+  },
+  "translationReady": false
+}
