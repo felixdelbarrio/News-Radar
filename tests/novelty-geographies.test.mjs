@@ -33,13 +33,13 @@ test('KPIs de geografía limitada muestran totales reales y ninguna pestaña vac
  const rows=[row('a')],overview=noveltyOverview(rows,signals);overview.geographies[0].total=8;overview.geographies[0].entityCount=3;overview.geographies[0].bySignal[0].total=8;
  const a=await app(t,{configure({data}){data.briefing={...overview,total:8,limited:true,items:rows};}});assert.equal(a.find('#briefing-limit').hidden,false);assert.match(a.find('#briefing-geography-summary').textContent,/8 novedades · 3 entidades/);assert.equal(a.find('#briefing-signals strong').textContent,'8');
 });
-test('newsletter conserva toda la evidencia y presenta un máximo de tres tarjetas con estilos inline',()=>{
+test('newsletter conserva todo el corpus y presenta un máximo de tres temas con estilos inline',()=>{
  const {c}=server(),rows=[row('s1','España','Santander',[signals[0]],['Retail','Empresas e instituciones']),row('b','España','BBVA',[signals[2]]),row('s2','España','Santander',[signals[1]]),row('m','México','BBVA')];c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';
  for(const language of ['es','en','tr']){
   const content=c.newsletterContent_(rows,{from:'2026-10-06',to:'2026-10-12'},'Novedades',new Date(),'id',language,'edition'),d=new JSDOM(content.html).window.document;
-  assert.ok(content.count<=3);assert.equal(d.querySelectorAll('.newsletter-article').length,content.count);assert.equal(content.total,4);assert.equal(content.evidence.length,content.count);assert.ok(d.querySelector('.newsletter-article').style.backgroundColor);assert.ok(d.querySelector('.newsletter-insight').style.borderLeft);assert.match(content.html,/\?edition=edition/);assert.match(content.subject,/^\[bIA\]/);
+  assert.ok(content.count<=3);assert.equal(d.querySelectorAll('.newsletter-article').length,content.count);assert.equal(content.total,4);assert.equal(content.evidence.length,content.total);assert.ok(d.querySelector('.newsletter-article').style.backgroundColor);assert.ok(d.querySelector('.newsletter-insight').style.borderLeft);assert.match(content.html,/\?edition=edition/);assert.match(content.subject,/^\[bIA\]/);
  }
- c.settings_().briefingLimit=2;assert.equal(c.newsletterContent_(rows,{},'Novedades',new Date(),'id').count,2);
+ c.settings_().briefingLimit=2;assert.equal(c.newsletterContent_(rows,{},'Novedades',new Date(),'id').count,1);
 });
 test('el modelo compartido se publica para cliente y Apps Script y evita scripts en el correo',()=>{
  const {c}=server(),record=row('safe','<img src=x>','<script>');record.titular='<script>alert(1)</script>';record.extracto='<img src=x onerror=alert(1)>';const content=c.newsletterContent_([record],{},'Prueba',new Date(),'id'),d=new JSDOM(content.html).window.document;assert.equal(d.querySelectorAll('script,[onerror]').length,0);assert.ok(!d.body.textContent.includes(record.titular));assert.equal(typeof c.noveltyOverview,'function');assert.equal(typeof c.noveltyGroups,'function');

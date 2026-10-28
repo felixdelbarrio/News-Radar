@@ -118,8 +118,8 @@ function archivedNewsletter_(row){
  return {...archived.metadata,archivedItems:archived.items};
 }
 function archiveNewsletterBatch_(){
- const deliveries=rows_('NewsletterEnvios',undefined,8),sent=new Set(deliveries.filter(row=>row.estado==='Enviada').map(row=>row.id)),retained=new Set(recentNewsletterDeliveries_(deliveries).map(row=>row.id)),keys=RADAR.sheets.NewsletterEdiciones,sheet=newsletterSheet_('NewsletterEdiciones'),p=properties_(),source=newsletterStorageKey_('NewsletterEdiciones'),deliveryRows=deliveries.length,total=Math.max(0,sheet.getLastRow()-1);
- const checkpointKey='NEWSLETTER_ARCHIVE_CURSOR';let cursor=JSON.parse(p.getProperty(checkpointKey)||'null');if(!cursor||cursor.source!==source||cursor.deliveryRows!==deliveryRows||cursor.next<2||cursor.next>total+2)cursor={source,deliveryRows,next:2};
+ const deliveries=rows_('NewsletterEnvios',undefined,8),sent=new Set(deliveries.filter(row=>row.estado==='Enviada').map(row=>row.id)),retained=new Set(recentNewsletterDeliveries_(deliveries).map(row=>row.id)),keys=RADAR.sheets.NewsletterEdiciones,sheet=newsletterSheet_('NewsletterEdiciones'),p=properties_(),source=newsletterStorageKey_('NewsletterEdiciones'),total=Math.max(0,sheet.getLastRow()-1);
+ const checkpointKey='NEWSLETTER_ARCHIVE_CURSOR';let cursor=JSON.parse(p.getProperty(checkpointKey)||'null');if(!cursor||cursor.source!==source||cursor.next<2||cursor.next>total+2)cursor={source,next:2};
  cursor.total=total;const size=Math.min(8,Math.max(0,total-cursor.next+2));if(!size){p.deleteProperty(checkpointKey);return true;}
  const editions=sheet.getRange(cursor.next,1,size,keys.length).getDisplayValues().map(values=>Object.fromEntries(keys.map((key,index)=>[key,values[index]])));
  for(const [index,row] of editions.entries()){
