@@ -5,67 +5,67 @@
   "cases": {
     "fortnightly-focused": {
       "totalMs": {
-        "p50": 0.6432920000000024,
-        "p95": 1.145040999999992
+        "p50": 1.965709000000004,
+        "p95": 2.795500000000004
       },
       "inlineMs": {
-        "p50": 0.10112499999999613,
-        "p95": 0.3002089999999953
+        "p50": 0.26608299999998053,
+        "p95": 0.5960420000000113
       },
-      "htmlBytes": 25905,
-      "mimeBytes": 60003,
+      "htmlBytes": 24598,
+      "mimeBytes": 58217,
       "cidCount": 8,
       "cidBytes": 15009,
       "simulatedSheetReads": 0,
-      "heapDeltaBytes": -2367824
+      "heapDeltaBytes": -2910240
     },
     "fortnightly-global": {
       "totalMs": {
-        "p50": 0.5302920000000029,
-        "p95": 1.2824999999999989
+        "p50": 1.6115409999999883,
+        "p95": 4.367584000000022
       },
       "inlineMs": {
-        "p50": 0.09345899999999574,
-        "p95": 0.16629199999999855
+        "p50": 0.25216599999998834,
+        "p95": 0.9277920000000108
       },
-      "htmlBytes": 25108,
-      "mimeBytes": 58881,
+      "htmlBytes": 23801,
+      "mimeBytes": 57091,
       "cidCount": 8,
       "cidBytes": 15009,
       "simulatedSheetReads": 0,
-      "heapDeltaBytes": -5021344
+      "heapDeltaBytes": -5479912
     },
     "quarterly-focused": {
       "totalMs": {
-        "p50": 0.7481669999999951,
-        "p95": 1.1599999999999966
+        "p50": 2.205332999999996,
+        "p95": 4.180542000000003
       },
       "inlineMs": {
-        "p50": 0.17566700000000424,
-        "p95": 0.599790999999982
+        "p50": 0.47274999999996226,
+        "p95": 1.3149159999999824
       },
-      "htmlBytes": 41018,
-      "mimeBytes": 84979,
+      "htmlBytes": 39775,
+      "mimeBytes": 83487,
       "cidCount": 10,
       "cidBytes": 17488,
       "simulatedSheetReads": 0,
-      "heapDeltaBytes": -642920
+      "heapDeltaBytes": -401768
     },
     "quarterly-global": {
       "totalMs": {
-        "p50": 0.5845829999999808,
-        "p95": 0.895040999999992
+        "p50": 1.874249999999961,
+        "p95": 3.823291999999924
       },
       "inlineMs": {
-        "p50": 0.1414169999999899,
-        "p95": 0.3642910000000086
+        "p50": 0.38516599999991286,
+        "p95": 0.9569999999999936
       },
-      "htmlBytes": 33931,
-      "mimeBytes": 75089,
+      "htmlBytes": 32688,
+      "mimeBytes": 73589,
       "cidCount": 10,
       "cidBytes": 17488,
       "simulatedSheetReads": 0,
-      "heapDeltaBytes": 359304
+      "heapDeltaBytes": -47448
     }
   }
 }

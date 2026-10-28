@@ -26,7 +26,7 @@ p{margin:var(--space-2) 0}a{color:var(--color-primary-bg-action);text-decoration
 .newsletter-meta{font-size:var(--text-s);line-height:var(--line-s);color:var(--color-primary-text-secondary)}
 .newsletter-excerpt{font-size:var(--text-m);line-height:var(--line-m)}
 .newsletter-insight{font-size:var(--text-m);line-height:var(--line-m);border-left:var(--focus-offset) solid var(--color-primary-accent-01);padding-left:var(--space-2)}
-.newsletter-more{margin:var(--space-2) 0 0}.newsletter-read{margin:var(--space-3) 0 0}
+.newsletter-more{margin:var(--space-2) 0 0}
 .newsletter-cta{display:inline-block;padding:var(--space-2) var(--space-3);border-radius:var(--radius-component);color:var(--color-primary-text-on-main);background-color:var(--color-primary-bg-action);font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:var(--text-m);line-height:var(--line-m);text-align:center;text-decoration:none;mso-padding-alt:var(--space-2)}
 .newsletter-report{margin:0 0 var(--space-3);border:var(--stroke) solid var(--color-primary-border);border-radius:var(--radius-container)}
 .newsletter-report-cell{padding:var(--space-3)}

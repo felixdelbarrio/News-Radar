@@ -4,15 +4,22 @@ import fs from 'node:fs';
 import {JSDOM} from 'jsdom';
 import {presentationServer,presentationContent,presentationCases,presentationRows,presentationContract} from './helpers/newsletter-presentation.mjs';
 const document=html=>new JSDOM(html).window.document;
+test('el periodo trimestral conserva trimestre y año con el nuevo copy',()=>{
+ const {c}=presentationServer();for(const [month,end,ordinal] of [['01','03-31','primer'],['04','06-30','segundo'],['07','09-30','tercer'],['10','12-31','cuarto']]){
+  const period=c.newsletterIdentity_({view:'news',from:'2026-'+month+'-01',to:'2026-'+end},new Date('2026-12-31T12:00:00Z')).period;
+  assert.equal(period,'Lo más relevante, en los canales digitales de Banca de Empresas e Instituciones, del '+ordinal+' trimestre de 2026');
+ }
+});
 for(const {name,query} of presentationCases){
- test(name+': conserva exactamente el contrato editorial previo y presenta CTAs y CID íntegros',()=>{
+ test(name+': conserva exactamente el contrato editorial previo y presenta enlaces y CID íntegros',()=>{
   const s=presentationServer(),c=s.c,result=presentationContent(c,query),d=document(result.html);
   assert.deepEqual(presentationContract(result),JSON.parse(fs.readFileSync(new URL('./fixtures/newsletter-presentation/'+name+'.contract.json',import.meta.url))));
   assert.equal(d.querySelectorAll('.newsletter-article').length,result.count);
+  assert.equal(d.querySelector('.newsletter-intro').textContent,query.view==='briefing'?'Novedades concretas, en los canales digitales de Banca de Empresas e Instituciones, para revisar esta quincena.':'Qué ha marcado tu canal y dónde mirar ahora.');
   for(const [i,card] of [...d.querySelectorAll('.newsletter-article')].entries()){
    // El HTML agrupa por ámbito, conservando la posición relativa de las tarjetas en cada ámbito.
    const expected=[...result.editorial.cards.filter(card=>card.scope==='local'),...result.editorial.cards.filter(card=>card.scope==='global')][i];
-   assert.equal(card.querySelector('h3 a').href,expected.url);assert.equal(card.querySelector('.newsletter-read a').href,expected.url);
+   assert.equal(card.querySelector('h3 a').href,expected.url);assert.equal(card.querySelector('.newsletter-read'),null);
    assert.ok(card.querySelector('.entity-logo,.entity-monogram'));assert.ok(card.querySelector('.geography-flag'));
    assert.ok(card.querySelector('.newsletter-card-cell').style.padding);
   }
@@ -55,7 +62,7 @@ test('fallbacks de entidad/país, alias y evidencia vacía o insegura mantienen 
 test('los controles nuevos se traducen y admiten textos extensos sin contenido editorial añadido',()=>{
  const {c}=presentationServer();for(const language of ['en','tr']){
   const result=presentationContent(c,presentationCases[1].query,[{...presentationRows[0],titular:'Empresa '.repeat(100),extracto:'Detalle '.repeat(200)}],language),d=document(result.html);
-  assert.equal(d.querySelector('.newsletter-read a').textContent,c.translateText('Leer noticia',language));assert.equal(d.querySelector('.newsletter-feedback p').textContent,c.translateText('¿Te ha resultado útil?',language));assert.ok(result.html.includes('lang="'+language+'"'));
+  assert.equal(d.querySelector('.newsletter-read'),null);assert.ok(d.querySelector('.newsletter-article h3 a'));assert.equal(d.querySelector('.newsletter-feedback p').textContent,c.translateText('¿Te ha resultado útil?',language));assert.ok(result.html.includes('lang="'+language+'"'));
  }
  // El historial y las reglas de repetición tienen su propia batería; la presentación admite cero tarjetas.
  const empty=presentationContent(c,presentationCases[3].query,[]);assert.equal(empty.count,0);assert.equal(document(empty.html).querySelector('.newsletter-report'),null);
