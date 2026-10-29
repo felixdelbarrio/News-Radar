@@ -84,3 +84,18 @@ function compactArticleTranslations_(){
   properties_().setProperty('TRANSLATIONS_INDEX_REVISION',Utilities.getUuid());articleTranslationRows_=undefined;articleTranslationMemory_=undefined;articleIdentityTitlesMemory_=undefined;
   const revision=Utilities.getUuid();for(const language of Object.keys(languageNames))properties_().setProperty('TRANSLATIONS_REVISION:'+language,revision);
 }
+
+function newsSearchMatcher_(rows,query,entityName=entityKey_,geography){
+ const q=searchText_(String(query.search||'').slice(0,160));if(!q)return null;
+ const entity=query.entity?entityName(query.entity):'',scope={...query,country:''},matches=new Set(),pending=[];
+ for(const row of rows)if(newsFiltersMatch_(row,scope,entity,entityName,geography)){if(newsSearchText_(row).includes(q))matches.add(row);else pending.push(row);}
+ if(!pending.length)return row=>matches.has(row);
+ const index=articleTranslationIndex_(),byKey=new Map();
+ for(const row of pending){const fingerprint=articleFingerprint_(row.original||row);for(const language of Object.keys(languageNames)){const key=language+':'+fingerprint;if(index.has(key)){if(!byKey.has(key))byKey.set(key,[]);byKey.get(key).push(row);}}}
+ const keys=[...byKey.keys()];
+ for(let offset=0;offset<keys.length;offset+=NEWS_CACHE.chunkRows){
+  const batch=keys.slice(offset,offset+NEWS_CACHE.chunkRows).filter(key=>byKey.get(key).some(row=>!matches.has(row))),values=cachedArticleTranslations_(batch);
+  for(const key of batch){const text=values.get(key);if(text&&searchText_(text.titular+' '+text.extracto).includes(q))for(const row of byKey.get(key))matches.add(row);}
+ }
+ return row=>matches.has(row);
+}

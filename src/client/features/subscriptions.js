@@ -3,16 +3,16 @@ import {$,message} from '../core/dom.js';
 import {call} from '../core/api.js';
 import {createRecordFilters} from './record-filters.js';
 import {filterRecords,recordOptions,recordPage} from '../../shared/record-filters.js';
-import {subscriptionForm,subscriptionCards,newsletterHistoryCards} from './subscription-templates.js';
+import {subscriptionForm,subscriptionCards,subscriptionTable,newsletterHistoryCards} from './subscription-templates.js';
 import {attachNewsletterSummaries} from './newsletter-summary.js';
 export function createSubscriptions({run}){
  let options,own=[],all=[],request=0,historyLimit=3;const filters={};
  const editorId=admin=>admin?'admin-subscription-editor':'personal-editor';
  function edit(admin,row){const target=$(editorId(admin));target.hidden=false;target.innerHTML=subscriptionForm(options,admin,row);target.scrollIntoView?.({block:"nearest"});target.querySelector("input,select,button")?.focus();}
- function render(admin){if(!admin){$('subscriptions-list').innerHTML=subscriptionCards(own,false);return;}const id='subscribers',rows=all;
+ function render(admin){if(!admin){$('subscriptions-list').innerHTML=subscriptionCards(own);return;}const id='subscribers',rows=all;
   filters[id]||=createRecordFilters(id,[...(admin?[['correo','Suscriptor']]:[]),['activa','Estado',[['true','Activa'],['false','Pausada']]]],()=>render(admin),{placeholder:'Correo o geografía'});
   filters[id].options(recordOptions(rows,admin?['correo']:[]));const selected=filterRecords(rows,filters[id].query(),admin?['correo','activa']:['activa'],['correo','nombre']),page=recordPage(selected,filters[id].query());
-  $(admin?'admin-subscriptions-list':'subscriptions-list').innerHTML=subscriptionCards(page.items,admin);filters[id].page(page);
+  $('admin-subscriptions-list').innerHTML=subscriptionTable(page.items);filters[id].page(page);
  }
  async function open(admin=false){const current=++request,[settings,rows,history]=await Promise.all([call('getNewsletterOptions'),call(admin?'getAdminSubscriptions':'getSubscriptions'),admin?null:call('getMyNewsletterHistory',{limit:historyLimit})]);if(current!==request)return;options=settings;
   if(admin){all=rows;$('subscribers-count').textContent=t('{subscribers} suscriptores · {subscriptions} suscripciones',{subscribers:rows.length,subscriptions:rows.length});}

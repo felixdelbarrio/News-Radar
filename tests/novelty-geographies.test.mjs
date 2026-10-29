@@ -37,7 +37,7 @@ test('newsletter conserva todo el corpus y presenta un máximo de tres temas con
  const {c}=server(),rows=[row('s1','España','Santander',[signals[0]],['Retail','Empresas e instituciones']),row('b','España','BBVA',[signals[2]]),row('s2','España','Santander',[signals[1]]),row('m','México','BBVA')];c.settings_().newsletterAppUrl='https://script.google.com/macros/s/test/exec';
  for(const language of ['es','en','tr']){
   const content=c.newsletterContent_(rows,{from:'2026-10-06',to:'2026-10-12'},'Novedades',new Date(),'id',language,'edition'),d=new JSDOM(content.html).window.document;
-  assert.ok(content.count<=3);assert.equal(d.querySelectorAll('.newsletter-article').length,content.count);assert.equal(content.total,4);assert.equal(content.evidence.length,content.total);assert.ok(d.querySelector('.newsletter-article').style.backgroundColor);assert.ok(d.querySelector('.newsletter-insight').style.borderLeft);assert.match(content.html,/\?edition=edition/);assert.match(content.subject,/^\[bIA\]/);
+  assert.ok(content.count<=3);assert.equal(d.querySelectorAll('.newsletter-article').length,content.count);assert.equal(content.total,4);assert.equal(content.evidence.length,content.total);assert.ok(d.querySelector('.newsletter-article').style.backgroundColor);assert.ok(d.querySelector('.newsletter-chip').style.border);assert.match(content.html,/\?edition=edition/);assert.match(content.subject,/^\[bIA\]/);
  }
  c.settings_().briefingLimit=2;assert.equal(c.newsletterContent_(rows,{},'Novedades',new Date(),'id').count,1);
 });
