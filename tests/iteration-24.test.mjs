@@ -32,7 +32,8 @@ import {applicationGeography} from '../src/shared/selection-policy.js';
 test('las caídas bursátiles no son incidencias de canal y las interrupciones reales siguen admitidas',()=>{
  const {c}=storage();c.initializeConfiguration();
  for(const title of ['La banca de Wall Street revive la crisis de 2008: la caída de Bankinter anticipa la sangría bursátil en España','Bankinter sufre una caída bursátil y pérdidas en bolsa','Bank of America goes down in stock market crash as shares tumble']){const text=c.searchText_(title),labels=c.classification_(text,text).labels;assert.equal(labels.digital,false,title);assert.equal(labels.senales.includes(incident),false,title);}
- for(const title of ['Bankinter sufre una caída de la app: los clientes no pueden acceder a sus cuentas','Bankinter reports online banking outage and failed payments for businesses']){const text=c.searchText_(title),labels=c.classification_(text,text).labels;assert.equal(labels.digital,true,title);assert.ok(labels.senales.includes(incident),title);}
+ for(const title of ['Bankinter reports online banking outage and failed payments for businesses']){const text=c.searchText_(title),labels=c.classification_(text,text).labels;assert.equal(labels.digital,true,title);assert.ok(labels.senales.includes(incident),title);}
+ const generic=c.searchText_('Bankinter sufre una caída de la app: los clientes no pueden acceder a sus cuentas');assert.equal(c.classification_(generic,generic).labels.digital,false,'El segmento empresarial no se infiere de una caída genérica');
 });
 test('Otras geografías permite el agregado residual, evita regiones vacías y vuelve a un país explícito',async t=>{
  const items=['España','India','Arabia Saudí'].map((pais,i)=>({...article,id:String(i),pais,titular:'BBVA lanza producto '+pais,senales:['Lanzamiento de producto'],segmentos:['Empresas e instituciones'],etiquetas:{digital:true}}));

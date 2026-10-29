@@ -6,8 +6,8 @@ import {identityMark} from '../../shared/visual-identity.js';
 function renderNews(data,appended=null) {
   const list=$('news-list');
   if(!list.dataset.links){list.dataset.links='true';list.addEventListener('click',event=>{if(event.target.closest('a,button,details,input')||window.getSelection()?.toString())return;event.target.closest('.news-row')?.querySelector('.story-link')?.click();});}
-  const rows=items=>items.map(row=>`<tr class="news-row"><td>${articleTitle(row)}${row.extracto?`<p class="story-excerpt" data-original>${escape(row.extracto)}</p>`:''}${articleOriginal(row)}<div class="news-meta">${articleTags(row,data.selection)}</div></td><td>${articleDate(row)}</td><td>${newsPublisher(row,false)}</td></tr>`).join('');
-  const marks=group=>[...new Set(group.items.map(row=>row.pais))].map(country=>identityMark('countries',country,escape)).join('')+[...new Set(group.items.map(row=>row.medio))].map(publisher=>identityMark('publishers',publisher,escape)).join('');
+  const rows=items=>items.map(row=>`<tr class="news-row"><td>${articleTitle(row)}${row.extracto?`<p class="story-excerpt" data-original>${escape(row.extracto)}</p>`:''}${articleOriginal(row)}<div class="news-meta">${articleTags(row,data.selection)}</div></td><td>${articleDate(row)}</td><td>${newsPublisher(row)}</td></tr>`).join('');
+  const marks=group=>[...new Set(group.items.map(row=>row.pais))].map(country=>identityMark('countries',country,escape)).join('');
   const groupHtml=group=>`<article class="panel news-entity-group" aria-label="${escape(group.name)}"><div class="news-entity-heading"><h2 data-original>${identityMark('entities',group.name,escape)}${escape(group.name)}</h2><span class="story-identity">${marks(group)}</span></div><div class="news-table"><table role="table"><thead><tr><th scope="col">Titular</th><th scope="col">Fecha de publicación</th><th scope="col">Medio</th></tr></thead><tbody>${rows(group.items)}</tbody></table></div></article>`;
   if(appended){
     for(const group of newsEntityGroups(appended)){

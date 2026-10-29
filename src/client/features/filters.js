@@ -48,16 +48,14 @@ function createFilters({ onInvalidate, onChange, onCurrent=()=>{} }) {
   $('active-filters').addEventListener('click',event=>{
     const edit=event.target.closest('[data-edit-filter]');if(edit?.dataset.editFilter){$('advanced-filters').open=true;$('filters-dialog').showModal();const input=form.elements[edit.dataset.editFilter];input.focus();openDatePicker(input);return;}
     const button=event.target.closest('[data-remove-filter]');if(!button)return;
-    if(edition&&['from','to'].includes(button.dataset.removeFilter)){current();return;}
     for(const input of form.elements)if(input.name)input.value=applied[input.name]||'';
     if(button.dataset.removeFilter==='benchmark')delete applied.benchmark;else form.elements[button.dataset.removeFilter].value='';filterChanged({type:'change'});
   });
   let timer;
   function filterChanged(event) {
-    if(edition&&['from','to'].includes(event.target?.name)&&!event.target.value){current();return;}
     if(event.type==="input"&&event.target?.name!=="search")return;
     syncTaxonomyControls(form,taxonomy,event.target?.name);
-    const next=Object.fromEntries(new FormData(form));if(event.type==='submit'&&JSON.stringify(Object.entries(next).sort())===JSON.stringify(Object.entries(applied).filter(([key])=>form.elements[key]).sort()))return;
+    const next=Object.fromEntries(new FormData(form));if(edition&&['from','to'].some(key=>applied[key]&&!next[key])){current();return;}if(event.type==='submit'&&JSON.stringify(Object.entries(next).sort())===JSON.stringify(Object.entries(applied).filter(([key])=>form.elements[key]).sort()))return;
     clearTimeout(timer);
     page = 0;
     initialized.add(view);
