@@ -13,7 +13,7 @@ const version=vm.runInNewContext(read('src/server/config/Config.gs')+';RADAR.ver
 const asset=(file,type)=>'data:'+type+';base64,'+fs.readFileSync(path.join(root,'assets',file)).toString('base64');
 const navigation=JSON.parse(read('assets/app-config.json'));
 const administrationTabs=Object.entries(navigation.adminViews).map(([view,label],index)=>`<button type="button" role="tab" id="admin-tab-${view}" aria-selected="${index===0}" aria-controls="${view}-section" tabindex="${index===0?0:-1}" data-admin-view="${view}">${label}</button>`).join('');
-const parts={AdministrationTabs:administrationTabs,WorldMap:worldMap(),BbvaLogo:asset('bbva-logo.png','image/png'),BiaLogo:asset('bia.svg','image/svg+xml'),ReleaseVersion:version};
+const parts={AdministrationTabs:administrationTabs,WorldMap:worldMap(),BbvaLogo:asset('bbva-logo.png','image/png'),BiaLogo:asset('bia.svg','image/svg+xml'),ReleaseVersion:version,Favicon:asset('favicon.ico','image/x-icon')};
 for(const file of files('assets/icons'))parts['Icon'+path.basename(file,'.svg').split('-').map(word=>word[0].toUpperCase()+word.slice(1)).join('')]=read(file).replace('<svg ','<svg class="icon" aria-hidden="true" focusable="false" ');
 const views=files('src/views').filter(file=>file.endsWith('.html'));
 for(const file of views)parts[path.basename(file,'.html')]=read(file);

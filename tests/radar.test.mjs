@@ -113,7 +113,7 @@ test('países sin noticias se omiten y la paginación se ajusta al resultado',()
 
 test('entrada web evalúa la plantilla y limita los fragmentos internos',()=>{
   const c=context();let evaluated=false;
-  const output={setTitle(){return this;},addMetaTag(){return this;}};
+  const output={setTitle(){return this;},setFaviconUrl(){return this;},addMetaTag(){return this;}};
   c.HtmlService={createTemplateFromFile:name=>{assert.equal(name,'Index');return {evaluate(){evaluated=true;return output;}};},createHtmlOutputFromFile:name=>({getContent:()=>read('dist/'+name+'.html')})};
   assert.equal(c.doGet(),output);assert.equal(evaluated,true);assert.match(c.include_('Tokens'),/:root/);assert.throws(()=>c.include_('Config'),/desconocido/);
   assert.equal(fs.existsSync('dist/Core.gs'),false);assert.equal(fs.existsSync('src/Client.html'),false);
