@@ -75,7 +75,7 @@ test('newsletter usa prefijo bIA, imagen MIME inline y enlaces distintos para ge
   m.setResponse({id:'test'});c.sendNewsletterMail_({address:m.settings.newsletterSender,name:'News Radar'},'owner@bbva.com',content);
   const mime=Buffer.from(JSON.parse(m.calls[0].options.payload).raw,'base64url').toString();
   const subject=mime.match(/Subject: ([\s\S]*?)\r\nDate:/)[1].replace(/=\?UTF-8\?B\?([^?]+)\?=/g,(_,value)=>Buffer.from(value,'base64').toString()).replace(/\r\n /g,'');
-  assert.equal(subject,'[bIA] Canal BBVA BEI · Mirada global');assert.match(mime,/multipart\/related/);assert.match(mime,/multipart\/alternative/);assert.match(mime,/Content-ID: <bia-logo>/);assert.match(mime,/Content-Type: image\/png/);
+  assert.equal(subject,'[bIA] 🚀 BBVA BEI · Mirada global');assert.match(mime,/multipart\/related/);assert.match(mime,/multipart\/alternative/);assert.match(mime,/Content-ID: <bia-logo>/);assert.match(mime,/Content-Type: image\/png/);
 });
 
 test('una newsletter vacía se bloquea tanto en la entrega como en el transporte de Gmail',()=>{

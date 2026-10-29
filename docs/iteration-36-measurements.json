@@ -1,0 +1,145 @@
+{
+  "scope": "Local VM, corpus sintético fijo de 18 noticias, 5 calentamientos y 30 muestras por variante; sin Gmail ni latencia de Google. Ejecuciones no aisladas: no atribuir diferencias de tiempo a optimizaciones.",
+  "before": {
+    "samples": 30,
+    "runtime": "v24.1.0",
+    "scope": "Local VM; Gmail and Sheets simulated. No live send or remote latency measured.",
+    "cases": {
+      "fortnightly-focused": {
+        "totalMs": {
+          "p50": 1.474125000000015,
+          "p95": 2.0819999999999936
+        },
+        "inlineMs": {
+          "p50": 0.2620420000000081,
+          "p95": 0.5329160000000002
+        },
+        "htmlBytes": 32657,
+        "mimeBytes": 70708,
+        "cidCount": 9,
+        "cidBytes": 15521,
+        "simulatedSheetReads": 0,
+        "heapDeltaBytes": -5930192
+      },
+      "fortnightly-global": {
+        "totalMs": {
+          "p50": 1.4608749999999873,
+          "p95": 2.437416999999982
+        },
+        "inlineMs": {
+          "p50": 0.26608299999998053,
+          "p95": 0.48808300000001736
+        },
+        "htmlBytes": 29077,
+        "mimeBytes": 65614,
+        "cidCount": 9,
+        "cidBytes": 15521,
+        "simulatedSheetReads": 0,
+        "heapDeltaBytes": -2623936
+      },
+      "quarterly-focused": {
+        "totalMs": {
+          "p50": 3.5504169999999817,
+          "p95": 11.89270799999997
+        },
+        "inlineMs": {
+          "p50": 0.5883340000000317,
+          "p95": 3.332375000000013
+        },
+        "htmlBytes": 48233,
+        "mimeBytes": 94279,
+        "cidCount": 10,
+        "cidBytes": 16109,
+        "simulatedSheetReads": 0,
+        "heapDeltaBytes": 1260168
+      },
+      "quarterly-global": {
+        "totalMs": {
+          "p50": 1.8660830000000033,
+          "p95": 3.3745420000000195
+        },
+        "inlineMs": {
+          "p50": 0.3664169999999558,
+          "p95": 0.9327500000000555
+        },
+        "htmlBytes": 33261,
+        "mimeBytes": 72341,
+        "cidCount": 10,
+        "cidBytes": 16109,
+        "simulatedSheetReads": 0,
+        "heapDeltaBytes": 6110136
+      }
+    }
+  },
+  "after": {
+    "samples": 30,
+    "runtime": "v24.1.0",
+    "scope": "Local VM; Gmail and Sheets simulated. No live send or remote latency measured.",
+    "cases": {
+      "fortnightly-focused": {
+        "totalMs": {
+          "p50": 2.118959000000018,
+          "p95": 2.8288340000000005
+        },
+        "inlineMs": {
+          "p50": 0.42900000000000205,
+          "p95": 0.9552920000000427
+        },
+        "htmlBytes": 36862,
+        "mimeBytes": 99182,
+        "cidCount": 9,
+        "cidBytes": 32078,
+        "simulatedSheetReads": 0,
+        "heapDeltaBytes": -4405760
+      },
+      "fortnightly-global": {
+        "totalMs": {
+          "p50": 1.3869169999999826,
+          "p95": 1.7892079999999737
+        },
+        "inlineMs": {
+          "p50": 0.30195900000001075,
+          "p95": 0.6394169999999804
+        },
+        "htmlBytes": 33274,
+        "mimeBytes": 94058,
+        "cidCount": 9,
+        "cidBytes": 32078,
+        "simulatedSheetReads": 0,
+        "heapDeltaBytes": 461896
+      },
+      "quarterly-focused": {
+        "totalMs": {
+          "p50": 1.966083000000026,
+          "p95": 3.1380829999999946
+        },
+        "inlineMs": {
+          "p50": 0.5820410000000038,
+          "p95": 0.9455409999999915
+        },
+        "htmlBytes": 59662,
+        "mimeBytes": 132641,
+        "cidCount": 10,
+        "cidBytes": 32666,
+        "simulatedSheetReads": 0,
+        "heapDeltaBytes": 2014784
+      },
+      "quarterly-global": {
+        "totalMs": {
+          "p50": 1.3023750000000405,
+          "p95": 1.6559579999999983
+        },
+        "inlineMs": {
+          "p50": 0.3585419999999999,
+          "p95": 0.4858750000000214
+        },
+        "htmlBytes": 39162,
+        "mimeBytes": 103121,
+        "cidCount": 10,
+        "cidBytes": 32666,
+        "simulatedSheetReads": 0,
+        "heapDeltaBytes": 1942448
+      }
+    }
+  }
+}

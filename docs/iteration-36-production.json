@@ -1,0 +1,163 @@
+{
+  "version": "3.32.0",
+  "cases": [
+    {
+      "mimeBytes": 464166,
+      "cidIds": [
+        "bia-logo",
+        "entity-2",
+        "country-es",
+        "link-arrow-on-action",
+        "entity-37",
+        "other-banks-visual",
+        "entity-28",
+        "country-co",
+        "entity-7",
+        "country-gb",
+        "entity-101",
+        "feedback-positive",
+        "feedback-negative",
+        "bei-logo",
+        "fortnightly-visual"
+      ],
+      "cadence": "fortnightly",
+      "country": "España",
+      "from": "2026-10-16",
+      "to": "2026-10-31",
+      "renderMs": [
+        5988,
+        1067,
+        1137
+      ],
+      "inlineMs": [
+        3,
+        1,
+        2
+      ],
+      "htmlBytes": 57332,
+      "cidBytes": 274645,
+      "selected": 6,
+      "total": 129,
+      "corpusDigest": "8371ffa62ce36b1b8e4fa50b129a48279657cf7b34a8da16373ba057901d9152"
+    },
+    {
+      "mimeBytes": 264452,
+      "cidIds": [
+        "bia-logo",
+        "entity-28",
+        "country-co",
+        "link-arrow-on-action",
+        "entity-37",
+        "country-es",
+        "entity-2",
+        "feedback-positive",
+        "feedback-negative",
+        "bei-logo",
+        "fortnightly-visual"
+      ],
+      "cadence": "fortnightly",
+      "country": "global",
+      "from": "2026-10-16",
+      "to": "2026-10-31",
+      "renderMs": [
+        1035,
+        1115,
+        934
+      ],
+      "inlineMs": [
+        0,
+        1,
+        1
+      ],
+      "htmlBytes": 35713,
+      "cidBytes": 152561,
+      "selected": 3,
+      "total": 129,
+      "corpusDigest": "8371ffa62ce36b1b8e4fa50b129a48279657cf7b34a8da16373ba057901d9152"
+    },
+    {
+      "mimeBytes": 538481,
+      "cidIds": [
+        "bia-logo",
+        "link-arrow",
+        "entity-2",
+        "country-es",
+        "entity-37",
+        "entity-0",
+        "entity-7",
+        "country-mx",
+        "entity-101",
+        "country-gb",
+        "entity-104",
+        "country-us",
+        "other-banks-visual",
+        "link-arrow-on-action",
+        "feedback-positive",
+        "feedback-negative",
+        "bei-logo",
+        "quarterly-visual"
+      ],
+      "cadence": "quarterly",
+      "country": "España",
+      "from": "2026-10-01",
+      "to": "2026-12-31",
+      "renderMs": [
+        2016,
+        1075,
+        1121
+      ],
+      "inlineMs": [
+        2,
+        2,
+        1
+      ],
+      "htmlBytes": 73340,
+      "cidBytes": 312864,
+      "selected": 6,
+      "total": 226,
+      "corpusDigest": "30ca5029e366b8325d5624a2554517acbb93271849134a62b7ff37a16a1b7c25"
+    },
+    {
+      "mimeBytes": 133497,
+      "cidIds": [
+        "bia-logo",
+        "link-arrow",
+        "entity-7",
+        "country-mx",
+        "entity-0",
+        "country-es",
+        "entity-101",
+        "country-gb",
+        "link-arrow-on-action",
+        "feedback-positive",
+        "feedback-negative",
+        "bei-logo"
+      ],
+      "cadence": "quarterly",
+      "country": "global",
+      "from": "2026-10-01",
+      "to": "2026-12-31",
+      "renderMs": [
+        1286,
+        976,
+        1112
+      ],
+      "inlineMs": [
+        1,
+        1,
+        0
+      ],
+      "htmlBytes": 44877,
+      "cidBytes": 47657,
+      "selected": 3,
+      "total": 226,
+      "corpusDigest": "30ca5029e366b8325d5624a2554517acbb93271849134a62b7ff37a16a1b7c25"
+    }
+  ],
+  "telemetry": {
+    "samples": 0,
+    "durationsMs": [],
+    "first": "",
+    "last": ""
+  }
+}

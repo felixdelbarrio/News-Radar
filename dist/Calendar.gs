@@ -7,5 +7,5 @@ function dashboardQuery_(query={},now=new Date(),currentScope=true){
   if(currentScope&&view==='briefing')return {...sectorNewsDefaults,...dashboardPeriod_(view,now)};
   if(currentScope&&view==='radar'){const year=String(query.year||query.from?.slice(0,4)||dashboardPeriod_(view,now).from.slice(0,4));if(!/^\d{4}$/.test(year)||Number(year)<2000||Number(year)>Number(recordDay(now,settings_().timezone).slice(0,4)))throw Error('Año no válido.');return {...sectorNewsDefaults,...Object.fromEntries(['entity','palanca','subpalanca'].filter(key=>filters[key]).map(key=>[key,filters[key]])),country:filters.country||'',from:year+'-01-01',to:year+'-12-31'};}
   const defaults={...(view==='radar'?{entity:''}:{}),...sectorNewsDefaults};
-  return {...(initial?{...defaults,...(filters.newsGeography?{newsGeography:filters.newsGeography}:{})}:currentScope?{...filters,...sectorNewsDefaults}:filters),...(initial||!filters.from&&!filters.to?dashboardPeriod_(view,now):{})};
+  return {...(initial?{...defaults,...(filters.newsGeography?{newsGeography:filters.newsGeography}:{})}:currentScope?{...filters,...sectorNewsDefaults}:filters),...(initial||currentScope&&!filters.from&&!filters.to?dashboardPeriod_(view,now):{})};
 }

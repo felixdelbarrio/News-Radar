@@ -1,11 +1,12 @@
 import {$,escape,date} from '../core/dom.js';
 import {call} from '../core/api.js';
-import {t} from '../core/language.js';
+import {languageNames} from '../../shared/locales.js';
+import {t,language} from '../core/language.js';
 export function createNewsletterDelivery({run}){
   function feedback(text,error=false){const target=$('newsletter-test-result');target.hidden=false;target.textContent=text;target.classList.toggle('error',error);}
   async function open(){
     const [status,options]=await Promise.all([call('getNewsletterDeliveryStatus'),call('getNewsletterOptions')]);
-    const form=$('newsletter-test-form'),selected=form.elements.country.value;form.elements.email.placeholder=options.email;form.elements.country.innerHTML='<option value="">Sin personalizar</option>'+options.countries.map(name=>'<option>'+escape(name)+'</option>').join('');form.elements.country.value=selected;
+    const form=$('newsletter-test-form');if(!form.elements.language.options.length)form.elements.language.innerHTML=Object.entries(languageNames).map(([code,name])=>'<option value="'+code+'"'+(code===language?' selected':'')+'>'+escape(name)+'</option>').join('');const selected=form.elements.country.value;form.elements.email.placeholder=options.email;form.elements.country.innerHTML='<option value="">Sin personalizar</option>'+options.countries.map(name=>'<option>'+escape(name)+'</option>').join('');form.elements.country.value=selected;
     $('newsletter-sender').textContent=status.name+' <'+status.address+'>';
     $('newsletter-checks').innerHTML=[['Remitente',status.available?'Configurado':'Pendiente'],['Entrega',status.enabled?'Activada':'Desactivada'],['Programación',status.scheduled?'Instalada':'Sin activador']].map(([name,value])=>`<div class="delivery-check"><strong>${name}</strong><span>${value}</span></div>`).join('');
     $('newsletter-sender-status').textContent=status.available?'El remitente se utiliza en los envíos automáticos y las pruebas.':status.error;

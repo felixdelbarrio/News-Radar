@@ -59,6 +59,16 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Primera quincena de {month} de {year}": ["First half of {month} {year}", "{month} {year} ay\u0131n\u0131n ilk yar\u0131s\u0131"],
+    "Segunda quincena de {month} de {year}": ["Second half of {month} {year}", "{month} {year} ay\u0131n\u0131n ikinci yar\u0131s\u0131"],
+    "Lo m\xE1s relevante del primer trimestre de {year}": ["Highlights of the first quarter of {year}", "{year} y\u0131l\u0131n\u0131n ilk \xE7eyre\u011Finde \xF6ne \xE7\u0131kanlar"],
+    "Lo m\xE1s relevante del segundo trimestre de {year}": ["Highlights of the second quarter of {year}", "{year} y\u0131l\u0131n\u0131n ikinci \xE7eyre\u011Finde \xF6ne \xE7\u0131kanlar"],
+    "Lo m\xE1s relevante del tercer trimestre de {year}": ["Highlights of the third quarter of {year}", "{year} y\u0131l\u0131n\u0131n \xFC\xE7\xFCnc\xFC \xE7eyre\u011Finde \xF6ne \xE7\u0131kanlar"],
+    "Lo m\xE1s relevante del cuarto trimestre de {year}": ["Highlights of the fourth quarter of {year}", "{year} y\u0131l\u0131n\u0131n d\xF6rd\xFCnc\xFC \xE7eyre\u011Finde \xF6ne \xE7\u0131kanlar"],
+    "Ir al d\xEDa m\xE1s reciente": ["Go to the most recent day", "En son g\xFCne git"],
+    "\xDAltimos d\xEDas": ["Latest days", "Son g\xFCnler"],
+    "Ver d\xEDas anteriores": ["View earlier days", "\xD6nceki g\xFCnleri g\xF6ster"],
+    "Ver d\xEDas siguientes": ["View later days", "Sonraki g\xFCnleri g\xF6ster"],
     "Comprobaci\xF3n de cambios de newsletters: {done}/{total} ediciones.": ["Checking newsletter changes: {done}/{total} editions.", "B\xFClten de\u011Fi\u015Fiklikleri kontrol ediliyor: {done}/{total} say\u0131."],
     "Preparaci\xF3n de compactaci\xF3n: {done}/{total} ediciones.": ["Compaction preparation: {done}/{total} editions.", "S\u0131k\u0131\u015Ft\u0131rma haz\u0131rl\u0131\u011F\u0131: {done}/{total} s\xFCr\xFCm."],
     "{count} publicaci\xF3n": ["{count} publication", "{count} yay\u0131n"],
@@ -75,13 +85,18 @@
     "Menciones directas a BBVA": ["Direct BBVA mentions", "Do\u011Frudan BBVA bahisleri"],
     "Menciones en prensa": ["Press mentions", "Bas\u0131n bahisleri"],
     "Menciones de {entity} sobre el total de publicaciones del periodo": ["{entity} mentions as a share of all publications in the period", "D\xF6nemdeki t\xFCm yay\u0131nlar i\xE7inde {entity} bahislerinin pay\u0131"],
-    "Bloques funcionales mencionados en prensa": ["Functional areas mentioned in the press", "Bas\u0131nda bahsedilen i\u015Flevsel alanlar"],
+    "Bloques funcionales mencionados en prensa:": ["Functional areas mentioned in the press:", "Bas\u0131nda bahsedilen i\u015Flevsel alanlar:"],
     "Bloques funcionales destacados": ["Highlighted functional areas", "\xD6ne \xE7\u0131kan i\u015Flevsel alanlar"],
     "LA QUINCENA EN CIFRAS": ["THE FORTNIGHT IN FIGURES", "\u0130K\u0130 HAFTANIN RAKAMLARI"],
-    "Trending topic {number}": ["Trending topic {number}", "\xD6ne \xE7\u0131kan konu {number}"],
+    "Trending topic {scope} #{number}": ["Trending topic {scope} #{number}", "\xD6ne \xE7\u0131kan konu {scope} #{number}"],
+    nacional: ["national", "ulusal"],
+    internacional: ["international", "uluslararas\u0131"],
     "{count} publicaciones": ["{count} publications", "{count} yay\u0131n"],
     "{count} publicaciones m\xE1s de {theme}": ["{count} more publications about {theme}", "{theme} hakk\u0131nda {count} ek yay\u0131n"],
-    "{theme} fue el bloque funcional con m\xE1s menciones en prensa: {count}, el {share}% de las publicaciones analizadas.": ["{theme} was the functional area with the most press mentions: {count}, or {share}% of the publications analysed.", "{theme}, bas\u0131nda en \xE7ok bahsedilen i\u015Flevsel aland\u0131: {count}, incelenen yay\u0131nlar\u0131n %{share} kadar\u0131."],
+    "{theme} fue el bloque funcional, en {country}, con m\xE1s menciones en prensa: {count}, el {share}% de las publicaciones analizadas.": ["{theme} was the functional area, in {country}, with the most press mentions: {count}, or {share}% of the publications analysed.", "{theme}, {country} kapsam\u0131nda bas\u0131nda en \xE7ok bahsedilen i\u015Flevsel aland\u0131: {count}, incelenen yay\u0131nlar\u0131n %{share} kadar\u0131."],
+    "{theme} fue el bloque funcional, dentro de la mirada internacional, con m\xE1s menciones en prensa: {count}, el {share}% de las publicaciones analizadas.": ["{theme} was the functional area, within the international outlook, with the most press mentions: {count}, or {share}% of the publications analysed.", "{theme}, uluslararas\u0131 g\xF6r\xFCn\xFCmde bas\u0131nda en \xE7ok bahsedilen i\u015Flevsel aland\u0131: {count}, incelenen yay\u0131nlar\u0131n %{share} kadar\u0131."],
+    "Editar suscripci\xF3n": ["Edit subscription", "Aboneli\u011Fi d\xFCzenle"],
+    "Ejemplos incluidos": ["Included examples", "Dahil edilen \xF6rnekler"],
     "Menciones y porcentaje de las publicaciones. Los temas de una entidad pueden solaparse.": ["Mentions and share of publications. An entity's topics may overlap.", "Bahisler ve yay\u0131nlar\u0131n pay\u0131. Bir kurulu\u015Fun konular\u0131 \xF6rt\xFC\u015Febilir."],
     "Fuera de la selecci\xF3n ejecutiva por actividad y diversidad.": ["Outside the executive selection based on activity and diversity.", "Etkinlik ve \xE7e\u015Fitlilik nedeniyle y\xF6netici se\xE7kisinin d\u0131\u015F\u0131nda."],
     "Ejemplo de una de las entidades con m\xE1s menciones en prensa.": ["Example from one of the entities with the most press mentions.", "Bas\u0131nda en \xE7ok bahsedilen kurulu\u015Flardan birinden \xF6rnek."],
@@ -168,7 +183,7 @@
     "Novedades internacionales en canales digitales para empresas e instituciones.": ["International updates in digital channels for businesses and institutions.", "\u0130\u015Fletmeler ve kurumlar i\xE7in dijital kanallardaki uluslararas\u0131 yenilikler."],
     "Hasta tres movimientos competitivos destacados para tu canal.": ["Up to three competitive moves relevant to your channel.", "Kanal\u0131n\u0131z i\xE7in en fazla \xFC\xE7 \xF6nemli rekabet hamlesi."],
     "Hasta tres movimientos competitivos destacados que todav\xEDa no te hemos compartido.": ["Up to three competitive moves we have not shared with you yet.", "Sizinle hen\xFCz payla\u015Fmad\u0131\u011F\u0131m\u0131z en fazla \xFC\xE7 \xF6nemli rekabet hamlesi."],
-    "Selecci\xF3n basada en fuentes trazables; consulta la fuente para confirmar oferta y disponibilidad.": ["Selection based on traceable sources; check the source to confirm the offering and availability.", "Se\xE7im izlenebilir kaynaklara dayan\u0131r; teklifi ve kullan\u0131labilirli\u011Fi do\u011Frulamak i\xE7in kayna\u011F\u0131 kontrol edin."],
+    "Selecci\xF3n informativa basada en fuentes trazables; consulta la fuente original para ampliar y contrastar la informaci\xF3n.": ["Informational selection based on traceable sources; consult the original source to explore and verify the information.", "\u0130zlenebilir kaynaklara dayal\u0131 bilgilendirme se\xE7kisi; ayr\u0131nt\u0131lar ve bilgiyi do\u011Frulamak i\xE7in \xF6zg\xFCn kayna\u011Fa ba\u015Fvurun."],
     "La geograf\xEDa no tiene zona configurada.": ["The geography has no configured region.", "Co\u011Frafyan\u0131n yap\u0131land\u0131r\u0131lm\u0131\u015F bir b\xF6lgesi yok."],
     "Evidencia o fecha no v\xE1lida.": ["Invalid evidence or date.", "Ge\xE7ersiz kan\u0131t veya tarih."],
     "Fuera del \xE1mbito empresarial solicitado.": ["Outside the requested business scope.", "\u0130stenen kurumsal kapsam\u0131n d\u0131\u015F\u0131nda."],
@@ -1092,7 +1107,7 @@
     "La geograf\xEDa identifica el seguimiento de la fuente; no atribuye cada operaci\xF3n a ese pa\xEDs.": ["Geography identifies the source being tracked; it does not assign each transaction to that country.", "Co\u011Frafya kaynak takibini belirtir; her i\u015Flemi o \xFClkeye atfetmez."],
     "Novedades del sector": ["Sector updates", "Sekt\xF6r yenilikleri"],
     "Anuncios de productos y cambios de oferta detectados en las fuentes de tu selecci\xF3n.": ["Product announcements and offer changes detected in your selected sources.", "Se\xE7ti\u011Finiz kaynaklarda tespit edilen \xFCr\xFCn duyurular\u0131 ve teklif de\u011Fi\u015Fiklikleri."],
-    "Las se\xF1ales proceden de t\xE9rminos configurables en el titular y extracto. Pueden contener falsos positivos o no detectar un lanzamiento. Consulta la fuente para confirmar oferta, disponibilidad y condiciones.": ["Signals come from configurable terms in headlines and excerpts. They may produce false positives or miss a launch. Check the source to confirm the offer, availability and terms.", "Sinyaller ba\u015Fl\u0131k ve \xF6zetlerdeki yap\u0131land\u0131r\u0131labilir terimlerden gelir. Yanl\u0131\u015F e\u015Fle\u015Fmeler olabilir veya bir lansman tespit edilmeyebilir. Teklifi, kullan\u0131labilirli\u011Fi ve ko\u015Fullar\u0131 kaynaktan do\u011Frulay\u0131n."],
+    "Las se\xF1ales proceden de t\xE9rminos configurables en el titular y extracto. Pueden contener falsos positivos o no detectar un lanzamiento.": ["Signals come from configurable terms in headlines and excerpts. They may produce false positives or miss a launch.", "Sinyaller ba\u015Fl\u0131k ve \xF6zetlerdeki yap\u0131land\u0131r\u0131labilir terimlerden gelir. Yanl\u0131\u015F e\u015Fle\u015Fmeler olabilir veya bir lansman tespit edilmeyebilir."],
     "Recibe tu selecci\xF3n": ["Receive your selection", "Se\xE7iminizi al\u0131n"],
     "Recibe lanzamientos, mejoras de productos y alianzas de las entidades que sigues. Elige el contenido y la periodicidad.": ["Receive launches, product improvements and partnerships from the entities you follow. Choose the content and frequency.", "Takip etti\u011Finiz kurumlar\u0131n lansmanlar\u0131n\u0131, \xFCr\xFCn iyile\u015Ftirmelerini ve i\u015F birliklerini al\u0131n. \u0130\xE7erik ve s\u0131kl\u0131\u011F\u0131 se\xE7in."],
     "Sin correos si no hay novedades": ["No emails without updates", "Yenilik yoksa e-posta g\xF6nderilmez"],
@@ -2471,10 +2486,13 @@
   // src/client/features/subscription-templates.js
   function subscriptionForm(options, admin, row) {
     let country = row?.filtros.country ?? browserCountry(options.countries), newsletterLanguage = row?.idioma || language;
-    return `<form data-subscription-form data-admin="${admin}" data-id="${escape2(row?.id || "")}"><h3>${row ? "Mi suscripci\xF3n" : "Recibe Mi Newsletter"}</h3>${admin ? `<label>Correo corporativo<input name="email" type="email" required value="${escape2(row?.correo || "")}" placeholder="nombre@bbva.com"></label>` : `<p>${escape2(options.email)}</p>`}<div class="subscription-fields"><label>Geograf\xEDa<select name="country"><option value="">Sin personalizar</option>${options.countries.map((name) => `<option value="${escape2(name)}"${name === country ? " selected" : ""}>${escape2(name)}</option>`).join("")}</select></label><label>Idioma<select name="language">${Object.entries(languageNames).map(([code, name]) => `<option value="${code}"${code === newsletterLanguage ? " selected" : ""}>${escape2(name)}</option>`).join("")}</select></label></div><p class="small muted">Novedades quincenales y balance trimestral. Canal digital de Empresas e instituciones. La suscripci\xF3n no cambia tus pantallas.</p><div class="actions"><button type="submit" class="button primary">${row ? "Guardar cambios" : "Suscribirme"}</button>${admin || row ? '<button type="button" class="button" data-close-editor>Cancelar</button>' : ""}</div></form>`;
+    return `<form data-subscription-form data-admin="${admin}" data-id="${escape2(row?.id || "")}"><h3>${admin ? row ? "Editar suscripci\xF3n" : "Alta manual" : row ? "Mi suscripci\xF3n" : "Recibe Mi Newsletter"}</h3>${admin ? `<label>Correo corporativo<input name="email" type="email" required value="${escape2(row?.correo || "")}" placeholder="nombre@bbva.com"></label>` : `<p>${escape2(options.email)}</p>`}<div class="subscription-fields"><label>Geograf\xEDa<select name="country"><option value="">Sin personalizar</option>${options.countries.map((name) => `<option value="${escape2(name)}"${name === country ? " selected" : ""}>${escape2(name)}</option>`).join("")}</select></label><label>Idioma<select name="language">${Object.entries(languageNames).map(([code, name]) => `<option value="${code}"${code === newsletterLanguage ? " selected" : ""}>${escape2(name)}</option>`).join("")}</select></label></div><p class="small muted">Novedades quincenales y balance trimestral. Canal digital de Empresas e instituciones. La suscripci\xF3n no cambia tus pantallas.</p><div class="actions"><button type="submit" class="button primary">${row ? "Guardar cambios" : admin ? "Crear suscripci\xF3n" : "Suscribirme"}</button>${admin || row ? '<button type="button" class="button" data-close-editor>Cancelar</button>' : ""}</div></form>`;
   }
-  function subscriptionCards(rows, admin) {
-    return rows.map((row) => `<article class="panel selection-card"><div class="panel-header"><div><h3>${admin ? escape2(row.correo) : "Mi Newsletter"}</h3><p>${escape2(row.filtros.country || "Sin personalizar")} \xB7 ${escape2(languageNames[row.idioma])}</p></div><span class="status-pill" data-state="${row.activa ? "positive" : ""}">${row.activa ? "Activa" : "Pausada"}</span></div><p class="small muted">${row.ultimaEntrega ? "\xDAltimo env\xEDo: " + escape2(date(row.ultimaEntrega.fecha)) + " \xB7 " + escape2(row.ultimaEntrega.estado) : "Sin env\xEDos registrados"}</p><div class="actions"><button class="button" data-action="edit" data-id="${escape2(row.id)}">Editar</button><button class="button" data-action="delete" data-id="${escape2(row.id)}">Dar de baja</button></div></article>`).join("") || '<div class="panel empty"><p>Sin suscripciones.</p></div>';
+  function subscriptionTable(rows) {
+    return rows.length ? '<div class="table-wrap"><table class="subscriber-table"><caption class="visually-hidden">Suscripciones del equipo</caption><thead><tr>' + ["Suscriptor", "Geograf\xEDa", "Idioma", "Estado", "\xDAltimo env\xEDo", "Acciones"].map((label) => '<th scope="col">' + label + "</th>").join("") + "</tr></thead><tbody>" + rows.map((row) => `<tr><td data-label="Suscriptor"><strong>${escape2(row.correo)}</strong></td><td data-label="Geograf\xEDa">${escape2(row.filtros.country || "Sin personalizar")}</td><td data-label="Idioma">${escape2(languageNames[row.idioma])}</td><td data-label="Estado"><span class="status-pill" data-state="${row.activa ? "positive" : ""}">${row.activa ? "Activa" : "Pausada"}</span></td><td data-label="\xDAltimo env\xEDo">${row.ultimaEntrega ? escape2(date(row.ultimaEntrega.fecha)) + "<br>" + escape2(row.ultimaEntrega.estado) : "Sin env\xEDos registrados"}</td><td data-label="Acciones"><div class="actions"><button type="button" class="button" data-action="edit" data-id="${escape2(row.id)}" aria-label="Editar ${escape2(row.correo)}">Editar</button><button type="button" class="button" data-action="delete" data-id="${escape2(row.id)}" aria-label="Dar de baja ${escape2(row.correo)}">Dar de baja</button></div></td></tr>`).join("") + "</tbody></table></div>" : '<div class="panel empty"><p>Sin suscripciones.</p></div>';
+  }
+  function subscriptionCards(rows) {
+    return rows.map((row) => `<article class="panel selection-card"><div class="panel-header"><div><h3>Mi Newsletter</h3><p>${escape2(row.filtros.country || "Sin personalizar")} \xB7 ${escape2(languageNames[row.idioma])}</p></div><span class="status-pill" data-state="${row.activa ? "positive" : ""}">${row.activa ? "Activa" : "Pausada"}</span></div><p class="small muted">${row.ultimaEntrega ? "\xDAltimo env\xEDo: " + escape2(date(row.ultimaEntrega.fecha)) + " \xB7 " + escape2(row.ultimaEntrega.estado) : "Sin env\xEDos registrados"}</p><div class="actions"><button class="button" data-action="edit" data-id="${escape2(row.id)}">Editar</button><button class="button" data-action="delete" data-id="${escape2(row.id)}">Dar de baja</button></div></article>`).join("") || '<div class="panel empty"><p>Sin suscripciones.</p></div>';
   }
   function newsletterHistoryCards(rows) {
     return rows.map((row) => `<article class="newsletter-history-item"><p class="small"><time>${escape2(date(row.fecha))}</time> \xB7 ${escape2(row.estado)} \xB7 ${escape2(row.desde)} / ${escape2(row.hasta)}</p>${row.edition ? `<details data-newsletter-summary="${escape2(row.edition)}"><summary>Resumen de lo recibido</summary><div data-summary-content></div></details>` : ""}</article>`).join("") || '<p class="muted">Todav\xEDa no has recibido newsletters.</p>';
@@ -2488,8 +2506,8 @@
       let content = details.querySelector("[data-summary-content]");
       content.textContent = "Cargando resumen\u2026", details.dataset.loaded = "pending";
       try {
-        let data = await call("getNewsletterSummary", details.dataset.newsletterSummary);
-        content.innerHTML = '<p class="small">' + escape2(data.from) + " / " + escape2(data.to) + " \xB7 " + data.count + " publicaciones \xB7 " + escape2(data.country || "Sin personalizar") + "</p><ul>" + (data.cards?.length ? data.cards.map((card) => "<li><strong>" + escape2(card.category) + "</strong> \xB7 " + escape2(card.scope) + "<br>" + (card.url ? '<a href="' + escape2(card.url) + '" target="_blank" rel="noopener">' + escape2(card.title) + "</a>" : escape2(card.title)) + "</li>") : data.topics.map((topic) => "<li>" + escape2(topic) + "</li>")).join("") + "</ul>", details.dataset.loaded = "true";
+        let data = await call("getNewsletterSummary", details.dataset.newsletterSummary), scopes = Object.entries(data.landscapes || {}).filter(([, scope]) => scope?.total);
+        content.innerHTML = '<p class="newsletter-summary-heading"><strong>' + escape2(data.cadence === "quarterly" ? "Publicaciones del trimestre" : "Publicaciones de la quincena") + "</strong> \xB7 " + escape2(languageNames[data.language] || "") + '</p><p class="small">' + escape2(data.from) + " / " + escape2(data.to) + " \xB7 " + escape2(data.country || "Sin personalizar") + "</p>" + (scopes.length ? scopes.map(([key, scope]) => '<section class="newsletter-summary-scope"><h4>' + escape2(key === "local" ? data.country : "Mirada internacional") + '</h4><p class="small">' + scope.total + " publicaciones \xB7 " + scope.entityCount + " entidades</p><p>" + scope.themes.map((theme) => escape2(theme.name) + " (" + theme.count + ")").join(" \xB7 ") + "</p></section>").join("") : "<p>" + data.count + " publicaciones</p>") + (data.cards?.length ? "<h4>Ejemplos incluidos \xB7 " + data.cards.length + "</h4>" : "") + "<ul>" + (data.cards?.length ? data.cards.map((card) => "<li><strong>" + escape2(card.entity) + " \xB7 " + escape2(card.category) + "</strong> \xB7 " + escape2(card.scope) + "<br>" + (card.url ? '<a href="' + escape2(card.url) + '" target="_blank" rel="noopener">' + escape2(card.title) + "</a>" : escape2(card.title)) + "</li>") : data.topics.map((topic) => "<li>" + escape2(topic) + "</li>")).join("") + "</ul>", details.dataset.loaded = "true";
       } catch (error) {
         content.textContent = error.message, delete details.dataset.loaded;
       }
@@ -2505,13 +2523,13 @@
     }
     function render(admin) {
       if (!admin) {
-        $("subscriptions-list").innerHTML = subscriptionCards(own, !1);
+        $("subscriptions-list").innerHTML = subscriptionCards(own);
         return;
       }
       let id = "subscribers", rows = all;
       filters4[id] ||= createRecordFilters(id, [...admin ? [["correo", "Suscriptor"]] : [], ["activa", "Estado", [["true", "Activa"], ["false", "Pausada"]]]], () => render(admin), { placeholder: "Correo o geograf\xEDa" }), filters4[id].options(recordOptions(rows, admin ? ["correo"] : []));
       let selected = filterRecords(rows, filters4[id].query(), admin ? ["correo", "activa"] : ["activa"], ["correo", "nombre"]), page = recordPage(selected, filters4[id].query());
-      $(admin ? "admin-subscriptions-list" : "subscriptions-list").innerHTML = subscriptionCards(page.items, admin), filters4[id].page(page);
+      $("admin-subscriptions-list").innerHTML = subscriptionTable(page.items), filters4[id].page(page);
     }
     async function open(admin = !1) {
       let current = ++request3, [settings, rows, history] = await Promise.all([call("getNewsletterOptions"), call(admin ? "getAdminSubscriptions" : "getSubscriptions"), admin ? null : call("getMyNewsletterHistory", { limit: historyLimit })]);
@@ -2562,7 +2580,9 @@
       target.hidden = !1, target.textContent = text, target.classList.toggle("error", error);
     }
     async function open() {
-      let [status, options] = await Promise.all([call("getNewsletterDeliveryStatus"), call("getNewsletterOptions")]), form = $("newsletter-test-form"), selected = form.elements.country.value;
+      let [status, options] = await Promise.all([call("getNewsletterDeliveryStatus"), call("getNewsletterOptions")]), form = $("newsletter-test-form");
+      form.elements.language.options.length || (form.elements.language.innerHTML = Object.entries(languageNames).map(([code, name]) => '<option value="' + code + '"' + (code === language ? " selected" : "") + ">" + escape2(name) + "</option>").join(""));
+      let selected = form.elements.country.value;
       form.elements.email.placeholder = options.email, form.elements.country.innerHTML = '<option value="">Sin personalizar</option>' + options.countries.map((name) => "<option>" + escape2(name) + "</option>").join(""), form.elements.country.value = selected, $("newsletter-sender").textContent = status.name + " <" + status.address + ">", $("newsletter-checks").innerHTML = [["Remitente", status.available ? "Configurado" : "Pendiente"], ["Entrega", status.enabled ? "Activada" : "Desactivada"], ["Programaci\xF3n", status.scheduled ? "Instalada" : "Sin activador"]].map(([name, value]) => `<div class="delivery-check"><strong>${name}</strong><span>${value}</span></div>`).join(""), $("newsletter-sender-status").textContent = status.available ? "El remitente se utiliza en los env\xEDos autom\xE1ticos y las pruebas." : status.error, $("newsletter-budget").textContent = status.remaining + " env\xEDos disponibles dentro del l\xEDmite configurado de 24 horas.", $("newsletter-content-note").textContent = status.untracked ? status.untracked + " env\xEDos anteriores no registraron las noticias incluidas. El control de contenido se aplica a los env\xEDos con inventario; los anteriores requieren contrastar los correos originales." : "El contenido de los nuevos env\xEDos queda registrado por suscriptor. Las pruebas se excluyen del control de duplicados.";
       let last = status.last;
       $("newsletter-history").innerHTML = last ? `<strong>\xDAltimo intento \xB7 ${escape2(date(last.fecha))}</strong><span>${escape2(last.estado)} \xB7 ${escape2(last.correo)}</span><span>${escape2(last.detalle)}</span>` : "<span>No hay intentos de env\xEDo registrados.</span>";
@@ -3221,8 +3241,8 @@
         else config[category] = [...$("catalog-fields").children].map(record);
     }
     function fields(definitions, row) {
-      return definitions.map(([key, label, type, choices]) => `<label class="${type === "list" ? "catalog-terms" : ""}">${escape2(t(label))}${type === "choice" ? `<select data-key="${key}">${choices.map(([value, label2]) => `<option value="${escape2(value)}" ${row[key] === value ? "selected" : ""}>${escape2(t(label2))}</option>`).join("")}</select>` : type === "boolean" ? `<input type="checkbox" data-key="${key}" ${row[key] ? "checked" : ""}>` : type === "list" ? `<textarea data-key="${key}" data-list="true" rows="${Math.min(8, Math.max(3, (row[key] || []).length))}" spellcheck="false">${escape2((row[key] || []).join(`
-`))}</textarea><span class="small muted">${t("Un t\xE9rmino por l\xEDnea")} \xB7 ${(row[key] || []).length}</span>` : `<input data-key="${key}" type="${type === "number" ? "number" : "text"}" ${type === "readonly" ? "readonly" : ""} value="${escape2(row[key] ?? "")}">`}</label>`).join("");
+      return definitions.map(([key, label, type, choices]) => `<label class="${type === "list" ? "catalog-terms" : ""}">${escape2(t(label))}${type === "choice" ? `<select data-key="${escape2(key)}">${choices.map(([value, label2]) => `<option value="${escape2(value)}" ${row[key] === value ? "selected" : ""}>${escape2(t(label2))}</option>`).join("")}</select>` : type === "boolean" ? `<input type="checkbox" data-key="${escape2(key)}" ${row[key] ? "checked" : ""}>` : type === "list" ? `<textarea data-key="${escape2(key)}" data-list="true" rows="${Math.min(8, Math.max(3, (row[key] || []).length))}" spellcheck="false">${escape2((row[key] || []).join(`
+`))}</textarea><span class="small muted">${t("Un t\xE9rmino por l\xEDnea")} \xB7 ${(row[key] || []).length}</span>` : `<input data-key="${escape2(key)}" type="${type === "number" ? "number" : "text"}" ${type === "readonly" ? "readonly" : ""} value="${escape2(row[key] ?? "")}">`}</label>`).join("");
     }
     function filterRows() {
       let query = filters4.query(), term = recordText(query.search), rows = [...$("catalog-fields").querySelectorAll(category === "applicationScope" ? "[data-geography]" : ":scope > *")], shown = 0;
@@ -3250,7 +3270,7 @@
         html = [...regions].map(([region, countries]) => `<fieldset class="catalog-group scope-group"><legend>${escape2(t(region))}</legend><div class="scope-countries">${countries.map((country) => `<details class="catalog-row" data-geography data-enabled="${country.enabled}" ${country.name ? "" : "open"}><summary><strong>${escape2(country.name || t("Nueva entrada"))}</strong><span>${t(country.enabled ? "Activa" : "Inactiva")}</span></summary><label class="scope-country"><input type="checkbox" data-country="${escape2(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${t("Pesta\xF1a propia")}</span></label><div class="catalog-grid">${fields(meta.fields, country)}</div><button type="button" class="button" data-remove>${t("Eliminar")}</button></details>`).join("")}</div></fieldset>`).join("");
       } else meta.groups ? html = meta.groups.map((group) => {
         let section = group.section || category;
-        return `<fieldset class="catalog-group" data-config-section="${section}"><legend>${escape2(t(group.label))}</legend><div class="catalog-settings">${group.keys.map((key) => {
+        return `<fieldset class="catalog-group" data-config-section="${escape2(section)}"><legend>${escape2(t(group.label))}</legend><div class="catalog-settings">${group.keys.map((key) => {
           let value = config[section][key];
           return fields([[key, meta.labels[key], Array.isArray(value) ? "list" : typeof value == "number" ? "number" : typeof value == "boolean" ? "boolean" : "text"]], config[section]);
         }).join("")}</div></fieldset>`;
@@ -3258,7 +3278,8 @@
       $("catalog-fields").innerHTML = html, filterRows();
     }
     return $("catalog-category").innerHTML = Object.entries(admin_schema_default).map(([key, meta]) => `<option value="${key}">${escape2(t(meta.label))}</option>`).join(""), $("catalog-category").addEventListener("change", () => {
-      readFields(), category = $("catalog-category").value, render();
+      let next = $("catalog-category").value;
+      Object.hasOwn(admin_schema_default, next) && (readFields(), category = next, render());
     }), $("catalog-fields").addEventListener("click", (event) => {
       if (event.target.closest("[data-add-capability]")) {
         readFields(), config.capabilities.Empresas.push({ name: "", terms: [], enabled: !0 }), render();
@@ -3498,17 +3519,53 @@
   }
 
   // src/client/features/activity-chart.js
+  var arrow = (direction) => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${direction < 0 ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"}"/></svg>`;
   function activityChart(days) {
-    if (!days.length) return '<div class="note">No hay actividad diaria registrada en este per\xEDodo.</div>';
-    let maximum = Math.max(1, ...days.map((day2) => day2.users));
-    return `<div class="activity-chart" role="img" aria-label="Usuarios activos por d\xEDa">${days.map((day2) => `<div class="activity-column" title="${escape2(day2.date)}: ${day2.users} usuarios"><span>${day2.users}</span><div class="activity-bar" style="--bar-height:calc(var(--activity-chart-height) * ${day2.users / maximum})"></div><span>${escape2(day2.date.slice(5))}</span></div>`).join("")}</div>`;
+    if (!days.length) return '<div class="note">' + t("No hay actividad diaria registrada en este per\xEDodo.") + "</div>";
+    let maximum = Math.max(1, ...days.map((day2) => day2.users)), months = /* @__PURE__ */ new Map(), monthFormat = new Intl.DateTimeFormat(language, { month: "long", year: "numeric", timeZone: "UTC" });
+    for (let day2 of days) {
+      let key = day2.date.slice(0, 7);
+      months.set(key, (months.get(key) || 0) + 1);
+    }
+    return `<section class="activity-timeline" aria-label="${escape2(t("Usuarios activos por d\xEDa"))}"><div class="activity-heading"><div><strong>${t("Actividad diaria")}</strong><p class="activity-range" aria-live="polite" aria-atomic="true"></p></div><button type="button" class="activity-latest" data-activity-end title="${escape2(t("Ir al d\xEDa m\xE1s reciente"))}">${t("\xDAltimos d\xEDas")}</button></div><div class="activity-navigation"><button type="button" class="activity-control" data-activity-step="-1" aria-label="${escape2(t("Ver d\xEDas anteriores"))}">${arrow(-1)}</button><ul class="activity-chart" tabindex="0" aria-label="${escape2(t("Usuarios activos por d\xEDa"))}">${days.map((day2, index) => `<li class="activity-column ${Number(day2.date.slice(0, 4)) * 12 + Number(day2.date.slice(5, 7)) & 1 ? "activity-month-alternate" : ""}" data-date="${escape2(day2.date)}" aria-label="${escape2(formatCalendarDay(day2.date, language) + " \xB7 " + t("{count} usuarios", { count: day2.users }))}"><span class="activity-value">${day2.users}</span><div class="activity-bar" style="--bar-height:calc(var(--activity-chart-height) * ${day2.users / maximum})"></div><span class="activity-date">${escape2(day2.date.slice(8))}</span>${index === 0 || days[index - 1].date.slice(0, 7) !== day2.date.slice(0, 7) ? `<span class="activity-month" aria-hidden="true" style="width:calc(${months.get(day2.date.slice(0, 7))} * var(--activity-column-size,var(--activity-column-width)) + ${months.get(day2.date.slice(0, 7)) - 1} * var(--space-1))"><span>${escape2(monthFormat.format(/* @__PURE__ */ new Date(day2.date + "T00:00:00Z")))}</span></span>` : ""}</li>`).join("")}</ul><button type="button" class="activity-control" data-activity-step="1" aria-label="${escape2(t("Ver d\xEDas siguientes"))}">${arrow(1)}</button></div></section>`;
+  }
+  function createActivityChart(container) {
+    let viewport, columns = [], previous, next, latest, range, atEnd = !0, step = () => columns.length > 1 ? columns[1].getBoundingClientRect().left - columns[0].getBoundingClientRect().left : columns[0]?.getBoundingClientRect().width || 0;
+    function update() {
+      if (!viewport || !viewport.clientWidth) return;
+      let end = Math.max(0, viewport.scrollWidth - viewport.clientWidth), left = Math.max(0, viewport.scrollLeft), width = step();
+      if (previous.disabled = left <= 1, next.disabled = latest.disabled = left >= end - 1, atEnd = next.disabled, !width) return;
+      let first = Math.min(columns.length - 1, Math.floor((left + 1) / width)), last = Math.min(columns.length - 1, Math.ceil((left + viewport.clientWidth - 1) / width) - 1), text = formatCalendarDay(columns[first].dataset.date, language) + " \u2014 " + formatCalendarDay(columns[last].dataset.date, language);
+      range.textContent !== text && (range.textContent = text);
+    }
+    function move(direction) {
+      if (!viewport) return;
+      let width = step(), page = Math.max(1, Math.ceil(viewport.clientWidth / (width || 1)) - 1) * (width || viewport.clientWidth), left = direction === "start" ? 0 : direction === "end" ? viewport.scrollWidth : viewport.scrollLeft + direction * page;
+      viewport.scrollTo({ left: Math.max(0, Math.min(viewport.scrollWidth - viewport.clientWidth, left)), behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+    }
+    container.addEventListener("click", (event) => {
+      let button = event.target.closest("[data-activity-step],[data-activity-end]");
+      button && !button.disabled && move(button.hasAttribute("data-activity-end") ? "end" : Number(button.dataset.activityStep));
+    }), container.addEventListener("keydown", (event) => {
+      if (event.target !== viewport) return;
+      let direction = { ArrowLeft: -1, ArrowRight: 1, PageUp: -1, PageDown: 1, Home: "start", End: "end" }[event.key];
+      direction !== void 0 && (event.preventDefault(), move(direction));
+    });
+    function layout() {
+      if (!viewport || !viewport.clientWidth) return;
+      let styles = window.getComputedStyle(viewport), minimum = parseFloat(styles.getPropertyValue("--activity-column-width")) || columns[0].getBoundingClientRect().width, gap = parseFloat(styles.columnGap) || 0, width = viewport.clientWidth, visible = Math.max(1, Math.min(columns.length, Math.floor((width + gap) / (minimum + gap)))), first = step() ? Math.round(viewport.scrollLeft / step()) : 0;
+      viewport.style.setProperty("--activity-column-size", (width - gap * (visible - 1)) / visible + "px"), viewport.scrollLeft = atEnd ? Math.max(0, viewport.scrollWidth - width) : first * step(), update();
+    }
+    return new ResizeObserver(layout).observe(container), { render(days) {
+      atEnd = !0, container.innerHTML = activityChart(days), viewport = container.querySelector(".activity-chart"), viewport && (columns = Array.from(viewport.children), previous = container.querySelector('[data-activity-step="-1"]'), next = container.querySelector('[data-activity-step="1"]'), latest = container.querySelector("[data-activity-end]"), range = container.querySelector(".activity-range"), viewport.addEventListener("scroll", update, { passive: !0 }), layout());
+    } };
   }
 
   // src/shared/newsletter-cadences.js
   var newsletterCadences = Object.freeze({ fortnightly: { label: "Quincenal", view: "briefing", scope: "Novedades", weekday: 1 }, quarterly: { label: "Trimestral", view: "news", scope: "Noticias", weekday: 3 } }), newsletterComparisonLabels = Object.freeze({ local: "Tu geograf\xEDa", group: "El grupo en otras geograf\xEDas", market: "El mercado internacional" });
 
   // src/client/features/metrics.js
-  var filters = {}, requests2 = {}, adoptionCohort = "dau", adoptionCohorts = [["dau", "DAU", "Usuarios \xB7 24 horas"], ["wau", "WAU", "Usuarios \xB7 7 d\xEDas"], ["mau", "MAU", "Usuarios \xB7 30 d\xEDas"], ["returning", "Recurrentes", "M\xE1s de una sesi\xF3n \xB7 30 d\xEDas"], ["total", "Total usuarios", "Usuarios \xB7 per\xEDodo filtrado"]];
+  var adoptionChart = createActivityChart($("adoption-chart")), filters = {}, requests2 = {}, adoptionCohort = "dau", adoptionCohorts = [["dau", "DAU", "Usuarios \xB7 24 horas"], ["wau", "WAU", "Usuarios \xB7 7 d\xEDas"], ["mau", "MAU", "Usuarios \xB7 30 d\xEDas"], ["returning", "Recurrentes", "M\xE1s de una sesi\xF3n \xB7 30 d\xEDas"], ["total", "Total usuarios", "Usuarios \xB7 per\xEDodo filtrado"]];
   $("adoption-metrics").addEventListener("click", (event) => {
     let cohort = event.target.closest("[data-cohort]")?.dataset.cohort;
     cohort && cohort !== adoptionCohort && (adoptionCohort = cohort, filters.adoption.reset(), loadMetrics("adoption", () => !$("adoption-section").hidden && !$("administration-section").hidden));
@@ -3520,7 +3577,7 @@
     try {
       let data = await call("getAdoption", { ...filters[view2].query(), cohort: adoptionCohort });
       if (!isCurrent() || requests2[view2] !== request3) return;
-      filters[view2].options(data.options), view2 === "adoption" && ($("adoption-metrics").innerHTML = adoptionCohorts.map(([key, label, hint]) => '<button type="button" class="metric" data-cohort="' + key + '" aria-pressed="' + (key === adoptionCohort) + '"><span>' + escape2(t(label)) + "</span><strong>" + Number(data[key === "total" ? "totalUsers" : key] || 0) + '</strong><span class="small">' + escape2(t(hint)) + "</span></button>").join(""), filters[view2].page(data), $("adoption-users-label").textContent = t(adoptionCohorts.find(([key]) => key === adoptionCohort)[1]) + " \xB7 " + t("{count} usuarios", { count: data.total }), $("adoption-body").innerHTML = data.users.map((row) => "<tr>" + [row.correo, date(row.last), row.sessions, row.actions, date(row.first)].map((value, index) => '<td data-label="' + escape2(t(["Usuario", "\xDAltimo acceso", "Sesiones", "Eventos", "Primer acceso"][index])) + '">' + escape2(value) + "</td>").join("") + "</tr>").join("") || '<tr><td colspan="5">' + t("No hay usuarios en este grupo.") + "</td></tr>", $("adoption-note").textContent = t("{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.", data) + " " + (data.limited ? "L\xEDmite de eventos alcanzado; m\xE9tricas parciales." : ""), $("adoption-chart").innerHTML = activityChart(data.daily));
+      filters[view2].options(data.options), view2 === "adoption" && ($("adoption-metrics").innerHTML = adoptionCohorts.map(([key, label, hint]) => '<button type="button" class="metric" data-cohort="' + key + '" aria-pressed="' + (key === adoptionCohort) + '"><span>' + escape2(t(label)) + "</span><strong>" + Number(data[key === "total" ? "totalUsers" : key] || 0) + '</strong><span class="small">' + escape2(t(hint)) + "</span></button>").join(""), filters[view2].page(data), $("adoption-users-label").textContent = t(adoptionCohorts.find(([key]) => key === adoptionCohort)[1]) + " \xB7 " + t("{count} usuarios", { count: data.total }), $("adoption-body").innerHTML = data.users.map((row) => "<tr>" + [row.correo, date(row.last), row.sessions, row.actions, date(row.first)].map((value, index) => '<td data-label="' + escape2(t(["Usuario", "\xDAltimo acceso", "Sesiones", "Eventos", "Primer acceso"][index])) + '">' + escape2(value) + "</td>").join("") + "</tr>").join("") || '<tr><td colspan="5">' + t("No hay usuarios en este grupo.") + "</td></tr>", $("adoption-note").textContent = t("{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.", data) + " " + (data.limited ? "L\xEDmite de eventos alcanzado; m\xE9tricas parciales." : ""), adoptionChart.render(data.daily));
     } catch (e) {
       requests2[view2] === request3 && isCurrent() && message(e.message, !0);
     }
@@ -3676,7 +3733,8 @@
   }
 
   // src/client/features/filters.js
-  function createFilters({ onInvalidate, onChange }) {
+  function createFilters({ onInvalidate, onChange, onCurrent = () => {
+  } }) {
     let form = $("filters"), page = 0, view2 = defaultView, defaults = {}, edition = "", newsGeography = "", editionSelection = {}, taxonomy2 = [], applied = {}, dirty = !1, regions = REGION_CODES, selections = /* @__PURE__ */ new Map(), initialized = /* @__PURE__ */ new Set();
     function options(name, values, selected) {
       let el = form.elements[name];
@@ -3771,7 +3829,7 @@
       form.elements.to.setCustomValidity(""), onInvalidate(), notify && onChange();
     }
     function current() {
-      resetContext("");
+      onCurrent(), editionSelection = {}, resetContext("");
     }
     return {
       useEdition: (id, selection = {}, notify = !0) => {
@@ -4067,7 +4125,14 @@
   }, onSelection: (view2) => {
     let changed = filters3.show(view2);
     state.ready && (changed || state.contentStale || state.view !== view2) && load(!0);
-  }, onSubscriptions: () => subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters3 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
+  }, onSubscriptions: () => subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters3 = createFilters({ onCurrent: () => {
+    let params = { view: "news" };
+    if (typeof google < "u" && google.script?.history) google.script.history.replace({}, params, "");
+    else {
+      let url = new URL(window.location.href);
+      url.search = "?view=news", window.history.replaceState({}, "", url);
+    }
+  }, onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load(!0);
   } }), reading = createReadingContext({ run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing({ onExplore: (query) => navigateSelection("news", query), onGeography: (country) => {
     filters3.syncGeography(country), refreshSelects();
@@ -4089,7 +4154,7 @@
     if (filters3.isValid())
       try {
         let administrative = navigation.current === "administration", query = administrative ? { view: administration.current, language: filters3.query().language } : filters3.query();
-        administrative || (renderFreshness(query.initial ? {} : query, state.data?.lastRun), query.initial && ($("active-filters").hidden = !0)), query.view === "news" && !query.edition && !query.newsGeography && (query.newsGeography = browserCountry());
+        administrative || (renderFreshness(query.initial ? {} : query, state.data?.lastRun), query.initial && ($("active-filters").hidden = !0)), query.view === "news" && !query.country && !query.benchmark && !query.newsGeography && (query.newsGeography = browserCountry());
         let key = selectionKey(query), cached = reuse && !administrative && !state.contentStale && dashboards2.get(key), clientCacheHit = !!(cached && performance.now() - cached.time < navigationCache.milliseconds), data = clientCacheHit ? { ...cached.data, collection: state.data.collection, lastRun: state.data.lastRun, daily: state.data.daily } : await call("getDashboard", query, { reuse }), appended = null;
         if (request3 !== state.request) return;
         if (query.view === "news" && query.page > 0 && (state.data?.newsRevision === data.newsRevision && data.page === query.page ? (appended = data.items, data = { ...data, items: [...state.data.items, ...appended] }) : data = await call("getDashboard", { ...query, page: 0 })), request3 === state.request) {
