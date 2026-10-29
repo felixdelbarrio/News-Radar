@@ -1,21 +1,21 @@
-# Security Policy
+# Security policy
 
-## Supported Versions
+## Release support
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Security fixes are prepared on `develop` for the next release. The current
+released version is identified by `RADAR.version` in `src/server/config/Config.gs`
+and the README. Deploy the latest reviewed release to receive available fixes.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+There are no separately maintained security branches or guaranteed backports
+for older releases. No support or response-time SLA is promised by this policy.
 
-## Reporting a Vulnerability
+## Private vulnerability reports
 
-Use this section to tell people how to report a vulnerability.
-
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Send vulnerability reports and security notifications to
+[ews-radar.group@bbva.com](mailto:ews-radar.group@bbva.com).
+Include the affected release, affected component, impact, and minimal steps to
+reproduce. Use a private message; do not put secrets, personal data, exploit
+payloads, or sensitive details in public issues or pull request comments.
+If a report requires sensitive supporting material, first request a suitable
+private transfer channel from that address. The maintainers will assess the
+report and coordinate any remediation and disclosure privately.
