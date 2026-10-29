@@ -77,3 +77,11 @@ test('37: el favicon embebido conserva los bytes originales y el contenedor usa 
  c.HtmlService={createTemplateFromFile:()=>({evaluate:()=>out})};c.doGet({parameter:{edition:'fixture'}});assert.equal(favicon,'https://raw.githubusercontent.com/felixdelbarrio/News-Radar/87e9ef88d9331af498c1d3995ff6d1f5252bc3aa/assets/favicon.ico');
  const html=fs.readFileSync(new URL('../dist/Index.html',import.meta.url),'utf8');assert.ok(html.includes('href="'+expected+'"'));
 });
+test('37: borrar una fecha de entrada y aplicar el formulario abandona la edición y limpia la URL',async t=>{
+ for(const field of ['from','to']){
+  let replacement;const a=await app(t,{location:{edition:'edition-one',view:'news'},configure({data}){data.context={mode:'edition',id:'edition-one'};data.selection={from:'2026-02-01',to:'2026-02-28'};}});
+  a.w.google.script.history={replace:(_state,params)=>{replacement=params;}};
+  await a.change('#filters [name="'+field+'"]','');
+  assert.equal(a.calls.filter(r=>r.method==='getDashboard').at(-1).query.edition,undefined,field);assert.deepEqual({...replacement},{view:'news'});
+ }
+});

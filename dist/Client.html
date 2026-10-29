@@ -59,6 +59,11 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Correcci\xF3n selectiva: IDs ausentes o duplicados.": ["Selective correction: missing or duplicate IDs.", "Se\xE7ici d\xFCzeltme: eksik veya yinelenen kimlikler."],
+    "Revisa entre 1 y 20 IDs \xFAnicos.": ["Review between 1 and 20 unique IDs.", "1 ile 20 aras\u0131nda benzersiz kimli\u011Fi inceleyin."],
+    "Plan selectivo no v\xE1lido o generaci\xF3n cambiada.": ["Invalid selective plan or changed generation.", "Se\xE7ici plan ge\xE7ersiz veya veri nesli de\u011Fi\u015Fmi\u015F."],
+    "IDs duplicados en el plan.": ["Duplicate IDs in the plan.", "Planda yinelenen kimlikler var."],
+    "Lectura de verificaci\xF3n incompleta.": ["Verification read incomplete.", "Do\u011Frulama okumas\u0131 tamamlanamad\u0131."],
     "Primera quincena de {month} de {year}": ["First half of {month} {year}", "{month} {year} ay\u0131n\u0131n ilk yar\u0131s\u0131"],
     "Segunda quincena de {month} de {year}": ["Second half of {month} {year}", "{month} {year} ay\u0131n\u0131n ikinci yar\u0131s\u0131"],
     "Lo m\xE1s relevante del primer trimestre de {year}": ["Highlights of the first quarter of {year}", "{year} y\u0131l\u0131n\u0131n ilk \xE7eyre\u011Finde \xF6ne \xE7\u0131kanlar"],
@@ -1746,8 +1751,8 @@
   function message(text, error = !1) {
     $("message").textContent = text, $("message").classList.toggle("error", error), $("message").hidden = !1;
   }
-  function newsPublisher(row, logo = !0) {
-    return '<span class="identity-label">Medio: ' + (row.medio ? "<span data-original>" + escape2(row.medio) + "</span>" : "No indicado") + (logo ? identityMark("publishers", row.medio, escape2) : "") + "</span> " + (row.fuente ? '<span class="identity-label">' + t("Origen RSS") + ": <span data-original>" + escape2(row.fuente) + "</span></span>" : "");
+  function newsPublisher(row) {
+    return '<span class="identity-label">Medio: ' + (row.medio ? "<span data-original>" + escape2(row.medio) + "</span>" : "No indicado") + identityMark("publishers", row.medio, escape2) + "</span> " + (row.fuente ? '<span class="identity-label">' + t("Origen RSS") + ": <span data-original>" + escape2(row.fuente) + "</span></span>" : "");
   }
   function newsTaxonomy(row, selection = {}) {
     if (!row.taxonomia?.some((item) => item.palanca && item.subpalanca)) return '<span class="badge" data-original>' + escape2(t("Sin clasificaci\xF3n funcional justificable")) + "</span>";
@@ -3773,23 +3778,19 @@
       }
       let button = event.target.closest("[data-remove-filter]");
       if (button) {
-        if (edition && ["from", "to"].includes(button.dataset.removeFilter)) {
-          current();
-          return;
-        }
         for (let input2 of form.elements) input2.name && (input2.value = applied[input2.name] || "");
         button.dataset.removeFilter === "benchmark" ? delete applied.benchmark : form.elements[button.dataset.removeFilter].value = "", filterChanged({ type: "change" });
       }
     });
     let timer2;
     function filterChanged(event) {
-      if (edition && ["from", "to"].includes(event.target?.name) && !event.target.value) {
-        current();
-        return;
-      }
       if (event.type === "input" && event.target?.name !== "search") return;
       syncTaxonomyControls(form, taxonomy2, event.target?.name);
       let next = Object.fromEntries(new FormData(form));
+      if (edition && ["from", "to"].some((key) => applied[key] && !next[key])) {
+        current();
+        return;
+      }
       if (event.type === "submit" && JSON.stringify(Object.entries(next).sort()) === JSON.stringify(Object.entries(applied).filter(([key]) => form.elements[key]).sort())) return;
       clearTimeout(timer2), page = 0, initialized.add(view2), onInvalidate();
       let from = form.elements.from.value, to = form.elements.to.value;
@@ -3898,7 +3899,7 @@
     list.dataset.links || (list.dataset.links = "true", list.addEventListener("click", (event) => {
       event.target.closest("a,button,details,input") || window.getSelection()?.toString() || event.target.closest(".news-row")?.querySelector(".story-link")?.click();
     }));
-    let rows = (items) => items.map((row) => `<tr class="news-row"><td>${articleTitle(row)}${row.extracto ? `<p class="story-excerpt" data-original>${escape2(row.extracto)}</p>` : ""}${articleOriginal(row)}<div class="news-meta">${articleTags(row, data.selection)}</div></td><td>${articleDate(row)}</td><td>${newsPublisher(row, !1)}</td></tr>`).join(""), marks = (group) => [...new Set(group.items.map((row) => row.pais))].map((country) => identityMark("countries", country, escape2)).join("") + [...new Set(group.items.map((row) => row.medio))].map((publisher) => identityMark("publishers", publisher, escape2)).join(""), groupHtml = (group) => `<article class="panel news-entity-group" aria-label="${escape2(group.name)}"><div class="news-entity-heading"><h2 data-original>${identityMark("entities", group.name, escape2)}${escape2(group.name)}</h2><span class="story-identity">${marks(group)}</span></div><div class="news-table"><table role="table"><thead><tr><th scope="col">Titular</th><th scope="col">Fecha de publicaci\xF3n</th><th scope="col">Medio</th></tr></thead><tbody>${rows(group.items)}</tbody></table></div></article>`;
+    let rows = (items) => items.map((row) => `<tr class="news-row"><td>${articleTitle(row)}${row.extracto ? `<p class="story-excerpt" data-original>${escape2(row.extracto)}</p>` : ""}${articleOriginal(row)}<div class="news-meta">${articleTags(row, data.selection)}</div></td><td>${articleDate(row)}</td><td>${newsPublisher(row)}</td></tr>`).join(""), marks = (group) => [...new Set(group.items.map((row) => row.pais))].map((country) => identityMark("countries", country, escape2)).join(""), groupHtml = (group) => `<article class="panel news-entity-group" aria-label="${escape2(group.name)}"><div class="news-entity-heading"><h2 data-original>${identityMark("entities", group.name, escape2)}${escape2(group.name)}</h2><span class="story-identity">${marks(group)}</span></div><div class="news-table"><table role="table"><thead><tr><th scope="col">Titular</th><th scope="col">Fecha de publicaci\xF3n</th><th scope="col">Medio</th></tr></thead><tbody>${rows(group.items)}</tbody></table></div></article>`;
     if (appended)
       for (let group of newsEntityGroups(appended)) {
         let last = list.lastElementChild;

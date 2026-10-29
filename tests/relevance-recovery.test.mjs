@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {storage} from './helpers/server.mjs';
 const positive=[
- '¿No puedes hacer pagos? BBVA México reporta fallas en su app este jueves 28 de mayo',
+ 'BBVA México reporta fallas en su app de pagos para empresas este jueves 28 de mayo',
  'Uno de los bancos más grandes de Argentina lanzó una nueva plataforma de cobros y pagos',
  'Así es Banco Santander Pay: la herramienta que promete revolucionar los cobros de empresas',
  'España: Bankinter implementó RCS para confirmar transferencias y pagos',
@@ -32,6 +32,7 @@ const positive=[
  'Citi and Coinbase Expand Collaboration to Connect Digital and Fiat Payments for Corporations and Consumers'
 ];
 const negative=[
+ '¿No puedes hacer pagos? BBVA México reporta fallas en su app este jueves 28 de mayo',
  'BBVA financia hasta 12 cuotas compras con 1 solo pago con tarjeta de crédito o débito',
  'BBVA Uruguay, mejor banco de Trade Finance del país por sexto año consecutivo',
  'BBVA premiará a los nuevos clientes en España que usen la cuenta y Bizum',
