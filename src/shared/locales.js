@@ -1,5 +1,10 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Corrección selectiva: IDs ausentes o duplicados.": ["Selective correction: missing or duplicate IDs.","Seçici düzeltme: eksik veya yinelenen kimlikler."],
+  "Revisa entre 1 y 20 IDs únicos.": ["Review between 1 and 20 unique IDs.","1 ile 20 arasında benzersiz kimliği inceleyin."],
+  "Plan selectivo no válido o generación cambiada.": ["Invalid selective plan or changed generation.","Seçici plan geçersiz veya veri nesli değişmiş."],
+  "IDs duplicados en el plan.": ["Duplicate IDs in the plan.","Planda yinelenen kimlikler var."],
+  "Lectura de verificación incompleta.": ["Verification read incomplete.","Doğrulama okuması tamamlanamadı."],
   "Primera quincena de {month} de {year}": ["First half of {month} {year}","{month} {year} ayının ilk yarısı"],
   "Segunda quincena de {month} de {year}": ["Second half of {month} {year}","{month} {year} ayının ikinci yarısı"],
   "Lo más relevante del primer trimestre de {year}": ["Highlights of the first quarter of {year}","{year} yılının ilk çeyreğinde öne çıkanlar"],
