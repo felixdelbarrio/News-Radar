@@ -19,7 +19,7 @@ export async function loadAudit(){
    let value=row[key]??'—',html=escape(value);
    if(['fecha','inicio','fin'].includes(key))html=escape(date(value));
    if(['edition','edicion'].includes(key)&&value&&value!=='—')html='<button class="text-button" data-open-edition="'+escape(value)+'">'+escape(value)+'</button><details data-newsletter-summary="'+escape(value)+'"><summary>'+t('Resumen enviado')+'</summary><div data-summary-content></div></details>';
-   if(key==='url'&&validUrl(value))html='<a href="'+escape(value)+'" target="_blank" rel="noopener noreferrer">'+t('Fuente')+' ↗</a>';
+   if(key==='url'&&validUrl(value))html='<a href="'+escape(value)+'" target="_blank" rel="noopener noreferrer">'+t('Fuente')+' <span class="link-icon" aria-hidden="true"></span></a>';
    return '<td data-label="'+escape(t(labels[key]||key))+'" data-original>'+html+'</td>';
   }).join('')+'</tr>').join('')||'<tr><td colspan="'+data.columns.length+'">'+t('Sin entradas con estos filtros.')+'</td></tr>';
  }catch(error){if(current===request)message(error.message,true);}

@@ -120,7 +120,7 @@ test('la etiqueta visible del selector LLM refleja el modo persistido al abrir l
  assert.equal(a.w.document.querySelector('#llm-mode'),null);
 });
 
-test('las citas LLM primarias llegan a la explicación visible y conservan las secundarias',async t=>{
+test('las citas LLM conservan la evidencia interna sin mostrar explicaciones en las tarjetas',async t=>{
  const {c}=setup();c.newsSheet_().grid[1][6]='Pagos internacionales para empresas';c.invalidateNews_();
  const r=result(c),secondary=c.taxonomyCatalog_().find(row=>row.terminos.includes('pagos internacionales')).id;
  r.ids.push(secondary);r.evidence.push({id:secondary,quote:'Pagos internacionales',source:'article'});
@@ -129,7 +129,7 @@ test('las citas LLM primarias llegan a la explicación visible y conservan las s
  assert.deepEqual(Array.from(evidence.terms),['login biométrico']);assert.equal(evidence.method,'literal');assert.equal(evidence.location,'headline');
  assert.equal(evidence.assignments.length,2);assert.equal(evidence.assignments[1].location,'text');assert.equal(evidence.assignments[1].terms[0],'Pagos internacionales');
  const a=await app(t,{configure({data}){data.briefing.items=JSON.parse(JSON.stringify([row]));data.briefing.total=1;}});
- assert.match(a.find('.novelty-card').textContent,/Por qué está clasificada aquí/);assert.match(a.find('.novelty-card details').textContent,/Coincidencia operativa directa · Titular/);assert.match(a.find('.novelty-card details').textContent,/login biométrico/);
+ assert.doesNotMatch(a.find('.novelty-card').textContent,/Por qué está clasificada aquí|Coincidencia operativa directa/);
 });
 
 test('la explicación LLM identifica las citas del extracto y no inventa evidencia para resultados vacíos',()=>{
@@ -143,12 +143,12 @@ function webResult(c,id='news-0'){
  r.sources=[{id:'editor',url:'https://publisher.example.com/canonical',articleUrl:row.url,retrievedAt:'2026-10-10T12:00:00Z',passage:'La banca empresarial estrena login biométrico y transferencias inmediatas.'}];
  r.evidence[0]={id:r.primary,quote:'estrena login biométrico',source:'editor'};return r;
 }
-test('evidencia web se valida contra el pasaje aportado, conserva procedencia y se muestra como externa',async t=>{
+test('evidencia web se valida contra el pasaje aportado, conserva procedencia interna sin desplegable visible',async t=>{
  const {c}=setup(),r=webResult(c);assert.ok(!c.llmArticle_(c.rows_('Noticias')[0]).titulo.includes(r.evidence[0].quote));
  c.importLlmResults(payload([r]));finish(c);
  const row=c.annotateNews_(c.rows_('Noticias'))[0];assert.equal(row.functionalEvidence.method,'external');assert.equal(row.functionalEvidence.url,r.sources[0].url);
  const a=await app(t,{configure({data}){data.briefing.items=JSON.parse(JSON.stringify([row]));data.briefing.total=1;}});
- assert.match(a.find('.novelty-card details').textContent,/Evidencia web aportada · Texto del editor/);assert.equal(a.find('.novelty-card details a').href,r.sources[0].url);
+ assert.doesNotMatch(a.find('.novelty-card').textContent,/Evidencia web aportada|Por qué está clasificada aquí/);assert.equal(a.w.document.querySelector('.novelty-card details'),null);
 });
 test('rechaza evidencia web sin procedencia, pasaje, fecha real o URL canónica pública, sin publicar',()=>{
  const s=setup(),c=s.c,before=s.properties.DATA_GENERATION;

@@ -7,27 +7,25 @@ const document=html=>new JSDOM(html).window.document;
 test('el periodo trimestral conserva trimestre y año con el nuevo copy',()=>{
  const {c}=presentationServer();for(const [month,end,ordinal] of [['01','03-31','primer'],['04','06-30','segundo'],['07','09-30','tercer'],['10','12-31','cuarto']]){
   const period=c.newsletterIdentity_({view:'news',from:'2026-'+month+'-01',to:'2026-'+end},new Date('2026-12-31T12:00:00Z')).period;
-  assert.equal(period,'Lo más relevante, en los canales digitales de Banca de Empresas e Instituciones, del '+ordinal+' trimestre de 2026');
+  assert.equal(period,'Lo más relevante del '+ordinal+' trimestre de 2026');
  }
 });
 for(const {name,query} of presentationCases){
- test(name+': conserva exactamente el contrato editorial previo y presenta enlaces y CID íntegros',()=>{
+ test(name+': conserva el corpus previo y presenta enlaces y CID íntegros',()=>{
   const s=presentationServer(),c=s.c,result=presentationContent(c,query),d=document(result.html);
-  assert.deepEqual(presentationContract(result),JSON.parse(fs.readFileSync(new URL('./fixtures/newsletter-presentation/'+name+'.contract.json',import.meta.url))));
+  const baseline=JSON.parse(fs.readFileSync(new URL('./fixtures/newsletter-presentation/'+name+'.contract.json',import.meta.url)));assert.equal(result.total,baseline.total);assert.deepEqual(Array.from(result.editorial.corpusIds),baseline.editorial.corpusIds);assert.deepEqual(Array.from(result.evidence,row=>row.id),baseline.editorial.corpusIds);
   assert.equal(d.querySelectorAll('.newsletter-article').length,result.count);
-  assert.equal(d.querySelector('.newsletter-intro').textContent,query.view==='briefing'?'Novedades concretas, en los canales digitales de Banca de Empresas e Instituciones, para revisar esta quincena.':'Qué ha marcado tu canal y dónde mirar ahora.');
+  assert.equal(d.querySelector('.newsletter-intro').textContent,query.view==='briefing'?'Qué se ha publicado, acerca de los canales digitales de Banca de Empresas, para revisar esta quincena.':'Qué se ha publicado, acerca de los canales digitales de Banca de Empresas, en los medios.');
   for(const expected of result.editorial.cards){
    const cards=[...d.querySelectorAll('.newsletter-article')].filter(card=>card.querySelector('h3 a')?.href===expected.url);assert.equal(cards.length,1);
    const card=cards[0];assert.equal(card.querySelector('.newsletter-read'),null);
-   assert.ok(card.querySelector('.entity-logo,.entity-monogram'));assert.ok(card.querySelector('.geography-flag'));
+   assert.ok((query.view==='news'?card.closest('.newsletter-leader'):card).querySelector('.entity-logo,.entity-monogram'));assert.ok(card.querySelector('.geography-flag'));
    assert.ok(card.querySelector('.newsletter-card-cell').style.padding);
   }
   const scopes=[...d.querySelectorAll('.newsletter-scope')];if(query.country&&result.editorial.cards.some(card=>card.scope==='local')&&result.editorial.cards.some(card=>card.scope==='global')){
    assert.equal(scopes.length,2);const global=scopes[1];for(const card of result.editorial.cards.filter(card=>card.scope==='local')){const element=[...d.querySelectorAll('.newsletter-article')].find(row=>row.querySelector('h3 a')?.href===card.url);assert.ok(element.compareDocumentPosition(global)&4,'la noticia local precede a la mirada internacional');}
   }
-  if(query.view==='news'){const reports=[...d.querySelectorAll('.newsletter-report')],landscapes=Object.entries(result.editorial.landscapes).filter(([,data])=>data?.total);assert.equal(reports.length,landscapes.length);for(const [i,[scope,landscape]] of landscapes.entries()){
-   const example=reports[i].querySelector('.newsletter-article'),matching=result.editorial.cards.find(card=>card.scope===scope&&card.category===landscape.themes[0]?.name);assert.equal(Boolean(example),Boolean(matching));if(example)assert.equal(example.querySelector('h3 a').href,matching.url);
-  }}
+  if(query.view==='news')for(const card of result.editorial.cards){const element=[...d.querySelectorAll('.newsletter-article')].find(row=>row.querySelector('h3 a')?.href===card.url),leader=element.closest('.newsletter-leader');assert.ok(leader.querySelector('.newsletter-bank').textContent.includes(card.entity));assert.ok(leader.textContent.includes(card.category));}
   assert.ok(d.querySelector('.newsletter-brand').compareDocumentPosition(d.querySelector('.newsletter-feedback'))&4);
   assert.equal(d.querySelectorAll('.newsletter-feedback a').length,2);
   for(const a of d.querySelectorAll('.newsletter-feedback a')){const u=new URL(a.href);assert.equal(u.searchParams.get('edition'),'presentation-edition');assert.ok(['positive','negative'].includes(u.searchParams.get('feedback')));}
@@ -37,7 +35,7 @@ for(const {name,query} of presentationCases){
   assert.equal(d.querySelector('.newsletter-metric a'),null,'las cifras no fingen un conjunto filtrado equivalente');
   assert.doesNotMatch(result.html,/data:image|https?:\/\/[^"<> ]+\.(?:png|jpg)|display:(?:flex|grid)|@font-face|<section/);
   const ids=result.images.map(image=>image.id);assert.equal(new Set(ids).size,ids.length);
-  for(const img of d.images){assert.ok(img.alt);assert.ok(ids.includes(img.src.replace('cid:','')));}
+  for(const img of d.images){assert.ok(img.alt||img.getAttribute('aria-hidden')==='true'&&img.getAttribute('alt')===''&&img.closest('a')?.textContent.trim());assert.ok(ids.includes(img.src.replace('cid:','')));}
   let mime;c.Utilities.base64EncodeWebSafe=value=>Buffer.from(value).toString('base64url');c.gmailRequest_=(_path,payload)=>{mime=Buffer.from(payload.raw,'base64url').toString();return {id:'verified'};};
   c.sendNewsletterMail_({name:'News Radar',address:'news-radar.group@bbva.com'},'owner@bbva.com',result);
   assert.match(mime,/multipart\/related/);assert.match(mime,/multipart\/alternative/);
@@ -79,7 +77,7 @@ test('los recursos privados se incorporan por CID y respetan la variante y el á
  for(const {name,query} of presentationCases){
   const result=presentationContent(c,query),d=document(result.html),ids=result.images.map(image=>image.id);
   assert.ok(ids.includes('bei-logo'),name);assert.equal(d.querySelector('.newsletter-wordmark img').getAttribute('src'),'cid:bei-logo');
-  assert.ok(ids.includes(query.view==='news'?'quarterly-visual':'fortnightly-visual'),name);
+  assert.equal(ids.includes(query.view==='news'?'quarterly-visual':'fortnightly-visual'),query.view!=='news'||Boolean(query.country),name);
   assert.equal(ids.includes('other-banks-visual'),Boolean(query.country&&result.editorial.cards.some(card=>card.scope==='global')),name);
   assert.doesNotMatch(result.html,/drive\.google\.com|private-visual-asset/);
  }

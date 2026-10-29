@@ -50,3 +50,5 @@ section[data-loading="append"]>.loading{min-height:0}section[data-loading="appen
 .story-title{font:700 var(--text-l)/var(--line-l) var(--font-heading)}
 
 #llm-section pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}#llm-section p,#llm-section details{margin-block:var(--space-2)}#llm-section progress{width:100%;accent-color:var(--color-primary-bg-action)}
+
+.link-icon{display:inline-block;width:var(--icon-size);height:var(--icon-size);vertical-align:middle;background-color:currentColor;mask:var(--official-link-icon) center/contain no-repeat;-webkit-mask:var(--official-link-icon) center/contain no-repeat}

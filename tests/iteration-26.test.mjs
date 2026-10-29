@@ -102,3 +102,37 @@ test('un tamaño de archivo inválido bloquea su lectura sin truncar el contenid
 test('una noticia global toma el RSS y el dominio original domina el extracto',()=>{
  const {c}=server();const row={titular:'Stripe y Plasma preparan tarjetas con stablecoins para más de cien países',extracto:'Una alianza para ampliar su oferta global.',medio:'DiarioBitcoin',fuente:'BBVA · España',pais:'España',url:'https://news.google.com/articles/global'};assert.equal(c.newsCountry_(row),'España');assert.equal(c.newsCountry_({...row,medio:'Cinco Días'}),'España');assert.equal(c.newsCountry_({...row,titular:'BBVA presenta una solución',extracto:'BBVA lanza la solución en México. También operará en España.',sourceUrl:'https://publisher.es/story'}),'España');
 });
+
+test('la creación interrumpida reutiliza la misma generación de compactación',()=>{
+ const s=newsletterFixture(),c=s.c,create=c.generationSheet_;let first=true;
+ c.generationSheet_=(name,headers)=>{const sheet=create(name,headers);if(first){first=false;throw Error('timeout tras crear hoja');}return sheet;};
+ assert.throws(()=>c.compactNewsletterBatch_(),/timeout tras crear hoja/);
+ const planned=JSON.parse(s.properties.NEWSLETTER_COMPACTION_JOB);assert.equal(planned.state,'Creating');assert.ok(s.sheets.has(planned.editions));
+ c.generationSheet_=create;assert.equal(c.compactNewsletterBatch_(),false);
+ const resumed=JSON.parse(s.properties.NEWSLETTER_COMPACTION_JOB);assert.equal(resumed.editions,planned.editions);assert.equal(resumed.content,planned.content);
+ assert.equal([...s.sheets.keys()].filter(name=>name.startsWith('NewsletterEdiciones_gen_')).length,1);
+});
+
+test('una edición añadida valida el prefijo copiado y continúa con la misma generación sin perder la cola',()=>{
+ const s=newsletterFixture(),c=s.c;c.compactNewsletterBatch_();const plan=JSON.parse(s.properties.NEWSLETTER_COMPACTION_JOB),source=s.sheets.get('NewsletterEdiciones'),tail=source.grid[2].slice(),keys=vm.runInContext('RADAR.sheets.NewsletterEdiciones',c);
+ tail[0]='new';tail[keys.indexOf('inicio')]='6';tail[keys.indexOf('cantidad')]='1';source.grid.push(tail);s.sheets.get('NewsletterContenido').grid.push(['new',JSON.stringify({id:'new-article'})]);c.markNewsletterArchiveEdited_();
+ assert.equal(c.compactNewsletterBatch_(),false);assert.equal(JSON.parse(s.properties.NEWSLETTER_COMPACTION_JOB).state,'Validating');
+ for(let step=0;step<10&&!c.compactNewsletterBatch_();step++);
+ const completed=JSON.parse(s.properties.NEWSLETTER_COMPACTION_JOB);assert.equal(completed.state,'Completada');assert.equal(completed.editions,plan.editions);
+ assert.deepEqual(Array.from(c.rows_('NewsletterEdiciones'),row=>row.id),['archived','active','new']);assert.equal(c.newsletterSheet_('NewsletterContenido').grid.at(-1)[0],'new');
+});
+
+test('editar metadatos ya copiados reinicia desde el origen y nunca publica staging obsoleto',()=>{
+ const s=newsletterFixture(),c=s.c;c.compactNewsletterBatch_();const previous=c.newsletterStorageKey_('NewsletterEdiciones');s.sheets.get(previous).grid[1][3]='Nombre corregido';c.markNewsletterArchiveEdited_();
+ c.compactNewsletterBatch_();c.compactNewsletterBatch_();assert.equal(JSON.parse(s.properties.NEWSLETTER_COMPACTION_JOB).state,'Scanning');assert.equal(c.newsletterStorageKey_('NewsletterEdiciones'),previous);assert.equal(s.sheets.get(previous).grid[1][3],'Nombre corregido');
+});
+
+test('editar contenido ya copiado obliga a reconstruir y preserva el origen completo',()=>{
+ const s=newsletterFixture(),c=s.c;c.compactNewsletterBatch_();c.compactNewsletterBatch_();const original=c.newsletterStorageKey_('NewsletterContenido');s.sheets.get(original).grid[3][1]=JSON.stringify({id:'edited'});c.markNewsletterArchiveEdited_();
+ c.compactNewsletterBatch_();c.compactNewsletterBatch_();c.compactNewsletterBatch_();assert.equal(JSON.parse(s.properties.NEWSLETTER_COMPACTION_JOB).state,'Scanning');assert.equal(c.newsletterStorageKey_('NewsletterContenido'),original);assert.match(s.sheets.get(original).grid[3][1],/edited/);
+});
+
+test('otra revisión durante la validación vuelve a comprobar el prefijo antes de publicar',()=>{
+ const s=newsletterFixture(),c=s.c;c.compactNewsletterBatch_();c.compactNewsletterBatch_();c.markNewsletterArchiveEdited_();c.compactNewsletterBatch_();c.compactNewsletterBatch_();assert.equal(JSON.parse(s.properties.NEWSLETTER_COMPACTION_JOB).validateNext,3);
+ c.markNewsletterArchiveEdited_();c.compactNewsletterBatch_();assert.equal(JSON.parse(s.properties.NEWSLETTER_COMPACTION_JOB).validateNext,2);assert.equal(c.newsletterStorageKey_('NewsletterContenido'),'NewsletterContenido');
+});

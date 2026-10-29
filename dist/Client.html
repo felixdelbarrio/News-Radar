@@ -59,6 +59,33 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Comprobaci\xF3n de cambios de newsletters: {done}/{total} ediciones.": ["Checking newsletter changes: {done}/{total} editions.", "B\xFClten de\u011Fi\u015Fiklikleri kontrol ediliyor: {done}/{total} say\u0131."],
+    "Preparaci\xF3n de compactaci\xF3n: {done}/{total} ediciones.": ["Compaction preparation: {done}/{total} editions.", "S\u0131k\u0131\u015Ft\u0131rma haz\u0131rl\u0131\u011F\u0131: {done}/{total} s\xFCr\xFCm."],
+    "{count} publicaci\xF3n": ["{count} publication", "{count} yay\u0131n"],
+    "{count} publicaci\xF3n m\xE1s de {theme}": ["{count} more publication about {theme}", "{theme} hakk\u0131nda {count} ek yay\u0131n"],
+    "Archivo de newsletters: {done}/{total} ediciones revisadas.": ["Newsletter archive: {done}/{total} editions reviewed.", "B\xFClten ar\u015Fivi: {done}/{total} s\xFCr\xFCm incelendi."],
+    "Compactaci\xF3n de newsletters: {done}/{total} ediciones.": ["Newsletter compaction: {done}/{total} editions.", "B\xFClten s\u0131k\u0131\u015Ft\u0131rmas\u0131: {done}/{total} s\xFCr\xFCm."],
+    "Publicaciones de la quincena": ["Fortnightly press coverage", "\u0130ki haftal\u0131k bas\u0131n yay\u0131nlar\u0131"],
+    "Publicaciones del trimestre": ["Quarterly press coverage", "\xDC\xE7 ayl\u0131k bas\u0131n yay\u0131nlar\u0131"],
+    "Qu\xE9 se ha publicado, acerca de los canales digitales de Banca de Empresas, en los medios.": ["What the media have published about digital business banking channels.", "Medyan\u0131n kurumsal bankac\u0131l\u0131\u011F\u0131n dijital kanallar\u0131 hakk\u0131nda yay\u0131mlad\u0131klar\u0131."],
+    "Qu\xE9 se ha publicado, acerca de los canales digitales de Banca de Empresas, para revisar esta quincena.": ["What has been published about digital business banking channels to review this fortnight.", "Kurumsal bankac\u0131l\u0131\u011F\u0131n dijital kanallar\u0131 hakk\u0131nda bu iki haftada incelenecek yay\u0131nlar."],
+    "Entidades y bloques funcionales destacados en las publicaciones del trimestre.": ["Entities and functional areas highlighted in quarterly publications.", "\xDC\xE7 ayl\u0131k yay\u0131nlarda \xF6ne \xE7\u0131kan kurulu\u015Flar ve i\u015Flevsel alanlar."],
+    "Publicaciones del trimestre con ejemplos que todav\xEDa no te hemos compartido.": ["Quarterly publications with examples we have not shared with you yet.", "Hen\xFCz sizinle payla\u015Fmad\u0131\u011F\u0131m\u0131z \xF6rneklerle \xFC\xE7 ayl\u0131k yay\u0131nlar."],
+    "Menciones totales en prensa": ["Total press mentions", "Toplam bas\u0131n bahsi"],
+    "Menciones directas a BBVA": ["Direct BBVA mentions", "Do\u011Frudan BBVA bahisleri"],
+    "Menciones en prensa": ["Press mentions", "Bas\u0131n bahisleri"],
+    "Menciones de {entity} sobre el total de publicaciones del periodo": ["{entity} mentions as a share of all publications in the period", "D\xF6nemdeki t\xFCm yay\u0131nlar i\xE7inde {entity} bahislerinin pay\u0131"],
+    "Bloques funcionales mencionados en prensa": ["Functional areas mentioned in the press", "Bas\u0131nda bahsedilen i\u015Flevsel alanlar"],
+    "Bloques funcionales destacados": ["Highlighted functional areas", "\xD6ne \xE7\u0131kan i\u015Flevsel alanlar"],
+    "LA QUINCENA EN CIFRAS": ["THE FORTNIGHT IN FIGURES", "\u0130K\u0130 HAFTANIN RAKAMLARI"],
+    "Trending topic {number}": ["Trending topic {number}", "\xD6ne \xE7\u0131kan konu {number}"],
+    "{count} publicaciones": ["{count} publications", "{count} yay\u0131n"],
+    "{count} publicaciones m\xE1s de {theme}": ["{count} more publications about {theme}", "{theme} hakk\u0131nda {count} ek yay\u0131n"],
+    "{theme} fue el bloque funcional con m\xE1s menciones en prensa: {count}, el {share}% de las publicaciones analizadas.": ["{theme} was the functional area with the most press mentions: {count}, or {share}% of the publications analysed.", "{theme}, bas\u0131nda en \xE7ok bahsedilen i\u015Flevsel aland\u0131: {count}, incelenen yay\u0131nlar\u0131n %{share} kadar\u0131."],
+    "Menciones y porcentaje de las publicaciones. Los temas de una entidad pueden solaparse.": ["Mentions and share of publications. An entity's topics may overlap.", "Bahisler ve yay\u0131nlar\u0131n pay\u0131. Bir kurulu\u015Fun konular\u0131 \xF6rt\xFC\u015Febilir."],
+    "Fuera de la selecci\xF3n ejecutiva por actividad y diversidad.": ["Outside the executive selection based on activity and diversity.", "Etkinlik ve \xE7e\u015Fitlilik nedeniyle y\xF6netici se\xE7kisinin d\u0131\u015F\u0131nda."],
+    "Ejemplo de una de las entidades con m\xE1s menciones en prensa.": ["Example from one of the entities with the most press mentions.", "Bas\u0131nda en \xE7ok bahsedilen kurulu\u015Flardan birinden \xF6rnek."],
+    "Evidencia del bloque funcional destacado; ejemplo BBVA.": ["Evidence for the highlighted functional area; BBVA example.", "\xD6ne \xE7\u0131kan i\u015Flevsel alan i\xE7in kan\u0131t; BBVA \xF6rne\u011Fi."],
     "La edici\xF3n supera el l\xEDmite de almacenamiento. No se ha guardado ni enviado.": ["The edition exceeds the storage limit. It has not been saved or sent.", "B\xFClten depolama s\u0131n\u0131r\u0131n\u0131 a\u015F\u0131yor. Kaydedilmedi veya g\xF6nderilmedi."],
     "Primero crea una copia verificada con applyGeographyMigration.": ["First create a verified backup with applyGeographyMigration.", "\xD6nce applyGeographyMigration ile do\u011Frulanm\u0131\u015F bir yedek olu\u015Fturun."],
     "Importar CSV": ["Import CSV", "CSV i\xE7e aktar"],
@@ -275,7 +302,6 @@
     "Explorar incidencias en Noticias": ["Explore incidents in News", "Olaylar\u0131 Haberlerde incele"],
     "CONTINUIDAD OPERATIVA Y RIESGO DE CANAL \xB7 VISI\xD3N ANUAL": ["OPERATIONAL CONTINUITY AND CHANNEL RISK \xB7 ANNUAL VIEW", "OPERASYONEL S\xDCREKL\u0130L\u0130K VE KANAL R\u0130SK\u0130 \xB7 YILLIK G\xD6R\xDCN\xDCM"],
     "Indisponibilidad e Incidencia Operativa": ["Service Unavailability and Operational Incidents", "Hizmet Kesintileri ve Operasyonel Olaylar"],
-    "Explorar incidencias en Noticias \u2197": ["Explore incidents in News \u2197", "Olaylar\u0131 Haberlerde incele \u2197"],
     "Incidencias registradas (A\xF1o)": ["Recorded incidents (Year)", "Kaydedilen olaylar (Y\u0131l)"],
     "Entidades afectadas": ["Affected entities", "Etkilenen kurulu\u015Flar"],
     "Entidad m\xE1s expuesta": ["Most exposed entity", "En fazla etkilenen kurulu\u015F"],
@@ -333,7 +359,6 @@
     "Pendientes y abstenciones": ["Pending and abstained articles", "Bekleyen ve \xE7ekimser kal\u0131nan haberler"],
     "Todas para revisi\xF3n": ["All articles for review", "\u0130nceleme i\xE7in t\xFCm haberler"],
     "Descargar ZIP": ["Download ZIP", "ZIP indir"],
-    "Evidencia web aportada": ["Submitted web evidence", "Sunulan web kan\u0131t\u0131"],
     "Texto del editor": ["Publisher text", "Yay\u0131nc\u0131 metni"],
     "{classified} clasificadas \xB7 {abstained} sin evidencia \xB7 {outOfScope} fuera de alcance": ["{classified} classified \xB7 {abstained} insufficient evidence \xB7 {outOfScope} out of scope", "{classified} s\u0131n\u0131fland\u0131r\u0131lm\u0131\u015F \xB7 {abstained} yetersiz kan\u0131t \xB7 {outOfScope} kapsam d\u0131\u015F\u0131"],
     "{count} noticias exportadas. La descarga no modifica su estado.": ["{count} articles exported. Downloading does not change their status.", "{count} haber d\u0131\u015Fa aktar\u0131ld\u0131. \u0130ndirme durumlar\u0131n\u0131 de\u011Fi\u015Ftirmez."],
@@ -403,10 +428,6 @@
     "Problema de servicio": ["Service problem", "Hizmet sorunu"],
     Problema: ["Problem", "Sorun"],
     "Incidencia operativa": ["Operational incident", "\u0130\u015Flem sorunu"],
-    "Por qu\xE9 est\xE1 clasificada aqu\xED": ["Why it is classified here", "Neden burada s\u0131n\u0131fland\u0131r\u0131ld\u0131"],
-    "Coincidencia operativa directa": ["Direct operational match", "Do\u011Frudan i\u015Flem e\u015Fle\u015Fmesi"],
-    "Contexto descriptivo del cat\xE1logo": ["Catalogue description context", "Katalog a\xE7\u0131klamas\u0131 ba\u011Flam\u0131"],
-    "Titular y extracto": ["Headline and excerpt", "Ba\u015Fl\u0131k ve \xF6zet"],
     "No hay novedades de producto en esta selecci\xF3n.": ["No product updates in this selection.", "Bu se\xE7imde \xFCr\xFCn yenili\u011Fi yok."],
     "No se han detectado noticias de problemas de servicio en esta selecci\xF3n.": ["No service problem news detected in this selection.", "Bu se\xE7imde hizmet sorunu haberi tespit edilmedi."],
     "LANZAMIENTOS, ALIANZAS Y PROBLEMAS DE SERVICIO": ["LAUNCHES, PARTNERSHIPS AND SERVICE PROBLEMS", "LANSMANLAR, ORTAKLIKLAR VE H\u0130ZMET SORUNLARI"],
@@ -621,8 +642,8 @@
     "\xBFTe ha resultado \xFAtil?": ["Was this useful?", "Bu i\xE7erik faydal\u0131 oldu mu?"],
     "Valorar esta edici\xF3n (opcional)": ["Rate this edition (optional)", "Bu say\u0131y\u0131 de\u011Ferlendirin (iste\u011Fe ba\u011Fl\u0131)"],
     "Valoraci\xF3n opcional": ["Optional rating", "\u0130ste\u011Fe ba\u011Fl\u0131 de\u011Ferlendirme"],
-    "\u{1F44D} \xDAtil": ["\u{1F44D} Useful", "\u{1F44D} Faydal\u0131"],
-    "\u{1F44E} Mejorable": ["\u{1F44E} Needs improvement", "\u{1F44E} Geli\u015Ftirilebilir"],
+    \u00DAtil: ["Useful", "Faydal\u0131"],
+    Mejorable: ["Needs improvement", "Geli\u015Ftirilebilir"],
     "Sin valoraci\xF3n": ["No rating", "De\u011Ferlendirme yok"],
     "Observaciones (opcional)": ["Comments (optional)", "Yorumlar (iste\u011Fe ba\u011Fl\u0131)"],
     "Guardar valoraci\xF3n": ["Save rating", "De\u011Ferlendirmeyi kaydet"],
@@ -3338,12 +3359,8 @@
   function articleTitle(row) {
     return '<h3 class="story-title" data-original><a class="story-link" href="' + escape2(validUrl(row.url)) + '" target="_blank" rel="noopener noreferrer">' + escape2(row.titular) + "</a></h3>";
   }
-  function articleEvidence(row) {
-    let evidence = row.functionalEvidence;
-    return evidence?.terms?.length ? '<details class="article-original"><summary>' + escape2(t("Por qu\xE9 est\xE1 clasificada aqu\xED")) + "</summary><p>" + escape2(t(evidence.method === "external" ? "Evidencia web aportada" : evidence.method === "literal" ? "Coincidencia operativa directa" : "Contexto descriptivo del cat\xE1logo")) + " \xB7 " + escape2(t(evidence.location === "web" ? "Texto del editor" : evidence.location === "headline" ? "Titular" : "Titular y extracto")) + "</p><p data-original>" + evidence.terms.map(escape2).join(" \xB7 ") + "</p>" + (evidence.url ? '<p><a href="' + escape2(evidence.url) + '" target="_blank" rel="noopener noreferrer">' + escape2(evidence.url) + "</a> \xB7 " + escape2(evidence.retrievedAt) + "</p>" : "") + "</details>" : "";
-  }
   function articleContent(row, selection = {}, novelty = !1) {
-    return articleHeader(row, articleTitle(row)) + (row.extracto ? "<p data-original>" + escape2(row.extracto) + "</p>" : "") + articleOriginal(row) + articleEvidence(row) + '<div class="article-metadata"><div class="news-meta">' + articleTags(row, selection, novelty) + '</div><div class="news-meta">' + articleDate(row) + newsPublisher(row) + "</div></div>";
+    return articleHeader(row, articleTitle(row)) + (row.extracto ? "<p data-original>" + escape2(row.extracto) + "</p>" : "") + articleOriginal(row) + '<div class="article-metadata"><div class="news-meta">' + articleTags(row, selection, novelty) + '</div><div class="news-meta">' + articleDate(row) + newsPublisher(row) + "</div></div>";
   }
 
   // src/client/features/briefing.js
@@ -3509,15 +3526,15 @@
     }
   }
   function feedbackCards(data) {
-    return metricCards([["Total", data.total, ""], ["\u{1F44D} \xDAtil", data.positive, ""], ["\u{1F44E} Mejorable", data.negative, ""], ["% \xFAtil", data.positiveRate + "%", ""], ["Pendientes", data.pending, ""], ["Atendidos", data.resolved, ""]].map((row) => [t(row[0]), row[1], row[2]]));
+    return metricCards([["Total", data.total, ""], ["\xDAtil", data.positive, ""], ["Mejorable", data.negative, ""], ["% \xFAtil", data.positiveRate + "%", ""], ["Pendientes", data.pending, ""], ["Atendidos", data.resolved, ""]].map((row) => [t(row[0]), row[1], row[2]]));
   }
   async function loadFeedback(isCurrent) {
-    filters.feedback ||= createRecordFilters("feedback", [["valoracion", "Valoraci\xF3n", [["positive", "\u{1F44D} \xDAtil"], ["negative", "\u{1F44E} Mejorable"]]], ["estado", "Estado", [["pendiente", "pendiente"], ["atendido", "atendido"]]], ["edicion", "Edici\xF3n"], ["correo", "Correo"]], () => loadFeedback(isCurrent), { dates: !0 });
+    filters.feedback ||= createRecordFilters("feedback", [["valoracion", "Valoraci\xF3n", [["positive", "\xDAtil"], ["negative", "Mejorable"]]], ["estado", "Estado", [["pendiente", "pendiente"], ["atendido", "atendido"]]], ["edicion", "Edici\xF3n"], ["correo", "Correo"]], () => loadFeedback(isCurrent), { dates: !0 });
     let request3 = requests2.feedback = (requests2.feedback || 0) + 1;
     try {
       let data = await call("getAdminFeedback", filters.feedback.query());
       if (!isCurrent() || requests2.feedback !== request3) return;
-      filters.feedback.options({ ...data.options, valoracion: [["positive", "\u{1F44D} \xDAtil"], ["negative", "\u{1F44E} Mejorable"]] }), filters.feedback.page(data), $("feedback-metrics").innerHTML = feedbackCards(data.filtered), $("feedback-body").innerHTML = data.items.map((row) => "<tr>" + [date(row.fecha), row.correo, row.nombre_edicion + " \xB7 " + row.edicion, row.fecha_envio ? date(row.fecha_envio) : "\u2014", t(newsletterCadences[row.cadencia]?.label || row.cadencia), row.pais || "\u2014", row.idioma, row.valoracion === "positive" ? t("\u{1F44D} \xDAtil") : row.valoracion === "negative" ? t("\u{1F44E} Mejorable") : "\u2014", row.comentario].map((value, index) => "<td data-original>" + (index === 2 && row.edicion ? '<button class="text-button" data-open-edition="' + escape2(row.edicion) + '">' + escape2(value) + '</button><details data-newsletter-summary="' + escape2(row.edicion) + '"><summary>' + escape2(t("Resumen enviado")) + "</summary><div data-summary-content></div></details>" : escape2(value)) + "</td>").join("") + '<td><select data-feedback="' + escape2(row.id) + '" aria-label="' + escape2(t("Estado")) + '">' + ["pendiente", "atendido"].map((state2) => '<option value="' + state2 + '" ' + (row.estado === state2 ? "selected" : "") + ">" + escape2(t(state2)) + "</option>").join("") + "</select></td></tr>").join("") || '<tr><td colspan="10">' + t("Sin valoraciones.") + "</td></tr>";
+      filters.feedback.options({ ...data.options, valoracion: [["positive", "\xDAtil"], ["negative", "Mejorable"]] }), filters.feedback.page(data), $("feedback-metrics").innerHTML = feedbackCards(data.filtered), $("feedback-body").innerHTML = data.items.map((row) => "<tr>" + [date(row.fecha), row.correo, row.nombre_edicion + " \xB7 " + row.edicion, row.fecha_envio ? date(row.fecha_envio) : "\u2014", t(newsletterCadences[row.cadencia]?.label || row.cadencia), row.pais || "\u2014", row.idioma, row.valoracion === "positive" ? t("\xDAtil") : row.valoracion === "negative" ? t("Mejorable") : "\u2014", row.comentario].map((value, index) => "<td data-original>" + (index === 2 && row.edicion ? '<button class="text-button" data-open-edition="' + escape2(row.edicion) + '">' + escape2(value) + '</button><details data-newsletter-summary="' + escape2(row.edicion) + '"><summary>' + escape2(t("Resumen enviado")) + "</summary><div data-summary-content></div></details>" : escape2(value)) + "</td>").join("") + '<td><select data-feedback="' + escape2(row.id) + '" aria-label="' + escape2(t("Estado")) + '">' + ["pendiente", "atendido"].map((state2) => '<option value="' + state2 + '" ' + (row.estado === state2 ? "selected" : "") + ">" + escape2(t(state2)) + "</option>").join("") + "</select></td></tr>").join("") || '<tr><td colspan="10">' + t("Sin valoraciones.") + "</td></tr>";
     } catch (error) {
       isCurrent() && requests2.feedback === request3 && message(error.message, !0);
     }
@@ -3559,7 +3576,7 @@
       if (current !== request2) return;
       filters2 ||= createRecordFilters("logs", data.fields.map((key) => [key, labels[key] || key]), loadAudit, { dates: !0 }), filters2.options(data.options), filters2.page(data), $("logs-metrics").innerHTML = metricCards((data.metrics.cards || [["Resultados", data.metrics.total, ""], ["Por revisar", data.metrics.errors, ""]]).map(([label, value, note]) => [t(label), value, note])), $("logs-note").textContent = data.limited ? t("Hist\xF3rico limitado.") + " " + data.limit : "", $("logs-head").innerHTML = "<tr>" + data.columns.map((key) => "<th>" + escape2(t(labels[key] || key)) + "</th>").join("") + "</tr>", $("logs-body").innerHTML = data.items.map((row) => "<tr>" + data.columns.map((key) => {
         let value = row[key] ?? "\u2014", html = escape2(value);
-        return ["fecha", "inicio", "fin"].includes(key) && (html = escape2(date(value))), ["edition", "edicion"].includes(key) && value && value !== "\u2014" && (html = '<button class="text-button" data-open-edition="' + escape2(value) + '">' + escape2(value) + '</button><details data-newsletter-summary="' + escape2(value) + '"><summary>' + t("Resumen enviado") + "</summary><div data-summary-content></div></details>"), key === "url" && validUrl(value) && (html = '<a href="' + escape2(value) + '" target="_blank" rel="noopener noreferrer">' + t("Fuente") + " \u2197</a>"), '<td data-label="' + escape2(t(labels[key] || key)) + '" data-original>' + html + "</td>";
+        return ["fecha", "inicio", "fin"].includes(key) && (html = escape2(date(value))), ["edition", "edicion"].includes(key) && value && value !== "\u2014" && (html = '<button class="text-button" data-open-edition="' + escape2(value) + '">' + escape2(value) + '</button><details data-newsletter-summary="' + escape2(value) + '"><summary>' + t("Resumen enviado") + "</summary><div data-summary-content></div></details>"), key === "url" && validUrl(value) && (html = '<a href="' + escape2(value) + '" target="_blank" rel="noopener noreferrer">' + t("Fuente") + ' <span class="link-icon" aria-hidden="true"></span></a>'), '<td data-label="' + escape2(t(labels[key] || key)) + '" data-original>' + html + "</td>";
       }).join("") + "</tr>").join("") || '<tr><td colspan="' + data.columns.length + '">' + t("Sin entradas con estos filtros.") + "</td></tr>";
     } catch (error) {
       current === request2 && message(error.message, !0);
@@ -3855,7 +3872,7 @@
     ], render, { placeholder: "Entidad, geograf\xEDa o editor" });
     function render() {
       let query = filters4.query(), rows = filterRecords(groups[kind], query, ["entity", "country", "enabled"], ["name", "entity", "country", "url"]), page = recordPage(rows, query, 10);
-      $("configured-sources-body").innerHTML = page.items.map((feed) => `<tr><td><input type="checkbox" class="source-enabled" data-id="${escape2(feed.id)}" aria-label="Activar ${escape2(feed.name)}" ${feed.enabled ? "checked" : ""}></td><td><span class="identity-label">${identityMark("entities", feed.entity, escape2)}${escape2(feed.name)}</span></td><td><span class="identity-label">${identityMark("countries", feed.country, escape2)}${escape2(feed.country)}</span></td><td>${sourceTypes[feed.kind]}</td><td><a href="${escape2(validUrl(feed.url))}" target="_blank" rel="noopener noreferrer">Abrir feed \u2197</a></td></tr>`).join("") || '<tr><td colspan="5">No hay fuentes con este criterio.</td></tr>', filters4.page(page), $("configured-source-count").textContent = groups.all.length + " fuentes configuradas \xB7 " + enabled.size + " activas";
+      $("configured-sources-body").innerHTML = page.items.map((feed) => `<tr><td><input type="checkbox" class="source-enabled" data-id="${escape2(feed.id)}" aria-label="Activar ${escape2(feed.name)}" ${feed.enabled ? "checked" : ""}></td><td><span class="identity-label">${identityMark("entities", feed.entity, escape2)}${escape2(feed.name)}</span></td><td><span class="identity-label">${identityMark("countries", feed.country, escape2)}${escape2(feed.country)}</span></td><td>${sourceTypes[feed.kind]}</td><td><a href="${escape2(validUrl(feed.url))}" target="_blank" rel="noopener noreferrer">Abrir feed <span class="link-icon" aria-hidden="true"></span></a></td></tr>`).join("") || '<tr><td colspan="5">No hay fuentes con este criterio.</td></tr>', filters4.page(page), $("configured-source-count").textContent = groups.all.length + " fuentes configuradas \xB7 " + enabled.size + " activas";
     }
     function select(next) {
       !Object.hasOwn(groups, next) || next === kind || (kind = next, $("source-tabs").querySelectorAll("[data-source-kind]").forEach((button) => {
