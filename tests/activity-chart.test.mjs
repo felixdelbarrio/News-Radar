@@ -38,3 +38,15 @@ test('un cambio de filtros con datos vacíos retira la cronología y deja un est
  const a=await chart(t);a.replies.getAdoption.daily=[];await a.change('#adoption-search','sin actividad');
  assert.match(a.find('#adoption-chart').textContent,/No hay actividad diaria/);assert.equal(a.w.document.querySelector('.activity-chart'),null);
 });
+test('los meses y años tienen un solo rótulo y color alterno; cada día conserva su fecha accesible',async t=>{
+ const values=['2026-12-30','2026-12-31','2027-01-01','2027-01-02'],a=await app(t,{language:'en-US',configure({replies}){replies.getAdoption.daily=values.map((date,i)=>({date,users:i+1}));}});
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="adoption"]');
+ assert.deepEqual([...a.w.document.querySelectorAll('.activity-date')].map(x=>x.textContent),['30','31','01','02']);
+ assert.deepEqual([...a.w.document.querySelectorAll('.activity-month')].map(x=>x.textContent),['December 2026','January 2027']);
+ const columns=[...a.w.document.querySelectorAll('.activity-column')];assert.notEqual(columns[0].className,columns[2].className);assert.equal(columns[0].className,columns[1].className);assert.ok(columns.every(x=>x.getAttribute('aria-label').includes(x.dataset.date.slice(0,4))));
+});
+test('volver a renderizar reutiliza el observer y los listeners del controlador',async t=>{
+ let adoptionObservers=0;const a=await app(t,{configure({w,replies}){replies.getAdoption.daily=days;w.ResizeObserver=class{observe(target){if(target.id==='adoption-chart')adoptionObservers++;}};}});
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="adoption"]');await a.change('#adoption-search','fixture');await a.change('#adoption-search','');
+ assert.equal(adoptionObservers,1);assert.equal(a.w.document.querySelectorAll('.activity-column').length,days.length);assert.equal(a.w.document.querySelectorAll('.activity-month').length,1);
+});

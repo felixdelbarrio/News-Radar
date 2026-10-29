@@ -7,7 +7,7 @@ import {defaultView} from '../config.js';
 import {t,language} from '../core/language.js';
 import {formatCalendarDay} from '../../shared/locales.js';
 import { $, escape } from "../core/dom.js";
-function createFilters({ onInvalidate, onChange }) {
+function createFilters({ onInvalidate, onChange, onCurrent=()=>{} }) {
   const form = $("filters");
   let page = 0, view=defaultView, defaults={},edition='',newsGeography='',editionSelection={},taxonomy=[],applied={},dirty=false,regions=REGION_CODES;
   const selections=new Map(),initialized=new Set();
@@ -101,7 +101,7 @@ function createFilters({ onInvalidate, onChange }) {
     for(const input of form.elements)if(input.name)input.value='';
     form.elements.to.setCustomValidity('');onInvalidate();if(notify)onChange();
   }
-  function current(){resetContext('');}
+  function current(){onCurrent();editionSelection={};resetContext('');}
   return {
     useEdition:(id,selection={},notify=true)=>{editionSelection=selection;resetContext(id,notify);},current,
     query: () => geographyTabQuery({ ...applied, page,view,language,...(edition&&view==='news'?{edition,...(!initialized.has(view)?editionSelection:{})}:{}),...(view==='news'&&newsGeography?{newsGeography}:{}),initial:!initialized.has(view) },regions),

@@ -105,7 +105,7 @@ function validateStorageFolders_(storage){for(const key of ['primaryFolderId','l
 function verifyPrimaryStorage(){authorize_(true);const storage=configuration_().storage;validateStorageFolders_(storage);fileInFolder_(properties_().getProperty('SPREADSHEET_ID'),archiveFolder_(storage.primaryFolderId));return {primaryId:properties_().getProperty('SPREADSHEET_ID'),folderId:storage.primaryFolderId};}
 function recentNewsletterDeliveries_(rows){
  const counts=new Map(),limit=configuration_().storage.newsletterDeliveries;
- return rows.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).filter(row=>{
+ return rows.slice().sort((a,b)=>(Date.parse(b.fecha)-Date.parse(a.fecha))||String(b.id||'').localeCompare(String(a.id||''))).filter(row=>{
   const key=row.suscripcion||row.correo,count=counts.get(key)||0;counts.set(key,count+1);return count<limit;
  });
 }
