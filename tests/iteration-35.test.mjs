@@ -79,11 +79,8 @@ test('la construcción MIME se puede medir sin ejecutar transporte',()=>{
  for(const image of content.images)assert.ok(raw.includes('Content-ID: <'+image.id+'>'));
 });
 
-test('el enlace oficial usa el mismo PNG privado en correo y web sin exponer su ID',()=>{
- const {c}=presentationServer(),id='private-official-link-resource-12345';
- c.PropertiesService.getScriptProperties().setProperty('NEWSLETTER_VISUAL_ASSETS',JSON.stringify({'link-icon':id}));
- c.DriveApp.getFileById=()=>({getBlob:()=>({getContentType:()=> 'image/png',getBytes:()=>[137,80,78,71]})});
- for(const item of presentationCases){const content=presentationContent(c,item.query),d=document(content.html);assert.doesNotMatch(content.html,/↗/);assert.ok(content.images.some(image=>image.id==='link-icon'));assert.ok(d.querySelectorAll('img[src="cid:link-icon"][alt=""]').length>0);assert.ok(!content.html.includes(id));}
- c.HtmlService={createHtmlOutputFromFile:()=>({getContent:()=>'<style>.link-icon{display:none}</style>'})};
- const style=c.include_('Styles');assert.match(style,/data:image\/png;base64,iVBORw==/);assert.ok(!style.includes(id));assert.equal(c.include_('Client'),'<style>.link-icon{display:none}</style>');
+test('la flecha diagonal indicada se comparte en enlaces y CTA sin icono de cadena',()=>{
+ const {c}=presentationServer();
+ for(const item of presentationCases){const content=presentationContent(c,item.query),d=document(content.html);assert.ok(content.images.some(image=>image.id==='link-arrow-on-action'));assert.equal(d.querySelector('.newsletter-edition-link img').getAttribute('src'),'cid:link-arrow-on-action');assert.equal(d.querySelector('.newsletter-edition-link img').getAttribute('alt'),'');assert.equal(d.querySelector('img[src="cid:link-icon"]'),null);if(item.query.view==='news')assert.ok(d.querySelector('img[src="cid:link-arrow"]'));}
+ c.HtmlService={createHtmlOutputFromFile:()=>({getContent:()=>'<style>base</style>'})};assert.equal(c.include_('Styles'),'<style>base</style>');
 });
