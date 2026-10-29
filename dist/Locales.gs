@@ -1,5 +1,9 @@
 const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 const translations = Object.freeze({
+  "Ir al día más reciente": ["Go to the most recent day","En son güne git"],
+  "Últimos días": ["Latest days","Son günler"],
+  "Ver días anteriores": ["View earlier days","Önceki günleri göster"],
+  "Ver días siguientes": ["View later days","Sonraki günleri göster"],
   "Comprobación de cambios de newsletters: {done}/{total} ediciones.": ["Checking newsletter changes: {done}/{total} editions.", "Bülten değişiklikleri kontrol ediliyor: {done}/{total} sayı."],
   "Preparación de compactación: {done}/{total} ediciones.": ["Compaction preparation: {done}/{total} editions.","Sıkıştırma hazırlığı: {done}/{total} sürüm."],
   "{count} publicación": ["{count} publication","{count} yayın"],

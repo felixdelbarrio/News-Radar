@@ -2,9 +2,10 @@ import {attachNewsletterSummaries} from './newsletter-summary.js';
 import { $, escape, date, message, metricCards } from "../core/dom.js";
 import { call } from "../core/api.js";
 import {createRecordFilters} from './record-filters.js';
-import {activityChart} from './activity-chart.js';
+import {createActivityChart} from './activity-chart.js';
 import {newsletterCadences} from '../../shared/newsletter-cadences.js';
 import {t} from '../core/language.js';
+const adoptionChart=createActivityChart($('adoption-chart'));
 const filters={},requests={};let adoptionCohort='dau';
 const adoptionCohorts=[['dau','DAU','Usuarios · 24 horas'],['wau','WAU','Usuarios · 7 días'],['mau','MAU','Usuarios · 30 días'],['returning','Recurrentes','Más de una sesión · 30 días'],['total','Total usuarios','Usuarios · período filtrado']];
 $('adoption-metrics').addEventListener('click',event=>{const cohort=event.target.closest('[data-cohort]')?.dataset.cohort;if(cohort&&cohort!==adoptionCohort){adoptionCohort=cohort;filters.adoption.reset();loadMetrics('adoption',()=>!$('adoption-section').hidden&&!$('administration-section').hidden);}});
@@ -21,7 +22,7 @@ async function loadMetrics(view, isCurrent) {
       filters[view].page(data);$('adoption-users-label').textContent=t(adoptionCohorts.find(([key])=>key===adoptionCohort)[1])+' · '+t('{count} usuarios',{count:data.total});
       $('adoption-body').innerHTML=data.users.map(row=>'<tr>'+[row.correo,date(row.last),row.sessions,row.actions,date(row.first)].map((value,index)=>'<td data-label="'+escape(t(['Usuario','Último acceso','Sesiones','Eventos','Primer acceso'][index]))+'">'+escape(value)+'</td>').join('')+'</tr>').join('')||'<tr><td colspan="5">'+t('No hay usuarios en este grupo.')+'</td></tr>';
       $("adoption-note").textContent = t('{sessions} sesiones y {events} eventos que cumplen los filtros en los últimos 30 días. Incluye al administrador; sesiones identificadas por apertura del navegador.',data)+' ' + (data.limited ? "Límite de eventos alcanzado; métricas parciales." : "");
-      $("adoption-chart").innerHTML=activityChart(data.daily);
+      adoptionChart.render(data.daily);
 
     }
   } catch (e) {

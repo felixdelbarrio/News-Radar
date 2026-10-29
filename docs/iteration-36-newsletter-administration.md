@@ -1,4 +1,4 @@
-# Iteración 36 · Newsletters y suscripciones · 3.32.0
+# Iteración 36 · Newsletters y suscripciones · 3.32.1
 
 ## Cambios implementados
 
@@ -36,3 +36,11 @@ El diagnóstico temporal se retiró y se volvió a cotejar `Briefing.gs` con la 
 ## Validación de integración
 
 PR #96 hacia `develop`, rama `codex/iteration-36`. El commit de código `0a53d17` supera CI, CodeQL y GitFlow y no tiene hilos de revisión pendientes. La suite estable previa obtuvo 909/910: el único fallo era el presupuesto anterior de imagen, corregido y verificado después. La ejecución completa de CI confirma la corrección. La documentación posterior no modifica el paquete desplegado.
+
+## Ampliación de la entrega · 3.32.1
+
+Adopción sustituye la cuadrícula que saltaba de línea por una cronología horizontal. Los laterales permiten recorrer los días ya cargados y el botón «Últimos días» vuelve al final. También admite desplazamiento táctil, flechas, Page Up/Down e Inicio/Fin, y respeta la preferencia de movimiento reducido. La ventana muestra su rango, ajusta el ancho a columnas completas y conserva la posición al redimensionar. El componente compartido tiene un único observador y no vuelve a consultar el servidor al navegar. Tamaños y estilos se centralizan en los tokens `activity-column-width`, `activity-control-size` y `activity-chart-height`, y en `dashboard.css`; se retira la regla móvil que creaba varias filas.
+
+La búsqueda de Noticias coteja el original y las traducciones guardadas en los tres idiomas, normalizando mayúsculas y acentos. La coincidencia en titular o extracto no evita los filtros por país, entidad, fecha, canal, señal, tipo o funcionalidad. Pantalla y CSV comparten el mismo selector. Se prefiltran los candidatos y se consultan solo las claves existentes, en lotes de hasta 128. No se invoca LanguageApp durante una lectura; una traducción pendiente no puede aportar palabras que todavía no están guardadas. La huella de contenido evita recuperar una traducción obsoleta y las revisiones de traducción invalidan el plan cacheado.
+
+Las pruebas de regresión cubren navegación, tacto, teclado, límites, redimensionamiento, período vacío, coincidencias en titular/extracto, acentos, filtros, CSV, invalidación de caché y lecturas agrupadas. La revisión visual con 61 días confirma una sola fila y ausencia de desbordamiento de página en 390 y 1280 px. La ampliación mantiene la misma implementación y deja la versión 139 como reversión.
