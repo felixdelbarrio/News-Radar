@@ -1,0 +1,230 @@
+[
+  {
+    "id": "1a2c9e0c-9770-4220-98d5-3077c7609622",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Servicio expresamente dirigido a consumidores o pacientes individuales."
+  },
+  {
+    "id": "95dcadfb-aaa9-4557-ada9-5f6345d6d84d",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Participación o inversión financiera; no oferta de servicio al cliente."
+  },
+  {
+    "id": "192a4670-6955-4b5b-82b8-aa2f44fa0300",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Concesión de financiación; no demuestra lanzamiento de un canal digital."
+  },
+  {
+    "id": "37874f38-af78-4ffd-92e5-d7dbb7fea134",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Participación o inversión financiera; no oferta de servicio al cliente."
+  },
+  {
+    "id": "dbb7dfb3-e93f-4a56-81f1-dfb366c42ed0",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Servicio expresamente dirigido a consumidores o pacientes individuales."
+  },
+  {
+    "id": "42d88af1-c210-466e-b887-3cf9d7aa4d76",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Concesión de financiación; no demuestra lanzamiento de un canal digital."
+  },
+  {
+    "id": "0326745c-1848-4f7f-bd12-8df6333acb2a",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Concesión de financiación; no demuestra lanzamiento de un canal digital."
+  },
+  {
+    "id": "f56737b8-7914-4891-98b3-e041a79734d8",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Servicio expresamente dirigido a consumidores o pacientes individuales."
+  },
+  {
+    "id": "a26b200c-95b1-4b76-a63d-3f994d3db39a",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Análisis de mercado o actividad interna; no nueva capacidad ofrecida a clientes corporativos."
+  },
+  {
+    "id": "c1688dc8-5b32-4b04-852a-6a86b15c3bcf",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Análisis de mercado o actividad interna; no nueva capacidad ofrecida a clientes corporativos."
+  },
+  {
+    "id": "aa53a68f-72e6-4686-b9de-80f2c75dd2d5",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Servicio expresamente dirigido a consumidores o pacientes individuales."
+  },
+  {
+    "id": "8a91afd8-d766-4729-8253-366570e263a5",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Análisis de mercado o actividad interna; no nueva capacidad ofrecida a clientes corporativos."
+  },
+  {
+    "id": "ab245566-5341-4d7a-b6ce-7ce849de89fc",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Análisis de mercado o actividad interna; no nueva capacidad ofrecida a clientes corporativos."
+  },
+  {
+    "id": "d0b20fe8-1a9a-4520-95b7-92048c7ef7ce",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Análisis de mercado o actividad interna; no nueva capacidad ofrecida a clientes corporativos."
+  },
+  {
+    "id": "de0137b0-b96a-4d52-b4f3-050b93fbcf37",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Análisis de mercado o actividad interna; no nueva capacidad ofrecida a clientes corporativos."
+  },
+  {
+    "id": "9729f52f-2773-4fd9-b13e-df51d418394e",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Análisis de mercado o actividad interna; no nueva capacidad ofrecida a clientes corporativos."
+  },
+  {
+    "id": "6f5fd364-a656-45a7-9b40-c8e8f692d3db",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Análisis de mercado o actividad interna; no nueva capacidad ofrecida a clientes corporativos."
+  },
+  {
+    "id": "e9b2e78e-9e8a-4331-9fc4-925f2b52d6c4",
+    "decision": "FP confirmado por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Análisis de mercado o actividad interna; no nueva capacidad ofrecida a clientes corporativos."
+  },
+  {
+    "id": "0a311f84-d5b9-4e9e-aef5-d84f744f6a1e",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "b2c1d762-4780-4988-8989-fa7e36e80fdd",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "6e940727-5e70-4e05-add7-813932a65a52",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "ac29f400-27ad-4e3f-a423-943bc7953e83",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "82492597-88bd-4a02-b7bc-e768a2578028",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "39d8e13a-50ce-4d13-bc8b-e6c251d0091a",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "1e25f54c-5910-409d-beb8-62cca351c147",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "96362982-d8d5-4041-985b-473e7e557b2e",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "43dfdeac-a90b-4b84-97a7-37a4eb884076",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "1f145167-91fe-444b-b311-848a4fca5668",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "b83b9e77-bc8b-4952-aaa8-d39a8cf6e9f7",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "d16cf486-71d2-44b7-a603-c21ac5af71ed",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "2f422ad0-5720-4713-9be4-f132aef3bcbc",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "b1249536-6c0d-4e35-ba2b-b7ebaecc3c79",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "21f109c9-ac7c-4220-af71-bea1850ebe3f",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "ff739bea-e923-4379-a6f6-fcadaae6eda4",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "881e196a-9778-4639-9ffe-4e5d0e8cc24e",
+    "decision": "válida por titular inequívoco",
+    "confidence": "alta",
+    "reason": "Capacidad operativa digital de pagos, ERP, onboarding o canal empresarial explícita en el titular."
+  },
+  {
+    "id": "e52fa9c367d1fc2e76d8250183aa18e6",
+    "decision": "FN probable",
+    "confidence": "alta sobre el servicio; metadatos de publicación pendientes",
+    "reason": "El titular describe una herramienta para clientes corporativos o transferencias B2B instantáneas; no se restaura automáticamente el candidato."
+  },
+  {
+    "id": "dc43fe53e30cb7171dac67d579ccc498",
+    "decision": "FN probable",
+    "confidence": "alta sobre el servicio; metadatos de publicación pendientes",
+    "reason": "El titular describe una herramienta para clientes corporativos o transferencias B2B instantáneas; no se restaura automáticamente el candidato."
+  },
+  {
+    "id": "9879e8401258daead938b6f5835768b8",
+    "decision": "FN probable",
+    "confidence": "alta sobre el servicio; metadatos de publicación pendientes",
+    "reason": "El titular describe una herramienta para clientes corporativos o transferencias B2B instantáneas; no se restaura automáticamente el candidato."
+  }
+]

@@ -24,6 +24,8 @@ function compactOperationalLogs_(){
 function deleteSheetRows_(sheet,positions){
  const rows=[...new Set(positions)].sort((a,b)=>b-a);for(let i=0;i<rows.length;){let end=i+1;while(end<rows.length&&rows[end]===rows[end-1]-1)end++;sheet.deleteRows(rows[end-1],end-i);i=end;}
 }
+// A reviewed classification is retained in general news, including explicit exclusions.
+function reviewedNewsClassification_(labels){return Boolean(labels.procedencia?.editorial);}
 function deduplicateNews_(){
  const sheet=newsSheet_(),keys=RADAR.sheets.Noticias,count=Math.max(0,sheet.getLastRow()-1);if(!count)return 0;
  const revision=newsClassificationRevision_(),remove=[],rows=[],protectedIds=new Set(llmIndex_().keys());
@@ -31,14 +33,62 @@ function deduplicateNews_(){
  for(const [index,values] of metadata.entries()){
   const row={...Object.fromEntries(keys.slice(0,8).map((key,i)=>[key,values[i]])),clasificacion:classifications[index][0],_sheetRow:index+2},labels=savedNewsLabels_(row.clasificacion),title=searchText_(row.titular),text=searchText_(row.titular+' '+row.extracto);
   const current=labels.schema===1&&labels.version===CLASSIFICATION_WORK.rulesVersion&&labels.revision===revision&&labels.contentHash===sha256_(JSON.stringify([title,text]));
-  if(!protectedIds.has(row.id)&&current&&(!labels.digital||entityKey_(row.entidad)==='Santander'&&santanderExcluded_(text)))remove.push(row._sheetRow);else rows.push(row);
+  if(!protectedIds.has(row.id)&&!reviewedNewsClassification_(labels)&&current&&(!labels.digital||entityKey_(row.entidad)==='Santander'&&santanderExcluded_(text)))remove.push(row._sheetRow);else rows.push(row);
  }
- const aliases=[];uniqueNews_(translationIdentityRows_(rows),aliases);remove.push(...aliases.filter(alias=>!protectedIds.has(rows[alias.index].id)).map(alias=>rows[alias.index]._sheetRow));if(!remove.length)return 0;
+ const aliases=[];uniqueNews_(translationIdentityRows_(rows),aliases);remove.push(...aliases.filter(alias=>!protectedIds.has(rows[alias.index].id)&&!reviewedNewsClassification_(savedNewsLabels_(rows[alias.index].clasificacion))).map(alias=>rows[alias.index]._sheetRow));if(!remove.length)return 0;
  // Archived editions already contain complete frozen articles, so their IDs and content remain intact.
  const archives=[];for(let start=0;start<remove.length;start+=ARCHIVE_WORK.rows){const positions=remove.slice(start,start+ARCHIVE_WORK.rows),records=new Map(newsRowsAt_(positions.slice().sort((a,b)=>a-b)).map(row=>[row._sheetRow,keys.map(key=>row[key]||'')])),values=positions.map(position=>records.get(position));archives.push(archiveSpreadsheet_('Noticias',keys,values,configuration_().storage.primaryFolderId,'news:'+sha256_(JSON.stringify(values))));}
  deleteSheetRows_(sheet,remove);SpreadsheetApp.flush();for(const archive of archives)properties_().deleteProperty(archive.property);invalidateNews_();return remove.length;
 }
 function cleanDuplicateNews(){authorize_(true);return withForegroundWrite_(()=>({removed:deduplicateNews_()}));}
+function newsCorrectionFingerprint_(row){return sha256_(JSON.stringify(RADAR.sheets.Noticias.map(key=>String(row[key]||''))));}
+function newsCorrectionRows_(ids){
+ const rows=rowsById_('Noticias',new Set(ids),Infinity,true);
+ if(rows.length!==ids.length||new Set(rows.map(row=>row.id)).size!==ids.length)throw Error('Corrección selectiva: IDs ausentes o duplicados.');
+ return new Map(rows.map(row=>[row.id,row]));
+}
+function previewNewsClassificationCorrections(requests){
+ authorize_(true);
+ if(!Array.isArray(requests)||!requests.length||requests.length>20||new Set(requests.map(row=>row.id)).size!==requests.length)throw Error('Revisa entre 1 y 20 IDs únicos.');
+ const records=newsCorrectionRows_(requests.map(row=>row.id)),at=new Date().toISOString(),changes=[];
+ for(const request of requests){
+  const row=records.get(request.id),before=row.clasificacion,prior=savedNewsLabels_(before),title=searchText_(plainText_(row.titular)),text=searchText_(plainText_(row.titular)+' '+plainText_(row.extracto));
+  if(newsCorrectionFingerprint_(row)!==request.expectedHash||typeof request.reason!=='string'||!request.reason.trim()||request.reason.length>300)throw Error('Revisión obsoleta o motivo ausente: '+request.id);
+  const next=classification_(title,text,true,row.medio).labels;
+  if(!prior.digital||next.digital)throw Error('Solo se corrigen falsos positivos revisados: '+request.id);
+  next.procedencia={...prior.procedencia,editorial:{at,reason:request.reason,contentHash:next.contentHash}};
+  changes.push({id:row.id,url:row.url,expectedHash:request.expectedHash,before,after:JSON.stringify(next),reason:request.reason});
+ }
+ const plan={schema:1,source:newsStorageKey_(),created:at,changes};return {...plan,digest:sha256_(JSON.stringify(plan))};
+}
+function applyNewsClassificationCorrections(plan,rollback=false){
+ authorize_(true);return withForegroundWrite_(()=>{
+  const started=Date.now(),{digest,...payload}=plan||{};
+  if(payload.schema!==1||payload.source!==newsStorageKey_()||!Array.isArray(payload.changes)||!payload.changes.length||payload.changes.length>20||digest!==sha256_(JSON.stringify(payload)))throw Error('Plan selectivo no válido o generación cambiada.');
+  const ids=payload.changes.map(row=>row.id);if(new Set(ids).size!==ids.length)throw Error('IDs duplicados en el plan.');
+  const records=newsCorrectionRows_(ids),column=RADAR.sheets.Noticias.indexOf('clasificacion')+1,updates=[];
+  for(const change of payload.changes){
+   const row=records.get(change.id),prior=savedNewsLabels_(change.before),next=savedNewsLabels_(change.after);
+   if(!prior.digital||next.digital||!reviewedNewsClassification_(next)||next.procedencia.editorial.reason!==change.reason)throw Error('Decisión editorial no válida: '+change.id);
+   if(row.url!==change.url||row.clasificacion!==(rollback?change.after:change.before)||newsCorrectionFingerprint_({...row,clasificacion:change.before})!==change.expectedHash)throw Error('Registro cambiado desde la revisión: '+change.id);
+   updates.push({row:row._sheetRow,column,value:rollback?change.before:change.after,original:row.clasificacion});
+  }
+  const keys=RADAR.sheets.Noticias,archive=archiveSpreadsheet_('Noticias',keys,ids.map(id=>keys.map(key=>records.get(id)[key]||'')),configuration_().storage.primaryFolderId,'editorial:'+digest+':'+rollback);
+  const sheet=newsSheet_(),fresh=newsCorrectionRows_(ids);
+  for(const id of ids)if(newsCorrectionFingerprint_(fresh.get(id))!==newsCorrectionFingerprint_(records.get(id))||fresh.get(id)._sheetRow!==records.get(id)._sheetRow)throw Error('El registro cambió durante el archivo: '+id);
+  try{
+   for(const update of updates)sheet.getRange(update.row,column,1,1).setNumberFormat('@').setValues([[update.value]]);
+   SpreadsheetApp.flush();
+   if(updates.some(update=>sheet.getRange(update.row,column,1,1).getDisplayValues()[0][0]!==update.value))throw Error('Lectura de verificación incompleta.');
+  }catch(error){
+   for(const update of updates){const cell=sheet.getRange(update.row,column,1,1),value=cell.getDisplayValues()[0][0];if(value===update.value)cell.setValues([[update.original]]);else if(value!==update.original)throw Error('Conflicto durante reversión; conservar archivo '+archive.id);}
+   SpreadsheetApp.flush();throw error;
+  }
+  invalidateNews_(false,true,false);
+  telemetry_('correccion-editorial',Date.now()-started,'OK',JSON.stringify({rollback,ids,archive:archive.id,digest}));
+  return {changed:ids,rollback,archive,digest,inverse:{plan,rollback:!rollback},elapsedMs:Date.now()-started};
+ });
+}
 function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
  const job=maintenanceJob_();if(!job||['Completada','Publicando'].includes(job.state)||job.state==='Revisar'&&!maintenanceRecoverable_(job.error)||backgroundPaused_())return;
  const started=Date.now();try{
