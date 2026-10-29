@@ -1,5 +1,6 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Comprobación de cambios de newsletters: {done}/{total} ediciones.": ["Checking newsletter changes: {done}/{total} editions.", "Bülten değişiklikleri kontrol ediliyor: {done}/{total} sayı."],
   "Preparación de compactación: {done}/{total} ediciones.": ["Compaction preparation: {done}/{total} editions.","Sıkıştırma hazırlığı: {done}/{total} sürüm."],
   "{count} publicación": ["{count} publication","{count} yayın"],
   "{count} publicación más de {theme}": ["{count} more publication about {theme}","{theme} hakkında {count} ek yayın"],

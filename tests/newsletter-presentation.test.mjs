@@ -35,7 +35,7 @@ for(const {name,query} of presentationCases){
   assert.equal(d.querySelector('.newsletter-metric a'),null,'las cifras no fingen un conjunto filtrado equivalente');
   assert.doesNotMatch(result.html,/data:image|https?:\/\/[^"<> ]+\.(?:png|jpg)|display:(?:flex|grid)|@font-face|<section/);
   const ids=result.images.map(image=>image.id);assert.equal(new Set(ids).size,ids.length);
-  for(const img of d.images){assert.ok(img.alt);assert.ok(ids.includes(img.src.replace('cid:','')));}
+  for(const img of d.images){assert.ok(img.alt||img.getAttribute('aria-hidden')==='true'&&img.getAttribute('alt')===''&&img.closest('a')?.textContent.trim());assert.ok(ids.includes(img.src.replace('cid:','')));}
   let mime;c.Utilities.base64EncodeWebSafe=value=>Buffer.from(value).toString('base64url');c.gmailRequest_=(_path,payload)=>{mime=Buffer.from(payload.raw,'base64url').toString();return {id:'verified'};};
   c.sendNewsletterMail_({name:'News Radar',address:'news-radar.group@bbva.com'},'owner@bbva.com',result);
   assert.match(mime,/multipart\/related/);assert.match(mime,/multipart\/alternative/);

@@ -37,7 +37,7 @@ test('subjects follow natural coverage periods, configured scope and exact irreg
 test('email uses inline table layout, visible evidence and a single hidden preheader',()=>{
  const {c}=setup(),result=c.newsletterContent_([row('a'),row('b','Italia')],q,'',new Date('2026-10-16'),'s','es','edition'),d=new JSDOM(result.html).window.document;
  assert.ok(d.querySelector('.newsletter-header-title').getAttribute('style').includes('color:#001391'));assert.ok(d.querySelector('.newsletter-header-cell').getAttribute('style').includes('background-color:#ffffff'));assert.equal(d.querySelectorAll('.newsletter-preheader').length,1);assert.match(d.querySelector('.newsletter-preheader').getAttribute('style'),/display:none/);assert.equal(d.querySelectorAll('.newsletter-article').length,result.count);assert.doesNotMatch(result.html,/display:(?:flex|grid)|linear-gradient|fonts.googleapis/);assert.equal(d.querySelector('.newsletter-shell').getAttribute('width'),'100%');
- for(const image of d.querySelectorAll('img')){assert.ok(image.alt);assert.ok(image.src.startsWith('cid:'));}assert.match(result.text,/example.com\/a/);assert.doesNotMatch(result.text,/API bancarias/);
+ for(const image of d.querySelectorAll('img')){assert.ok(image.alt||image.getAttribute('aria-hidden')==='true'&&image.getAttribute('alt')===''&&image.closest('a')?.textContent.trim());assert.ok(image.src.startsWith('cid:'));}assert.match(result.text,/example.com\/a/);assert.doesNotMatch(result.text,/API bancarias/);
 });
 test('country priorities distinguish explicit names, ccTLDs, national context and verified publishers',()=>{
  const {c}=setup(),base={titular:'Nueva función digital para empresas',entidad:'BBVA',fuente:'BBVA · España',url:'https://news.google.com/rss/articles/test'};

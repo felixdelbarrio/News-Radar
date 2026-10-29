@@ -75,3 +75,9 @@ test('los lotes de compactación ceden al agotar el presupuesto de tiempo',()=>{
  let elapsed=0,calls=0;c.Date=class extends Date{static now(){return elapsed;}};
  c.compactNewsletterBatch_=()=>{calls++;elapsed+=6;return false;};c.maintenanceBatch_(10);assert.equal(calls,2);assert.equal(c.maintenanceJob_().phase,'newsletters');
 });
+
+test('un bloqueo heredado por nuevas newsletters se reanuda sin reiniciar el mantenimiento y muestra avance de fase',()=>{
+ const {c}=storage();c.initializeConfiguration();c.maintenance_();const job=c.maintenanceJob_();Object.assign(job,{state:'Revisar',phase:'newsletters',newslettersArchived:true,attempts:8,error:'Las newsletters cambiaron durante la compactación; conserva las generaciones y revisa el checkpoint.'});c.saveMaintenanceJob_(job);
+ assert.ok(Number.isFinite(c.maintenanceReadyAt_()));assert.match(c.startMaintenance(),/reanudado/);
+ c.compactNewsletterBatch_=()=>{c.properties_().setProperty('NEWSLETTER_COMPACTION_JOB',JSON.stringify({state:'Validating',validateNext:6,next:12,total:100}));return false;};c.maintenanceBatch_();const current=c.maintenanceJob_(),panel=c.controlProcess_('maintenance',current);assert.equal(current.error,'');assert.equal(panel.done,4);assert.equal(panel.total,10);assert.match(panel.comment,/Comprobación de cambios/);
+});
