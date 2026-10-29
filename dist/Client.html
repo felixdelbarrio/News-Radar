@@ -59,6 +59,12 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Primera quincena de {month} de {year}": ["First half of {month} {year}", "{month} {year} ay\u0131n\u0131n ilk yar\u0131s\u0131"],
+    "Segunda quincena de {month} de {year}": ["Second half of {month} {year}", "{month} {year} ay\u0131n\u0131n ikinci yar\u0131s\u0131"],
+    "Lo m\xE1s relevante del primer trimestre de {year}": ["Highlights of the first quarter of {year}", "{year} y\u0131l\u0131n\u0131n ilk \xE7eyre\u011Finde \xF6ne \xE7\u0131kanlar"],
+    "Lo m\xE1s relevante del segundo trimestre de {year}": ["Highlights of the second quarter of {year}", "{year} y\u0131l\u0131n\u0131n ikinci \xE7eyre\u011Finde \xF6ne \xE7\u0131kanlar"],
+    "Lo m\xE1s relevante del tercer trimestre de {year}": ["Highlights of the third quarter of {year}", "{year} y\u0131l\u0131n\u0131n \xFC\xE7\xFCnc\xFC \xE7eyre\u011Finde \xF6ne \xE7\u0131kanlar"],
+    "Lo m\xE1s relevante del cuarto trimestre de {year}": ["Highlights of the fourth quarter of {year}", "{year} y\u0131l\u0131n\u0131n d\xF6rd\xFCnc\xFC \xE7eyre\u011Finde \xF6ne \xE7\u0131kanlar"],
     "Ir al d\xEDa m\xE1s reciente": ["Go to the most recent day", "En son g\xFCne git"],
     "\xDAltimos d\xEDas": ["Latest days", "Son g\xFCnler"],
     "Ver d\xEDas anteriores": ["View earlier days", "\xD6nceki g\xFCnleri g\xF6ster"],
@@ -177,7 +183,7 @@
     "Novedades internacionales en canales digitales para empresas e instituciones.": ["International updates in digital channels for businesses and institutions.", "\u0130\u015Fletmeler ve kurumlar i\xE7in dijital kanallardaki uluslararas\u0131 yenilikler."],
     "Hasta tres movimientos competitivos destacados para tu canal.": ["Up to three competitive moves relevant to your channel.", "Kanal\u0131n\u0131z i\xE7in en fazla \xFC\xE7 \xF6nemli rekabet hamlesi."],
     "Hasta tres movimientos competitivos destacados que todav\xEDa no te hemos compartido.": ["Up to three competitive moves we have not shared with you yet.", "Sizinle hen\xFCz payla\u015Fmad\u0131\u011F\u0131m\u0131z en fazla \xFC\xE7 \xF6nemli rekabet hamlesi."],
-    "Selecci\xF3n basada en fuentes trazables; consulta la fuente para confirmar oferta y disponibilidad.": ["Selection based on traceable sources; check the source to confirm the offering and availability.", "Se\xE7im izlenebilir kaynaklara dayan\u0131r; teklifi ve kullan\u0131labilirli\u011Fi do\u011Frulamak i\xE7in kayna\u011F\u0131 kontrol edin."],
+    "Selecci\xF3n informativa basada en fuentes trazables; consulta la fuente original para ampliar y contrastar la informaci\xF3n.": ["Informational selection based on traceable sources; consult the original source to explore and verify the information.", "\u0130zlenebilir kaynaklara dayal\u0131 bilgilendirme se\xE7kisi; ayr\u0131nt\u0131lar ve bilgiyi do\u011Frulamak i\xE7in \xF6zg\xFCn kayna\u011Fa ba\u015Fvurun."],
     "La geograf\xEDa no tiene zona configurada.": ["The geography has no configured region.", "Co\u011Frafyan\u0131n yap\u0131land\u0131r\u0131lm\u0131\u015F bir b\xF6lgesi yok."],
     "Evidencia o fecha no v\xE1lida.": ["Invalid evidence or date.", "Ge\xE7ersiz kan\u0131t veya tarih."],
     "Fuera del \xE1mbito empresarial solicitado.": ["Outside the requested business scope.", "\u0130stenen kurumsal kapsam\u0131n d\u0131\u015F\u0131nda."],
@@ -1101,7 +1107,7 @@
     "La geograf\xEDa identifica el seguimiento de la fuente; no atribuye cada operaci\xF3n a ese pa\xEDs.": ["Geography identifies the source being tracked; it does not assign each transaction to that country.", "Co\u011Frafya kaynak takibini belirtir; her i\u015Flemi o \xFClkeye atfetmez."],
     "Novedades del sector": ["Sector updates", "Sekt\xF6r yenilikleri"],
     "Anuncios de productos y cambios de oferta detectados en las fuentes de tu selecci\xF3n.": ["Product announcements and offer changes detected in your selected sources.", "Se\xE7ti\u011Finiz kaynaklarda tespit edilen \xFCr\xFCn duyurular\u0131 ve teklif de\u011Fi\u015Fiklikleri."],
-    "Las se\xF1ales proceden de t\xE9rminos configurables en el titular y extracto. Pueden contener falsos positivos o no detectar un lanzamiento. Consulta la fuente para confirmar oferta, disponibilidad y condiciones.": ["Signals come from configurable terms in headlines and excerpts. They may produce false positives or miss a launch. Check the source to confirm the offer, availability and terms.", "Sinyaller ba\u015Fl\u0131k ve \xF6zetlerdeki yap\u0131land\u0131r\u0131labilir terimlerden gelir. Yanl\u0131\u015F e\u015Fle\u015Fmeler olabilir veya bir lansman tespit edilmeyebilir. Teklifi, kullan\u0131labilirli\u011Fi ve ko\u015Fullar\u0131 kaynaktan do\u011Frulay\u0131n."],
+    "Las se\xF1ales proceden de t\xE9rminos configurables en el titular y extracto. Pueden contener falsos positivos o no detectar un lanzamiento.": ["Signals come from configurable terms in headlines and excerpts. They may produce false positives or miss a launch.", "Sinyaller ba\u015Fl\u0131k ve \xF6zetlerdeki yap\u0131land\u0131r\u0131labilir terimlerden gelir. Yanl\u0131\u015F e\u015Fle\u015Fmeler olabilir veya bir lansman tespit edilmeyebilir."],
     "Recibe tu selecci\xF3n": ["Receive your selection", "Se\xE7iminizi al\u0131n"],
     "Recibe lanzamientos, mejoras de productos y alianzas de las entidades que sigues. Elige el contenido y la periodicidad.": ["Receive launches, product improvements and partnerships from the entities you follow. Choose the content and frequency.", "Takip etti\u011Finiz kurumlar\u0131n lansmanlar\u0131n\u0131, \xFCr\xFCn iyile\u015Ftirmelerini ve i\u015F birliklerini al\u0131n. \u0130\xE7erik ve s\u0131kl\u0131\u011F\u0131 se\xE7in."],
     "Sin correos si no hay novedades": ["No emails without updates", "Yenilik yoksa e-posta g\xF6nderilmez"],
@@ -3235,8 +3241,8 @@
         else config[category] = [...$("catalog-fields").children].map(record);
     }
     function fields(definitions, row) {
-      return definitions.map(([key, label, type, choices]) => `<label class="${type === "list" ? "catalog-terms" : ""}">${escape2(t(label))}${type === "choice" ? `<select data-key="${key}">${choices.map(([value, label2]) => `<option value="${escape2(value)}" ${row[key] === value ? "selected" : ""}>${escape2(t(label2))}</option>`).join("")}</select>` : type === "boolean" ? `<input type="checkbox" data-key="${key}" ${row[key] ? "checked" : ""}>` : type === "list" ? `<textarea data-key="${key}" data-list="true" rows="${Math.min(8, Math.max(3, (row[key] || []).length))}" spellcheck="false">${escape2((row[key] || []).join(`
-`))}</textarea><span class="small muted">${t("Un t\xE9rmino por l\xEDnea")} \xB7 ${(row[key] || []).length}</span>` : `<input data-key="${key}" type="${type === "number" ? "number" : "text"}" ${type === "readonly" ? "readonly" : ""} value="${escape2(row[key] ?? "")}">`}</label>`).join("");
+      return definitions.map(([key, label, type, choices]) => `<label class="${type === "list" ? "catalog-terms" : ""}">${escape2(t(label))}${type === "choice" ? `<select data-key="${escape2(key)}">${choices.map(([value, label2]) => `<option value="${escape2(value)}" ${row[key] === value ? "selected" : ""}>${escape2(t(label2))}</option>`).join("")}</select>` : type === "boolean" ? `<input type="checkbox" data-key="${escape2(key)}" ${row[key] ? "checked" : ""}>` : type === "list" ? `<textarea data-key="${escape2(key)}" data-list="true" rows="${Math.min(8, Math.max(3, (row[key] || []).length))}" spellcheck="false">${escape2((row[key] || []).join(`
+`))}</textarea><span class="small muted">${t("Un t\xE9rmino por l\xEDnea")} \xB7 ${(row[key] || []).length}</span>` : `<input data-key="${escape2(key)}" type="${type === "number" ? "number" : "text"}" ${type === "readonly" ? "readonly" : ""} value="${escape2(row[key] ?? "")}">`}</label>`).join("");
     }
     function filterRows() {
       let query = filters4.query(), term = recordText(query.search), rows = [...$("catalog-fields").querySelectorAll(category === "applicationScope" ? "[data-geography]" : ":scope > *")], shown = 0;
@@ -3264,7 +3270,7 @@
         html = [...regions].map(([region, countries]) => `<fieldset class="catalog-group scope-group"><legend>${escape2(t(region))}</legend><div class="scope-countries">${countries.map((country) => `<details class="catalog-row" data-geography data-enabled="${country.enabled}" ${country.name ? "" : "open"}><summary><strong>${escape2(country.name || t("Nueva entrada"))}</strong><span>${t(country.enabled ? "Activa" : "Inactiva")}</span></summary><label class="scope-country"><input type="checkbox" data-country="${escape2(country.name)}" ${scope.countries.includes(country.name) ? "checked" : ""}><span>${t("Pesta\xF1a propia")}</span></label><div class="catalog-grid">${fields(meta.fields, country)}</div><button type="button" class="button" data-remove>${t("Eliminar")}</button></details>`).join("")}</div></fieldset>`).join("");
       } else meta.groups ? html = meta.groups.map((group) => {
         let section = group.section || category;
-        return `<fieldset class="catalog-group" data-config-section="${section}"><legend>${escape2(t(group.label))}</legend><div class="catalog-settings">${group.keys.map((key) => {
+        return `<fieldset class="catalog-group" data-config-section="${escape2(section)}"><legend>${escape2(t(group.label))}</legend><div class="catalog-settings">${group.keys.map((key) => {
           let value = config[section][key];
           return fields([[key, meta.labels[key], Array.isArray(value) ? "list" : typeof value == "number" ? "number" : typeof value == "boolean" ? "boolean" : "text"]], config[section]);
         }).join("")}</div></fieldset>`;
@@ -3272,7 +3278,8 @@
       $("catalog-fields").innerHTML = html, filterRows();
     }
     return $("catalog-category").innerHTML = Object.entries(admin_schema_default).map(([key, meta]) => `<option value="${key}">${escape2(t(meta.label))}</option>`).join(""), $("catalog-category").addEventListener("change", () => {
-      readFields(), category = $("catalog-category").value, render();
+      let next = $("catalog-category").value;
+      Object.hasOwn(admin_schema_default, next) && (readFields(), category = next, render());
     }), $("catalog-fields").addEventListener("click", (event) => {
       if (event.target.closest("[data-add-capability]")) {
         readFields(), config.capabilities.Empresas.push({ name: "", terms: [], enabled: !0 }), render();
@@ -3515,8 +3522,12 @@
   var arrow = (direction) => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${direction < 0 ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"}"/></svg>`;
   function activityChart(days) {
     if (!days.length) return '<div class="note">' + t("No hay actividad diaria registrada en este per\xEDodo.") + "</div>";
-    let maximum = Math.max(1, ...days.map((day2) => day2.users));
-    return `<section class="activity-timeline" aria-label="${escape2(t("Usuarios activos por d\xEDa"))}"><div class="activity-heading"><div><strong>${t("Actividad diaria")}</strong><p class="activity-range" aria-live="polite" aria-atomic="true"></p></div><button type="button" class="activity-latest" data-activity-end title="${escape2(t("Ir al d\xEDa m\xE1s reciente"))}">${t("\xDAltimos d\xEDas")}</button></div><div class="activity-navigation"><button type="button" class="activity-control" data-activity-step="-1" aria-label="${escape2(t("Ver d\xEDas anteriores"))}">${arrow(-1)}</button><ul class="activity-chart" tabindex="0" aria-label="${escape2(t("Usuarios activos por d\xEDa"))}">${days.map((day2) => `<li class="activity-column" data-date="${escape2(day2.date)}" aria-label="${escape2(formatCalendarDay(day2.date, language) + " \xB7 " + t("{count} usuarios", { count: day2.users }))}"><span class="activity-value">${day2.users}</span><div class="activity-bar" style="--bar-height:calc(var(--activity-chart-height) * ${day2.users / maximum})"></div><span class="activity-date">${escape2(day2.date.slice(5))}</span></li>`).join("")}</ul><button type="button" class="activity-control" data-activity-step="1" aria-label="${escape2(t("Ver d\xEDas siguientes"))}">${arrow(1)}</button></div></section>`;
+    let maximum = Math.max(1, ...days.map((day2) => day2.users)), months = /* @__PURE__ */ new Map(), monthFormat = new Intl.DateTimeFormat(language, { month: "long", year: "numeric", timeZone: "UTC" });
+    for (let day2 of days) {
+      let key = day2.date.slice(0, 7);
+      months.set(key, (months.get(key) || 0) + 1);
+    }
+    return `<section class="activity-timeline" aria-label="${escape2(t("Usuarios activos por d\xEDa"))}"><div class="activity-heading"><div><strong>${t("Actividad diaria")}</strong><p class="activity-range" aria-live="polite" aria-atomic="true"></p></div><button type="button" class="activity-latest" data-activity-end title="${escape2(t("Ir al d\xEDa m\xE1s reciente"))}">${t("\xDAltimos d\xEDas")}</button></div><div class="activity-navigation"><button type="button" class="activity-control" data-activity-step="-1" aria-label="${escape2(t("Ver d\xEDas anteriores"))}">${arrow(-1)}</button><ul class="activity-chart" tabindex="0" aria-label="${escape2(t("Usuarios activos por d\xEDa"))}">${days.map((day2, index) => `<li class="activity-column ${Number(day2.date.slice(0, 4)) * 12 + Number(day2.date.slice(5, 7)) & 1 ? "activity-month-alternate" : ""}" data-date="${escape2(day2.date)}" aria-label="${escape2(formatCalendarDay(day2.date, language) + " \xB7 " + t("{count} usuarios", { count: day2.users }))}"><span class="activity-value">${day2.users}</span><div class="activity-bar" style="--bar-height:calc(var(--activity-chart-height) * ${day2.users / maximum})"></div><span class="activity-date">${escape2(day2.date.slice(8))}</span>${index === 0 || days[index - 1].date.slice(0, 7) !== day2.date.slice(0, 7) ? `<span class="activity-month" aria-hidden="true" style="width:calc(${months.get(day2.date.slice(0, 7))} * var(--activity-column-size,var(--activity-column-width)) + ${months.get(day2.date.slice(0, 7)) - 1} * var(--space-1))"><span>${escape2(monthFormat.format(/* @__PURE__ */ new Date(day2.date + "T00:00:00Z")))}</span></span>` : ""}</li>`).join("")}</ul><button type="button" class="activity-control" data-activity-step="1" aria-label="${escape2(t("Ver d\xEDas siguientes"))}">${arrow(1)}</button></div></section>`;
   }
   function createActivityChart(container) {
     let viewport, columns = [], previous, next, latest, range, atEnd = !0, step = () => columns.length > 1 ? columns[1].getBoundingClientRect().left - columns[0].getBoundingClientRect().left : columns[0]?.getBoundingClientRect().width || 0;
@@ -3722,7 +3733,8 @@
   }
 
   // src/client/features/filters.js
-  function createFilters({ onInvalidate, onChange }) {
+  function createFilters({ onInvalidate, onChange, onCurrent = () => {
+  } }) {
     let form = $("filters"), page = 0, view2 = defaultView, defaults = {}, edition = "", newsGeography = "", editionSelection = {}, taxonomy2 = [], applied = {}, dirty = !1, regions = REGION_CODES, selections = /* @__PURE__ */ new Map(), initialized = /* @__PURE__ */ new Set();
     function options(name, values, selected) {
       let el = form.elements[name];
@@ -3817,7 +3829,7 @@
       form.elements.to.setCustomValidity(""), onInvalidate(), notify && onChange();
     }
     function current() {
-      resetContext("");
+      onCurrent(), editionSelection = {}, resetContext("");
     }
     return {
       useEdition: (id, selection = {}, notify = !0) => {
@@ -4113,7 +4125,14 @@
   }, onSelection: (view2) => {
     let changed = filters3.show(view2);
     state.ready && (changed || state.contentStale || state.view !== view2) && load(!0);
-  }, onSubscriptions: () => subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters3 = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
+  }, onSubscriptions: () => subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => !!state.data?.admin, track }), filters3 = createFilters({ onCurrent: () => {
+    let params = { view: "news" };
+    if (typeof google < "u" && google.script?.history) google.script.history.replace({}, params, "");
+    else {
+      let url = new URL(window.location.href);
+      url.search = "?view=news", window.history.replaceState({}, "", url);
+    }
+  }, onInvalidate: () => ++state.request, onChange: () => {
     track("filtro"), load(!0);
   } }), reading = createReadingContext({ run: action }), heatmap = createTaxonomyHeatmap({ onExplore: (query) => navigateSelection("news", query) }), briefing = createBriefing({ onExplore: (query) => navigateSelection("news", query), onGeography: (country) => {
     filters3.syncGeography(country), refreshSelects();
@@ -4135,7 +4154,7 @@
     if (filters3.isValid())
       try {
         let administrative = navigation.current === "administration", query = administrative ? { view: administration.current, language: filters3.query().language } : filters3.query();
-        administrative || (renderFreshness(query.initial ? {} : query, state.data?.lastRun), query.initial && ($("active-filters").hidden = !0)), query.view === "news" && !query.edition && !query.newsGeography && (query.newsGeography = browserCountry());
+        administrative || (renderFreshness(query.initial ? {} : query, state.data?.lastRun), query.initial && ($("active-filters").hidden = !0)), query.view === "news" && !query.country && !query.benchmark && !query.newsGeography && (query.newsGeography = browserCountry());
         let key = selectionKey(query), cached = reuse && !administrative && !state.contentStale && dashboards2.get(key), clientCacheHit = !!(cached && performance.now() - cached.time < navigationCache.milliseconds), data = clientCacheHit ? { ...cached.data, collection: state.data.collection, lastRun: state.data.lastRun, daily: state.data.daily } : await call("getDashboard", query, { reuse }), appended = null;
         if (request3 !== state.request) return;
         if (query.view === "news" && query.page > 0 && (state.data?.newsRevision === data.newsRevision && data.page === query.page ? (appended = data.items, data = { ...data, items: [...state.data.items, ...appended] }) : data = await call("getDashboard", { ...query, page: 0 })), request3 === state.request) {

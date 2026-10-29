@@ -72,7 +72,7 @@ test('functional filters preserve scope and quarterly examples follow press acti
 
 test('initial dashboard is embedded safely and archived editions retain their own load',()=>{
  const {c}=setup();let calls=0;
- const output={setTitle(){return this;},addMetaTag(){return this;}},template={evaluate:()=>output};
+ const output={setTitle(){return this;},setFaviconUrl(){return this;},addMetaTag(){return this;}},template={evaluate:()=>output};
  c.HtmlService={createTemplateFromFile:()=>template};c.getDashboard=query=>{calls++;assert.equal(query.view,'briefing');return {title:'</script><script>alert(1)</script>',items:[]};};
  assert.equal(c.doGet(),output);assert.equal(calls,1);assert.doesNotMatch(template.bootstrap,/<\/script>/);assert.equal(JSON.parse(template.bootstrap).data.title,'</script><script>alert(1)</script>');
  c.doGet({parameter:{edition:'archived'}});assert.equal(template.bootstrap,'null');assert.equal(calls,1);

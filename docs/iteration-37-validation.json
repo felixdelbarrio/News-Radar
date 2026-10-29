@@ -1,0 +1,248 @@
+{
+  "sourceBaseline": {
+    "sha256": "28ff8bfedf029dbe28e92888c2ef366b900ae44b9193042a3927d3df59d0acfa",
+    "sheets": {
+      "Noticias": 858,
+      "Adopcion": 8602,
+      "NewsletterContenido": 11812,
+      "NewsletterEdiciones": 121,
+      "NewsletterEnvios": 154,
+      "Telemetria": 529,
+      "Candidatos": 3000
+    },
+    "telemetry": {
+      "dashboard": {
+        "n": 148,
+        "median": 5452.5,
+        "p95": 9434.0,
+        "max": 35817.0
+      },
+      "dashboard-snapshot": {
+        "n": 24,
+        "median": 7881.5,
+        "p95": 15156.0,
+        "max": 23017.0
+      },
+      "recopilacion": {
+        "n": 150,
+        "median": 10350.5,
+        "p95": 19202.0,
+        "max": 31607.0
+      },
+      "mantenimiento": {
+        "n": 39,
+        "median": 1044.0,
+        "p95": 6966.0,
+        "max": 11825.0
+      }
+    },
+    "deliveryStates": {
+      "Bloqueada": 7,
+      "Enviada": 147
+    }
+  },
+  "presentation": {
+    "before": {
+      "samples": 30,
+      "runtime": "v24.1.0",
+      "scope": "Local VM; Gmail and Sheets simulated. No live send or remote latency measured.",
+      "cases": {
+        "fortnightly-focused": {
+          "totalMs": {
+            "p50": 2.6738750000000095,
+            "p95": 11.812749999999994
+          },
+          "inlineMs": {
+            "p50": 0.4464590000000044,
+            "p95": 3.0681670000000167
+          },
+          "htmlBytes": 36862,
+          "mimeBytes": 99182,
+          "cidCount": 9,
+          "cidBytes": 32078,
+          "simulatedSheetReads": 0,
+          "heapDeltaBytes": -4823752
+        },
+        "fortnightly-global": {
+          "totalMs": {
+            "p50": 2.4333750000000123,
+            "p95": 8.30091600000003
+          },
+          "inlineMs": {
+            "p50": 0.40012500000000273,
+            "p95": 2.5710000000000264
+          },
+          "htmlBytes": 33274,
+          "mimeBytes": 94058,
+          "cidCount": 9,
+          "cidBytes": 32078,
+          "simulatedSheetReads": 0,
+          "heapDeltaBytes": 461864
+        },
+        "quarterly-focused": {
+          "totalMs": {
+            "p50": 3.2457500000000437,
+            "p95": 20.67599999999993
+          },
+          "inlineMs": {
+            "p50": 0.77800000000002,
+            "p95": 3.3025410000000193
+          },
+          "htmlBytes": 59662,
+          "mimeBytes": 132641,
+          "cidCount": 10,
+          "cidBytes": 32666,
+          "simulatedSheetReads": 0,
+          "heapDeltaBytes": 965408
+        },
+        "quarterly-global": {
+          "totalMs": {
+            "p50": 2.415917000000036,
+            "p95": 5.664499999999975
+          },
+          "inlineMs": {
+            "p50": 0.5059580000000778,
+            "p95": 1.5154999999999745
+          },
+          "htmlBytes": 39162,
+          "mimeBytes": 103121,
+          "cidCount": 10,
+          "cidBytes": 32666,
+          "simulatedSheetReads": 0,
+          "heapDeltaBytes": 1981176
+        }
+      }
+    },
+    "after": {
+      "samples": 30,
+      "runtime": "v24.1.0",
+      "scope": "Local VM; Gmail and Sheets simulated. No live send or remote latency measured.",
+      "cases": {
+        "fortnightly-focused": {
+          "totalMs": {
+            "p50": 2.79525000000001,
+            "p95": 7.073542000000032
+          },
+          "inlineMs": {
+            "p50": 0.4441659999999956,
+            "p95": 3.7582080000000246
+          },
+          "htmlBytes": 36970,
+          "mimeBytes": 99330,
+          "cidCount": 9,
+          "cidBytes": 32078,
+          "simulatedSheetReads": 0,
+          "heapDeltaBytes": -4835368
+        },
+        "fortnightly-global": {
+          "totalMs": {
+            "p50": 3.437167000000045,
+            "p95": 14.449416999999926
+          },
+          "inlineMs": {
+            "p50": 0.39412499999991724,
+            "p95": 6.918165999999928
+          },
+          "htmlBytes": 33382,
+          "mimeBytes": 94206,
+          "cidCount": 9,
+          "cidBytes": 32078,
+          "simulatedSheetReads": 0,
+          "heapDeltaBytes": 462016
+        },
+        "quarterly-focused": {
+          "totalMs": {
+            "p50": 3.7981660000000375,
+            "p95": 8.519250000000056
+          },
+          "inlineMs": {
+            "p50": 0.7653749999999491,
+            "p95": 2.1162499999999227
+          },
+          "htmlBytes": 59821,
+          "mimeBytes": 132859,
+          "cidCount": 10,
+          "cidBytes": 32666,
+          "simulatedSheetReads": 0,
+          "heapDeltaBytes": 179744
+        },
+        "quarterly-global": {
+          "totalMs": {
+            "p50": 3.0762079999999514,
+            "p95": 9.20887499999992
+          },
+          "inlineMs": {
+            "p50": 0.508707999999956,
+            "p95": 1.855415999999991
+          },
+          "htmlBytes": 39270,
+          "mimeBytes": 103267,
+          "cidCount": 10,
+          "cidBytes": 32666,
+          "simulatedSheetReads": 0,
+          "heapDeltaBytes": -6815664
+        }
+      }
+    }
+  },
+  "routes": {
+    "before": {
+      "runtime": "v24.1.0",
+      "scope": "Local VM, synthetic data and simulated Sheets. No network or production latency.",
+      "cases": {
+        "history": {
+          "n": 30,
+          "p50": 1.0925000000000296,
+          "p95": 3.4805410000000165,
+          "max": 5.375208999999984,
+          "simulatedCellsPerCall": 2442,
+          "simulatedRangesPerCall": 2,
+          "payloadBytes": 902,
+          "heapDeltaBytes": 180064,
+          "firstId": "delivery-139"
+        },
+        "adoption": {
+          "n": 30,
+          "p50": 61.55920900000001,
+          "p95": 83.65241699999996,
+          "max": 86.27475000000004,
+          "simulatedCellsPerCall": 0,
+          "simulatedRangesPerCall": 0,
+          "payloadBytes": 2636,
+          "heapDeltaBytes": -885080,
+          "events": 4290,
+          "days": 30
+        }
+      }
+    },
+    "after": {
+      "runtime": "v24.1.0",
+      "scope": "Local VM, synthetic data and simulated Sheets. No network or production latency.",
+      "cases": {
+        "history": {
+          "n": 30,
+          "p50": 1.58299999999997,
+          "p95": 5.925874999999905,
+          "max": 12.087416000000076,
+          "simulatedCellsPerCall": 2442,
+          "simulatedRangesPerCall": 2,
+          "payloadBytes": 902,
+          "heapDeltaBytes": 327632,
+          "firstId": "delivery-153"
+        },
+        "adoption": {
+          "n": 30,
+          "p50": 92.69766700000002,
+          "p95": 137.94441600000005,
+          "max": 162.3101670000001,
+          "simulatedCellsPerCall": 0,
+          "simulatedRangesPerCall": 0,
+          "payloadBytes": 2636,
+          "heapDeltaBytes": 7821624,
+          "events": 4290,
+          "days": 30
+        }
+      }
+    }
+  }
+}

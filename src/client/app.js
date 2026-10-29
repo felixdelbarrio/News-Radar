@@ -41,7 +41,11 @@ const newsletterDelivery=createNewsletterDelivery({run:action});
 const administration = createAdministration({ isAdmin: () => Boolean(state.data?.admin), track, onConfiguration:()=>configuration.open(),onSubscribers:()=>Promise.all([subscriptions.open(true),newsletterDelivery.open()]),onRuns:loadRuns,onLeaveRuns:closeRuns,onTaxonomy:()=>taxonomy.open(),onLlm:()=>llmCategorization.open(),onLeaveLlm:()=>llmCategorization.close() });
 const panel=createFilterPanel();
 const navigation = createNavigation({onPanel:view=>{if(view!=='administration'){llmCategorization.close();closeRuns();}++state.request;panel.show(view);if(state.data)collectionProgress.update(state.data);refreshLoading();}, onSelection:view=>{const changed=filters.show(view);if(state.ready&&(changed||state.contentStale||state.view!==view))load(true);}, onSubscriptions:()=>subscriptions.open(), onAdministration: () => administration.open(), isAdmin: () => Boolean(state.data?.admin), track });
-const filters = createFilters({ onInvalidate: () => ++state.request, onChange: () => {
+const filters = createFilters({ onCurrent:()=>{
+  const params={view:'news'};
+  if(typeof google!=='undefined'&&google.script?.history)google.script.history.replace({},params,'');
+  else{const url=new URL(window.location.href);url.search='?view=news';window.history.replaceState({},'',url);}
+ }, onInvalidate: () => ++state.request, onChange: () => {
   track("filtro");
   load(true);
 } });
@@ -79,7 +83,7 @@ async function load(reuse=false) {
   try {
     const administrative=navigation.current==='administration',query=administrative?{view:administration.current,language:filters.query().language}:filters.query();
     if(!administrative){renderFreshness(query.initial?{}:query,state.data?.lastRun);if(query.initial)$("active-filters").hidden=true;}
-    if(query.view==='news'&&!query.edition&&!query.newsGeography)query.newsGeography=browserCountry();
+    if(query.view==='news'&&!query.country&&!query.benchmark&&!query.newsGeography)query.newsGeography=browserCountry();
     const key=selectionKey(query),cached=reuse&&!administrative&&!state.contentStale&&dashboards.get(key);
     const clientCacheHit=Boolean(cached&&performance.now()-cached.time<navigationCache.milliseconds);
     let data=clientCacheHit?{...cached.data,collection:state.data.collection,lastRun:state.data.lastRun,daily:state.data.daily}:await call("getDashboard",query,{reuse}),appended=null;

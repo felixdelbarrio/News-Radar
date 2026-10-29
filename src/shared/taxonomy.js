@@ -113,7 +113,7 @@ export function taxonomyDecision(text,definitions,headline=''){
  }
  return {matches,reason:matches.length?'matched':ambiguous?'ambiguous':'insufficient'};
 }
-const evidenceWord=word=>rankingWord(word).replace(word.length>5?/[oa]$/:/$^/,'');
+const evidenceWord=word=>word.length>5?rankingWord(word).replace(/[oa]$/,''):rankingWord(word);
 export function taxonomyIndependentEvidence(evidence,used){
  return evidence.method==='literal'&&evidence.terms.some(term=>words(term).length>=2&&words(term).some(word=>!rankingStopWords.has(rankingWord(word)))&&!used.some(previous=>words(previous).some(word=>!rankingStopWords.has(rankingWord(word))&&words(term).map(evidenceWord).includes(evidenceWord(word)))));
 }
