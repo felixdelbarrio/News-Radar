@@ -7,7 +7,7 @@ function newsletterIdentity_(query,now=new Date(),testLabel=''){
   else if(!fortnightly&&naturalQuarter)period='Lo más relevante del '+['primer','segundo','tercer','cuarto'][start.getUTCMonth()/3]+' trimestre de '+start.getUTCFullYear();
   else period=day(start)+' — '+day(end);
  }
- const scope=String(query.country||'Mirada global').replace(/[\r\n]+/g,' '),subject='[bIA] Canal BBVA BEI'+(testLabel?' · ['+testLabel+']':'')+' · '+scope+(period?' · '+period:'');
+ const scope=String(query.country||'Mirada global').replace(/[\r\n]+/g,' '),subject='[bIA] 🚀 BBVA BEI'+(testLabel?' · ['+testLabel+']':'')+' · '+scope+(period?' · '+period:'');
  return {subject,period,scope,preheader:fortnightly?(query.country?'Novedades y movimientos competitivos en canales digitales para empresas e instituciones.':'Novedades internacionales en canales digitales para empresas e instituciones.'):'Entidades y bloques funcionales destacados en las publicaciones del trimestre.'};
 }
 function newsletterSubject_(query){return newsletterIdentity_(query).subject;}
@@ -26,7 +26,7 @@ function newsletterContent_(selected,query,title,now,subscriptionId,language='es
  if(editorial.cadence==='quarterly'&&known.verified&&!known.incomplete)identity.preheader='Publicaciones del trimestre con ejemplos que todavía no te hemos compartido.';
  const escape=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char])),label=value=>escape(t(value));
  for(let index=0;index<editorial.cards.length;index++){const card=editorial.cards[index];card.title=newsletterWords_(localized[index].titular,NEWSLETTER_EDITORIAL.titleWords);card.fact=newsletterWords_(newsExcerpt_({excerpt:localized[index].extracto},localized[index].titular,card.publisher).text,NEWSLETTER_EDITORIAL.factWords);}
- const cardHtml=(card,options={})=>newsletterCardHtml_(card,editorial,query,label,escape,links,images,language,options),report=newsletterExecutiveReport_(editorial,query,language,t,escape,links,images,cardHtml),parts=[];
+ const cardHtml=(card,options={})=>newsletterCardHtml_(card,editorial,query,label,escape,links,images,language,options,t),report=newsletterExecutiveReport_(editorial,query,language,t,escape,links,images,cardHtml),parts=[];
  for(const scope of ['local','global']){
   const data=editorial.landscapes[scope];if(!data?.total)continue;
   const cards=editorial.cards.filter(card=>card.scope===scope),content=(scope==='global'&&editorial.focused?newsletterIllustrationHtml_('other-banks-visual','Canales digitales de otros bancos',images):'')+report.scopes[scope]+(editorial.cadence==='fortnightly'&&cards.length?'<p class="newsletter-eyebrow">'+label('Bloques funcionales destacados')+'</p>'+cards.map((card,index)=>cardHtml(card,{topic:index+1})).join(''):'')+report.after[scope];
@@ -40,7 +40,8 @@ function newsletterContent_(selected,query,title,now,subscriptionId,language='es
  return {subject:identity.subject,html:newsletterInline_(html,escape),text,images:[...images.values()],editionId,count:items.length,total:editorial.audit.eligible,items,evidence:selected.filter(row=>corpusIds.has(row.id)),editorial,translationReady:localized.every(row=>row.translation.state!=='pending')};
 }
 function newsletterHeaderHtml_(identity,editorial,label,escape,images){
- const bei=newsletterVisualAsset_('bei-logo',images),logo=bei?'<img src="cid:bei-logo" width="160" height="56" alt="BBVA · Banca de Empresas e Instituciones">':(images.set('bbva-logo',{id:'bbva-logo',data:NEWSLETTER_BBVA_PNG}),'<img src="cid:bbva-logo" width="112" height="34" alt="BBVA">');
+ images.set('bei-logo',{id:'bei-logo',data:NEWSLETTER_BEI_PNG});
+ const logo='<img src="cid:bei-logo" width="240" height="84" alt="BBVA · Banca de Empresas e Instituciones">';
  return '<table role="presentation" class="newsletter-header"><tr><td class="newsletter-header-cell"><p class="newsletter-wordmark">'+logo+'</p><h1 class="newsletter-header-title">'+label(editorial.cadence==='quarterly'?'Publicaciones del trimestre':'Publicaciones de la quincena')+'</h1><p class="newsletter-period">'+escape(identity.period)+'</p></td></tr></table>';
 }
 function newsletterIllustrationHtml_(name,alt,images){
@@ -48,7 +49,7 @@ function newsletterIllustrationHtml_(name,alt,images){
 }
 let newsletterVisualConfig_,newsletterVisualMemory_=new Map();
 function newsletterVisualAsset_(name,images){
- const allowed=['bei-logo','fortnightly-visual','quarterly-visual','other-banks-visual','feedback-positive','feedback-negative'];if(!allowed.includes(name))return false;
+ const allowed=['fortnightly-visual','quarterly-visual','other-banks-visual','feedback-positive','feedback-negative'];if(!allowed.includes(name))return false;
  try{
   const configured=newsletterVisualConfig_||(newsletterVisualConfig_=JSON.parse(PropertiesService.getScriptProperties().getProperty('NEWSLETTER_VISUAL_ASSETS')||'{}')),fileId=String(configured[name]||'');
   if(!/^[\w-]{20,100}$/.test(fileId))return false;
@@ -73,12 +74,15 @@ function newsletterLinkIconHtml_(images,onAction=false){
  const id=onAction?'link-arrow-on-action':'link-arrow';images.set(id,{id,data:onAction?NEWSLETTER_LINK_ARROW_ON_ACTION_PNG:NEWSLETTER_LINK_ARROW_PNG});
  return ' <img class="newsletter-link-icon" src="cid:'+id+'" width="24" height="24" alt="" aria-hidden="true">';
 }
-function newsletterCardHtml_(card,editorial,query,label,escape,links,images,language,options={}){
+function newsletterCardHtml_(card,editorial,query,label,escape,links,images,language,options={},translate=taxonomyLanguage_(language)){
  const contextual=(text,entity='',palanca='')=>links.app.includes('edition=')&&!/^(?:\d+[.\s]*)?Otros$/i.test(palanca)?'<a href="'+escape(newsletterExploreLink_(links.app,'news',card.scope==='local'?query.country:'',entity,palanca,'',editorial.focused&&card.scope!=='local'?'international':''))+'">'+text+'</a>':text;
  const url=canonicalUrl_(card.url),headline=escape(card.title),count=editorial.landscapes?.[card.scope]?.themes.find(theme=>theme.name===card.category)?.count||0;
- const heading=options.compact?'<p class="newsletter-meta">'+identityMark('countries',card.country,escape,images)+' '+label(card.country)+'</p>':'<p class="newsletter-eyebrow">'+(options.topic?escape(formatText('Trending topic {number}',{number:options.topic},language)):label('Bloque funcional'))+'</p><h2 class="newsletter-lever">'+contextual(label(card.category),'',card.category)+'</h2><table role="presentation" class="newsletter-article-heading"><tr><td><p class="newsletter-bank">'+contextual(escape(card.entity),card.entity)+' · '+label(card.country)+'</p></td><td class="newsletter-identity-cell">'+storyIdentity(card.entity,card.country,escape,images)+'</td></tr></table>';
- const more=options.topic&&count>1&&links.app.includes('edition=')&&!/^(?:\d+[.\s]*)?Otros$/i.test(card.category)?'<p class="newsletter-more"><a class="newsletter-cta newsletter-theme-more" href="'+escape(newsletterExploreLink_(links.app,'news',card.scope==='local'?query.country:'','',card.category,'',editorial.focused&&card.scope!=='local'?'international':''))+'">'+escape(formatText(count===2?'{count} publicación más de {theme}':'{count} publicaciones más de {theme}',{count:count-1,theme:card.category},language))+newsletterLinkIconHtml_(images,true)+'</a></p>':'';
- return '<table role="presentation" class="newsletter-article"><tr><td class="newsletter-card-cell">'+heading+'<h3>'+(url?'<a href="'+escape(url)+'">'+headline+'</a>':headline)+'</h3>'+(!options.compact&&card.fact?'<p class="newsletter-excerpt">'+escape(card.fact)+'</p>':'')+'<p class="newsletter-insight">'+escape(card.relevance)+'</p><p class="newsletter-meta">'+escape(formatCalendarDay(card.date,language))+' · '+identityMark('publishers',card.publisher,escape,images)+' '+escape(card.publisher)+'</p>'+more+'</td></tr></table>';
+ const heading=options.compact?'<p class="newsletter-meta">'+identityMark('countries',card.country,escape,images)+' '+label(card.country)+'</p>':'<p class="newsletter-eyebrow">'+(options.topic?escape(formatText('Trending topic {scope} #{number}',{scope:translate(card.scope==='local'?'nacional':'internacional'),number:options.topic},language)):label('Bloque funcional'))+'</p><h2 class="newsletter-lever">'+contextual(label(card.category),'',card.category)+'</h2><table role="presentation" class="newsletter-article-heading"><tr><td><p class="newsletter-bank">'+contextual(escape(card.entity),card.entity)+' · '+label(card.country)+'</p></td><td class="newsletter-identity-cell">'+storyIdentity(card.entity,card.country,escape,images)+'</td></tr></table>';
+ const more=options.topic&&count>1&&links.app.includes('edition=')&&!/^(?:\d+[.\s]*)?Otros$/i.test(card.category)?'<p class="newsletter-more"><a class="newsletter-cta newsletter-theme-more" href="'+escape(newsletterExploreLink_(links.app,'news',card.scope==='local'?query.country:'','',card.category,'',editorial.focused&&card.scope!=='local'?'international':''))+'">'+escape(formatText(count===2?'{count} publicación más de {theme}':'{count} publicaciones más de {theme}',{count:count-1,theme:translate(card.category)},language))+newsletterLinkIconHtml_(images,true)+'</a></p>':'';
+ return '<table role="presentation" class="newsletter-article"><tr><td class="newsletter-card-cell">'+heading+'<h3>'+(url?'<a href="'+escape(url)+'">'+headline+'</a>':headline)+'</h3>'+(!options.compact&&card.fact?'<p class="newsletter-excerpt">'+escape(card.fact)+'</p>':'')+'<p class="newsletter-insight">'+newsletterTagsHtml_(card,label)+'</p><p class="newsletter-meta">'+escape(formatCalendarDay(card.date,language))+' · '+identityMark('publishers',card.publisher,escape,images)+' '+escape(card.publisher)+'</p>'+more+'</td></tr></table>';
+}
+function newsletterTagsHtml_(card,label){
+ return [...new Set([...card.signals,...card.segments,...(card.digital?['Canal digital']:[]),card.type,...card.tags.flatMap(tag=>[tag.palanca,tag.subpalanca])].filter(Boolean))].map(value=>'<span class="newsletter-chip">'+label(value)+'</span>').join(' ');
 }
 function newsletterFooterHtml_(editionLink,links,label,escape,images){
  const action=editionLink?'<table role="presentation" class="newsletter-action"><tr><td class="newsletter-action-cell"><h2>'+label('Explorar en News Radar')+'</h2><p class="newsletter-more"><a class="newsletter-cta newsletter-edition-link" href="'+escape(editionLink)+'">'+label('Ver esta edición')+newsletterLinkIconHtml_(images,true)+'</a></p></td></tr></table>':'';

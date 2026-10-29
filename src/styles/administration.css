@@ -95,3 +95,9 @@
 #subscriptions-section :is(h2,h3,h4){font-family:var(--font-heading)}
 
 .adoption-cohorts{grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--signal-card-min-width)),1fr))}.adoption-cohorts .metric{cursor:pointer;text-align:left;color:inherit;font:inherit}.adoption-cohorts [aria-pressed=true]{border-color:var(--color-primary-bg-action);background:var(--color-primary-bg-surface)}#adoption-users-label{text-align:left;padding:var(--space-2);font-weight:500}#adoption-chart{margin-block:var(--space-3)}
+
+.record-toolbar>.button{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-1);flex:0 0 auto;width:auto;min-height:var(--control-height)}
+.record-toolbar>.button svg{width:var(--icon-size);height:var(--icon-size);flex-shrink:0}
+.subscriber-table tbody tr:nth-child(even){background:var(--color-primary-bg-surface)}
+.subscriber-table .actions{flex-wrap:nowrap;gap:var(--space-1)}
+@media(max-width:767px){.subscriber-table .actions{display:flex;flex-wrap:wrap}}

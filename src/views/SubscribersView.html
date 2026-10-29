@@ -4,10 +4,10 @@
     <div class="delivery-checks" id="newsletter-checks"></div><p class="small muted" id="newsletter-sender-status" role="status"></p><p class="small muted" id="newsletter-budget"></p>
     <p class="small muted" id="newsletter-content-note"></p><p class="muted">Cada newsletter se envía a su destinatario. El grupo se usa como remitente y dirección de respuesta.</p>
 
-    <form id="newsletter-test-form"><h3>Prueba de newsletter</h3><div class="subscription-fields"><label>Destinatario<input name="email" type="email" placeholder="Correo del administrador conectado"></label><label>Edición<select name="cadence"><option value="fortnightly">Quincenal</option><option value="quarterly">Trimestral</option></select></label><label>Geografía<select name="country"><option value="">Sin personalizar</option></select></label></div><button type="submit" class="button">Enviar prueba</button></form>
+    <form id="newsletter-test-form"><h3>Prueba de newsletter</h3><div class="subscription-fields"><label>Destinatario<input name="email" type="email" placeholder="Correo del administrador conectado"></label><label>Idioma<select name="language"></select></label><label>Edición<select name="cadence"><option value="fortnightly">Quincenal</option><option value="quarterly">Trimestral</option></select></label><label>Geografía<select name="country"><option value="">Sin personalizar</option></select></label></div><button type="submit" class="button">Enviar prueba</button></form>
     <div id="newsletter-test-result" class="message" role="status" aria-live="polite" hidden></div><div class="delivery-history" id="newsletter-history"></div>
   </div>
   <div class="panel-header"><div><p class="eyebrow">GESTIÓN DE SUSCRIPTORES</p><h2>Suscripciones del equipo</h2><p class="muted" id="subscribers-count"></p></div><button class="button primary" id="new-admin-subscription" type="button">Alta manual</button></div>
   <div class="panel subscription-editor" id="admin-subscription-editor"></div>
-  <div id="subscribers-filters"></div><div id="admin-subscriptions-list" class="selection-grid"></div><div class="pagination" id="subscribers-pagination"></div>
+  <div id="subscribers-filters"></div><div id="admin-subscriptions-list"></div><div class="pagination" id="subscribers-pagination"></div>
 </section>

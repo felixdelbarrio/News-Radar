@@ -29,10 +29,10 @@ test('external perspective prefers competitors and justifies BBVA when it is the
 });
 test('subjects follow natural coverage periods, configured scope and exact irregular windows',()=>{
  const {c}=setup();c.Date=class extends Date{constructor(value='2026-10-26T12:00:00Z'){super(value);}};
- assert.equal(c.newsletterSubject_({view:'briefing',country:'España',from:'2026-11-01',to:'2026-11-15'}),'[bIA] Canal BBVA BEI · España · Primera quincena de noviembre de 2026');
- assert.equal(c.newsletterSubject_({view:'briefing',from:'2024-02-16',to:'2024-02-29'}),'[bIA] Canal BBVA BEI · Mirada global · Segunda quincena de febrero de 2024');
+ assert.equal(c.newsletterSubject_({view:'briefing',country:'España',from:'2026-11-01',to:'2026-11-15'}),'[bIA] 🚀 BBVA BEI · España · Primera quincena de noviembre de 2026');
+ assert.equal(c.newsletterSubject_({view:'briefing',from:'2024-02-16',to:'2024-02-29'}),'[bIA] 🚀 BBVA BEI · Mirada global · Segunda quincena de febrero de 2024');
  for(let quarter=0;quarter<4;quarter++){const start=new Date(Date.UTC(2026,quarter*3,1)),end=new Date(Date.UTC(2026,quarter*3+3,0));assert.match(c.newsletterSubject_({view:'news',country:'EMEA',from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10)}),new RegExp('EMEA · Lo más relevante del '+['primer','segundo','tercer','cuarto'][quarter]+' trimestre de 2026'));}
- assert.equal(c.newsletterSubject_({view:'briefing',from:'2026-12-28',to:'2027-01-05'}),'[bIA] Canal BBVA BEI · Mirada global · 28 de diciembre de 2026 — 5 de enero de 2027');
+ assert.equal(c.newsletterSubject_({view:'briefing',from:'2026-12-28',to:'2027-01-05'}),'[bIA] 🚀 BBVA BEI · Mirada global · 28 de diciembre de 2026 — 5 de enero de 2027');
 });
 test('email uses inline table layout, visible evidence and a single hidden preheader',()=>{
  const {c}=setup(),result=c.newsletterContent_([row('a'),row('b','Italia')],q,'',new Date('2026-10-16'),'s','es','edition'),d=new JSDOM(result.html).window.document;
