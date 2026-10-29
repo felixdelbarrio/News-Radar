@@ -16,6 +16,23 @@ Las cuatro variantes mantienen el corpus y sus enlaces contextuales. Las pruebas
 
 Las mediciones reproducibles están en [iteration-36-measurements.json](iteration-36-measurements.json). Usan 18 noticias sintéticas, cinco calentamientos y treinta muestras por variante, sin transporte Gmail ni latencia de Google. Las ejecuciones compartieron CPU con pruebas: sus diferencias no demuestran una optimización ni una regresión de producción. Los cuatro HTML quedan por debajo de 102.400 bytes. La variación de heap no mide un pico de RAM.
 
-## Publicación
+## Comprobación en producción
 
-Se ha regenerado `dist/` desde las fuentes con la versión 3.32.0. No se han enviado correos ni modificado ediciones históricas. La publicación y medición en Apps Script siguen pendientes: `clasp deployments` devuelve `No credentials found`. La integración se propone por PR a `develop`; la publicación en Google requiere una sesión autenticada. La rama de trabajo local es `codex/iteration-36`.
+La versión 139 publica 3.32.0 desde el navegador interno el 29/10/2026 a las 11:31 Europe/Madrid. Se cotejaron los diez módulos modificados con `dist/` mediante el editor. Se conserva la implementación existente, su URL, ejecución como propietario y acceso del dominio. Se confirmó `application-version=3.32.0` tras recargar la WebApp y se comprobaron la tabla real (diez filas por página) y los tres idiomas de prueba.
+
+Medición en Apps Script con el corpus real, tres muestras por variante y sin envío de correo:
+
+| Variante | Render, muestras en ms | HTML bytes | MIME bytes |
+|---|---:|---:|---:|
+| Quincenal España | 5988 / 1067 / 1137 | 57332 | 464166 |
+| Quincenal global | 1035 / 1115 / 934 | 35713 | 264452 |
+| Trimestral España | 2016 / 1075 / 1121 | 73340 | 538481 |
+| Trimestral global | 1286 / 976 / 1112 | 44877 | 133497 |
+
+Los resultados se conservan en [iteration-36-production.json](iteration-36-production.json). Los corpus de 129 y 226 noticias tienen las mismas huellas que la medición final de Iteración 35. No se atribuye una mejora de latencia: las muestras no controlan el estado inicial de cachés y la primera tarda 5988 ms. El logo BEI del paquete ocupa 18597 bytes y tiene un presupuesto separado de las identidades de artículos. El MIME incluye también las ilustraciones privadas configuradas. Los últimos 500 registros de Telemetria no contienen eventos `newsletter-selection`; no hay muestra histórica de esa operación para inferir percentiles de producción.
+
+El diagnóstico temporal se retiró y se volvió a cotejar `Briefing.gs` con la distribución. No se enviaron correos ni se modificaron suscripciones o ediciones históricas durante la comprobación. Para revertir, seleccionar la versión 138 de la misma implementación.
+
+## Validación de integración
+
+PR #96 hacia `develop`, rama `codex/iteration-36`. El commit de código `0a53d17` supera CI, CodeQL y GitFlow y no tiene hilos de revisión pendientes. La suite estable previa obtuvo 909/910: el único fallo era el presupuesto anterior de imagen, corregido y verificado después. La ejecución completa de CI confirma la corrección. La documentación posterior no modifica el paquete desplegado.
