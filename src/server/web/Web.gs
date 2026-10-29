@@ -6,5 +6,9 @@ function doGet(event={}) {
 }
 function include_(name) {
   if(!['Tokens','Styles','Client'].includes(name))throw new Error('Fragmento desconocido.');
-  return HtmlService.createHtmlOutputFromFile(name).getContent();
+  const content=HtmlService.createHtmlOutputFromFile(name).getContent();
+  if(name!=='Styles')return content;
+  const images=new Map(),styles=[];
+  for(const value of ['positive','negative']){const asset='feedback-'+value;if(newsletterVisualAsset_(asset,images))styles.push('[data-rating-icon="'+value+'"]{background-image:url("data:image/png;base64,'+images.get(asset).data+'");font-size:0;width:var(--space-4);height:var(--space-4)}');}
+  return content+(styles.length?'<style>'+styles.join('')+'</style>':'');
 }

@@ -1,0 +1,83 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {storage} from './helpers/server.mjs';
+
+const timeout='Se ha agotado el tiempo de espera del servicio Hojas de cálculo mientras se intentaba acceder al documento con ID book.';
+
+test('recupera automáticamente un mantenimiento en Revisar tras un timeout de Sheets',()=>{
+ const {c}=storage();c.initializeConfiguration();c.maintenance_();const job=c.maintenanceJob_();Object.assign(job,{state:'Revisar',phase:'news',next:37,reviewed:35,attempts:3,error:timeout,pausedUntil:0});c.saveMaintenanceJob_(job);
+ assert.ok(Number.isFinite(c.maintenanceReadyAt_()));c.maintenanceBatch_();const resumed=c.maintenanceJob_();assert.ok(resumed.next>=37);assert.notEqual(resumed.state,'Revisar');assert.equal(resumed.attempts,0);
+});
+
+test('los timeouts repetidos conservan cursor y usan pausa acotada; otros errores requieren revisión',()=>{
+ const {c}=storage();c.initializeConfiguration();c.maintenance_();c.compactCollectionTasks_=()=>{throw Error(timeout);};
+ for(let attempt=1;attempt<=4;attempt++){c.maintenanceBatch_();const job=c.maintenanceJob_();assert.equal(job.state,'En pausa');assert.equal(job.next,2);assert.equal(job.attempts,attempt);assert.ok(job.pausedUntil>Date.now());job.pausedUntil=0;c.saveMaintenanceJob_(job);}
+ assert.equal(c.maintenanceRetryDelay_(100),1800000);
+ c.compactCollectionTasks_=()=>{throw Error('Cabecera no válida: Noticias');};for(let attempt=0;attempt<3;attempt++)c.maintenanceBatch_();assert.equal(c.maintenanceJob_().state,'Revisar');assert.equal(c.maintenanceReadyAt_(),Infinity);
+});
+
+test('el reinicio manual de un timeout conserva la fase y el avance',()=>{
+ const {c}=storage();c.initializeConfiguration();c.maintenance_();const job=c.maintenanceJob_();Object.assign(job,{state:'Revisar',phase:'candidates',candidateNext:809,reviewed:80,attempts:3,error:timeout});c.saveMaintenanceJob_(job);
+ assert.match(c.startMaintenance(),/reanudado/);const resumed=c.maintenanceJob_();assert.equal(resumed.phase,'candidates');assert.equal(resumed.candidateNext,809);assert.equal(resumed.reviewed,80);assert.equal(resumed.state,'Pendiente');assert.equal(resumed.attempts,0);assert.equal(resumed.pausedUntil,0);
+});
+
+test('el archivo de newsletters recorre ediciones en lotes y persiste el cursor',()=>{
+ const {c,sheets,properties}=storage();c.initializeConfiguration();const sheet=sheets.get('NewsletterEdiciones');for(let i=0;i<25;i++)sheet.grid.push(['edition-'+i]);
+ assert.equal(c.archiveNewsletterBatch_(),false);assert.equal(JSON.parse(properties.NEWSLETTER_ARCHIVE_CURSOR).next,10);
+ assert.equal(c.archiveNewsletterBatch_(),false);assert.equal(JSON.parse(properties.NEWSLETTER_ARCHIVE_CURSOR).next,18);
+ assert.equal(c.archiveNewsletterBatch_(),false);assert.equal(JSON.parse(properties.NEWSLETTER_ARCHIVE_CURSOR).next,26);
+ assert.equal(c.archiveNewsletterBatch_(),true);assert.equal(properties.NEWSLETTER_ARCHIVE_CURSOR,undefined);
+});
+
+test('el archivado de logs cede un turno al mantenimiento cuando ambos comparten prioridad',()=>{
+ const {c,properties:p}=storage();c.initializeConfiguration();
+ c.classificationReadyAt_=()=>Infinity;c.classificationPending_=()=>false;c.snapshotPublicationPending_=()=>false;
+ c.newsletterReadyAt_=()=>Infinity;c.translationReadyAt_=()=>Infinity;c.catalogSyncReadyAt_=()=>Infinity;
+ c.taxonomyReadyAt_=()=>Infinity;c.taxonomyTranslationReadyAt_=()=>Infinity;c.logArchiveReadyAt_=()=>0;c.maintenanceReadyAt_=()=>0;
+ const work={jobs:[],pending:[]};assert.equal(c.backgroundTask_(work,false),'archive');
+ p.BACKGROUND_LAST='archive';assert.equal(c.backgroundTask_(work,false),'maintenance');
+ p.BACKGROUND_LAST='maintenance';assert.equal(c.backgroundTask_(work,false),'archive');
+ c.logArchiveReadyAt_=()=>Infinity;assert.equal(c.backgroundTask_(work,false),'maintenance');
+});
+
+test('la preparación de compactación lee solo ocho editoriales y reanuda sin cargar toda la tabla',()=>{
+ const {c,sheets,properties:p}=storage();c.initializeConfiguration();const sheet=sheets.get('NewsletterEdiciones');
+ for(let i=0;i<25;i++)sheet.grid.push(['edition-'+i,'','','','','','','2','1','','','{}']);
+ const range=sheet.getRange;sheet.getRange=(row,column,count,width)=>{assert.ok(count<=8,'lectura masiva de editoriales');return range(row,column,count,width);};
+ assert.equal(c.compactNewsletterBatch_(),false);assert.equal(JSON.parse(p.NEWSLETTER_COMPACTION_JOB).next,10);
+ assert.equal(c.compactNewsletterBatch_(),false);assert.equal(JSON.parse(p.NEWSLETTER_COMPACTION_JOB).next,18);
+ assert.equal(c.compactNewsletterBatch_(),false);assert.equal(JSON.parse(p.NEWSLETTER_COMPACTION_JOB).next,26);
+ assert.equal(c.compactNewsletterBatch_(),true);assert.equal(JSON.parse(p.NEWSLETTER_COMPACTION_JOB).state,'Completada');
+});
+
+test('mantenimiento no reinicia el barrido de archivos entre lotes de compactación',()=>{
+ const {c}=storage();c.initializeConfiguration();c.maintenance_();const job=c.maintenanceJob_();job.phase='newsletters';c.saveMaintenanceJob_(job);
+ let scans=0,compactions=0;c.archiveNewsletterBatch_=()=>{scans++;return true;};c.compactNewsletterBatch_=()=>{compactions++;return false;};
+ c.maintenanceBatch_();c.maintenanceBatch_();assert.equal(scans,1);assert.ok(compactions>2&&compactions<=16);assert.equal(c.maintenanceJob_().newslettersArchived,true);
+});
+
+test('un lote exitoso elimina la pausa y el error anterior sin perder el cursor',()=>{
+ const {c}=storage();c.initializeConfiguration();c.maintenance_();const job=c.maintenanceJob_();Object.assign(job,{phase:'newsletters',newslettersArchived:true,state:'En pausa',attempts:9,error:timeout,pausedUntil:Date.now()+60000});c.saveMaintenanceJob_(job);
+ c.compactNewsletterBatch_=()=>{c.properties_().setProperty('NEWSLETTER_COMPACTION_JOB',JSON.stringify({next:18,total:103}));return false;};
+ c.maintenanceBatch_();const next=c.maintenanceJob_();assert.equal(next.state,'Pendiente');assert.equal(next.error,'');assert.equal(next.pausedUntil,0);assert.equal(next.attempts,0);assert.match(next.detail,/16\/103/);
+});
+
+test('añadir envíos y ediciones no reinicia un barrido de archivo en curso',()=>{
+ const {c,sheets,properties:p}=storage();c.initializeConfiguration();
+ for(let i=0;i<25;i++)sheets.get('NewsletterEdiciones').grid.push(['edition-'+i]);
+ c.archiveNewsletterBatch_();assert.equal(JSON.parse(p.NEWSLETTER_ARCHIVE_CURSOR).next,10);
+ sheets.get('NewsletterEnvios').grid.push(['new-delivery']);sheets.get('NewsletterEdiciones').grid.push(['new-edition']);
+ c.archiveNewsletterBatch_();assert.equal(JSON.parse(p.NEWSLETTER_ARCHIVE_CURSOR).next,18);assert.equal(JSON.parse(p.NEWSLETTER_ARCHIVE_CURSOR).total,26);
+});
+
+test('los lotes de compactación ceden al agotar el presupuesto de tiempo',()=>{
+ const {c}=storage();c.initializeConfiguration();c.maintenance_();const job=c.maintenanceJob_();Object.assign(job,{phase:'newsletters',newslettersArchived:true});c.saveMaintenanceJob_(job);
+ let elapsed=0,calls=0;c.Date=class extends Date{static now(){return elapsed;}};
+ c.compactNewsletterBatch_=()=>{calls++;elapsed+=6;return false;};c.maintenanceBatch_(10);assert.equal(calls,2);assert.equal(c.maintenanceJob_().phase,'newsletters');
+});
+
+test('un bloqueo heredado por nuevas newsletters se reanuda sin reiniciar el mantenimiento y muestra avance de fase',()=>{
+ const {c}=storage();c.initializeConfiguration();c.maintenance_();const job=c.maintenanceJob_();Object.assign(job,{state:'Revisar',phase:'newsletters',newslettersArchived:true,attempts:8,error:'Las newsletters cambiaron durante la compactación; conserva las generaciones y revisa el checkpoint.'});c.saveMaintenanceJob_(job);
+ assert.ok(Number.isFinite(c.maintenanceReadyAt_()));assert.match(c.startMaintenance(),/reanudado/);
+ c.compactNewsletterBatch_=()=>{c.properties_().setProperty('NEWSLETTER_COMPACTION_JOB',JSON.stringify({state:'Validating',validateNext:6,next:12,total:100}));return false;};c.maintenanceBatch_();const current=c.maintenanceJob_(),panel=c.controlProcess_('maintenance',current);assert.equal(current.error,'');assert.equal(panel.done,4);assert.equal(panel.total,10);assert.match(panel.comment,/Comprobación de cambios/);
+});

@@ -32,13 +32,17 @@ function mailHeader_(value){
   if(word)words.push('=?UTF-8?B?'+Utilities.base64Encode(word,Utilities.Charset.UTF_8)+'?=');
   return words.join('\r\n ');
 }
-function sendNewsletterMail_(sender,recipient,content){
+function newsletterMime_(sender,recipient,content){
   if(!content.count)throw Error('No se puede enviar una newsletter sin novedades.');
   const boundary='news_radar_'+Utilities.getUuid().replace(/-/g,''),body=value=>Utilities.base64Encode(value,Utilities.Charset.UTF_8).match(/.{1,76}/g)?.join('\r\n')||'';
   const mime=['From: '+mailHeader_(sender.name)+' <'+newsletterEmail_(sender.address)+'>','Reply-To: '+newsletterEmail_(sender.address),'To: '+newsletterEmail_(recipient),'Subject: '+mailHeader_(content.subject),'Date: '+new Date().toUTCString(),'MIME-Version: 1.0','Content-Type: multipart/alternative; boundary="'+boundary+'"','','--'+boundary,'Content-Type: text/plain; charset=UTF-8','Content-Transfer-Encoding: base64','',body(content.text),'--'+boundary,'Content-Type: text/html; charset=UTF-8','Content-Transfer-Encoding: base64','',body(content.html),'--'+boundary+'--',''].join('\r\n');
   const related=boundary+'_related';
   const images=content.images||[],attachments=images.map(image=>'--'+related+'\r\nContent-Type: image/png\r\nContent-Transfer-Encoding: base64\r\nContent-ID: <'+image.id+'>\r\nContent-Disposition: inline; filename="'+image.id+'.png"\r\n\r\n'+image.data.match(/.{1,76}/g).join('\r\n')+'\r\n').join('');
   const raw=images.length?mime.replace('Content-Type: multipart/alternative; boundary="'+boundary+'"','Content-Type: multipart/related; boundary="'+related+'"').replace('\r\n\r\n--'+boundary,'\r\n\r\n--'+related+'\r\nContent-Type: multipart/alternative; boundary="'+boundary+'"\r\n\r\n--'+boundary)+attachments+'--'+related+'--\r\n':mime;
+  return raw;
+}
+function sendNewsletterMail_(sender,recipient,content){
+  const raw=newsletterMime_(sender,recipient,content);
   const result=gmailRequest_('messages/send',{raw:Utilities.base64EncodeWebSafe(raw,Utilities.Charset.UTF_8).replace(/=+$/,'')});
   if(!result.id)throw Error('Gmail no ha confirmado el identificador del mensaje. Revisa el envío antes de reintentar.');
   return result.id;

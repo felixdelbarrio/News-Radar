@@ -16,7 +16,7 @@ const query={view:'news',country:'España',coverage:'digital',segment:'Empresas 
 
 test('la trimestral sin geografía muestra solo mirada global, traduce sus métricas y admite datos sin taxonomía',()=>{
  const {c}=setup(),input=[{...story('one','Sin determinar'),taxonomia:[]}];
- for(const language of ['es','en','tr']){const content=c.newsletterContent_(input,{view:'news'},'Año',new Date(),'sub',language),d=new JSDOM(content.html).window.document;assert.equal(d.querySelectorAll('.newsletter-report').length,1);assert.equal(content.editorial.landscapes.global.themes.length,0);assert.equal(content.editorial.landscapes.global.countryCount,0);assert.doesNotMatch(content.html,/\{theme\}|\{share\}|NaN|undefined/);assert.equal(d.querySelector('.newsletter-leader-name a'),null);}
+ for(const language of ['es','en','tr']){const content=c.newsletterContent_(input,{view:'news'},'Año',new Date(),'sub',language),d=new JSDOM(content.html).window.document;assert.equal(d.querySelectorAll('.newsletter-report').length,1);assert.equal(content.editorial.landscapes.global.themes[0].name,'Otros');assert.equal(content.editorial.landscapes.global.countryCount,0);assert.doesNotMatch(content.html,/\{theme\}|\{share\}|NaN|undefined/);assert.equal(d.querySelector('.newsletter-leader-name a'),null);}
  const empty=c.newsletterContent_([],{view:'news'},'Año',new Date(),'sub');assert.equal(new JSDOM(empty.html).window.document.querySelector('.newsletter-report'),null);
 });
 test('ambas cadencias excluyen incidencias de tarjetas, evidencia y KPIs aunque dominen el corpus',()=>{
