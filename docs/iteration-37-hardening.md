@@ -16,7 +16,7 @@ Implementada desde `origin/develop` (`34b0910`) en `codex/iteration-37-hardening
 | Code Scanning #11 | SARIF autenticado: categoría del DOM fluye a `data-config-section` | Escapar atributos e impedir categorías ajenas al esquema | Nombres con HTML malicioso y categoría no admitida | Flujo sin escapar → atributo escapado |
 | Code Scanning #9 y #10 | La rama de regex vacía sustituía cadena vacía por sí misma | Condicional fuera de `replace`, conservando normalización | Batería de taxonomía | Operación redundante → sin sustitución vacía |
 | Política de seguridad PR #98 | Versiones ficticias y placeholders | Soporte conservador y canal privado `ews-radar.group@bbva.com` | Revisión del fichero y ambos hilos | Plantilla → política accionable; hilos resueltos |
-| Favicon | ICO original descargado de la carpeta indicada | Asset único incorporado como data URI por build y asignado por `HtmlOutput.setFaviconUrl` | Igualdad de bytes en distribución y contrato de doGet | Sin favicon propio → recurso original embebido |
+| Favicon | ICO original descargado de la carpeta indicada | Asset único incorporado como data URI por build y servido al contenedor desde una URL pública inmutable mediante `HtmlOutput.setFaviconUrl` | Igualdad de bytes en distribución y contrato de doGet | Sin favicon propio → recurso original verificable |
 
 ## Línea base de datos y mediciones
 
@@ -66,3 +66,24 @@ reanalizar el cambio incorporado. No se ha modificado ningún dato histórico,
 reclasificado producción en bloque ni ejecutado backfill. La corrección de reglas
 no cambia por sí sola las etiquetas históricas guardadas; cualquier reparación
 acotada requiere una evaluación y autorización explícita por separado.
+
+Apps Script rechaza `setFaviconUrl(data URI)` en la prueba real. El contenedor
+usa el ICO original desde su URL pública inmutable en el commit `87e9ef8`; se
+verificó descarga sin autenticación e igualdad byte a byte con el asset de Drive
+(SHA-256 `36d191e22aaa83c43dda9afe3c3d3016630372282c37964b2b8796a7cc1b1860`).
+La vista local mantiene el mismo ICO embebido.
+
+Validación local estable tras las correcciones: 928 pruebas correctas, 0 fallos;
+cobertura global 92,35 % de sentencias y 85,38 % de ramas. El ajuste final del
+favicon pasa además 70 regresiones dirigidas. Los builds se ejecutan fuera de
+las pruebas: una ejecución intermedia tuvo una carrera al reconstruir `dist`
+mientras un test lo leía; se descartó y repitió de forma estable.
+
+En el commit `16e66fe`, CI y CodeQL pasan; CodeQL no presenta alertas abiertas
+en `refs/pull/99/merge`. La revisión Codex termina sin hallazgos pendientes.
+El job dinámico `github-advanced-security` falla con HTTP 402, error `quota`,
+mensaje «You have exceeded your monthly quota». Su registro indica que no
+halló problemas de seguridad de alta confianza, pero no llegó a publicar el
+resultado; no se declara verde ni se desactiva. La ejecución afectada es
+`40908277014`, job `123568931130`. Es una limitación de cuota externa y queda
+pendiente de autorización para exceptuarla o de recuperación del servicio.

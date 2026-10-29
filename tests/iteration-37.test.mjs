@@ -71,9 +71,9 @@ test('37: la edición aplica solo su periodo inicial y las peticiones posteriore
  const changed=c.getDashboard({view:'news',initial:false,edition:'historical-edition',country:'México',from:'',to:''});
  assert.equal(changed.selection.from,'');assert.equal(changed.selection.to,'');assert.equal(changed.selection.country,'México');assert.equal(changed.context.from,query.from);
 });
-test('37: el favicon embebido es idéntico al original incluido en assets y doGet lo asigna al contenedor',()=>{
+test('37: el favicon embebido conserva los bytes originales y el contenedor usa su URL pública inmutable',()=>{
  const {c}=presentationServer(),expected='data:image/x-icon;base64,'+fs.readFileSync(new URL('../assets/favicon.ico',import.meta.url)).toString('base64');let favicon;
  const out={setTitle(){return this;},setFaviconUrl(value){favicon=value;return this;},addMetaTag(){return this;}};
- c.HtmlService={createTemplateFromFile:()=>({evaluate:()=>out})};c.doGet({parameter:{edition:'fixture'}});assert.equal(favicon,expected);
+ c.HtmlService={createTemplateFromFile:()=>({evaluate:()=>out})};c.doGet({parameter:{edition:'fixture'}});assert.equal(favicon,'https://raw.githubusercontent.com/felixdelbarrio/News-Radar/87e9ef88d9331af498c1d3995ff6d1f5252bc3aa/assets/favicon.ico');
  const html=fs.readFileSync(new URL('../dist/Index.html',import.meta.url),'utf8');assert.ok(html.includes('href="'+expected+'"'));
 });
