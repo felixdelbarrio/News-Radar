@@ -26,6 +26,8 @@ test('39: technical US edition for Uruguay is not a conflicting article country;
  assert.equal(new URL(feed.url).searchParams.get('gl'),'US');assert.equal(c.newsCountryDecision_({...base,titular:'Santander presenta plataforma de pagos para empresas'}).country,'Uruguay');
  for(const [title,expected] of [['Santander Uruguay lanza pagos digitales para empresas','Uruguay'],['HSBC México ofrece nuevas soluciones de tesorería para Asia','APAC'],['Bank launches corporate payments in Taiwan','APAC'],['BBVA lanza banca digital en España','España'],['BBVA lanza banca digital en México','México'],['BBVA lanza banca digital en Argentina','Argentina'],['BBVA lanza banca digital en Perú','Perú'],['BBVA lanza banca digital en Colombia','Colombia']])assert.equal(c.newsCountryDecision_({...base,titular:title}).country,expected,title);
  assert.equal(inferredCountryCode([], 'America/La_Paz'),'BO');assert.equal(inferredCountryCode([], 'Asia/Taipei'),'TW');
+ const national=c.newsCountryDecision_({...base,titular:'HSBC launches corporate payments in Asia, starting in Singapore'});assert.equal(national.country,'Singapur');assert.equal(national.reason,'headline');assert.ok(national.countryEvidence.some(item=>item.country==='Singapur'));
+ const fromContent=c.newsCountryDecision_({...base,titular:'HSBC México ofrece nuevas soluciones de tesorería para Asia',extracto:'La plataforma se ofrecerá primero a las empresas en Singapore.'});assert.equal(fromContent.country,'Singapur');assert.equal(fromContent.reason,'content');
 });
 
 test('39: source quality uses retained summaries once, separates unknown denominators and caches bounded reads',()=>{
