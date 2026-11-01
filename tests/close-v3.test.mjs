@@ -43,3 +43,12 @@ test('v3: Novedades selects its one available subregion without another dashboar
 });
 
 test('v3: geographic list separators reject adversarial input without nested repetition',()=>{const {c}=server();for(const text of [', and ', ' y ', ', e ', ', , and '])assert.equal(c.geographyListSeparator_(text),true);for(const text of ['', '   ', ' from ', ','.repeat(20000)+'x', ' ,'.repeat(20000)+'x'])assert.equal(c.geographyListSeparator_(text),false);});
+test('v3: cached Other pages resolve the same subzone and keep unlocated records accessible without assigning a region',()=>{
+ const {c}=server(),row=(id,pais)=>({id,pais,fecha:'2026-10-20',titular:'Pagos digitales '+id,entidad:'BBVA',medio:'Editor',segmentos:['Empresas e instituciones'],senales:['Lanzamiento de producto'],taxonomia:[],etiquetas:{digital:true}}),rows=[row('sg','Singapur'),row('it','Italia'),row('unknown','Sin determinar')],query={newsGeography:'Otras geografías',segment:'Empresas e instituciones'},data=c.newsDashboard_(rows,query,[],'news'),bundle=c.compactNewsSnapshot_(rows,query,data),cached=c.compactNewsSnapshotData_(bundle,'Otras geografías','es');
+ assert.equal(data.newsGeography,'EMEA');assert.equal(cached.newsGeography,data.newsGeography);assert.equal(cached.total,data.total);assert.deepEqual(new Set(cached.items.map(r=>r.id)),new Set(['it','unknown']));assert.equal(cached.items.find(r=>r.id==='unknown').pais,'Sin determinar');assert.equal(cached.newsRegions.find(r=>r.name==='APAC').total,1);
+ const unknown=c.newsDashboard_([rows[2]],query,[],'news');assert.equal(unknown.total,1);assert.equal(unknown.items[0].pais,'Sin determinar');assert.ok(unknown.newsRegions.every(r=>r.total===0));
+});
+test('v3: Novedades preserves unlocated articles beside its selected subzone',async t=>{
+ const {c}=server(),items=[{id:'unknown',pais:'Sin determinar',entidad:'BBVA',titular:'Pago digital sin región acreditada',fecha:'2026-10-20',senales:['Lanzamiento de producto'],segmentos:['Empresas e instituciones'],etiquetas:{digital:true},taxonomia:[]}],briefing=c.briefing_(items,true);
+ const a=await app(t,{configure({data}){data.selection={country:'Otras geografías',segment:'Empresas e instituciones'};data.briefing=JSON.parse(JSON.stringify(briefing));}});assert.match(a.find('#briefing-list').textContent,/sin región acreditada/);assert.equal(a.w.document.querySelectorAll('#briefing-geographies .geography-region[aria-selected="true"]').length,1);assert.equal(items[0].pais,'Sin determinar');
+});

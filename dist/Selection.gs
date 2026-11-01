@@ -6,7 +6,7 @@ function newsReadingGeography_(context,query){
 }
 function newsGeographySelection_(rows,query,geography=applicationGeography(configuration_().applicationScope,query.segment,configuration_().geographies)){
   query=geographyTabQuery({...query,view:'news'},geography.regions,geography);
-  return query.newsGeography?rows.filter(row=>geographyMatches(row,query.newsGeography,geography)):rows;
+  return query.newsGeography?rows.filter(row=>readingGeographyMatches(row,query.newsGeography,geography)):rows;
 }
 function searchText_(value) {
   return String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ı/g,'i').trim();

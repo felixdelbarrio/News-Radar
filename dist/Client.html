@@ -2137,6 +2137,12 @@
   function geographyMatches(row, selection, geography) {
     return geography.regions.includes(selection) ? articleGeographies(row).some((country) => !geography.own(country) && geography.region(country) === selection) : selection === otherGeography ? geography.members(row).includes(otherGeography) : articleGeographies(row).includes(selection);
   }
+  function unlocatedGeography(row, geography) {
+    return articleGeographies(row).every((country) => !geography.own(country) && !geography.region(country));
+  }
+  function readingGeographyMatches(row, selection, geography) {
+    return geographyMatches(row, selection, geography) || geography.regions.includes(selection) && unlocatedGeography(row, geography);
+  }
   function preferredRegion(rows, local = "", configured = [], selected = "") {
     let known = rows.filter((row) => REGION_CODES.includes(row.name)), available = known.filter((row) => row.total > 0);
     return available.some((row) => row.name === selected) ? selected : available.some((row) => row.name === local) ? local : available.slice().sort((a, b) => Number(configured.includes(b.name)) - Number(configured.includes(a.name)) || b.total - a.total || REGION_CODES.indexOf(a.name) - REGION_CODES.indexOf(b.name))[0]?.name || known.find((row) => row.name === selected)?.name || known.find((row) => row.name === local)?.name || known[0]?.name || REGION_CODES[0];
@@ -3426,15 +3432,15 @@
       active = name, onGeography(name), paint2();
     });
     function paint2() {
-      let geography = applicationGeography(scope, selection.segment, geographies), regionalRows = regionalGeographies(briefing2.items, geography).map((row) => briefing2.regions?.find((region) => region.name === row.name) || row);
+      let geography = applicationGeography(scope, selection.segment, geographies), regionalRows = regionalGeographies(briefing2.items, geography).map((row) => ({ ...row, total: briefing2.regions?.find((region) => region.name === row.name)?.locatedTotal ?? row.total }));
       if (active === otherGeography || geography.regions.includes(active)) {
         let next = preferredRegion(regionalRows, geography.region(browserCountry()), geography.ownRegions, active);
         next !== active && (active = next, onGeography(active));
       }
       let group = groups.find((row) => row.name === active);
       if (geographies.some((row) => row.region === active)) {
-        let items = briefing2.items.filter((row) => geographyMatches(row, active, geography)), overview = briefing2.regions?.find((row) => row.name === active) || noveltyOverview(items, BRIEFING_ALLOWED_SIGNALS, () => active).geographies[0];
-        group = { total: 0, entityCount: 0, bySignal: BRIEFING_ALLOWED_SIGNALS.map((name) => ({ name, total: 0 })), ...overview, name: active, items };
+        let items = briefing2.items.filter((row) => readingGeographyMatches(row, active, geography)), overview = briefing2.regions?.find((row) => row.name === active) || noveltyOverview(items, BRIEFING_ALLOWED_SIGNALS, () => active).geographies[0];
+        group = { total: 0, entityCount: 0, bySignal: BRIEFING_ALLOWED_SIGNALS.map((name) => ({ name, total: 0 })), ...overview, name: items.some((row) => unlocatedGeography(row, geography)) ? otherGeography : active, items };
       }
       let stats = group || briefing2;
       tabs.render(groups, active, regionalRows, geographies, scope), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: briefing2.total }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" ${row.total ? "" : "disabled"} data-signal="${escape2(row.name)}"><strong>${row.total}</strong><span>${escape2(t(row.name === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : row.name))}</span></button>`).join("");

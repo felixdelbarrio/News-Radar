@@ -22,6 +22,8 @@ function countryRegion(country,geographies=[]){return geographies.find(row=>row.
 function geographyMatches(row,selection,geography){
   return geography.regions.includes(selection)?articleGeographies(row).some(country=>!geography.own(country)&&geography.region(country)===selection):selection===otherGeography?geography.members(row).includes(otherGeography):articleGeographies(row).includes(selection);
 }
+function unlocatedGeography(row,geography){return articleGeographies(row).every(country=>!geography.own(country)&&!geography.region(country));}
+function readingGeographyMatches(row,selection,geography){return geographyMatches(row,selection,geography)||geography.regions.includes(selection)&&unlocatedGeography(row,geography);}
 function preferredRegion(rows,local='',configured=[],selected=''){
  const known=rows.filter(row=>REGION_CODES.includes(row.name)),available=known.filter(row=>row.total>0);
  if(available.some(row=>row.name===selected))return selected;
