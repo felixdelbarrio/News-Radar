@@ -202,7 +202,7 @@ test('la caché de dashboard evita leer y clasificar Noticias otra vez y se inva
  assert.equal(c.dashboardContent_(query,c.feeds_(),'news').cacheHit,true);assert.equal(reads,1);
  rows.push({...rows[0],url:'https://bbva.com/b'});c.invalidateNews_();const changed=c.dashboardContent_(query,c.feeds_(),'news');assert.equal(changed.cacheHit,false);assert.equal(changed.data.total,2);assert.equal(reads,2);
  revision='second';assert.equal(c.dashboardContent_(query,c.feeds_(),'news').cacheHit,false);assert.equal(reads,3);
- assert.equal(c.dashboardContent_({country:'México'},c.feeds_(),'news').data.total,0);
+ const geographic=c.dashboardContent_({country:'México'},c.feeds_(),'news').data;assert.equal(geographic.contextTotal,2,'country no longer applies a second national filter');assert.equal(geographic.total,2,'an absent geography retains the existing available-tab fallback');
 });
 
 test('la caché respeta el límite en bytes UTF-8 y nunca recorta el resultado',()=>{
