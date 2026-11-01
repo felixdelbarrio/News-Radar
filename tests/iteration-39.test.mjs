@@ -55,3 +55,29 @@ test('39: source quality administration reuses filters, pagination and escaped t
  const a=await app(t,{configure({replies}){replies.getSourceQuality={days:30,items:[{source:'<unsafe>',country:'España',availability:null,queries:0,errors:0,retrieved:0,relevant:0,reasons:{'<b>':2},discarded:2,duplicates:0,lastNews:'',lastQuery:'',publishers:0,localPercent:null,unknownPercent:null,saturationPercent:null}],total:1,page:0,pageSize:10,options:{days:[['7','7 días'],['30','30 días'],['90','90 días']],source:['<unsafe>']},metrics:{sources:1,queries:0,errors:0,retrieved:0,relevant:0,duplicates:0},limit:5000,limited:true,retentionDays:90,retainedFrom:null};}});
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="sourceQuality"]');assert.equal(a.find('#sourceQuality-section').hidden,false);assert.equal(a.find('#sourceQuality-days').value,'30');assert.equal(a.calls.filter(row=>row.method==='getSourceQuality').at(-1).query.days,'30');assert.match(a.find('#sourceQuality-body').textContent,/<unsafe>/);assert.equal(a.w.document.querySelector('#sourceQuality-body unsafe'),null);await a.change('#sourceQuality-days','7');assert.equal(a.calls.filter(row=>row.method==='getSourceQuality').at(-1).query.days,'7');assert.match(a.find('#sourceQuality-note').textContent,/métricas parciales/);
 });
+
+
+test('39: event markets override actor origins and preserve multinational scope',()=>{
+ const {c}=server();
+ for(const [titular,extracto,expected] of [
+  ['Taiwan bank launches corporate payments platform in Spain','','España'],
+  ['HSBC México lanza pagos para empresas en Bangladesh','','Bangladés'],
+  ['Westpac Australia launches corporate payments in New Zealand','','Nueva Zelanda'],
+  ['Santander UK Banking Outage Leaves Thousands Without Access to Funds','','Reino Unido'],
+  ['Afirme digitaliza gastos para empresas','El banco mexicano amplía su plataforma en México.','México'],
+  ['BBVA presenta pagos digitales Bre-B','','Colombia'],
+  ['Amazon and Santander’s Openbank Pay launch new payment options for customers in Poland','','Polonia'],
+  ['BCP lanza SIP y moderniza el sistema de pagos en el Paraguay','','Paraguay'],
+  ['BCP amplía su plataforma empresarial en Bolivia','','Bolivia'],
+  ['Davivienda amplía el acceso a pagos digitales en Panamá','','Panamá'],
+  ['HSBC México presenta plataforma empresarial','La nueva solución se lanza en Bangladesh.','Bangladés']
+ ])assert.equal(c.newsCountryDecision_({titular,extracto,rssCountry:'España'}).country,expected,titular);
+ const multi=c.newsCountryDecision_({titular:'Revolut outage: app and cards stop working in UK, France and Spain'});assert.deepEqual(new Set(multi.geographies),new Set(['Reino Unido','Francia','España']));assert.equal(multi.scope,'multicountry');
+ assert.equal(c.newsCountryDecision_({titular:'Getnet llega a un acuerdo con WeChat Pay para abrir sus pagos a los turistas de China',rssCountry:'España'}).country,'España');
+});
+
+test('39: the existing historical batch can repair geography without changing functional or editorial fields',()=>{
+ const {c,sheets}=server(),keys=vm.runInContext('RADAR.sheets.Noticias',c),record={id:'geo-only',fecha:'2026-10-20',pais:'España',titular:'HSBC launches corporate payments in Bangladesh',extracto:'Contenido bloqueado',entidad:'HSBC',medio:'Editor',clasificacion:JSON.stringify({digital:true,capacidades:['Empresas: Pagos'],senales:['Lanzamiento','Alianza','Mejora de oferta','Incidencia'],evento:'Lanzamiento',procedencia:{mechanism:'blocked'}}),taxonomia:JSON.stringify({ids:[]})};
+ sheets.get('Noticias').grid.push(keys.map(key=>record[key]||''));const before=[...sheets.get('Noticias').grid[1]],labels=JSON.parse(before[keys.indexOf('clasificacion')]);c.requestNewsClassification_(true,true);c.newsClassificationBatch_();const after=sheets.get('Noticias').grid[1];
+ assert.equal(after[keys.indexOf('pais')],'Bangladés');for(let i=0;i<keys.length;i++)if(!['pais','clasificacion'].includes(keys[i]))assert.equal(after[i],before[i],keys[i]);const updated=JSON.parse(after[keys.indexOf('clasificacion')]);delete updated.procedencia;delete labels.procedencia;assert.deepEqual(updated,labels);assert.equal(c.classificationJob_().processed,undefined);assert.equal(c.classificationJob_().next,3);
+});
