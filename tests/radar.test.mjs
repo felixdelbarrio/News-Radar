@@ -44,7 +44,7 @@ test('dashboard de lector no expone fuentes configurables, hoja ni datos de otro
   for(const key of ['sheetUrl','runs','feeds','configuredFeeds','email'])assert.equal(key in result,false);assert.equal(result.sourceCount,c.feeds_().length);assert.equal(result.admin,false);
 });
 test('las entidades, alias, países y términos configurados generan fuentes sin consultas redundantes por alias',()=>{
-  const c=context(),feeds=c.defaultFeeds_(),config=c.configuration_();assert.equal(new Set(feeds.map(feed=>feed.url)).size,feeds.length);assert.equal(feeds.filter(feed=>feed.kind==='rss').length,config.feeds.length);
+  const c=context(),feeds=c.defaultFeeds_(),config=c.configuration_();assert.equal(new Set(feeds.map(feed=>feed.url)).size,feeds.length);assert.equal(feeds.filter(feed=>feed.kind==='rss'&&!feed.geographySearch).length,config.feeds.length);
   for(const entity of config.entities)for(const country of entity.countries){
     const geo=config.geographies.find(row=>row.name===country),feed=feeds.find(feed=>feed.kind==='profile'&&feed.country===country&&feed.entity===entity.name);assert.ok(feed);
     const query=new URL(feed.url).searchParams.get('q');for(const alias of entity.name==='BBVA'?['BBVA Empresas']:[entity.name,...entity.aliases])assert.ok(query.includes(alias));for(const term of c.collectionSearchTerms_(geo))assert.ok(query.includes(term));assert.equal(new URL(feed.url).searchParams.get('gl'),geo.code==='UY'?'US':geo.code);
@@ -202,7 +202,7 @@ test('la caché de dashboard evita leer y clasificar Noticias otra vez y se inva
  assert.equal(c.dashboardContent_(query,c.feeds_(),'news').cacheHit,true);assert.equal(reads,1);
  rows.push({...rows[0],url:'https://bbva.com/b'});c.invalidateNews_();const changed=c.dashboardContent_(query,c.feeds_(),'news');assert.equal(changed.cacheHit,false);assert.equal(changed.data.total,2);assert.equal(reads,2);
  revision='second';assert.equal(c.dashboardContent_(query,c.feeds_(),'news').cacheHit,false);assert.equal(reads,3);
- assert.equal(c.dashboardContent_({country:'México'},c.feeds_(),'news').data.total,0);
+ const geographic=c.dashboardContent_({country:'México'},c.feeds_(),'news').data;assert.equal(geographic.contextTotal,2,'country no longer applies a second national filter');assert.equal(geographic.total,2,'an absent geography retains the existing available-tab fallback');
 });
 
 test('la caché respeta el límite en bytes UTF-8 y nunca recorta el resultado',()=>{

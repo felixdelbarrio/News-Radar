@@ -1677,7 +1677,7 @@
     {
       "name": "Panamá",
       "code": "PA",
-      "language": "en",
+      "language": "es-419",
       "mapId": "591",
       "enabled": true,
       "searchName": "Panama",
@@ -1690,7 +1690,7 @@
     {
       "name": "Bolivia",
       "code": "BO",
-      "language": "en",
+      "language": "es-419",
       "mapId": "068",
       "enabled": true,
       "searchName": "Bolivia",
@@ -1703,7 +1703,7 @@
     {
       "name": "Paraguay",
       "code": "PY",
-      "language": "en",
+      "language": "es-419",
       "mapId": "600",
       "enabled": true,
       "searchName": "Paraguay",
@@ -1794,7 +1794,7 @@
     {
       "name": "Andorra",
       "code": "AD",
-      "language": "en",
+      "language": "es",
       "mapId": "020",
       "enabled": true,
       "searchName": "Andorra",

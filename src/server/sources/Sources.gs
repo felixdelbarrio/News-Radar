@@ -65,7 +65,15 @@ function capabilitySearchTerms_(geo,entity){
 }
 function defaultFeeds_(range) {
   const config=configuration_(),disabled=new Set(config.settings.disabledSources);
-  return config.feeds.map(feed=>countryScopedSource_({...feed,kind:'rss'})).concat(config.entities.flatMap(entity=>config.geographies.filter(geo=>entity.countries.includes(geo.name)).map(geo=>{const feed=profileFeed_(geo,entity,range);return {...feed,enabled:feed.enabled&&!disabled.has(feed.id)};})));
+  const profiles=config.entities.flatMap(entity=>config.geographies.filter(geo=>entity.countries.includes(geo.name)).map(geo=>{const feed=profileFeed_(geo,entity,range);return {...feed,enabled:feed.enabled&&!disabled.has(feed.id)};})),covered=new Set(profiles.filter(feed=>feed.enabled).map(feed=>feed.country));
+  return config.feeds.map(feed=>countryScopedSource_({...feed,kind:'rss'})).concat(profiles,config.geographies.filter(geo=>geo.enabled&&!covered.has(geo.name)).map(geo=>geographyFeed_(geo,range)).filter(Boolean).map(feed=>({...feed,enabled:!disabled.has(feed.id)})));
+}
+function geographyFeed_(geo,range){
+ const config=configuration_(),quote=value=>'"'+String(value).replace(/["*]/g,'')+'"',scope=localizedSearchTerms_(config.segments.filter(row=>row.enabled).flatMap(row=>row.terms),geo,true).slice(0,6),channel=localizedSearchTerms_(config.searchLanguages.filter(row=>row.enabled).flatMap(row=>row.terms).filter(term=>businessIndex_().relevance.channel.test(searchText_(term))),geo,true).slice(0,6);
+ if(!scope.length||!channel.length)return null;
+ const places=[...new Set([geo.searchName,...(geo.terms||[]).filter(term=>term.length>3)].filter(Boolean))].slice(0,3),query=collectionPeriod_(range)+' ('+places.map(quote).join(' OR ')+') ('+scope.map(quote).join(' OR ')+') ('+channel.map(quote).join(' OR ')+')',code=geo.code==='UY'?'US':geo.code;
+ if(query.length>COLLECTION_POLICY.queryChars)throw Error('Consulta geográfica demasiado larga.');
+ return {id:'geography/'+geo.code,name:'BEI · '+geo.name,url:canonicalUrl_('https://news.google.com/rss/search?q='+encodeURIComponent(query)+'&hl='+geo.language+'&gl='+code+'&ceid='+code+':'+geo.language),domain:'news.google.com',entity:'Sector',country:geo.name,language:geo.language,kind:'rss',geographySearch:true,enabled:geo.enabled};
 }
 function customFeeds_(){return configuration_().feeds;}
 let configuredFeedMemory_;
@@ -74,7 +82,7 @@ function feeds_(){return configuredFeeds_().filter(feed=>feed.enabled);}
 function saveSourceSettings(enabledIds){
   authorize_(true);const config=JSON.parse(JSON.stringify(configuration_())),all=configuredFeeds_(),known=new Set(all.map(feed=>feed.id));
   if(!Array.isArray(enabledIds)||enabledIds.length>all.length||enabledIds.some(id=>!known.has(id)))throw Error('Configuración de fuentes no válida.');
-  const enabled=new Set(enabledIds);config.feeds.forEach(feed=>feed.enabled=enabled.has(feed.id));config.settings.disabledSources=all.filter(feed=>feed.kind==='profile'&&!enabled.has(feed.id)).map(feed=>feed.id);
+  const enabled=new Set(enabledIds);config.feeds.forEach(feed=>feed.enabled=enabled.has(feed.id));config.settings.disabledSources=[...new Set([...all.filter(feed=>feed.kind==='profile').map(feed=>feed.id),...config.geographies.map(geo=>'geography/'+geo.code)])].filter(id=>!enabled.has(id));
   writeConfiguration_(config,configurationRevision_());return enabled.size+' fuentes seleccionadas. Entidades y países desactivados permanecen desactivados.';
 }
 function saveFeeds(feeds){

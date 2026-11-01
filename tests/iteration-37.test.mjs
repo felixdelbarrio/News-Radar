@@ -69,7 +69,7 @@ test('37: la edición aplica solo su periodo inicial y las peticiones posteriore
  const first=c.getDashboard({view:'news',initial:true,edition:'historical-edition',newsGeography:'España'});
  assert.equal(first.selection.country,'');assert.equal(first.selection.from,query.from);assert.equal(first.newsGeography,'España');assert.equal(first.context.from,query.from);
  const changed=c.getDashboard({view:'news',initial:false,edition:'historical-edition',country:'México',from:'',to:''});
- assert.equal(changed.selection.from,'');assert.equal(changed.selection.to,'');assert.equal(changed.selection.country,'México');assert.equal(changed.context.from,query.from);
+ assert.equal(changed.selection.from,'');assert.equal(changed.selection.to,'');assert.equal(changed.selection.country,'');assert.equal(changed.selection.newsGeography,'México');assert.equal(changed.context.from,query.from);
 });
 test('37: el favicon embebido conserva los bytes originales y el contenedor usa su URL pública inmutable',()=>{
  const {c}=presentationServer(),expected='data:image/x-icon;base64,'+fs.readFileSync(new URL('../assets/favicon.ico',import.meta.url)).toString('base64');let favicon;

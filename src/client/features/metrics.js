@@ -10,6 +10,7 @@ const filters={},requests={};let adoptionCohort='dau';
 const adoptionCohorts=[['dau','DAU','Usuarios · 24 horas'],['wau','WAU','Usuarios · 7 días'],['mau','MAU','Usuarios · 30 días'],['returning','Recurrentes','Más de una sesión · 30 días'],['total','Total usuarios','Usuarios · período filtrado']];
 $('adoption-metrics').addEventListener('click',event=>{const cohort=event.target.closest('[data-cohort]')?.dataset.cohort;if(cohort&&cohort!==adoptionCohort){adoptionCohort=cohort;filters.adoption.reset();loadMetrics('adoption',()=>!$('adoption-section').hidden&&!$('administration-section').hidden);}});
 async function loadMetrics(view, isCurrent) {
+  if(view==='sourceQuality')return loadSourceQuality(isCurrent);
   if(view==='feedback')return loadFeedback(isCurrent);
   filters[view]||=createRecordFilters(view,[['correo','Usuario'],['vista','Vista'],['evento','Evento']],()=>loadMetrics(view,isCurrent),{dates:true});
   const request=requests[view]=(requests[view]||0)+1;
@@ -32,6 +33,18 @@ async function loadMetrics(view, isCurrent) {
 export {
   loadMetrics
 };
+
+$('sourceQuality-days').addEventListener('change',()=>{filters.sourceQuality?.reset();loadSourceQuality(()=>!$('sourceQuality-section').hidden&&!$('administration-section').hidden);});
+async function loadSourceQuality(isCurrent){
+ const view='sourceQuality';filters[view]||=createRecordFilters(view,[['source','Fuente']],()=>loadSourceQuality(isCurrent));const request=requests[view]=(requests[view]||0)+1;
+ try{
+  const data=await call('getSourceQuality',{...filters[view].query(),days:$('sourceQuality-days').value});if(!isCurrent()||requests[view]!==request)return;filters[view].options(data.options);filters[view].page(data);
+  $('sourceQuality-metrics').innerHTML=metricCards([['Fuentes',data.metrics.sources],['Consultas válidas',data.metrics.queries],['Errores',data.metrics.errors],['Recuperadas',data.metrics.retrieved],['Relevantes',data.metrics.relevant],['Duplicados',data.metrics.duplicates]].map(([label,value])=>[t(label),value,'']));
+  const percent=value=>value==null?'—':value+'%',headers=[...$('sourceQuality-body').closest('table').querySelectorAll('th')].map(cell=>cell.textContent);
+  $('sourceQuality-body').innerHTML=data.items.map(row=>'<tr>'+[row.source,row.country||'—',percent(row.availability),row.queries,row.errors,row.retrieved,row.relevant,Object.entries(row.reasons).map(([reason,count])=>reason+': '+count).join('; ')||(row.discarded?row.discarded:'—'),row.duplicates,row.lastNews?date(row.lastNews):'—',row.lastQuery?date(row.lastQuery):'—',row.publishers,percent(row.localPercent),percent(row.unknownPercent),percent(row.saturationPercent)].map((value,index)=>'<td data-label="'+escape(headers[index])+'">'+escape(value)+'</td>').join('')+'</tr>').join('')||'<tr><td colspan="15">'+t('Sin datos retenidos para esta selección.')+'</td></tr>';
+  $('sourceQuality-note').textContent=t('Ventana: {days} días. Disponibilidad: tareas completadas / intentos de ingesta registrados; errores: intentos sin completar. Consultas válidas y motivos: resúmenes RSS retenidos. No se cuentan redirecciones HTTP. Diversidad y porcentajes geográficos: noticias retenidas; local exige país de la fuente y evidencia alta/media. Saturación: consultas saturadas / consultas con cobertura registrada. — indica ausencia de denominador. Límite: {limit} filas por tabla y caché de hasta 120 segundos.',{days:data.days,limit:data.limit})+' '+(data.limited?t('Límite de eventos alcanzado; métricas parciales.'):'')+' '+t('Retención: {days} días; primer registro disponible: {date}.',{days:data.retentionDays,date:data.retainedFrom?date(data.retainedFrom):'—'});
+ }catch(error){if(isCurrent()&&requests[view]===request)message(error.message,true);}
+}
 
 function feedbackCards(data){return metricCards([['Total',data.total,''],['Útil',data.positive,''],['Mejorable',data.negative,''],['% útil',data.positiveRate+'%',''],['Pendientes',data.pending,''],['Atendidos',data.resolved,'']].map(row=>[t(row[0]),row[1],row[2]]));}
 async function loadFeedback(isCurrent){
