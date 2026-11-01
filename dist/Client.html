@@ -3611,12 +3611,15 @@
       requests2[view2] === request3 && isCurrent() && message(e.message, !0);
     }
   }
+  $("sourceQuality-days").addEventListener("change", () => {
+    filters.sourceQuality?.reset(), loadSourceQuality(() => !$("sourceQuality-section").hidden && !$("administration-section").hidden);
+  });
   async function loadSourceQuality(isCurrent) {
     let view2 = "sourceQuality";
-    filters[view2] ||= createRecordFilters(view2, [["days", "Per\xEDodo", [["7", "7 d\xEDas"], ["30", "30 d\xEDas"], ["90", "90 d\xEDas"]]], ["source", "Fuente"]], () => loadSourceQuality(isCurrent));
+    filters[view2] ||= createRecordFilters(view2, [["source", "Fuente"]], () => loadSourceQuality(isCurrent));
     let request3 = requests2[view2] = (requests2[view2] || 0) + 1;
     try {
-      let data = await call("getSourceQuality", filters[view2].query());
+      let data = await call("getSourceQuality", { ...filters[view2].query(), days: $("sourceQuality-days").value });
       if (!isCurrent() || requests2[view2] !== request3) return;
       filters[view2].options(data.options), filters[view2].page(data), $("sourceQuality-metrics").innerHTML = metricCards([["Fuentes", data.metrics.sources], ["Consultas v\xE1lidas", data.metrics.queries], ["Errores", data.metrics.errors], ["Recuperadas", data.metrics.retrieved], ["Relevantes", data.metrics.relevant], ["Duplicados", data.metrics.duplicates]].map(([label, value]) => [t(label), value, ""]));
       let percent = (value) => value == null ? "\u2014" : value + "%", headers = [...$("sourceQuality-body").closest("table").querySelectorAll("th")].map((cell) => cell.textContent);

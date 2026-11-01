@@ -34,10 +34,11 @@ export {
   loadMetrics
 };
 
+$('sourceQuality-days').addEventListener('change',()=>{filters.sourceQuality?.reset();loadSourceQuality(()=>!$('sourceQuality-section').hidden&&!$('administration-section').hidden);});
 async function loadSourceQuality(isCurrent){
- const view='sourceQuality';filters[view]||=createRecordFilters(view,[['days','Período',[['7','7 días'],['30','30 días'],['90','90 días']]],['source','Fuente']],()=>loadSourceQuality(isCurrent));const request=requests[view]=(requests[view]||0)+1;
+ const view='sourceQuality';filters[view]||=createRecordFilters(view,[['source','Fuente']],()=>loadSourceQuality(isCurrent));const request=requests[view]=(requests[view]||0)+1;
  try{
-  const data=await call('getSourceQuality',filters[view].query());if(!isCurrent()||requests[view]!==request)return;filters[view].options(data.options);filters[view].page(data);
+  const data=await call('getSourceQuality',{...filters[view].query(),days:$('sourceQuality-days').value});if(!isCurrent()||requests[view]!==request)return;filters[view].options(data.options);filters[view].page(data);
   $('sourceQuality-metrics').innerHTML=metricCards([['Fuentes',data.metrics.sources],['Consultas válidas',data.metrics.queries],['Errores',data.metrics.errors],['Recuperadas',data.metrics.retrieved],['Relevantes',data.metrics.relevant],['Duplicados',data.metrics.duplicates]].map(([label,value])=>[t(label),value,'']));
   const percent=value=>value==null?'—':value+'%',headers=[...$('sourceQuality-body').closest('table').querySelectorAll('th')].map(cell=>cell.textContent);
   $('sourceQuality-body').innerHTML=data.items.map(row=>'<tr>'+[row.source,row.country||'—',percent(row.availability),row.queries,row.errors,row.retrieved,row.relevant,Object.entries(row.reasons).map(([reason,count])=>reason+': '+count).join('; ')||(row.discarded?row.discarded:'—'),row.duplicates,row.lastNews?date(row.lastNews):'—',row.lastQuery?date(row.lastQuery):'—',row.publishers,percent(row.localPercent),percent(row.unknownPercent),percent(row.saturationPercent)].map((value,index)=>'<td data-label="'+escape(headers[index])+'">'+escape(value)+'</td>').join('')+'</tr>').join('')||'<tr><td colspan="15">'+t('Sin datos retenidos para esta selección.')+'</td></tr>';
