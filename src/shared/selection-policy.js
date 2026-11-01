@@ -29,5 +29,5 @@ export function regionalGeographies(rows,geography){
 }
 
 export function geographyTabQuery(query,regions=REGION_CODES){
-  return query.view==='news'&&(query.country===otherGeography||regions.includes(query.country))?{...query,country:'',newsGeography:query.country}:query;
+  return query.view==='news'&&query.country?{...query,country:'',newsGeography:query.newsGeography||query.country}:query;
 }

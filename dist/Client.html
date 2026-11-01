@@ -59,6 +59,28 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Calidad de fuentes": ["Source quality", "Kaynak kalitesi"],
+    "Disponibilidad observada": ["Observed availability", "G\xF6zlenen kullan\u0131labilirlik"],
+    "Consultas v\xE1lidas": ["Valid queries", "Ge\xE7erli sorgular"],
+    Recuperadas: ["Retrieved", "Al\u0131nan"],
+    Relevantes: ["Relevant", "\u0130lgili"],
+    "Descartadas por motivo": ["Excluded by reason", "Nedene g\xF6re elenen"],
+    Duplicados: ["Duplicates", "Yinelenenler"],
+    "\xDAltima noticia": ["Latest article", "Son haber"],
+    "\xDAltima consulta": ["Latest query", "Son sorgu"],
+    "Diversidad editorial": ["Editorial diversity", "Yay\u0131nc\u0131 \xE7e\u015Fitlili\u011Fi"],
+    "Local confirmado": ["Confirmed local", "Do\u011Frulanan yerel"],
+    "Geograf\xEDa desconocida": ["Unknown geography", "Bilinmeyen co\u011Frafya"],
+    "Saturaci\xF3n Google News": ["Google News saturation", "Google News doygunlu\u011Fu"],
+    Per\u00EDodo: ["Period", "D\xF6nem"],
+    "7 d\xEDas": ["7 days", "7 g\xFCn"],
+    "30 d\xEDas": ["30 days", "30 g\xFCn"],
+    "90 d\xEDas": ["90 days", "90 g\xFCn"],
+    "Sin datos retenidos para esta selecci\xF3n.": ["No retained data for this selection.", "Bu se\xE7im i\xE7in saklanan veri yok."],
+    "Per\xEDodo de calidad no v\xE1lido.": ["Invalid quality period.", "Kalite d\xF6nemi ge\xE7ersiz."],
+    "Consulta geogr\xE1fica demasiado larga.": ["Geographic query is too long.", "Co\u011Frafi sorgu \xE7ok uzun."],
+    "Retenci\xF3n: {days} d\xEDas; primer registro disponible: {date}.": ["Retention: {days} days; earliest available record: {date}.", "Saklama s\xFCresi: {days} g\xFCn; mevcut ilk kay\u0131t: {date}."],
+    "Ventana: {days} d\xEDas. Disponibilidad: tareas completadas / intentos de ingesta registrados; errores: intentos sin completar. Consultas v\xE1lidas y motivos: res\xFAmenes RSS retenidos. No se cuentan redirecciones HTTP. Diversidad y porcentajes geogr\xE1ficos: noticias retenidas; local exige pa\xEDs de la fuente y evidencia alta/media. Saturaci\xF3n: consultas saturadas / consultas con cobertura registrada. \u2014 indica ausencia de denominador. L\xEDmite: {limit} filas por tabla y cach\xE9 de hasta 120 segundos.": ["Window: {days} days. Availability: completed tasks / recorded ingestion attempts; errors: unsuccessful attempts. Valid queries and reasons: retained RSS summaries. HTTP redirects are not counted. Diversity and geographic percentages: retained articles; local requires the source country and high/medium evidence. Saturation: saturated queries / queries with recorded coverage. \u2014 indicates no denominator. Limit: {limit} rows per table and up to 120 seconds of caching.", "Aral\u0131k: {days} g\xFCn. Kullan\u0131labilirlik: tamamlanan g\xF6revler / kay\u0131tl\u0131 veri alma denemeleri; hatalar: tamamlanmayan denemeler. Ge\xE7erli sorgular ve nedenler: saklanan RSS \xF6zetleri. HTTP y\xF6nlendirmeleri say\u0131lmaz. \xC7e\u015Fitlilik ve co\u011Frafi y\xFCzdeler: saklanan haberler; yerel i\xE7in kaynak \xFClkesi ve y\xFCksek/orta kan\u0131t gerekir. Doygunluk: doygun sorgular / kapsama kayd\u0131 olan sorgular. \u2014 payda olmad\u0131\u011F\u0131n\u0131 g\xF6sterir. S\u0131n\u0131r: tablo ba\u015F\u0131na {limit} sat\u0131r ve 120 saniyeye kadar \xF6nbellek."],
     "Correcci\xF3n selectiva: IDs ausentes o duplicados.": ["Selective correction: missing or duplicate IDs.", "Se\xE7ici d\xFCzeltme: eksik veya yinelenen kimlikler."],
     "Revisa entre 1 y 20 IDs \xFAnicos.": ["Review between 1 and 20 unique IDs.", "1 ile 20 aras\u0131nda benzersiz kimli\u011Fi inceleyin."],
     "Plan selectivo no v\xE1lido o generaci\xF3n cambiada.": ["Invalid selective plan or changed generation.", "Se\xE7ici plan ge\xE7ersiz veya veri nesli de\u011Fi\u015Fmi\u015F."],
@@ -1769,7 +1791,7 @@
   }
 
   // src/client/core/browser-country.js
-  var zoneCountries = Object.freeze({ "Europe/Madrid": "ES", "Atlantic/Canary": "ES", "America/Mexico_City": "MX", "America/Lima": "PE", "America/Bogota": "CO", "America/Argentina/Buenos_Aires": "AR", "Europe/Istanbul": "TR", "America/Montevideo": "UY", "America/Caracas": "VE", "America/Sao_Paulo": "BR", "America/Toronto": "CA", "America/Vancouver": "CA", "America/Montreal": "CA", "Asia/Dubai": "AE", "Europe/London": "GB", "Europe/Paris": "FR", "Europe/Berlin": "DE", "Europe/Rome": "IT", "Europe/Lisbon": "PT", "Asia/Singapore": "SG", "Asia/Tokyo": "JP", "Asia/Kolkata": "IN", "Asia/Shanghai": "CN", "Asia/Hong_Kong": "HK", "Asia/Seoul": "KR", "Asia/Bangkok": "TH", "Asia/Jakarta": "ID", "Asia/Manila": "PH", "Asia/Kuala_Lumpur": "MY", "Asia/Ho_Chi_Minh": "VN", "Australia/Sydney": "AU", "Australia/Melbourne": "AU", "America/New_York": "US", "America/Chicago": "US", "America/Los_Angeles": "US" });
+  var zoneCountries = Object.freeze({ "America/Panama": "PA", "America/La_Paz": "BO", "America/Asuncion": "PY", "Europe/Andorra": "AD", "Asia/Taipei": "TW", "Africa/Lagos": "NG", "Asia/Dhaka": "BD", "Asia/Karachi": "PK", "Asia/Nicosia": "CY", "Asia/Riyadh": "SA", "Europe/Warsaw": "PL", "Europe/Dublin": "IE", "Europe/Luxembourg": "LU", "Pacific/Fiji": "FJ", "Pacific/Auckland": "NZ", "Europe/Budapest": "HU", "Asia/Baku": "AZ", "Europe/Madrid": "ES", "Atlantic/Canary": "ES", "America/Mexico_City": "MX", "America/Lima": "PE", "America/Bogota": "CO", "America/Argentina/Buenos_Aires": "AR", "Europe/Istanbul": "TR", "America/Montevideo": "UY", "America/Caracas": "VE", "America/Sao_Paulo": "BR", "America/Toronto": "CA", "America/Vancouver": "CA", "America/Montreal": "CA", "Asia/Dubai": "AE", "Europe/London": "GB", "Europe/Paris": "FR", "Europe/Berlin": "DE", "Europe/Rome": "IT", "Europe/Lisbon": "PT", "Asia/Singapore": "SG", "Asia/Tokyo": "JP", "Asia/Kolkata": "IN", "Asia/Shanghai": "CN", "Asia/Hong_Kong": "HK", "Asia/Seoul": "KR", "Asia/Bangkok": "TH", "Asia/Jakarta": "ID", "Asia/Manila": "PH", "Asia/Kuala_Lumpur": "MY", "Asia/Ho_Chi_Minh": "VN", "Australia/Sydney": "AU", "Australia/Melbourne": "AU", "America/New_York": "US", "America/Chicago": "US", "America/Los_Angeles": "US" });
   function inferredCountryCode(languages = [], timeZone = "") {
     if (zoneCountries[timeZone]) return zoneCountries[timeZone];
     for (let language2 of languages) {
@@ -1781,7 +1803,7 @@
   function browserCountry(available = []) {
     let code = inferredCountryCode(navigator.languages || [navigator.language], Intl.DateTimeFormat().resolvedOptions().timeZone);
     if (!code) return "";
-    let name = new Intl.DisplayNames(["es"], { type: "region" }).of(code);
+    let name = code === "TW" ? "APAC" : new Intl.DisplayNames(["es"], { type: "region" }).of(code);
     return !available.length || available.includes(name) ? name : "";
   }
 
@@ -2121,7 +2143,7 @@
     return [...totals].map(([name, total]) => ({ name, total }));
   }
   function geographyTabQuery(query, regions = REGION_CODES) {
-    return query.view === "news" && (query.country === otherGeography || regions.includes(query.country)) ? { ...query, country: "", newsGeography: query.country } : query;
+    return query.view === "news" && query.country ? { ...query, country: "", newsGeography: query.newsGeography || query.country } : query;
   }
 
   // src/client/features/geography-tabs.js
@@ -2360,7 +2382,8 @@
       feedback: "Feedback",
       sources: "Fuentes",
       audit: "Logs",
-      configuration: "Configuraci\xF3n de negocio"
+      configuration: "Configuraci\xF3n de negocio",
+      sourceQuality: "Calidad de fuentes"
     }
   };
 
@@ -3576,6 +3599,7 @@
     cohort && cohort !== adoptionCohort && (adoptionCohort = cohort, filters.adoption.reset(), loadMetrics("adoption", () => !$("adoption-section").hidden && !$("administration-section").hidden));
   });
   async function loadMetrics(view2, isCurrent) {
+    if (view2 === "sourceQuality") return loadSourceQuality(isCurrent);
     if (view2 === "feedback") return loadFeedback(isCurrent);
     filters[view2] ||= createRecordFilters(view2, [["correo", "Usuario"], ["vista", "Vista"], ["evento", "Evento"]], () => loadMetrics(view2, isCurrent), { dates: !0 });
     let request3 = requests2[view2] = (requests2[view2] || 0) + 1;
@@ -3585,6 +3609,20 @@
       filters[view2].options(data.options), view2 === "adoption" && ($("adoption-metrics").innerHTML = adoptionCohorts.map(([key, label, hint]) => '<button type="button" class="metric" data-cohort="' + key + '" aria-pressed="' + (key === adoptionCohort) + '"><span>' + escape2(t(label)) + "</span><strong>" + Number(data[key === "total" ? "totalUsers" : key] || 0) + '</strong><span class="small">' + escape2(t(hint)) + "</span></button>").join(""), filters[view2].page(data), $("adoption-users-label").textContent = t(adoptionCohorts.find(([key]) => key === adoptionCohort)[1]) + " \xB7 " + t("{count} usuarios", { count: data.total }), $("adoption-body").innerHTML = data.users.map((row) => "<tr>" + [row.correo, date(row.last), row.sessions, row.actions, date(row.first)].map((value, index) => '<td data-label="' + escape2(t(["Usuario", "\xDAltimo acceso", "Sesiones", "Eventos", "Primer acceso"][index])) + '">' + escape2(value) + "</td>").join("") + "</tr>").join("") || '<tr><td colspan="5">' + t("No hay usuarios en este grupo.") + "</td></tr>", $("adoption-note").textContent = t("{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.", data) + " " + (data.limited ? "L\xEDmite de eventos alcanzado; m\xE9tricas parciales." : ""), adoptionChart.render(data.daily));
     } catch (e) {
       requests2[view2] === request3 && isCurrent() && message(e.message, !0);
+    }
+  }
+  async function loadSourceQuality(isCurrent) {
+    let view2 = "sourceQuality";
+    filters[view2] ||= createRecordFilters(view2, [["days", "Per\xEDodo", [["7", "7 d\xEDas"], ["30", "30 d\xEDas"], ["90", "90 d\xEDas"]]], ["source", "Fuente"]], () => loadSourceQuality(isCurrent));
+    let request3 = requests2[view2] = (requests2[view2] || 0) + 1;
+    try {
+      let data = await call("getSourceQuality", filters[view2].query());
+      if (!isCurrent() || requests2[view2] !== request3) return;
+      filters[view2].options(data.options), filters[view2].page(data), $("sourceQuality-metrics").innerHTML = metricCards([["Fuentes", data.metrics.sources], ["Consultas v\xE1lidas", data.metrics.queries], ["Errores", data.metrics.errors], ["Recuperadas", data.metrics.retrieved], ["Relevantes", data.metrics.relevant], ["Duplicados", data.metrics.duplicates]].map(([label, value]) => [t(label), value, ""]));
+      let percent = (value) => value == null ? "\u2014" : value + "%", headers = [...$("sourceQuality-body").closest("table").querySelectorAll("th")].map((cell) => cell.textContent);
+      $("sourceQuality-body").innerHTML = data.items.map((row) => "<tr>" + [row.source, row.country || "\u2014", percent(row.availability), row.queries, row.errors, row.retrieved, row.relevant, Object.entries(row.reasons).map(([reason, count]) => reason + ": " + count).join("; ") || (row.discarded ? row.discarded : "\u2014"), row.duplicates, row.lastNews ? date(row.lastNews) : "\u2014", row.lastQuery ? date(row.lastQuery) : "\u2014", row.publishers, percent(row.localPercent), percent(row.unknownPercent), percent(row.saturationPercent)].map((value, index) => '<td data-label="' + escape2(headers[index]) + '">' + escape2(value) + "</td>").join("") + "</tr>").join("") || '<tr><td colspan="15">' + t("Sin datos retenidos para esta selecci\xF3n.") + "</td></tr>", $("sourceQuality-note").textContent = t("Ventana: {days} d\xEDas. Disponibilidad: tareas completadas / intentos de ingesta registrados; errores: intentos sin completar. Consultas v\xE1lidas y motivos: res\xFAmenes RSS retenidos. No se cuentan redirecciones HTTP. Diversidad y porcentajes geogr\xE1ficos: noticias retenidas; local exige pa\xEDs de la fuente y evidencia alta/media. Saturaci\xF3n: consultas saturadas / consultas con cobertura registrada. \u2014 indica ausencia de denominador. L\xEDmite: {limit} filas por tabla y cach\xE9 de hasta 120 segundos.", { days: data.days, limit: data.limit }) + " " + (data.limited ? t("L\xEDmite de eventos alcanzado; m\xE9tricas parciales.") : "") + " " + t("Retenci\xF3n: {days} d\xEDas; primer registro disponible: {date}.", { days: data.retentionDays, date: data.retainedFrom ? date(data.retainedFrom) : "\u2014" });
+    } catch (error) {
+      isCurrent() && requests2[view2] === request3 && message(error.message, !0);
     }
   }
   function feedbackCards(data) {
@@ -3705,7 +3743,7 @@
         } catch (error) {
           message(error.message || String(error), !0);
         }
-        view2 === "llm" && await onLlm(), view2 === "taxonomy" && await onTaxonomy(), view2 === "runs" && await onRuns(), view2 === "audit" && await loadAudit(), (view2 === "adoption" || view2 === "feedback") && await loadMetrics(view2, () => current === view2 && !$("administration-section").hidden);
+        view2 === "llm" && await onLlm(), view2 === "taxonomy" && await onTaxonomy(), view2 === "runs" && await onRuns(), view2 === "audit" && await loadAudit(), (view2 === "adoption" || view2 === "feedback" || view2 === "sourceQuality") && await loadMetrics(view2, () => current === view2 && !$("administration-section").hidden);
       }
     }
     return $("admin-tabs").addEventListener("click", (event) => {
@@ -3751,7 +3789,7 @@
       el.dataset.options !== signature && (el.dataset.options = signature, el.innerHTML = (name === "year" ? "" : '<option value="">Todos</option>') + values.map((x) => '<option value="' + escape2(x) + '">' + escape2(["palanca", "subpalanca"].includes(name) ? taxonomyDisplayLabel(x) : name === "coverage" ? coverageOptions[x] : name === "signal" && x === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : x) + "</option>").join(""), el.value = current2 || "");
     }
     function layout() {
-      $("geography-filter").hidden = !1;
+      $("geography-filter").hidden = view2 === "news";
       let radar2 = view2 === "radar";
       $("entity-filter").hidden = !1, $("year-filter").hidden = !radar2, $("advanced-filters").hidden = !1;
       for (let name of ["search", "type", "signal", "source"]) $(name + "-filter").hidden = radar2;
@@ -3762,7 +3800,7 @@
     layout();
     let chipLabels = { benchmark: "\xC1mbito comparativo", search: "B\xFAsqueda", country: "Geograf\xEDa", entity: "Entidad", source: "Medio", type: "Tipo de entidad", signal: "Se\xF1al de negocio", palanca: "Bloque funcional", subpalanca: "Funcionalidad / Sub Operativa", from: "Fecha desde", to: "Fecha hasta" };
     function renderChips() {
-      let target = $("active-filters"), values = Object.entries(chipLabels).filter(([name]) => applied[name]);
+      let target = $("active-filters"), values = Object.entries(chipLabels).filter(([name]) => applied[name] && !(view2 === "news" && name === "country"));
       target.hidden = !values.length, target.innerHTML = values.map(([name, label]) => {
         let raw = applied[name], value = name === "benchmark" ? raw === "international" ? "Mirada internacional" : newsletterComparisonLabels[raw] : name === "coverage" ? coverageOptions[raw] : ["from", "to"].includes(name) ? formatCalendarDay(raw, language) : name === "subpalanca" ? taxonomySubLabel(raw) : name === "signal" && raw === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : raw, original = ["search", "entity", "source"].includes(name), text = ["palanca", "subpalanca"].includes(name) ? t(value) : t(label) + ": " + (original ? value : t(value));
         return view2 === "briefing" || view2 === "radar" && ["from", "to"].includes(name) ? '<span class="filter-chip" data-original>' + escape2(text) + "</span>" : ["from", "to"].includes(name) ? '<button type="button" class="filter-chip" data-original data-edit-filter="' + name + '" aria-label="' + escape2(t("Editar") + " " + text) + '"><span>' + escape2(text) + "</span></button>" : '<button type="button" class="filter-chip" data-original data-remove-filter="' + name + '" aria-label="' + escape2(t("Quitar")) + " " + escape2(text) + '"><span>' + escape2(text) + '</span><span aria-hidden="true">\xD7</span></button>';
@@ -3794,7 +3832,7 @@
       if (event.type === "submit" && JSON.stringify(Object.entries(next).sort()) === JSON.stringify(Object.entries(applied).filter(([key]) => form.elements[key]).sort())) return;
       clearTimeout(timer2), page = 0, initialized.add(view2), onInvalidate();
       let from = form.elements.from.value, to = form.elements.to.value;
-      form.elements.to.setCustomValidity(from && to && from > to ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : ""), $("message").hidden = !0, view2 === "news" && !event.preserveGeography && next.country !== applied.country && (newsGeography = next.country || ""), dirty = !1, applied = { ...edition && applied.benchmark ? { benchmark: applied.benchmark } : {}, ...Object.fromEntries(new FormData(form)) }, renderChips(), event.notify !== !1 && (event.type === "input" ? timer2 = setTimeout(onChange, 250) : onChange());
+      form.elements.to.setCustomValidity(from && to && from > to ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : ""), $("message").hidden = !0, view2 === "news" && !event.preserveGeography && next.country && (newsGeography = next.country), view2 === "news" && (form.elements.country.value = ""), dirty = !1, applied = { ...edition && applied.benchmark ? { benchmark: applied.benchmark } : {}, ...Object.fromEntries(new FormData(form)) }, renderChips(), event.notify !== !1 && (event.type === "input" ? timer2 = setTimeout(onChange, 250) : onChange());
     }
     function draftChanged(event) {
       if (!event.target?.name) return;
@@ -3841,8 +3879,8 @@
       show: (next) => {
         if (next === view2) return !1;
         clearTimeout(timer2), onInvalidate();
-        let selection = { ...applied };
-        selections.set(view2, selection), view2 = next, page = 0, newsGeography = "", layout();
+        let selection = { ...applied, ...view2 === "news" ? { newsGeography } : {} };
+        selections.set(view2, selection), view2 = next, page = 0, newsGeography = selections.get(view2)?.newsGeography || "", layout();
         for (let input2 of form.elements) input2.name && (input2.value = (selections.get(view2) || defaults)[input2.name] || "");
         return dirty = !1, applied = { ...selections.get(view2) || defaults }, form.elements.to.setCustomValidity(""), renderChips(), !0;
       },
@@ -3852,7 +3890,7 @@
         initialized.add(view2), form.elements[name].value = value, filterChanged({ type: "change" });
       },
       apply: (query, notify = !0) => {
-        initialized.add(view2), Object.hasOwn(query, "newsGeography") && (newsGeography = query.newsGeography);
+        query = geographyTabQuery({ ...query, view: view2 }), initialized.add(view2), Object.hasOwn(query, "newsGeography") && (newsGeography = query.newsGeography);
         for (let input2 of form.elements) if (input2.name) {
           let value = query[input2.name] || "";
           value && input2.tagName === "SELECT" && options(input2.name, [value]), input2.value = value;
@@ -3864,12 +3902,12 @@
         options("country", [.../* @__PURE__ */ new Set([...values, name])], name), select.value = name, applied = { ...applied, country: name }, page = 0, initialized.add(view2), renderChips();
       },
       setGeography: (name) => {
-        newsGeography = name, applied.country = regions.includes(name) || name === otherGeography ? name : "", page = 0, onInvalidate(), onChange();
+        newsGeography = name, applied.country = "", form.elements.country.value = "", page = 0, onInvalidate(), onChange();
       },
       setPage: (value) => page = value,
       render: (data) => {
         regions = [...new Set((data.geographies || []).map((row) => row.region).filter(Boolean))];
-        let draft = dirty ? Object.fromEntries(new FormData(form)) : null, selection = data.selection ? { ...data.selection, country: data.selection.country || view2 === "news" && data.newsGeography || "" } : null;
+        let draft = dirty ? Object.fromEntries(new FormData(form)) : null, selection = data.selection ? { ...data.selection, ...view2 === "news" ? { country: "" } : {} } : null;
         view2 === "radar" && options("year", data.years || [], data.selection?.from?.slice(0, 4)), taxonomy2 = data.subpalanca || [], page = data.page, newsGeography = data.newsGeography || "", defaults = data.defaults || defaults, initialized.add(view2);
         for (let [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type", "types"], ["segment", "segments"], ["signal", "signals"], ["palanca", "palanca"], ["subpalanca", "subpalanca"]]) options(name, data[key] || [], selection?.[name]);
         if (selection) for (let input2 of form.elements) input2.name && (input2.value = (input2.name === "year" && view2 === "radar" ? selection.from?.slice(0, 4) : selection[input2.name]) || "");

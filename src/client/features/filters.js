@@ -21,7 +21,7 @@ function createFilters({ onInvalidate, onChange, onCurrent=()=>{} }) {
     el.value = current || "";
   }
   function layout(){
-      $('geography-filter').hidden=false;
+      $('geography-filter').hidden=view==='news';
       const radar=view==='radar';$('entity-filter').hidden=false;
       $('year-filter').hidden=!radar;
       $('advanced-filters').hidden=false;
@@ -35,7 +35,7 @@ function createFilters({ onInvalidate, onChange, onCurrent=()=>{} }) {
   const chipLabels={benchmark:'Ámbito comparativo',search:'Búsqueda',country:'Geografía',entity:'Entidad',source:'Medio',type:'Tipo de entidad',signal:'Señal de negocio',palanca:"Bloque funcional",subpalanca:"Funcionalidad / Sub Operativa",from:'Fecha desde',to:'Fecha hasta'};
   function renderChips(){
     const target=$('active-filters');
-    const values=Object.entries(chipLabels).filter(([name])=>applied[name]);
+    const values=Object.entries(chipLabels).filter(([name])=>applied[name]&&!(view==='news'&&name==='country'));
     target.hidden=!values.length;
     target.innerHTML=values.map(([name,label])=>{
       const raw=applied[name],value=name==='benchmark'?(raw==='international'?'Mirada internacional':newsletterComparisonLabels[raw]):name==='coverage'?coverageOptions[raw]:['from','to'].includes(name)?formatCalendarDay(raw,language):name==='subpalanca'?taxonomySubLabel(raw):name==='signal'&&raw==='Incidencia operativa'?'Indisponibilidad / Incidencia operativa':raw;
@@ -63,7 +63,8 @@ function createFilters({ onInvalidate, onChange, onCurrent=()=>{} }) {
     const from = form.elements.from.value, to = form.elements.to.value;
     form.elements.to.setCustomValidity(from && to && from > to ? t("La fecha hasta debe ser posterior o igual a la fecha desde.") : "");
     $("message").hidden = true;
-    if(view==='news'&&!event.preserveGeography&&next.country!==applied.country)newsGeography=next.country||'';
+    if(view==='news'&&!event.preserveGeography&&next.country)newsGeography=next.country;
+    if(view==='news')form.elements.country.value='';
     dirty=false;applied={...(edition&&applied.benchmark?{benchmark:applied.benchmark}:{}),...Object.fromEntries(new FormData(form))};renderChips();
     if(event.notify===false)return;
     if (event.type === "input") timer = setTimeout(onChange, 250);
@@ -106,7 +107,7 @@ function createFilters({ onInvalidate, onChange, onCurrent=()=>{} }) {
     show: next => {
       if(next===view)return false;
       clearTimeout(timer);onInvalidate();
-      const selection={...applied};selections.set(view,selection);view=next;page=0;newsGeography='';layout();
+      const selection={...applied,...(view==='news'?{newsGeography}:{})};selections.set(view,selection);view=next;page=0;newsGeography=selections.get(view)?.newsGeography||'';layout();
       for(const input of form.elements)if(input.name)input.value=(selections.get(view)||defaults)[input.name]||'';
       dirty=false;applied={...(selections.get(view)||defaults)};form.elements.to.setCustomValidity('');
       renderChips();
@@ -119,13 +120,13 @@ function createFilters({ onInvalidate, onChange, onCurrent=()=>{} }) {
       form.elements[name].value = value;
       filterChanged({ type: "change" });
     },
-    apply:(query,notify=true)=>{initialized.add(view);if(Object.hasOwn(query,'newsGeography'))newsGeography=query.newsGeography;for(const input of form.elements)if(input.name){const value=query[input.name]||'';if(value&&input.tagName==='SELECT')options(input.name,[value]);input.value=value;}filterChanged({type:'change',notify,preserveGeography:Object.hasOwn(query,'newsGeography')});},
+    apply:(query,notify=true)=>{query=geographyTabQuery({...query,view});initialized.add(view);if(Object.hasOwn(query,'newsGeography'))newsGeography=query.newsGeography;for(const input of form.elements)if(input.name){const value=query[input.name]||'';if(value&&input.tagName==='SELECT')options(input.name,[value]);input.value=value;}filterChanged({type:'change',notify,preserveGeography:Object.hasOwn(query,'newsGeography')});},
     syncGeography:name=>{const select=form.elements.country,values=[...select.options].map(option=>option.value).filter(Boolean);options('country',[...new Set([...values,name])],name);select.value=name;applied={...applied,country:name};page=0;initialized.add(view);renderChips();},
-    setGeography:name=>{newsGeography=name;applied.country=regions.includes(name)||name===otherGeography?name:'';page=0;onInvalidate();onChange();},
+    setGeography:name=>{newsGeography=name;applied.country='';form.elements.country.value='';page=0;onInvalidate();onChange();},
     setPage: (value) => page = value,
     render: (data) => {
       regions=[...new Set((data.geographies||[]).map(row=>row.region).filter(Boolean))];
-      const draft=dirty?Object.fromEntries(new FormData(form)):null,selection=data.selection?{...data.selection,country:data.selection.country||(view==='news'?data.newsGeography||'':'')}:null;
+      const draft=dirty?Object.fromEntries(new FormData(form)):null,selection=data.selection?{...data.selection,...(view==='news'?{country:''}:{})}:null;
       if(view==='radar')options('year',data.years||[],data.selection?.from?.slice(0,4));
       taxonomy=data.subpalanca||[];page = data.page;newsGeography=data.newsGeography||'';
       defaults=data.defaults||defaults;

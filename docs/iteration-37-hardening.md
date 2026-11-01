@@ -1,4 +1,4 @@
-# Iteración 37 — 3.32.2
+# Iteración 37 — 3.32.3
 
 Implementada desde `origin/develop` (`34b0910`) en `codex/iteration-37-hardening`.
 
@@ -87,3 +87,10 @@ halló problemas de seguridad de alta confianza, pero no llegó a publicar el
 resultado; no se declara verde ni se desactiva. La ejecución afectada es
 `40908277014`, job `123568931130`. Es una limitación de cuota externa y queda
 pendiente de autorización para exceptuarla o de recuperación del servicio.
+
+La prueba adicional de borrado de fechas detectó que el formulario enviaba un
+evento submit y la condición antigua solo examinaba el nombre del input. Se
+centraliza la detección sobre el estado completo del formulario antes de aplicar
+la consulta. Se cubren ambos límites, salida de edición y limpieza de URL.
+La versión 141 (3.32.2) fue una publicación intermedia; la corrección final lleva
+la versión de aplicación 3.32.3. No modifica los datos de la edición archivada.
