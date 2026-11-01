@@ -50,13 +50,13 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
  try{
   const revision=newsClassificationRevision_();if(job.revision!==revision||job.source!==newsStorageKey_()||(job.inputRevision||job.recordsRevision)!==classificationInputRevision_()){requestNewsClassification_(job.force,Boolean(job.geographyOnly));return;}
   const sheet=newsSheet_(),keys=RADAR.sheets.Noticias,sourceTotal=Math.max(0,sheet.getLastRow()-1);if(sourceTotal<(job.sourceTotal??job.total)){requestNewsClassification_(job.force,Boolean(job.geographyOnly));return;}
-  const size=Math.min(CLASSIFICATION_WORK.batchRows,sourceTotal-job.next+2),updates=[],items=taxonomyCatalog_();
+  const size=Math.min(CLASSIFICATION_WORK.batchRows,sourceTotal-job.next+2),updates=[],items=job.geographyOnly?[]:taxonomyCatalog_();
   const rows=size>0?sheet.getRange(job.next,1,size,keys.length).getDisplayValues():[];
   for(const values of rows){
    if(Date.now()-started>=maxMs||backgroundPaused_(true))break;
    const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]])),position=job.next+read,cleanTitle=plainText_(row.titular),cleanExcerpt=plainText_(row.extracto),title=searchText_(cleanTitle),text=searchText_(cleanTitle+' '+cleanExcerpt),hash=sha256_(JSON.stringify([title,text])),saved=savedNewsLabels_(row.clasificacion),taxonomy=taxonomySaved_(row.taxonomia);
    read++;
-   let taxonomyValid=true;try{validateTaxonomyAssignment_(taxonomy,items,row.id,true,row);}catch(_){taxonomyValid=false;}
+   let taxonomyValid=true;if(!job.geographyOnly)try{validateTaxonomyAssignment_(taxonomy,items,row.id,true,row);}catch(_){taxonomyValid=false;}
    const current=saved.schema===1&&saved.version===CLASSIFICATION_WORK.rulesVersion&&saved.revision===revision&&saved.contentHash===hash;
    const provenance=saved.procedencia||{},feedUrl=provenance.feedUrl||configuration_().feeds.find(feed=>feed.name===row.fuente)?.url||'',geography=newsCountryDecision_({...row,titular:cleanTitle,extracto:cleanExcerpt,sourceUrl:provenance.medioUrl,feedUrl,language:row.idioma}),nextCountry=geography.country,nextEntity=entityKey_(row.entidad);
    if(!job.force&&current&&taxonomyValid&&nextEntity===row.entidad&&nextCountry===row.pais&&cleanTitle===row.titular&&cleanExcerpt===row.extracto)continue;
