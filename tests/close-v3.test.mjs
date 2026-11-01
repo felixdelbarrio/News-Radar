@@ -41,3 +41,5 @@ test('v3: Novedades selects its one available subregion without another dashboar
  const a=await app(t,{configure({data}){data.geographies=geographies;data.applicationScope=scope;data.selection={country:'Otras geografías',segment:'Empresas e instituciones'};data.briefing={...noveltyOverview(rows,BRIEFING_ALLOWED_SIGNALS,applicationGeography(scope,'',geographies)),items:rows};}});
  const chosen=a.w.document.querySelectorAll('#briefing-geographies .geography-region[aria-selected="true"]');assert.equal(chosen.length,1);assert.equal(chosen[0].dataset.geography,'APAC');assert.match(a.find('#briefing-list').textContent,/Nuevo pago digital/);assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,1);
 });
+
+test('v3: geographic list separators reject adversarial input without nested repetition',()=>{const {c}=server();for(const text of [', and ', ' y ', ', e ', ', , and '])assert.equal(c.geographyListSeparator_(text),true);for(const text of ['', '   ', ' from ', ','.repeat(20000)+'x', ' ,'.repeat(20000)+'x'])assert.equal(c.geographyListSeparator_(text),false);});
