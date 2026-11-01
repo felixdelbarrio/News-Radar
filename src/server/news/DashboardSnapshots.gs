@@ -108,7 +108,7 @@ function hydrateDashboardSnapshot_(cache,revision,variants,view,period,periodFal
 // One shared catalogue and article table replace country × language copies of the same payload.
 function compactNewsSnapshot_(rows,query,data){
   const selected=selectAnnotatedNews_(rows,query),geography=newsReadingGeography_(null,query),groups=new Map([...data.newsGeographies,...regionalGeographies(selected,geography)].map(row=>[row.name,[]]));
-  for(const row of selected){for(const name of geography.members(row))groups.get(name)?.push(row);for(const region of new Set(articleGeographies(row).filter(country=>!geography.own(country)).map(country=>geography.region(country)).filter(Boolean)))groups.get(region)?.push(row);}
+  for(const row of selected){for(const name of geography.members(row))groups.get(name)?.push(row);for(const region of unlocatedGeography(row,geography)?geography.regions:new Set(articleGeographies(row).filter(country=>!geography.own(country)).map(country=>geography.region(country)).filter(Boolean)))groups.get(region)?.push(row);}
   const articles=[],positions=new Map(),pages={};
   for(const [name,items] of groups){const page=newsEntityPage(items,0,data.pageSize);pages[name]={total:items.length,positions:page.map(row=>{if(!positions.has(row)){positions.set(row,articles.length);articles.push(row);}return positions.get(row);})};}
   const fields=[...new Set(articles.flatMap(row=>Object.keys(row)))].filter(key=>!['_sheetRow','identityTitles'].includes(key)),records=articles.map(row=>fields.map(key=>row[key]??null)),translations={};
@@ -116,7 +116,9 @@ function compactNewsSnapshot_(rows,query,data){
   const {items,page,newsGeography,total,...metadata}=data;return {metadata,fields,records,translations,pages,defaultGeography:newsGeography};
 }
 function compactNewsSnapshotData_(bundle,geography,language){
-  const name=Object.hasOwn(bundle.pages,geography)?geography:bundle.defaultGeography,page=bundle.pages[name]||{total:0,positions:[]};
+  let name=Object.hasOwn(bundle.pages,geography)?geography:bundle.defaultGeography;
+  if(name===otherGeography||REGION_CODES.includes(name)){const grouping=newsReadingGeography_(null,{});name=preferredRegion(bundle.metadata.newsRegions||[],grouping.region(geography),grouping.ownRegions,name);}
+  const page=bundle.pages[name]||{total:0,positions:[]};
   const items=page.positions.map(index=>{
     const row=Object.fromEntries(bundle.fields.flatMap((key,position)=>bundle.records[index][position]===null?[]:[[key,bundle.records[index][position]]])),[titular,extracto,translation]=bundle.translations[language][index];
     return {...row,titular:snapshotTextValue_(row.titular,titular),extracto:snapshotTextValue_(row.extracto??'',extracto),...(translation.state==='translated'?{original:{titular:row.titular,extracto:row.extracto}}:{}),translation};

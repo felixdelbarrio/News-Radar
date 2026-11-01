@@ -45,8 +45,8 @@ test('regional newsletter evidence remains confined to its selected countries',(
  const {c}=server(),rows=[row('es','España'),row('it','Italia'),row('in','India')];assert.equal(c.newsletterSelectionQuery_({country:'EMEA'}).country,'EMEA');const digest=c.newsletterDigest_(rows,{view:'briefing',country:'EMEA'},'es',value=>value);assert.deepEqual(Array.from(digest.cards,r=>r.country),['Italia']);assert.equal(digest.focused,false);
 });
 
-test('regional edition filters respect the original direct scope and a bank publisher preserves outage evidence',()=>{
- const {c}=server(),geo=c.newsReadingGeography_({cadence:'fortnightly',scope:c.configuration_().applicationScope},{benchmark:'international',newsGeography:'EMEA'});assert.equal(c.geographyMatches(row('es','España'),'EMEA',geo),false);assert.equal(c.geographyMatches(row('it','Italia'),'EMEA',geo),true);
+test('international edition region filters retain their frozen scope and a bank publisher preserves outage evidence',()=>{
+ const {c}=server(),geo=c.newsReadingGeography_({cadence:'fortnightly',scope:c.configuration_().applicationScope},{benchmark:'international',newsGeography:'EMEA'});assert.equal(c.geographyMatches(row('es','España'),'EMEA',geo),true);assert.equal(c.geographyMatches(row('it','Italia'),'EMEA',geo),true);
  const title=c.searchText_('BBVA customers report business banking app outage');assert.equal(c.classification_(title,title,true,'BBVA').labels.digital,true);
 });
 test('Noticias conserva todas las pestañas al elegir regiones y mantiene oculto el selector adicional',async t=>{

@@ -6,7 +6,7 @@ export function identityAssets(){
  const tokens=JSON.parse(fs.readFileSync(path.resolve(directory,'../../src/design/tokens.json'),'utf8')).css;
  const entities=configurationDefaults().entities;
  const manifest=JSON.parse(fs.readFileSync(path.join(directory,'manifest.json'),'utf8'));
- return Object.fromEntries(Object.entries(manifest).map(([kind,entries])=>[kind,Object.fromEntries(Object.entries(entries).map(([name,asset])=>{
+ return Object.fromEntries(Object.entries(manifest).map(([kind,entries])=>[kind,Object.fromEntries(Object.entries(entries).filter(([,asset])=>kind!=='publishers'||asset.file||asset.available!==false).map(([name,asset])=>{
   if(!/^(entity-\d+|publisher-\d+|country-[a-z]{2})\.png$/.test(asset.file)||asset.file!==asset.id+'.png')throw Error('Identidad visual no válida: '+name);
   const bytes=fs.readFileSync(path.join(directory,asset.file));if(bytes.length>16000||bytes.readUInt32BE(0)!==0x89504e47)throw Error('Imagen de identidad no válida: '+name);
   const scale=Math.min(parseInt(tokens[kind==='countries'?'identity-flag-width':'identity-logo-width'])/asset.width,parseInt(tokens[kind==='countries'?'identity-flag-height':'identity-logo-height'])/asset.height);
