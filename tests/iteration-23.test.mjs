@@ -49,12 +49,12 @@ test('regional edition filters respect the original direct scope and a bank publ
  const {c}=server(),geo=c.newsReadingGeography_({cadence:'fortnightly',scope:c.configuration_().applicationScope},{benchmark:'international',newsGeography:'EMEA'});assert.equal(c.geographyMatches(row('es','España'),'EMEA',geo),false);assert.equal(c.geographyMatches(row('it','Italia'),'EMEA',geo),true);
  const title=c.searchText_('BBVA customers report business banking app outage');assert.equal(c.classification_(title,title,true,'BBVA').labels.digital,true);
 });
-test('Noticias conserva todas las pestañas al elegir regiones y sincroniza el selector visible',async t=>{
+test('Noticias conserva todas las pestañas al elegir regiones y mantiene oculto el selector adicional',async t=>{
  const a=await app(t,{configure({data}){data.selection={};data.newsGeographies=[{name:'España',total:5},{name:'Otras geografías',total:12}];data.newsRegions=[{name:'APAC',total:3},{name:'EMEA',total:5},{name:'AMER',total:4}];}});
  await a.click('[data-view="news"]');await a.click('#news-geographies [data-geography="Otras geografías"]');
  assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.country,'');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'EMEA');
- assert.equal(a.find('#geography-filter summary').textContent,'EMEA');assert.ok(a.find('#news-geographies [data-geography="España"]'));assert.equal(a.w.document.querySelectorAll('#news-geographies [aria-selected="true"]').length,1);assert.equal(a.w.document.querySelectorAll('#news-geographies .region-icon[width="24"]').length,3);
- await a.click('#news-geographies [data-geography="APAC"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'APAC');assert.equal(a.find('#geography-filter summary').textContent,'APAC');
+ assert.equal(a.find('#geography-filter').hidden,true);assert.ok(a.find('#news-geographies [data-geography="España"]'));assert.equal(a.w.document.querySelectorAll('#news-geographies [aria-selected="true"]').length,1);assert.equal(a.w.document.querySelectorAll('#news-geographies .region-icon[width="24"]').length,3);
+ await a.click('#news-geographies [data-geography="APAC"]');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'APAC');assert.equal(a.find('#geography-filter').hidden,true);
  await a.change('#filters [name="country"]','AMER');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.country,'');assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.newsGeography,'AMER');
 });
 test('un snapshot de otro esquema se descarta antes de consultar sus variantes cacheadas',()=>{

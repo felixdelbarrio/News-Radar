@@ -16,6 +16,7 @@
     "feedback": "Feedback",
     "sources": "Fuentes",
     "audit": "Logs",
-    "configuration": "Configuración de negocio"
+    "configuration": "Configuración de negocio",
+    "sourceQuality": "Calidad de fuentes"
   }
 }

@@ -38,7 +38,7 @@ const settle=async()=>{await Promise.resolve();await Promise.resolve();await Pro
 test('cambios de desplegable combinan los filtros y conservan sus selecciones',async()=>{
   const c=client();c.requests[0].resolve(dashboard('Inicial'));await settle();await c.element('.nav').listeners.click({target:{closest:()=>({dataset:{view:'news'}})}});c.requests.at(-1).resolve(dashboard('Inicial'));await settle();
   c.change('country','México');const stale=c.requests.at(-1);c.change('entity','Santander');c.change('source','El País');
-  const latest=c.requests.at(-1);assert.equal(latest.query.country,'México');assert.equal(latest.query.entity,'Santander');assert.equal(latest.query.source,'El País');
+  const latest=c.requests.at(-1);assert.equal(latest.query.newsGeography,'México');assert.equal(latest.query.entity,'Santander');assert.equal(latest.query.source,'El País');
   latest.resolve(dashboard('Santander en México'));await settle();
   assert.match(c.element('news-list').innerHTML,/Santander en México/);assert.equal(c.form.elements.entity.value,'Santander');assert.equal(c.form.elements.source.value,'El País');
   stale.resolve(dashboard('Respuesta antigua'));await settle();assert.doesNotMatch(c.element('news-list').innerHTML,/Respuesta antigua/);
@@ -91,7 +91,7 @@ test('Radar y Noticias conservan selecciones independientes; administración den
 });
 test('seleccionar un ámbito en el mapa actualiza los filtros compartidos',async()=>{
   const c=client();c.requests[0].resolve(dashboard('Inicial'));await settle();c.element('map-panel').listeners.click({target:{closest:()=>({dataset:{country:'México'}})}});
-  assert.equal(c.requests.at(-1).query.country,'México');assert.equal(c.requests.at(-1).query.entity,'');
+  assert.equal(c.requests.at(-1).query.newsGeography,'México');assert.equal(c.requests.at(-1).query.entity,'');
 });
 
 test('el mapa refleja el volumen filtrado y comunica entidad y ausencia de noticias',async()=>{
@@ -128,7 +128,7 @@ test('Radar limita sus filtros a geografía y año y conserva la selección inde
 test('abrir Noticias desde el mapa conserva el ámbito del Radar sin imponer otro período',async()=>{
  const c=client();c.requests[0].resolve({...dashboard('Inicial'),initial:true,selection:{segment:'Empresas e instituciones'},defaults:{entity:'BBVA',segment:'Empresas e instituciones',from:'2026-10-01',to:'2026-10-31'}});await settle();
  const count=c.requests.length;c.element('map-panel').listeners.click({target:{closest:()=>({dataset:{country:'México'}})}});
- assert.equal(c.requests.length,count+1);assert.equal(c.requests.at(-1).query.country,'México');assert.equal(c.form.elements.from.value,'');assert.equal(c.form.elements.to.value,'');
+ assert.equal(c.requests.length,count+1);assert.equal(c.requests.at(-1).query.newsGeography,'México');assert.equal(c.form.elements.from.value,'');assert.equal(c.form.elements.to.value,'');
 });
 
 test('cerrar un chip sincroniza panel, paginación y consulta e invalida respuestas anteriores',async()=>{

@@ -28,6 +28,11 @@ function regionalGeographies(rows,geography){
   return [...totals].map(([name,total])=>({name,total}));
 }
 
-function geographyTabQuery(query,regions=REGION_CODES){
-  return query.view==='news'&&(query.country===otherGeography||regions.includes(query.country))?{...query,country:'',newsGeography:query.country}:query;
+function geographyTabQuery(query,regions=REGION_CODES,geography=null){
+  const requested=query.newsGeography||query.country;if(query.view!=='news'||!requested)return query;
+  let tab=requested;
+  if(geography&&requested!==otherGeography&&!regions.includes(requested)){
+    const group=geography({pais:requested});tab=group===otherGeography&&!geography.own(requested)?geography.region(requested)||otherGeography:group;
+  }
+  return {...query,country:'',newsGeography:tab};
 }
