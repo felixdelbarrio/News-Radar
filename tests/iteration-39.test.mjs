@@ -61,6 +61,7 @@ test('39: event markets override actor origins and preserve multinational scope'
  const {c}=server();
  for(const [titular,extracto,expected] of [
   ['Taiwan bank launches corporate payments platform in Spain','','España'],
+  ['London-based fintech launches in Spain','','España'],
   ['HSBC México lanza pagos para empresas en Bangladesh','','Bangladés'],
   ['Westpac Australia launches corporate payments in New Zealand','','Nueva Zelanda'],
   ['Santander UK Banking Outage Leaves Thousands Without Access to Funds','','Reino Unido'],
@@ -72,6 +73,7 @@ test('39: event markets override actor origins and preserve multinational scope'
   ['Davivienda amplía el acceso a pagos digitales en Panamá','','Panamá'],
   ['HSBC México presenta plataforma empresarial','La nueva solución se lanza en Bangladesh.','Bangladés']
  ])assert.equal(c.newsCountryDecision_({titular,extracto,rssCountry:'España'}).country,expected,titular);
+ const mixed=c.newsCountryDecision_({titular:'HSBC launches corporate payments in Asia and Spain',rssCountry:'Reino Unido'});assert.equal(mixed.country,'España');assert.deepEqual(new Set(mixed.geographies),new Set(['España','APAC']));
  const multi=c.newsCountryDecision_({titular:'Revolut outage: app and cards stop working in UK, France and Spain'});assert.deepEqual(new Set(multi.geographies),new Set(['Reino Unido','Francia','España']));assert.equal(multi.scope,'multicountry');
  assert.equal(c.newsCountryDecision_({titular:'Getnet permitirá a las empresas tener una única solución de pago para 30 países europeos',rssCountry:'España'}).country,'EMEA');
  assert.equal(c.newsCountryDecision_({titular:'Getnet llega a un acuerdo con WeChat Pay para abrir sus pagos a los turistas de China',rssCountry:'España'}).country,'España');
