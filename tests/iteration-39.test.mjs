@@ -73,6 +73,8 @@ test('39: event markets override actor origins and preserve multinational scope'
   ['Davivienda amplía el acceso a pagos digitales en Panamá','','Panamá'],
   ['HSBC México presenta plataforma empresarial','La nueva solución se lanza en Bangladesh.','Bangladés']
  ])assert.equal(c.newsCountryDecision_({titular,extracto,rssCountry:'España'}).country,expected,titular);
+ const content=c.newsCountryDecision_({titular:'HSBC launches corporate payments platform',extracto:'The bank, founded in Mexico, now offers corporate payments in Bangladesh.'});assert.deepEqual([...content.geographies],['Bangladés']);
+ const coordinated=c.newsCountryDecision_({titular:'Corporate platform launched',extracto:'Payments now available in Spain and France.'});assert.deepEqual(new Set(coordinated.geographies),new Set(['España','Francia']));
  const mixed=c.newsCountryDecision_({titular:'HSBC launches corporate payments in Asia and Spain',rssCountry:'Reino Unido'});assert.equal(mixed.country,'España');assert.deepEqual(new Set(mixed.geographies),new Set(['España','APAC']));
  const multi=c.newsCountryDecision_({titular:'Revolut outage: app and cards stop working in UK, France and Spain'});assert.deepEqual(new Set(multi.geographies),new Set(['Reino Unido','Francia','España']));assert.equal(multi.scope,'multicountry');
  assert.equal(c.newsCountryDecision_({titular:'Getnet permitirá a las empresas tener una única solución de pago para 30 países europeos',rssCountry:'España'}).country,'EMEA');
