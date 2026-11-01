@@ -11,7 +11,7 @@ function geographyLabel(name){return !name||name==='Sin determinar'?otherGeograp
 function articleGeographies(row){return [...new Set(Array.isArray(row.geografias)&&row.geografias.length?row.geografias:[row.pais||''])];}
 function applicationGeography(scopes,segment,geographies=[]){
   const countries=new Set(scopes.filter(scope=>!segment||scope.name===segment).flatMap(scope=>scope.countries));
-  const region=new Map(geographies.map(row=>[row.name,row.region||''])),geography=row=>{const name=articleGeographies(row).find(value=>countries.has(value));return name||otherGeography;};geography.own=country=>countries.has(country);geography.members=row=>[...new Set(articleGeographies(row).map(value=>countries.has(value)?value:otherGeography))];geography.region=country=>region.get(country)||(REGION_CODES.includes(country)?country:'');geography.regions=[...new Set([...REGION_CODES,...[...region.values()].filter(Boolean)])];return geography;
+  const region=new Map(geographies.map(row=>[row.name,row.region||''])),geography=row=>{const name=articleGeographies(row).find(value=>countries.has(value));return name||otherGeography;};geography.own=country=>countries.has(country);geography.members=row=>[...new Set(articleGeographies(row).map(value=>countries.has(value)?value:otherGeography))];geography.region=country=>region.get(country)||(REGION_CODES.includes(country)?country:'');geography.regions=[...new Set([...REGION_CODES,...[...region.values()].filter(Boolean)])];geography.ownRegions=[...new Set([...countries].map(country=>region.get(country)).filter(Boolean))];return geography;
 }
 function geographyOrder(a,b){return Number(a.name===otherGeography)-Number(b.name===otherGeography)||a.name.localeCompare(b.name,'es');}
 function entityOrder(a,b){return Number(b.name==='BBVA')-Number(a.name==='BBVA')||a.name.localeCompare(b.name,'es');}
@@ -21,6 +21,13 @@ const REGION_CODES=Object.freeze(['APAC','EMEA','AMER']);
 function countryRegion(country,geographies=[]){return geographies.find(row=>row.name===country)?.region||'';}
 function geographyMatches(row,selection,geography){
   return geography.regions.includes(selection)?articleGeographies(row).some(country=>!geography.own(country)&&geography.region(country)===selection):selection===otherGeography?geography.members(row).includes(otherGeography):articleGeographies(row).includes(selection);
+}
+function preferredRegion(rows,local='',configured=[],selected=''){
+ const known=rows.filter(row=>REGION_CODES.includes(row.name)),available=known.filter(row=>row.total>0);
+ if(available.some(row=>row.name===selected))return selected;
+ if(available.some(row=>row.name===local))return local;
+ const ranked=available.slice().sort((a,b)=>Number(configured.includes(b.name))-Number(configured.includes(a.name))||b.total-a.total||REGION_CODES.indexOf(a.name)-REGION_CODES.indexOf(b.name));
+ return ranked[0]?.name||known.find(row=>row.name===selected)?.name||known.find(row=>row.name===local)?.name||known[0]?.name||REGION_CODES[0];
 }
 function regionalGeographies(rows,geography){
   const totals=new Map(geography.regions.map(name=>[name,0]));

@@ -1,5 +1,5 @@
 import {browserCountry} from '../core/browser-country.js';
-import {geographyLabel,applicationGeography,regionalGeographies,geographyMatches,BRIEFING_ALLOWED_SIGNALS,briefingAllowed} from '../../shared/selection-policy.js';
+import {geographyLabel,applicationGeography,regionalGeographies,geographyMatches,otherGeography,BRIEFING_ALLOWED_SIGNALS,briefingAllowed,preferredRegion} from '../../shared/selection-policy.js';
 import {createGeographyTabs} from './geography-tabs.js';
 import {noveltyGroups,noveltyOverview,noveltyCount} from '../../shared/novelty-groups.js';
 import {articleContent} from './article-text.js';
@@ -9,13 +9,14 @@ export function createBriefing({onExplore,onGeography=()=>{}}){
   let briefing,groups=[],active='',selection={},scope=[],geographies=[];
   const tabs=createGeographyTabs('briefing-geographies','briefing-list',name=>{active=name;onGeography(name);paint();});
   function paint(){
-    const geography=applicationGeography(scope,selection.segment,geographies);let group=groups.find(row=>row.name===active);
+    const geography=applicationGeography(scope,selection.segment,geographies),regionalRows=regionalGeographies(briefing.items,geography).map(row=>briefing.regions?.find(region=>region.name===row.name)||row);
+    if(active===otherGeography||geography.regions.includes(active)){const next=preferredRegion(regionalRows,geography.region(browserCountry()),geography.ownRegions,active);if(next!==active){active=next;onGeography(active);}}let group=groups.find(row=>row.name===active);
     if(geographies.some(row=>row.region===active)){
       const items=briefing.items.filter(row=>geographyMatches(row,active,geography)),overview=briefing.regions?.find(row=>row.name===active)||noveltyOverview(items,BRIEFING_ALLOWED_SIGNALS,()=>active).geographies[0];
       group={total:0,entityCount:0,bySignal:BRIEFING_ALLOWED_SIGNALS.map(name=>({name,total:0})),...overview,name:active,items};
     }
     const stats=group||briefing;
-    tabs.render(groups,active,regionalGeographies(briefing.items,geography).map(row=>briefing.regions?.find(region=>region.name===row.name)||row),geographies);
+    tabs.render(groups,active,regionalRows,geographies,scope);
     $('briefing-geography-summary').textContent=group?t('{geography} · {updates} · {entities}',{geography:t(geographyLabel(group.name)),updates:noveltyCount(stats.total,'novedad','novedades',t),entities:noveltyCount(group.entityCount,'entidad','entidades',t)}):'';
 
     $('briefing-count').textContent=t('{count} publicaciones',{count:briefing.total});

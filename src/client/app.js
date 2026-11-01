@@ -61,7 +61,7 @@ const recoveryControls=createRecoveryControls({run:action});
 const collectionProgress=createCollectionProgress({isActive:()=>navigation.current==='administration',isBusy:()=>state.busy||!$('loading').hidden,onStatus:status=>{if(state.data)state.data.collection=status;if(state.data?.admin)renderCollectionJobs(status);}});
 function renderSelection(data,view=navigation.current,appended=null,reuse=false){
   reading.render(data,view);if(reuse)return;
-  if(view==='news'){renderNews(data,appended);newsTabs.render(data.newsGeographies||[],data.newsGeography||'',data.newsRegions||[],data.geographies||[]);}
+  if(view==='news'){renderNews(data,appended);newsTabs.render(data.newsGeographies||[],data.newsGeography||'',data.newsRegions||[],data.geographies||[],data.applicationScope||[]);}
   if(view==='radar'){radar.render(data);heatmap.render(data);}
   if(view==='briefing')briefing.render(data);
 }

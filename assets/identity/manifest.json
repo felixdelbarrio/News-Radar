@@ -940,7 +940,8 @@
       "source": "https://www.eleconomista.es/favicon.ico",
       "aliases": [
         "El Economista"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=www.eleconomista.es&sz=128"
     },
     "infobae": {
       "id": "publisher-1",
@@ -950,7 +951,8 @@
       "source": "https://www.infobae.com/favicon.ico",
       "aliases": [
         "Infobae"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=infobae.com&sz=128"
     },
     "pulzo": {
       "id": "publisher-3",
@@ -960,7 +962,8 @@
       "source": "https://www.pulzo.com/favicon.ico",
       "aliases": [
         "Pulzo"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=pulzo.com&sz=128"
     },
     "el tiempo": {
       "id": "publisher-4",
@@ -970,7 +973,8 @@
       "source": "https://www.eltiempo.com/favicon.ico",
       "aliases": [
         "El Tiempo"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=eltiempo.com&sz=128"
     },
     "bbva": {
       "id": "entity-0",
@@ -980,7 +984,8 @@
       "source": "https://www.bbva.com/wp-content/themes/coronita-bbvacom/assets/images/comun/favicon.ico",
       "aliases": [
         "BBVA"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=bbva.com&sz=128"
     },
     "bbva · empresas": {
       "id": "entity-0",
@@ -990,7 +995,8 @@
       "source": "https://www.bbva.com/wp-content/themes/coronita-bbvacom/assets/images/comun/favicon.ico",
       "aliases": [
         "BBVA · Empresas"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=bbva.com&sz=128"
     },
     "the asset": {
       "id": "publisher-5",
@@ -1010,7 +1016,8 @@
       "source": "https://www.cmgassets.com/s3fs-public/styles/favicon_57/public/domain_logo/abf-favicon.png.webp?itok=cDyG68ik",
       "aliases": [
         "Asian Banking & Finance"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=asianbankingandfinance.net&sz=128"
     },
     "adb": {
       "id": "publisher-7",
@@ -1071,7 +1078,8 @@
       "domain": "tradingview.com",
       "aliases": [
         "TradingView"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=tradingview.com&sz=128"
     },
     "forbes": {
       "id": "publisher-101",
@@ -1082,7 +1090,13 @@
       "domain": "forbes.com",
       "aliases": [
         "Forbes",
-        "Forbes España"
+        "Forbes España",
+        "forbes espana"
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=forbes.com&sz=128",
+      "candidateUrls": [
+        "https://www.google.com/s2/favicons?domain=forbes.com&sz=128",
+        "https://www.google.com/s2/favicons?domain=forbes.es&sz=128"
       ]
     },
     "the business times": {
@@ -1094,7 +1108,8 @@
       "domain": "businesstimes.com.sg",
       "aliases": [
         "The Business Times"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=businesstimes.com.sg&sz=128"
     },
     "financial times": {
       "id": "publisher-103",
@@ -1117,7 +1132,8 @@
       "aliases": [
         "Bolsamania",
         "Bolsamanía"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=bolsamania.com&sz=128"
     },
     "noticias bancarias": {
       "id": "publisher-105",
@@ -1128,7 +1144,8 @@
       "domain": "noticiasbancarias.com",
       "aliases": [
         "Noticias Bancarias"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=noticiasbancarias.com&sz=128"
     },
     "territorio fintech": {
       "id": "publisher-106",
@@ -1139,7 +1156,8 @@
       "domain": "territoriofintech.com",
       "aliases": [
         "Territorio Fintech"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=territoriofintech.com&sz=128"
     },
     "el mundo financiero": {
       "id": "publisher-107",
@@ -1161,7 +1179,8 @@
       "domain": "democrata.es",
       "aliases": [
         "Demócrata"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=democrata.es&sz=128"
     },
     "radio formula": {
       "id": "publisher-109",
@@ -1172,7 +1191,8 @@
       "domain": "radioformula.com.mx",
       "aliases": [
         "Radio Fórmula"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=radioformula.com.mx&sz=128"
     },
     "pr newswire": {
       "id": "publisher-110",
@@ -1183,7 +1203,8 @@
       "domain": "prnewswire.com",
       "aliases": [
         "PR Newswire"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=prnewswire.com&sz=128"
     },
     "marketbeat": {
       "id": "publisher-111",
@@ -1205,7 +1226,8 @@
       "domain": "bankingdive.com",
       "aliases": [
         "Banking Dive"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=bankingdive.com&sz=128"
     },
     "pymnts.com": {
       "id": "publisher-113",
@@ -1216,7 +1238,8 @@
       "domain": "pymnts.com",
       "aliases": [
         "PYMNTS.com"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=pymnts.com&sz=128"
     },
     "la republica": {
       "id": "publisher-114",
@@ -1227,7 +1250,13 @@
       "domain": "larepublica.co",
       "aliases": [
         "La República",
-        "LaRepublica.co"
+        "LaRepublica.co",
+        "larepublica.co"
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=larepublica.pe&sz=128",
+      "candidateUrls": [
+        "https://www.google.com/s2/favicons?domain=larepublica.pe&sz=128",
+        "https://www.google.com/s2/favicons?domain=larepublica.co&sz=128"
       ]
     },
     "portafolio": {
@@ -1239,7 +1268,11 @@
       "domain": "portafolio.co",
       "aliases": [
         "Portafolio",
-        "Portafolio.co"
+        "Portafolio.co",
+        "portafolio.co"
+      ],
+      "candidateUrls": [
+        "https://www.google.com/s2/favicons?domain=portafolio.co&sz=128"
       ]
     },
     "el cronista": {
@@ -1252,7 +1285,8 @@
       "aliases": [
         "El Cronista",
         "Cronista"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=cronista.com&sz=128"
     },
     "eldiario.es": {
       "id": "publisher-117",
@@ -1275,7 +1309,8 @@
       "aliases": [
         "Yahoo Finance",
         "Yahoo Finanzas"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=finance.yahoo.com&sz=128"
     },
     "business today": {
       "id": "publisher-119",
@@ -1286,7 +1321,8 @@
       "domain": "businesstoday.in",
       "aliases": [
         "Business Today"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=businesstoday.in&sz=128"
     },
     "moneycontrol.com": {
       "id": "publisher-120",
@@ -1297,7 +1333,8 @@
       "domain": "moneycontrol.com",
       "aliases": [
         "Moneycontrol.com"
-      ]
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=moneycontrol.com&sz=128"
     },
     "livemint": {
       "id": "publisher-121",
@@ -1319,7 +1356,3508 @@
       "domain": "ffnews.com",
       "aliases": [
         "FF News"
+      ],
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=ffnews.com&sz=128"
+    },
+    "business insider": {
+      "id": "publisher-123",
+      "file": "publisher-123.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=businessinsider.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "businessinsider.com"
+    },
+    "coindesk": {
+      "id": "publisher-124",
+      "file": "publisher-124.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=coindesk.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "coindesk.com"
+    },
+    "디지털투데이": {
+      "id": "publisher-125",
+      "file": "publisher-125.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=digitaltoday.co.kr&sz=128",
+      "resourceType": "site-icon",
+      "domain": "digitaltoday.co.kr"
+    },
+    "expansion": {
+      "id": "publisher-126",
+      "file": "publisher-126.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=expansion.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "expansion.com"
+    },
+    "business wire": {
+      "id": "publisher-127",
+      "file": "publisher-127.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=businesswire.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "businesswire.com"
+    },
+    "business standard": {
+      "id": "publisher-128",
+      "file": "publisher-128.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=business-standard.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "business-standard.com"
+    },
+    "the business journals": {
+      "id": "publisher-129",
+      "file": "publisher-129.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bizjournals.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "bizjournals.com",
+      "aliases": [
+        "the business journal"
+      ],
+      "candidateUrls": [
+        "https://www.google.com/s2/favicons?domain=bizjournals.com&sz=128"
       ]
+    },
+    "el comercio peru": {
+      "id": "publisher-130",
+      "file": "publisher-130.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=elcomercio.pe&sz=128",
+      "resourceType": "site-icon",
+      "domain": "elcomercio.pe"
+    },
+    "south china morning post": {
+      "id": "publisher-131",
+      "file": "publisher-131.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=scmp.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "scmp.com"
+    },
+    "euromoney": {
+      "id": "publisher-132",
+      "file": "publisher-132.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=euromoney.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "euromoney.com"
+    },
+    "reuters": {
+      "id": "publisher-134",
+      "file": "publisher-134.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=reuters.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "reuters.com"
+    },
+    "fintech futures": {
+      "id": "publisher-135",
+      "file": "publisher-135.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fintechfutures.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fintechfutures.com"
+    },
+    "fintech singapore": {
+      "id": "publisher-136",
+      "file": "publisher-136.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fintechnews.sg&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fintechnews.sg"
+    },
+    "the digital banker": {
+      "id": "publisher-137",
+      "file": "publisher-137.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=thedigitalbanker.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "thedigitalbanker.com"
+    },
+    "onesafe": {
+      "id": "publisher-138",
+      "file": "publisher-138.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=onesafe.io&sz=128",
+      "resourceType": "site-icon",
+      "domain": "onesafe.io"
+    },
+    "economia digital": {
+      "id": "publisher-140",
+      "file": "publisher-140.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=www.economiadigital.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "www.economiadigital.es"
+    },
+    "payments industry intelligence": {
+      "id": "publisher-141",
+      "file": "publisher-141.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=paymentsindustryintelligence.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "paymentsindustryintelligence.com"
+    },
+    "the sunday guardian": {
+      "id": "publisher-142",
+      "file": "publisher-142.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=sundayguardianlive.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "sundayguardianlive.com"
+    },
+    "elplural.com": {
+      "id": "publisher-143",
+      "file": "publisher-143.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=elplural.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "elplural.com"
+    },
+    "tnglobal": {
+      "id": "publisher-144",
+      "file": "publisher-144.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=technode.global&sz=128",
+      "resourceType": "site-icon",
+      "domain": "technode.global"
+    },
+    "coinmarketcap": {
+      "id": "publisher-145",
+      "file": "publisher-145.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=coinmarketcap.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "coinmarketcap.com"
+    },
+    "finextra · payments": {
+      "id": "publisher-146",
+      "file": "publisher-146.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=finextra.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "finextra.com",
+      "aliases": [
+        "finextra research"
+      ],
+      "candidateUrls": [
+        "https://www.google.com/s2/favicons?domain=finextra.com&sz=128"
+      ]
+    },
+    "biggo finance": {
+      "id": "publisher-147",
+      "file": "publisher-147.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=finance.biggo.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "finance.biggo.com",
+      "aliases": [
+        "finance.biggo.com"
+      ],
+      "candidateUrls": [
+        "https://www.google.com/s2/favicons?domain=finance.biggo.com&sz=128"
+      ]
+    },
+    "cryptonews.net": {
+      "id": "publisher-148",
+      "file": "publisher-148.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cryptonews.net&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cryptonews.net"
+    },
+    "banco santander": {
+      "id": "publisher-149",
+      "file": "publisher-149.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=santander.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "santander.com"
+    },
+    "markets media": {
+      "id": "publisher-150",
+      "file": "publisher-150.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=marketsmedia.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "marketsmedia.com"
+    },
+    "fintech magazine": {
+      "id": "publisher-151",
+      "file": "publisher-151.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fintechmagazine.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fintechmagazine.com"
+    },
+    "banking exchange": {
+      "id": "publisher-152",
+      "file": "publisher-152.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bankingexchange.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "bankingexchange.com"
+    },
+    "thebanker.com": {
+      "id": "publisher-153",
+      "file": "publisher-153.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=thebanker.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "thebanker.com"
+    },
+    "tokenpost": {
+      "id": "publisher-154",
+      "file": "publisher-154.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=www.tokenpost.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "www.tokenpost.com"
+    },
+    "yellow.com": {
+      "id": "publisher-155",
+      "file": "publisher-155.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=yellow.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "yellow.com"
+    },
+    "american banker": {
+      "id": "publisher-156",
+      "file": "publisher-156.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=americanbanker.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "americanbanker.com"
+    },
+    "revista semana": {
+      "id": "publisher-157",
+      "file": "publisher-157.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=semana.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "semana.com"
+    },
+    "abc economia": {
+      "id": "publisher-158",
+      "file": "publisher-158.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=abc.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "abc.es"
+    },
+    "radio intereconomia": {
+      "id": "publisher-159",
+      "file": "publisher-159.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=intereconomia.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "intereconomia.com"
+    },
+    "theinvestor": {
+      "id": "publisher-160",
+      "file": "publisher-160.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=theinvestor.co.kr&sz=128",
+      "resourceType": "site-icon",
+      "domain": "theinvestor.co.kr"
+    },
+    "the defiant": {
+      "id": "publisher-161",
+      "file": "publisher-161.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=thedefiant.io&sz=128",
+      "resourceType": "site-icon",
+      "domain": "thedefiant.io"
+    },
+    "europa press": {
+      "id": "publisher-162",
+      "file": "publisher-162.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=europapress.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "europapress.es"
+    },
+    "facebook": {
+      "id": "publisher-163",
+      "file": "publisher-163.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=facebook.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "facebook.com"
+    },
+    "diariobitcoin": {
+      "id": "publisher-164",
+      "file": "publisher-164.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=diariobitcoin.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "diariobitcoin.com"
+    },
+    "stripe · blog": {
+      "id": "publisher-165",
+      "file": "publisher-165.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=stripe.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "stripe.com"
+    },
+    "yahoo": {
+      "id": "publisher-166",
+      "file": "publisher-166.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=yahoo.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "yahoo.com"
+    },
+    "fintech global": {
+      "id": "publisher-167",
+      "file": "publisher-167.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fintech.global&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fintech.global"
+    },
+    "the independent": {
+      "id": "publisher-168",
+      "file": "publisher-168.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=independent.co.uk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "independent.co.uk"
+    },
+    "pagamenti digitali": {
+      "id": "publisher-169",
+      "file": "publisher-169.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=pagamentidigitali.it&sz=128",
+      "resourceType": "site-icon",
+      "domain": "pagamentidigitali.it"
+    },
+    "singapore business review": {
+      "id": "publisher-170",
+      "file": "publisher-170.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=sbr.com.sg&sz=128",
+      "resourceType": "site-icon",
+      "domain": "sbr.com.sg"
+    },
+    "asia business outlook": {
+      "id": "publisher-171",
+      "file": "publisher-171.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=www.asiabusinessoutlook.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "www.asiabusinessoutlook.com"
+    },
+    "the asian banker": {
+      "id": "publisher-172",
+      "file": "publisher-172.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=theasianbanker.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "theasianbanker.com"
+    },
+    "worldfirst": {
+      "id": "publisher-173",
+      "file": "publisher-173.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=worldfirst.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "worldfirst.com"
+    },
+    "dpl news": {
+      "id": "publisher-174",
+      "file": "publisher-174.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=dplnews.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "dplnews.com"
+    },
+    "ledger insights": {
+      "id": "publisher-175",
+      "file": "publisher-175.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ledgerinsights.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ledgerinsights.com"
+    },
+    "yahoo finance singapore": {
+      "id": "publisher-176",
+      "file": "publisher-176.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=sg.finance.yahoo.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "sg.finance.yahoo.com"
+    },
+    "hsbc corporate and institutional banking": {
+      "id": "publisher-177",
+      "file": "publisher-177.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=business.hsbc.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "business.hsbc.com"
+    },
+    "nst online": {
+      "id": "publisher-178",
+      "file": "publisher-178.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=nst.com.my&sz=128",
+      "resourceType": "site-icon",
+      "domain": "nst.com.my"
+    },
+    "computer weekly": {
+      "id": "publisher-179",
+      "file": "publisher-179.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=computerweekly.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "computerweekly.com"
+    },
+    "el espanol": {
+      "id": "publisher-180",
+      "file": "publisher-180.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=elespanol.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "elespanol.com"
+    },
+    "reconquistahoy": {
+      "id": "publisher-181",
+      "file": "publisher-181.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=reconquistahoy.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "reconquistahoy.com"
+    },
+    "business chief": {
+      "id": "publisher-182",
+      "file": "publisher-182.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=businesschief.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "businesschief.com"
+    },
+    "the fintech times": {
+      "id": "publisher-183",
+      "file": "publisher-183.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=thefintechtimes.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "thefintechtimes.com"
+    },
+    "canaltech": {
+      "id": "publisher-184",
+      "file": "publisher-184.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=canaltech.com.br&sz=128",
+      "resourceType": "site-icon",
+      "domain": "canaltech.com.br"
+    },
+    "linkedin": {
+      "id": "publisher-185",
+      "file": "publisher-185.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=linkedin.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "linkedin.com"
+    },
+    "파이낸셜뉴스": {
+      "id": "publisher-186",
+      "file": "publisher-186.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fnnews.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fnnews.com"
+    },
+    "kucoin": {
+      "id": "publisher-187",
+      "file": "publisher-187.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=kucoin.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "kucoin.com"
+    },
+    "simply wall street": {
+      "id": "publisher-188",
+      "file": "publisher-188.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=simplywall.st&sz=128",
+      "resourceType": "site-icon",
+      "domain": "simplywall.st"
+    },
+    "il mattino": {
+      "id": "publisher-189",
+      "file": "publisher-189.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ilmattino.it&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ilmattino.it"
+    },
+    "unite.ai": {
+      "id": "publisher-190",
+      "file": "publisher-190.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=unite.ai&sz=128",
+      "resourceType": "site-icon",
+      "domain": "unite.ai"
+    },
+    "red+ noticias": {
+      "id": "publisher-191",
+      "file": "publisher-191.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=redmas.com.co&sz=128",
+      "resourceType": "site-icon",
+      "domain": "redmas.com.co"
+    },
+    "mirage news": {
+      "id": "publisher-192",
+      "file": "publisher-192.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=miragenews.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "miragenews.com"
+    },
+    "bloomingbit": {
+      "id": "publisher-193",
+      "file": "publisher-193.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bloomingbit.io&sz=128",
+      "resourceType": "site-icon",
+      "domain": "bloomingbit.io"
+    },
+    "el periodico": {
+      "id": "publisher-194",
+      "file": "publisher-194.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=elperiodico.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "elperiodico.com"
+    },
+    "the paypers": {
+      "id": "publisher-195",
+      "file": "publisher-195.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=thepaypers.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "thepaypers.com"
+    },
+    "businesskorea": {
+      "id": "publisher-196",
+      "file": "publisher-196.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=businesskorea.co.kr&sz=128",
+      "resourceType": "site-icon",
+      "domain": "businesskorea.co.kr"
+    },
+    "techbullion": {
+      "id": "publisher-197",
+      "file": "publisher-197.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=techbullion.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "techbullion.com"
+    },
+    "富途牛牛": {
+      "id": "publisher-198",
+      "file": "publisher-198.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=futunn.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "futunn.com"
+    },
+    "cryptopolitan": {
+      "id": "publisher-199",
+      "file": "publisher-199.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cryptopolitan.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cryptopolitan.com"
+    },
+    "jakarta globe": {
+      "id": "publisher-200",
+      "file": "publisher-200.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=jakartaglobe.id&sz=128",
+      "resourceType": "site-icon",
+      "domain": "jakartaglobe.id"
+    },
+    "analytics insight": {
+      "id": "publisher-201",
+      "file": "publisher-201.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=www.analyticsinsight.net&sz=128",
+      "resourceType": "site-icon",
+      "domain": "www.analyticsinsight.net"
+    },
+    "decrypt": {
+      "id": "publisher-202",
+      "file": "publisher-202.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=decrypt.co&sz=128",
+      "resourceType": "site-icon",
+      "domain": "decrypt.co"
+    },
+    "the cryptonomist": {
+      "id": "publisher-203",
+      "file": "publisher-203.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=en.cryptonomist.ch&sz=128",
+      "resourceType": "site-icon",
+      "domain": "en.cryptonomist.ch"
+    },
+    "the standard (hk)": {
+      "id": "publisher-204",
+      "file": "publisher-204.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=thestandard.com.hk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "thestandard.com.hk"
+    },
+    "anz": {
+      "id": "publisher-205",
+      "file": "publisher-205.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=anz.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "anz.com"
+    },
+    "aol.com": {
+      "id": "publisher-206",
+      "file": "publisher-206.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=aol.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "aol.com"
+    },
+    "iupana": {
+      "id": "publisher-207",
+      "file": "publisher-207.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=iupana.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "iupana.com"
+    },
+    "observatorio blockchain": {
+      "id": "publisher-208",
+      "file": "publisher-208.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=observatorioblockchain.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "observatorioblockchain.com"
+    },
+    "blockzeit": {
+      "id": "publisher-209",
+      "file": "publisher-209.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=blockzeit.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "blockzeit.com"
+    },
+    "onebullex": {
+      "id": "publisher-210",
+      "file": "publisher-210.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=www.onebullex.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "www.onebullex.com"
+    },
+    "hsbc": {
+      "id": "publisher-211",
+      "file": "publisher-211.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=hsbc.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "hsbc.com"
+    },
+    "bank of america": {
+      "id": "publisher-212",
+      "file": "publisher-212.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bankofamerica.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "bankofamerica.com"
+    },
+    "fortune": {
+      "id": "publisher-213",
+      "file": "publisher-213.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fortune.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fortune.com"
+    },
+    "the sun": {
+      "id": "publisher-214",
+      "file": "publisher-214.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=thesun.co.uk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "thesun.co.uk"
+    },
+    "business review": {
+      "id": "publisher-215",
+      "file": "publisher-215.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=business-review.eu&sz=128",
+      "resourceType": "site-icon",
+      "domain": "business-review.eu"
+    },
+    "zee business": {
+      "id": "publisher-216",
+      "file": "publisher-216.png",
+      "width": 31,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=zeebiz.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "zeebiz.com"
+    },
+    "cinco dias": {
+      "id": "publisher-217",
+      "file": "publisher-217.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cincodias.elpais.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cincodias.elpais.com"
+    },
+    "finance magnates": {
+      "id": "publisher-218",
+      "file": "publisher-218.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=financemagnates.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "financemagnates.com"
+    },
+    "el observador": {
+      "id": "publisher-219",
+      "file": "publisher-219.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=elobservador.com.uy&sz=128",
+      "resourceType": "site-icon",
+      "domain": "elobservador.com.uy"
+    },
+    "ubs": {
+      "id": "publisher-220",
+      "file": "publisher-220.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ubs.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ubs.com"
+    },
+    "milenio": {
+      "id": "publisher-221",
+      "file": "publisher-221.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=milenio.com&sz=128",
+      "resourceType": "site-icon",
+      "candidateUrl": "https://www.google.com/s2/favicons?domain=milenio.com&sz=128",
+      "domain": "milenio.com"
+    },
+    "roams.es": {
+      "id": "publisher-222",
+      "file": "publisher-222.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=roams.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "roams.es"
+    },
+    "macau business": {
+      "id": "publisher-223",
+      "file": "publisher-223.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=macaubusiness.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "macaubusiness.com"
+    },
+    "iproup": {
+      "id": "publisher-224",
+      "file": "publisher-224.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=iproup.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "iproup.com"
+    },
+    "bfsi.economictimes.indiatimes.com": {
+      "id": "publisher-225",
+      "file": "publisher-225.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bfsi.economictimes.indiatimes.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "bfsi.economictimes.indiatimes.com"
+    },
+    "hubbis": {
+      "id": "publisher-226",
+      "file": "publisher-226.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=hubbis.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "hubbis.com"
+    },
+    "capitalmadrid": {
+      "id": "publisher-227",
+      "file": "publisher-227.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=capitalmadrid.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "capitalmadrid.com"
+    },
+    "the business standard": {
+      "id": "publisher-228",
+      "file": "publisher-228.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=tbsnews.net&sz=128",
+      "resourceType": "site-icon",
+      "domain": "tbsnews.net"
+    },
+    "the straits times": {
+      "id": "publisher-229",
+      "file": "publisher-229.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=straitstimes.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "straitstimes.com"
+    },
+    "bankinter": {
+      "id": "publisher-230",
+      "file": "publisher-230.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bankinter.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "bankinter.com"
+    },
+    "okdiario": {
+      "id": "publisher-231",
+      "file": "publisher-231.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=okdiario.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "okdiario.com"
+    },
+    "cnbc": {
+      "id": "publisher-232",
+      "file": "publisher-232.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cnbc.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cnbc.com"
+    },
+    "reporte indigo": {
+      "id": "publisher-233",
+      "file": "publisher-233.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=reporteindigo.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "reporteindigo.com"
+    },
+    "sc.com": {
+      "id": "publisher-234",
+      "file": "publisher-234.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=sc.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "sc.com"
+    },
+    "gestion": {
+      "id": "publisher-235",
+      "file": "publisher-235.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=gestion.pe&sz=128",
+      "resourceType": "site-icon",
+      "domain": "gestion.pe"
+    },
+    "l'agefi": {
+      "id": "publisher-236",
+      "file": "publisher-236.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=agefi.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "agefi.com"
+    },
+    "hong kong business": {
+      "id": "publisher-237",
+      "file": "publisher-237.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=hongkongbusiness.hk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "hongkongbusiness.hk"
+    },
+    "chinadailyhk": {
+      "id": "publisher-238",
+      "file": "publisher-238.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=chinadailyhk.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "chinadailyhk.com"
+    },
+    "el financiero": {
+      "id": "publisher-239",
+      "file": "publisher-239.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=elfinanciero.com.mx&sz=128",
+      "resourceType": "site-icon",
+      "domain": "elfinanciero.com.mx"
+    },
+    "valora analitik": {
+      "id": "publisher-240",
+      "file": "publisher-240.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=valoraanalitik.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "valoraanalitik.com"
+    },
+    "the edge singapore": {
+      "id": "publisher-241",
+      "file": "publisher-241.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=theedgesingapore.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "theedgesingapore.com"
+    },
+    "corriere della sera": {
+      "id": "publisher-242",
+      "file": "publisher-242.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=corriere.it&sz=128",
+      "resourceType": "site-icon",
+      "domain": "corriere.it"
+    },
+    "peru retail": {
+      "id": "publisher-243",
+      "file": "publisher-243.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=peru-retail.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "peru-retail.com"
+    },
+    "the edge malaysia": {
+      "id": "publisher-244",
+      "file": "publisher-244.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=theedgemalaysia.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "theedgemalaysia.com"
+    },
+    "the times of india": {
+      "id": "publisher-245",
+      "file": "publisher-245.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=timesofindia.indiatimes.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "timesofindia.indiatimes.com"
+    },
+    "ad hoc news": {
+      "id": "publisher-246",
+      "file": "publisher-246.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=adhocnews.de&sz=128",
+      "resourceType": "site-icon",
+      "domain": "adhocnews.de"
+    },
+    "the star": {
+      "id": "publisher-247",
+      "file": "publisher-247.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=thestar.com.my&sz=128",
+      "resourceType": "site-icon",
+      "domain": "thestar.com.my"
+    },
+    "dealroom": {
+      "id": "publisher-248",
+      "file": "publisher-248.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=app.dealroom.co&sz=128",
+      "resourceType": "site-icon",
+      "domain": "app.dealroom.co"
+    },
+    "banking day": {
+      "id": "publisher-249",
+      "file": "publisher-249.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bankingday.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "bankingday.com"
+    },
+    "nz advisor": {
+      "id": "publisher-250",
+      "file": "publisher-250.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=nzadviseronline.co.nz&sz=128",
+      "resourceType": "site-icon",
+      "domain": "nzadviseronline.co.nz"
+    },
+    "goosed.ie": {
+      "id": "publisher-251",
+      "file": "publisher-251.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=goosed.ie&sz=128",
+      "resourceType": "site-icon",
+      "domain": "goosed.ie"
+    },
+    "lettera43": {
+      "id": "publisher-252",
+      "file": "publisher-252.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=lettera43.it&sz=128",
+      "resourceType": "site-icon",
+      "domain": "lettera43.it"
+    },
+    "fanpage": {
+      "id": "publisher-253",
+      "file": "publisher-253.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fanpage.it&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fanpage.it"
+    },
+    "virgilio": {
+      "id": "publisher-254",
+      "file": "publisher-254.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=virgilio.it&sz=128",
+      "resourceType": "site-icon",
+      "domain": "virgilio.it"
+    },
+    "il sole 24 ore": {
+      "id": "publisher-255",
+      "file": "publisher-255.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ilsole24ore.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ilsole24ore.com"
+    },
+    "adnkronos": {
+      "id": "publisher-256",
+      "file": "publisher-256.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=adnkronos.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "adnkronos.com"
+    },
+    "rebellion research": {
+      "id": "publisher-257",
+      "file": "publisher-257.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=rebellionresearch.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "rebellionresearch.com"
+    },
+    "thestreet": {
+      "id": "publisher-258",
+      "file": "publisher-258.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=thestreet.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "thestreet.com"
+    },
+    "深潮techflow": {
+      "id": "publisher-259",
+      "file": "publisher-259.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=techflowpost.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "techflowpost.com"
+    },
+    "catalunyapress": {
+      "id": "publisher-260",
+      "file": "publisher-260.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=catalunyapress.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "catalunyapress.es"
+    },
+    "enterpriseam": {
+      "id": "publisher-261",
+      "file": "publisher-261.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=enterpriseam.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "enterpriseam.com"
+    },
+    "business upturn": {
+      "id": "publisher-262",
+      "file": "publisher-262.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=businessupturn.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "businessupturn.com"
+    },
+    "tekedia": {
+      "id": "publisher-263",
+      "file": "publisher-263.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=tekedia.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "tekedia.com"
+    },
+    "newsbytes.ph": {
+      "id": "publisher-264",
+      "file": "publisher-264.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=newsbytes.ph&sz=128",
+      "resourceType": "site-icon",
+      "domain": "newsbytes.ph"
+    },
+    "manila standard": {
+      "id": "publisher-265",
+      "file": "publisher-265.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=manilastandard.net&sz=128",
+      "resourceType": "site-icon",
+      "domain": "manilastandard.net"
+    },
+    "benzinga": {
+      "id": "publisher-266",
+      "file": "publisher-266.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=benzinga.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "benzinga.com"
+    },
+    "coindoo": {
+      "id": "publisher-267",
+      "file": "publisher-267.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=coindoo.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "coindoo.com"
+    },
+    "traders union": {
+      "id": "publisher-268",
+      "file": "publisher-268.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=tradersunion.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "tradersunion.com"
+    },
+    "cryptoid": {
+      "id": "publisher-269",
+      "file": "publisher-269.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cryptoid.com.br&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cryptoid.com.br"
+    },
+    "interest.co.nz": {
+      "id": "publisher-270",
+      "file": "publisher-270.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=interest.co.nz&sz=128",
+      "resourceType": "site-icon",
+      "domain": "interest.co.nz"
+    },
+    "bilbaohiria": {
+      "id": "publisher-271",
+      "file": "publisher-271.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bilbaohiria.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "bilbaohiria.com"
+    },
+    "stocktwits": {
+      "id": "publisher-272",
+      "file": "publisher-272.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=stocktwits.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "stocktwits.com"
+    },
+    "tech times": {
+      "id": "publisher-273",
+      "file": "publisher-273.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=techtimes.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "techtimes.com"
+    },
+    "forklog": {
+      "id": "publisher-274",
+      "file": "publisher-274.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=forklog.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "forklog.com"
+    },
+    "zycrypto": {
+      "id": "publisher-275",
+      "file": "publisher-275.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=zycrypto.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "zycrypto.com"
+    },
+    "kalkine": {
+      "id": "publisher-276",
+      "file": "publisher-276.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=kalkinemedia.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "kalkinemedia.com"
+    },
+    "orissapost": {
+      "id": "publisher-277",
+      "file": "publisher-277.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=orissapost.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "orissapost.com"
+    },
+    "cnbc tv18": {
+      "id": "publisher-278",
+      "file": "publisher-278.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cnbctv18.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cnbctv18.com"
+    },
+    "srp structured products": {
+      "id": "publisher-279",
+      "file": "publisher-279.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=structuredretailproducts.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "structuredretailproducts.com"
+    },
+    "65 y mas": {
+      "id": "publisher-280",
+      "file": "publisher-280.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=65ymas.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "65ymas.com"
+    },
+    "el mundo": {
+      "id": "publisher-281",
+      "file": "publisher-281.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=elmundo.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "elmundo.es"
+    },
+    "datachaco": {
+      "id": "publisher-282",
+      "file": "publisher-282.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=datachaco.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "datachaco.com"
+    },
+    "financefeeds": {
+      "id": "publisher-283",
+      "file": "publisher-283.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=financefeeds.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "financefeeds.com"
+    },
+    "tatler asia": {
+      "id": "publisher-284",
+      "file": "publisher-284.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=tatlerasia.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "tatlerasia.com"
+    },
+    "goodreturns": {
+      "id": "publisher-285",
+      "file": "publisher-285.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=goodreturns.in&sz=128",
+      "resourceType": "site-icon",
+      "domain": "goodreturns.in"
+    },
+    "ilsussidiario.net": {
+      "id": "publisher-286",
+      "file": "publisher-286.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ilsussidiario.net&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ilsussidiario.net"
+    },
+    "il giornale d'italia": {
+      "id": "publisher-287",
+      "file": "publisher-287.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ilgiornaleditalia.it&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ilgiornaleditalia.it"
+    },
+    "el siglo de torreon": {
+      "id": "publisher-288",
+      "file": "publisher-288.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=elsiglodetorreon.com.mx&sz=128",
+      "resourceType": "site-icon",
+      "domain": "elsiglodetorreon.com.mx"
+    },
+    "fintech news philippines": {
+      "id": "publisher-289",
+      "file": "publisher-289.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fintechnews.ph&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fintechnews.ph"
+    },
+    "mas colombia": {
+      "id": "publisher-290",
+      "file": "publisher-290.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=mascolombia.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "mascolombia.com"
+    },
+    "servimedia": {
+      "id": "publisher-292",
+      "file": "publisher-292.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=servimedia.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "servimedia.es"
+    },
+    "singapore economic development board (edb)": {
+      "id": "publisher-293",
+      "file": "publisher-293.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=edb.gov.sg&sz=128",
+      "resourceType": "site-icon",
+      "domain": "edb.gov.sg"
+    },
+    "rsvp live": {
+      "id": "publisher-294",
+      "file": "publisher-294.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=rsvplive.ie&sz=128",
+      "resourceType": "site-icon",
+      "domain": "rsvplive.ie"
+    },
+    "securitybrief new zealand": {
+      "id": "publisher-295",
+      "file": "publisher-295.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=securitybrief.co.nz&sz=128",
+      "resourceType": "site-icon",
+      "domain": "securitybrief.co.nz"
+    },
+    "samsung global newsroom": {
+      "id": "publisher-296",
+      "file": "publisher-296.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=news.samsung.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "news.samsung.com"
+    },
+    "zona cero": {
+      "id": "publisher-297",
+      "file": "publisher-297.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=zonacero.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "zonacero.com"
+    },
+    "la fm": {
+      "id": "publisher-298",
+      "file": "publisher-298.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=lafm.com.co&sz=128",
+      "resourceType": "site-icon",
+      "domain": "lafm.com.co"
+    },
+    "enter.co": {
+      "id": "publisher-299",
+      "file": "publisher-299.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=enter.co&sz=128",
+      "resourceType": "site-icon",
+      "domain": "enter.co"
+    },
+    "cryptoninjas": {
+      "id": "publisher-300",
+      "file": "publisher-300.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cryptoninjas.net&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cryptoninjas.net"
+    },
+    "cambio colombia": {
+      "id": "publisher-301",
+      "file": "publisher-301.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cambiocolombia.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cambiocolombia.com"
+    },
+    "diario de navarra": {
+      "id": "publisher-302",
+      "file": "publisher-302.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=diariodenavarra.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "diariodenavarra.es"
+    },
+    "fintechnews ch": {
+      "id": "publisher-303",
+      "file": "publisher-303.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fintechnews.ch&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fintechnews.ch"
+    },
+    "cryptorank": {
+      "id": "publisher-304",
+      "file": "publisher-304.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cryptorank.io&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cryptorank.io"
+    },
+    "coinbase": {
+      "id": "publisher-305",
+      "file": "publisher-305.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=coinbase.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "coinbase.com"
+    },
+    "aju press": {
+      "id": "publisher-306",
+      "file": "publisher-306.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ajupress.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ajupress.com"
+    },
+    "매일경제": {
+      "id": "publisher-307",
+      "file": "publisher-307.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=mk.co.kr&sz=128",
+      "resourceType": "site-icon",
+      "domain": "mk.co.kr"
+    },
+    "bloomberg.com": {
+      "id": "publisher-308",
+      "file": "publisher-308.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bloomberg.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "bloomberg.com"
+    },
+    "quartz": {
+      "id": "publisher-309",
+      "file": "publisher-309.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=qz.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "qz.com"
+    },
+    "altcoin buzz": {
+      "id": "publisher-310",
+      "file": "publisher-310.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=altcoinbuzz.io&sz=128",
+      "resourceType": "site-icon",
+      "domain": "altcoinbuzz.io"
+    },
+    "beincrypto": {
+      "id": "publisher-311",
+      "file": "publisher-311.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=beincrypto.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "beincrypto.com"
+    },
+    "stock titan": {
+      "id": "publisher-312",
+      "file": "publisher-312.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=stocktitan.net&sz=128",
+      "resourceType": "site-icon",
+      "domain": "stocktitan.net"
+    },
+    "yahoo finance uk": {
+      "id": "publisher-176",
+      "file": "publisher-176.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=uk.finance.yahoo.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "uk.finance.yahoo.com"
+    },
+    "retail technology innovation hub": {
+      "id": "publisher-313",
+      "file": "publisher-313.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=www.retailtechinnovationhub.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "www.retailtechinnovationhub.com"
+    },
+    "suaragarut.id": {
+      "id": "publisher-314",
+      "file": "publisher-314.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=suaragarut.id&sz=128",
+      "resourceType": "site-icon",
+      "domain": "suaragarut.id"
+    },
+    "rte.ie": {
+      "id": "publisher-315",
+      "file": "publisher-315.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=rte.ie&sz=128",
+      "resourceType": "site-icon",
+      "domain": "rte.ie"
+    },
+    "la veu lliure": {
+      "id": "publisher-316",
+      "file": "publisher-316.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=laveulliure.ad&sz=128",
+      "resourceType": "site-icon",
+      "domain": "laveulliure.ad"
+    },
+    "spherical insights": {
+      "id": "publisher-317",
+      "file": "publisher-317.png",
+      "width": 32,
+      "height": 28,
+      "source": "https://www.google.com/s2/favicons?domain=sphericalinsights.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "sphericalinsights.com"
+    },
+    "moomoo": {
+      "id": "publisher-318",
+      "file": "publisher-318.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=moomoo.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "moomoo.com"
+    },
+    "rnz": {
+      "id": "publisher-319",
+      "file": "publisher-319.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=rnz.co.nz&sz=128",
+      "resourceType": "site-icon",
+      "domain": "rnz.co.nz"
+    },
+    "chosunbiz": {
+      "id": "publisher-320",
+      "file": "publisher-320.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=biz.chosun.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "biz.chosun.com"
+    },
+    "articulo 14": {
+      "id": "publisher-321",
+      "file": "publisher-321.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=articulo14.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "articulo14.es"
+    },
+    "fortune turkey": {
+      "id": "publisher-322",
+      "file": "publisher-322.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fortuneturkey.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fortuneturkey.com"
+    },
+    "el sol de mexico": {
+      "id": "publisher-323",
+      "file": "publisher-323.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=elsoldemexico.com.mx&sz=128",
+      "resourceType": "site-icon",
+      "domain": "elsoldemexico.com.mx"
+    },
+    "tipranks": {
+      "id": "publisher-324",
+      "file": "publisher-324.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=tipranks.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "tipranks.com"
+    },
+    "livecoins": {
+      "id": "publisher-325",
+      "file": "publisher-325.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=livecoins.com.br&sz=128",
+      "resourceType": "site-icon",
+      "domain": "livecoins.com.br"
+    },
+    "via empresa": {
+      "id": "publisher-326",
+      "file": "publisher-326.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=viaempresa.cat&sz=128",
+      "resourceType": "site-icon",
+      "domain": "viaempresa.cat"
+    },
+    "arnnet": {
+      "id": "publisher-327",
+      "file": "publisher-327.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=arnnet.com.au&sz=128",
+      "resourceType": "site-icon",
+      "domain": "arnnet.com.au"
+    },
+    "marketscreener.com": {
+      "id": "publisher-328",
+      "file": "publisher-328.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=marketscreener.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "marketscreener.com"
+    },
+    "city am": {
+      "id": "publisher-329",
+      "file": "publisher-329.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cityam.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cityam.com"
+    },
+    "ghanaweb": {
+      "id": "publisher-330",
+      "file": "publisher-330.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ghanaweb.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ghanaweb.com"
+    },
+    "mastercard": {
+      "id": "publisher-331",
+      "file": "publisher-331.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=mastercard.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "mastercard.com"
+    },
+    "financial it": {
+      "id": "publisher-332",
+      "file": "publisher-332.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=financialit.net&sz=128",
+      "resourceType": "site-icon",
+      "domain": "financialit.net"
+    },
+    "cyber magazine": {
+      "id": "publisher-333",
+      "file": "publisher-333.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cybermagazine.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cybermagazine.com"
+    },
+    "intelligent cio": {
+      "id": "publisher-334",
+      "file": "publisher-334.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=intelligentcio.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "intelligentcio.com"
+    },
+    "fintech news malaysia": {
+      "id": "publisher-335",
+      "file": "publisher-335.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fintechnews.my&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fintechnews.my"
+    },
+    "moneyvox": {
+      "id": "publisher-336",
+      "file": "publisher-336.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=moneyvox.fr&sz=128",
+      "resourceType": "site-icon",
+      "domain": "moneyvox.fr"
+    },
+    "maybank group": {
+      "id": "publisher-337",
+      "file": "publisher-337.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=maybank.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "maybank.com"
+    },
+    "the economic times": {
+      "id": "publisher-338",
+      "file": "publisher-338.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=economictimes.indiatimes.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "economictimes.indiatimes.com"
+    },
+    "birmingham live": {
+      "id": "publisher-339",
+      "file": "publisher-339.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=www.birminghammail.co.uk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "www.birminghammail.co.uk"
+    },
+    "cryptonews": {
+      "id": "publisher-340",
+      "file": "publisher-340.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cryptonews.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cryptonews.com",
+      "aliases": [
+        "crypto news"
+      ],
+      "candidateUrls": [
+        "https://www.google.com/s2/favicons?domain=cryptonews.com&sz=128"
+      ]
+    },
+    "heise online": {
+      "id": "publisher-341",
+      "file": "publisher-341.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=heise.de&sz=128",
+      "resourceType": "site-icon",
+      "domain": "heise.de"
+    },
+    "qa financial": {
+      "id": "publisher-342",
+      "file": "publisher-342.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=qa-financial.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "qa-financial.com"
+    },
+    "adslzone": {
+      "id": "publisher-343",
+      "file": "publisher-343.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=adslzone.net&sz=128",
+      "resourceType": "site-icon",
+      "domain": "adslzone.net"
+    },
+    "paymentsjournal": {
+      "id": "publisher-344",
+      "file": "publisher-344.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=paymentsjournal.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "paymentsjournal.com"
+    },
+    "the motley fool": {
+      "id": "publisher-345",
+      "file": "publisher-345.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fool.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fool.com"
+    },
+    "bitcoin foundation": {
+      "id": "publisher-346",
+      "file": "publisher-346.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bitcoinfoundation.org&sz=128",
+      "resourceType": "site-icon",
+      "domain": "bitcoinfoundation.org"
+    },
+    "geeknetic": {
+      "id": "publisher-347",
+      "file": "publisher-347.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=geeknetic.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "geeknetic.es"
+    },
+    "marca": {
+      "id": "publisher-348",
+      "file": "publisher-348.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=marca.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "marca.com"
+    },
+    "n+": {
+      "id": "publisher-349",
+      "file": "publisher-349.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=nmas.com.mx&sz=128",
+      "resourceType": "site-icon",
+      "domain": "nmas.com.mx"
+    },
+    "thesmartlocal": {
+      "id": "publisher-350",
+      "file": "publisher-350.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=thesmartlocal.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "thesmartlocal.com"
+    },
+    "el pais": {
+      "id": "publisher-351",
+      "file": "publisher-351.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=elpais.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "elpais.com"
+    },
+    "tuttoandroid": {
+      "id": "publisher-352",
+      "file": "publisher-352.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=tuttoandroid.net&sz=128",
+      "resourceType": "site-icon",
+      "domain": "tuttoandroid.net"
+    },
+    "gulf business": {
+      "id": "publisher-353",
+      "file": "publisher-353.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=gulfbusiness.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "gulfbusiness.com"
+    },
+    "la razon": {
+      "id": "publisher-354",
+      "file": "publisher-354.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=larazon.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "larazon.es"
+    },
+    "finanz-szene.de": {
+      "id": "publisher-355",
+      "file": "publisher-355.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=finanz-szene.de&sz=128",
+      "resourceType": "site-icon",
+      "domain": "finanz-szene.de"
+    },
+    "portal do bitcoin": {
+      "id": "publisher-356",
+      "file": "publisher-356.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=portaldobitcoin.uol.com.br&sz=128",
+      "resourceType": "site-icon",
+      "domain": "portaldobitcoin.uol.com.br"
+    },
+    "diario financiero": {
+      "id": "publisher-357",
+      "file": "publisher-357.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=df.cl&sz=128",
+      "resourceType": "site-icon",
+      "domain": "df.cl"
+    },
+    "finews.asia": {
+      "id": "publisher-358",
+      "file": "publisher-358.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=www.finews.asia&sz=128",
+      "resourceType": "site-icon",
+      "domain": "www.finews.asia"
+    },
+    "colombia.com": {
+      "id": "publisher-359",
+      "file": "publisher-359.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=colombia.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "colombia.com"
+    },
+    "macao news": {
+      "id": "publisher-360",
+      "file": "publisher-360.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=macaonews.org&sz=128",
+      "resourceType": "site-icon",
+      "domain": "macaonews.org"
+    },
+    "la vanguardia": {
+      "id": "publisher-361",
+      "file": "publisher-361.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=lavanguardia.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "lavanguardia.com"
+    },
+    "cryptoslate": {
+      "id": "publisher-362",
+      "file": "publisher-362.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cryptoslate.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cryptoslate.com"
+    },
+    "bar and bench": {
+      "id": "publisher-363",
+      "file": "publisher-363.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=barandbench.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "barandbench.com"
+    },
+    "cio dive": {
+      "id": "publisher-364",
+      "file": "publisher-364.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ciodive.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ciodive.com"
+    },
+    "it brief new zealand": {
+      "id": "publisher-365",
+      "file": "publisher-365.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=itbrief.co.nz&sz=128",
+      "resourceType": "site-icon",
+      "domain": "itbrief.co.nz"
+    },
+    "cryptoticker": {
+      "id": "publisher-366",
+      "file": "publisher-366.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cryptoticker.io&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cryptoticker.io"
+    },
+    "ibs intelligence": {
+      "id": "publisher-367",
+      "file": "publisher-367.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ibsintelligence.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ibsintelligence.com"
+    },
+    "capital brief": {
+      "id": "publisher-368",
+      "file": "publisher-368.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=capitalbrief.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "capitalbrief.com"
+    },
+    "diario hoy – en paraguay y el mundo": {
+      "id": "publisher-369",
+      "file": "publisher-369.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=hoy.com.py&sz=128",
+      "resourceType": "site-icon",
+      "domain": "hoy.com.py"
+    },
+    "bloomberg linea": {
+      "id": "publisher-370",
+      "file": "publisher-370.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bloomberglinea.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "bloomberglinea.com"
+    },
+    "24-horas": {
+      "id": "publisher-371",
+      "file": "publisher-371.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=24-horas.mx&sz=128",
+      "resourceType": "site-icon",
+      "domain": "24-horas.mx"
+    },
+    "business matters": {
+      "id": "publisher-372",
+      "file": "publisher-372.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bmmagazine.co.uk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "bmmagazine.co.uk"
+    },
+    "microsoft": {
+      "id": "publisher-373",
+      "file": "publisher-373.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=microsoft.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "microsoft.com"
+    },
+    "confidencial digital": {
+      "id": "publisher-374",
+      "file": "publisher-374.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=elconfidencialdigital.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "elconfidencialdigital.com"
+    },
+    "abc bourse": {
+      "id": "publisher-375",
+      "file": "publisher-375.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=abcbourse.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "abcbourse.com"
+    },
+    "la nacion": {
+      "id": "publisher-376",
+      "file": "publisher-376.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=lanacion.com.ar&sz=128",
+      "resourceType": "site-icon",
+      "domain": "lanacion.com.ar"
+    },
+    "microsoft source": {
+      "id": "publisher-377",
+      "file": "publisher-377.png",
+      "width": 32,
+      "height": 30,
+      "source": "https://www.google.com/s2/favicons?domain=news.microsoft.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "news.microsoft.com"
+    },
+    "lemagit": {
+      "id": "publisher-378",
+      "file": "publisher-378.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=lemagit.fr&sz=128",
+      "resourceType": "site-icon",
+      "domain": "lemagit.fr"
+    },
+    "revolut": {
+      "id": "publisher-379",
+      "file": "publisher-379.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=revolut.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "revolut.com"
+    },
+    "economyup": {
+      "id": "publisher-380",
+      "file": "publisher-380.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=economyup.it&sz=128",
+      "resourceType": "site-icon",
+      "domain": "economyup.it"
+    },
+    "polygon labs": {
+      "id": "publisher-381",
+      "file": "publisher-381.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=polygon.technology&sz=128",
+      "resourceType": "site-icon",
+      "domain": "polygon.technology"
+    },
+    "cfo.economictimes.indiatimes.com": {
+      "id": "publisher-382",
+      "file": "publisher-382.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cfo.economictimes.indiatimes.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cfo.economictimes.indiatimes.com"
+    },
+    "elcapitalfinanciero.com": {
+      "id": "publisher-383",
+      "file": "publisher-383.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=elcapitalfinanciero.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "elcapitalfinanciero.com"
+    },
+    "outlook business": {
+      "id": "publisher-384",
+      "file": "publisher-384.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=outlookbusiness.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "outlookbusiness.com"
+    },
+    "uktn": {
+      "id": "publisher-385",
+      "file": "publisher-385.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=uktech.news&sz=128",
+      "resourceType": "site-icon",
+      "domain": "uktech.news"
+    },
+    "it finanzmagazin": {
+      "id": "publisher-386",
+      "file": "publisher-386.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=it-finanzmagazin.de&sz=128",
+      "resourceType": "site-icon",
+      "domain": "it-finanzmagazin.de"
+    },
+    "disruption banking": {
+      "id": "publisher-387",
+      "file": "publisher-387.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=disruptionbanking.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "disruptionbanking.com"
+    },
+    "contrareplica": {
+      "id": "publisher-388",
+      "file": "publisher-388.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=contrareplica.mx&sz=128",
+      "resourceType": "site-icon",
+      "domain": "contrareplica.mx"
+    },
+    "alto nivel": {
+      "id": "publisher-389",
+      "file": "publisher-389.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=altonivel.com.mx&sz=128",
+      "resourceType": "site-icon",
+      "domain": "altonivel.com.mx"
+    },
+    "insider media ltd": {
+      "id": "publisher-390",
+      "file": "publisher-390.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=insidermedia.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "insidermedia.com"
+    },
+    "vietnam investment review - vir": {
+      "id": "publisher-391",
+      "file": "publisher-391.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=vir.com.vn&sz=128",
+      "resourceType": "site-icon",
+      "domain": "vir.com.vn"
+    },
+    "legal business": {
+      "id": "publisher-392",
+      "file": "publisher-392.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=legalbusiness.co.uk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "legalbusiness.co.uk"
+    },
+    "negocios.com": {
+      "id": "publisher-393",
+      "file": "publisher-393.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=negocios.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "negocios.com"
+    },
+    "gan@mas": {
+      "id": "publisher-394",
+      "file": "publisher-394.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=revistaganamas.com.pe&sz=128",
+      "resourceType": "site-icon",
+      "domain": "revistaganamas.com.pe"
+    },
+    "iprofesional": {
+      "id": "publisher-395",
+      "file": "publisher-395.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=iprofesional.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "iprofesional.com"
+    },
+    "forbes argentina": {
+      "id": "publisher-396",
+      "file": "publisher-396.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=forbesargentina.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "forbesargentina.com"
+    },
+    "360 radio": {
+      "id": "publisher-397",
+      "file": "publisher-397.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=360radio.com.co&sz=128",
+      "resourceType": "site-icon",
+      "domain": "360radio.com.co"
+    },
+    "the block": {
+      "id": "publisher-398",
+      "file": "publisher-398.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=theblock.co&sz=128",
+      "resourceType": "site-icon",
+      "domain": "theblock.co"
+    },
+    "the intermediary": {
+      "id": "publisher-399",
+      "file": "publisher-399.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=theintermediary.co.uk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "theintermediary.co.uk"
+    },
+    "noticiastrabajo": {
+      "id": "publisher-400",
+      "file": "publisher-400.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=noticiastrabajo.huffingtonpost.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "noticiastrabajo.huffingtonpost.es"
+    },
+    "diario libero": {
+      "id": "publisher-401",
+      "file": "publisher-401.png",
+      "width": 30,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=liberoquotidiano.it&sz=128",
+      "resourceType": "site-icon",
+      "domain": "liberoquotidiano.it"
+    },
+    "forbes turkiye": {
+      "id": "publisher-402",
+      "file": "publisher-402.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=forbes.com.tr&sz=128",
+      "resourceType": "site-icon",
+      "domain": "forbes.com.tr"
+    },
+    "instagram": {
+      "id": "publisher-403",
+      "file": "publisher-403.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=instagram.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "instagram.com"
+    },
+    "techradar": {
+      "id": "publisher-404",
+      "file": "publisher-404.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=www.techradar.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "www.techradar.com"
+    },
+    "it brief australia": {
+      "id": "publisher-365",
+      "file": "publisher-365.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=itbrief.com.au&sz=128",
+      "resourceType": "site-icon",
+      "domain": "itbrief.com.au"
+    },
+    "insurance business": {
+      "id": "publisher-405",
+      "file": "publisher-405.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=insurancebusinessmag.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "insurancebusinessmag.com"
+    },
+    "investor's business daily": {
+      "id": "publisher-406",
+      "file": "publisher-406.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=investors.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "investors.com"
+    },
+    "business insider africa": {
+      "id": "publisher-407",
+      "file": "publisher-407.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=africa.businessinsider.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "africa.businessinsider.com"
+    },
+    "the worldfolio": {
+      "id": "publisher-408",
+      "file": "publisher-408.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=theworldfolio.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "theworldfolio.com"
+    },
+    "cx today": {
+      "id": "publisher-409",
+      "file": "publisher-409.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cxtoday.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cxtoday.com"
+    },
+    "westpac iq": {
+      "id": "publisher-410",
+      "file": "publisher-410.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=westpaciq.com.au&sz=128",
+      "resourceType": "site-icon",
+      "domain": "westpaciq.com.au"
+    },
+    "businessworld online": {
+      "id": "publisher-411",
+      "file": "publisher-411.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bworldonline.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "bworldonline.com"
+    },
+    "arabian business": {
+      "id": "publisher-412",
+      "file": "publisher-412.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=arabianbusiness.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "arabianbusiness.com"
+    },
+    "dhaka tribune": {
+      "id": "publisher-413",
+      "file": "publisher-413.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=dhakatribune.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "dhakatribune.com"
+    },
+    "debate": {
+      "id": "publisher-414",
+      "file": "publisher-414.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=debate.com.mx&sz=128",
+      "resourceType": "site-icon",
+      "domain": "debate.com.mx"
+    },
+    "global finance magazine": {
+      "id": "publisher-415",
+      "file": "publisher-415.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=gfmag.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "gfmag.com"
+    },
+    "hdblog.it": {
+      "id": "publisher-416",
+      "file": "publisher-416.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=hdblog.it&sz=128",
+      "resourceType": "site-icon",
+      "domain": "hdblog.it"
+    },
+    "techbuzzireland.com": {
+      "id": "publisher-417",
+      "file": "publisher-417.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=techbuzzireland.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "techbuzzireland.com"
+    },
+    "techrepublic": {
+      "id": "publisher-418",
+      "file": "publisher-418.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=techrepublic.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "techrepublic.com"
+    },
+    "la voz del interior": {
+      "id": "publisher-419",
+      "file": "publisher-419.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=lavoz.com.ar&sz=128",
+      "resourceType": "site-icon",
+      "domain": "lavoz.com.ar"
+    },
+    "payment & banking": {
+      "id": "publisher-420",
+      "file": "publisher-420.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=paymentandbanking.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "paymentandbanking.com"
+    },
+    "btc-echo": {
+      "id": "publisher-421",
+      "file": "publisher-421.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=btc-echo.de&sz=128",
+      "resourceType": "site-icon",
+      "domain": "btc-echo.de"
+    },
+    "challenges": {
+      "id": "publisher-422",
+      "file": "publisher-422.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=challenges.fr&sz=128",
+      "resourceType": "site-icon",
+      "domain": "challenges.fr"
+    },
+    "manila bulletin": {
+      "id": "publisher-423",
+      "file": "publisher-423.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=mb.com.ph&sz=128",
+      "resourceType": "site-icon",
+      "domain": "mb.com.ph"
+    },
+    "global trade review (gtr)": {
+      "id": "publisher-424",
+      "file": "publisher-424.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=gtreview.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "gtreview.com"
+    },
+    "caixabank": {
+      "id": "publisher-425",
+      "file": "publisher-425.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=caixabank.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "caixabank.com"
+    },
+    "la tercera": {
+      "id": "publisher-426",
+      "file": "publisher-426.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=latercera.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "latercera.com"
+    },
+    "revista mercado": {
+      "id": "publisher-427",
+      "file": "publisher-427.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=mercado.com.ar&sz=128",
+      "resourceType": "site-icon",
+      "domain": "mercado.com.ar"
+    },
+    "fstech": {
+      "id": "publisher-428",
+      "file": "publisher-428.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=www.fstech.co.uk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "www.fstech.co.uk"
+    },
+    "correio braziliense": {
+      "id": "publisher-429",
+      "file": "publisher-429.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=correiobraziliense.com.br&sz=128",
+      "resourceType": "site-icon",
+      "domain": "correiobraziliense.com.br"
+    },
+    "estadao": {
+      "id": "publisher-430",
+      "file": "publisher-430.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=estadao.com.br&sz=128",
+      "resourceType": "site-icon",
+      "domain": "estadao.com.br"
+    },
+    "society for worldwide interbank financial telecommunication": {
+      "id": "publisher-431",
+      "file": "publisher-431.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=swift.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "swift.com"
+    },
+    "airasia newsroom": {
+      "id": "publisher-432",
+      "file": "publisher-432.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=newsroom.airasia.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "newsroom.airasia.com"
+    },
+    "free malaysia today": {
+      "id": "publisher-433",
+      "file": "publisher-433.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=freemalaysiatoday.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "freemalaysiatoday.com"
+    },
+    "upstox": {
+      "id": "publisher-434",
+      "file": "publisher-434.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=upstox.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "upstox.com"
+    },
+    "the australian": {
+      "id": "publisher-435",
+      "file": "publisher-435.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=theaustralian.com.au&sz=128",
+      "resourceType": "site-icon",
+      "domain": "theaustralian.com.au"
+    },
+    "nine.com.au": {
+      "id": "publisher-436",
+      "file": "publisher-436.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=nine.com.au&sz=128",
+      "resourceType": "site-icon",
+      "domain": "nine.com.au"
+    },
+    "corresponsables": {
+      "id": "publisher-437",
+      "file": "publisher-437.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=corresponsables.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "corresponsables.com"
+    },
+    "finect": {
+      "id": "publisher-438",
+      "file": "publisher-438.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=www.finect.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "www.finect.com"
+    },
+    "vanguardia.com.mx": {
+      "id": "publisher-439",
+      "file": "publisher-439.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=vanguardia.com.mx&sz=128",
+      "resourceType": "site-icon",
+      "domain": "vanguardia.com.mx"
+    },
+    "process excellence network": {
+      "id": "publisher-440",
+      "file": "publisher-440.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=processexcellencenetwork.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "processexcellencenetwork.com"
+    },
+    "radiomundo en perspectiva": {
+      "id": "publisher-441",
+      "file": "publisher-441.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=enperspectiva.uy&sz=128",
+      "resourceType": "site-icon",
+      "domain": "enperspectiva.uy"
+    },
+    "infonegocios paraguay": {
+      "id": "publisher-442",
+      "file": "publisher-442.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=infonegocios.com.py&sz=128",
+      "resourceType": "site-icon",
+      "domain": "infonegocios.com.py"
+    },
+    "fast company mexico": {
+      "id": "publisher-443",
+      "file": "publisher-443.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fastcompany.mx&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fastcompany.mx"
+    },
+    "ppc land": {
+      "id": "publisher-444",
+      "file": "publisher-444.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ppcland.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ppcland.com"
+    },
+    "ittn.ie": {
+      "id": "publisher-445",
+      "file": "publisher-445.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ittn.ie&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ittn.ie"
+    },
+    "irish independent": {
+      "id": "publisher-446",
+      "file": "publisher-446.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=independent.ie&sz=128",
+      "resourceType": "site-icon",
+      "domain": "independent.ie"
+    },
+    "el universal": {
+      "id": "publisher-447",
+      "file": "publisher-447.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=eluniversal.com.mx&sz=128",
+      "resourceType": "site-icon",
+      "domain": "eluniversal.com.mx"
+    },
+    "financieel management": {
+      "id": "publisher-448",
+      "file": "publisher-448.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fm.nl&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fm.nl"
+    },
+    "de telegraaf": {
+      "id": "publisher-449",
+      "file": "publisher-449.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=telegraaf.nl&sz=128",
+      "resourceType": "site-icon",
+      "domain": "telegraaf.nl"
+    },
+    "groupe bnp paribas": {
+      "id": "publisher-450",
+      "file": "publisher-450.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=group.bnpparibas&sz=128",
+      "resourceType": "site-icon",
+      "domain": "group.bnpparibas"
+    },
+    "open banking expo": {
+      "id": "publisher-451",
+      "file": "publisher-451.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=openbankingexpo.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "openbankingexpo.com"
+    },
+    "grocery trader": {
+      "id": "publisher-452",
+      "file": "publisher-452.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=grocerytrader.co.uk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "grocerytrader.co.uk"
+    },
+    "payments dive": {
+      "id": "publisher-453",
+      "file": "publisher-453.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=paymentsdive.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "paymentsdive.com"
+    },
+    "kbc group": {
+      "id": "publisher-454",
+      "file": "publisher-454.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=kbc.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "kbc.com"
+    },
+    "techtudo": {
+      "id": "publisher-455",
+      "file": "publisher-455.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=techtudo.com.br&sz=128",
+      "resourceType": "site-icon",
+      "domain": "techtudo.com.br"
+    },
+    "chocale": {
+      "id": "publisher-456",
+      "file": "publisher-456.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=chocale.cl&sz=128",
+      "resourceType": "site-icon",
+      "domain": "chocale.cl"
+    },
+    "dbs bank ltd": {
+      "id": "publisher-457",
+      "file": "publisher-457.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=dbs.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "dbs.com"
+    },
+    "cna": {
+      "id": "publisher-458",
+      "file": "publisher-458.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=channelnewsasia.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "channelnewsasia.com"
+    },
+    "international finance corporation (ifc)": {
+      "id": "publisher-459",
+      "file": "publisher-459.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=ifc.org&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ifc.org"
+    },
+    "tech business news": {
+      "id": "publisher-460",
+      "file": "publisher-460.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=techbusinessnews.com.au&sz=128",
+      "resourceType": "site-icon",
+      "domain": "techbusinessnews.com.au"
+    },
+    "tikr.com": {
+      "id": "publisher-461",
+      "file": "publisher-461.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=tikr.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "tikr.com"
+    },
+    "fijivillage": {
+      "id": "publisher-462",
+      "file": "publisher-462.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=fijivillage.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "fijivillage.com"
+    },
+    "applicantes": {
+      "id": "publisher-463",
+      "file": "publisher-463.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=applicantes.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "applicantes.com"
+    },
+    "infoperiodistas": {
+      "id": "publisher-464",
+      "file": "publisher-464.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=infoperiodistas.info&sz=128",
+      "resourceType": "site-icon",
+      "domain": "infoperiodistas.info"
+    },
+    "onda cero": {
+      "id": "publisher-465",
+      "file": "publisher-465.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ondacero.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ondacero.es"
+    },
+    "indexbox": {
+      "id": "publisher-466",
+      "file": "publisher-466.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=indexbox.io&sz=128",
+      "resourceType": "site-icon",
+      "domain": "indexbox.io"
+    },
+    "informat.ro": {
+      "id": "publisher-467",
+      "file": "publisher-467.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=informat.ro&sz=128",
+      "resourceType": "site-icon",
+      "domain": "informat.ro"
+    },
+    "news.lavx.hu": {
+      "id": "publisher-468",
+      "file": "publisher-468.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=news.lavx.hu&sz=128",
+      "resourceType": "site-icon",
+      "domain": "news.lavx.hu"
+    },
+    "merca2.es": {
+      "id": "publisher-469",
+      "file": "publisher-469.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=merca2.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "merca2.es"
+    },
+    "jerez sin fronteras": {
+      "id": "publisher-470",
+      "file": "publisher-470.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=jerezsinfronteras.es&sz=128",
+      "resourceType": "site-icon",
+      "domain": "jerezsinfronteras.es"
+    },
+    "areacucuta.com": {
+      "id": "publisher-471",
+      "file": "publisher-471.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=areacucuta.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "areacucuta.com"
+    },
+    "noticias rcn": {
+      "id": "publisher-472",
+      "file": "publisher-472.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=noticiasrcn.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "noticiasrcn.com"
+    },
+    "foro3d": {
+      "id": "publisher-473",
+      "file": "publisher-473.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=foro3d.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "foro3d.com"
+    },
+    "wales online": {
+      "id": "publisher-474",
+      "file": "publisher-474.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=walesonline.co.uk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "walesonline.co.uk"
+    },
+    "neowin": {
+      "id": "publisher-475",
+      "file": "publisher-475.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=neowin.net&sz=128",
+      "resourceType": "site-icon",
+      "domain": "neowin.net"
+    },
+    "turkiye today": {
+      "id": "publisher-476",
+      "file": "publisher-476.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=turkiyetoday.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "turkiyetoday.com"
+    },
+    "birminghamworld": {
+      "id": "publisher-477",
+      "file": "publisher-477.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=birminghamworld.uk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "birminghamworld.uk"
+    },
+    "ti inside online": {
+      "id": "publisher-478",
+      "file": "publisher-478.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=tiinside.com.br&sz=128",
+      "resourceType": "site-icon",
+      "domain": "tiinside.com.br"
+    },
+    "euronews.com": {
+      "id": "publisher-479",
+      "file": "publisher-479.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=euronews.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "euronews.com"
+    },
+    "techtimes.co.uk": {
+      "id": "publisher-273",
+      "file": "publisher-273.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=techtimes.co.uk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "techtimes.co.uk"
+    },
+    "hounslow herald": {
+      "id": "publisher-480",
+      "file": "publisher-480.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=hounslowherald.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "hounslowherald.com"
+    },
+    "betanews": {
+      "id": "publisher-481",
+      "file": "publisher-481.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=betanews.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "betanews.com"
+    },
+    "bleepingcomputer": {
+      "id": "publisher-482",
+      "file": "publisher-482.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=bleepingcomputer.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "bleepingcomputer.com"
+    },
+    "cybersecuritynews": {
+      "id": "publisher-483",
+      "file": "publisher-483.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=cybersecuritynews.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "cybersecuritynews.com"
+    },
+    "the next web": {
+      "id": "publisher-484",
+      "file": "publisher-484.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=thenextweb.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "thenextweb.com"
+    },
+    "love belfast": {
+      "id": "publisher-485",
+      "file": "publisher-485.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=lovebelfast.co.uk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "lovebelfast.co.uk"
+    },
+    "global banking & finance review": {
+      "id": "publisher-486",
+      "file": "publisher-486.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=globalbankingandfinance.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "globalbankingandfinance.com"
+    },
+    "tech-insider.org": {
+      "id": "publisher-487",
+      "file": "publisher-487.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=tech-insider.org&sz=128",
+      "resourceType": "site-icon",
+      "domain": "tech-insider.org"
+    },
+    "ndtv profit": {
+      "id": "publisher-488",
+      "file": "publisher-488.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ndtvprofit.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ndtvprofit.com"
+    },
+    "sur in english": {
+      "id": "publisher-489",
+      "file": "publisher-489.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=surinenglish.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "surinenglish.com"
+    },
+    "ua.news": {
+      "id": "publisher-490",
+      "file": "publisher-490.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=ua.news&sz=128",
+      "resourceType": "site-icon",
+      "domain": "ua.news"
+    },
+    "veredictum.cl": {
+      "id": "publisher-491",
+      "file": "publisher-491.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=veredictum.cl&sz=128",
+      "resourceType": "site-icon",
+      "domain": "veredictum.cl"
+    },
+    "아시아경제": {
+      "id": "publisher-492",
+      "file": "publisher-492.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=asiae.co.kr&sz=128",
+      "resourceType": "site-icon",
+      "domain": "asiae.co.kr"
+    },
+    "hsb noticias": {
+      "id": "publisher-493",
+      "file": "publisher-493.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=hsbnoticias.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "hsbnoticias.com"
+    },
+    "telemedellin": {
+      "id": "publisher-494",
+      "file": "publisher-494.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=telemedellin.tv&sz=128",
+      "resourceType": "site-icon",
+      "domain": "telemedellin.tv"
+    },
+    "la jornada": {
+      "id": "publisher-495",
+      "file": "publisher-495.png",
+      "width": 16,
+      "height": 16,
+      "source": "https://www.google.com/s2/favicons?domain=jornada.com.mx&sz=128",
+      "resourceType": "site-icon",
+      "domain": "jornada.com.mx"
+    },
+    "business live": {
+      "id": "publisher-496",
+      "file": "publisher-496.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=business-live.co.uk&sz=128",
+      "resourceType": "site-icon",
+      "domain": "business-live.co.uk"
+    },
+    "magzter": {
+      "id": "publisher-497",
+      "file": "publisher-497.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=magzter.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "magzter.com"
+    },
+    "abc iview": {
+      "id": "publisher-498",
+      "file": "publisher-498.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=iview.abc.net.au&sz=128",
+      "resourceType": "site-icon",
+      "domain": "iview.abc.net.au"
+    },
+    "latestly": {
+      "id": "publisher-499",
+      "file": "publisher-499.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=latestly.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "latestly.com"
+    },
+    "businessdesk": {
+      "id": "publisher-500",
+      "file": "publisher-500.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=businessdesk.co.nz&sz=128",
+      "resourceType": "site-icon",
+      "domain": "businessdesk.co.nz"
+    },
+    "seoul economic daily": {
+      "id": "publisher-501",
+      "file": "publisher-501.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=en.sedaily.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "en.sedaily.com"
+    },
+    "et now": {
+      "id": "publisher-502",
+      "file": "publisher-502.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://www.google.com/s2/favicons?domain=etnownews.com&sz=128",
+      "resourceType": "site-icon",
+      "domain": "etnownews.com"
+    },
+    "business empresarial": {
+      "source": "https://www.google.com/s2/favicons?domain=businessempresarial.com.pe&sz=128",
+      "resourceType": "site-icon-candidate",
+      "available": false
+    },
+    "aziendabanca": {
+      "source": "https://www.google.com/s2/favicons?domain=aziendabanca.it&sz=128",
+      "resourceType": "site-icon-candidate",
+      "available": false
+    },
+    "the covai mail": {
+      "source": "https://www.google.com/s2/favicons?domain=thecovaimail.com&sz=128",
+      "resourceType": "site-icon-candidate",
+      "available": false
+    },
+    "헤럴드경제": {
+      "source": "https://www.google.com/s2/favicons?domain=heraldcorp.com&sz=128",
+      "resourceType": "site-icon-candidate",
+      "available": false
+    },
+    "bloomberg law news": {
+      "source": "https://www.google.com/s2/favicons?domain=news.bloomberglaw.com&sz=128",
+      "resourceType": "site-icon-candidate",
+      "available": false
+    },
+    "bandwidth blog": {
+      "source": "https://www.google.com/s2/favicons?domain=bandwidthblog.com&sz=128",
+      "resourceType": "site-icon-candidate",
+      "available": false
+    },
+    "lamiafinanza": {
+      "source": "https://www.google.com/s2/favicons?domain=lamiainfinanza.it&sz=128",
+      "resourceType": "site-icon-candidate",
+      "available": false
+    },
+    "hoja de ruta digital": {
+      "source": "https://www.google.com/s2/favicons?domain=hojaderutadigital.mx&sz=128",
+      "resourceType": "site-icon-candidate",
+      "available": false
+    },
+    "coinpaper": {
+      "source": "https://www.google.com/s2/favicons?domain=coinpaper.com&sz=128",
+      "resourceType": "site-icon-candidate",
+      "available": false
+    },
+    "the fiji times": {
+      "source": "https://www.google.com/s2/favicons?domain=fijitimes.com.fj&sz=128",
+      "resourceType": "site-icon-candidate",
+      "available": false
+    },
+    "share talk": {
+      "source": "https://www.google.com/s2/favicons?domain=share-talk.com&sz=128",
+      "resourceType": "site-icon-candidate",
+      "available": false
     }
   }
 }
