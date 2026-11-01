@@ -5,6 +5,7 @@ function newsReadingGeography_(context,query){
  return geography;
 }
 function newsGeographySelection_(rows,query,geography=applicationGeography(configuration_().applicationScope,query.segment,configuration_().geographies)){
+  query=geographyTabQuery({...query,view:'news'},geography.regions,geography);
   return query.newsGeography?rows.filter(row=>geographyMatches(row,query.newsGeography,geography)):rows;
 }
 function searchText_(value) {
@@ -29,7 +30,8 @@ function selectAnnotatedNews_(rows,query,entityName=entityKey_,identities=false,
 }
 function newsDashboard_(rows, query, feeds,view='radar',context=null,pagination=null,previousRows=null,searchMatch=null) {
   const identities=Boolean(context)||view==='radar';if(!context&&view==='radar')rows=translationIdentityRows_(rows);
-  const entityName=context?snapshotEntity_:entityKey_,geography=newsReadingGeography_(context,query),selected=selectAnnotatedNews_(view==='briefing'?rows.filter(briefingAllowed):rows,query,entityName,identities,geography,searchMatch),radar=view==='radar'?radarMetrics_(selected,query,context?.geographies,entityName):null;
+  const entityName=context?snapshotEntity_:entityKey_,geography=newsReadingGeography_(context,query);query=geographyTabQuery({...query,view},geography.regions,geography);
+  const selected=selectAnnotatedNews_(view==='briefing'?rows.filter(briefingAllowed):rows,query,entityName,identities,geography,searchMatch),radar=view==='radar'?radarMetrics_(selected,query,context?.geographies,entityName):null;
   if(radar){radar.outages=radarOutageSelection_(selected,query,entityName,previousRows);const available={total:0,from:'',to:'',limited:false},period=['country','entity','source','search','type','segment','signal','coverage','palanca','subpalanca'].some(key=>query[key])?uniqueNews_(rows.filter(row=>newsScope_(row,{from:query.from,to:query.to},''))):selected;for(const row of period){available.total++;if(!available.from||row.fecha<available.from)available.from=row.fecha;if(row.fecha>available.to)available.to=row.fecha;}radar.available=available;}
   const newsGeographies=view==='news'?noveltyOverview(selected,[],geography).geographies.map(({name,total})=>({name,total})):[],newsGeography=[...newsGeographies,...regionalGeographies(selected,geography)].some(row=>row.name===query.newsGeography)?query.newsGeography:newsGeographies[0]?.name||'',visible=view==='news'?newsGeographySelection_(selected,{...query,newsGeography},geography):selected;
   const page=Math.min(Math.max(0,Math.floor(Number(query.page)||0)),Math.max(0,Math.ceil(visible.length/settings_().pageSize)-1));
