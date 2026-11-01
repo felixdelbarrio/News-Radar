@@ -14,7 +14,7 @@ function newsletterSubject_(query,language='es'){return newsletterIdentity_(quer
 function briefing_(rows,perGeography=false,geography=applicationGeography(configuration_().applicationScope,sectorNewsDefaults.segment,configuration_().geographies)){
   const ranked=rows.filter(briefingAllowed).sort(publicationOrder),overview=noveltyOverview(ranked,BRIEFING_ALLOWED_SIGNALS,geography),items=[],counts=new Map(),limit=settings_().briefingLimit;
   for(const row of ranked){const keys=perGeography?[...new Set(articleGeographies(row).map(country=>geography.own(country)?country:geography.region(country)||otherGeography))]:[''];if(keys.some(key=>(counts.get(key)||0)<limit)){items.push(row);for(const key of keys)counts.set(key,(counts.get(key)||0)+1);}}
-  const regional=row=>[...new Set(articleGeographies(row).filter(country=>!geography.own(country)).map(country=>geography.region(country)).filter(Boolean))],regions=noveltyOverview(ranked.filter(row=>regional(row).length),BRIEFING_ALLOWED_SIGNALS,regional).geographies;
+  const regional=row=>unlocatedGeography(row,geography)?geography.regions:[...new Set(articleGeographies(row).filter(country=>!geography.own(country)).map(country=>geography.region(country)).filter(Boolean))],located=new Map(regionalGeographies(ranked,geography).map(row=>[row.name,row.total])),regions=noveltyOverview(ranked.filter(row=>regional(row).length),BRIEFING_ALLOWED_SIGNALS,regional).geographies.map(row=>({...row,locatedTotal:located.get(row.name)||0}));
   return {...overview,regions,items,limited:overview.total>items.length};
 }
 function newsletter_(rows,query,title,now,subscriptionId,language='es',editionId='',known=new Set()){

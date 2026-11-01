@@ -2870,7 +2870,8 @@ const CONFIGURATION_DEFAULTS = {
         "banxico",
         "spei",
         "cnbv",
-        "condusef"
+        "condusef",
+        "IMSS"
       ],
       "region": "AMER",
       "publisherDomains": [],
