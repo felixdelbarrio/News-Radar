@@ -66,6 +66,7 @@ const configurationRevision_=()=>revision;
 const properties_=()=>({getProperty:()=>revision});
 const translationIdentityRows_=rows=>rows;
 const llmState_=()=>({});
+const geographyCatalog_=name=>name==='CatalogoMedios'?mediaCatalog:localeRules;
 const llmIndex_=()=>new Map();
 const llmStrongResult_=()=>false;
 const llmEditorialExclusion_=()=>false;

@@ -89,7 +89,7 @@ function dashboardCacheKey_(selection,view,language,edition=null){
 }
 
 function dashboardCatalogOptions_(data,feeds){
-  const index=newsRecordIndex_();data.entities=[...new Set([...index.entities.map(entityKey_),...feeds.map(feed=>entityKey_(feed.entity))])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));data.sources=[...new Set(index.sources.map(publisherKey_))].sort((a,b)=>a.localeCompare(b,'es'));
+  const index=newsRecordIndex_();data.entities=[...new Set([...index.entities.map(entityKey_),...feeds.map(feed=>entityKey_(feed.entity))])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));data.sources=[...new Set([...index.sources.map(publisherKey_),...(data.sources||[])])].sort((a,b)=>a.localeCompare(b,'es'));
 }
 
 // Volatile status shares the existing 15-second freshness budget; publication revision stays live.
