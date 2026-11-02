@@ -1,7 +1,7 @@
 // Persist the completion barrier with the job; publication failure leaves it visibly incomplete.
 function snapshotJob_(key,job){
   if(job.state!=='Completada'&&job.state!=='Publicando'){const pending=JSON.parse(properties_().getProperty('SNAPSHOT_JOBS')||'[]').filter(value=>value!==key);if(pending.length)properties_().setProperty('SNAPSHOT_JOBS',JSON.stringify(pending));else properties_().deleteProperty('SNAPSHOT_JOBS');}
-  if(job.state!=='Completada'||job.total===0&&!(key==='TAXONOMY_JOB'&&job.model))return job;
+  if(!['Completada','Publicando'].includes(job.state)||job.total===0&&!(key==='TAXONOMY_JOB'&&job.model))return job;
   const pending=JSON.parse(properties_().getProperty('SNAPSHOT_JOBS')||'[]');if(!pending.includes(key))pending.push(key);
   properties_().setProperty('SNAPSHOT_JOBS',JSON.stringify(pending));requestDashboardSnapshots_(true);return {...job,state:'Publicando'};
 }

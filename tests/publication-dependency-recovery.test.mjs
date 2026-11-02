@@ -12,3 +12,13 @@ test('esperar clasificación o taxonomía no consume reintentos de publicación 
  p.TAXONOMY_JOB=JSON.stringify({state:'Completada'});c.recoverBackgroundJobs_(now+6*600001+1);assert.equal(c.collectionJobs_()[0].estado,'Publicando');assert.equal(JSON.parse(p.CLASSIFICATION_JOB).publicationRetries,undefined);
  c.recoverBackgroundJobs_(now+7*600001+1);assert.equal(JSON.parse(p.CLASSIFICATION_JOB).publicationRetries,1);assert.equal(JSON.parse(p['PUBLICATION_RETRY:ingestion']).count,1);
 });
+
+test('reanudar una publicación revisada restaura su barrera y completa sus checkpoints al publicar',()=>{
+ const {c,properties:p}=storage();c.initializeConfiguration();
+ for(const key of ['CLASSIFICATION_JOB','TAXONOMY_JOB'])p[key]=JSON.stringify({state:'Revisar',publicationRetries:3,total:100,next:102,verified:true});
+ delete p.SNAPSHOT_JOBS;c.rebuildDashboardSnapshots();
+ assert.deepEqual(JSON.parse(p.SNAPSHOT_JOBS).sort(),['CLASSIFICATION_JOB','TAXONOMY_JOB']);
+ c.completeSnapshotJobs_();
+ for(const key of ['CLASSIFICATION_JOB','TAXONOMY_JOB']){const job=JSON.parse(p[key]);assert.equal(job.state,'Completada');assert.equal(job.next,102);assert.ok(job.published);}
+ assert.equal(p.SNAPSHOT_JOBS,undefined);
+});

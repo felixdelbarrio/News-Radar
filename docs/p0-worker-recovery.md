@@ -54,3 +54,7 @@ A las 23:54 del 2 de noviembre (Madrid), las dos ingestas existentes habían pro
 La recuperación no debe consumir reintentos mientras espera una ingesta, clasificación o taxonomía todavía en procesamiento. Se conserva la fecha de espera y se inicia el margen de recuperación desde el último progreso o espera, sin elevar límites ni repetir fuentes. Cuando se agotan recuperaciones reales, el supervisor informa de revisión de publicación en lugar de afirmar que no hay trabajo.
 
 Se ha solicitado la recuperación explícita de los checkpoints y la reinstalación de los activadores previstos. El cierre operativo y los identificadores de Gmail deben verificarse antes de declarar los envíos resueltos.
+
+La recuperación explícita también debe reinscribir los trabajos en `SNAPSHOT_JOBS`: al pasar de `Revisar` a `Publicando` se había eliminado su registro, por lo que una publicación posterior no podía marcarlos como completados. `snapshotJob_` registra ambos estados de publicación; una prueba verifica la restitución de la barrera y la finalización sin alterar el cursor.
+
+Verificación completa previa a esta última corrección: 1.015 pruebas correctas. Validación adicional de recuperación y snapshots, incluida la barrera restaurada: 36 pruebas correctas. La CI final incluye ambas correcciones.
