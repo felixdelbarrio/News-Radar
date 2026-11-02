@@ -30,3 +30,11 @@ El cierre v7 permanece subordinado a la estabilización de esta ingesta. No se h
 Los recuentos de incidencias ya utilizaban la selección común de Radar, pero su eje mensual generaba los doce meses del año final y sus textos presentaban una visión anual. Ahora el eje incluye exclusivamente los meses comprendidos entre `query.from` y `query.to`, también al cruzar de año. Los indicadores, evidencias y navegación a Noticias conservan la misma selección. La comparativa sigue utilizando el mismo intervalo del año anterior. Se reutilizan componentes y estilos existentes, sin consultas adicionales.
 
 Validación local: 95 pruebas específicas correctas; sintaxis, diseño, permisos y distribución reproducible comprobados. La publicación y medición del nuevo cambio siguen pendientes hasta verificarlas en producción.
+
+## iupana · corrección expresa del propietario
+
+La ficha existente `iupana.com|seed_1e016f315bd0c67d` se actualiza a México (MX), sin añadir un registro duplicado. Se conserva en las semillas la misma corrección indicada por el propietario. El país editorial sigue siendo un indicio débil frente al país explícito del contenido.
+
+El ID `c0bcf9d1-14a9-4032-bf4f-f87cf951f62d`, «Buenas Fuentes: Afirme digitaliza gastos y BBVA libera capital pyme», se corrige España → México en `Noticias` fila 286 y la copia activa fila 242. El original público identifica Afirme de México y cantidades MXN: https://iupana.com/2026/08/28/buenas-fuentes-afirme-digitaliza-gastos-y-bbva-libera-capital-pyme/
+
+La escritura verifica el contenido JSON existente, preserva los campos funcionales y no solicita reclasificación general. Evidencia y exportaciones: `output/iteration-v7/iupana-*`. La otra noticia de iupana ya registrada en México conserva su país.
