@@ -33,7 +33,7 @@ function ensureBackgroundWorker_(delay=60000){
   properties_().setProperty('BACKGROUND_PENDING','true');
   const triggers=scheduledTriggers_('backgroundTick_'),next=Date.now()+Math.max(60000,delay);
   const scheduled=Number(properties_().getProperty('BACKGROUND_NEXT'));
-  if(triggers.length===1&&scheduled>Date.now()&&scheduled<=next)return;
+  if(triggers.length===1&&scheduled>0&&scheduled<=next)return;
   triggers.forEach(trigger=>ScriptApp.deleteTrigger(trigger));ScriptApp.newTrigger('backgroundTick_').timeBased().after(Math.max(60000,delay)).create();properties_().setProperty('BACKGROUND_NEXT',String(next));
 }
 function translationReadyAt_(){
@@ -179,7 +179,7 @@ function backgroundWatchdog_(){
   try{
     recoverBackgroundJobs_();
     const now=Date.now(),jobs=collectionJobs_(),next=backgroundNextAt_({jobs});
-    if(Number.isFinite(next)){p.setProperty('SUPERVISOR_DECISION',next>now?'Esperando disponibilidad de cuota o reintento':'Continuación de la cola autorizada');p.deleteProperty('BACKGROUND_NEXT');ensureBackgroundWorker_(next-now);}else{p.setProperty('SUPERVISOR_DECISION','Sin trabajos pendientes');p.deleteProperty('BACKGROUND_PENDING');}
+    if(Number.isFinite(next)){p.setProperty('SUPERVISOR_DECISION',next>now?'Esperando disponibilidad de cuota o reintento':'Continuación de la cola autorizada');p.deleteProperty('BACKGROUND_NEXT');ensureBackgroundWorker_(next-now);}else{p.setProperty('SUPERVISOR_DECISION',jobs.some(job=>job.estado==='Revisar')||[classificationJob_(),taxonomyJob_(),translationJob_()].some(publicationNeedsReview_)?'Publicación pendiente de revisión; consulta los trabajos bloqueados':'Sin trabajos pendientes');p.deleteProperty('BACKGROUND_PENDING');}
   }finally{lock.releaseLock();}
 }
 

@@ -52,3 +52,11 @@ test('el supervisor sustituye el activador huérfano sin fecha y conserva la sol
  assert.equal(c.collectionRequests_().length,1);
  const fresh=c.scheduledTriggers_('backgroundTick_')[0];c.ensureBackgroundWorker_();assert.equal(c.scheduledTriggers_('backgroundTick_')[0],fresh);
 });
+test('una continuación ligeramente retrasada conserva su activador hasta la recuperación del supervisor',()=>{
+ const s=fixture(),c=s.c;c.workWake_();c.requestCollection_('annual',{from:'2025-10-01',to:'2026-10-01'});
+ const trigger=c.scheduledTriggers_('backgroundTick_')[0];s.properties.BACKGROUND_NEXT=String(Date.now()-1000);
+ c.ensureBackgroundWorker_();assert.equal(c.scheduledTriggers_('backgroundTick_')[0],trigger);
+ c.backgroundWatchdog_();assert.equal(c.scheduledTriggers_('backgroundTick_')[0],trigger);
+ s.properties.BACKGROUND_NEXT=String(Date.now()-180000);c.backgroundWatchdog_();
+ assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);assert.notEqual(c.scheduledTriggers_('backgroundTick_')[0],trigger);assert.ok(Number(s.properties.BACKGROUND_NEXT)>Date.now());
+});
