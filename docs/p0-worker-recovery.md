@@ -4,7 +4,7 @@ Base: `origin/develop` 6b319e0, después de la integración de PR 107.
 
 ## Correcciones
 
-- `ensureBackgroundWorker_` solo reutiliza un activador si conserva una fecha futura válida. Una propiedad ausente se convertía en cero: el supervisor borraba `BACKGROUND_NEXT` para recuperar el activador, pero la continuación lo consideraba vigente y no lo reemplazaba.
+- `ensureBackgroundWorker_` solo reutiliza un activador si conserva una fecha válida mayor que cero. Una propiedad ausente se convertía en cero: el supervisor borraba `BACKGROUND_NEXT` para recuperar el activador, pero la continuación lo consideraba vigente y no lo reemplazaba. Una fecha ligeramente retrasada se conserva hasta que el supervisor agote su margen de recuperación; las consultas no deben posponer un activador pendiente de ejecutarse.
 - La primera carga de Radar utiliza 365 días aunque reciba las fechas predeterminadas de Noticias. Los rangos explícitos posteriores se conservan.
 
 ## Diagnóstico de producción
@@ -38,3 +38,7 @@ La ficha existente `iupana.com|seed_1e016f315bd0c67d` se actualiza a México (MX
 El ID `c0bcf9d1-14a9-4032-bf4f-f87cf951f62d`, «Buenas Fuentes: Afirme digitaliza gastos y BBVA libera capital pyme», se corrige España → México en `Noticias` fila 286 y la copia activa fila 242. El original público identifica Afirme de México y cantidades MXN: https://iupana.com/2026/08/28/buenas-fuentes-afirme-digitaliza-gastos-y-bbva-libera-capital-pyme/
 
 La escritura verifica el contenido JSON existente, preserva los campos funcionales y no solicita reclasificación general. Evidencia y exportaciones: `output/iteration-v7/iupana-*`. La otra noticia de iupana ya registrada en México conserva su país.
+
+## Margen del activador · 3.35.3
+
+La recuperación diferencia la ausencia de fecha de un activador válido que Google todavía no ha ejecutado. La prueba cubre el retraso breve sin sustitución y la sustitución por el supervisor después de su margen. Validación específica conjunta: 52 pruebas correctas. No cambia el número de fuentes por lote ni el presupuesto temporal del trabajador.

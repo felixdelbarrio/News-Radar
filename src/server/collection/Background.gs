@@ -33,7 +33,7 @@ function ensureBackgroundWorker_(delay=60000){
   properties_().setProperty('BACKGROUND_PENDING','true');
   const triggers=scheduledTriggers_('backgroundTick_'),next=Date.now()+Math.max(60000,delay);
   const scheduled=Number(properties_().getProperty('BACKGROUND_NEXT'));
-  if(triggers.length===1&&scheduled>Date.now()&&scheduled<=next)return;
+  if(triggers.length===1&&scheduled>0&&scheduled<=next)return;
   triggers.forEach(trigger=>ScriptApp.deleteTrigger(trigger));ScriptApp.newTrigger('backgroundTick_').timeBased().after(Math.max(60000,delay)).create();properties_().setProperty('BACKGROUND_NEXT',String(next));
 }
 function translationReadyAt_(){
