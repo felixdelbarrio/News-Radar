@@ -53,3 +53,5 @@ test('un lote vacío registra fases completas y estados sin logs por noticia',()
  const result=c.collectionBatch_(c.collectionWork_(Date.now())),detail=c.rows_('Telemetria').find(row=>row.operacion==='recopilacion').detalle,metrics=JSON.parse(detail.slice(detail.indexOf('{"runId"')));
  assert.equal(result.added,0);assert.equal(metrics.runId,'fixture-run');assert.equal(metrics.planned,1);assert.equal(metrics.completed,1);assert.equal(metrics.evaluated,0);for(const key of ['candidates','coverage','news','media','audit','children','tasks','runs','snapshots','flush','status'])assert.ok(metrics.persistence[key]>=0,key);assert.equal(c.rows_('Recopilacion')[0].estado,'Completada');
 });
+
+test('Radar inicial no hereda el rango predeterminado de Noticias al navegar',()=>{const {c}=server(),now=new Date('2026-11-02T12:00:00Z'),q=c.dashboardQuery_({view:'radar',initial:true,from:'2026-08-02',to:'2026-11-02'},now);assert.equal(q.from,'2025-11-03');assert.equal(q.to,'2026-11-02');const manual=c.dashboardQuery_({view:'radar',from:'2026-08-02',to:'2026-11-02'},now);assert.equal(manual.from,'2026-08-02');assert.equal(manual.to,'2026-11-02');});
