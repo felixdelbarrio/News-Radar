@@ -44,3 +44,11 @@ test('el supervisor recupera solicitudes de clasificación sin cursor activo y t
  const s=fixture(),c=s.c;s.properties.CLASSIFICATION_REQUEST='2026-01-01';delete s.properties.BACKGROUND_PENDING;c.backgroundWatchdog_();assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);assert.equal(s.properties.CLASSIFICATION_REQUEST,'2026-01-01');
  c.deferBackgroundWork_('daily');c.backgroundWatchdog_();assert.ok(s.properties.DAILY_PIPELINE_REQUEST);assert.equal(s.properties['WORK_PENDING:daily'],undefined);
 });
+test('el supervisor sustituye el activador huérfano sin fecha y conserva la solicitud pendiente',()=>{
+ const s=fixture(),c=s.c;c.requestCollection_('annual',{from:'2025-10-01',to:'2026-10-01'});
+ const old=c.scheduledTriggers_('backgroundTick_')[0];delete s.properties.BACKGROUND_NEXT;
+ c.backgroundWatchdog_();assert.equal(c.scheduledTriggers_('backgroundTick_').length,1);
+ assert.notEqual(c.scheduledTriggers_('backgroundTick_')[0],old);assert.ok(Number(s.properties.BACKGROUND_NEXT)>Date.now());
+ assert.equal(c.collectionRequests_().length,1);
+ const fresh=c.scheduledTriggers_('backgroundTick_')[0];c.ensureBackgroundWorker_();assert.equal(c.scheduledTriggers_('backgroundTick_')[0],fresh);
+});

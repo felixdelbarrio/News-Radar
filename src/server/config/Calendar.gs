@@ -8,7 +8,7 @@ function dashboardQuery_(query={},now=new Date(),currentScope=true){
   if(currentScope&&view==='briefing')return {...sectorNewsDefaults,...(!initial&&(filters.from||filters.to)?Object.fromEntries(['from','to'].filter(key=>filters[key]).map(key=>[key,filters[key]])):dashboardPeriod_(view,now))};
   if(currentScope&&view==='radar'){
     const year=String(query.year||'');if(year&&(!/^\d{4}$/.test(year)||Number(year)<2000||Number(year)>Number(recordDay(now,settings_().timezone).slice(0,4))))throw Error('Año no válido.');
-    return {...sectorNewsDefaults,...Object.fromEntries(['entity','palanca','subpalanca'].filter(key=>filters[key]).map(key=>[key,filters[key]])),country:filters.country||'',...(year?{from:year+'-01-01',to:year+'-12-31'}:filters.from||filters.to?Object.fromEntries(['from','to'].filter(key=>filters[key]).map(key=>[key,filters[key]])):dashboardPeriod_(view,now))};
+    return {...sectorNewsDefaults,...Object.fromEntries(['entity','palanca','subpalanca'].filter(key=>filters[key]).map(key=>[key,filters[key]])),country:filters.country||'',...(year?{from:year+'-01-01',to:year+'-12-31'}:!initial&&(filters.from||filters.to)?Object.fromEntries(['from','to'].filter(key=>filters[key]).map(key=>[key,filters[key]])):dashboardPeriod_(view,now))};
   }
   const defaults={...(view==='radar'?{entity:''}:{}),...sectorNewsDefaults};
   return {...(initial?{...defaults,...(filters.newsGeography?{newsGeography:filters.newsGeography}:{})}:currentScope?{...filters,...sectorNewsDefaults}:filters),...(initial||currentScope&&!filters.from&&!filters.to?dashboardPeriod_(view,now):{})};
