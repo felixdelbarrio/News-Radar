@@ -24,3 +24,9 @@ Tras generar la propuesta editable y validar las precondiciones, se corrigieron 
 Evidencias locales: `output/iteration-41/mexico-verified-diff.json`, exportaciones anterior/posterior y `output/iteration-v7/Propuesta_historico_P0.xlsx`. Estos artefactos operativos no se incorporan al repositorio.
 
 El cierre v7 permanece subordinado a la estabilización de esta ingesta. No se ha iniciado un backfill adicional.
+
+## Incidencias y período de Radar · 3.35.2
+
+Los recuentos de incidencias ya utilizaban la selección común de Radar, pero su eje mensual generaba los doce meses del año final y sus textos presentaban una visión anual. Ahora el eje incluye exclusivamente los meses comprendidos entre `query.from` y `query.to`, también al cruzar de año. Los indicadores, evidencias y navegación a Noticias conservan la misma selección. La comparativa sigue utilizando el mismo intervalo del año anterior. Se reutilizan componentes y estilos existentes, sin consultas adicionales.
+
+Validación local: 95 pruebas específicas correctas; sintaxis, diseño, permisos y distribución reproducible comprobados. La publicación y medición del nuevo cambio siguen pendientes hasta verificarlas en producción.

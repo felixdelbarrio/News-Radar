@@ -100,8 +100,8 @@ function createRadar({ onCountry, onEntity, onSource, onOutage }) {
     if(outage){
       outageSelection={from:outage.from,to:outage.to,signal:outage.signal,newsGeography:'',source:'',page:0};
       $('radar-outage-summary').textContent=outage.summary;
-      const comparison=!outage.comparable?'Sin comparativa disponible':outage.change===null?'Sin base en el año anterior':`${outage.change>0?'+':''}${outage.change}% vs. año anterior`;
-      $('radar-outage-kpis').innerHTML=metricCards([['Incidencias registradas (Año)',outage.total,comparison],['Entidades afectadas',outage.affected,`${outage.ratio}% de ${outage.active} entidades activas`],['Entidad más expuesta',outage.top?.entity||'—',outage.top?`${outage.top.total} eventos · ${outage.concentration}% de concentración`:'Sin incidencias'],['Vector / Operativa crítica',outage.vector?.name||'—',outage.vector?`${outage.vector.total} evidencias`:'Sin incidencias']]);
+      const comparison=!outage.comparable?'Sin comparativa disponible':outage.change===null?'Sin base en el período comparable':t('{change}% vs. mismo período del año anterior',{change:(outage.change>0?'+':'')+outage.change});
+      $('radar-outage-kpis').innerHTML=metricCards([['Incidencias registradas',outage.total,comparison],['Entidades afectadas',outage.affected,`${outage.ratio}% de ${outage.active} entidades activas`],['Entidad más expuesta',outage.top?.entity||'—',outage.top?`${outage.top.total} eventos · ${outage.concentration}% de concentración`:'Sin incidencias'],['Vector / Operativa crítica',outage.vector?.name||'—',outage.vector?`${outage.vector.total} evidencias`:'Sin incidencias']]);
       const topLabel=$('radar-outage-kpis').children[2]?.querySelector('strong');if(topLabel&&outage.top)topLabel.insertAdjacentHTML('afterbegin',identityMark('entities',outage.top.entity,escape));
       $('radar-outage-kpis').children[0]?.querySelector('span').classList.add('badge');
       $('radar-outage-grid').hidden=!outage.total;

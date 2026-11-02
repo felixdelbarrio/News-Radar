@@ -343,19 +343,20 @@
     "Puntero de newsletter no verificado.": ["Newsletter pointer has not been verified.", "B\xFClten i\u015Faret\xE7isi do\u011Frulanmad\u0131."],
     "Archivo de newsletter pendiente de compactar.": ["Newsletter archive is awaiting compaction.", "B\xFClten ar\u015Fivi s\u0131k\u0131\u015Ft\u0131r\u0131lmay\u0131 bekliyor."],
     "Explorar incidencias en Noticias": ["Explore incidents in News", "Olaylar\u0131 Haberlerde incele"],
-    "CONTINUIDAD OPERATIVA Y RIESGO DE CANAL \xB7 VISI\xD3N ANUAL": ["OPERATIONAL CONTINUITY AND CHANNEL RISK \xB7 ANNUAL VIEW", "OPERASYONEL S\xDCREKL\u0130L\u0130K VE KANAL R\u0130SK\u0130 \xB7 YILLIK G\xD6R\xDCN\xDCM"],
+    "CONTINUIDAD OPERATIVA Y RIESGO DE CANAL": ["OPERATIONAL CONTINUITY AND CHANNEL RISK", "OPERASYONEL S\xDCREKL\u0130L\u0130K VE KANAL R\u0130SK\u0130"],
     "Indisponibilidad e Incidencia Operativa": ["Service Unavailability and Operational Incidents", "Hizmet Kesintileri ve Operasyonel Olaylar"],
-    "Incidencias registradas (A\xF1o)": ["Recorded incidents (Year)", "Kaydedilen olaylar (Y\u0131l)"],
+    "Incidencias registradas": ["Recorded incidents", "Kaydedilen olaylar"],
     "Entidades afectadas": ["Affected entities", "Etkilenen kurulu\u015Flar"],
     "Entidad m\xE1s expuesta": ["Most exposed entity", "En fazla etkilenen kurulu\u015F"],
     "Vector / Operativa cr\xEDtica": ["Critical capability / Operation", "Kritik yetenek / \u0130\u015Flem"],
-    "Evoluci\xF3n anual y recurrencia por entidad": ["Annual trend and recurrence by entity", "Kurulu\u015F baz\u0131nda y\u0131ll\u0131k e\u011Filim ve tekrarlama"],
+    "Evoluci\xF3n y recurrencia por entidad": ["Trend and recurrence by entity", "Kurulu\u015F baz\u0131nda e\u011Filim ve tekrarlama"],
     "\xC1mbitos funcionales afectados": ["Affected functional areas", "Etkilenen i\u015Flevsel alanlar"],
-    "\xDAltimas evidencias del a\xF1o": ["Latest evidence of the year", "Y\u0131l\u0131n son bulgular\u0131"],
+    "\xDAltimas evidencias del per\xEDodo": ["Latest evidence in the period", "D\xF6nemin son bulgular\u0131"],
     "Sin comparativa disponible": ["Comparison unavailable", "Kar\u015F\u0131la\u015Ft\u0131rma mevcut de\u011Fil"],
-    "Sin base en el a\xF1o anterior": ["No incidents in the previous year", "\xD6nceki y\u0131l olay yok"],
+    "Sin base en el per\xEDodo comparable": ["No incidents in the comparable period", "Kar\u015F\u0131la\u015Ft\u0131r\u0131labilir d\xF6nemde olay yok"],
+    "{change}% vs. mismo per\xEDodo del a\xF1o anterior": ["{change}% vs. the same period last year", "\xD6nceki y\u0131l\u0131n ayn\u0131 d\xF6nemine g\xF6re %{change}"],
     "Sin incidencias": ["No incidents", "Olay yok"],
-    "Sin incidencias operativas registradas en el canal para los filtros y periodo anual seleccionados": ["No operational channel incidents recorded for the selected filters and annual period", "Se\xE7ilen filtreler ve y\u0131ll\u0131k d\xF6nem i\xE7in kaydedilmi\u015F operasyonel kanal olay\u0131 yok"],
+    "Sin incidencias operativas registradas en el canal para los filtros y periodo seleccionados": ["No operational channel incidents recorded for the selected filters and period", "Se\xE7ilen filtreler ve d\xF6nem i\xE7in kaydedilmi\u015F operasyonel kanal olay\u0131 yok"],
     "Productos nuevos, mejoras y alianzas para seguir c\xF3mo evoluciona la banca digital de empresas.": ["New products, improvements and partnerships to track digital business banking.", "Dijital ticari bankac\u0131l\u0131\u011F\u0131n geli\u015Fimini izlemek i\xE7in yeni \xFCr\xFCnler, iyile\u015Ftirmeler ve i\u015F birlikleri."],
     "Selecciona una o dos noticias persistidas.": ["Select one or two saved articles.", "Kaydedilmi\u015F bir veya iki haber se\xE7in."],
     "Publicaci\xF3n de snapshots": ["Snapshot publication", "Anl\u0131k g\xF6r\xFCnt\xFC yay\u0131n\u0131"],
@@ -3554,8 +3555,8 @@
       let outage = radar2.outages;
       if ($("radar-outage").hidden = !outage, outage) {
         outageSelection = { from: outage.from, to: outage.to, signal: outage.signal, newsGeography: "", source: "", page: 0 }, $("radar-outage-summary").textContent = outage.summary;
-        let comparison = outage.comparable ? outage.change === null ? "Sin base en el a\xF1o anterior" : `${outage.change > 0 ? "+" : ""}${outage.change}% vs. a\xF1o anterior` : "Sin comparativa disponible";
-        $("radar-outage-kpis").innerHTML = metricCards([["Incidencias registradas (A\xF1o)", outage.total, comparison], ["Entidades afectadas", outage.affected, `${outage.ratio}% de ${outage.active} entidades activas`], ["Entidad m\xE1s expuesta", outage.top?.entity || "\u2014", outage.top ? `${outage.top.total} eventos \xB7 ${outage.concentration}% de concentraci\xF3n` : "Sin incidencias"], ["Vector / Operativa cr\xEDtica", outage.vector?.name || "\u2014", outage.vector ? `${outage.vector.total} evidencias` : "Sin incidencias"]]);
+        let comparison = outage.comparable ? outage.change === null ? "Sin base en el per\xEDodo comparable" : t("{change}% vs. mismo per\xEDodo del a\xF1o anterior", { change: (outage.change > 0 ? "+" : "") + outage.change }) : "Sin comparativa disponible";
+        $("radar-outage-kpis").innerHTML = metricCards([["Incidencias registradas", outage.total, comparison], ["Entidades afectadas", outage.affected, `${outage.ratio}% de ${outage.active} entidades activas`], ["Entidad m\xE1s expuesta", outage.top?.entity || "\u2014", outage.top ? `${outage.top.total} eventos \xB7 ${outage.concentration}% de concentraci\xF3n` : "Sin incidencias"], ["Vector / Operativa cr\xEDtica", outage.vector?.name || "\u2014", outage.vector ? `${outage.vector.total} evidencias` : "Sin incidencias"]]);
         let topLabel = $("radar-outage-kpis").children[2]?.querySelector("strong");
         topLabel && outage.top && topLabel.insertAdjacentHTML("afterbegin", identityMark("entities", outage.top.entity, escape2)), $("radar-outage-kpis").children[0]?.querySelector("span").classList.add("badge"), $("radar-outage-grid").hidden = !outage.total;
         let maximum = Math.max(1, ...outage.months.map((row) => row.total)), bar = (value, max2) => `<span class="ranking-track"><span style="width:${value / max2 * 100}%"></span></span>`;
