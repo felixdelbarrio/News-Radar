@@ -12,7 +12,7 @@ test('Radar comparte las traducciones guardadas de las evidencias sin conservar 
 });
 test('las barras mensuales no mezclan años y los rótulos usan nombres localizados',()=>{
  const {c}=storage();c.initializeConfiguration();const result=c.radarOutages_([{...article,fecha:'2025-11-03'},article],[],{from:'2025-11-01',to:'2026-12-31'});
- assert.equal(result.months.length,12);assert.ok(result.months.every(row=>row.month.startsWith('2026-')));assert.equal(result.months[9].total,1);assert.match(formatCalendarMonth('2026-01','es'),/ene/i);assert.match(formatCalendarMonth('2026-01','en'),/Jan/);
+ assert.equal(result.months.length,14);assert.equal(result.months[0].month,'2025-11');assert.equal(result.months[0].total,1);assert.equal(result.months[11].month,'2026-10');assert.equal(result.months[11].total,1);assert.match(formatCalendarMonth('2026-01','es'),/ene/i);assert.match(formatCalendarMonth('2026-01','en'),/Jan/);
 });
 test('Radar muestra traducción disponible y las barras con nombres de meses',async t=>{
  const {c}=storage();c.initializeConfiguration();const outage=c.radarOutages_([article],[],{from:'2026-01-01',to:'2026-12-31'});outage.latest[0].titles={es:'Incidencia traducida'};

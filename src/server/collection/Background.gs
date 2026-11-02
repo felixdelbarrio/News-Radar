@@ -179,7 +179,7 @@ function backgroundWatchdog_(){
   try{
     recoverBackgroundJobs_();
     const now=Date.now(),jobs=collectionJobs_(),next=backgroundNextAt_({jobs});
-    if(Number.isFinite(next)){p.setProperty('SUPERVISOR_DECISION',next>now?'Esperando disponibilidad de cuota o reintento':'Continuación de la cola autorizada');p.deleteProperty('BACKGROUND_NEXT');ensureBackgroundWorker_(next-now);}else{p.setProperty('SUPERVISOR_DECISION','Sin trabajos pendientes');p.deleteProperty('BACKGROUND_PENDING');}
+    if(Number.isFinite(next)){p.setProperty('SUPERVISOR_DECISION',next>now?'Esperando disponibilidad de cuota o reintento':'Continuación de la cola autorizada');p.deleteProperty('BACKGROUND_NEXT');ensureBackgroundWorker_(next-now);}else{p.setProperty('SUPERVISOR_DECISION',jobs.some(job=>job.estado==='Revisar')||[classificationJob_(),taxonomyJob_(),translationJob_()].some(publicationNeedsReview_)?'Publicación pendiente de revisión; consulta los trabajos bloqueados':'Sin trabajos pendientes');p.deleteProperty('BACKGROUND_PENDING');}
   }finally{lock.releaseLock();}
 }
 

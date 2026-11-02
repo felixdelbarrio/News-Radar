@@ -42,3 +42,15 @@ La escritura verifica el contenido JSON existente, preserva los campos funcional
 ## Margen del activador · 3.35.3
 
 La recuperación diferencia la ausencia de fecha de un activador válido que Google todavía no ha ejecutado. La prueba cubre el retraso breve sin sustitución y la sustitución por el supervisor después de su margen. Validación específica conjunta: 52 pruebas correctas. No cambia el número de fuentes por lote ni el presupuesto temporal del trabajador.
+
+## Navegación móvil y barrera de publicación · 3.35.4
+
+El gráfico mensual de incidencias reutiliza la navegación de Adopción: flechas laterales, desplazamiento táctil, teclado y rango visible accesible. Conserva todos los meses del filtro en una fila, con columnas dimensionadas al espacio disponible. El controlador, los iconos y los estilos son compartidos; navegar no realiza RPC ni recalcula los indicadores.
+
+La CI detectó dos expectativas antiguas: doce meses incluso para un rango de catorce, y todos los medios pendientes salvo Expansión. Se corrigen para comprobar el rango seleccionado y la ficha verificada de Iupana. La prueba de cuota contempla también una clasificación cuya pausa finaliza después del reinicio diario.
+
+A las 23:54 del 2 de noviembre (Madrid), las dos ingestas existentes habían procesado 326/326 y 327/327 tareas, sin fallos, pero ambas figuraban en revisión de publicación. La clasificación había procesado 844 noticias y agotado tres recuperaciones de publicación; la taxonomía y las traducciones publicaron posteriormente. La solicitud de clasificación residual bloqueaba los 26 envíos, sin cuota agotada ni error de Gmail. No había envíos planificados de ese día registrados.
+
+La recuperación no debe consumir reintentos mientras espera una ingesta, clasificación o taxonomía todavía en procesamiento. Se conserva la fecha de espera y se inicia el margen de recuperación desde el último progreso o espera, sin elevar límites ni repetir fuentes. Cuando se agotan recuperaciones reales, el supervisor informa de revisión de publicación en lugar de afirmar que no hay trabajo.
+
+Se ha solicitado la recuperación explícita de los checkpoints y la reinstalación de los activadores previstos. El cierre operativo y los identificadores de Gmail deben verificarse antes de declarar los envíos resueltos.

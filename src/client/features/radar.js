@@ -2,9 +2,15 @@ import {formatCalendarMonth} from '../../shared/locales.js';
 import {identityMark} from '../../shared/visual-identity.js';
 import { $, escape, metricCards } from "../core/dom.js";
 import {language,t} from '../core/language.js';
+import {createTimelineChart,chartNavigation} from './activity-chart.js';
 import { trendChart } from "./trend-chart.js";
 function createRadar({ onCountry, onEntity, onSource, onOutage }) {
   let outageSelection={};
+  const outageChart=createTimelineChart($('radar-outage-timeline'),{formatDate:date=>formatCalendarMonth(date.slice(0,7),language,true),markup:outage=>{
+    const maximum=Math.max(1,...outage.map(row=>row.total)),crossYear=outage[0]?.month.slice(0,4)!==outage.at(-1)?.month.slice(0,4),label=t('Incidencias registradas');
+    const bars=outage.map(row=>`<div data-date="${row.month}-01" title="${escape(formatCalendarMonth(row.month,language,true))}: ${row.total}"><span>${row.total}</span><div class="outage-bar" style="--outage-share:${row.total/maximum*100}%"><span></span></div><time datetime="${row.month}">${escape(formatCalendarMonth(row.month,language,crossYear))}</time></div>`).join('');
+    return `<p class="activity-range" aria-live="polite" aria-atomic="true"></p>${chartNavigation(bars,{previous:'Ver meses anteriores',next:'Ver meses siguientes',label})}`;
+  }});
   $('radar-outage').addEventListener('click',event=>{const button=event.target.closest('[data-outage-explore]');if(button)onOutage({...outageSelection,...(button.dataset.entity?{entity:button.dataset.entity}:{}),...(button.dataset.country?{country:button.dataset.country}:{}),...(button.dataset.vector?{palanca:button.dataset.vector}:{})});});
   let signature = "", geographySignature="", trend, chartWidth=0;
   function renderTrend(width){
@@ -105,8 +111,8 @@ function createRadar({ onCountry, onEntity, onSource, onOutage }) {
       const topLabel=$('radar-outage-kpis').children[2]?.querySelector('strong');if(topLabel&&outage.top)topLabel.insertAdjacentHTML('afterbegin',identityMark('entities',outage.top.entity,escape));
       $('radar-outage-kpis').children[0]?.querySelector('span').classList.add('badge');
       $('radar-outage-grid').hidden=!outage.total;
-      const maximum=Math.max(1,...outage.months.map(row=>row.total)),crossYear=outage.from.slice(0,4)!==outage.to.slice(0,4),bar=(value,max)=>`<span class="ranking-track"><span style="width:${value/max*100}%"></span></span>`;
-      $('radar-outage-timeline').innerHTML=outage.months.map(row=>`<div title="${escape(formatCalendarMonth(row.month,language))} ${row.month.slice(0,4)}: ${row.total}"><span>${row.total}</span><div class="outage-bar" style="--outage-share:${row.total/maximum*100}%"><span></span></div><time datetime="${row.month}">${escape(formatCalendarMonth(row.month,language,crossYear))}</time></div>`).join('');
+      const bar=(value,max)=>`<span class="ranking-track"><span style="width:${value/max*100}%"></span></span>`;
+      outageChart.render(outage.months);
       $('radar-outage-entities').innerHTML=outage.ranking.map(row=>`<div class="radar-outage-entity"><button type="button" class="ranking-row" data-outage-explore data-entity="${escape(row.entity)}">${identityMark('entities',row.entity,escape)}<span class="ranking-name">${escape(row.entity)}${bar(row.total,outage.top.total)}</span><strong>${row.total}</strong></button><div class="radar-outage-countries">${row.countries.map(area=>`<button type="button" class="button" data-outage-explore data-entity="${escape(row.entity)}" data-country="${escape(area.country)}">${identityMark('countries',area.country,escape)}${escape(area.country)} · ${area.total}</button>`).join('')}</div></div>`).join('');
       $('radar-outage-vectors').innerHTML=outage.vectors.map(row=>`<button type="button" class="ranking-row" data-outage-explore data-vector="${escape(row.name)}"><span class="ranking-name">${escape(row.name)}${bar(row.total,outage.vector.total)}</span><strong>${row.total}</strong></button>`).join('');
       $('radar-outage-evidence').innerHTML=outage.latest.map(row=>`<article class="radar-outage-evidence"><p class="identity-label">${identityMark('entities',row.entity,escape)}${escape(row.entity)} ${identityMark('countries',row.country,escape)}${escape(row.country)}</p><a href="${escape(row.url)}" target="_blank" rel="noopener noreferrer" data-original>${escape(row.titles?.[language]||row.title)}</a><p class="small muted"><time>${escape(row.date)}</time> · ${identityMark('publishers',row.publisher,escape)}${escape(row.publisher)}</p></article>`).join('');

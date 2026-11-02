@@ -14,7 +14,7 @@ test('los estados distinguen cuota, error temporal, ejecución y prioridad sin r
 test('la traducción y los envíos identifican la clasificación pendiente y su fecha de espera',()=>{
  const s=storage(),c=s.c;c.initializeConfiguration();const until=Date.now()+600000;c.writeClassificationJob_({...c.classificationJob_(),state:'En pausa',pausedUntil:until});c.writeTranslationJob_({state:'Pendiente',calls:0,callDay:c.recordDay(new Date(),c.settings_().timezone)});
  let state=c.getTranslationStatus().job.progress;assert.equal(state.waitingFor,'Clasificación de noticias');assert.ok(state.restartAt>=until);assert.equal(state.state,'En espera de otro trabajo');
- c.writeTranslationJob_({state:'En pausa',calls:3000,callDay:c.recordDay(new Date(),c.settings_().timezone)});state=c.getTranslationStatus().job.progress;assert.equal(state.state,'Detenido por falta de cuota');assert.equal(state.pauseReason,'Cuota agotada');assert.equal(state.restartAt,c.nextDailyReset(Date.now(),c.settings_().timezone));
+ c.writeTranslationJob_({state:'En pausa',calls:3000,callDay:c.recordDay(new Date(),c.settings_().timezone)});state=c.getTranslationStatus().job.progress;assert.equal(state.state,'Detenido por falta de cuota');assert.equal(state.pauseReason,'Cuota agotada');assert.equal(state.restartAt,Math.max(until,c.nextDailyReset(Date.now(),c.settings_().timezone)));
 });
 test('recopilación diaria muestra la pausa global por cuota y no pierden sus contadores',()=>{
  const s=storage(),c=s.c;c.initializeConfiguration();s.properties.FETCH_PAUSED_UNTIL=String(Date.now()+3600000);

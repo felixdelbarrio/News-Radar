@@ -35,6 +35,6 @@ test('Radar presenta KPIs y abre Noticias con incidencia conservando el período
  const outage=context().radarOutages_([row('a','2026-01-03')],[],{from:'2025-11-03',to:'2026-11-02'});
  const a=await app(t,{entry:'radar',location:{view:'radar'},configure({data}){data.radar.outages=JSON.parse(JSON.stringify(outage));data.signals=[...BRIEFING_ALLOWED_SIGNALS,signal];data.selection={from:'2025-11-03',to:'2026-11-02',country:'España',signal:''};}});
  await tick();await a.click('[data-view="radar"]');await tick();assert.equal(a.find('#message').hidden,true,a.find('#message').textContent);assert.equal(a.find('#radar-outage').hidden,false);assert.equal(a.find('#radar-outage-kpis').children.length,4);assert.ok(a.find('#radar-outage-evidence').textContent.includes('Fallo de transferencias'));
- assert.match(a.find('#radar-outage-timeline time').textContent,/25/);assert.match(a.find('#radar-outage-timeline').lastElementChild.querySelector('time').textContent,/26/);
+ assert.match(a.find('#radar-outage-timeline time').textContent,/25/);assert.match(a.find('#radar-outage-timeline .activity-chart').lastElementChild.querySelector('time').textContent,/26/);
  await a.click('[data-outage-explore]');const query=a.calls.filter(call=>call.method==='getDashboard').at(-1).query;assert.equal(query.view,'news');assert.equal(query.signal,signal);assert.equal(query.country||'','');assert.equal(query.newsGeography,'España');assert.equal(query.from,'2025-11-03');assert.equal(query.to,'2026-11-02');
 });

@@ -25,25 +25,27 @@ function recordSnapshotFailure_(error){
 
 // Retry only the publication phase. Durable processing cursors and isolated tables survive.
 function recoverBackgroundJobs_(now=Date.now()){
- const p=properties_(),values=p.getProperties(),build=JSON.parse(values.DASHBOARD_SNAPSHOT_BUILD||'null');let recovered=false;
+ const p=properties_(),values=p.getProperties(),build=JSON.parse(values.DASHBOARD_SNAPSHOT_BUILD||'null'),jobs=collectionJobs_(),waiting=dailyCollectionPending_({jobs})||dailyPipelineRequested_()||[classificationJob_(),taxonomyJob_()].some(job=>job&&!['Completada','Publicando','Revisar'].includes(job.state));let recovered=false;
  const validPause=value=>Number.isFinite(Number(value))&&Number(value)>=0&&Number(value)<=now+86400000;
  for(const [key,value] of Object.entries(values)){
   if(!/_JOB$/.test(key))continue;
   let job;try{job=JSON.parse(value);}catch(_){continue;}if(!job||typeof job!=='object')continue;
   let changed=false;
   if(job.pausedUntil!=null&&!validPause(job.pausedUntil)){job.pausedUntil=0;changed=true;}
-  const progress=Date.parse([build?.updated,job.publicationRetriedAt,job.updated,job.started].filter(Boolean).sort().at(-1)||'');
-  if(job.state==='Publicando'&&(!Number.isFinite(progress)||now-progress>600000)){
+  const progress=Date.parse([build?.updated,job.publicationWaitingAt,job.publicationRetriedAt,job.updated,job.started].filter(Boolean).sort().at(-1)||'');
+  if(job.state==='Publicando'&&waiting){job.publicationWaitingAt=new Date(now).toISOString();changed=true;}
+  else if(job.state==='Publicando'&&(!Number.isFinite(progress)||now-progress>600000)){
    if(Number(job.publicationRetries||0)>=3){job.state='Revisar';job.error=job.error||'Publicación sin progreso tras tres recuperaciones; revisión necesaria.';p.setProperty(key,JSON.stringify(snapshotJob_(key,job)));continue;}
    job.publicationRetries=Number(job.publicationRetries||0)+1;job.publicationRetriedAt=new Date(now).toISOString();changed=true;recovered=true;
    telemetry_('supervisor',0,'Recuperación',key+': publicación sin progreso; reintento desde los cursores guardados');
   }
   if(changed)p.setProperty(key,JSON.stringify(job));
  }
- for(const job of collectionJobs_()){
+ for(const job of jobs){
   let changed=false;if(job.pausa&&!validPause(job.pausa)){job.pausa=0;changed=true;}
-  const retryKey='PUBLICATION_RETRY:'+job.id,retry=JSON.parse(values[retryKey]||'{}'),progress=Date.parse([build?.updated,retry.at,job.actualizada,job.inicio].filter(Boolean).sort().at(-1)||'');
-  if(job.estado==='Publicando'&&(!Number.isFinite(progress)||now-progress>600000)){if(Number(retry.count||0)>=3){retry.error=retry.error||'Publicación sin progreso tras tres recuperaciones; revisión necesaria.';p.setProperty(retryKey,JSON.stringify(retry));job.estado='Revisar';writeCollectionJob_(job);continue;}p.setProperty(retryKey,JSON.stringify({count:Number(retry.count||0)+1,at:new Date(now).toISOString()}));job.actualizada=new Date(now).toISOString();changed=true;recovered=true;telemetry_('supervisor',0,'Recuperación',job.id+': reintento de publicación');}
+  const retryKey='PUBLICATION_RETRY:'+job.id,retry=JSON.parse(values[retryKey]||'{}'),progress=Date.parse([build?.updated,retry.waitingAt,retry.at,job.actualizada,job.inicio].filter(Boolean).sort().at(-1)||'');
+  if(job.estado==='Publicando'&&waiting)p.setProperty(retryKey,JSON.stringify({...retry,waitingAt:new Date(now).toISOString()}));
+  else if(job.estado==='Publicando'&&(!Number.isFinite(progress)||now-progress>600000)){if(Number(retry.count||0)>=3){retry.error=retry.error||'Publicación sin progreso tras tres recuperaciones; revisión necesaria.';p.setProperty(retryKey,JSON.stringify(retry));job.estado='Revisar';writeCollectionJob_(job);continue;}p.setProperty(retryKey,JSON.stringify({count:Number(retry.count||0)+1,at:new Date(now).toISOString()}));job.actualizada=new Date(now).toISOString();changed=true;recovered=true;telemetry_('supervisor',0,'Recuperación',job.id+': reintento de publicación');}
   if(changed)writeCollectionJob_(job);
  }
  for(const key of ['CATALOG_SYNC_RETRY_AT','FETCH_PAUSED_UNTIL','NEWSLETTER_NEXT','TRANSLATION_PAUSED_UNTIL'])if(values[key]&&!validPause(values[key]))p.deleteProperty(key);

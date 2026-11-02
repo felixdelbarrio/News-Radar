@@ -36,6 +36,8 @@ export const translations = Object.freeze({
   "Ir al día más reciente": ["Go to the most recent day","En son güne git"],
   "Últimos 365 días": ["Last 365 days","Son 365 gün"],
   "Últimos días": ["Latest days","Son günler"],
+  "Ver meses anteriores": ["View earlier months","Önceki ayları göster"],
+  "Ver meses siguientes": ["View later months","Sonraki ayları göster"],
   "Ver días anteriores": ["View earlier days","Önceki günleri göster"],
   "Ver días siguientes": ["View later days","Sonraki günleri göster"],
   "Comprobación de cambios de newsletters: {done}/{total} ediciones.": ["Checking newsletter changes: {done}/{total} editions.", "Bülten değişiklikleri kontrol ediliyor: {done}/{total} sayı."],
