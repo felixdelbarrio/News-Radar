@@ -4858,6 +4858,15 @@
       "source": "https://www.google.com/s2/favicons?domain=share-talk.com&sz=128",
       "resourceType": "site-icon-candidate",
       "available": false
+    },
+    "expansion mexico": {
+      "id": "publisher-503",
+      "file": "publisher-503.png",
+      "width": 32,
+      "height": 32,
+      "source": "https://expansion.mx/favicon-32x32.png",
+      "resourceType": "site-icon",
+      "domain": "expansion.mx"
     }
   }
 }

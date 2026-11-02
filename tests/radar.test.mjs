@@ -52,7 +52,7 @@ test('las entidades, alias, países y términos configurados generan fuentes sin
   assert.ok(feeds.some(feed=>feed.entity==='Revolut'));assert.ok(feeds.some(feed=>feed.entity==='Qonto'));
 });
 test('todas las fuentes RSS son editables y rechazan duplicados o dominios falsos',()=>{
-  const c=context(),count=c.feeds_().length;c.saveFeeds([{...feed,url:'https://bbva.com/extra'}]);assert.equal(c.feeds_().length,count-6);c.saveFeeds([]);assert.equal(c.feeds_().length,count-7);
+  const c=context(),count=c.feeds_().length;c.saveFeeds([{...feed,url:'https://bbva.com/extra'}]);assert.equal(c.feeds_().length,count-7);c.saveFeeds([]);assert.equal(c.feeds_().length,count-8);
   assert.throws(()=>c.saveFeeds([{...feed,url:'https://evilbbva.com/a'}]));assert.throws(()=>c.saveFeeds([{...feed,url:'https://bbva.com/a'},{...feed,url:'https://bbva.com/a'}]));
 });
 test('noticias agregadas se integran sin intervención y mantienen medio y enlace de Google News',()=>{
@@ -136,7 +136,7 @@ test('recuperación manual predetermina Hoy, respeta la zona y consulta el año 
  const c=context(),today={from:c.calendarDate_(new Date('2026-10-09T22:30:00Z')).toISOString().slice(0,10),to:'2026-10-10'};assert.equal(today.from,'2026-10-10');assert.equal(today.to,'2026-10-10');
  const year={from:'2025-10-09',to:'2026-10-09'},windows=c.collectionWindows_(year);assert.equal(year.from,'2025-10-09');assert.equal(year.to,'2026-10-09');assert.equal(windows.length,14);assert.equal(windows.at(-1).from,year.from);assert.equal(windows[0].to,year.to);
  for(let i=1;i<windows.length;i++)assert.equal(Date.parse(windows[i-1].from)-Date.parse(windows[i].to),86400000);
- const feeds=c.collectionFeeds_(year);assert.equal(new Set(feeds.map(f=>f.url)).size,feeds.length);assert.equal(feeds.filter(f=>f.kind==='rss'&&f.domain!=='news.google.com').length,6);assert.equal(feeds.filter(f=>f.id==='bankinter-blog').length,windows.length);
+ const feeds=c.collectionFeeds_(year);assert.equal(new Set(feeds.map(f=>f.url)).size,feeds.length);assert.equal(feeds.filter(f=>f.kind==='rss'&&f.domain!=='news.google.com').length,7);assert.equal(feeds.filter(f=>f.id==='bankinter-blog').length,windows.length);
  const historic=feeds.find(f=>f.kind==='profile'&&f.range.from===year.from),query=new URL(historic.url).searchParams.get('q');assert.ok(query.includes('after:2025-10-08 before:'+new Date(Date.parse(historic.range.to)+86400000).toISOString().slice(0,10)));assert.doesNotMatch(query,/when:/);
  const old={...item,date:'2025-10-12'};assert.ok(c.evaluate_(old,{...feed,range:year},now).item);assert.match(c.evaluate_(old,{...feed,range:today},now).reason,/período/);
  let range;c.requestCollection_=(_kind,value)=>range=value;c.collectNow();assert.deepEqual(range,c.collectionRecentRange_(new Date()));assert.throws(()=>c.collectNow('invalid'),/Selecciona/);assert.throws(()=>context('reader@bbva.com').collectNow('year'),/no autorizado/);
@@ -149,21 +149,21 @@ test('la recuperación escribe solo los estados cambiados sin reescribir toda la
 
 test('Radar conserva geografía y entidad explícitas en el año completo de Empresas e instituciones',()=>{
   const c=context(),now=new Date('2026-10-10T12:00:00Z');
-  const initial=c.dashboardQuery_({view:'radar',initial:true,country:'México',topic:'Financiación',segment:'Retail',from:'2026-01-01'},now);
+  const initial=c.dashboardQuery_({view:'radar',initial:true,country:'México',topic:'Financiación',segment:'Retail',year:'2026'},now);
   assert.deepEqual(JSON.parse(JSON.stringify(initial)),{segment:'Empresas e instituciones',coverage:'digital',country:'México',from:'2026-01-01',to:'2026-12-31'});
   const selected=c.dashboardQuery_({view:'radar',entity:'BBVA',segment:'Retail',country:'México',source:'Editor',search:'cuenta'},now);
-  assert.deepEqual(JSON.parse(JSON.stringify(selected)),{segment:'Empresas e instituciones',coverage:'digital',entity:'BBVA',country:'México',from:'2026-01-01',to:'2026-12-31'});
+  assert.deepEqual(JSON.parse(JSON.stringify(selected)),{segment:'Empresas e instituciones',coverage:'digital',entity:'BBVA',country:'México',from:'2025-10-11',to:'2026-10-10'});
 });
-test('Novedades fija su quincena y Noticias conserva las fechas editadas',()=>{
+test('Novedades y Noticias conservan fechas editadas y usan ventanas móviles',()=>{
   const c=context(),now=new Date('2026-10-31T23:30:00Z');
   const novelty=c.dashboardQuery_({view:'briefing',entity:'BBVA',from:'2026-01-01',to:'2026-01-31'},now);
-  assert.equal(novelty.from,'2026-11-01');assert.equal(novelty.to,'2026-11-15');assert.equal(novelty.entity,undefined);
+  assert.equal(novelty.from,'2026-01-01');assert.equal(novelty.to,'2026-01-31');assert.equal(novelty.entity,undefined);
   const news=c.dashboardQuery_({view:'news',initial:true},now);
-  assert.equal(news.from,'2026-10-01');assert.equal(news.to,'2026-12-31');
+  assert.equal(news.from,'2026-08-01');assert.equal(news.to,'2026-11-01');
   const edited=c.dashboardQuery_({view:'news',from:'2026-02-01',to:'2026-02-28'},now);
   assert.equal(edited.from,'2026-02-01');assert.equal(edited.to,'2026-02-28');
-  assert.equal(c.dashboardPeriod_('news',new Date('2024-02-15T12:00:00Z')).to,'2024-03-31');
-  assert.equal(c.dashboardPeriod_('news',new Date('2026-12-31T23:30:00Z')).to,'2027-03-31');
+  assert.equal(c.dashboardPeriod_('news',new Date('2024-02-15T12:00:00Z')).to,'2024-02-15');
+  assert.equal(c.dashboardPeriod_('news',new Date('2026-12-31T23:30:00Z')).to,'2027-01-01');
 });
 
 test('consultas saturadas se dividen sin huecos y las tareas derivadas mantienen fuente y fechas',()=>{

@@ -68,20 +68,21 @@ function collectionBatch_({tasks,pending,jobs,known:knownIndex}){
       updates.set(task.row,[status,attempts,now.toISOString(),count,added,error]);
       Object.assign(task,{estado:status,actualizada:now.toISOString(),nuevas:added});
     }
-    const processingMs=Date.now()-processingStarted,writeStarted=Date.now();
-    persistCandidates_(candidates,now);appendCoverage_(coverage);
-    append_('Noticias',news);
-    try{registerUnknownMedia_(news);}catch(error){telemetry_('catalogo_medios',0,'Error',String(error.message).slice(0,180));}
-    append_('Auditoria',audit);append_('Recopilacion',newTasks);
-    writeCollectionTasks_(pending,updates);
-    if(news.length){SpreadsheetApp.flush();invalidateNews_(true,true,false);}
+    const processingMs=Date.now()-processingStarted,writeStarted=Date.now(),persistence={};
+    const measure=(phase,operation)=>{const at=Date.now();try{return operation();}finally{persistence[phase]=(persistence[phase]||0)+Date.now()-at;}};
+    measure('candidates',()=>persistCandidates_(candidates,now));measure('coverage',()=>appendCoverage_(coverage));
+    measure('news',()=>append_('Noticias',news));
+    try{measure('media',()=>registerUnknownMedia_(news));}catch(error){telemetry_('catalogo_medios',0,'Error',String(error.message).slice(0,180));}
+    measure('audit',()=>append_('Auditoria',audit));measure('children',()=>append_('Recopilacion',newTasks));
+    measure('tasks',()=>writeCollectionTasks_(pending,updates));
+    if(news.length)measure('invalidation',()=>{SpreadsheetApp.flush();invalidateNews_(true,true,false);});
     if(news.some(row=>businessNews_(Object.fromEntries(RADAR.sheets.Noticias.map((key,index)=>[key,row[index]])))))requestTranslations_(true);
-    append_('Ejecuciones',[...affected].map(id=>{const batch=pending.filter(task=>task.ciclo===id),rows=batch.map(task=>updates.get(task.row)),failures=rows.map(row=>row[5]).filter(Boolean);return [id,now.toISOString(),new Date().toISOString(),failures.length?'Parcial':'Completada',batch.length,rows.reduce((sum,row)=>sum+Number(row[3]),0),rows.reduce((sum,row)=>sum+Number(row[4]),0),failures.join(' | ')];}));
+    measure('runs',()=>append_('Ejecuciones',[...affected].map(id=>{const batch=pending.filter(task=>task.ciclo===id),rows=batch.map(task=>updates.get(task.row)),failures=rows.map(row=>row[5]).filter(Boolean);return [id,now.toISOString(),new Date().toISOString(),failures.length?'Parcial':'Completada',batch.length,rows.reduce((sum,row)=>sum+Number(row[3]),0),rows.reduce((sum,row)=>sum+Number(row[4]),0),failures.join(' | ')];})));
     for(const job of jobs)if(pending.filter(task=>task.ciclo===job.id&&updates.get(task.row)[5]).length>=2)job.pausa=String(Date.now()+settings_().pauseMinutes*60000);
     if(newTasks.length){const first=book_().getSheetByName('Recopilacion').getLastRow()-newTasks.length+1;tasks.push(...newTasks.map((row,index)=>({ciclo:row[0],url:row[2],estado:row[3],nuevas:row[7],row:first+index})));}
-    collectionSnapshots_(tasks,jobs);for(const job of jobs)if(affected.has(job.id))writeCollectionJob_(job);
-    SpreadsheetApp.flush();const collection=collectionStatus_(null,jobs);
-    telemetry_('recopilacion',Date.now()-started,errors.length?'Parcial':'OK',pending.length+' fuentes; '+news.length+' nuevas; '+evaluated+' recuperadas; '+relevant+' relevantes; '+news.length+' clasificadas; '+digital+' digitales; '+duplicated+' duplicadas; '+excluded+' excluidas; '+saturated+' saturadas; '+errors.length+' fallidas; preparación '+(fetchStart-started)+' ms; red '+fetchMs+' ms; proceso '+processingMs+' ms; escritura '+(Date.now()-writeStarted)+' ms');
+    measure('snapshots',()=>{collectionSnapshots_(tasks,jobs);for(const job of jobs)if(affected.has(job.id))writeCollectionJob_(job);});
+    measure('flush',()=>SpreadsheetApp.flush());const collection=measure('status',()=>collectionStatus_(null,jobs));
+    telemetry_('recopilacion',Date.now()-started,errors.length?'Parcial':'OK',pending.length+' fuentes; '+news.length+' nuevas; '+evaluated+' recuperadas; '+relevant+' relevantes; '+news.length+' clasificadas; '+digital+' digitales; '+duplicated+' duplicadas; '+excluded+' excluidas; '+saturated+' saturadas; '+errors.length+' fallidas; preparación '+(fetchStart-started)+' ms; red '+fetchMs+' ms; proceso '+processingMs+' ms; escritura '+(Date.now()-writeStarted)+' ms; '+JSON.stringify({runId:properties_().getProperty('BACKGROUND_RUN_ID')||'',version:RADAR.version,planned:pending.length,completed:pending.filter(task=>task.estado==='Completada').length,evaluated,added:news.length,retries:[...updates.values()].filter(row=>row[0]==='Reintento programado').length,errors:errors.length,persistence}));
     return {...collection,added:news.length,evaluated,errors};
   }catch(error){telemetry_('recopilacion',Date.now()-started,'Error',error.message);throw error;}
 }

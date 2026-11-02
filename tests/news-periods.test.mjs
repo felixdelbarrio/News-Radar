@@ -7,7 +7,7 @@ function storage(){const s=createStorage();s.c.Date=Date;return s;}
 import {app} from './helpers/app.mjs';
 function server(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
 const clean=value=>JSON.parse(JSON.stringify(value));
-test('cada vista conserva su ventana propia y respeta fechas explícitas sin leer suscripciones',()=>{const {c}=server();c.saveSubscription({country:'México'});for(const view of ['briefing','news','radar']){const selected=c.getDashboard({view,initial:true});assert.deepEqual({from:selected.selection.from,to:selected.selection.to},clean(c.dashboardPeriod_(view,new Date(),true)));}const edited=c.getDashboard({view:'news',from:'2026-02-01',to:'2026-02-28'});assert.equal(edited.selection.from,'2026-02-01');assert.equal(edited.selection.to,'2026-02-28');});
+test('cada vista conserva su ventana propia y respeta fechas explícitas sin leer suscripciones',()=>{const {c}=server();c.saveSubscription({country:'México'});for(const view of ['briefing','news','radar']){const selected=c.getDashboard({view,initial:true});assert.deepEqual({from:selected.selection.from,to:selected.selection.to},clean(c.dashboardPeriod_(view,new Date())));}const edited=c.getDashboard({view:'news',from:'2026-02-01',to:'2026-02-28'});assert.equal(edited.selection.from,'2026-02-01');assert.equal(edited.selection.to,'2026-02-28');});
 test('el plan traduce cada cadencia a su vista y a un período cerrado sin filtros personales',()=>{const {c}=server(),now=new Date('2026-10-12T12:00:00Z');for(const [periodicidad,view] of [['fortnightly','briefing'],['quarterly','news']]){const q=c.subscriptionQuery_({periodicidad,filtros:{country:'España',entity:'BBVA'}},now,true),period=c.newsletterPeriod_(periodicidad,now);assert.equal(q.view,view);assert.equal(q.from,period.from);assert.equal(q.to,period.to);assert.equal(q.entity,undefined);assert.equal(q.country,'España');}assert.throws(()=>c.newsletterWindow('invalid','2026-10-12'),/Periodicidad/);});
 test('el lote prepara una sola vez los períodos completos necesarios y excluye la semana en curso',()=>{
  const s=server(),{c}=s;c.configuration_().settings.newsletterEnabled=true;
@@ -27,10 +27,10 @@ for(const count of [0,1,2])test('No hay selector de newsletters en el panel late
  await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('#personal-editor [name="name"]'),null);assert.equal(a.w.document.querySelector('#personal-editor [name="range"]'),null);assert.equal(a.w.document.querySelector('#personal-editor [name="periodicity"]'),null);assert.equal(a.find('#filters-section').hidden,true);
 });
 
-test('Novedades fija su quincena, Noticias admite fechas y Radar normaliza al año completo',()=>{
+test('Las ventanas móviles son independientes de las cadencias naturales y respetan fechas explícitas',()=>{
  const {c}=server();for(const day of ['2024-02-15','2024-02-29','2026-04-01','2026-10-16','2027-01-01']){
- const now=new Date(day+'T12:00:00Z');for(const [view,cadence] of [['briefing','fortnightly'],['news','quarterly']]){const {from,to}=c.newsletterWindow(cadence,day);assert.equal(c.dashboardQuery_({view,initial:true},now).from,from);assert.equal(c.dashboardQuery_({view},now).to,to);}
+ const now=new Date(day+'T12:00:00Z');for(const [view,cadence] of [['briefing','fortnightly'],['news','quarterly']]){const {from,to}=c.readingWindow(view,day);assert.equal(c.dashboardQuery_({view,initial:true},now).from,from);assert.equal(c.dashboardQuery_({view},now).to,to);}
  const explicit=c.dashboardQuery_({view:'news',from:'2025-01-02',to:'2025-02-03'},now);assert.equal(explicit.from,'2025-01-02');assert.equal(explicit.to,'2025-02-03');
- const radar=c.dashboardQuery_({view:'radar',from:'2023-08-15',to:'2023-08-16'},now);assert.equal(radar.from,'2023-01-01');assert.equal(radar.to,'2023-12-31');
+ const radar=c.dashboardQuery_({view:'radar',from:'2023-08-15',to:'2023-08-16'},now);assert.equal(radar.from,'2023-08-15');assert.equal(radar.to,'2023-08-16');
  }assert.throws(()=>c.newsletterWindow('yearly','2026-10-12'),/Periodicidad/);
 });

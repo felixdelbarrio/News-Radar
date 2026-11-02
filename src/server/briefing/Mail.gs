@@ -59,7 +59,7 @@ function newsletterTest_(session,input){
     if(backgroundPaused_())throw Error('La configuración está en curso. Reintenta la prueba cuando termine.');
     const now=new Date(),deliveries=rows_('NewsletterEnvios');if(!newsletterBudget_(deliveries,now))throw Error('Se ha alcanzado el límite configurado de newsletters en 24 horas.');
     const edition=Utilities.getUuid(),delivery='prueba:'+Utilities.getUuid();
-    const query=subscriptionQuery_({periodicidad:input.cadence,filtros:{country}},now),title=newsletterSubject_(query,language),content=newsletter_(rows_('Noticias',undefined,undefined,query).filter(businessNews_),query,title,now,undefined,language,edition);
+    const query=newsletterTestQuery_(input.cadence,country,now,deliveries),title=newsletterSubject_(query,language),content=newsletter_(rows_('Noticias',undefined,undefined,query).filter(businessNews_),query,title,now,undefined,language,edition);
 
     content.subject=newsletterIdentity_(query,now,translateText('PRUEBA',language),language).subject;
     if(!content.count){append_('NewsletterEnvios',[[delivery,'',recipient,query.from,query.to,'Sin novedades',now.toISOString(),newsletterContentDetail_(content)]]);return {accepted:false,recipient,count:0,from:query.from,to:query.to};}
@@ -71,6 +71,10 @@ function newsletterTest_(session,input){
     return {accepted:true,recipient,sender:sender.address,messageId:id,count:content.count,from:query.from,to:query.to};
   }catch(error){if(!claimed)recordNewsletterBlock_(error,session.email);throw error;
   }finally{lock.releaseLock();}
+}
+function newsletterTestQuery_(cadence,country,now,deliveries){
+ const period=newsletterPeriod_(cadence,now),started=deliveries.some(row=>row.suscripcion&&row.desde===period.from&&row.hasta===period.to&&['Enviando','Enviada','Revisar','Sin novedades','No enviado'].includes(row.estado));
+ return subscriptionQuery_({periodicidad:cadence,filtros:{country}},now,!started);
 }
 function recordNewsletterBlock_(error,email){append_('NewsletterEnvios',[['diagnostico:'+Utilities.getUuid(),'',email,'','','Bloqueada',new Date().toISOString(),String(error.message).slice(0,500)]]);}
 function completeNewsletterDelivery_(sheet,index,sender,recipient,content){

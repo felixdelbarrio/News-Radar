@@ -10,7 +10,7 @@ function row(id,pais='España',palanca='08. Financiación',score=10){return {eti
 test('13: Radar siempre consulta un año entero y descarta filtros de otras vistas',()=>{
  const {c}=server(),now=new Date('2026-10-20T12:00:00Z');
  assert.deepEqual(clean(c.dashboardQuery_({view:'radar',country:'España',year:'2025',entity:'BBVA',signal:'x',from:'2025-08-15'},now)),{segment:'Empresas e instituciones',coverage:'digital',entity:'BBVA',country:'España',from:'2025-01-01',to:'2025-12-31'});
- assert.deepEqual(clean(c.dashboardPeriod_('radar',now,true)),{from:'2025-01-01',to:'2025-12-31'});
+ assert.deepEqual(clean(c.dashboardPeriod_('radar',now)),{from:'2025-10-21',to:'2026-10-20'});
  assert.equal(c.dashboardQuery_({view:'radar',initial:true,country:'España'},now).country,'España');
  assert.equal(c.dashboardQuery_({view:'briefing',entity:'BBVA',country:'España'},now).country,undefined);
  assert.deepEqual(Object.keys(vm.runInContext('newsletterCadences',c)),['fortnightly','quarterly']);
@@ -40,6 +40,6 @@ test('Radar ofrece únicamente años con noticias empresariales publicadas, sin 
  const {c}=server(),year=new Date().getFullYear();c.businessNewsIndex_=()=>({rows:[{fecha:year+'-01-02'},{fecha:(year-2)+'-03-04'},{fecha:year+'-04-05'},{fecha:(year+1)+'-01-01'},{fecha:'invalida'}]});
  assert.deepEqual(Array.from(c.radarAvailableYears_()),[String(year),String(year-2)]);
  const a=await app(t,{configure({data}){data.years=[String(year),String(year-2)];data.selection={from:(year-1)+'-01-01',to:(year-1)+'-12-31'};}});await a.click('[data-view="radar"]');
- assert.deepEqual(Array.from(a.find('#filters').elements.year.options,option=>option.value),[String(year),String(year-2)]);
- a.data.years=[];await a.change('#filters select[name="country"]','España');assert.equal(a.find('#filters').elements.year.options.length,0);
+ assert.deepEqual(Array.from(a.find('#filters').elements.year.options,option=>option.value),['',String(year),String(year-2)]);
+ a.data.years=[];await a.change('#filters select[name="country"]','España');assert.equal(a.find('#filters').elements.year.options.length,1);
 });
