@@ -2,21 +2,25 @@ import {escape} from '../core/dom.js';
 import {t,language} from '../core/language.js';
 import {formatCalendarDay} from '../../shared/locales.js';
 const arrow=direction=>`<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${direction<0?'M15 6l-6 6 6 6':'M9 6l6 6-6 6'}"/></svg>`;
+export function chartNavigation(content,{previous,next,label,tag='div'}={}){
+ const control=(direction,text)=>`<button type="button" class="activity-control" data-activity-step="${direction}" aria-label="${escape(t(text))}">${arrow(direction)}</button>`;
+ return `<div class="activity-navigation">${control(-1,previous)}<${tag} class="activity-chart" tabindex="0" aria-label="${escape(t(label))}">${content}</${tag}>${control(1,next)}</div>`;
+}
 export function activityChart(days){
  if(!days.length)return '<div class="note">'+t('No hay actividad diaria registrada en este período.')+'</div>';
  const maximum=Math.max(1,...days.map(day=>day.users)),months=new Map(),monthFormat=new Intl.DateTimeFormat(language,{month:'long',year:'numeric',timeZone:'UTC'});
  for(const day of days){const key=day.date.slice(0,7);months.set(key,(months.get(key)||0)+1);}
- return `<section class="activity-timeline" aria-label="${escape(t('Usuarios activos por día'))}"><div class="activity-heading"><div><strong>${t('Actividad diaria')}</strong><p class="activity-range" aria-live="polite" aria-atomic="true"></p></div><button type="button" class="activity-latest" data-activity-end title="${escape(t('Ir al día más reciente'))}">${t('Últimos días')}</button></div><div class="activity-navigation"><button type="button" class="activity-control" data-activity-step="-1" aria-label="${escape(t('Ver días anteriores'))}">${arrow(-1)}</button><ul class="activity-chart" tabindex="0" aria-label="${escape(t('Usuarios activos por día'))}">${days.map((day,index)=>`<li class="activity-column ${Number(day.date.slice(0,4))*12+Number(day.date.slice(5,7))&1?'activity-month-alternate':''}" data-date="${escape(day.date)}" aria-label="${escape(formatCalendarDay(day.date,language)+' · '+t('{count} usuarios',{count:day.users}))}"><span class="activity-value">${day.users}</span><div class="activity-bar" style="--bar-height:calc(var(--activity-chart-height) * ${day.users/maximum})"></div><span class="activity-date">${escape(day.date.slice(8))}</span>${index===0||days[index-1].date.slice(0,7)!==day.date.slice(0,7)?`<span class="activity-month" aria-hidden="true" style="width:calc(${months.get(day.date.slice(0,7))} * var(--activity-column-size,var(--activity-column-width)) + ${months.get(day.date.slice(0,7))-1} * var(--space-1))"><span>${escape(monthFormat.format(new Date(day.date+'T00:00:00Z')))}</span></span>`:''}</li>`).join('')}</ul><button type="button" class="activity-control" data-activity-step="1" aria-label="${escape(t('Ver días siguientes'))}">${arrow(1)}</button></div></section>`;
+ return `<section class="activity-timeline" aria-label="${escape(t('Usuarios activos por día'))}"><div class="activity-heading"><div><strong>${t('Actividad diaria')}</strong><p class="activity-range" aria-live="polite" aria-atomic="true"></p></div><button type="button" class="activity-latest" data-activity-end title="${escape(t('Ir al día más reciente'))}">${t('Últimos días')}</button></div>${chartNavigation(days.map((day,index)=>`<li class="activity-column ${Number(day.date.slice(0,4))*12+Number(day.date.slice(5,7))&1?'activity-month-alternate':''}" data-date="${escape(day.date)}" aria-label="${escape(formatCalendarDay(day.date,language)+' · '+t('{count} usuarios',{count:day.users}))}"><span class="activity-value">${day.users}</span><div class="activity-bar" style="--bar-height:calc(var(--activity-chart-height) * ${day.users/maximum})"></div><span class="activity-date">${escape(day.date.slice(8))}</span>${index===0||days[index-1].date.slice(0,7)!==day.date.slice(0,7)?`<span class="activity-month" aria-hidden="true" style="width:calc(${months.get(day.date.slice(0,7))} * var(--activity-column-size,var(--activity-column-width)) + ${months.get(day.date.slice(0,7))-1} * var(--space-1))"><span>${escape(monthFormat.format(new Date(day.date+'T00:00:00Z')))}</span></span>`:''}</li>`).join(''),{previous:'Ver días anteriores',next:'Ver días siguientes',label:'Usuarios activos por día',tag:'ul'})}</section>`;
 }
-export function createActivityChart(container){
+export function createTimelineChart(container,{markup,formatDate}){
  let viewport,columns=[],previous,next,latest,range,atEnd=true;
  const step=()=>columns.length>1?columns[1].getBoundingClientRect().left-columns[0].getBoundingClientRect().left:columns[0]?.getBoundingClientRect().width||0;
  function update(){
   if(!viewport||!viewport.clientWidth)return;
   const end=Math.max(0,viewport.scrollWidth-viewport.clientWidth),left=Math.max(0,viewport.scrollLeft),width=step();
-  previous.disabled=left<=1;next.disabled=latest.disabled=left>=end-1;atEnd=next.disabled;
+  previous.disabled=left<=1;next.disabled=left>=end-1;if(latest)latest.disabled=next.disabled;atEnd=next.disabled;
   if(!width)return;
-  const first=Math.min(columns.length-1,Math.floor((left+1)/width)),last=Math.min(columns.length-1,Math.ceil((left+viewport.clientWidth-1)/width)-1),text=formatCalendarDay(columns[first].dataset.date,language)+' — '+formatCalendarDay(columns[last].dataset.date,language);
+  const first=Math.min(columns.length-1,Math.floor((left+1)/width)),last=Math.min(columns.length-1,Math.ceil((left+viewport.clientWidth-1)/width)-1),text=formatDate(columns[first].dataset.date)+' — '+formatDate(columns[last].dataset.date);
   if(range.textContent!==text)range.textContent=text;
  }
  function move(direction){
@@ -34,8 +38,10 @@ export function createActivityChart(container){
  }
  new ResizeObserver(layout).observe(container);
  return {render(days){
-  atEnd=true;container.innerHTML=activityChart(days);viewport=container.querySelector('.activity-chart');if(!viewport)return;
+  atEnd=true;container.innerHTML=markup(days);viewport=container.querySelector('.activity-chart');if(!viewport)return;
   columns=Array.from(viewport.children);previous=container.querySelector('[data-activity-step="-1"]');next=container.querySelector('[data-activity-step="1"]');latest=container.querySelector('[data-activity-end]');range=container.querySelector('.activity-range');
   viewport.addEventListener('scroll',update,{passive:true});layout();
  }};
 }
+
+export const createActivityChart=container=>createTimelineChart(container,{markup:activityChart,formatDate:date=>formatCalendarDay(date,language)});

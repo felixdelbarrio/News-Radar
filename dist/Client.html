@@ -95,6 +95,8 @@
     "Ir al d\xEDa m\xE1s reciente": ["Go to the most recent day", "En son g\xFCne git"],
     "\xDAltimos 365 d\xEDas": ["Last 365 days", "Son 365 g\xFCn"],
     "\xDAltimos d\xEDas": ["Latest days", "Son g\xFCnler"],
+    "Ver meses anteriores": ["View earlier months", "\xD6nceki aylar\u0131 g\xF6ster"],
+    "Ver meses siguientes": ["View later months", "Sonraki aylar\u0131 g\xF6ster"],
     "Ver d\xEDas anteriores": ["View earlier days", "\xD6nceki g\xFCnleri g\xF6ster"],
     "Ver d\xEDas siguientes": ["View later days", "Sonraki g\xFCnleri g\xF6ster"],
     "Comprobaci\xF3n de cambios de newsletters: {done}/{total} ediciones.": ["Checking newsletter changes: {done}/{total} editions.", "B\xFClten de\u011Fi\u015Fiklikleri kontrol ediliyor: {done}/{total} say\u0131."],
@@ -343,19 +345,20 @@
     "Puntero de newsletter no verificado.": ["Newsletter pointer has not been verified.", "B\xFClten i\u015Faret\xE7isi do\u011Frulanmad\u0131."],
     "Archivo de newsletter pendiente de compactar.": ["Newsletter archive is awaiting compaction.", "B\xFClten ar\u015Fivi s\u0131k\u0131\u015Ft\u0131r\u0131lmay\u0131 bekliyor."],
     "Explorar incidencias en Noticias": ["Explore incidents in News", "Olaylar\u0131 Haberlerde incele"],
-    "CONTINUIDAD OPERATIVA Y RIESGO DE CANAL \xB7 VISI\xD3N ANUAL": ["OPERATIONAL CONTINUITY AND CHANNEL RISK \xB7 ANNUAL VIEW", "OPERASYONEL S\xDCREKL\u0130L\u0130K VE KANAL R\u0130SK\u0130 \xB7 YILLIK G\xD6R\xDCN\xDCM"],
+    "CONTINUIDAD OPERATIVA Y RIESGO DE CANAL": ["OPERATIONAL CONTINUITY AND CHANNEL RISK", "OPERASYONEL S\xDCREKL\u0130L\u0130K VE KANAL R\u0130SK\u0130"],
     "Indisponibilidad e Incidencia Operativa": ["Service Unavailability and Operational Incidents", "Hizmet Kesintileri ve Operasyonel Olaylar"],
-    "Incidencias registradas (A\xF1o)": ["Recorded incidents (Year)", "Kaydedilen olaylar (Y\u0131l)"],
+    "Incidencias registradas": ["Recorded incidents", "Kaydedilen olaylar"],
     "Entidades afectadas": ["Affected entities", "Etkilenen kurulu\u015Flar"],
     "Entidad m\xE1s expuesta": ["Most exposed entity", "En fazla etkilenen kurulu\u015F"],
     "Vector / Operativa cr\xEDtica": ["Critical capability / Operation", "Kritik yetenek / \u0130\u015Flem"],
-    "Evoluci\xF3n anual y recurrencia por entidad": ["Annual trend and recurrence by entity", "Kurulu\u015F baz\u0131nda y\u0131ll\u0131k e\u011Filim ve tekrarlama"],
+    "Evoluci\xF3n y recurrencia por entidad": ["Trend and recurrence by entity", "Kurulu\u015F baz\u0131nda e\u011Filim ve tekrarlama"],
     "\xC1mbitos funcionales afectados": ["Affected functional areas", "Etkilenen i\u015Flevsel alanlar"],
-    "\xDAltimas evidencias del a\xF1o": ["Latest evidence of the year", "Y\u0131l\u0131n son bulgular\u0131"],
+    "\xDAltimas evidencias del per\xEDodo": ["Latest evidence in the period", "D\xF6nemin son bulgular\u0131"],
     "Sin comparativa disponible": ["Comparison unavailable", "Kar\u015F\u0131la\u015Ft\u0131rma mevcut de\u011Fil"],
-    "Sin base en el a\xF1o anterior": ["No incidents in the previous year", "\xD6nceki y\u0131l olay yok"],
+    "Sin base en el per\xEDodo comparable": ["No incidents in the comparable period", "Kar\u015F\u0131la\u015Ft\u0131r\u0131labilir d\xF6nemde olay yok"],
+    "{change}% vs. mismo per\xEDodo del a\xF1o anterior": ["{change}% vs. the same period last year", "\xD6nceki y\u0131l\u0131n ayn\u0131 d\xF6nemine g\xF6re %{change}"],
     "Sin incidencias": ["No incidents", "Olay yok"],
-    "Sin incidencias operativas registradas en el canal para los filtros y periodo anual seleccionados": ["No operational channel incidents recorded for the selected filters and annual period", "Se\xE7ilen filtreler ve y\u0131ll\u0131k d\xF6nem i\xE7in kaydedilmi\u015F operasyonel kanal olay\u0131 yok"],
+    "Sin incidencias operativas registradas en el canal para los filtros y periodo seleccionados": ["No operational channel incidents recorded for the selected filters and period", "Se\xE7ilen filtreler ve d\xF6nem i\xE7in kaydedilmi\u015F operasyonel kanal olay\u0131 yok"],
     "Productos nuevos, mejoras y alianzas para seguir c\xF3mo evoluciona la banca digital de empresas.": ["New products, improvements and partnerships to track digital business banking.", "Dijital ticari bankac\u0131l\u0131\u011F\u0131n geli\u015Fimini izlemek i\xE7in yeni \xFCr\xFCnler, iyile\u015Ftirmeler ve i\u015F birlikleri."],
     "Selecciona una o dos noticias persistidas.": ["Select one or two saved articles.", "Kaydedilmi\u015F bir veya iki haber se\xE7in."],
     "Publicaci\xF3n de snapshots": ["Snapshot publication", "Anl\u0131k g\xF6r\xFCnt\xFC yay\u0131n\u0131"],
@@ -1669,8 +1672,9 @@
     });
   }
   var calendarFormatters = /* @__PURE__ */ new Map(), trendFormatters = /* @__PURE__ */ new Map(), monthFormatters = /* @__PURE__ */ new Map();
-  function formatCalendarMonth(value, language2 = "es") {
-    return monthFormatters.has(language2) || monthFormatters.set(language2, new Intl.DateTimeFormat(language2, { month: "short", timeZone: "UTC" })), monthFormatters.get(language2).format(/* @__PURE__ */ new Date(value + "-01T00:00:00Z"));
+  function formatCalendarMonth(value, language2 = "es", includeYear = !1) {
+    let key = language2 + ":" + includeYear;
+    return monthFormatters.has(key) || monthFormatters.set(key, new Intl.DateTimeFormat(language2, { month: "short", ...includeYear ? { year: "2-digit" } : {}, timeZone: "UTC" })), monthFormatters.get(key).format(/* @__PURE__ */ new Date(value + "-01T00:00:00Z"));
   }
   function formatTrendDay(value, language2 = "es") {
     return trendFormatters.has(language2) || trendFormatters.set(language2, new Intl.DateTimeFormat(language2, { day: "numeric", month: "short", timeZone: "UTC" })), trendFormatters.get(language2).format(new Date(value));
@@ -3457,6 +3461,54 @@
     } };
   }
 
+  // src/client/features/activity-chart.js
+  var arrow = (direction) => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${direction < 0 ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"}"/></svg>`;
+  function chartNavigation(content, { previous, next, label, tag = "div" } = {}) {
+    let control = (direction, text) => `<button type="button" class="activity-control" data-activity-step="${direction}" aria-label="${escape2(t(text))}">${arrow(direction)}</button>`;
+    return `<div class="activity-navigation">${control(-1, previous)}<${tag} class="activity-chart" tabindex="0" aria-label="${escape2(t(label))}">${content}</${tag}>${control(1, next)}</div>`;
+  }
+  function activityChart(days) {
+    if (!days.length) return '<div class="note">' + t("No hay actividad diaria registrada en este per\xEDodo.") + "</div>";
+    let maximum = Math.max(1, ...days.map((day2) => day2.users)), months = /* @__PURE__ */ new Map(), monthFormat = new Intl.DateTimeFormat(language, { month: "long", year: "numeric", timeZone: "UTC" });
+    for (let day2 of days) {
+      let key = day2.date.slice(0, 7);
+      months.set(key, (months.get(key) || 0) + 1);
+    }
+    return `<section class="activity-timeline" aria-label="${escape2(t("Usuarios activos por d\xEDa"))}"><div class="activity-heading"><div><strong>${t("Actividad diaria")}</strong><p class="activity-range" aria-live="polite" aria-atomic="true"></p></div><button type="button" class="activity-latest" data-activity-end title="${escape2(t("Ir al d\xEDa m\xE1s reciente"))}">${t("\xDAltimos d\xEDas")}</button></div>${chartNavigation(days.map((day2, index) => `<li class="activity-column ${Number(day2.date.slice(0, 4)) * 12 + Number(day2.date.slice(5, 7)) & 1 ? "activity-month-alternate" : ""}" data-date="${escape2(day2.date)}" aria-label="${escape2(formatCalendarDay(day2.date, language) + " \xB7 " + t("{count} usuarios", { count: day2.users }))}"><span class="activity-value">${day2.users}</span><div class="activity-bar" style="--bar-height:calc(var(--activity-chart-height) * ${day2.users / maximum})"></div><span class="activity-date">${escape2(day2.date.slice(8))}</span>${index === 0 || days[index - 1].date.slice(0, 7) !== day2.date.slice(0, 7) ? `<span class="activity-month" aria-hidden="true" style="width:calc(${months.get(day2.date.slice(0, 7))} * var(--activity-column-size,var(--activity-column-width)) + ${months.get(day2.date.slice(0, 7)) - 1} * var(--space-1))"><span>${escape2(monthFormat.format(/* @__PURE__ */ new Date(day2.date + "T00:00:00Z")))}</span></span>` : ""}</li>`).join(""), { previous: "Ver d\xEDas anteriores", next: "Ver d\xEDas siguientes", label: "Usuarios activos por d\xEDa", tag: "ul" })}</section>`;
+  }
+  function createTimelineChart(container, { markup, formatDate }) {
+    let viewport, columns = [], previous, next, latest, range, atEnd = !0, step = () => columns.length > 1 ? columns[1].getBoundingClientRect().left - columns[0].getBoundingClientRect().left : columns[0]?.getBoundingClientRect().width || 0;
+    function update() {
+      if (!viewport || !viewport.clientWidth) return;
+      let end = Math.max(0, viewport.scrollWidth - viewport.clientWidth), left = Math.max(0, viewport.scrollLeft), width = step();
+      if (previous.disabled = left <= 1, next.disabled = left >= end - 1, latest && (latest.disabled = next.disabled), atEnd = next.disabled, !width) return;
+      let first = Math.min(columns.length - 1, Math.floor((left + 1) / width)), last = Math.min(columns.length - 1, Math.ceil((left + viewport.clientWidth - 1) / width) - 1), text = formatDate(columns[first].dataset.date) + " \u2014 " + formatDate(columns[last].dataset.date);
+      range.textContent !== text && (range.textContent = text);
+    }
+    function move(direction) {
+      if (!viewport) return;
+      let width = step(), page = Math.max(1, Math.ceil(viewport.clientWidth / (width || 1)) - 1) * (width || viewport.clientWidth), left = direction === "start" ? 0 : direction === "end" ? viewport.scrollWidth : viewport.scrollLeft + direction * page;
+      viewport.scrollTo({ left: Math.max(0, Math.min(viewport.scrollWidth - viewport.clientWidth, left)), behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+    }
+    container.addEventListener("click", (event) => {
+      let button = event.target.closest("[data-activity-step],[data-activity-end]");
+      button && !button.disabled && move(button.hasAttribute("data-activity-end") ? "end" : Number(button.dataset.activityStep));
+    }), container.addEventListener("keydown", (event) => {
+      if (event.target !== viewport) return;
+      let direction = { ArrowLeft: -1, ArrowRight: 1, PageUp: -1, PageDown: 1, Home: "start", End: "end" }[event.key];
+      direction !== void 0 && (event.preventDefault(), move(direction));
+    });
+    function layout() {
+      if (!viewport || !viewport.clientWidth) return;
+      let styles = window.getComputedStyle(viewport), minimum = parseFloat(styles.getPropertyValue("--activity-column-width")) || columns[0].getBoundingClientRect().width, gap = parseFloat(styles.columnGap) || 0, width = viewport.clientWidth, visible = Math.max(1, Math.min(columns.length, Math.floor((width + gap) / (minimum + gap)))), first = step() ? Math.round(viewport.scrollLeft / step()) : 0;
+      viewport.style.setProperty("--activity-column-size", (width - gap * (visible - 1)) / visible + "px"), viewport.scrollLeft = atEnd ? Math.max(0, viewport.scrollWidth - width) : first * step(), update();
+    }
+    return new ResizeObserver(layout).observe(container), { render(days) {
+      atEnd = !0, container.innerHTML = markup(days), viewport = container.querySelector(".activity-chart"), viewport && (columns = Array.from(viewport.children), previous = container.querySelector('[data-activity-step="-1"]'), next = container.querySelector('[data-activity-step="1"]'), latest = container.querySelector("[data-activity-end]"), range = container.querySelector(".activity-range"), viewport.addEventListener("scroll", update, { passive: !0 }), layout());
+    } };
+  }
+  var createActivityChart = (container) => createTimelineChart(container, { markup: activityChart, formatDate: (date2) => formatCalendarDay(date2, language) });
+
   // src/client/features/trend-chart.js
   function trendChart({ buckets, series }, availableWidth = 900) {
     if (!buckets.length) return '<div class="chart-empty"><span class="empty-orbit" aria-hidden="true">\u25CE</span><p>La evoluci\xF3n aparecer\xE1 cuando haya publicaciones en esta selecci\xF3n.</p></div>';
@@ -3475,7 +3527,10 @@
 
   // src/client/features/radar.js
   function createRadar({ onCountry, onEntity, onSource, onOutage }) {
-    let outageSelection = {};
+    let outageSelection = {}, outageChart = createTimelineChart($("radar-outage-timeline"), { formatDate: (date2) => formatCalendarMonth(date2.slice(0, 7), language, !0), markup: (outage) => {
+      let maximum = Math.max(1, ...outage.map((row) => row.total)), crossYear = outage[0]?.month.slice(0, 4) !== outage.at(-1)?.month.slice(0, 4), label = t("Incidencias registradas"), bars = outage.map((row) => `<div data-date="${row.month}-01" title="${escape2(formatCalendarMonth(row.month, language, !0))}: ${row.total}"><span>${row.total}</span><div class="outage-bar" style="--outage-share:${row.total / maximum * 100}%"><span></span></div><time datetime="${row.month}">${escape2(formatCalendarMonth(row.month, language, crossYear))}</time></div>`).join("");
+      return `<p class="activity-range" aria-live="polite" aria-atomic="true"></p>${chartNavigation(bars, { previous: "Ver meses anteriores", next: "Ver meses siguientes", label })}`;
+    } });
     $("radar-outage").addEventListener("click", (event) => {
       let button = event.target.closest("[data-outage-explore]");
       button && onOutage({ ...outageSelection, ...button.dataset.entity ? { entity: button.dataset.entity } : {}, ...button.dataset.country ? { country: button.dataset.country } : {}, ...button.dataset.vector ? { palanca: button.dataset.vector } : {} });
@@ -3554,56 +3609,13 @@
       let outage = radar2.outages;
       if ($("radar-outage").hidden = !outage, outage) {
         outageSelection = { from: outage.from, to: outage.to, signal: outage.signal, newsGeography: "", source: "", page: 0 }, $("radar-outage-summary").textContent = outage.summary;
-        let comparison = outage.comparable ? outage.change === null ? "Sin base en el a\xF1o anterior" : `${outage.change > 0 ? "+" : ""}${outage.change}% vs. a\xF1o anterior` : "Sin comparativa disponible";
-        $("radar-outage-kpis").innerHTML = metricCards([["Incidencias registradas (A\xF1o)", outage.total, comparison], ["Entidades afectadas", outage.affected, `${outage.ratio}% de ${outage.active} entidades activas`], ["Entidad m\xE1s expuesta", outage.top?.entity || "\u2014", outage.top ? `${outage.top.total} eventos \xB7 ${outage.concentration}% de concentraci\xF3n` : "Sin incidencias"], ["Vector / Operativa cr\xEDtica", outage.vector?.name || "\u2014", outage.vector ? `${outage.vector.total} evidencias` : "Sin incidencias"]]);
+        let comparison = outage.comparable ? outage.change === null ? "Sin base en el per\xEDodo comparable" : t("{change}% vs. mismo per\xEDodo del a\xF1o anterior", { change: (outage.change > 0 ? "+" : "") + outage.change }) : "Sin comparativa disponible";
+        $("radar-outage-kpis").innerHTML = metricCards([["Incidencias registradas", outage.total, comparison], ["Entidades afectadas", outage.affected, `${outage.ratio}% de ${outage.active} entidades activas`], ["Entidad m\xE1s expuesta", outage.top?.entity || "\u2014", outage.top ? `${outage.top.total} eventos \xB7 ${outage.concentration}% de concentraci\xF3n` : "Sin incidencias"], ["Vector / Operativa cr\xEDtica", outage.vector?.name || "\u2014", outage.vector ? `${outage.vector.total} evidencias` : "Sin incidencias"]]);
         let topLabel = $("radar-outage-kpis").children[2]?.querySelector("strong");
         topLabel && outage.top && topLabel.insertAdjacentHTML("afterbegin", identityMark("entities", outage.top.entity, escape2)), $("radar-outage-kpis").children[0]?.querySelector("span").classList.add("badge"), $("radar-outage-grid").hidden = !outage.total;
-        let maximum = Math.max(1, ...outage.months.map((row) => row.total)), bar = (value, max2) => `<span class="ranking-track"><span style="width:${value / max2 * 100}%"></span></span>`;
-        $("radar-outage-timeline").innerHTML = outage.months.map((row) => `<div title="${escape2(formatCalendarMonth(row.month, language))} ${row.month.slice(0, 4)}: ${row.total}"><span>${row.total}</span><div class="outage-bar" style="--outage-share:${row.total / maximum * 100}%"><span></span></div><time datetime="${row.month}">${escape2(formatCalendarMonth(row.month, language))}</time></div>`).join(""), $("radar-outage-entities").innerHTML = outage.ranking.map((row) => `<div class="radar-outage-entity"><button type="button" class="ranking-row" data-outage-explore data-entity="${escape2(row.entity)}">${identityMark("entities", row.entity, escape2)}<span class="ranking-name">${escape2(row.entity)}${bar(row.total, outage.top.total)}</span><strong>${row.total}</strong></button><div class="radar-outage-countries">${row.countries.map((area) => `<button type="button" class="button" data-outage-explore data-entity="${escape2(row.entity)}" data-country="${escape2(area.country)}">${identityMark("countries", area.country, escape2)}${escape2(area.country)} \xB7 ${area.total}</button>`).join("")}</div></div>`).join(""), $("radar-outage-vectors").innerHTML = outage.vectors.map((row) => `<button type="button" class="ranking-row" data-outage-explore data-vector="${escape2(row.name)}"><span class="ranking-name">${escape2(row.name)}${bar(row.total, outage.vector.total)}</span><strong>${row.total}</strong></button>`).join(""), $("radar-outage-evidence").innerHTML = outage.latest.map((row) => `<article class="radar-outage-evidence"><p class="identity-label">${identityMark("entities", row.entity, escape2)}${escape2(row.entity)} ${identityMark("countries", row.country, escape2)}${escape2(row.country)}</p><a href="${escape2(row.url)}" target="_blank" rel="noopener noreferrer" data-original>${escape2(row.titles?.[language] || row.title)}</a><p class="small muted"><time>${escape2(row.date)}</time> \xB7 ${identityMark("publishers", row.publisher, escape2)}${escape2(row.publisher)}</p></article>`).join("");
+        let bar = (value, max2) => `<span class="ranking-track"><span style="width:${value / max2 * 100}%"></span></span>`;
+        outageChart.render(outage.months), $("radar-outage-entities").innerHTML = outage.ranking.map((row) => `<div class="radar-outage-entity"><button type="button" class="ranking-row" data-outage-explore data-entity="${escape2(row.entity)}">${identityMark("entities", row.entity, escape2)}<span class="ranking-name">${escape2(row.entity)}${bar(row.total, outage.top.total)}</span><strong>${row.total}</strong></button><div class="radar-outage-countries">${row.countries.map((area) => `<button type="button" class="button" data-outage-explore data-entity="${escape2(row.entity)}" data-country="${escape2(area.country)}">${identityMark("countries", area.country, escape2)}${escape2(area.country)} \xB7 ${area.total}</button>`).join("")}</div></div>`).join(""), $("radar-outage-vectors").innerHTML = outage.vectors.map((row) => `<button type="button" class="ranking-row" data-outage-explore data-vector="${escape2(row.name)}"><span class="ranking-name">${escape2(row.name)}${bar(row.total, outage.vector.total)}</span><strong>${row.total}</strong></button>`).join(""), $("radar-outage-evidence").innerHTML = outage.latest.map((row) => `<article class="radar-outage-evidence"><p class="identity-label">${identityMark("entities", row.entity, escape2)}${escape2(row.entity)} ${identityMark("countries", row.country, escape2)}${escape2(row.country)}</p><a href="${escape2(row.url)}" target="_blank" rel="noopener noreferrer" data-original>${escape2(row.titles?.[language] || row.title)}</a><p class="small muted"><time>${escape2(row.date)}</time> \xB7 ${identityMark("publishers", row.publisher, escape2)}${escape2(row.publisher)}</p></article>`).join("");
       }
-    } };
-  }
-
-  // src/client/features/activity-chart.js
-  var arrow = (direction) => `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${direction < 0 ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"}"/></svg>`;
-  function activityChart(days) {
-    if (!days.length) return '<div class="note">' + t("No hay actividad diaria registrada en este per\xEDodo.") + "</div>";
-    let maximum = Math.max(1, ...days.map((day2) => day2.users)), months = /* @__PURE__ */ new Map(), monthFormat = new Intl.DateTimeFormat(language, { month: "long", year: "numeric", timeZone: "UTC" });
-    for (let day2 of days) {
-      let key = day2.date.slice(0, 7);
-      months.set(key, (months.get(key) || 0) + 1);
-    }
-    return `<section class="activity-timeline" aria-label="${escape2(t("Usuarios activos por d\xEDa"))}"><div class="activity-heading"><div><strong>${t("Actividad diaria")}</strong><p class="activity-range" aria-live="polite" aria-atomic="true"></p></div><button type="button" class="activity-latest" data-activity-end title="${escape2(t("Ir al d\xEDa m\xE1s reciente"))}">${t("\xDAltimos d\xEDas")}</button></div><div class="activity-navigation"><button type="button" class="activity-control" data-activity-step="-1" aria-label="${escape2(t("Ver d\xEDas anteriores"))}">${arrow(-1)}</button><ul class="activity-chart" tabindex="0" aria-label="${escape2(t("Usuarios activos por d\xEDa"))}">${days.map((day2, index) => `<li class="activity-column ${Number(day2.date.slice(0, 4)) * 12 + Number(day2.date.slice(5, 7)) & 1 ? "activity-month-alternate" : ""}" data-date="${escape2(day2.date)}" aria-label="${escape2(formatCalendarDay(day2.date, language) + " \xB7 " + t("{count} usuarios", { count: day2.users }))}"><span class="activity-value">${day2.users}</span><div class="activity-bar" style="--bar-height:calc(var(--activity-chart-height) * ${day2.users / maximum})"></div><span class="activity-date">${escape2(day2.date.slice(8))}</span>${index === 0 || days[index - 1].date.slice(0, 7) !== day2.date.slice(0, 7) ? `<span class="activity-month" aria-hidden="true" style="width:calc(${months.get(day2.date.slice(0, 7))} * var(--activity-column-size,var(--activity-column-width)) + ${months.get(day2.date.slice(0, 7)) - 1} * var(--space-1))"><span>${escape2(monthFormat.format(/* @__PURE__ */ new Date(day2.date + "T00:00:00Z")))}</span></span>` : ""}</li>`).join("")}</ul><button type="button" class="activity-control" data-activity-step="1" aria-label="${escape2(t("Ver d\xEDas siguientes"))}">${arrow(1)}</button></div></section>`;
-  }
-  function createActivityChart(container) {
-    let viewport, columns = [], previous, next, latest, range, atEnd = !0, step = () => columns.length > 1 ? columns[1].getBoundingClientRect().left - columns[0].getBoundingClientRect().left : columns[0]?.getBoundingClientRect().width || 0;
-    function update() {
-      if (!viewport || !viewport.clientWidth) return;
-      let end = Math.max(0, viewport.scrollWidth - viewport.clientWidth), left = Math.max(0, viewport.scrollLeft), width = step();
-      if (previous.disabled = left <= 1, next.disabled = latest.disabled = left >= end - 1, atEnd = next.disabled, !width) return;
-      let first = Math.min(columns.length - 1, Math.floor((left + 1) / width)), last = Math.min(columns.length - 1, Math.ceil((left + viewport.clientWidth - 1) / width) - 1), text = formatCalendarDay(columns[first].dataset.date, language) + " \u2014 " + formatCalendarDay(columns[last].dataset.date, language);
-      range.textContent !== text && (range.textContent = text);
-    }
-    function move(direction) {
-      if (!viewport) return;
-      let width = step(), page = Math.max(1, Math.ceil(viewport.clientWidth / (width || 1)) - 1) * (width || viewport.clientWidth), left = direction === "start" ? 0 : direction === "end" ? viewport.scrollWidth : viewport.scrollLeft + direction * page;
-      viewport.scrollTo({ left: Math.max(0, Math.min(viewport.scrollWidth - viewport.clientWidth, left)), behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
-    }
-    container.addEventListener("click", (event) => {
-      let button = event.target.closest("[data-activity-step],[data-activity-end]");
-      button && !button.disabled && move(button.hasAttribute("data-activity-end") ? "end" : Number(button.dataset.activityStep));
-    }), container.addEventListener("keydown", (event) => {
-      if (event.target !== viewport) return;
-      let direction = { ArrowLeft: -1, ArrowRight: 1, PageUp: -1, PageDown: 1, Home: "start", End: "end" }[event.key];
-      direction !== void 0 && (event.preventDefault(), move(direction));
-    });
-    function layout() {
-      if (!viewport || !viewport.clientWidth) return;
-      let styles = window.getComputedStyle(viewport), minimum = parseFloat(styles.getPropertyValue("--activity-column-width")) || columns[0].getBoundingClientRect().width, gap = parseFloat(styles.columnGap) || 0, width = viewport.clientWidth, visible = Math.max(1, Math.min(columns.length, Math.floor((width + gap) / (minimum + gap)))), first = step() ? Math.round(viewport.scrollLeft / step()) : 0;
-      viewport.style.setProperty("--activity-column-size", (width - gap * (visible - 1)) / visible + "px"), viewport.scrollLeft = atEnd ? Math.max(0, viewport.scrollWidth - width) : first * step(), update();
-    }
-    return new ResizeObserver(layout).observe(container), { render(days) {
-      atEnd = !0, container.innerHTML = activityChart(days), viewport = container.querySelector(".activity-chart"), viewport && (columns = Array.from(viewport.children), previous = container.querySelector('[data-activity-step="-1"]'), next = container.querySelector('[data-activity-step="1"]'), latest = container.querySelector("[data-activity-end]"), range = container.querySelector(".activity-range"), viewport.addEventListener("scroll", update, { passive: !0 }), layout());
     } };
   }
 
