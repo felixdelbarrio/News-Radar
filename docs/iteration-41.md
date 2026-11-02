@@ -37,7 +37,7 @@ El supervisor está instalado cada 5 minutos, sus ejecuciones observadas complet
 - RSS: respuesta HTTPS 200 y RSS 2.0 con 43 elementos al verificar el 02/11/2026.
 - Icono: `https://expansion.mx/favicon-32x32.png`, enlazado por la página principal y descargado con respuesta 200; PNG de 867 bytes.
 - Fuente editorial: [aviso legal](https://expansion.mx/aviso-legal-y-de-privacidad) y [canales RSS](https://expansion.mx/expansion/2017/07/05/canales-rss).
-- El respaldo vivo contiene `expansion.com` verificado y `amp.expansion.com` observado; no contiene `expansion.mx`. No se modifican noticias históricas.
+- El respaldo vivo contiene `expansion.com` verificado y `amp.expansion.com` observado; no contiene `expansion.mx`. La generación de 835 noticias del respaldo contiene una noticia mexicana con país de contenido México y marca «Expansión»: no se ha demostrado error geográfico en esa fila. La identidad de presentación se resuelve por el host configurado para distinguir el icono mexicano, sin reescribir la noticia ni sus IDs, URLs o categorías. No se propone reclasificación geográfica de esa fila.
 
 ## Promoción y medición pendientes
 

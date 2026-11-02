@@ -22,6 +22,8 @@ for(const day of ['2026-04-01','2027-01-01','2026-10-25'])test('prueba trimestra
 test('identidad editorial por host evita colisión de marcas y mantiene iconos independientes',()=>{
  const {c}=server(),index=c.businessIndex_();index.publisherCountries.set('expansion','España');index.verifiedMedia=[{name:'Expansión',domain:'expansion.com',iso2:'ES'},{name:'Expansión México',domain:'expansion.mx',iso2:'MX'}];
  assert.equal(c.editorialCountry_('https://www.expansion.com','Expansión',index).country,'España');assert.equal(c.editorialCountry_('https://expansion.mx','Expansión',index).country,'México');assert.equal(c.editorialCountry_('https://unconfigured.test','Expansión',index).country,'');
+ assert.equal(c.configuredPublisher_('https://expansion.mx',index),'Expansión México');assert.equal(c.configuredPublisher_('https://other.expansion.mx',index),'');
+ c.taxonomyCatalog_=()=>[];c.effectiveTaxonomyAssignment_=()=>({ids:[]});const annotated=c.annotateNews_([{medio:'Expansión',pais:'México',entidad:'BBVA',clasificacion:JSON.stringify({digital:true,capacidades:[],procedencia:{dominioMedio:'expansion.mx'}})}]);assert.equal(annotated[0].medio,'Expansión México');
  assert.notEqual(c.identityAsset('publishers','expansion.com').id,c.identityAsset('publishers','expansion.mx').id);
  assert.match(c.identityMark('publishers','Expansión México',x=>x),/data:image\/png;base64,/);
  const feeds=c.configuredFeeds_().filter(row=>row.domain==='expansion.mx');assert.equal(feeds.length,1);assert.equal(feeds[0].country,'México');
