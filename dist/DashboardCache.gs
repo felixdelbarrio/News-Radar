@@ -24,9 +24,6 @@ function cachedNewsRecords_(query={}){
   if(complete)try{const id=Utilities.getUuid();if(chunks.length)cache.putAll(Object.fromEntries(chunks.map((value,index)=>[key+':'+id+':'+index,value])),NEWS_CACHE.seconds);cache.put(key,JSON.stringify({id,parts:chunks.length}),NEWS_CACHE.seconds);}catch(_){}
   return rows;
 }
-function newsPeriodCount_(query){
-  let count=0;for(const [day,ranges] of Object.entries(newsRecordIndex_().days))if(day>=query.from&&day<=query.to)for(const [first,last] of ranges)count+=last-first+1;return count;
-}
 function newsRowsForPeriod_(query={}){
   const positions=[];
   for(const [day,ranges] of Object.entries(newsRecordIndex_().days))if((!query.from||day>=query.from)&&(!query.to||day<=query.to))for(const [first,last] of ranges)for(let row=first;row<=last;row++)positions.push(row);

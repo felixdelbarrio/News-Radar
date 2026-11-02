@@ -6,15 +6,13 @@ function radarAvailableYears_(){
 function getDashboard(query){return withScriptProperties_(()=>getDashboardRequest_(query));}
 function getDashboardRequest_(query) {
   const started=Date.now(),session=authorize_(),feeds=feeds_();
-  const view=query?.view||'radar',initial=Boolean(query?.initial),automaticPeriod=initial||!query?.from&&!query?.to,language=supportedLanguage(query?.language)?query.language:'es',edition=query?.edition&&view==='news'?newsletterEdition_(query.edition,session.email,session.admin):null;
+  const view=query?.view||'radar',initial=Boolean(query?.initial),language=supportedLanguage(query?.language)?query.language:'es',edition=query?.edition&&view==='news'?newsletterEdition_(query.edition,session.email,session.admin):null;
   if(edition&&initial&&view==='news'&&query.country&&!query.newsGeography&&!['entity','palanca','subpalanca','benchmark'].some(key=>query[key]))query={...query,newsGeography:applicationGeography(edition.editorial?.scope||configuration_().applicationScope,edition.query.segment,configuration_().geographies)({pais:query.country}),country:''};
   query=dashboardQuery_(edition&&initial?{...edition.query,country:'',...(typeof query.country==='string'?{country:query.country}:{}),...(typeof query.entity==='string'?{entity:query.entity}:{}),...(query.palanca?{palanca:query.palanca}:{}),...(query.subpalanca?{subpalanca:query.subpalanca}:{}),...(query.benchmark?{benchmark:query.benchmark}:{}),...(typeof query.newsGeography==='string'?{newsGeography:query.newsGeography}:{}),view,initial:false}:{...query,view},new Date(),!edition);
   if(view==='news'){const geography=newsReadingGeography_(edition?.editorial,query),normalized=geographyTabQuery({...query,view},geography.regions,geography);delete normalized.view;query=normalized;}
-  const preparationMs=Date.now()-started,contentStarted=Date.now(),canFallback=!edition&&readingViews.includes(view)&&automaticPeriod,snapshot=!edition?defaultDashboardSnapshot_(view,query,language):null;let periodFallback=Boolean(snapshot?.periodFallback);
+  const preparationMs=Date.now()-started,contentStarted=Date.now(),snapshot=!edition?defaultDashboardSnapshot_(view,query,language):null;const periodFallback=false;
   if(snapshot)query={...query,...snapshot.period};
-  if(!snapshot&&canFallback&&newsPeriodCount_(query)===0){query={...query,...dashboardPeriod_(view,new Date(),true)};periodFallback=true;}
-  let content=snapshot?{data:snapshot.data,cacheHit:true,snapshotHit:true}:dashboardContent_(query||{},feeds,view,language,edition);
-  if(!snapshot&&canFallback&&!periodFallback&&(view==='briefing'?content.data.briefing.total:content.data.total)===0){query={...query,...dashboardPeriod_(view,new Date(),true)};content=dashboardContent_(query,feeds,view,language);periodFallback=true;}
+  const content=snapshot?{data:snapshot.data,cacheHit:true,snapshotHit:true}:dashboardContent_(query||{},feeds,view,language,edition);
   const newsMs=Date.now()-contentStarted;
   const metadataStarted=Date.now(),metadata=snapshot?.metadata||dashboardMetadata_(),catalogMs=Date.now()-metadataStarted,operationStarted=Date.now(),operation=dashboardOperation_(session.admin),operationMs=Date.now()-operationStarted,yearsStarted=Date.now(),years=view==='radar'?(content.data.years||radarAvailableYears_()):null,yearsMs=Date.now()-yearsStarted,dailyStarted=Date.now(),daily=dailyScheduleStatus_(),dailyMs=Date.now()-dailyStarted;
   const response={...content.data,...(view==='radar'?{years}:{}),
@@ -91,7 +89,7 @@ function dashboardCacheKey_(selection,view,language,edition=null){
 }
 
 function dashboardCatalogOptions_(data,feeds){
-  const index=newsRecordIndex_();data.entities=[...new Set([...index.entities.map(entityKey_),...feeds.map(feed=>entityKey_(feed.entity))])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));data.sources=[...new Set(index.sources.map(publisherKey_))].sort((a,b)=>a.localeCompare(b,'es'));
+  const index=newsRecordIndex_();data.entities=[...new Set([...index.entities.map(entityKey_),...feeds.map(feed=>entityKey_(feed.entity))])].filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));data.sources=[...new Set([...index.sources.map(publisherKey_),...(data.sources||[])])].sort((a,b)=>a.localeCompare(b,'es'));
 }
 
 // Volatile status shares the existing 15-second freshness budget; publication revision stays live.

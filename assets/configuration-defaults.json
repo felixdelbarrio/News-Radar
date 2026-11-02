@@ -2477,6 +2477,16 @@
       "country": "Sin determinar",
       "language": "en",
       "enabled": true
+    },
+    {
+      "id": "expansion-mx",
+      "name": "Expansión México",
+      "url": "https://expansion.mx/rss",
+      "domain": "expansion.mx",
+      "entity": "Sector",
+      "country": "México",
+      "language": "es",
+      "enabled": true
     }
   ],
   "capabilities": {
