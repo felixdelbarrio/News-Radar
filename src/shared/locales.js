@@ -1639,9 +1639,10 @@ export function translateText(value,language='es',source='es'){
 }
 
 const calendarFormatters=new Map(),trendFormatters=new Map(),monthFormatters=new Map();
-export function formatCalendarMonth(value,language='es'){
-  if(!monthFormatters.has(language))monthFormatters.set(language,new Intl.DateTimeFormat(language,{month:'short',timeZone:'UTC'}));
-  return monthFormatters.get(language).format(new Date(value+'-01T00:00:00Z'));
+export function formatCalendarMonth(value,language='es',includeYear=false){
+  const key=language+':'+includeYear;
+  if(!monthFormatters.has(key))monthFormatters.set(key,new Intl.DateTimeFormat(language,{month:'short',...(includeYear?{year:'2-digit'}:{}),timeZone:'UTC'}));
+  return monthFormatters.get(key).format(new Date(value+'-01T00:00:00Z'));
 }
 export function formatTrendDay(value,language='es'){
   if(!trendFormatters.has(language))trendFormatters.set(language,new Intl.DateTimeFormat(language,{day:'numeric',month:'short',timeZone:'UTC'}));
