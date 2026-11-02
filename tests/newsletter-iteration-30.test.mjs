@@ -14,6 +14,6 @@ test('maqueta con etiquetas y sin botón fuente; feedback tras bIA y trimestral 
 test('la descripción sindicada idéntica al titular desaparece',()=>{
  const c=setup(),item=row('a');item.extracto=item.titular+' '+item.medio;const result=c.newsletterContent_([item],{view:'briefing'},'',new Date(),'s');assert.equal(new JSDOM(result.html).window.document.querySelector('.newsletter-excerpt'),null);
 });
-test('la prueba administrativa usa la quincena en curso y la entrega programada mantiene la cerrada',()=>{
- const c=setup();c.Date=class extends Date{constructor(value='2026-10-27T12:00:00Z'){super(value);}};let query;c.rows_=()=>[];c.newsletter_=(_rows,value)=>{query=value;return {count:0,editorial:{audit:{exclusions:[]}}};};c.newsletterContentDetail_=()=>'';c.sendNewsletterTest({cadence:'fortnightly'});assert.equal(query.from,'2026-10-16');assert.equal(query.to,'2026-10-31');assert.equal(c.subscriptionQuery_({periodicidad:'fortnightly',filtros:{}},new Date('2026-10-27'),true).from,'2026-10-01');
+test('la prueba administrativa y la entrega programada usan la quincena cerrada pendiente',()=>{
+ const c=setup();c.Date=class extends Date{constructor(value='2026-10-27T12:00:00Z'){super(value);}};let query;c.rows_=()=>[];c.newsletter_=(_rows,value)=>{query=value;return {count:0,editorial:{audit:{exclusions:[]}}};};c.newsletterContentDetail_=()=>'';c.sendNewsletterTest({cadence:'fortnightly'});assert.equal(query.from,'2026-10-01');assert.equal(query.to,'2026-10-15');assert.equal(c.subscriptionQuery_({periodicidad:'fortnightly',filtros:{}},new Date('2026-10-27'),true).from,'2026-10-01');
 });

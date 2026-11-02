@@ -11,13 +11,14 @@ function createFilters({ onInvalidate, onChange, onCurrent=()=>{} }) {
   const form = $("filters");
   let page = 0, view=defaultView, defaults={},edition='',newsGeography='',editionSelection={},taxonomy=[],applied={},dirty=false,regions=REGION_CODES;
   const selections=new Map(),initialized=new Set();
+  const radarYear=selection=>selection?.from?.endsWith('-01-01')&&selection.to===selection.from.slice(0,4)+'-12-31'?selection.from.slice(0,4):'';
   function options(name, values, selected) {
     const el = form.elements[name];if(!el)return;if(name==='country'&&['news','briefing'].includes(view))values=[...new Set([...values,otherGeography,...regions])];let current = selected ?? el.value;if(name==='signal'&&view==='briefing'){values=values.filter(value=>BRIEFING_ALLOWED_SIGNALS.includes(value));if(!values.includes(current))current='';}
     if(name!=='year'&&!(name==='signal'&&view==='briefing')&&current&&!values.includes(current))values=[...values,current];
     const signature = JSON.stringify(values);
     if (el.dataset.options === signature) return;
     el.dataset.options = signature;
-    el.innerHTML = (name==='year'?'':'<option value="">Todos</option>') + values.map((x) => '<option value="'+escape(x)+'">' + escape(['palanca','subpalanca'].includes(name)?taxonomyDisplayLabel(x):name==='coverage'?coverageOptions[x]:name==='signal'&&x==='Incidencia operativa'?'Indisponibilidad / Incidencia operativa':x) + "</option>").join("");
+    el.innerHTML = (name==='year'?'<option value="">Últimos 365 días</option>':'<option value="">Todos</option>') + values.map((x) => '<option value="'+escape(x)+'">' + escape(['palanca','subpalanca'].includes(name)?taxonomyDisplayLabel(x):name==='coverage'?coverageOptions[x]:name==='signal'&&x==='Incidencia operativa'?'Indisponibilidad / Incidencia operativa':x) + "</option>").join("");
     el.value = current || "";
   }
   function layout(){
@@ -65,6 +66,7 @@ function createFilters({ onInvalidate, onChange, onCurrent=()=>{} }) {
     $("message").hidden = true;
     if(view==='news'&&!event.preserveGeography&&next.country)newsGeography=next.country;
     if(view==='news')form.elements.country.value='';
+    if(view==='radar'&&event.type==='submit'&&next.year!==radarYear(applied)){form.elements.from.value='';form.elements.to.value='';}
     dirty=false;applied={...(edition&&applied.benchmark?{benchmark:applied.benchmark}:{}),...Object.fromEntries(new FormData(form))};renderChips();
     if(event.notify===false)return;
     if (event.type === "input") timer = setTimeout(onChange, 250);
@@ -127,12 +129,12 @@ function createFilters({ onInvalidate, onChange, onCurrent=()=>{} }) {
     render: (data) => {
       regions=[...new Set((data.geographies||[]).map(row=>row.region).filter(Boolean))];
       const draft=dirty?Object.fromEntries(new FormData(form)):null,selection=data.selection?{...data.selection,...(view==='news'?{country:''}:{})}:null;
-      if(view==='radar')options('year',data.years||[],data.selection?.from?.slice(0,4));
+      if(view==='radar')options('year',data.years||[],radarYear(data.selection));
       taxonomy=data.subpalanca||[];page = data.page;newsGeography=data.newsGeography||'';
       defaults=data.defaults||defaults;
       initialized.add(view);
       for (const [name, key] of [["country", "countries"], ["entity", "entities"], ["source", "sources"], ["type","types"], ["segment","segments"], ["signal","signals"], ["palanca","palanca"], ["subpalanca","subpalanca"]]) options(name, data[key]||[],selection?.[name]);
-      if(selection)for(const input of form.elements)if(input.name)input.value=(input.name==='year'&&view==='radar'?selection.from?.slice(0,4):selection[input.name])||'';
+      if(selection)for(const input of form.elements)if(input.name)input.value=(input.name==='year'&&view==='radar'?radarYear(selection):selection[input.name])||'';
       syncTaxonomyControls(form,taxonomy);applied=selection||Object.fromEntries(new FormData(form));renderChips();
       if(draft){for(const input of form.elements)if(input.name)input.value=draft[input.name]||'';syncTaxonomyControls(form,taxonomy);}
     }

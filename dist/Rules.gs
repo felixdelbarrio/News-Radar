@@ -270,7 +270,7 @@ function editorialCountry_(url,publisher,index){
  const host=canonicalUrl_(url).match(/^https:\/\/([^/]+)/)?.[1]||'';
  for(const row of verifiedMedia_(index))if(mediaEditionMatches_(url,row)||!host&&!row.editionPattern&&searchText_(row.name)===searchText_(publisher)){const country=mediaCountry_(row.iso2||row.country,index);if(country)return {country,verified:true,evidence:row.domain};}
  let domain=host;while(domain.includes('.')){const country=index.publisherDomains.get(domain);if(country)return {country,verified:true,evidence:domain};domain=domain.slice(domain.indexOf('.')+1);}
- const name=index.publisherCountries.get(searchText_(publisher));if(name)return {country:name,verified:true,evidence:publisher};
+ const name=!host&&index.publisherCountries.get(searchText_(publisher));if(name)return {country:name,verified:true,evidence:publisher};
  return {country:'',verified:false,evidence:host};
 }
 function articleEdition_(url,index){

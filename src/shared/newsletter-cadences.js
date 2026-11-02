@@ -16,6 +16,11 @@ export function newsletterWindow(periodicity,day,closed=false){
  const cutoff=end.toISOString(),delivery=new Date(end);delivery.setUTCDate(delivery.getUTCDate()+(cadence.weekday-delivery.getUTCDay()+7)%7);end.setUTCDate(end.getUTCDate()-1);
  return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10),cutoff,available:delivery.toISOString().slice(0,10)};
 }
-export function readingWindow(view,day,closed=false){
- const cadence=Object.keys(newsletterCadences).find(key=>newsletterCadences[key].view===view);return newsletterWindow(cadence,day,closed);
+// Inclusive business-calendar windows. Clamp the month subtraction at month end.
+export function readingWindow(view,day){
+ const start=new Date(day+'T00:00:00Z');
+ if(view==='briefing'||view==='radar')start.setUTCDate(start.getUTCDate()-(view==='briefing'?14:364));
+ else if(view==='news'){const date=start.getUTCDate();start.setUTCDate(1);start.setUTCMonth(start.getUTCMonth()-3);const end=new Date(start);end.setUTCMonth(end.getUTCMonth()+1,0);start.setUTCDate(Math.min(date,end.getUTCDate()));}
+ else throw Error('Vista no válida.');
+ return {from:start.toISOString().slice(0,10),to:day};
 }

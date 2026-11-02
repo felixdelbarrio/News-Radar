@@ -10,10 +10,9 @@ function requestDashboardSnapshots_(ready=false){if(!dashboardSnapshotsPending_(
 function defaultDashboardSnapshot_(view,query,language){
   if(!DASHBOARD_SNAPSHOTS.views.includes(view))return null;
   const defaults=dashboardQuery_({view,initial:true}),revision=dashboardSnapshotRevision_(view),manifest=dashboardSnapshotManifest_(view);
-  if(manifest?.periodFallback&&query.from===manifest.period.from&&query.to===manifest.period.to)Object.assign(defaults,manifest.period);
   if(Object.entries(query).some(([key,value])=>value!==''&&value!=null&&key!=='newsGeography'&&!(key==='page'&&Number(value)===0)&&value!==defaults[key]))return null;
   if(manifest?.revision!==revision){requestDashboardSnapshots_();if(!manifest)return null;}
-  if(manifest.schema!==NEWS_CACHE.schema)return null;
+  if(manifest.schema!==NEWS_CACHE.schema||manifest.periodFallback||manifest.period?.from!==query.from||manifest.period?.to!==query.to)return null;
   const cache=CacheService.getScriptCache(),key='dashboard-snapshot:'+manifest.revision+':'+language+':'+(query.newsGeography||''),cached=readDashboardCache_(cache,key);if(cached)return cached;
   try{
     const rows=book_().getSheetByName(manifest.sheet||'DashboardSnapshots')?.getRange(manifest.first,1,manifest.parts,4).getDisplayValues();
@@ -61,7 +60,6 @@ function buildPreparedDashboardSnapshotBatch_(job=null){
   const view=DASHBOARD_SNAPSHOTS.views.find(view=>!build.manifests[view]);
   if(!view)return publishDashboardSnapshotSet_(build,job);
   const started=Date.now(),revision=dashboardSnapshotRevision_(view);let query=dashboardQuery_({view,initial:true}),rows=snapshotRecords(query),data=dashboardSnapshotData_(rows,query,feeds,view),periodFallback=false;
-  if((view==='briefing'?data.briefing.total:data.contextTotal)===0){query={...query,...dashboardPeriod_(view,new Date(),true)};rows=snapshotRecords(query);data=dashboardSnapshotData_(rows,query,feeds,view);periodFallback=true;}
   const payload=view==='news'?{news:compactNewsSnapshot_(rows,query,data)}:{variants:{'':dashboardSnapshotLanguages_(data,view)}};
   const period={from:query.from,to:query.to};
   if(view==='news')for(const language of Object.keys(languageNames))writeDashboardCache_(CacheService.getScriptCache(),'dashboard-snapshot:'+revision+':'+language+':',{data:compactNewsSnapshotData_(payload.news,'',language),metadata,period,periodFallback});

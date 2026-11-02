@@ -57,11 +57,11 @@ test('mapa disperso cuenta una vez por noticia y palanca, incluye todas las geog
  const large={...data,nodes:Array.from({length:80},(_,i)=>({...data.nodes[0],id:String(i)})),entities:Array.from({length:80},()=>data.entities[0])},bounded=heatmapPage(large,'entities','palanca',1,1);assert.equal(bounded.rows.length,HEATMAP_PAGE.rows*2);assert.equal(bounded.columns.length,HEATMAP_PAGE.columns);
 });
 
-test('Novedades y newsletter predeterminadas priorizan canales digitales de todas las entidades de la quincena en curso cuando no hay suscripciones',()=>{
+test('Novedades usa ventana móvil y la prueba newsletter conserva su quincena natural pendiente',()=>{
  const s=server(),c=s.c,range=c.dashboardPeriod_('briefing'),old=new Date(range.from+'T00:00:00Z');old.setUTCDate(old.getUTCDate()-1);
  const general={...raw('general','Santander',range.from),titular:'Banco Santander lanza financiación para empresas',extracto:'Nueva oferta de crédito para pymes',clasificacion:JSON.stringify({digital:false,generalista:true,capacidades:["Empresas: Pagos"]})};
  const digital=raw('digital','BBVA',range.to),expired={...general,id:'old',fecha:old.toISOString().slice(0,10)},retail={...general,id:'retail',titular:'Banco Santander lanza una cuenta para particulares',extracto:'Oferta para particulares'};
- add(s,[general,digital,expired,retail]);
+ const pending=c.newsletterPeriod_('fortnightly',new Date());add(s,[general,digital,expired,retail,raw('pending','BBVA',pending.from)]);
  const dashboard=c.getDashboard({view:'briefing',initial:true});assert.deepEqual(JSON.parse(JSON.stringify(dashboard.selection)),{segment:'Empresas e instituciones',coverage:'digital',...JSON.parse(JSON.stringify(range))});assert.equal(dashboard.context.mode,'current');assert.equal(dashboard.personalization,undefined);assert.deepEqual(Array.from(dashboard.briefing.items,row=>row.id),['digital']);
  const defaults=c.subscriptionDefaults_();assert.deepEqual(JSON.parse(JSON.stringify(defaults.filters)),{});
  c.saveSubscription({name:defaults.name,periodicity:defaults.periodicity,filters:defaults.filters});const subscription=c.subscriptionRows_('owner@bbva.com').at(-1),query=c.subscriptionQuery_({...subscription,periodicidad:'quarterly'},new Date());assert.deepEqual(Object.fromEntries(Object.entries(query).filter(([,value])=>value)),{segment:'Empresas e instituciones',coverage:'digital',from:c.newsletterWindow('quarterly',c.recordDay(new Date(),'Europe/Madrid')).from,to:c.newsletterWindow('quarterly',c.recordDay(new Date(),'Europe/Madrid')).to,view:'news'});

@@ -19,9 +19,9 @@ for(const view of ['briefing','news','radar'])test('snapshot '+view+' coincide c
  assert.equal(c.getDashboard({...after.selection,view,language:'en'}).performance.snapshotHit,true);
  assert.equal(after.performance.snapshotHit,true);for(const key of ['items','total','contextTotal','radar','briefing','newsGeography','selection'])assert.deepEqual(clean(after[key]??null),clean(before[key]??null));
 });
-for(const view of ['briefing','news','radar'])test('snapshot '+view+' retrocede únicamente al período anterior cuando el actual no tiene resultados',()=>{
- const s=server(),c=s.c,period=c.dashboardPeriod_(view,new TestDate(),true);add(s,'previous',period.from);build(s);
- const result=c.getDashboard({view,initial:true});assert.equal(result.performance.snapshotHit,true);assert.equal(result.context.periodFallback,true);assert.equal(result.selection.from,period.from);assert.equal(result.contextTotal,1);
+for(const view of ['briefing','news','radar'])test('snapshot '+view+' mantiene el rango vacío aunque haya noticias anteriores',()=>{
+ const s=server(),c=s.c,period=c.dashboardPeriod_(view,new TestDate());add(s,'previous',new Date(Date.parse(period.from)-86400000).toISOString().slice(0,10));build(s);
+ const result=c.getDashboard({view,initial:true});assert.equal(result.performance.snapshotHit,true);assert.equal(result.context.periodFallback,false);assert.equal(result.selection.from,period.from);assert.equal(result.contextTotal,0);
 });
 test('los filtros explícitos y la paginación no reciben el snapshot por defecto',()=>{
  const s=server(),c=s.c;add(s,'es','2026-10-10');build(s);
