@@ -27,7 +27,7 @@ test('normalización elimina etiquetas rotas y codificadas antes de traducir sin
  assert.equal(result.titular,'Banco');assert.equal(result.extracto.length,5000);assert.ok(input.endsWith('</p>'));assert.ok(!input.includes('&lt;article'));
 });
 test('país único del titular domina dominio; extracto incidental no suplanta dominio colombiano',()=>{
- const {c}=server();assert.equal(c.newsCountry_({titular:'BBVA renueva pagos',extracto:'La matriz está en España',url:'https://abceconomia.co/noticia',pais:'España'}),'Colombia');assert.equal(c.newsCountry_({titular:'BBVA renueva pagos en México',url:'https://abceconomia.co/noticia',pais:'España'}),'México');
+ const {c}=server();assert.equal(c.newsCountry_({titular:'BBVA renueva pagos',extracto:'La matriz está en España',url:'https://abceconomia.co/noticia',pais:'España'}),'Sin determinar');assert.equal(c.newsCountry_({titular:'BBVA renueva pagos en México',url:'https://abceconomia.co/noticia',pais:'España'}),'México');
 });
 test('patrones funcionales de auditoría asignan operativas específicas del catálogo',()=>{
  const {c}=server(),definitions=c.taxonomyDefinitions(c.configuration_().taxonomy);

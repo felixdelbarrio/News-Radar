@@ -7,9 +7,9 @@ test('country assignment follows content, publisher URL, RSS and regional fallba
  const {c}=setup(),base={titular:'Nuevo servicio digital para empresas',entidad:'Revolut',url:'https://news.google.com/rss/articles/a',fuente:'Revolut · Italia'};
  const cases=[
   [{...base,titular:'Revolut lanza servicio en Colombia',sourceUrl:'https://editor.es/story'},'Colombia','headline'],
-  [{...base,sourceUrl:'https://editor.co/story'},'Colombia','domain'],
-  [{...base,medio:'LaRepublica.co'},'Colombia','domain'],
-  [{...base,medio:'Portafolio.co'},'Colombia','domain'],
+  [{...base,sourceUrl:'https://editor.co/story'},'Italia','rss_fallback'],
+  [{...base,medio:'LaRepublica.co'},'Italia','rss_fallback'],
+  [{...base,medio:'Portafolio.co'},'Italia','rss_fallback'],
   [{...base,medio:'Portafolio.co',titular:'Nuevo servicio digital en España'},'España','headline'],
   [{...base,medio:'Portafolio.co informa'},'Italia','rss_fallback'],
   [base,'Italia','rss_fallback'],
@@ -17,7 +17,23 @@ test('country assignment follows content, publisher URL, RSS and regional fallba
  ];
  for(const [row,country,reason] of cases){const result=c.newsCountryDecision_(row);assert.equal(result.country,country);assert.equal(result.reason,reason);}
  assert.equal(c.domainCountry_('https://bank.co.uk/story'),'Reino Unido');
+ assert.equal(c.domainCountry_('https://dealroom.co/story'),'');
  assert.equal(c.domainCountry_('https://publisher.com/es/co/story'),'');
+});
+test('verified editorial editions use exact host and full path segments',()=>{
+ const {c}=setup(),base={titular:'Nuevo servicio digital para empresas',entidad:'BBVA',fuente:'BBVA · Argentina',url:'https://news.google.com/rss/articles/a'};
+ const cases=[
+  ['https://www.infobae.com/peru/economia/noticia','Perú','edition'],
+  ['https://infobae.com/peruano/noticia','Sin determinar','undetermined'],
+  ['https://other.infobae.com/peru/noticia','Argentina','rss_fallback'],
+  ['https://www.cronista.com/mexico/finanzas/noticia','México','edition'],
+  ['https://www.bbva.com/es/co/noticia','Colombia','edition'],
+  ['https://www.bbva.com/es/noticia','Sin determinar','undetermined'],
+  ['https://app.dealroom.co/story','Sin determinar','undetermined']
+ ];
+ for(const [sourceUrl,country,reason] of cases){const result=c.newsCountryDecision_({...base,sourceUrl});assert.equal(result.country,country,sourceUrl);assert.equal(result.reason,reason,sourceUrl);}
+ assert.deepEqual(Array.from(c.newsCountryDecision_({...base,manualGeografias:['EMEA']}).geographies),['EMEA']);
+ assert.equal(c.newsCountryDecision_({...base,manualGeografias:['EMEA']}).type,'REGION');
 });
 test('upgrade preserves published rows, installs headquarters and queues country repair',()=>{
  const s=setup(),{c}=s;

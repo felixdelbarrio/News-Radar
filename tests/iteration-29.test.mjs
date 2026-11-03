@@ -22,16 +22,16 @@ test('países protagonistas se conservan, el actor explícito prima y la editori
  assert.deepEqual([...c.newsCountryDecision_({...base,titular:'Revolut outage in UK, France and Spain'}).geographies],['España','Francia','Reino Unido']);
  assert.deepEqual([...c.newsCountryDecision_({...base,titular:'Sistema cashless en el México vs. Portugal'}).geographies],['México']);
  assert.equal(c.newsCountryDecision_({...base,titular:'BBVA México lanza pagos',extracto:'Servicio también citado en Colombia',sourceUrl:'https://semana.com/story'}).geographies.length,1);
- assert.equal(c.newsCountryDecision_({...base,sourceUrl:'https://publisher.co/story',rssCountry:'España'}).country,'Colombia');
+ assert.equal(c.newsCountryDecision_({...base,sourceUrl:'https://publisher.co/story',rssCountry:'España'}).country,'España');
  const manual=c.newsCountryDecision_({...base,clasificacion:JSON.stringify({procedencia:{manualGeografias:['Perú','Colombia']}})});assert.deepEqual([...manual.geographies],['Perú','Colombia']);assert.equal(manual.reason,'manual');
 });
 test('catálogos separados e importación conservan ediciones manuales',()=>{
  const {c}=setup(),snapshot=c.getConfiguration(),config=snapshot.config;
- assert.equal(config.mediaCatalog.length,81);assert.equal(config.localeRules.length,46);assert.ok(config.mediaCatalog.filter(row=>!['expansion.mx','iupana.com'].includes(row.domain)).every(row=>!row.enabled&&row.status==='PENDIENTE'));
+ assert.equal(config.mediaCatalog.length,100);assert.equal(config.localeRules.length,46);assert.ok(config.mediaCatalog.every(row=>!row.enabled||row.status==='VERIFICADO'));
  config.mediaCatalog[0].status='VERIFICADO';config.mediaCatalog[0].enabled=true;c.saveConfiguration({config,revision:snapshot.revision});
  const csv='nombreRSS,dominio,paisEditorialPropuesto,iso2Propuesto,estadoVerificacion,activo,tipoRegla,paisEdicion,patronEdicion,noticiasHistoricas,urlReferencia,observaciones\nNuevo Medio,nuevo-medio.com,España,ES,PENDIENTE,False,DOMINIO_GENERICO,,,1,https://nuevo-medio.com,Prueba';
  assert.match(c.importGeographyCatalog({category:'mediaCatalog',csv}),/1 entradas/);assert.match(c.importGeographyCatalog({category:'mediaCatalog',csv}),/0 entradas/);
- const saved=c.getConfiguration().config;assert.equal(saved.mediaCatalog.length,82);assert.equal(saved.mediaCatalog[0].status,'VERIFICADO');assert.equal(saved.localeRules.length,46);
+ const saved=c.getConfiguration().config;assert.equal(saved.mediaCatalog.length,101);assert.equal(saved.mediaCatalog[0].status,'VERIFICADO');assert.equal(saved.localeRules.length,46);
  const renamed=saved.mediaCatalog[0];renamed.name='Nombre editorial corregido';c.saveConfiguration({config:saved,revision:c.getConfiguration().revision});
  const repeated='idSemilla,nombreRSS,dominio,paisEditorialPropuesto,iso2Propuesto,estadoVerificacion,activo,tipoRegla,paisEdicion,patronEdicion,noticiasHistoricas,urlReferencia,observaciones\n'+[renamed.seedId,'Nombre original',renamed.domain,'Estados Unidos','US','PENDIENTE','False','DOMINIO_GENERICO','','','1','https://'+renamed.domain,'Prueba'].join(',');
  assert.match(c.importGeographyCatalog({category:'mediaCatalog',csv:repeated}),/0 entradas/);assert.equal(c.getConfiguration().config.mediaCatalog[0].name,'Nombre editorial corregido');
