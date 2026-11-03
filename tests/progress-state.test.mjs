@@ -10,6 +10,7 @@ test('los estados distinguen cuota, error temporal, ejecución y prioridad sin r
  const now=1000,base={state:'Pendiente',lastExecutedAt:'2026-10-14T08:00:00Z',nextAt:2000};
  assert.equal(progressState({...base,quotaUntil:3000,waitingFor:'Clasificación de noticias'},now).state,'Detenido por falta de cuota');assert.equal(progressState({...base,quotaUntil:3000},now).restartAt,3000);
  assert.equal(progressState({...base,pausedUntil:2500,error:'HTTP 503'},now).pauseReason,'HTTP 503');assert.equal(progressState({...base,running:true,waitingFor:'Otra tarea'},now).waitingFor,'');assert.equal(progressState({...base,waitingFor:'Clasificación de noticias'},now).state,'En espera de otro trabajo');assert.equal(progressState({...base,state:'Completada',quotaUntil:3000},now).restartAt,0);
+ assert.equal(progressState({...base,pausedUntil:2500},now).pauseReason,'');
 });
 test('la traducción y los envíos identifican la clasificación pendiente y su fecha de espera',()=>{
  const s=storage(),c=s.c;c.initializeConfiguration();const until=Date.now()+600000;c.writeClassificationJob_({...c.classificationJob_(),state:'En pausa',pausedUntil:until});c.writeTranslationJob_({state:'Pendiente',calls:0,callDay:c.recordDay(new Date(),c.settings_().timezone)});

@@ -288,10 +288,10 @@ test('los extractos de noticias descartadas por fecha no se procesan',()=>{
  assert.equal(c.evaluate_(item,feed,now).item.excerpt,item.excerpt);
 });
 
-test('un perfil sin editor no presenta la consulta como medio y un RSS propio conserva su nombre',()=>{
+test('un editor directo verificado identifica su medio y un RSS propio conserva su nombre',()=>{
  const c=context(),article={...item,date:new Date(item.date),title:item.title,topic:'Financiación',publisher:''};
  const medium=record=>record[vm.runInContext('RADAR.sheets.Noticias.indexOf("medio")',c)];
- assert.equal(medium(c.newsRecord_(article,{...feed,kind:'profile',name:'BBVA · España'},now)),'');
+ assert.equal(medium(c.newsRecord_(article,{...feed,kind:'profile',name:'BBVA · España'},now)),'BBVA');
  assert.equal(medium(c.newsRecord_({...article,publisher:'Diario'}, {...feed,kind:'profile'},now)),'Diario');
  assert.equal(medium(c.newsRecord_(article,feed,now)),'BBVA');
 });

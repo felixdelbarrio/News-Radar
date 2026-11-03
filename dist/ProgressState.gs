@@ -7,5 +7,5 @@ function nextDailyReset(now=Date.now(),timezone='UTC'){
 }
 function progressState({state='Pendiente',queued=false,running=false,lastExecutedAt='',pausedUntil=0,quotaUntil=0,nextAt=0,waitingFor='',error=''},now=Date.now()){
   const active=queued||!['Completada','Parcial'].includes(state),pause=active?Math.max(Number(pausedUntil)||0,Number(quotaUntil)||0):0;
-  return {state:running?'En curso':pause>now?quotaUntil>now?'Detenido por falta de cuota':'En pausa':active&&waitingFor?'En espera de otro trabajo':queued?'En cola':state,lastExecutedAt,pauseReason:pause>now?quotaUntil>now?'Cuota agotada':error||'Error temporal':'',restartAt:active&&Math.max(pause,Number(nextAt)||0)>now?Math.max(pause,Number(nextAt)||0):0,waitingFor:active&&!running?waitingFor:''};
+  return {state:running?'En curso':pause>now?quotaUntil>now?'Detenido por falta de cuota':'En pausa':active&&waitingFor?'En espera de otro trabajo':queued?'En cola':state,lastExecutedAt,pauseReason:pause>now?quotaUntil>now?'Cuota agotada':error:'',restartAt:active&&Math.max(pause,Number(nextAt)||0)>now?Math.max(pause,Number(nextAt)||0):0,waitingFor:active&&!running?waitingFor:''};
 }
