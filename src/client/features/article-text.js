@@ -14,5 +14,5 @@ export function articleTags(row,selection={},novelty=false){
 export function articleDate(row){return '<time datetime="'+escape(row.fecha)+'">'+escape(t('Publicado'))+': '+escape(formatCalendarDay(row.fecha,language))+'</time>';}
 export function articleTitle(row){return '<h3 class="story-title" data-original><a class="story-link" href="'+escape(validUrl(row.url))+'" target="_blank" rel="noopener noreferrer">'+escape(row.titular)+'</a></h3>';}
 export function articleContent(row,selection={},novelty=false){
-  return articleHeader(row,articleTitle(row))+(row.extracto?'<p data-original>'+escape(row.extracto)+'</p>':'')+articleOriginal(row)+'<div class="article-metadata"><div class="news-meta">'+articleTags(row,selection,novelty)+'</div><div class="news-meta">'+articleDate(row)+newsPublisher(row)+'</div></div>';
+  return articleHeader(row,articleTitle(row))+(row.extracto?'<p data-original>'+escape(row.extracto)+'</p>':'')+articleOriginal(row)+'<div class="article-metadata"><div class="news-meta news-tags">'+articleTags(row,selection,novelty)+'</div><div class="news-meta">'+articleDate(row)+newsPublisher(row)+'</div></div>';
 }
