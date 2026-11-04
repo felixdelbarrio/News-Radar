@@ -1,4 +1,6 @@
 const ARCHIVE_WORK=Object.freeze({rows:100,chars:30000});
+const LOG_ARCHIVE_FOLDERS=Object.freeze({Auditoria:'auditFolderId',Cobertura:'coverageFolderId',Ejecuciones:'executionsFolderId',Telemetria:'telemetryFolderId'});
+function logArchiveFolderId_(name,storage=configuration_().storage){return storage[LOG_ARCHIVE_FOLDERS[name]]||storage.logFolderId;}
 function archiveFolder_(id){
  const folder=DriveApp.getFolderById(id);folder.getName();return folder;
 }
@@ -63,7 +65,7 @@ function archiveLogBatch_(name){
   const length=JSON.stringify(row).length;if(size&&chars+length>ARCHIVE_WORK.chars)break;size++;chars+=length;
  }
  if(!size)return true;
- const values=rows.slice(0,size),archive=archiveSpreadsheet_(name,keys,values,policy.logFolderId,name);
+ const values=rows.slice(0,size),archive=archiveSpreadsheet_(name,keys,values,logArchiveFolderId_(name,policy),name);
  if(sha256_(JSON.stringify(sheet.getRange(2,1,size,keys.length).getDisplayValues()))!==sha256_(JSON.stringify(values)))throw Error('El log cambió durante el archivo: '+name);
  const nextRow=count>size?sheet.getRange(size+2,1,1,keys.length).getDisplayValues()[0]:null;
  properties_().setProperty(archive.property,JSON.stringify({...archive,count:size,deleting:true,nextRow}));
@@ -92,7 +94,7 @@ function recoverLogArchive_(name,sheet,checkpoint,key){
   if(checkpoint.deleting||checkpoint.verified)return conflict();
   if(stored&&(stored.table!==name||JSON.stringify(stored.headers)!==JSON.stringify(headers)||stored.rows.length>=size||stored.rows.some((row,index)=>JSON.stringify(row)!==JSON.stringify(prefix[index]))))return conflict();
   if(!stored&&(SpreadsheetApp.openById(checkpoint.id).getSheetByName('Datos')?.getLastRow()||0)>1)return conflict();
-  archiveSpreadsheet_(name,headers,prefix,configuration_().storage.logFolderId,name);payload={rows:prefix};
+  archiveSpreadsheet_(name,headers,prefix,logArchiveFolderId_(name),name);payload={rows:prefix};
  }
  const nextRow=count>size?sheet.getRange(size+2,1,1,headers.length).getDisplayValues()[0]:null;
  if(checkpoint.deleting&&JSON.stringify(nextRow)===JSON.stringify(first))return conflict();
@@ -101,7 +103,18 @@ function recoverLogArchive_(name,sheet,checkpoint,key){
  if(sheet.getLastRow()-1!==count-size)throw Error('Retirada del log no verificada: '+name);
  properties_().deleteProperty(key);properties_().setProperty('LOG_ARCHIVE_ACTION',name+': checkpoint recuperado; '+size+' filas verificadas.');return false;
 }
-function validateStorageFolders_(storage){for(const key of ['primaryFolderId','logFolderId','newsletterFolderId'])archiveFolder_(storage[key]);}
+function validateStorageFolders_(storage){for(const key of ['primaryFolderId','logFolderId','newsletterFolderId',...Object.values(LOG_ARCHIVE_FOLDERS)])archiveFolder_(storage[key]);}
+function maintainLogArchiveFiles_(){
+ const storage=configuration_().storage,root=archiveFolder_(storage.logFolderId),cutoff=Date.now()-storage.logDays*86400000;
+ const valid=/^\d{8}_(Auditoria|Cobertura|Ejecuciones|Telemetria)_[a-f0-9]{12}$/;
+ let changed=0;
+ for(const [name,key] of Object.entries(LOG_ARCHIVE_FOLDERS)){
+  const folder=archiveFolder_(storage[key]),files=folder.getFiles();
+  while(files.hasNext()&&changed<20){const file=files.next(),match=valid.exec(file.getName());if(!match||match[1]!==name)continue;if(file.getDateCreated().getTime()<cutoff){file.setTrashed(true);changed++;}}
+ }
+ const files=root.getFiles();while(files.hasNext()&&changed<20){const file=files.next(),match=valid.exec(file.getName());if(!match)continue;const destination=archiveFolder_(storage[LOG_ARCHIVE_FOLDERS[match[1]]]);file.moveTo(destination);if(file.getDateCreated().getTime()<cutoff)file.setTrashed(true);changed++;}
+ return changed<20;
+}
 function verifyPrimaryStorage(){authorize_(true);const storage=configuration_().storage;validateStorageFolders_(storage);fileInFolder_(properties_().getProperty('SPREADSHEET_ID'),archiveFolder_(storage.primaryFolderId));return {primaryId:properties_().getProperty('SPREADSHEET_ID'),folderId:storage.primaryFolderId};}
 function recentNewsletterDeliveries_(rows){
  const counts=new Map(),limit=configuration_().storage.newsletterDeliveries;

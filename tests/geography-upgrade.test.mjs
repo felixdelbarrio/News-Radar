@@ -35,6 +35,20 @@ test('verified editorial editions use exact host and full path segments',()=>{
  assert.deepEqual(Array.from(c.newsCountryDecision_({...base,manualGeografias:['EMEA']}).geographies),['EMEA']);
  assert.equal(c.newsCountryDecision_({...base,manualGeografias:['EMEA']}).type,'REGION');
 });
+test('editorial upgrade dry run preserves manual rows and applies once',()=>{
+ const {c,sheets}=setup(),sheet=sheets.get('CatalogoMedios');
+ sheet.grid.splice(0,sheet.grid.length,...sheet.grid.filter(([key])=>!String(key).includes('|v7_')));
+ const generic=sheet.grid.find(([key])=>String(key).includes('seed_981653c20afac89d'));
+ generic[1]=JSON.stringify({...JSON.parse(generic[1]),ruleType:'DOMINIO_GENERICO'});
+ vm.runInContext('geographyCatalogMemory_.clear()',c);
+ const baseline=JSON.stringify(sheet.grid),preview=c.verifiedEditorialCatalogUpgrade_(true);
+ assert.ok(preview.count>10);assert.equal(JSON.stringify(sheet.grid),baseline);
+ const applied=c.verifiedEditorialCatalogUpgrade_(false);assert.equal(applied.count,preview.count);
+ assert.equal(c.verifiedEditorialCatalogUpgrade_(false).count,0);
+ const rows=sheet.grid.slice(1).map(row=>JSON.parse(row[1]));
+ assert.equal(rows.find(row=>row.seedId==='v7_infobae_com_peru')?.editionCountry,'Perú');
+ assert.equal(rows.find(row=>row.seedId==='seed_981653c20afac89d')?.ruleType,'EDITOR_GLOBAL');
+});
 test('upgrade preserves published rows, installs headquarters and queues country repair',()=>{
  const s=setup(),{c}=s;
  const keys=vm.runInContext('RADAR.sheets.Noticias',c),record={id:'n1',fecha:'2026-10-20',pais:'Sin determinar',medio:'Editor',entidad:'Revolut',titular:'Revolut amplía su plataforma digital para empresas',extracto:'Nuevas funciones para pymes',url:'https://news.google.com/rss/articles/a',capturada:'2026-10-20',fuente:'Revolut · Italia',idioma:'es',clasificacion:'{}',taxonomia:'{"ids":[]}'};s.sheets.get('Noticias').grid.push(keys.map(key=>record[key]||''));

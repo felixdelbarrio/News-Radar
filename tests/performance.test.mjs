@@ -40,7 +40,7 @@ test('caché fragmentada conserva Unicode, respeta bytes y se recupera si se pie
 });
 
 test('las tablas adaptables conservan sus encabezados y etiquetas al cambiar el idioma',async t=>{
- const a=await app(t);await a.click('[data-view="administration"]');await a.click('[data-admin-view="sources"]');
+ const a=await app(t);await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');
  const table=a.find('#configured-sources-body').closest('table');assert.equal(table.getAttribute('role'),'table');
  const row=a.find('#configured-sources-body').rows[0];
  a.replies.getAdminLogs.items=[{fecha:'2026-10-24',estado:'OK',detalle:'Detalle'}];await a.click('[data-admin-view="audit"]');
@@ -73,7 +73,7 @@ test('el spinner y los skeletons pertenecen al panel activo; una respuesta aband
 test('la telemetría distingue caché de navegador y acepta Taxonomía solo para administradores',()=>{
  const s=storage();s.c.initializeConfiguration();
  const saved={};s.c.pruneEvents_=()=>{};s.c.trim_=()=>{};s.c.recordNewsletterEvents_=()=>{};s.c.append_=(name,rows)=>saved[name]=rows;
- const event={session:'test-session-123456',event:'rendimiento',view:'taxonomy',duration:10,performance:{clientCacheHit:true,cacheHit:true,serverMs:0,rpcMs:0,renderMs:10}};
+ const event={session:'test-session-123456',event:'rendimiento',view:'configuration',duration:10,performance:{clientCacheHit:true,cacheHit:true,serverMs:0,rpcMs:0,renderMs:10}};
  s.c.recordEvents([event]);assert.match(saved.Telemetria[0][4],/RPC 0 ms; servidor 0 ms/);assert.match(saved.Telemetria[0][4],/caché cliente hit/);
  s.setEmail('reader@bbva.com');assert.throws(()=>s.c.recordEvents([event]),/Vista restringida/);
 });

@@ -8,12 +8,14 @@ import schema from '../../../assets/admin-schema.json';
 const capabilityFields=[['name','Capacidad de detección','text'],['terms','Términos de búsqueda','list'],['enabled','Activa','boolean']];
 export function createConfiguration({run}){
  let config,revision,category='entities',capabilityDefaults,storagePrimaryId;
+ const embedded={globalTaxonomy:'taxonomy-section',sourcesCatalog:'sources-section'};
  const entries=()=>config[category==='applicationScope'?'geographies':category],list=input=>input.value.split(/[;\n]/).map(value=>value.trim()).filter(Boolean),read=input=>input.type==='checkbox'?input.checked:input.type==='number'?Number(input.value):input.dataset.list==='true'?list(input):input.value.trim();
  const filters=createRecordFilters('configuration',[['enabled','Estado',[['true','Activa'],['false','Inactiva']]]],filterRows,{placeholder:'Nombre, código o término'});
  async function fetchConfig(){const snapshot=await call('getConfiguration');config=snapshot.config;revision=snapshot.revision;capabilityDefaults=snapshot.capabilityDefaults;storagePrimaryId=snapshot.storagePrimaryId;}
  function record(row){return Object.fromEntries([...row.querySelectorAll('[data-key]')].map(input=>[input.dataset.key,read(input)]));}
  function readFields(){
   if(!config)return;
+  if(embedded[category])return;
   if(category==='applicationScope'){
    const countries=[...$('catalog-fields').querySelectorAll('[data-geography]')];
    config.geographies=countries.map(record);
@@ -33,7 +35,10 @@ export function createConfiguration({run}){
   $('catalog-count').textContent=t('{shown} de {total} entradas',{shown,total:rows.length});
  }
  function render(){
-  const meta=schema[category];$('capability-toolbar').hidden=category!=='taxonomy';if($('catalog-import'))$('catalog-import').hidden=!['mediaCatalog','localeRules'].includes(category);if($('catalog-media-filter'))$('catalog-media-filter').hidden=category!=='mediaCatalog';$('catalog-help').textContent=t(meta.help)+(category==='storage'?' ID: '+storagePrimaryId:'');$('catalog-add').hidden=Boolean(meta.groups)||category==='taxonomy';
+  for(const [key,id] of Object.entries(embedded))$(id).hidden=category!==key;
+  const embeddedView=Boolean(embedded[category]);$('catalog-form').hidden=embeddedView;$('configuration-filters').hidden=embeddedView;$('catalog-count').hidden=embeddedView;$('catalog-reload').hidden=embeddedView;
+  if(embeddedView){$('catalog-help').textContent=t(category==='globalTaxonomy'?'Maestro funcional de solo lectura.':'Fuentes de seguimiento configuradas.');return;}
+  const meta=schema[category];$('capability-toolbar').hidden=category!=='taxonomy';if($('catalog-media-filter'))$('catalog-media-filter').hidden=category!=='mediaCatalog';$('catalog-help').textContent=t(meta.help)+(category==='storage'?' ID: '+storagePrimaryId:'');$('catalog-add').hidden=Boolean(meta.groups)||category==='taxonomy';
   let html;
   if(category==='taxonomy')html=`<details class="catalog-row" data-config-detection><summary><strong>${t('Detección de canal digital y búsquedas')}</strong></summary><p class="muted">${t('Estos criterios recuperan y seleccionan noticias antes de asignar funcionalidades del catálogo maestro.')}</p><label class="catalog-terms">${t('Términos de búsqueda de sector')}<textarea id="catalog-search-terms" rows="5">${escape(config.settings.searchTerms.join('\n'))}</textarea><span class="small muted">${t('Un término por línea')}</span></label><button class="button" type="button" data-add-capability>${t('Añadir capacidad de detección')}</button>${config.capabilities.Empresas.map(row=>`<details class="catalog-row" data-capability><summary><strong>${escape(row.name)}</strong><span>${t(row.enabled?'Activa':'Inactiva')}</span></summary><div class="catalog-grid">${fields(capabilityFields,row)}</div><div class="actions"><button class="button" type="button" data-remove-capability>${t('Eliminar')}</button></div></details>`).join('')}</details>`+config.taxonomy.map((block,index)=>`<details class="catalog-row" data-taxonomy-block><summary><strong>${escape(block.name)}</strong><span>${block.functions.length} ${t('funcionalidades')}</span></summary><div class="catalog-grid">${fields([['name','Bloque funcional','readonly'],['terms','Equivalencias del bloque','list']],block)}</div>${block.functions.map(row=>`<details class="catalog-function" data-function><summary><strong>${escape(row.id+' · '+row.name)}</strong><span>${row.terms.length} ${t('equivalencias')}</span></summary><div class="catalog-grid">${fields([['id','Código','readonly'],['name','Funcionalidad / Sub Operativa','readonly'],['terms','Equivalencias de búsqueda','list'],['context','Contexto operativo requerido','list'],['exclude','Excluir coincidencias','list']],row)}</div></details>`).join('')}<h3>${t('Conceptos emergentes admitidos')}</h3><button type="button" class="button" data-add-emerging="${index}">${t('Añadir concepto emergente')}</button>${block.emerging.map(row=>`<div class="catalog-grid" data-emerging>${fields([['name','Funcionalidad / Sub Operativa','text'],['terms','Equivalencias de búsqueda','list'],['context','Contexto operativo requerido','list'],['exclude','Excluir coincidencias','list'],['primaryTerms','Productos concretos de fuente oficial','list'],['primary','Producto concreto respaldado por fuente oficial','boolean']],row)}<button type="button" class="button" data-remove-emerging>${t('Eliminar')}</button></div>`).join('')}</details>`).join('');
   else if(category==='applicationScope'){
@@ -45,8 +50,8 @@ export function createConfiguration({run}){
   else html=entries().map(row=>`<details class="catalog-row" data-enabled="${row.enabled}" ${row.name?'':'open'}><summary><strong>${escape(row.name||t('Nueva entrada'))}</strong><span>${escape(row.type||'')}${row.type?' · ':''}${t(row.enabled?'Activa':'Inactiva')}</span></summary><div class="catalog-grid">${fields(meta.fields,row)}</div><div class="actions"><button type="button" class="button" data-move="-1">${t('Subir')}</button><button type="button" class="button" data-move="1">${t('Bajar')}</button><button type="button" class="button" data-remove>${t('Eliminar')}</button></div></details>`).join('');
   $('catalog-fields').innerHTML=html;filterRows();
  }
- $('catalog-category').innerHTML=Object.entries(schema).map(([key,meta])=>`<option value="${key}">${escape(t(meta.label))}</option>`).join('');
- $('catalog-category').addEventListener('change',()=>{const next=$('catalog-category').value;if(!Object.hasOwn(schema,next))return;readFields();category=next;render();});
+ $('catalog-category').innerHTML=Object.entries(schema).map(([key,meta])=>`<option value="${key}">${escape(t(meta.label))}</option>`).join('')+`<option value="globalTaxonomy">${escape(t('Catálogo global de funcionalidades'))}</option><option value="sourcesCatalog">${escape(t('Fuentes'))}</option>`;
+ $('catalog-category').addEventListener('change',()=>{const next=$('catalog-category').value;if(!Object.hasOwn(schema,next)&&!embedded[next])return;readFields();category=next;render();});
  $('catalog-fields').addEventListener('click',event=>{
   if(event.target.closest('[data-add-capability]')){readFields();config.capabilities.Empresas.push({name:'',terms:[],enabled:true});render();return;}
   const removeCapability=event.target.closest('[data-remove-capability]');if(removeCapability){removeCapability.closest('[data-capability]').remove();return;}
@@ -57,7 +62,6 @@ export function createConfiguration({run}){
  });
  $('capability-restore').addEventListener('click',()=>{readFields();config.capabilities.Empresas=capabilityDefaults.Empresas.map(row=>({...row,terms:row.terms.slice()}));render();});
  $('catalog-add').addEventListener('click',()=>{readFields();entries().push(Object.fromEntries(schema[category].fields.map(([key,,type,choices])=>[key,type==='list'?[]:type==='boolean'?true:type==='choice'?choices[0][0]:''])));render();});
- $('catalog-import-run')?.addEventListener('click',()=>{const file=$('catalog-import-file').files[0];if(!file){message(t('Selecciona un archivo CSV.'));return;}run(async()=>{message(await call('importGeographyCatalog',{category,csv:await file.text()}));await fetchConfig();render();});});
  $('catalog-media-status')?.addEventListener('change',filterRows);
  $('catalog-form').addEventListener('submit',event=>{event.preventDefault();readFields();run(async()=>{message(await call('saveConfiguration',{config,revision}));await fetchConfig();render();});});
  $('catalog-reload').addEventListener('click',()=>run(async()=>{await fetchConfig();render();},false));

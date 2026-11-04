@@ -95,7 +95,7 @@ function initializeConfiguration(){
 }
 function validateConfiguration_(config){
   const storage=config?.storage;
-  if(!storage||['primaryFolderId','logFolderId','newsletterFolderId'].some(key=>typeof storage[key]!=='string'||!/^[-\w]{10,100}$/.test(storage[key]))||['logRows','logDays','newsletterDeliveries'].some(key=>!Number.isInteger(storage[key])||storage[key]<1||storage[key]>(key==='logRows'?5000:1000)))throw Error('Configuración de almacenamiento no válida.');
+  if(!storage||['primaryFolderId','logFolderId','newsletterFolderId','auditFolderId','coverageFolderId','executionsFolderId','telemetryFolderId'].some(key=>typeof storage[key]!=='string'||!/^[-\w]{10,100}$/.test(storage[key]))||['logRows','logDays','newsletterDeliveries'].some(key=>!Number.isInteger(storage[key])||storage[key]<1||storage[key]>(key==='logRows'?5000:1000)))throw Error('Configuración de almacenamiento no válida.');
   const numeric={windowDays:[1,90],pageSize:[1,100],maxCustomFeeds:[1,100],maxFeedBytes:[10000,2000000],maxItems:[1,1000],exportLimit:[1,10000],eventLimit:[100,20000],retentionDays:[1,90],trendPoints:[2,60],trendSeries:[1,6],collectionBatch:[1,5],retryMinutes:[1,60],pauseMinutes:[1,60],dailyHour:[0,23],briefingLimit:[1,100],newsletterBatch:[1,100],newsletterDailyLimit:[1,1500]};
   if(!config||typeof config.settings!=='object')throw Error('Falta configuración operativa.');
   for(const [name,[min,max]] of Object.entries(numeric)){const n=config.settings[name];if(!Number.isInteger(n)||n<min||n>max)throw Error(name+': requiere un entero entre '+min+' y '+max+'.');}

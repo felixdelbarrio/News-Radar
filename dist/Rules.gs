@@ -102,10 +102,15 @@ function digitalAssessment_(title,text,index=businessIndex_()){
   // investment or an individual financing transaction.
   const clientAi=/\b(?:ai|ia|artificial intelligence|inteligencia artificial)\b.{0,65}\b(?:for|to|para|a)\s+(?:[\d,.]+\s+)?(?:corporate|business|empresariales|corporativos)\s+(?:banking\s+)?(?:clients|customers|clientes)\b/.test(title);
   const fundingFacility=/\b(?:trade finance|credit|loan|financiacion|credito)\s+(?:facility|facilities|line|linea)\b/.test(title)&&/\b(?:lands|secures?|receives?|obtains?|grants?|provides?|announces?|signs?|obtiene|concede|anuncia)\b/.test(title);
-  const consumerService=!business&&/\b(?:foreign (?:medical )?(?:patients|tourists)|medical patients|pacientes extranjeros|particulares|for consumers|personal loan applications)\b/.test(title);
+  const consumerInstallment=(functional.financing||/\bplazos\b.{0,35}\bfacilitea\b/.test(title))&&/\b(?:tiendas? fisicas?|physical stores?|iphone|online shopping|paylah|facilitea|personal cards?|tarjetas? personales?)\b/.test(title)&&!/\b(?:empresas?|corporate|business|pymes|instituciones|b2b)\b/.test(title);
+  const consumerService=consumerInstallment||!business&&/\b(?:foreign (?:medical )?(?:patients|tourists)|medical patients|pacientes extranjeros|particulares|for consumers|personal loan applications)\b/.test(title);
   const financialInvestment=/\b(?:buys?|acquires?) (?:a )?stake in\b|\binvests in\b.{0,80}\b(?:firm|network|company)\b/.test(title)&&!clientAi&&!/\b(?:launches?|offers?|rolls out|introduces?|lanza|ofrece)\b/.test(title);
   const analysisOnly=/\b(?:strategy|market) report\b.{0,160}\b(?:budget|researchandmarkets)\b/.test(title)||/^(?:can|could|will|would)\b.{0,100}\([a-z]{1,5}\).{0,180}\?$/.test(title);
   const relevant=!consumerService&&!financialInvestment&&!analysisOnly&&!(fundingFacility&&!explicitDigital)&&!(debtSettlement&&!settlementDigital)&&(incident||Boolean(!recruitment&&!workforce&&(!apiOnly||functional.bankingApi)&&!(aiOnly&&!clientAi&&!functional.agentBanking&&(!/\b(?:payments?|pagos?|treasury|tesoreria|onboarding|kyb|trade finance|credit|credito|reconciliation|conciliacion|api|erp|asistentes?|assistants?)\b/.test(text)))&&!(bilateral&&!explicitDigital)&&capabilities.length&&!excluded&&!editorial&&(!problem||business||index.relevance.infrastructure.test(text))&&(business&&(channel||shared)&&(index.relevance.service.test(text)||headlineEntity_(headline,index))||shared&&(channel||change||index.relevance.infrastructure.test(title)))));
+  if(relevant&&functional.financing){
+    if(!functional.transfer)for(let i=capabilities.length-1;i>=0;i--)if(capabilities[i].name==='Pagos')capabilities.splice(i,1);
+    if(!capabilities.some(row=>row.name==='Financiación digital'))capabilities.push({name:'Financiación digital',segment:'Empresas',pattern:phrasePattern_([functional.financing.evidence])});
+  }
   if(relevant&&!signals.length)signals.push({name:'Mejora de oferta',group:'Novedad',scope:'fullText',pattern:/(?!) /});
   const score=relevant?4+Math.min(3,capabilities.length)+(business?2:0)+(change?2:0):0;
   const evidence=(pattern,value)=>pattern.exec(value)?.[0]?.trim().slice(0,120)||'';
@@ -234,7 +239,11 @@ function newsCountryDecision_(row,index=businessIndex_()){
  for(const candidate of candidates){const edition=articleEdition_(candidate,index);if(edition.country)return geographyDecision_([edition.country],'edition',edition.evidence,evidence,'medium');}
  for(const candidate of candidates.length?candidates:['']){const editorial=editorialCountry_(candidate,row.medio,index);if(editorial.country&&editorial.verified)return geographyDecision_([editorial.country],'publisher',editorial.evidence,evidence,'low');}
  for(const candidate of candidates){const country=domainCountry_(candidate,index);if(country)return geographyDecision_([country],'domain',canonicalUrl_(candidate),evidence,'medium');}
- if(candidates.some(candidate=>verifiedMedia_(index).some(media=>media.ruleType==='EDITOR_GLOBAL'&&mediaEditionMatches_(candidate,media))))return geographyDecision_(['Sin determinar'],'undetermined','editor global sin país de evento',evidence,'low','DESCONOCIDA');
+ if(candidates.some(candidate=>verifiedMedia_(index).some(media=>media.ruleType==='EDITOR_GLOBAL'&&mediaEditionMatches_(candidate,media)))){
+  const rssCountry=row.rssCountry||saved.paisRSS||sourceGeographies_(index).get(searchText_(row.fuente));
+  if(rssCountry==='México'&&candidates.some(candidate=>domainMatches_(candidate,'cronista.com')))return geographyDecision_(['México'],'rss_fallback','El Cronista · México',evidence,'low');
+  return geographyDecision_(['Sin determinar'],'undetermined','editor global sin país de evento',evidence,'low','DESCONOCIDA');
+ }
  const explicit=row.rssCountry||saved.paisRSS||'',fromFeed=sourceGeographies_(index).get(searchText_(row.fuente))||'',rss=explicit&&index.countryNames.has(explicit)?explicit:fromFeed,fromUrl=rssUrlCountry_(row.feedUrl||'',index,rss);
  if(fromUrl===null||rss&&fromUrl&&rss!==fromUrl){/* Contradicción: pasar al idioma. */}
  else if(rss||fromUrl)return geographyDecision_([rss||fromUrl],'rss_fallback',row.feedUrl||row.fuente||rss,evidence,'low');
