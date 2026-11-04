@@ -9,21 +9,21 @@ test('Taxonomía muestra jerarquía, paginación, progreso único y lanzamiento 
     const set=w.setTimeout.bind(w),clear=w.clearTimeout.bind(w);w.setTimeout=(fn,ms)=>{if(ms<30000)return set(fn,ms);timers.set(++id,{fn,ms});return id;};w.clearTimeout=value=>{timers.delete(value);clear(value);};
     replies.getTaxonomyStatus={scheduled:true,hour:7,minute:45,timezone:'Europe/Madrid',items,job:null};
   }});
-  await a.click('[data-view="administration"]');await a.click('[data-admin-view="taxonomy"]');
+  await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');
   assert.equal(a.find('#taxonomy-section').hidden,false);assert.equal(a.w.document.querySelector('#taxonomy-schedule'),null);assert.match(a.find('#taxonomy-count').textContent,/2 bloques funcionales · 2 funcionalidades/);
   assert.equal(a.find('#taxonomy-body').querySelectorAll('tr').length,2);assert.match(a.find('#taxonomy-body').textContent,/Pagos biométricos/);assert.match(a.find('#taxonomy-body').textContent,/Empresas · Retail/);
   await a.change('#taxonomy-palanca','Pagos y cobros');assert.equal(a.find('#taxonomy-body').querySelectorAll('tr').length,1);
   a.replies.getTaxonomyStatus.job={workTotal:200,total:100,processed:30,tagged:0,state:'En curso',updated:'2026-10-12T06:00:00Z'};await a.click('[data-admin-view="runs"]');await a.click('#taxonomy-start');
   assert.equal(a.find('#taxonomy-progress progress').max,200);assert.equal(a.find('#taxonomy-progress progress').value,30);assert.equal(a.find('#taxonomy-start').disabled,true);assert.equal(a.find('#runs-section').querySelectorAll('#taxonomy-progress progress').length,1);assert.equal(a.calls.filter(row=>row.method==='startTaxonomy').length,0);
-  await a.click('[data-admin-view="sources"]');assert.equal(timers.size,0);
+  await a.click('[data-admin-view="configuration"]');assert.equal(timers.size,0);
   a.replies.getTaxonomyStatus.job={workTotal:200,total:100,processed:200,tagged:10,state:'Completada',updated:'2026-10-12T07:00:00Z'};await a.click('[data-admin-view="runs"]');assert.equal(a.find('#taxonomy-start').disabled,false);assert.equal(a.find('#taxonomy-progress progress').value,200);
   await a.click('[data-admin-view="runs"]');await a.click('#taxonomy-start');assert.equal(a.find('#runs-section').querySelectorAll('#taxonomy-progress progress').length,1);
-  a.replies.getTaxonomyStatus.job.state='En pausa';a.replies.getTaxonomyStatus.job.error='<script>fallo</script>';await a.click('[data-admin-view="sources"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('#taxonomy-progress').querySelector('script'),null);assert.match(a.find('[data-process="taxonomy"]').textContent,/fallo/);assert.equal(a.find('#taxonomy-start').disabled,false);
+  a.replies.getTaxonomyStatus.job.state='En pausa';a.replies.getTaxonomyStatus.job.error='<script>fallo</script>';await a.click('[data-admin-view="configuration"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('#taxonomy-progress').querySelector('script'),null);assert.match(a.find('[data-process="taxonomy"]').textContent,/fallo/);assert.equal(a.find('#taxonomy-start').disabled,false);
   await a.click('[data-view="news"]');assert.equal(timers.size,0);await tick();
 });
 test('solo los filtros de Noticias envían palanca y subpalanca',async t=>{const path='Pagos y cobros › Pagos biométricos',a=await app(t,{configure({data}){data.palanca=['Pagos y cobros'];data.subpalanca=[path];}});await a.click('[data-view="news"]');await a.change('#filters [name="subpalanca"]',path);assert.equal(a.calls.filter(r=>r.method==='getDashboard').at(-1).query.subpalanca,path);await a.click('[data-view="subscriptions"]');assert.equal(a.w.document.querySelector('#personal-editor [name="subpalanca"]'),null);});
 
-test('volver a Noticias tras etiquetar conserva su selección hasta aplicar filtros nuevos',async t=>{const a=await app(t,{configure({data}){data.newsRevision='old';data.configurationRevision='1';}});await a.click('[data-view="news"]');await a.click('[data-view="administration"]');a.data.newsRevision='new';await a.click('[data-admin-view="taxonomy"]');const reads=a.calls.filter(r=>r.method==='getDashboard').length;await a.click('[data-view="news"]');assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,reads);await a.change('#filters [name="search"]','pagos');assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,reads+1);});
+test('volver a Noticias tras etiquetar conserva su selección hasta aplicar filtros nuevos',async t=>{const a=await app(t,{configure({data}){data.newsRevision='old';data.configurationRevision='1';}});await a.click('[data-view="news"]');await a.click('[data-view="administration"]');a.data.newsRevision='new';await a.click('[data-admin-view="configuration"]');const reads=a.calls.filter(r=>r.method==='getDashboard').length;await a.click('[data-view="news"]');assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,reads);await a.change('#filters [name="search"]','pagos');assert.equal(a.calls.filter(r=>r.method==='getDashboard').length,reads+1);});
 
 test('nombres multilingües visibles conservan valores canónicos de filtros y suscripciones',async t=>{
  const path='Pagos y cobros › Pagos biométricos',taxonomyTranslations={en:{'Pagos y cobros':'Payments and collections','Pagos biométricos':'Biometric payments',[path]:'Payments and collections › Biometric payments'},tr:{'Pagos y cobros':'Ödemeler','Pagos biométricos':'Biyometrik ödemeler',[path]:'Ödemeler › Biyometrik ödemeler'}};
@@ -34,7 +34,7 @@ test('nombres multilingües visibles conservan valores canónicos de filtros y s
  await a.click('[data-view="news"]');assert.match(a.find('#news-list').textContent,/Biometric payments/);
  const option=a.find('#filters [name="subpalanca"] option:nth-child(2)');assert.equal(option.value,path);assert.equal(option.textContent,taxonomyTranslations.en['Pagos biométricos']);
  await a.change('#filters [name="subpalanca"]',path);assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.subpalanca,path);assert.match(a.find('#active-filters').textContent,/Biometric payments/);
- await a.click('[data-view="administration"]');await a.click('[data-admin-view="taxonomy"]');assert.match(a.find('#taxonomy-body').textContent,/Pagos biométricos/);await a.change('#preview-language','tr');assert.match(a.find('#taxonomy-body').textContent,/Pagos biométricos/);
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');assert.match(a.find('#taxonomy-body').textContent,/Pagos biométricos/);await a.change('#preview-language','tr');assert.match(a.find('#taxonomy-body').textContent,/Pagos biométricos/);
 });
 test('Idiomas reutiliza una sola barra de taxonomía, reanuda manualmente y detiene el sondeo al salir',async t=>{
  const timers=new Map();let id=0;

@@ -330,6 +330,10 @@
     "labels": {
       "primaryFolderId": "Carpeta autorizada del libro y copias",
       "logFolderId": "Carpeta de logs",
+      "auditFolderId": "Carpeta de auditoría",
+      "coverageFolderId": "Carpeta de cobertura",
+      "executionsFolderId": "Carpeta de ejecuciones",
+      "telemetryFolderId": "Carpeta de telemetría",
       "newsletterFolderId": "Carpeta de newsletters",
       "taxonomyCatalogUrl": "Catálogo global de funcionalidades en Drive"
     },
@@ -339,6 +343,10 @@
         "keys": [
           "primaryFolderId",
           "logFolderId",
+          "auditFolderId",
+          "coverageFolderId",
+          "executionsFolderId",
+          "telemetryFolderId",
           "newsletterFolderId"
         ]
       },

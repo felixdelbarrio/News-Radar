@@ -8,15 +8,13 @@
   },
   "adminViews": {
     "runs": "Panel de control",
-    "taxonomy": "Catálogo global de funcionalidades",
-    "llm": "Categorización LLM",
-    "language": "Idioma",
-    "subscribers": "Suscripciones",
     "adoption": "Adopción",
     "feedback": "Feedback",
-    "sources": "Fuentes",
-    "audit": "Logs",
+    "subscribers": "Suscripciones",
+    "sourceQuality": "Calidad de las fuentes",
+    "language": "Idioma",
+    "llm": "Categorización LLM",
     "configuration": "Configuración de negocio",
-    "sourceQuality": "Calidad de fuentes"
+    "audit": "Logs"
   }
 }

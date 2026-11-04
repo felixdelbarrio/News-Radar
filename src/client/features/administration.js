@@ -20,9 +20,8 @@ function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,o
       if(button.dataset.adminView===view)button.scrollIntoView?.({block:"nearest",inline:"nearest"});
     });
     if(view === "subscribers")await onSubscribers();
-    if(view === "configuration")try{await onConfiguration();}catch(error){message(error.message||String(error),true);}
+    if(view === "configuration")try{await Promise.all([onConfiguration(),onTaxonomy()]);$("taxonomy-section").hidden=false;$("sources-section").hidden=false;}catch(error){message(error.message||String(error),true);}
     if(view === 'llm')await onLlm();
-    if(view === "taxonomy")await onTaxonomy();
 
     if (view === "runs") await onRuns();
     if (view === "audit") await loadAudit();

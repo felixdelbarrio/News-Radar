@@ -23,6 +23,31 @@ function writeGeographyCatalog_(name,rows){
  geographyCatalogMemory_.delete(name);
 }
 function initializeGeographyCatalogs_(){for(const [name,seed] of Object.entries(GEOGRAPHY_CATALOG_SEEDS))if(book_().getSheetByName(name).getLastRow()<2)writeGeographyCatalog_(name,seed);}
+function verifiedEditorialCatalogUpgrade_(dryRun=true){
+ authorize_(true);
+ const operation=()=>{
+ const name='CatalogoMedios',current=geographyCatalog_(name).map(row=>({...row})),byKey=new Map(current.map((row,index)=>[mediaCatalogKey_(row),index])),changes=[];
+ for(const seed of GEOGRAPHY_CATALOG_SEEDS[name].filter(row=>row.seedId?.startsWith('v7_')||['seed_981653c20afac89d','seed_b417a7b9c3da37ba','seed_73f57709fc0a7aec','seed_30ed4dada5f27a4d'].includes(row.seedId))){
+  const key=mediaCatalogKey_(seed),index=byKey.get(key);
+  if(index===undefined){
+   if(!seed.editionPattern&&current.some(row=>row.domain===seed.domain&&row.ruleType===seed.ruleType&&row.status==='VERIFICADO'&&row.enabled===true&&!(row.editionPattern||'')))continue;
+   const observed=current.findIndex(row=>row.domain===seed.domain&&row.ruleType==='DOMINIO_OBSERVADO'&&row.status==='PENDIENTE'&&row.enabled===false);
+   if(observed>=0&&!seed.editionPattern){const before=current[observed],after={...before,...seed,seedId:before.seedId||'',source:'Iteración 43 · edición verificada'};changes.push({type:'verify',key:mediaCatalogKey_(before),before,after});current[observed]=after;}
+   else {changes.push({type:'add',key,after:seed});byKey.set(key,current.length);current.push({...seed});}
+  }else{
+   const before=current[index];
+   if(before.ruleType==='DOMINIO_GENERICO'&&before.source==='Iteración 29'&&before.status==='VERIFICADO'&&before.enabled===true){
+    const after={...before,ruleType:seed.ruleType,editionCountry:seed.editionCountry,editionPattern:seed.editionPattern,source:'Iteración 43 · edición verificada'};
+    changes.push({type:'correct',key,before,after});current[index]=after;
+   }
+  }
+ }
+ validateGeographyCatalog_(name,current);
+ if(!dryRun&&changes.length){writeGeographyCatalog_(name,current);invalidateConfiguration_();}
+ return {dryRun,changes:changes.map(({type,key,before,after})=>({type,key,before:before?{ruleType:before.ruleType,status:before.status,enabled:before.enabled}:null,after:{ruleType:after.ruleType,status:after.status,enabled:after.enabled}})),count:changes.length};
+ };
+ return dryRun?operation():withForegroundWrite_(operation);
+}
 function registerUnknownMedia_(news){
  if(!news.length)return 0;const name='CatalogoMedios',catalog=geographyCatalog_(name),known=new Set(catalog.map(row=>row.domain)),pending=[];
  for(const values of news){if(catalog.length+pending.length>=600)break;const row=Object.fromEntries(RADAR.sheets.Noticias.map((key,index)=>[key,values[index]])),domain=savedNewsLabels_(row.clasificacion).procedencia?.dominioMedio||'';
@@ -31,21 +56,4 @@ function registerUnknownMedia_(news){
   pending.push([geographyCatalogKey_(name,candidate),JSON.stringify(candidate)]);
  }
  if(pending.length){append_(name,pending);geographyCatalogMemory_.delete(name);}return pending.length;
-}
-function parseCatalogCsv_(value){
- const text=String(value||'').replace(/^\ufeff/,''),rows=[],row=[];let field='',quoted=false;
- for(let i=0;i<text.length;i++){const char=text[i];if(char==='"'){if(quoted&&text[i+1]==='"'){field+='"';i++;}else quoted=!quoted;}else if(char===','&&!quoted){row.push(field);field='';}else if((char==='\n'||char==='\r')&&!quoted){if(char==='\r'&&text[i+1]==='\n')i++;row.push(field);field='';if(row.some(Boolean))rows.push(row.splice(0));}else field+=char;}
- if(quoted)throw Error('CSV con comillas incompletas.');row.push(field);if(row.some(Boolean))rows.push(row);
- const [header,...data]=rows;return data.map(values=>Object.fromEntries(header.map((key,index)=>[key,values[index]||''])));
-}
-function importGeographyCatalog(payload){
- authorize_(true);const name=payload?.category==='mediaCatalog'?'CatalogoMedios':payload?.category==='localeRules'?'ReglasIdiomaGeografia':'';
- if(!name)throw Error('Catálogo desconocido.');const records=parseCatalogCsv_(payload.csv),expected=name==='CatalogoMedios'?'dominio':'codigoIdioma';if(records.some(row=>!row[expected]))throw Error('CSV sin columna '+expected+'.');
- return withForegroundWrite_(()=>{
-  const current=geographyCatalog_(name),keys=new Set(current.map(row=>geographyCatalogKey_(name,row))),seedIds=new Set(current.map(row=>row.seedId).filter(Boolean));let added=0;
-  for(const row of records){const mapped=name==='CatalogoMedios'?{seedId:row.idSemilla||'',name:row.nombreRSS,domain:row.dominio.toLowerCase(),country:row.paisEditorialPropuesto,iso2:row.iso2Propuesto,status:row.estadoVerificacion,enabled:false,ruleType:row.tipoRegla,editionCountry:row.paisEdicion,editionPattern:row.patronEdicion,historical:Number(row.noticiasHistoricas)||0,sourceUrl:row.urlReferencia,notes:row.observaciones,source:'CSV importado',updated:new Date().toISOString().slice(0,10)}:{name:row.codigoIdioma.toLowerCase().replace('_','-'),destination:row.geografiaDestino==='EMAE'?'EMEA':row.geografiaDestino,type:row.tipoGeografia,method:row.metodo,notes:row.observaciones,enabled:true,precedence:row.codigoIdioma.includes('-')?100:50,confidence:'low',source:'CSV importado',updated:new Date().toISOString().slice(0,10)};
-   const key=geographyCatalogKey_(name,mapped);if(keys.has(key)||mapped.seedId&&seedIds.has(mapped.seedId))continue;keys.add(key);if(mapped.seedId)seedIds.add(mapped.seedId);current.push(mapped);added++;
-  }
-  writeGeographyCatalog_(name,current);invalidateConfiguration_();requestNewsClassification_(true);return added+' entradas incorporadas; las ediciones existentes se han conservado.';
- });
 }

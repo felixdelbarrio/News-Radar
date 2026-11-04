@@ -6544,6 +6544,10 @@
   "storage": {
     "primaryFolderId": "1-XyAuxo9F42NnzZzPFgfp64HlYAFgi_M",
     "logFolderId": "1HKblMvd0Vj6om5eHqsrC4tojIUkBCJ69",
+    "auditFolderId": "1B5vVMe2o4FYBMF5OlL_Yzb7GmX_vllVc",
+    "coverageFolderId": "1vJANySmiMhiVA56KOxH4PDMXP_3TU-HP",
+    "executionsFolderId": "1fYz9wu_YW7kKt3EIm1tgXhi6V1uGgLHl",
+    "telemetryFolderId": "1-ldusr-N9impBuZwlntrCfO1IfOkI9y2",
     "newsletterFolderId": "1f-ZxHRBntvUIZmZtweGNkbDE0Bvjy74d",
     "logRows": 500,
     "logDays": 20,

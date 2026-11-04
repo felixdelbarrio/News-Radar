@@ -1,7 +1,12 @@
 // Sparse statistics and bounded evidence; article bodies are never retained.
-export const TAXONOMY_POLICY=Object.freeze({version:'3.27.0',batchRows:100,maxMs:10000,maxCandidates:600,maxEmergingPerLever:3,minEmergingDocuments:3,minEmergingSources:2,maxTerms:24,checkpointRows:20,checkpointChars:40000,maxAssignments:3,maxOverlapLinks:32,overlapContainment:.8,overlapSizeRatio:.5});
+export const TAXONOMY_POLICY=Object.freeze({version:'3.37.0',batchRows:100,maxMs:10000,maxCandidates:600,maxEmergingPerLever:3,minEmergingDocuments:3,minEmergingSources:2,maxTerms:24,checkpointRows:20,checkpointChars:40000,maxAssignments:3,maxOverlapLinks:32,overlapContainment:.8,overlapSizeRatio:.5});
 const taxonomyDefinitionMemory=new WeakMap(),rankingIndexes=new WeakMap();
 export function taxonomyText(value){return String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ı/g,'i');}
+export function financingPurpose(value){
+ const text=taxonomyText(value),match=text.match(/\b(?:fraccionar|fraccionado|aplazar|aplazado|financiar|financiado)\s+(?:el\s+|un\s+|los\s+)?(?:pago|compra|deuda)s?\b|\b(?:aplazamiento|financiacion|fraccionamiento)\s+de\s+(?:pago|compra|deuda)s?\b|\b(?:pago|compra|deuda)s?\s+(?:fraccionad[oa]s?|aplazad[oa]s?|a plazos|en cuotas)\b|\b(?:payment|purchase|debt)\s+(?:instalments?|installments?|deferral|deferred)\b|\binstal?lments? payments? plans?\b|\bdeferred payments?\b|\bbnpl\b|\bbuy now pay later\b/);
+ if(!match||/\b(?:no|sin|not|without)\s+(?:(?:se|permite|ofrece|allow|offer)\s+)?(?:fraccionar|aplazar|financiar|defer|deferred|instalments?|installments?|bnpl)\b/.test(text))return null;
+ return {evidence:match[0],confirming:/\bconfirming\b/.test(text)&&/\b(?:comprador|buyer|facturas?|invoices?)\b/.test(text)};
+}
 // Instrument, interface and audience are distinct from generic words such as
 // payment, API or AI. Shared by admission, ranking and the conservative fallback.
 export function functionalContext(value){
@@ -12,7 +17,7 @@ export function functionalContext(value){
  const agent=/\b(?:agentic|ai[ -]agents?|agentes? de (?:ia|inteligencia artificial)|(?:banking|digital|virtual) assistants?|asistentes? (?:bancarios?|digitales?|virtuales?))\b/.test(text);
  const staffAgent=agent&&/\b(?:corporate bankers?|relationship managers?|credit risk managers?|gestores?|analistas?|empleados?|bank staff)\b/.test(text)&&/\b(?:credit (?:memos?|assessments?|analysis)|expedientes? de credito|analisis (?:de credito|crediticio)|evaluacion crediticia)\b/.test(text);
  const agentBanking=agent&&(/\b(?:account balances?|transaction history|banking tasks?|saldos? de cuentas?|historial de (?:operaciones|transacciones)|banking assistants?|asistentes? bancarios?)\b/.test(text)||staffAgent);
- return {card,transfer,acquiring,api,bankingApi,agent,staffAgent,agentBanking};
+ return {card,transfer,acquiring,api,bankingApi,agent,staffAgent,agentBanking,financing:financingPurpose(text)};
 }
 const words=value=>taxonomyText(value).match(/[a-z][a-z0-9]+/g)||[];
 export function taxonomyDefinitions(blocks){
@@ -57,6 +62,7 @@ export function functionalPrimary(value){
   ['03.',/\btokeni[sz](?:ed|ados?|adas?) deposits?\b.{0,80}\b(?:payments?|transfers?|settle)\b/],
   ['03.',/\b(?:payments?|transfers?|settle)\b.{0,80}\btokeni[sz](?:ed|ados?|adas?) deposits?\b/]
  ];
+ const financing=financingPurpose(title);if(financing)return {prefix:'08.',terms:[financing.evidence]};
  for(const [prefix,pattern] of rules){const match=title.match(pattern);if(match)return {prefix,terms:[match[0]]};}
  if(/\b(?:revamps?|revamped|upgraded|all-new|renueva|renovacion|transforma|transforms)\b/.test(title)&&/\b(?:app|platform|plataforma|banca|digital business banking)\b/.test(title)&&/\b(?:business banking|corporate banking|empresas)\b/.test(title)&&!/\b(?:pagos|payments|cuentas|accounts|tarjetas|cards|adquirencia|tpvs?|loans|prestamos)\b/.test(title))return {prefix:'01.',terms:[title]};
  if(/\b(?:app|plataforma|platform)\b/.test(title)&&/\b(?:gestion integral|gestion global|integrated management)\b/.test(title)&&/\b(?:business|corporate|empresas)\b/.test(title))return {prefix:'01.',terms:[title]};
@@ -106,10 +112,10 @@ export function taxonomyDecision(text,definitions,headline=''){
   const row=definitions.find(row=>row.palanca===block.palanca&&/\.xx Otros$/.test(row.subpalanca));
   if(row){matches.push({row,count:terms.length,score:0,evidence});for(const term of evidence.terms)used.add(term);}
  }
- const focus=functionalPrimary(headline);
+ const financing=financingPurpose(text),focus=financing?{prefix:'08.',terms:[financing.evidence]}:functionalPrimary(headline);
  if(focus){
-  const primary=matches.find(match=>match.row.palanca.startsWith(focus.prefix)),row=primary?.row||definitions.find(row=>row.palanca.startsWith(focus.prefix)&&/\.xx Otros$/.test(row.subpalanca));
-  if(row){const selected=primary||{row,count:1,score:0,evidence:{terms:focus.terms,method:'literal',location:'headline'}};const secondary=[],used=[...selected.evidence.terms];for(const match of matches)if(match!==primary&&taxonomyIndependentEvidence(match.evidence,used)){secondary.push(match);used.push(...match.evidence.terms);}matches.splice(0,matches.length,selected,...secondary.slice(0,TAXONOMY_POLICY.maxAssignments-1));}
+  const primary=financing?(financing.confirming?matches.find(match=>match.row.subpalanca.startsWith('08.37.')):null):matches.find(match=>match.row.palanca.startsWith(focus.prefix)),row=primary?.row||financing?.confirming&&definitions.find(row=>row.subpalanca.startsWith('08.37.'))||definitions.find(row=>row.palanca.startsWith(focus.prefix)&&/\.xx Otros$/.test(row.subpalanca));
+  if(row){const selected=primary||{row,count:1,score:0,evidence:{terms:focus.terms,method:'literal',location:'headline'}};const secondary=[],used=[...selected.evidence.terms];for(const match of matches)if(match!==primary&&(!financing||!/^(03|09)\./.test(match.row.palanca)||/transferencia|transfer\b/.test(match.evidence.terms.join(' ')))&&taxonomyIndependentEvidence(match.evidence,used)){secondary.push(match);used.push(...match.evidence.terms);}matches.splice(0,matches.length,selected,...secondary.slice(0,TAXONOMY_POLICY.maxAssignments-1));}
  }
  return {matches,reason:matches.length?'matched':ambiguous?'ambiguous':'insufficient'};
 }

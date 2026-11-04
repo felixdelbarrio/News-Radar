@@ -1,4 +1,4 @@
-const APPLICATION_NAVIGATION = Object.freeze({"views":{"briefing":"Novedades","news":"Noticias","radar":"Radar","subscriptions":"Mi Newsletter","administration":"Administración"},"adminViews":{"runs":"Panel de control","taxonomy":"Catálogo global de funcionalidades","llm":"Categorización LLM","language":"Idioma","subscribers":"Suscripciones","adoption":"Adopción","feedback":"Feedback","sources":"Fuentes","audit":"Logs","configuration":"Configuración de negocio","sourceQuality":"Calidad de fuentes"}});
+const APPLICATION_NAVIGATION = Object.freeze({"views":{"briefing":"Novedades","news":"Noticias","radar":"Radar","subscriptions":"Mi Newsletter","administration":"Administración"},"adminViews":{"runs":"Panel de control","adoption":"Adopción","feedback":"Feedback","subscribers":"Suscripciones","sourceQuality":"Calidad de las fuentes","language":"Idioma","llm":"Categorización LLM","configuration":"Configuración de negocio","audit":"Logs"}});
 const FUNCTIONAL_CATALOG_SEED = Object.freeze([
   {
     "name": "01.Home",
@@ -8269,6 +8269,10 @@ const CONFIGURATION_DEFAULTS = {
   "storage": {
     "primaryFolderId": "1-XyAuxo9F42NnzZzPFgfp64HlYAFgi_M",
     "logFolderId": "1HKblMvd0Vj6om5eHqsrC4tojIUkBCJ69",
+    "auditFolderId": "1B5vVMe2o4FYBMF5OlL_Yzb7GmX_vllVc",
+    "coverageFolderId": "1vJANySmiMhiVA56KOxH4PDMXP_3TU-HP",
+    "executionsFolderId": "1fYz9wu_YW7kKt3EIm1tgXhi6V1uGgLHl",
+    "telemetryFolderId": "1-ldusr-N9impBuZwlntrCfO1IfOkI9y2",
     "newsletterFolderId": "1f-ZxHRBntvUIZmZtweGNkbDE0Bvjy74d",
     "logRows": 500,
     "logDays": 20,

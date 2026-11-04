@@ -54,7 +54,7 @@ function functionalCatalog_(){
   items=blocks.size?[...blocks.values()]:FUNCTIONAL_CATALOG_SEED;writeDashboardCache_(cache,key,items);
  }functionalCatalogMemory_={revision,items};return items;
 }
-function functionalConfiguration_(config){return {...config,settings:{...CONFIGURATION_DEFAULTS.settings,...config.settings},taxonomy:functionalCatalogRules(functionalCatalog_(),config.taxonomy)};}
+function functionalConfiguration_(config){return {...config,settings:{...CONFIGURATION_DEFAULTS.settings,...config.settings},storage:{...CONFIGURATION_DEFAULTS.storage,...config.storage},taxonomy:functionalCatalogRules(functionalCatalog_(),config.taxonomy)};}
 function functionalConfigurationSettings_(config){return {...config,taxonomy:functionalRuleSettings(config.taxonomy)};}
 function writeFunctionalCatalog_(blocks){
  const descriptions=new Map(FUNCTIONAL_CATALOG_SEED.flatMap(block=>block.functions.map(row=>[row.id,row])));

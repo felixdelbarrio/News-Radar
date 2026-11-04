@@ -8,7 +8,7 @@ test('las pestañas agrupan las fuentes y conservan la activación entre tipos y
     data.configuredFeeds=[...Array.from({length:11},(_,i)=>({id:'p'+i,name:'Búsqueda '+i,entity:'BBVA',country:'España',kind:'profile',url:'https://example.com/p'+i,enabled:i<3})),
       ...Array.from({length:11},(_,i)=>({id:'r'+i,name:'Editor '+i,entity:'Sector',country:'Global',kind:'rss',url:'https://example.com/r'+i,enabled:i===0}))];
   }});
-  await a.click('[data-view="administration"]');await a.click('[data-admin-view="sources"]');
+  await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');
   assert.equal(a.find('#source-tab-all').getAttribute('aria-selected'),'true');
   assert.equal(a.find('#source-rss-editor').hidden,true);assert.equal(a.w.document.querySelector('#source-kind'),null);
   const calls=a.calls.length;
@@ -38,7 +38,7 @@ test('las pestañas admiten teclado y conservan los feeds editados y los filtros
     data.configuredFeeds=[{id:'p',name:'BBVA búsqueda',entity:'BBVA',country:'España',kind:'profile',url:'https://example.com/p',enabled:true},
       {id:'r',name:'BBVA editor',entity:'BBVA',country:'España',kind:'rss',url:'https://example.com/r',enabled:true}];
   }});
-  await a.click('[data-view="administration"]');await a.click('[data-admin-view="sources"]');
+  await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');
   await a.change('#source-entity','BBVA');
   const key=(id,value)=>a.find(id).dispatchEvent(new a.w.KeyboardEvent('keydown',{key:value,bubbles:true,cancelable:true}));
   key('#source-tab-all','End');assert.equal(a.w.document.activeElement.id,'source-tab-rss');
