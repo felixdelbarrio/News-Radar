@@ -15,6 +15,8 @@ test('el titular reconoce protagonistas conjuntos, evita menciones incidentales 
  assert.deepEqual(names(title),['BBVA','Santander']);
  assert.deepEqual(names('BBVA, Santander y Stripe lanzan pagos empresariales'),['BBVA','Santander','Stripe']);
  assert.deepEqual(names('BBVA y BBVA Empresas anuncian pagos'),['BBVA']);
+ assert.deepEqual(names('Barclays Lloyds NatWest Settle Tokenized Deposits In Real Time','Barclays'),['Barclays','Lloyds','NatWest']);
+ assert.deepEqual(names("Citi, HSBC, StanChart adopt Ant International's AI tool",'Citi'),['Citi','HSBC','Standard Chartered']);
  assert.deepEqual(names('BBVA supera a Santander en pagos'),['BBVA']);
  assert.deepEqual(names('Rumores del mercado: BBVA y Santander emitirán stablecoins'),['BBVA']);
  assert.deepEqual(names('La ciudad de Santander y BBVA anuncian pagos'),['BBVA']);
@@ -45,6 +47,8 @@ test('Novedades muestra una tarjeta con dos logos y Noticias una fila en cada gr
  assert.equal(a.find('#briefing-list').querySelectorAll('article').length,1);
  assert.equal(a.find('#briefing-list article').querySelectorAll('.entity-logo').length,2);
  assert.equal(a.find('#briefing-list article').querySelectorAll('a').length,1);
+ const noLogo=await app(t,{configure({data}){const item={...row,entidades:['Barclays','Lloyds']};data.briefing={...noveltyOverview([item],['Mejora de oferta']),items:[item]};data.items=[item];}});
+ assert.equal(noLogo.find('#briefing-list article').querySelector('.entity-monogram')?.getAttribute('aria-label'),'Lloyds');
  await a.click('[data-view="news"]');
  assert.deepEqual([...a.find('#news-list').querySelectorAll('.news-entity-group')].map(group=>[group.getAttribute('aria-label'),group.querySelectorAll('.news-row').length]),[['BBVA',1],['Santander',1]]);
  assert.equal(a.find('#result-count').textContent,'1 publicación');

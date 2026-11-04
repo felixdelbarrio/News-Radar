@@ -673,6 +673,16 @@
       "headquartersCountry": "Reino Unido"
     },
     {
+      "name": "Lloyds",
+      "countries": [
+        "Reino Unido"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
+    },
+    {
       "name": "JPMorgan Chase",
       "countries": [
         "Estados Unidos"
@@ -847,7 +857,9 @@
         "Singapur",
         "India"
       ],
-      "aliases": [],
+      "aliases": [
+        "StanChart"
+      ],
       "type": "Banco tradicional",
       "enabled": true,
       "headquartersCountry": "Reino Unido"

@@ -57,7 +57,6 @@ function headlineEntity_(headline,index){
 }
 function headlineProtagonists_(row,index){
   const primary=index.entities.get(searchText_(row.entidad))?.name||row.entidad,title=searchText_(plainText_(row.titular));
-  if(!/[,;&]|\b(?:y|e|and)\b/.test(title))return [primary];
   const found=new Map();
   for(const [alias,entity] of index.aliases){const at=phrasePosition_(title,alias),previous=found.get(entity.name);if(at>=0&&(!previous||at<previous.at||at===previous.at&&alias.length>previous.alias.length))found.set(entity.name,{name:entity.name,alias,at,end:at+alias.length});}
   const matches=[...found.values()].sort((a,b)=>a.at-b.at||b.alias.length-a.alias.length),first=matches[0];
@@ -66,7 +65,7 @@ function headlineProtagonists_(row,index){
   const subjects=[first];for(const match of matches.slice(1)){
     if(match.at<subjects.at(-1).end)continue;
     const between=title.slice(subjects.at(-1).end,match.at).replace(/\([a-z0-9]{1,6}\)/g,'').trim();
-    if(!/^(?:,\s*)*(?:y|e|and|&)?\s*,?$/.test(between)||!between)break;
+    if(between?!/^(?:,\s*)*(?:y|e|and|&)?\s*,?$/.test(between):matches.length<3)break;
     subjects.push(match);
   }
   return subjects.length>1&&subjects.some(match=>match.name===primary)?[primary,...subjects.map(match=>match.name).filter(name=>name!==primary)]:[primary];
