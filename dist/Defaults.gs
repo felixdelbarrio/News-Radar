@@ -2398,6 +2398,16 @@ const CONFIGURATION_DEFAULTS = {
       "headquartersCountry": "Reino Unido"
     },
     {
+      "name": "Lloyds",
+      "countries": [
+        "Reino Unido"
+      ],
+      "aliases": [],
+      "type": "Banco tradicional",
+      "enabled": true,
+      "headquartersCountry": "Reino Unido"
+    },
+    {
       "name": "JPMorgan Chase",
       "countries": [
         "Estados Unidos"
@@ -2572,7 +2582,9 @@ const CONFIGURATION_DEFAULTS = {
         "Singapur",
         "India"
       ],
-      "aliases": [],
+      "aliases": [
+        "StanChart"
+      ],
       "type": "Banco tradicional",
       "enabled": true,
       "headquartersCountry": "Reino Unido"
