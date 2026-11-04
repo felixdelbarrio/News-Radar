@@ -1,4 +1,5 @@
 import {storyIdentity} from '../../shared/visual-identity.js';
+import {articleEntities} from '../../shared/news-groups.js';
 import {formatCalendarDay} from '../../shared/locales.js';
 import {language,t} from '../core/language.js';
 import {escape,validUrl,newsCoverage,newsTaxonomy,newsPublisher} from '../core/dom.js';
@@ -6,7 +7,7 @@ export function articleOriginal(row){
   const original=row.original;
   return original&&(original.titular!==row.titular||(original.extracto||'')!==(row.extracto||''))?'<details class="article-original"><summary>Ver original</summary><p data-original><strong>'+escape(original.titular)+'</strong></p>'+(original.extracto?'<p data-original>'+escape(original.extracto)+'</p>':'')+'</details>':'';
 }
-export function articleHeader(row,content){return '<div class="story-topline"><div class="story-heading">'+content+'</div>'+storyIdentity(row.entidad,row.pais,escape)+'</div>';}
+export function articleHeader(row,content){return '<div class="story-topline"><div class="story-heading">'+content+'</div>'+storyIdentity(articleEntities(row),row.pais,escape)+'</div>';}
 export function articleTags(row,selection={},novelty=false){
   const values=[...(row.tipo?[row.tipo]:[]),...(row.segmentos||[]),...(row.senales||[])];
   return newsCoverage(row)+newsTaxonomy(row)+[...new Set(values)].map(value=>'<span class="badge" data-original>'+escape(t(value==='Incidencia operativa'?'Indisponibilidad / Incidencia operativa':value))+'</span>').join('');

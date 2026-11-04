@@ -1,10 +1,11 @@
 import {articleGeographies,geographyLabel,geographyOrder} from './selection-policy.js';
+import {articleEntities} from './news-groups.js';
 export function noveltyOverview(items,signalNames=[],country=row=>articleGeographies(row).map(geographyLabel)){
   const signals=new Map(signalNames.map(name=>[name,0])),geographies=new Map(),entities=new Set();
   for(const row of items){
-    const names=new Set(country.members?.(row)||[country(row)].flat());entities.add(row.entidad||'Entidad no identificada');
+    const names=new Set(country.members?.(row)||[country(row)].flat());for(const entity of articleEntities(row))entities.add(entity);
     for(const signal of new Set(row.senales||[]))signals.set(signal,(signals.get(signal)||0)+1);
-    for(const name of names){if(!geographies.has(name))geographies.set(name,{name,total:0,entities:new Set(),signals:new Map(signalNames.map(name=>[name,0]))});const geography=geographies.get(name);geography.total++;geography.entities.add(row.entidad||'Entidad no identificada');for(const signal of new Set(row.senales||[]))geography.signals.set(signal,(geography.signals.get(signal)||0)+1);}
+    for(const name of names){if(!geographies.has(name))geographies.set(name,{name,total:0,entities:new Set(),signals:new Map(signalNames.map(name=>[name,0]))});const geography=geographies.get(name);geography.total++;for(const entity of articleEntities(row))geography.entities.add(entity);for(const signal of new Set(row.senales||[]))geography.signals.set(signal,(geography.signals.get(signal)||0)+1);}
   }
   const counts=values=>[...values].map(([name,total])=>({name,total}));
   return {total:items.length,entities:entities.size,bySignal:counts(signals),geographies:[...geographies.values()].map(({signals,entities,...row})=>({...row,entityCount:entities.size,bySignal:counts(signals)})).sort(geographyOrder)};

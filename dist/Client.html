@@ -59,6 +59,7 @@
 
   // src/shared/locales.js
   var languageNames = Object.freeze({ es: "Espa\xF1ol", en: "English", tr: "T\xFCrk\xE7e" }), translations = Object.freeze({
+    "Una publicaci\xF3n puede corresponder a varias entidades; el total general cuenta noticias \xFAnicas.": ["A publication can relate to several institutions; the overall total counts unique articles.", "Bir yay\u0131n birden fazla kuruma ili\u015Fkin olabilir; genel toplam benzersiz haberleri sayar."],
     "Sin noticias": ["No news", "Haber yok"],
     "Con errores": ["With errors", "Hatal\u0131"],
     "Canales que aportan noticias": ["Sources providing news", "Haber sa\u011Flayan kaynaklar"],
@@ -1770,7 +1771,7 @@
     return '<img class="' + (kind === "countries" ? "geography-flag" : kind === "publishers" ? "publisher-logo" : "entity-logo") + '" src="' + src + '" width="' + asset.width + '" height="' + asset.height + '" alt="' + escape3(name) + '" title="' + escape3(name) + '"' + (images ? "" : ' loading="lazy" decoding="async"') + ">";
   }
   function storyIdentity(entity, country, escape3, images) {
-    let marks = identityMark("entities", entity, escape3, images) + identityMark("countries", country, escape3, images);
+    let marks = (Array.isArray(entity) ? entity : [entity]).map((name) => identityMark("entities", name, escape3, images)).join("") + identityMark("countries", country, escape3, images);
     return marks ? '<span class="story-identity">' + marks + "</span>" : "";
   }
 
@@ -3401,17 +3402,33 @@
     }, !1)), { open: () => config ? Promise.resolve() : fetchConfig().then(render) };
   }
 
+  // src/shared/news-groups.js
+  function articleEntities(row) {
+    return row.entidades?.length ? row.entidades : [row.entidad || "Entidad no identificada"];
+  }
+  function newsEntityGroups(items, primaryOnly = !1) {
+    let entities = /* @__PURE__ */ new Map();
+    for (let row of items)
+      for (let name of new Set(primaryOnly ? [row.entidad || "Entidad no identificada"] : articleEntities(row))) {
+        entities.has(name) || entities.set(name, { name, total: 0, items: [] });
+        let group = entities.get(name);
+        group.total++, group.items.push(row);
+      }
+    return [...entities.values()].sort(entityOrder);
+  }
+
   // src/shared/novelty-groups.js
   function noveltyOverview(items, signalNames = [], country = (row) => articleGeographies(row).map(geographyLabel)) {
     let signals = new Map(signalNames.map((name) => [name, 0])), geographies = /* @__PURE__ */ new Map(), entities = /* @__PURE__ */ new Set();
     for (let row of items) {
       let names = new Set(country.members?.(row) || [country(row)].flat());
-      entities.add(row.entidad || "Entidad no identificada");
+      for (let entity of articleEntities(row)) entities.add(entity);
       for (let signal of new Set(row.senales || [])) signals.set(signal, (signals.get(signal) || 0) + 1);
       for (let name of names) {
         geographies.has(name) || geographies.set(name, { name, total: 0, entities: /* @__PURE__ */ new Set(), signals: new Map(signalNames.map((name2) => [name2, 0])) });
         let geography = geographies.get(name);
-        geography.total++, geography.entities.add(row.entidad || "Entidad no identificada");
+        geography.total++;
+        for (let entity of articleEntities(row)) geography.entities.add(entity);
         for (let signal of new Set(row.senales || [])) geography.signals.set(signal, (geography.signals.get(signal) || 0) + 1);
       }
     }
@@ -3437,7 +3454,7 @@
     return original && (original.titular !== row.titular || (original.extracto || "") !== (row.extracto || "")) ? '<details class="article-original"><summary>Ver original</summary><p data-original><strong>' + escape2(original.titular) + "</strong></p>" + (original.extracto ? "<p data-original>" + escape2(original.extracto) + "</p>" : "") + "</details>" : "";
   }
   function articleHeader(row, content) {
-    return '<div class="story-topline"><div class="story-heading">' + content + "</div>" + storyIdentity(row.entidad, row.pais, escape2) + "</div>";
+    return '<div class="story-topline"><div class="story-heading">' + content + "</div>" + storyIdentity(articleEntities(row), row.pais, escape2) + "</div>";
   }
   function articleTags(row, selection = {}, novelty = !1) {
     let values = [...row.tipo ? [row.tipo] : [], ...row.segmentos || [], ...row.senales || []];
@@ -3627,7 +3644,7 @@
       $("map-countries").innerHTML = countries.map((country) => {
         let count = areas.get(country)?.total || 0;
         return `<button type="button" class="geo-row" data-country="${escape2(country)}"><span class="identity-label">${identityMark("countries", country, escape2)}${escape2(country)}</span><span class="geo-count">${count}</span><span class="geo-track"><span style="width:${count / max * 100}%"></span></span></button>`;
-      }).join(""), $("map-note").textContent = radar2.unlocated ? t("{count} publicaciones sin geograf\xEDa conocida, excluidas del mapa.", { count: radar2.unlocated }) : "Todas las publicaciones de la selecci\xF3n tienen una geograf\xEDa conocida.", trend = radar2.trend, renderTrend($("trend-chart").clientWidth || 900), $("trend-period").textContent = radar2.trend.buckets.length ? radar2.trend.from + " \u2014 " + radar2.trend.to : "Sin publicaciones", $("trend-note").textContent = radar2.trend.intervalDays > 1 ? t("Volumen agrupado en intervalos de {days} d\xEDas.", { days: radar2.trend.intervalDays }) : "N\xFAmero de publicaciones por d\xEDa, incluidos los d\xEDas sin noticias.", $("entity-ranking").innerHTML = radar2.ranking.length ? radar2.ranking.slice(0, 6).map((row, i) => `<button type="button" class="ranking-row" data-entity="${escape2(row.entity)}"><span class="ranking-index">${String(i + 1).padStart(2, "0")}</span>${identityMark("entities", row.entity, escape2)}<span class="ranking-name">${escape2(row.entity)}<span class="ranking-track"><span style="width:${row.total / Math.max(1, radar2.summary.news) * 100}%"></span></span></span><strong>${row.total}</strong></button>`).join("") : '<p class="muted">Las entidades aparecer\xE1n al ampliar tu selecci\xF3n.</p>', $("ranking-note").textContent = radar2.ranking.length > 6 ? "Se muestran las seis entidades con m\xE1s publicaciones." : "Selecciona una entidad para explorar su actualidad.";
+      }).join(""), $("map-note").textContent = radar2.unlocated ? t("{count} publicaciones sin geograf\xEDa conocida, excluidas del mapa.", { count: radar2.unlocated }) : "Todas las publicaciones de la selecci\xF3n tienen una geograf\xEDa conocida.", trend = radar2.trend, renderTrend($("trend-chart").clientWidth || 900), $("trend-period").textContent = radar2.trend.buckets.length ? radar2.trend.from + " \u2014 " + radar2.trend.to : "Sin publicaciones", $("trend-note").textContent = radar2.trend.intervalDays > 1 ? t("Volumen agrupado en intervalos de {days} d\xEDas.", { days: radar2.trend.intervalDays }) : "N\xFAmero de publicaciones por d\xEDa, incluidos los d\xEDas sin noticias.", $("entity-ranking").innerHTML = radar2.ranking.length ? radar2.ranking.slice(0, 6).map((row, i) => `<button type="button" class="ranking-row" data-entity="${escape2(row.entity)}"><span class="ranking-index">${String(i + 1).padStart(2, "0")}</span>${identityMark("entities", row.entity, escape2)}<span class="ranking-name">${escape2(row.entity)}<span class="ranking-track"><span style="width:${row.total / Math.max(1, radar2.summary.news) * 100}%"></span></span></span><strong>${row.total}</strong></button>`).join("") : '<p class="muted">Las entidades aparecer\xE1n al ampliar tu selecci\xF3n.</p>', $("ranking-note").textContent = t(radar2.ranking.length > 6 ? "Se muestran las seis entidades con m\xE1s publicaciones." : "Selecciona una entidad para explorar su actualidad.") + (radar2.summary.associations > radar2.summary.news ? " " + t("Una publicaci\xF3n puede corresponder a varias entidades; el total general cuenta noticias \xFAnicas.") : "");
       let publishers = radar2.publishers || [], publisherMax = Math.max(1, ...publishers.map((row) => row.total)), available = radar2.available;
       $("publisher-evidence").textContent = t("Se muestran los seis medios con m\xE1s publicaciones.") + " " + (available ? t("Per\xEDodo") + ": " + radar2.trend.from + " \u2014 " + radar2.trend.to + ". " + t("Noticias recuperadas") + ": " + available.total + "; " + t("Noticias de la selecci\xF3n") + ": " + radar2.summary.news + ". " + t("Los recuentos reflejan la recuperaci\xF3n disponible y los filtros, no toda la producci\xF3n del medio.") : ""), $("publisher-chart").innerHTML = publishers.length ? publishers.map((row) => `<button type="button" class="ranking-row" data-source="${escape2(row.publisher)}"><span class="ranking-name" data-original>${identityMark("publishers", row.publisher, escape2)}${escape2(row.publisher)}<span class="ranking-track"><span style="width:${row.total / publisherMax * 100}%"></span></span></span><strong>${row.total}</strong></button>`).join("") : '<p class="muted">Sin publicaciones</p>', $("radar-publisher").textContent = radar2.topPublisher || "Sin publicaciones";
       let outage = radar2.outages;
@@ -3978,27 +3995,21 @@
     };
   }
 
-  // src/shared/news-groups.js
-  function newsEntityGroups(items) {
-    let entities = /* @__PURE__ */ new Map();
-    for (let row of items) {
-      let name = row.entidad || "Entidad no identificada";
-      entities.has(name) || entities.set(name, { name, total: 0, items: [] });
-      let group = entities.get(name);
-      group.total++, group.items.push(row);
-    }
-    return [...entities.values()].sort(entityOrder);
-  }
-
   // src/client/features/news.js
   function renderNews(data, appended = null) {
-    let list = $("news-list"), rows = (items) => items.map((row) => `<tr class="news-row"><td>${articleTitle(row)}${row.extracto ? `<p class="story-excerpt" data-original>${escape2(row.extracto)}</p>` : ""}${articleOriginal(row)}<div class="news-meta news-tags">${articleTags(row, data.selection)}</div></td><td>${articleDate(row)}</td><td>${newsPublisher(row)}</td></tr>`).join(""), marks = (group) => [...new Set(group.items.map((row) => row.pais))].map((country) => identityMark("countries", country, escape2)).join(""), groupHtml = (group) => `<article class="panel news-entity-group" aria-label="${escape2(group.name)}"><div class="news-entity-heading"><h2 data-original>${identityMark("entities", group.name, escape2)}${escape2(group.name)}</h2><span class="story-identity">${marks(group)}</span></div><div class="news-table"><table role="table"><thead><tr><th scope="col">Titular</th><th scope="col">Fecha de publicaci\xF3n</th><th scope="col">Medio</th></tr></thead><tbody>${rows(group.items)}</tbody></table></div></article>`;
-    if (appended)
-      for (let group of newsEntityGroups(appended)) {
-        let last = list.lastElementChild;
-        last?.getAttribute("aria-label") === group.name ? (last.querySelector("tbody").insertAdjacentHTML("beforeend", rows(group.items)), last.querySelector(".story-identity").innerHTML = marks(newsEntityGroups(data.items).find((row) => row.name === group.name))) : list.insertAdjacentHTML("beforeend", groupHtml(group));
+    let list = $("news-list"), groups = (items) => newsEntityGroups(items).filter((group) => !data.selection?.entity || group.name === data.selection.entity), rows = (items) => items.map((row) => `<tr class="news-row"><td>${articleTitle(row)}${row.extracto ? `<p class="story-excerpt" data-original>${escape2(row.extracto)}</p>` : ""}${articleOriginal(row)}<div class="news-meta news-tags">${articleTags(row, data.selection)}</div></td><td>${articleDate(row)}</td><td>${newsPublisher(row)}</td></tr>`).join(""), marks = (group) => [...new Set(group.items.map((row) => row.pais))].map((country) => identityMark("countries", country, escape2)).join(""), groupHtml = (group) => `<article class="panel news-entity-group" aria-label="${escape2(group.name)}"><div class="news-entity-heading"><h2 data-original>${identityMark("entities", group.name, escape2)}${escape2(group.name)}</h2><span class="story-identity">${marks(group)}</span></div><div class="news-table"><table role="table"><thead><tr><th scope="col">Titular</th><th scope="col">Fecha de publicaci\xF3n</th><th scope="col">Medio</th></tr></thead><tbody>${rows(group.items)}</tbody></table></div></article>`;
+    if (appended) {
+      let all = groups(data.items), order = new Map(all.map((group, index) => [group.name, index]));
+      for (let group of groups(appended)) {
+        let panel2 = [...list.children].find((node) => node.getAttribute("aria-label") === group.name);
+        if (panel2)
+          panel2.querySelector("tbody").insertAdjacentHTML("beforeend", rows(group.items)), panel2.querySelector(".story-identity").innerHTML = marks(all[order.get(group.name)]);
+        else {
+          let next = [...list.children].find((node) => order.get(node.getAttribute("aria-label")) > order.get(group.name));
+          next ? next.insertAdjacentHTML("beforebegin", groupHtml(group)) : list.insertAdjacentHTML("beforeend", groupHtml(group));
+        }
       }
-    else list.innerHTML = data.items.length ? newsEntityGroups(data.items).map(groupHtml).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>';
+    } else list.innerHTML = data.items.length ? groups(data.items).map(groupHtml).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>';
     $("result-count").textContent = t(data.contextTotal === 1 ? "1 publicaci\xF3n" : "{count} publicaciones", { count: data.contextTotal }), $("page-label").textContent = data.total ? t("{visible} de {total} publicaciones", { visible: data.items.length, total: data.total }) : "Sin resultados";
     let complete = (data.page + 1) * data.pageSize >= data.total;
     $("next").hidden = complete, $("next").disabled = complete;

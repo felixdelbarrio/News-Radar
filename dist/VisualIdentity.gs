@@ -17,6 +17,6 @@ function identityMark(kind,name,escape,images){
  return '<img class="'+(kind==='countries'?'geography-flag':kind==='publishers'?'publisher-logo':'entity-logo')+'" src="'+src+'" width="'+asset.width+'" height="'+asset.height+'" alt="'+escape(name)+'" title="'+escape(name)+'"'+(images?'':' loading="lazy" decoding="async"')+'>';
 }
 function storyIdentity(entity,country,escape,images){
- const marks=identityMark('entities',entity,escape,images)+identityMark('countries',country,escape,images);
+ const marks=(Array.isArray(entity)?entity:[entity]).map(name=>identityMark('entities',name,escape,images)).join('')+identityMark('countries',country,escape,images);
  return marks?'<span class="story-identity">'+marks+'</span>':'';
 }
