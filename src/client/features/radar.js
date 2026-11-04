@@ -71,8 +71,7 @@ function createRadar({ onCountry, onEntity, onSource, onOutage }) {
     if (next === signature) return;
     signature = next;
     $("metrics").innerHTML = metricCards([["Publicaciones", data.stats.news, "En la selección"], ["Entidades", data.stats.entities, "Con presencia en medios"], ["Medios", data.stats.sources, "Editores distintos"], ["Geografías", data.stats.countries, "Con publicaciones en la selección"]]);
-    $("radar-focus").textContent = radar.ranking.length === 1 ? radar.ranking[0].entity : "Panorama de entidades";
-    $("radar-context").textContent = radar.summary.news ? "Distribución geográfica, entidades mencionadas y evolución de las publicaciones recopiladas." : "Amplía los filtros para descubrir nuevas publicaciones y su distribución.";
+    $("radar-context").textContent = radar.summary.news ? "Analiza la evolución de los canales digitales de banca de empresas e instituciones durante el último año. Compara entidades, identifica las funcionalidades con mayor actividad y descubre tendencias a partir de las noticias publicadas." : "Amplía los filtros para descubrir nuevas publicaciones y su distribución.";
     $('radar-count').textContent=t('{count} publicaciones',{count:radar.summary.news});
     $("map-selection").textContent = radar.ranking.length === 1 ? radar.ranking[0].entity : "Todas las entidades de la selección";
     const max = Math.max(1, ...radar.geographies.map((area) => area.total)), areas = new Map(radar.geographies.map((area) => [area.country, area]));

@@ -18,7 +18,7 @@ function compactOperationalLogs_(){
   catch(error){conflicts.push(String(error.message));}
  }
  properties_().setProperty('LOG_ARCHIVE_DONE',String(done));if(conflicts.length)throw Error(conflicts.join('; '));
- if(complete)properties_().deleteProperty('LOG_ARCHIVE_PENDING');return complete;
+ if(complete)complete=maintainLogArchiveFiles_();if(complete)properties_().deleteProperty('LOG_ARCHIVE_PENDING');return complete;
 }
 
 function deleteSheetRows_(sheet,positions){
@@ -84,7 +84,7 @@ function applyNewsClassificationCorrections(plan,rollback=false){
    for(const update of updates){const cell=sheet.getRange(update.row,column,1,1),value=cell.getDisplayValues()[0][0];if(value===update.value)cell.setValues([[update.original]]);else if(value!==update.original)throw Error('Conflicto durante reversión; conservar archivo '+archive.id);}
    SpreadsheetApp.flush();throw error;
   }
-  invalidateNews_(false,true,false);
+  invalidateNews_(false,true,false);requestDashboardSnapshots_(true);
   telemetry_('correccion-editorial',Date.now()-started,'OK',JSON.stringify({rollback,ids,archive:archive.id,digest}));
   return {changed:ids,rollback,archive,digest,inverse:{plan,rollback:!rollback},elapsedMs:Date.now()-started};
  });

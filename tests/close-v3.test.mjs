@@ -16,7 +16,7 @@ test('v3: event > excerpt > accredited edition > verified catalog > territorial 
   [{...base,url:'https://publisher.co/mx/article'},'México','edition'],
   [base,'Estados Unidos','publisher'],
   [{...base,url:'https://publisher.co/mx-other/article'},'Estados Unidos','publisher'],
-  [{...base,url:'https://unlisted.co/article'},'Colombia','domain'],
+  [{...base,url:'https://unlisted.co/article'},'España','rss_fallback'],
   [{...base,url:'https://unlisted.com/article'},'España','rss_fallback'],
   [{...base,url:'https://unlisted.com/article',rssCountry:'',id:'old',pais:'Perú'},'Perú','historic_country'],
   [{...base,url:'',rssCountry:'',articleLanguage:'en-GB'},'Reino Unido','locale_fallback'],

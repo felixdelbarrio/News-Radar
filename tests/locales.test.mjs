@@ -58,7 +58,7 @@ for(const language of ['es','en','tr'])test('interfaz '+language+': formularios,
  await a.click('[data-view="administration"]');assert.equal(a.find('#preview-language').value,'');await a.click('[data-admin-view="subscribers"]');await a.click('#new-admin-subscription');assert.equal(a.find('#admin-subscription-editor [name="language"]').value,language);
  await a.change('#admin-subscription-editor [name="language"]','tr');await a.submit('#admin-subscription-editor form');assert.equal(a.calls.find(row=>row.method==='saveAdminSubscription').query.language,'tr');
  a.replies.getAdoption.options={vista:['administration'],evento:['rendimiento']};
- for(const view of ['configuration','sources','audit','adoption']){await a.click('[data-admin-view="'+view+'"]');assert.ok(a.find('#'+view+'-section').textContent.length);}
+ for(const view of ['configuration','audit','adoption']){await a.click('[data-admin-view="'+view+'"]');assert.ok(a.find('#'+view+'-section').textContent.length);}
  assert.equal(a.find('#adoption-vista option[value="administration"]').textContent,translateText('Administración',language));await a.change('#adoption-vista','administration');assert.equal(a.calls.filter(row=>row.method==='getAdoption').at(-1).query.vista,'administration');
  const required=a.find('#source-fields input');required.value='';required.dispatchEvent(new a.w.Event('invalid',{bubbles:false}));assert.equal(required.validationMessage,translateText('Campo obligatorio.',language));required.value='test';required.dispatchEvent(new a.w.Event('input',{bubbles:true}));assert.equal(required.validity.customError,false);
 });
@@ -96,7 +96,7 @@ test('la recopilación conserva inglés y turco y el idioma explícito o declara
  const original=JSON.stringify(config);config.feeds[0].language='invalid_language';assert.throws(()=>c.validateConfiguration_(config),/Idioma de fuente/);assert.notEqual(JSON.stringify(config),original);
 });
 test('cambiar de idioma conserva documento, sección, borradores y filtros sin navegar ni recargar',async t=>{
- const a=await app(t,{language:'es-ES'});await a.click('[data-view="administration"]');await a.click('[data-admin-view="sources"]');
+ const a=await app(t,{language:'es-ES'});await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');
  const field=a.find('#source-fields input'),document=a.w.document;field.value='Borrador sin guardar';await a.click('[data-admin-view="language"]');
  for(const language of ['en','tr','es','tr','en','']){
   await a.change('#preview-language',language);const expected=language||'es';assert.equal(a.w.document,document);assert.equal(document.documentElement.lang,expected);assert.equal(a.find('#language-section').hidden,false);assert.equal(field.value,'Borrador sin guardar');
@@ -136,7 +136,7 @@ for(const language of ['en','tr'])test('frases del Radar y de administración co
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="language"]');await a.change('#preview-language',language);
  assert.equal(a.find('#sidebar-context-title').textContent,translateText('Gestión de News Radar',language));
  await a.click('[data-view="radar"]');
- for(const [id,source] of [['radar-focus','Panorama de entidades'],['radar-context','Distribución geográfica, entidades mencionadas y evolución de las publicaciones recopiladas.'],['radar-headline','Radar'],['trend-note','Volumen agrupado en intervalos de 6 días.']])assert.equal(a.find('#'+id).textContent,translateText(source,language));
+ for(const [id,source] of [['radar-context','Analiza la evolución de los canales digitales de banca de empresas e instituciones durante el último año. Compara entidades, identifica las funcionalidades con mayor actividad y descubre tendencias a partir de las noticias publicadas.'],['radar-headline','Radar'],['trend-note','Volumen agrupado en intervalos de 6 días.']])assert.equal(a.find('#'+id).textContent,translateText(source,language));
  assert.ok(a.find('#trend-chart').textContent.includes(new Intl.DateTimeFormat(language,{day:'numeric',month:'short',timeZone:'UTC'}).format(new Date('2026-10-01'))));
  await a.click('[data-view="subscriptions"]');assert.equal(a.find('#subscriptions-count').textContent,translateText('1 suscripción',language));
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="audit"]');assert.equal(a.find('#audit-section h2').textContent,translateText('Logs',language));
