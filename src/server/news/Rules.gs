@@ -239,7 +239,11 @@ function newsCountryDecision_(row,index=businessIndex_()){
  for(const candidate of candidates){const edition=articleEdition_(candidate,index);if(edition.country)return geographyDecision_([edition.country],'edition',edition.evidence,evidence,'medium');}
  for(const candidate of candidates.length?candidates:['']){const editorial=editorialCountry_(candidate,row.medio,index);if(editorial.country&&editorial.verified)return geographyDecision_([editorial.country],'publisher',editorial.evidence,evidence,'low');}
  for(const candidate of candidates){const country=domainCountry_(candidate,index);if(country)return geographyDecision_([country],'domain',canonicalUrl_(candidate),evidence,'medium');}
- if(candidates.some(candidate=>verifiedMedia_(index).some(media=>media.ruleType==='EDITOR_GLOBAL'&&mediaEditionMatches_(candidate,media))))return geographyDecision_(['Sin determinar'],'undetermined','editor global sin país de evento',evidence,'low','DESCONOCIDA');
+ if(candidates.some(candidate=>verifiedMedia_(index).some(media=>media.ruleType==='EDITOR_GLOBAL'&&mediaEditionMatches_(candidate,media)))){
+  const rssCountry=row.rssCountry||saved.paisRSS||sourceGeographies_(index).get(searchText_(row.fuente));
+  if(rssCountry==='México'&&candidates.some(candidate=>domainMatches_(candidate,'cronista.com')))return geographyDecision_(['México'],'rss_fallback','El Cronista · México',evidence,'low');
+  return geographyDecision_(['Sin determinar'],'undetermined','editor global sin país de evento',evidence,'low','DESCONOCIDA');
+ }
  const explicit=row.rssCountry||saved.paisRSS||'',fromFeed=sourceGeographies_(index).get(searchText_(row.fuente))||'',rss=explicit&&index.countryNames.has(explicit)?explicit:fromFeed,fromUrl=rssUrlCountry_(row.feedUrl||'',index,rss);
  if(fromUrl===null||rss&&fromUrl&&rss!==fromUrl){/* Contradicción: pasar al idioma. */}
  else if(rss||fromUrl)return geographyDecision_([rss||fromUrl],'rss_fallback',row.feedUrl||row.fuente||rss,evidence,'low');

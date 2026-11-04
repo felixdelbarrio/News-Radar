@@ -59,3 +59,9 @@ test('Fuentes contiene Abrir hoja y Ejecuciones bloquea cada recuperación activ
  a.data.collection.blocked.today=true;await a.click('[data-admin-view="configuration"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('[data-collection-slot="daily"]').disabled,true);assert.match(a.find('[data-collection-slot="daily"]').title,/diaria en curso/);await a.click('#control-panel-refresh');assert.equal(a.find('[data-collection-slot="daily"]').disabled,true);
  a.data.collection={pending:0,blocked:{today:false,year:false},jobs:[]};a.replies.getRuns.collection=a.data.collection;await a.click('[data-admin-view="configuration"]');await a.click('[data-admin-view="runs"]');assert.equal(a.find('[data-collection-slot="daily"]').disabled,false);assert.equal(a.w.document.querySelector('[value="year"][name="recovery-range"]'),null);
 });
+test('Fuentes y catálogo global son opciones exclusivas del selector de catálogos',async t=>{
+ const a=await app(t);await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');
+ await a.change('#catalog-category','globalTaxonomy');assert.equal(a.find('#taxonomy-section').hidden,false);assert.equal(a.find('#sources-section').hidden,true);assert.equal(a.find('#catalog-form').hidden,true);
+ await a.change('#catalog-category','sourcesCatalog');assert.equal(a.find('#taxonomy-section').hidden,true);assert.equal(a.find('#sources-section').hidden,false);
+ await a.change('#catalog-category','storage');assert.equal(a.find('#catalog-form').hidden,false);assert.equal(a.find('#sources-section').hidden,true);
+});

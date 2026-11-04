@@ -9,7 +9,7 @@ test('Taxonomía muestra jerarquía, paginación, progreso único y lanzamiento 
     const set=w.setTimeout.bind(w),clear=w.clearTimeout.bind(w);w.setTimeout=(fn,ms)=>{if(ms<30000)return set(fn,ms);timers.set(++id,{fn,ms});return id;};w.clearTimeout=value=>{timers.delete(value);clear(value);};
     replies.getTaxonomyStatus={scheduled:true,hour:7,minute:45,timezone:'Europe/Madrid',items,job:null};
   }});
-  await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');
+  await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');await a.change('#catalog-category','globalTaxonomy');
   assert.equal(a.find('#taxonomy-section').hidden,false);assert.equal(a.w.document.querySelector('#taxonomy-schedule'),null);assert.match(a.find('#taxonomy-count').textContent,/2 bloques funcionales · 2 funcionalidades/);
   assert.equal(a.find('#taxonomy-body').querySelectorAll('tr').length,2);assert.match(a.find('#taxonomy-body').textContent,/Pagos biométricos/);assert.match(a.find('#taxonomy-body').textContent,/Empresas · Retail/);
   await a.change('#taxonomy-palanca','Pagos y cobros');assert.equal(a.find('#taxonomy-body').querySelectorAll('tr').length,1);
@@ -34,7 +34,7 @@ test('nombres multilingües visibles conservan valores canónicos de filtros y s
  await a.click('[data-view="news"]');assert.match(a.find('#news-list').textContent,/Biometric payments/);
  const option=a.find('#filters [name="subpalanca"] option:nth-child(2)');assert.equal(option.value,path);assert.equal(option.textContent,taxonomyTranslations.en['Pagos biométricos']);
  await a.change('#filters [name="subpalanca"]',path);assert.equal(a.calls.filter(row=>row.method==='getDashboard').at(-1).query.subpalanca,path);assert.match(a.find('#active-filters').textContent,/Biometric payments/);
- await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');assert.match(a.find('#taxonomy-body').textContent,/Pagos biométricos/);await a.change('#preview-language','tr');assert.match(a.find('#taxonomy-body').textContent,/Pagos biométricos/);
+ await a.click('[data-view="administration"]');await a.click('[data-admin-view="configuration"]');await a.change('#catalog-category','globalTaxonomy');assert.match(a.find('#taxonomy-body').textContent,/Pagos biométricos/);await a.change('#preview-language','tr');assert.match(a.find('#taxonomy-body').textContent,/Pagos biométricos/);
 });
 test('Idiomas reutiliza una sola barra de taxonomía, reanuda manualmente y detiene el sondeo al salir',async t=>{
  const timers=new Map();let id=0;

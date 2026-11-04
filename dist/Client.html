@@ -1175,6 +1175,9 @@
     "El \xFAltimo a\xF1o se consulta por semanas; las consultas saturadas se dividen autom\xE1ticamente hasta llegar a un d\xEDa. Los RSS de editores aportan solo el hist\xF3rico que mantengan disponible; la recuperaci\xF3n no garantiza cobertura completa.": ["The last year is queried by week; saturated queries are split automatically down to a day. Publishers' RSS feeds provide only the history they retain; recovery does not guarantee complete coverage.", "Son y\u0131l haftal\u0131k olarak taran\u0131r; dolan sorgular otomatik olarak bir g\xFCne kadar b\xF6l\xFCn\xFCr. Yay\u0131nc\u0131lar\u0131n RSS ak\u0131\u015Flar\u0131 yaln\u0131zca saklad\u0131klar\u0131 ge\xE7mi\u015Fi sa\u011Flar; tarama tam kapsam\u0131 garanti etmez."],
     "Google News RSS": ["Google News RSS", "Google News RSS"],
     "Cat\xE1logo global de funcionalidades": ["Global functionality catalogue", "K\xFCresel i\u015Flev katalo\u011Fu"],
+    "Equivalencias funcionales": ["Functional equivalents", "\u0130\u015Flevsel e\u015Fde\u011Ferler"],
+    "Maestro funcional de solo lectura.": ["Read-only functional master.", "Salt okunur i\u015Flevsel ana katalog."],
+    "Fuentes de seguimiento configuradas.": ["Configured monitoring sources.", "Yap\u0131land\u0131r\u0131lm\u0131\u015F izleme kaynaklar\u0131."],
     "Bloque funcional": ["Functional block", "\u0130\u015Flevsel blok"],
     "Funcionalidad / Sub Operativa": ["Functionality / Sub-operation", "\u0130\u015Flev / Alt i\u015Flem"],
     "Conceptos emergentes admitidos": ["Allowed emerging concepts", "\u0130zin verilen yeni kavramlar"],
@@ -2990,7 +2993,7 @@
       ]
     },
     taxonomy: {
-      label: "Cat\xE1logo global de funcionalidades",
+      label: "Equivalencias funcionales",
       help: "Equivalencias y conceptos emergentes de News Radar. Los c\xF3digos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aqu\xED. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios. La detecci\xF3n previa de canal digital y los t\xE9rminos de recuperaci\xF3n siguen en uso; se administran aqu\xED junto a las equivalencias funcionales."
     },
     storage: {
@@ -3290,7 +3293,7 @@
   // src/client/features/configuration.js
   var capabilityFields = [["name", "Capacidad de detecci\xF3n", "text"], ["terms", "T\xE9rminos de b\xFAsqueda", "list"], ["enabled", "Activa", "boolean"]];
   function createConfiguration({ run }) {
-    let config, revision, category = "entities", capabilityDefaults, storagePrimaryId, entries = () => config[category === "applicationScope" ? "geographies" : category], list = (input2) => input2.value.split(/[;\n]/).map((value) => value.trim()).filter(Boolean), read = (input2) => input2.type === "checkbox" ? input2.checked : input2.type === "number" ? Number(input2.value) : input2.dataset.list === "true" ? list(input2) : input2.value.trim(), filters4 = createRecordFilters("configuration", [["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]], filterRows, { placeholder: "Nombre, c\xF3digo o t\xE9rmino" });
+    let config, revision, category = "entities", capabilityDefaults, storagePrimaryId, embedded = { globalTaxonomy: "taxonomy-section", sourcesCatalog: "sources-section" }, entries = () => config[category === "applicationScope" ? "geographies" : category], list = (input2) => input2.value.split(/[;\n]/).map((value) => value.trim()).filter(Boolean), read = (input2) => input2.type === "checkbox" ? input2.checked : input2.type === "number" ? Number(input2.value) : input2.dataset.list === "true" ? list(input2) : input2.value.trim(), filters4 = createRecordFilters("configuration", [["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]], filterRows, { placeholder: "Nombre, c\xF3digo o t\xE9rmino" });
     async function fetchConfig() {
       let snapshot = await call("getConfiguration");
       config = snapshot.config, revision = snapshot.revision, capabilityDefaults = snapshot.capabilityDefaults, storagePrimaryId = snapshot.storagePrimaryId;
@@ -3299,7 +3302,7 @@
       return Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input2) => [input2.dataset.key, read(input2)]));
     }
     function readFields() {
-      if (config)
+      if (config && !embedded[category])
         if (category === "applicationScope") {
           let countries = [...$("catalog-fields").querySelectorAll("[data-geography]")];
           config.geographies = countries.map(record), config.applicationScope = [{ name: config.applicationScope[0].name, countries: countries.filter((row) => row.querySelector("[data-country]").checked).map((row) => record(row).name) }];
@@ -3324,6 +3327,12 @@
       $("catalog-count").textContent = t("{shown} de {total} entradas", { shown, total: rows.length });
     }
     function render() {
+      for (let [key, id] of Object.entries(embedded)) $(id).hidden = category !== key;
+      let embeddedView = !!embedded[category];
+      if ($("catalog-form").hidden = embeddedView, $("configuration-filters").hidden = embeddedView, $("catalog-count").hidden = embeddedView, $("catalog-reload").hidden = embeddedView, embeddedView) {
+        $("catalog-help").textContent = t(category === "globalTaxonomy" ? "Maestro funcional de solo lectura." : "Fuentes de seguimiento configuradas.");
+        return;
+      }
       let meta = admin_schema_default[category];
       $("capability-toolbar").hidden = category !== "taxonomy", $("catalog-media-filter") && ($("catalog-media-filter").hidden = category !== "mediaCatalog"), $("catalog-help").textContent = t(meta.help) + (category === "storage" ? " ID: " + storagePrimaryId : ""), $("catalog-add").hidden = !!meta.groups || category === "taxonomy";
       let html;
@@ -3346,9 +3355,9 @@
       }).join("") : html = entries().map((row) => `<details class="catalog-row" data-enabled="${row.enabled}" ${row.name ? "" : "open"}><summary><strong>${escape2(row.name || t("Nueva entrada"))}</strong><span>${escape2(row.type || "")}${row.type ? " \xB7 " : ""}${t(row.enabled ? "Activa" : "Inactiva")}</span></summary><div class="catalog-grid">${fields(meta.fields, row)}</div><div class="actions"><button type="button" class="button" data-move="-1">${t("Subir")}</button><button type="button" class="button" data-move="1">${t("Bajar")}</button><button type="button" class="button" data-remove>${t("Eliminar")}</button></div></details>`).join("");
       $("catalog-fields").innerHTML = html, filterRows();
     }
-    return $("catalog-category").innerHTML = Object.entries(admin_schema_default).map(([key, meta]) => `<option value="${key}">${escape2(t(meta.label))}</option>`).join(""), $("catalog-category").addEventListener("change", () => {
+    return $("catalog-category").innerHTML = Object.entries(admin_schema_default).map(([key, meta]) => `<option value="${key}">${escape2(t(meta.label))}</option>`).join("") + `<option value="globalTaxonomy">${escape2(t("Cat\xE1logo global de funcionalidades"))}</option><option value="sourcesCatalog">${escape2(t("Fuentes"))}</option>`, $("catalog-category").addEventListener("change", () => {
       let next = $("catalog-category").value;
-      Object.hasOwn(admin_schema_default, next) && (readFields(), category = next, render());
+      !Object.hasOwn(admin_schema_default, next) && !embedded[next] || (readFields(), category = next, render());
     }), $("catalog-fields").addEventListener("click", (event) => {
       if (event.target.closest("[data-add-capability]")) {
         readFields(), config.capabilities.Empresas.push({ name: "", terms: [], enabled: !0 }), render();
@@ -3789,7 +3798,7 @@
         if ($("admin-tabs").querySelectorAll("[data-admin-view]").forEach((button) => {
           button.setAttribute("aria-selected", String(button.dataset.adminView === view2)), button.tabIndex = button.dataset.adminView === view2 ? 0 : -1, button.dataset.adminView === view2 && button.scrollIntoView?.({ block: "nearest", inline: "nearest" });
         }), view2 === "subscribers" && await onSubscribers(), view2 === "configuration") try {
-          await Promise.all([onConfiguration(), onTaxonomy()]), $("taxonomy-section").hidden = !1, $("sources-section").hidden = !1;
+          await Promise.all([onConfiguration(), onTaxonomy()]);
         } catch (error) {
           message(error.message || String(error), !0);
         }

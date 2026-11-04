@@ -321,7 +321,7 @@
     ]
   },
   "taxonomy": {
-    "label": "Catálogo global de funcionalidades",
+    "label": "Equivalencias funcionales",
     "help": "Equivalencias y conceptos emergentes de News Radar. Los códigos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aquí. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios. La detección previa de canal digital y los términos de recuperación siguen en uso; se administran aquí junto a las equivalencias funcionales."
   },
   "storage": {

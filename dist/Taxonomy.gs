@@ -1,5 +1,5 @@
 // Sparse statistics and bounded evidence; article bodies are never retained.
-const TAXONOMY_POLICY=Object.freeze({version:'3.37.0',batchRows:100,maxMs:10000,maxCandidates:600,maxEmergingPerLever:3,minEmergingDocuments:3,minEmergingSources:2,maxTerms:24,checkpointRows:20,checkpointChars:40000,maxAssignments:3,maxOverlapLinks:32,overlapContainment:.8,overlapSizeRatio:.5});
+const TAXONOMY_POLICY=Object.freeze({version:'3.38.0',batchRows:100,maxMs:10000,maxCandidates:600,maxEmergingPerLever:3,minEmergingDocuments:3,minEmergingSources:2,maxTerms:24,checkpointRows:20,checkpointChars:40000,maxAssignments:3,maxOverlapLinks:32,overlapContainment:.8,overlapSizeRatio:.5});
 const taxonomyDefinitionMemory=new WeakMap(),rankingIndexes=new WeakMap();
 function taxonomyText(value){return String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ı/g,'i');}
 function financingPurpose(value){
