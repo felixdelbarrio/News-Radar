@@ -55,6 +55,21 @@ function phraseMatch_(text,term){return phrasePosition_(text,term)>=0;}
 function headlineEntity_(headline,index){
   let entity,first=Infinity;for(const [alias,row] of index.aliases){const position=phrasePosition_(headline,alias);if(position>=0&&position<first){entity=row;first=position;}}return entity;
 }
+function headlineProtagonists_(row,index){
+  const primary=index.entities.get(searchText_(row.entidad))?.name||row.entidad,title=searchText_(plainText_(row.titular));
+  const found=new Map();
+  for(const [alias,entity] of index.aliases){const at=phrasePosition_(title,alias),previous=found.get(entity.name);if(at>=0&&(!previous||at<previous.at||at===previous.at&&alias.length>previous.alias.length))found.set(entity.name,{name:entity.name,alias,at,end:at+alias.length});}
+  const matches=[...found.values()].sort((a,b)=>a.at-b.at||b.alias.length-a.alias.length),first=matches[0];
+  const prefix=first?title.slice(0,first.at):'';
+  if(!first||!matches.some(match=>match.name===primary)||prefix&&!/^(?:(?:los?|las?)\s+)?(?:bancos?|entidades?|fintechs?)\s+$|^[a-z0-9 .-]{2,30},\s*$/.test(prefix))return [primary];
+  const subjects=[first];for(const match of matches.slice(1)){
+    if(match.at<subjects.at(-1).end)continue;
+    const between=title.slice(subjects.at(-1).end,match.at).replace(/\([a-z0-9]{1,6}\)/g,'').trim();
+    if(between?!/^(?:,\s*)*(?:y|e|and|&)?\s*,?$/.test(between):matches.length<3)break;
+    subjects.push(match);
+  }
+  return subjects.length>1&&subjects.some(match=>match.name===primary)?[primary,...subjects.map(match=>match.name).filter(name=>name!==primary)]:[primary];
+}
 // Exactly one business signal. Operational evidence is evaluated per clause so a
 // generic prevention mention cannot mask a separately reported real outage.
 function businessSignals_(title,text,index=businessIndex_()){
@@ -136,7 +151,7 @@ function annotateNews_(rows){
     const catalog=index.entities.get(searchText_(row.entidad)),assignment=effectiveTaxonomyAssignment_(row,items),classification=savedNewsLabels_(row.clasificacion),labels={digital:classification.digital,capacidades:classification.capacidades};
     if(assignment.editorialExcluded)return null;
     const geographies=classification.procedencia?.geografias||[row.pais||'Sin determinar'];
-    const annotated={...row,clasificacion:JSON.stringify(labels),medio:resolvedPublisher_(row.medio,configuredPublisher_(classification.procedencia?.dominioMedio?'https://'+classification.procedencia.dominioMedio:classification.procedencia?.medioUrl||'',index)),pais:row.pais||'Sin determinar',geografias:geographies,...(assignment.evidence?{functionalEvidence:assignment.evidence}:{}),taxonomia:assignment.ids.map(id=>taxonomy.get(id)),etiquetas:labels,entidad:catalog?.name||row.entidad,tipo:catalog?.type||'',segmentos:classification.segmentos||[],senales:classification.senales||[]};newsRelevanceMemory_.set(annotated,Number(classification.score||0));return annotated;
+    const protagonists=headlineProtagonists_(row,index),annotated={...row,clasificacion:JSON.stringify(labels),medio:resolvedPublisher_(row.medio,configuredPublisher_(classification.procedencia?.dominioMedio?'https://'+classification.procedencia.dominioMedio:classification.procedencia?.medioUrl||'',index)),pais:row.pais||'Sin determinar',geografias:geographies,...(protagonists.length>1?{entidades:protagonists}:{}),...(assignment.evidence?{functionalEvidence:assignment.evidence}:{}),taxonomia:assignment.ids.map(id=>taxonomy.get(id)),etiquetas:labels,entidad:catalog?.name||row.entidad,tipo:catalog?.type||'',segmentos:classification.segmentos||[],senales:classification.senales||[]};newsRelevanceMemory_.set(annotated,Number(classification.score||0));return annotated;
   }).filter(Boolean);
 }
 function newsExcerpt_(item,title,publisher=''){

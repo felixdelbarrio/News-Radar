@@ -27,10 +27,10 @@ test('los filtros explícitos y la paginación no reciben el snapshot por defect
  const s=server(),c=s.c;add(s,'es','2026-10-10');build(s);
  for(const query of [{view:'news',entity:'Santander'},{view:'news',from:'2026-01-01',to:'2026-12-31'},{view:'news',page:1}])assert.equal(c.getDashboard(query).performance.snapshotHit,false);
 });
-test('cada revisión solicita publicación y conserva el último snapshot válido hasta completarla',()=>{
+test('cada revisión solicita publicación sin servir el snapshot obsoleto',()=>{
  const s=server(),c=s.c;add(s,'es','2026-10-10');build(s);const q=c.dashboardQuery_({view:'news',initial:true});
  for(const key of ['CONFIG_REVISION','NEWS_REVISION','TAXONOMY_REVISION','TAXONOMY_TRANSLATIONS_REVISION','TRANSLATIONS_REVISION:tr']){
-  const old=s.properties[key];s.properties[key]='changed';assert.ok(c.defaultDashboardSnapshot_('news',q,'es'));if(old===undefined)delete s.properties[key];else s.properties[key]=old;
+  const old=s.properties[key];s.properties[key]='changed';assert.equal(c.defaultDashboardSnapshot_('news',q,'es'),null);assert.equal(s.properties.DASHBOARD_SNAPSHOT_REQUEST,'pending');if(old===undefined)delete s.properties[key];else s.properties[key]=old;
  }
  assert.notEqual(c.dashboardSnapshotRevision_('news',new TestDate()),c.dashboardSnapshotRevision_('news',new TestDate('2027-01-01')));
 });

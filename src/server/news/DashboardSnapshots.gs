@@ -11,7 +11,7 @@ function defaultDashboardSnapshot_(view,query,language){
   if(!DASHBOARD_SNAPSHOTS.views.includes(view))return null;
   const defaults=dashboardQuery_({view,initial:true}),revision=dashboardSnapshotRevision_(view),manifest=dashboardSnapshotManifest_(view);
   if(Object.entries(query).some(([key,value])=>value!==''&&value!=null&&key!=='newsGeography'&&!(key==='page'&&Number(value)===0)&&value!==defaults[key]))return null;
-  if(manifest?.revision!==revision){requestDashboardSnapshots_();if(!manifest)return null;}
+  if(manifest?.revision!==revision){requestDashboardSnapshots_();return null;}
   if(manifest.schema!==NEWS_CACHE.schema||manifest.periodFallback||manifest.period?.from!==query.from||manifest.period?.to!==query.to)return null;
   const cache=CacheService.getScriptCache(),key='dashboard-snapshot:'+manifest.revision+':'+language+':'+(query.newsGeography||''),cached=readDashboardCache_(cache,key);if(cached)return cached;
   try{

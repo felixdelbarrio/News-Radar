@@ -1,6 +1,9 @@
 export const languageNames = Object.freeze({es:"Español",en:"English",tr:"Türkçe"});
 export const translations = Object.freeze({
+  "Una publicación puede corresponder a varias entidades; el total general cuenta noticias únicas.": ["A publication can relate to several institutions; the overall total counts unique articles.", "Bir yayın birden fazla kuruma ilişkin olabilir; genel toplam benzersiz haberleri sayar."],
   "Sin noticias": ["No news", "Haber yok"],
+  "Con noticias": ["With news", "Haber var"],
+  "Estado de fuente no válido.": ["Invalid source status.", "Geçersiz kaynak durumu."],
   "Con errores": ["With errors", "Hatalı"],
   "Canales que aportan noticias": ["Sources providing news", "Haber sağlayan kaynaklar"],
   "Noticias por fuente": ["News by source", "Kaynağa göre haberler"],

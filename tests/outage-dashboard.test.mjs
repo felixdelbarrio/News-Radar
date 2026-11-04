@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import fs from 'node:fs';
 import {BRIEFING_ALLOWED_SIGNALS,briefingAllowed,articleGeographies} from '../src/shared/selection-policy.js';
+import {articleEntities} from '../src/shared/news-groups.js';
 const signal='Indisponibilidad / Incidencia operativa';
-function context(){const c=vm.createContext({INCIDENT_SIGNAL:signal,entityKey_:value=>value,plainText_:value=>value,canonicalUrl_:value=>value,articleGeographies});vm.runInContext(fs.readFileSync('src/server/news/Radar.gs','utf8'),c);return c;}
+function context(){const c=vm.createContext({INCIDENT_SIGNAL:signal,entityKey_:value=>value,plainText_:value=>value,canonicalUrl_:value=>value,articleGeographies,articleEntities});vm.runInContext(fs.readFileSync('src/server/news/Radar.gs','utf8'),c);return c;}
 const row=(id,date,entity='BBVA',country='España',senales=[signal])=>({id,fecha:date,entidad:entity,pais:country,senales,taxonomia:[{palanca:'Pagos'}],titular:'Fallo de transferencias',medio:'Diario',url:'https://example.com/'+id});
 test('briefing admite exclusivamente las tres señales comerciales, excluye incidencias incluso mezcladas',()=>{
  assert.deepEqual(BRIEFING_ALLOWED_SIGNALS,['Lanzamiento de producto','Mejora de oferta','Alianza estratégica']);
