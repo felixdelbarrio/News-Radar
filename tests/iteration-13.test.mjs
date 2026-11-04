@@ -26,9 +26,17 @@ test('13: traducciones pendientes ajenas no bloquean newsletter y solo se traduc
 });
 test('13: Novedades sin filtros; Radar con geografía, entidad y año; feedback accesible desde enlace de correo',async t=>{
  const a=await app(t,{configure({data}){data.selection={from:'2026-10-16',to:'2026-10-31'};}});assert.equal(a.find('#open-filters').hidden,true);assert.equal(a.find('.selection-toolbar').hidden,false);assert.equal(a.find('#active-filters').querySelectorAll('span.filter-chip').length,2);assert.equal(a.find('#active-filters').querySelectorAll('button').length,0);assert.equal(a.w.document.querySelector('#reading-context'),null);
- await a.click('[data-view="radar"]');assert.equal(a.find('#entity-filter').hidden,false);assert.equal(a.find('#advanced-filters').hidden,false);assert.equal(a.find('#year-filter').hidden,false);assert.equal(a.find('#from-filter').hidden,true);
+ await a.click('[data-view="radar"]');assert.equal(a.find('#entity-filter').hidden,false);assert.equal(a.find('#type-filter').hidden,false);assert.equal(a.find('#advanced-filters').hidden,false);assert.equal(a.find('#year-filter').hidden,false);assert.equal(a.find('#from-filter').hidden,true);
  await a.click('[data-view="news"]');assert.equal(a.find('#entity-filter').hidden,false);assert.equal(a.find('#advanced-filters').hidden,false);
  const b=await app(t,{location:{edition:'edition',view:'news',feedback:'positive'}});assert.equal(b.find('#feedback-dialog').open,true);assert.equal(b.find('#edition-feedback').elements.rating.value,'positive');
+});
+test('Radar aplica Tipo de entidad, lo conserva al navegar y permite volver a Todos',async t=>{
+ const a=await app(t,{configure({data}){data.types=['Banco tradicional','Fintech'];}});
+ await a.click('[data-view="radar"]');
+ const type=a.find('#filters [name="type"]');assert.deepEqual([...type.options].map(option=>option.value),['','Banco tradicional','Fintech']);
+ await a.change('#filters [name="type"]','Fintech');assert.equal(a.calls.filter(call=>call.method==='getDashboard').at(-1).query.type,'Fintech');assert.match(a.find('#active-filters').textContent,/Tipo de entidad: Fintech/);
+ await a.click('[data-view="news"]');await a.click('[data-view="radar"]');assert.equal(type.value,'Fintech');
+ await a.change('#filters [name="type"]','');assert.equal(a.calls.filter(call=>call.method==='getDashboard').at(-1).query.type,undefined);assert.doesNotMatch(a.find('#active-filters').textContent,/Tipo de entidad/);
 });
 test('13: entrega la selección traducida aunque la cola general siga pendiente y conserva la reserva del envío',()=>{
  const {c,properties:p}=server();c.settings_().newsletterEnabled=true;p.NEWSLETTER_REQUEST='true';p.DAILY_TRANSLATION_REQUEST='pending';c.businessTranslationPending_=()=>true;c.snapshotJobsPending_=()=>false;c.classificationPending_=()=>false;c.dailyCollectionPending_=()=>false;

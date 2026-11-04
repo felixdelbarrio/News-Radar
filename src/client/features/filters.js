@@ -26,7 +26,7 @@ function createFilters({ onInvalidate, onChange, onCurrent=()=>{} }) {
       const radar=view==='radar';$('entity-filter').hidden=false;
       $('year-filter').hidden=!radar;
       $('advanced-filters').hidden=false;
-      for(const name of ['search','type','signal','source'])$(name+'-filter').hidden=radar;
+      for(const name of ['search','signal','source'])$(name+'-filter').hidden=radar;
       if(view!=='news')$('advanced-filters').open=false;
       for(const id of ['from-filter','to-filter'])$(id).hidden=view==='radar';
       $('date-guidance').hidden=view==='radar';

@@ -3450,7 +3450,7 @@
     return '<h3 class="story-title" data-original><a class="story-link" href="' + escape2(validUrl(row.url)) + '" target="_blank" rel="noopener noreferrer">' + escape2(row.titular) + "</a></h3>";
   }
   function articleContent(row, selection = {}, novelty = !1) {
-    return articleHeader(row, articleTitle(row)) + (row.extracto ? "<p data-original>" + escape2(row.extracto) + "</p>" : "") + articleOriginal(row) + '<div class="article-metadata"><div class="news-meta">' + articleTags(row, selection, novelty) + '</div><div class="news-meta">' + articleDate(row) + newsPublisher(row) + "</div></div>";
+    return articleHeader(row, articleTitle(row)) + (row.extracto ? "<p data-original>" + escape2(row.extracto) + "</p>" : "") + articleOriginal(row) + '<div class="article-metadata"><div class="news-meta news-tags">' + articleTags(row, selection, novelty) + '</div><div class="news-meta">' + articleDate(row) + newsPublisher(row) + "</div></div>";
   }
 
   // src/client/features/briefing.js
@@ -3851,7 +3851,7 @@
       $("geography-filter").hidden = view2 === "news";
       let radar2 = view2 === "radar";
       $("entity-filter").hidden = !1, $("year-filter").hidden = !radar2, $("advanced-filters").hidden = !1;
-      for (let name of ["search", "type", "signal", "source"]) $(name + "-filter").hidden = radar2;
+      for (let name of ["search", "signal", "source"]) $(name + "-filter").hidden = radar2;
       view2 !== "news" && ($("advanced-filters").open = !1);
       for (let id of ["from-filter", "to-filter"]) $(id).hidden = view2 === "radar";
       $("date-guidance").hidden = view2 === "radar", $("filter-description").textContent = "Edita los criterios y pulsa Aplicar filtros para actualizar los resultados.";
@@ -3992,11 +3992,7 @@
 
   // src/client/features/news.js
   function renderNews(data, appended = null) {
-    let list = $("news-list");
-    list.dataset.links || (list.dataset.links = "true", list.addEventListener("click", (event) => {
-      event.target.closest("a,button,details,input") || window.getSelection()?.toString() || event.target.closest(".news-row")?.querySelector(".story-link")?.click();
-    }));
-    let rows = (items) => items.map((row) => `<tr class="news-row"><td>${articleTitle(row)}${row.extracto ? `<p class="story-excerpt" data-original>${escape2(row.extracto)}</p>` : ""}${articleOriginal(row)}<div class="news-meta">${articleTags(row, data.selection)}</div></td><td>${articleDate(row)}</td><td>${newsPublisher(row)}</td></tr>`).join(""), marks = (group) => [...new Set(group.items.map((row) => row.pais))].map((country) => identityMark("countries", country, escape2)).join(""), groupHtml = (group) => `<article class="panel news-entity-group" aria-label="${escape2(group.name)}"><div class="news-entity-heading"><h2 data-original>${identityMark("entities", group.name, escape2)}${escape2(group.name)}</h2><span class="story-identity">${marks(group)}</span></div><div class="news-table"><table role="table"><thead><tr><th scope="col">Titular</th><th scope="col">Fecha de publicaci\xF3n</th><th scope="col">Medio</th></tr></thead><tbody>${rows(group.items)}</tbody></table></div></article>`;
+    let list = $("news-list"), rows = (items) => items.map((row) => `<tr class="news-row"><td>${articleTitle(row)}${row.extracto ? `<p class="story-excerpt" data-original>${escape2(row.extracto)}</p>` : ""}${articleOriginal(row)}<div class="news-meta news-tags">${articleTags(row, data.selection)}</div></td><td>${articleDate(row)}</td><td>${newsPublisher(row)}</td></tr>`).join(""), marks = (group) => [...new Set(group.items.map((row) => row.pais))].map((country) => identityMark("countries", country, escape2)).join(""), groupHtml = (group) => `<article class="panel news-entity-group" aria-label="${escape2(group.name)}"><div class="news-entity-heading"><h2 data-original>${identityMark("entities", group.name, escape2)}${escape2(group.name)}</h2><span class="story-identity">${marks(group)}</span></div><div class="news-table"><table role="table"><thead><tr><th scope="col">Titular</th><th scope="col">Fecha de publicaci\xF3n</th><th scope="col">Medio</th></tr></thead><tbody>${rows(group.items)}</tbody></table></div></article>`;
     if (appended)
       for (let group of newsEntityGroups(appended)) {
         let last = list.lastElementChild;
