@@ -3,7 +3,6 @@ const ADMIN_LOGS=Object.freeze({
  runs:{table:'Ejecuciones',date:'inicio',fields:['estado','id'],columns:['inicio','fin','estado','evaluadas','nuevas','errores']},
  newsletters:{table:'NewsletterEnvios',fields:['correo','estado','suscripcion'],columns:['fecha','correo','estado','noticias','detalle','edition']},
  daily:{table:'Adopcion',fields:['correo','vista','evento'],columns:['fecha','usuarios','sesiones','eventos']},
- accesses:{table:'NewsletterEventos',fields:['edicion','cadencia','correo'],columns:['fecha','edicion','correo','cadencia','sesion','destino']},
  interactions:{table:'NewsletterEventos',fields:['edicion','correo'],columns:['edicion','accesos','lecturas','exportaciones']},
  telemetry:{table:'Telemetria',fields:['operacion','estado'],columns:['fecha','operacion','duracion_ms','estado','detalle']},
  audit:{table:'Auditoria',fields:['fuente','resultado','ejecucion'],columns:['fecha','fuente','resultado','motivo','url']}
@@ -17,7 +16,7 @@ function adminLogSelection_(view,query){
   items=[...days.values()].map(row=>({fecha:row.fecha,usuarios:row.users.size,sesiones:row.sessions.size,eventos:row.eventos}));
  }else if(view==='interactions'){
   const groups=new Map();for(const row of selected){if(!groups.has(row.edicion))groups.set(row.edicion,{edicion:row.edicion,accesos:0,lecturas:0,exportaciones:0});const group=groups.get(row.edicion);if(row.evento==='acceso')group.accesos++;if(row.evento==='lectura')group.lecturas++;if(row.evento==='exportacion')group.exportaciones++;}items=[...groups.values()];
- }else if(view==='accesses')items=selected.filter(row=>row.evento==='acceso');
+ }
  if(view==='newsletters'){const editions=new Map(rows_('NewsletterEdiciones',undefined,10).filter(row=>row.estado==='Enviada').map(row=>[row.envio,row.id]));items=items.map(row=>({...row,edition:editions.get(row.id)||'',noticias:Number(String(row.detalle||'').match(/(?:^|; )(\d+) noticias incluidas/)?.[1]||0)}));}
  items=items.slice().reverse();
  return {items,columns:spec.columns,fields:spec.fields,options:recordOptions(rows,spec.fields),limit,limited:rows.length===limit,metrics:adminLogMetrics_(view,items)};
@@ -34,7 +33,6 @@ function adminLogMetrics_(view,items){
  if(view==='runs')cards.push(['Evaluadas',sum('evaluadas'),''],['Nuevas',sum('nuevas'),''],['Por revisar',errors,'']);
  else if(view==='newsletters')cards.push(['Enviada',items.filter(row=>row.estado==='Enviada').length,''],['Noticias incluidas',sum('noticias'),''],['Por revisar',errors,'']);
  else if(view==='daily')cards.push(['Sesiones',sum('sesiones'),''],['Eventos',sum('eventos'),'']);
- else if(view==='accesses')cards.push(['Usuarios',unique('correo'),''],['Sesiones',unique('sesion'),'']);
  else if(view==='interactions')cards.push(['Accesos',sum('accesos'),''],['Lecturas',sum('lecturas'),''],['Exportaciones',sum('exportaciones'),'']);
  else if(view==='telemetry'){const timings=items.map(row=>Number(row.duracion_ms)).filter(Number.isFinite).sort((a,b)=>a-b);cards.push(['Latencia p95',timings.length?timings[Math.ceil(timings.length*.95)-1]+' ms':'—',''],['Errores',errors,'']);}
  else cards.push(['Fuentes',unique('fuente'),''],['Resultados',unique('resultado'),'']);

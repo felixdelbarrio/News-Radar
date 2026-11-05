@@ -17,6 +17,10 @@ const parts={AdministrationTabs:administrationTabs,WorldMap:worldMap(),BbvaLogo:
 for(const file of files('assets/icons'))parts['Icon'+path.basename(file,'.svg').split('-').map(word=>word[0].toUpperCase()+word.slice(1)).join('')]=read(file).replace('<svg ','<svg class="icon" aria-hidden="true" focusable="false" ');
 const views=files('src/views').filter(file=>file.endsWith('.html'));
 for(const file of views)parts[path.basename(file,'.html')]=read(file);
+const adoptionView=parts.AdoptionView;
+for(const [name,id] of [['AdoptionView','adoption'],['NewsletterAccessView','newsletterAccess']]){
+  parts[name]=adoptionView.replaceAll('{{UsageId}}',id).replace('{{UsageTitle}}',navigation.adminViews[id]);
+}
 function template(html){return html.replace(/\{\{(\w+)\}\}/g,(_,name)=>{if(!(name in parts))throw Error('Bloque desconocido: '+name);return template(String(parts[name]));});}
 const design=designOutputs(),tokens=JSON.parse(read('src/design/tokens.json')).css;
 const identityStyles=newsletterInlineStyles(read('src/styles/identity.css'));

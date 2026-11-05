@@ -1830,6 +1830,7 @@
     adminViews: {
       runs: "Panel de control",
       adoption: "Adopci\xF3n",
+      newsletterAccess: "Accesos desde newsletters",
       feedback: "Feedback",
       subscribers: "Suscripciones",
       sourceQuality: "Calidad de las fuentes",
@@ -3682,22 +3683,25 @@
   var newsletterCadences = Object.freeze({ fortnightly: { label: "Quincenal", view: "briefing", scope: "Novedades", weekday: 1 }, quarterly: { label: "Trimestral", view: "news", scope: "Noticias", weekday: 3 } }), newsletterComparisonLabels = Object.freeze({ local: "Tu geograf\xEDa", group: "El grupo en otras geograf\xEDas", market: "El mercado internacional" });
 
   // src/client/features/metrics.js
-  var adoptionChart = createActivityChart($("adoption-chart")), filters = {}, requests2 = {}, adoptionCohort = "dau", adoptionCohorts = [["dau", "DAU", "Usuarios \xB7 24 horas"], ["wau", "WAU", "Usuarios \xB7 7 d\xEDas"], ["mau", "MAU", "Usuarios \xB7 30 d\xEDas"], ["returning", "Recurrentes", "M\xE1s de una sesi\xF3n \xB7 30 d\xEDas"], ["total", "Total usuarios", "Usuarios \xB7 per\xEDodo filtrado"]];
-  $("adoption-metrics").addEventListener("click", (event) => {
-    let cohort = event.target.closest("[data-cohort]")?.dataset.cohort;
-    cohort && cohort !== adoptionCohort && (adoptionCohort = cohort, filters.adoption.reset(), loadMetrics("adoption", () => !$("adoption-section").hidden && !$("administration-section").hidden));
-  });
+  var filters = {}, requests2 = {}, usagePanels = {}, adoptionCohorts = [["dau", "DAU", "Usuarios \xB7 24 horas"], ["wau", "WAU", "Usuarios \xB7 7 d\xEDas"], ["mau", "MAU", "Usuarios \xB7 30 d\xEDas"], ["returning", "Recurrentes", "M\xE1s de una sesi\xF3n \xB7 30 d\xEDas"], ["total", "Total usuarios", "Usuarios \xB7 per\xEDodo filtrado"]], userColumns = ["Usuario", "\xDAltimo acceso", "Sesiones", "Eventos", "Primer acceso"];
+  function usagePanel(view2, isCurrent) {
+    let newsletter = view2 === "newsletterAccess", element = (name) => $(view2 + "-" + name), fields = newsletter ? [["correo", "Usuario"], ["edicion", "Edici\xF3n"], ["cadencia", "Periodicidad"]] : [["correo", "Usuario"], ["vista", "Vista"], ["evento", "Evento"]], chart = createActivityChart(element("chart")), panel2 = { cohort: "dau", filters: createRecordFilters(view2, fields, () => loadMetrics(view2, isCurrent), { dates: !0 }), chart, element };
+    return element("metrics").addEventListener("click", (event) => {
+      let cohort = event.target.closest("[data-cohort]")?.dataset.cohort;
+      !cohort || cohort === panel2.cohort || (panel2.cohort = cohort, panel2.filters.reset(), loadMetrics(view2, isCurrent));
+    }), panel2;
+  }
   async function loadMetrics(view2, isCurrent) {
     if (view2 === "sourceQuality") return loadSourceQuality(isCurrent);
     if (view2 === "feedback") return loadFeedback(isCurrent);
-    filters[view2] ||= createRecordFilters(view2, [["correo", "Usuario"], ["vista", "Vista"], ["evento", "Evento"]], () => loadMetrics(view2, isCurrent), { dates: !0 });
-    let request3 = requests2[view2] = (requests2[view2] || 0) + 1;
+    let panel2 = usagePanels[view2] ||= usagePanel(view2, isCurrent), { cohort, filters: filters4, chart, element } = panel2, request3 = requests2[view2] = (requests2[view2] || 0) + 1;
     try {
-      let data = await call("getAdoption", { ...filters[view2].query(), cohort: adoptionCohort });
+      let data = await call("getAdoption", { ...filters4.query(), source: view2, cohort });
       if (!isCurrent() || requests2[view2] !== request3) return;
-      filters[view2].options(data.options), view2 === "adoption" && ($("adoption-metrics").innerHTML = adoptionCohorts.map(([key, label, hint]) => '<button type="button" class="metric" data-cohort="' + key + '" aria-pressed="' + (key === adoptionCohort) + '"><span>' + escape2(t(label)) + "</span><strong>" + Number(data[key === "total" ? "totalUsers" : key] || 0) + '</strong><span class="small">' + escape2(t(hint)) + "</span></button>").join(""), filters[view2].page(data), $("adoption-users-label").textContent = t(adoptionCohorts.find(([key]) => key === adoptionCohort)[1]) + " \xB7 " + t("{count} usuarios", { count: data.total }), $("adoption-body").innerHTML = data.users.map((row) => "<tr>" + [row.correo, date(row.last), row.sessions, row.actions, date(row.first)].map((value, index) => '<td data-label="' + escape2(t(["Usuario", "\xDAltimo acceso", "Sesiones", "Eventos", "Primer acceso"][index])) + '">' + escape2(value) + "</td>").join("") + "</tr>").join("") || '<tr><td colspan="5">' + t("No hay usuarios en este grupo.") + "</td></tr>", $("adoption-note").textContent = t("{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.", data) + " " + (data.limited ? "L\xEDmite de eventos alcanzado; m\xE9tricas parciales." : ""), adoptionChart.render(data.daily));
-    } catch (e) {
-      requests2[view2] === request3 && isCurrent() && message(e.message, !0);
+      let options = view2 === "newsletterAccess" ? { ...data.options, cadencia: (data.options?.cadencia || []).map((key) => [key, t(newsletterCadences[key]?.label || key)]) } : data.options;
+      filters4.options(options), filters4.page(data), element("metrics").innerHTML = adoptionCohorts.map(([key, label, hint]) => '<button type="button" class="metric" data-cohort="' + key + '" aria-pressed="' + (key === cohort) + '"><span>' + escape2(t(label)) + "</span><strong>" + Number(data[key === "total" ? "totalUsers" : key] || 0) + '</strong><span class="small">' + escape2(t(hint)) + "</span></button>").join(""), element("users-label").textContent = t(adoptionCohorts.find(([key]) => key === cohort)[1]) + " \xB7 " + t("{count} usuarios", { count: data.total }), element("body").innerHTML = data.users.map((row) => "<tr>" + [row.correo, date(row.last), row.sessions, row.actions, date(row.first)].map((value, index) => '<td data-label="' + escape2(t(userColumns[index])) + '">' + escape2(value) + "</td>").join("") + "</tr>").join("") || '<tr><td colspan="5">' + t("No hay usuarios en este grupo.") + "</td></tr>", element("note").textContent = t("{sessions} sesiones y {events} eventos que cumplen los filtros en los \xFAltimos 30 d\xEDas. Incluye al administrador; sesiones identificadas por apertura del navegador.", data) + " " + (data.limited ? t("L\xEDmite de eventos alcanzado; m\xE9tricas parciales.") : ""), chart.render(data.daily);
+    } catch (error) {
+      isCurrent() && requests2[view2] === request3 && message(error.message, !0);
     }
   }
   $("sourceQuality-days").addEventListener("change", () => {
@@ -3843,7 +3847,7 @@
         } catch (error) {
           message(error.message || String(error), !0);
         }
-        view2 === "llm" && await onLlm(), view2 === "runs" && await onRuns(), view2 === "audit" && await loadAudit(), (view2 === "adoption" || view2 === "feedback" || view2 === "sourceQuality") && await loadMetrics(view2, () => current === view2 && !$("administration-section").hidden);
+        view2 === "llm" && await onLlm(), view2 === "runs" && await onRuns(), view2 === "audit" && await loadAudit(), ["adoption", "newsletterAccess", "feedback", "sourceQuality"].includes(view2) && await loadMetrics(view2, () => current === view2 && !$("administration-section").hidden);
       }
     }
     return $("admin-tabs").addEventListener("click", (event) => {
