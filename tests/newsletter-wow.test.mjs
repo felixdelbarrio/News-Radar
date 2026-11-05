@@ -47,7 +47,7 @@ test('feedback es opcional, propio, deduplicado y administrable; no lee el corpu
 test('las visitas de newsletter usan identidad autenticada, IDs estables y deduplicación de reenvíos',()=>{
  const s=server(),c=s.c;edition(s);const input=[{id:'event-entry-123456',edition:'edition',session:'session-123456789',event:'acceso',view:'news',email:'spoof@bbva.com'},{id:'event-radar-123456',edition:'edition',session:'session-123456789',event:'vista',view:'radar'}];
  c.recordEvents(input);s.cache.clear();c.recordEvents(input);assert.equal(c.rows_('NewsletterEventos').length,2);assert.ok(c.rows_('NewsletterEventos').every(row=>row.correo==='owner@bbva.com'));
- const metrics=c.getAdminLogs('accesses');assert.equal(metrics.total,1);assert.equal(metrics.metrics.cards.find(row=>row[0]==='Usuarios')[1],1);assert.equal(metrics.items[0].correo,'owner@bbva.com');
+ const metrics=c.getAdoption({source:'newsletterAccess',cohort:'total'});assert.equal(metrics.total,1);assert.equal(metrics.totalUsers,1);assert.equal(metrics.users[0].correo,'owner@bbva.com');
  s.setEmail('reader@bbva.com');assert.throws(()=>c.recordEvents(input),/no disponible/);
 });
 test('el feedback actualizado conserva su retención mientras elimina otro registro antiguo',()=>{

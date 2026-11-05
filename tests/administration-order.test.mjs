@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {app} from './helpers/app.mjs';
-const order=['runs','adoption','feedback','subscribers','sourceQuality','language','llm','configuration','audit'];
-test('la entrada abre Novedades y Administración abre Ejecuciones y el menú centralizado sitúa Suscripciones en segundo lugar',async t=>{
+const order=['runs','adoption','newsletterAccess','feedback','subscribers','sourceQuality','language','llm','configuration','audit'];
+test('la entrada abre Novedades y Administración abre Ejecuciones y el menú centralizado mantiene el orden de las pestañas',async t=>{
  const a=await app(t,{entry:''});assert.equal(a.find('#briefing-section').hidden,false);await a.click('[data-view="administration"]');
  assert.deepEqual([...a.find('#admin-tabs').children].map(button=>button.dataset.adminView),order);
  assert.equal(a.find('#runs-section').hidden,false);

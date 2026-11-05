@@ -5,30 +5,37 @@ import {createRecordFilters} from './record-filters.js';
 import {createActivityChart} from './activity-chart.js';
 import {newsletterCadences} from '../../shared/newsletter-cadences.js';
 import {t} from '../core/language.js';
-const adoptionChart=createActivityChart($('adoption-chart'));
-const filters={},requests={};let adoptionCohort='dau';
+const filters={},requests={},usagePanels={};
 const adoptionCohorts=[['dau','DAU','Usuarios · 24 horas'],['wau','WAU','Usuarios · 7 días'],['mau','MAU','Usuarios · 30 días'],['returning','Recurrentes','Más de una sesión · 30 días'],['total','Total usuarios','Usuarios · período filtrado']];
-$('adoption-metrics').addEventListener('click',event=>{const cohort=event.target.closest('[data-cohort]')?.dataset.cohort;if(cohort&&cohort!==adoptionCohort){adoptionCohort=cohort;filters.adoption.reset();loadMetrics('adoption',()=>!$('adoption-section').hidden&&!$('administration-section').hidden);}});
-async function loadMetrics(view, isCurrent) {
+const userColumns=['Usuario','Último acceso','Sesiones','Eventos','Primer acceso'];
+function usagePanel(view,isCurrent){
+  const newsletter=view==='newsletterAccess',element=name=>$(view+'-'+name);
+  const fields=newsletter?[['correo','Usuario'],['edicion','Edición'],['cadencia','Periodicidad']]:[['correo','Usuario'],['vista','Vista'],['evento','Evento']];
+  const chart=createActivityChart(element('chart'));
+  const panel={cohort:'dau',filters:createRecordFilters(view,fields,()=>loadMetrics(view,isCurrent),{dates:true}),chart,element};
+  element('metrics').addEventListener('click',event=>{
+    const cohort=event.target.closest('[data-cohort]')?.dataset.cohort;
+    if(!cohort||cohort===panel.cohort)return;
+    panel.cohort=cohort;panel.filters.reset();loadMetrics(view,isCurrent);
+  });
+  return panel;
+}
+async function loadMetrics(view,isCurrent) {
   if(view==='sourceQuality')return loadSourceQuality(isCurrent);
   if(view==='feedback')return loadFeedback(isCurrent);
-  filters[view]||=createRecordFilters(view,[['correo','Usuario'],['vista','Vista'],['evento','Evento']],()=>loadMetrics(view,isCurrent),{dates:true});
-  const request=requests[view]=(requests[view]||0)+1;
-  try {
-    const data=await call('getAdoption',{...filters[view].query(),cohort:adoptionCohort});
-    if (!isCurrent()||requests[view]!==request) return;
-    filters[view].options(data.options);
-    if (view === "adoption") {
-      $('adoption-metrics').innerHTML=adoptionCohorts.map(([key,label,hint])=>'<button type="button" class="metric" data-cohort="'+key+'" aria-pressed="'+(key===adoptionCohort)+'"><span>'+escape(t(label))+'</span><strong>'+Number(data[key==='total'?'totalUsers':key]||0)+'</strong><span class="small">'+escape(t(hint))+'</span></button>').join('');
-      filters[view].page(data);$('adoption-users-label').textContent=t(adoptionCohorts.find(([key])=>key===adoptionCohort)[1])+' · '+t('{count} usuarios',{count:data.total});
-      $('adoption-body').innerHTML=data.users.map(row=>'<tr>'+[row.correo,date(row.last),row.sessions,row.actions,date(row.first)].map((value,index)=>'<td data-label="'+escape(t(['Usuario','Último acceso','Sesiones','Eventos','Primer acceso'][index]))+'">'+escape(value)+'</td>').join('')+'</tr>').join('')||'<tr><td colspan="5">'+t('No hay usuarios en este grupo.')+'</td></tr>';
-      $("adoption-note").textContent = t('{sessions} sesiones y {events} eventos que cumplen los filtros en los últimos 30 días. Incluye al administrador; sesiones identificadas por apertura del navegador.',data)+' ' + (data.limited ? "Límite de eventos alcanzado; métricas parciales." : "");
-      adoptionChart.render(data.daily);
-
-    }
-  } catch (e) {
-    if(requests[view]===request&&isCurrent())message(e.message, true);
-  }
+  const panel=usagePanels[view]||=usagePanel(view,isCurrent);
+  const {cohort,filters,chart,element}=panel,request=requests[view]=(requests[view]||0)+1;
+  try{
+    const data=await call('getAdoption',{...filters.query(),source:view,cohort});
+    if(!isCurrent()||requests[view]!==request)return;
+    const options=view==='newsletterAccess'?{...data.options,cadencia:(data.options?.cadencia||[]).map(key=>[key,t(newsletterCadences[key]?.label||key)])}:data.options;
+    filters.options(options);filters.page(data);
+    element('metrics').innerHTML=adoptionCohorts.map(([key,label,hint])=>'<button type="button" class="metric" data-cohort="'+key+'" aria-pressed="'+(key===cohort)+'"><span>'+escape(t(label))+'</span><strong>'+Number(data[key==='total'?'totalUsers':key]||0)+'</strong><span class="small">'+escape(t(hint))+'</span></button>').join('');
+    element('users-label').textContent=t(adoptionCohorts.find(([key])=>key===cohort)[1])+' · '+t('{count} usuarios',{count:data.total});
+    element('body').innerHTML=data.users.map(row=>'<tr>'+[row.correo,date(row.last),row.sessions,row.actions,date(row.first)].map((value,index)=>'<td data-label="'+escape(t(userColumns[index]))+'">'+escape(value)+'</td>').join('')+'</tr>').join('')||'<tr><td colspan="5">'+t('No hay usuarios en este grupo.')+'</td></tr>';
+    element('note').textContent=t('{sessions} sesiones y {events} eventos que cumplen los filtros en los últimos 30 días. Incluye al administrador; sesiones identificadas por apertura del navegador.',data)+' '+(data.limited?t('Límite de eventos alcanzado; métricas parciales.'):'');
+    chart.render(data.daily);
+  }catch(error){if(isCurrent()&&requests[view]===request)message(error.message,true);}
 }
 export {
   loadMetrics

@@ -50,3 +50,23 @@ test('volver a renderizar reutiliza el observer y los listeners del controlador'
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="adoption"]');await a.change('#adoption-search','fixture');await a.change('#adoption-search','');
  assert.equal(adoptionObservers,1);assert.equal(a.w.document.querySelectorAll('.activity-column').length,days.length);assert.equal(a.w.document.querySelectorAll('.activity-month').length,1);
 });
+
+test('Accesos desde newsletters reutiliza Adopción con filtros y cohorte propios',async t=>{
+ const a=await app(t,{configure({replies}){
+  replies.getAdoption.options={cadencia:['fortnightly'],edicion:['edition']};
+ }});
+ await a.click('[data-view="administration"]');
+ const tabs=[...a.w.document.querySelectorAll('[data-admin-view]')].map(tab=>tab.dataset.adminView);
+ assert.deepEqual(tabs.slice(tabs.indexOf('adoption'),tabs.indexOf('adoption')+3),['adoption','newsletterAccess','feedback']);
+ await a.click('[data-admin-view="newsletterAccess"]');
+ assert.equal(a.calls.filter(row=>row.method==='getAdoption').length,1);
+ assert.equal(a.find('#newsletterAccess-body tr td').textContent,'owner@bbva.com');
+ assert.ok(a.find('#newsletterAccess-chart .activity-column'));
+ assert.equal(a.find('#newsletterAccess-edicion').options.length,2);
+ await a.click('#newsletterAccess-metrics [data-cohort="total"]');
+ assert.equal(a.calls.filter(row=>row.method==='getAdoption').length,2);
+ assert.equal(a.find('#newsletterAccess-metrics [data-cohort="total"]').getAttribute('aria-pressed'),'true');
+ await a.click('[data-admin-view="adoption"]');
+ assert.equal(a.find('#adoption-metrics [data-cohort="dau"]').getAttribute('aria-pressed'),'true');
+ assert.equal(a.w.document.querySelector('#logs-view option[value="accesses"]'),null);
+});
