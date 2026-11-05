@@ -73,8 +73,12 @@ test('el spinner y los skeletons pertenecen al panel activo; una respuesta aband
 test('la telemetría distingue caché de navegador y acepta Taxonomía solo para administradores',()=>{
  const s=storage();s.c.initializeConfiguration();
  const saved={};s.c.pruneEvents_=()=>{};s.c.trim_=()=>{};s.c.recordNewsletterEvents_=()=>{};s.c.append_=(name,rows)=>saved[name]=rows;
- const event={session:'test-session-123456',event:'rendimiento',view:'configuration',duration:10,performance:{clientCacheHit:true,cacheHit:true,serverMs:0,rpcMs:0,renderMs:10}};
- s.c.recordEvents([event]);assert.match(saved.Telemetria[0][4],/RPC 0 ms; servidor 0 ms/);assert.match(saved.Telemetria[0][4],/caché cliente hit/);
+ const event={session:'test-session-123456',event:'rendimiento',view:'configuration',duration:10,performance:{clientCacheHit:true,cacheHit:true,snapshotHit:true,sharedRequest:true,serverMs:900,rpcMs:1000,newsMs:500,metadataMs:400,metadataDetails:{catalogMs:300},renderMs:10}};
+ s.c.recordEvents([event]);assert.match(saved.Telemetria[0][4],/RPC 0 ms; servidor 0 ms/);assert.match(saved.Telemetria[0][4],/noticias 0 ms; render 10 ms; caché n\/a; preparación 0 ms; metadatos 0 ms; caché cliente hit; snapshot n\/a; RPC compartida no/);
+ assert.doesNotMatch(saved.Telemetria[0][4],/catalog/);
+ s.cache.clear();
+ s.c.recordEvents([{...event,performance:{...event.performance,clientCacheHit:false}}]);
+ assert.match(saved.Telemetria[0][4],/caché n\/a;.*snapshot hit; RPC compartida sí; catalog 300 ms/);
  s.setEmail('reader@bbva.com');assert.throws(()=>s.c.recordEvents([event]),/Vista restringida/);
 });
 
@@ -99,4 +103,34 @@ test('una revisión publicada reemplaza la selección cacheada en segundo plano'
  assert.equal(a.calls.filter(row=>row.method==='getDashboard').length,count+1);
  assert.equal(a.find('#radar-section').hidden,false);
  assert.equal(a.find('#loading').hidden,true);
+});
+
+test('las vistas comparten la validación de revisión y reintentan tras un fallo',async t=>{
+ let now=0;
+ const pending=[];
+ const a=await app(t,{configure({w,data}){
+  const epoch=w.Date.now();
+  w.Date.now=()=>epoch+now;
+  w.performance.now=()=>now;
+  Object.assign(data,{newsRevision:'news-1',configurationRevision:'config-1',readingDay:'2026-11-05'});
+  const backend=w.RADAR_PREVIEW.call;
+  w.RADAR_PREVIEW.call=(method,...args)=>method==='getReadingRevision'
+   ?new Promise((resolve,reject)=>pending.push({resolve,reject}))
+   :backend(method,...args);
+ }});
+ await a.click('[data-view="radar"]');
+ await a.click('[data-view="news"]');
+ now=61000;
+ await a.click('[data-view="radar"]');
+ await a.click('[data-view="news"]');
+ assert.equal(pending.length,1);
+ pending[0].reject(Error('Red no disponible'));
+ await tick();
+ await a.click('[data-view="briefing"]');
+ assert.equal(pending.length,2);
+ pending[1].resolve(a.data);
+ await tick();
+ await a.click('[data-view="radar"]');
+ await a.click('[data-view="news"]');
+ assert.equal(pending.length,2);
 });

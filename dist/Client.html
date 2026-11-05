@@ -1818,6 +1818,31 @@
     return values.map(([label, value, note]) => `<article class="metric"><p class="eyebrow">${escape2(label)}</p><strong>${escape2(value ?? "\u2014")}</strong><span class="small muted">${escape2(note)}</span></article>`).join("");
   }
 
+  // assets/app-config.json
+  var app_config_default = {
+    views: {
+      briefing: "Novedades",
+      news: "Noticias",
+      radar: "Radar",
+      subscriptions: "Mi Newsletter",
+      administration: "Administraci\xF3n"
+    },
+    adminViews: {
+      runs: "Panel de control",
+      adoption: "Adopci\xF3n",
+      feedback: "Feedback",
+      subscribers: "Suscripciones",
+      sourceQuality: "Calidad de las fuentes",
+      language: "Idioma",
+      llm: "Categorizaci\xF3n LLM",
+      configuration: "Configuraci\xF3n de negocio",
+      audit: "Logs"
+    }
+  };
+
+  // src/client/config.js
+  var navigationCache = Object.freeze({ milliseconds: 6e4, entries: 6 }), defaultView = Object.keys(app_config_default.views)[0], config_default = app_config_default;
+
   // src/client/core/browser-country.js
   var zoneCountries = Object.freeze({ "America/Panama": "PA", "America/La_Paz": "BO", "America/Asuncion": "PY", "Europe/Andorra": "AD", "Asia/Taipei": "TW", "Africa/Lagos": "NG", "Asia/Dhaka": "BD", "Asia/Karachi": "PK", "Asia/Nicosia": "CY", "Asia/Riyadh": "SA", "Europe/Warsaw": "PL", "Europe/Dublin": "IE", "Europe/Luxembourg": "LU", "Pacific/Fiji": "FJ", "Pacific/Auckland": "NZ", "Europe/Budapest": "HU", "Asia/Baku": "AZ", "Europe/Madrid": "ES", "Atlantic/Canary": "ES", "America/Mexico_City": "MX", "America/Lima": "PE", "America/Bogota": "CO", "America/Argentina/Buenos_Aires": "AR", "Europe/Istanbul": "TR", "America/Montevideo": "UY", "America/Caracas": "VE", "America/Sao_Paulo": "BR", "America/Toronto": "CA", "America/Vancouver": "CA", "America/Montreal": "CA", "Asia/Dubai": "AE", "Europe/London": "GB", "Europe/Paris": "FR", "Europe/Berlin": "DE", "Europe/Rome": "IT", "Europe/Lisbon": "PT", "Asia/Singapore": "SG", "Asia/Tokyo": "JP", "Asia/Kolkata": "IN", "Asia/Shanghai": "CN", "Asia/Hong_Kong": "HK", "Asia/Seoul": "KR", "Asia/Bangkok": "TH", "Asia/Jakarta": "ID", "Asia/Manila": "PH", "Asia/Kuala_Lumpur": "MY", "Asia/Ho_Chi_Minh": "VN", "Australia/Sydney": "AU", "Australia/Melbourne": "AU", "America/New_York": "US", "America/Chicago": "US", "America/Los_Angeles": "US" });
   function inferredCountryCode(languages = [], timeZone = "") {
@@ -1871,7 +1896,7 @@
   function receive(data) {
     return data?.taxonomyTranslations && setTaxonomyTranslations(data.taxonomyTranslations), data;
   }
-  var requests = /* @__PURE__ */ new Map(), dashboards = /* @__PURE__ */ new Map(), validations = /* @__PURE__ */ new Map(), applicationVersion = document.querySelector("meta[name=application-version]")?.content || "preview", dashboardStorage = "radar-dashboards:" + applicationVersion, dashboardRevision = "", prefetched = !1, dashboardKey = (query) => JSON.stringify(Object.entries(query || {}).filter(([key, value]) => value !== "" && value != null && !(key === "page" && Number(value) === 0) && !(key === "initial" && value === !1)).sort(([a], [b]) => a.localeCompare(b)));
+  var requests = /* @__PURE__ */ new Map(), dashboards = /* @__PURE__ */ new Map(), validation, validatedAt = 0, cacheGeneration = 0, applicationVersion = document.querySelector("meta[name=application-version]")?.content || "preview", dashboardStorage = "radar-dashboards:" + applicationVersion, dashboardRevision = "", prefetched = !1, dashboardKey = (query) => JSON.stringify(Object.entries(query || {}).filter(([key, value]) => value !== "" && value != null && !(key === "page" && Number(value) === 0) && !(key === "initial" && value === !1)).sort(([a], [b]) => a.localeCompare(b)));
   try {
     let saved = JSON.parse(sessionStorage.getItem(dashboardStorage) || "null");
     if (saved && Date.now() - saved.at < 216e5) {
@@ -1880,10 +1905,35 @@
     }
   } catch {
   }
+  var revisionKey = (data) => JSON.stringify([data.newsRevision, data.configurationRevision, data.readingDay]);
+  function invalidateDashboards() {
+    cacheGeneration++, validatedAt = 0, validation = null, dashboardRevision = "", dashboards.clear();
+    try {
+      sessionStorage.removeItem(dashboardStorage);
+    } catch {
+    }
+  }
+  function validateDashboards() {
+    if (validation || Date.now() - validatedAt < navigationCache.milliseconds) return;
+    let generation = cacheGeneration, revision = dashboardRevision, pending = Promise.resolve().then(() => send("getReadingRevision")).then((current) => {
+      if (!(generation !== cacheGeneration || revision !== dashboardRevision)) {
+        if (revisionKey(current) === revision) {
+          validatedAt = Date.now();
+          return;
+        }
+        invalidateDashboards(), window.dispatchEvent(new CustomEvent("news-radar-revision"));
+      }
+    });
+    validation = pending;
+    let finish = () => {
+      validation === pending && (validation = null);
+    };
+    pending.then(finish, finish);
+  }
   function rememberDashboard(query, data) {
-    let revision = JSON.stringify([data.newsRevision, data.configurationRevision, data.readingDay]);
-    revision !== dashboardRevision && (dashboards.clear(), dashboardRevision = revision);
-    let value = { data, at: Date.now() };
+    let revision = revisionKey(data);
+    revision !== dashboardRevision && (dashboards.clear(), dashboardRevision = revision), validatedAt = Date.now();
+    let value = { data };
     dashboards.set(dashboardKey(query), value);
     let selection = { ...data.selection, ...query.newsGeography && !data.selection?.newsGeography ? { newsGeography: query.newsGeography } : {}, view: query.view, language: query.language, initial: !1 };
     for (dashboards.set(dashboardKey(selection), value); dashboards.size > 12; ) dashboards.delete(dashboards.keys().next().value);
@@ -1911,30 +1961,19 @@
   }
   function call(method, ...args) {
     if (initialDashboard && secondaryMethods.has(method)) return initialDashboard.then(() => call(method, ...args));
-    let key = method === "getDashboard" ? "getDashboard:" + dashboardKey(args[0]) : method.startsWith("get") ? JSON.stringify([method, ...args]) : null;
+    let key = method === "getDashboard" ? "getDashboard:" + cacheGeneration + ":" + dashboardKey(args[0]) : method.startsWith("get") ? JSON.stringify([method, ...args]) : null;
     if (key && requests.has(key)) return method === "getDashboard" ? requests.get(key).then((data) => ({ ...data, performance: { ...data.performance, sharedRequest: !0 } })) : requests.get(key);
     let dashboard = method === "getDashboard" && ["briefing", "news", "radar"].includes(args[0]?.view) && !args[0]?.edition, cached = dashboard && args[1]?.reuse && dashboards.get(dashboardKey(args[0]));
-    if (cached) {
-      if (Date.now() - cached.at >= 6e4 && !validations.has(key)) {
-        cached.at = Date.now();
-        let refresh = send("getReadingRevision").then((revision) => JSON.stringify([revision.newsRevision, revision.configurationRevision, revision.readingDay]) === dashboardRevision ? cached.data : send(method, args[0]).then((data) => (rememberDashboard(args[0], data), window.dispatchEvent(new CustomEvent("news-radar-revision")), data)));
-        validations.set(key, refresh), refresh.then(() => validations.delete(key), () => validations.delete(key));
-      }
-      return prefetchDashboards(args[0]), Promise.resolve(receive({ ...cached.data, performance: { ...cached.data.performance, clientCacheHit: !0, serverMs: 0, transportMs: 0 } }));
-    }
+    if (cached)
+      return validateDashboards(), prefetchDashboards(args[0]), Promise.resolve(receive({ ...cached.data, performance: { clientCacheHit: !0, serverMs: 0, transportMs: 0 } }));
     let finishLoading = beginLoading(method, args), response, started = performance.now();
     try {
       response = send(method, ...method === "getDashboard" ? args.slice(0, 1) : args), method === "getDashboard" && (response = response.then((data) => ({ ...data, performance: { ...data.performance, transportMs: Math.round(performance.now() - started) } })));
     } catch (error) {
       throw finishLoading(), error;
     }
-    if (dashboard && (response = response.then((data) => (rememberDashboard(args[0], data), prefetchDashboards(args[0]), data))), key && requests.set(key, response), !method.startsWith("get") && method !== "recordEvents") {
-      dashboards.clear();
-      try {
-        sessionStorage.removeItem(dashboardStorage);
-      } catch {
-      }
-    }
+    let generation = cacheGeneration;
+    dashboard && (response = response.then((data) => (generation === cacheGeneration && (rememberDashboard(args[0], data), prefetchDashboards(args[0])), data))), key && requests.set(key, response), !method.startsWith("get") && method !== "recordEvents" && invalidateDashboards();
     let complete = () => {
       key && requests.delete(key), finishLoading();
     };
@@ -2405,31 +2444,6 @@
       next !== signature && (signature = next, items = data.items.filter((row) => row.subpalanca), filters4.options(recordOptions(items, ["palanca"])), render());
     } };
   }
-
-  // assets/app-config.json
-  var app_config_default = {
-    views: {
-      briefing: "Novedades",
-      news: "Noticias",
-      radar: "Radar",
-      subscriptions: "Mi Newsletter",
-      administration: "Administraci\xF3n"
-    },
-    adminViews: {
-      runs: "Panel de control",
-      adoption: "Adopci\xF3n",
-      feedback: "Feedback",
-      subscribers: "Suscripciones",
-      sourceQuality: "Calidad de las fuentes",
-      language: "Idioma",
-      llm: "Categorizaci\xF3n LLM",
-      configuration: "Configuraci\xF3n de negocio",
-      audit: "Logs"
-    }
-  };
-
-  // src/client/config.js
-  var navigationCache = Object.freeze({ milliseconds: 6e4, entries: 6 }), defaultView = Object.keys(app_config_default.views)[0], config_default = app_config_default;
 
   // src/client/features/process-progress.js
   function progressDetailsHtml(status) {
@@ -4282,7 +4296,9 @@
             dashboards2.delete(key2), data.newsRevision && data.configurationRevision && dashboards2.set(key2, { data, time: clientCacheHit ? cached.time : performance.now() }), dashboards2.size > navigationCache.entries && dashboards2.delete(dashboards2.keys().next().value);
           }
           let renderedKey = selectionKey(filters3.query()) + ":" + data.newsRevision + ":" + data.configurationRevision;
-          renderSelection(data, navigation.current, appended, !!(clientCacheHit || data.performance.clientCacheHit) && renderedSelections.get(query.view) === renderedKey), administrative || renderedSelections.set(query.view, renderedKey), renderApplicationShell(data), releaseSecondaryRequests(), track("rendimiento", performance.now() - started, { ...data.performance, ...clientCacheHit ? { serverMs: 0, newsMs: 0, preparationMs: 0, metadataMs: 0, cacheHit: !0, snapshotHit: !1 } : {}, clientCacheHit: clientCacheHit || !!data.performance.clientCacheHit, sharedRequest: !!data.performance.sharedRequest, rpcMs: clientCacheHit ? 0 : data.performance.transportMs, renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
+          renderSelection(data, navigation.current, appended, !!(clientCacheHit || data.performance.clientCacheHit) && renderedSelections.get(query.view) === renderedKey), administrative || renderedSelections.set(query.view, renderedKey), renderApplicationShell(data), releaseSecondaryRequests();
+          let timing = clientCacheHit ? { clientCacheHit: !0 } : data.performance;
+          track("rendimiento", performance.now() - started, { ...timing, rpcMs: timing.clientCacheHit ? 0 : timing.transportMs, renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
         }
       } catch (error) {
         request3 === state.request && (track("error"), releaseSecondaryRequests(), message(error.message || String(error), !0));
