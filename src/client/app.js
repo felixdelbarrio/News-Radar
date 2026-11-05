@@ -111,7 +111,8 @@ async function load(reuse=false) {
       if(!administrative)renderedSelections.set(query.view,renderedKey);
       renderApplicationShell(data);
       releaseSecondaryRequests();
-      track("rendimiento", performance.now() - started,{...data.performance,...(clientCacheHit?{serverMs:0,newsMs:0,preparationMs:0,metadataMs:0,cacheHit:true,snapshotHit:false}:{}),clientCacheHit:clientCacheHit||Boolean(data.performance.clientCacheHit),sharedRequest:Boolean(data.performance.sharedRequest),rpcMs:clientCacheHit?0:data.performance.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
+      const timing=clientCacheHit?{clientCacheHit:true}:data.performance;
+      track("rendimiento",performance.now()-started,{...timing,rpcMs:timing.clientCacheHit?0:timing.transportMs,renderMs:Math.round(performance.now()-renderStarted)});
       if (first) {
         track("acceso");
         track("vista");

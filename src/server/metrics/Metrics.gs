@@ -19,8 +19,12 @@ function recordEvents(events) {
     const timings=events.filter(event=>event.event==='rendimiento'&&event.performance);
     if(timings.length){
       append_('Telemetria',timings.map(event=>{
-        const p=event.performance;
-        return [now.toISOString(),'dashboard',eventDuration_(event.duration),'OK',event.view+'; RPC '+eventDuration_(p.rpcMs)+' ms; servidor '+eventDuration_(p.serverMs)+' ms; noticias '+eventDuration_(p.newsMs)+' ms; render '+eventDuration_(p.renderMs)+' ms; caché '+(p.cacheHit===true?'hit':'miss')+'; preparación '+eventDuration_(p.preparationMs)+' ms; metadatos '+eventDuration_(p.metadataMs)+' ms; caché cliente '+(p.clientCacheHit===true?'hit':'miss')+'; snapshot '+(p.snapshotHit===true?'hit':'miss')+'; RPC compartida '+(p.sharedRequest===true?'sí':'no')+'; v'+RADAR.version];
+        const p=event.performance,browserHit=p.clientCacheHit===true,snapshotHit=!browserHit&&p.snapshotHit===true;
+        const ms=key=>eventDuration_(browserHit?0:p[key]);
+        const cacheState=browserHit||snapshotHit?'n/a':p.cacheHit===true?'hit':'miss';
+        const details=p.metadataDetails;
+        const breakdown=!browserHit&&details?'; '+['catalog','operation','years','daily'].map(key=>key+' '+eventDuration_(details[key+'Ms'])+' ms').join('; '):'';
+        return [now.toISOString(),'dashboard',eventDuration_(event.duration),'OK',event.view+'; RPC '+ms('rpcMs')+' ms; servidor '+ms('serverMs')+' ms; noticias '+ms('newsMs')+' ms; render '+eventDuration_(p.renderMs)+' ms; caché '+cacheState+'; preparación '+ms('preparationMs')+' ms; metadatos '+ms('metadataMs')+' ms; caché cliente '+(browserHit?'hit':'miss')+'; snapshot '+(browserHit?'n/a':snapshotHit?'hit':'miss')+'; RPC compartida '+(!browserHit&&p.sharedRequest===true?'sí':'no')+breakdown+'; v'+RADAR.version];
       }));
     }
     cache.put(key,'1',10);

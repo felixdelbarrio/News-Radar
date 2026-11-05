@@ -1920,7 +1920,7 @@
         let refresh = send("getReadingRevision").then((revision) => JSON.stringify([revision.newsRevision, revision.configurationRevision, revision.readingDay]) === dashboardRevision ? cached.data : send(method, args[0]).then((data) => (rememberDashboard(args[0], data), window.dispatchEvent(new CustomEvent("news-radar-revision")), data)));
         validations.set(key, refresh), refresh.then(() => validations.delete(key), () => validations.delete(key));
       }
-      return prefetchDashboards(args[0]), Promise.resolve(receive({ ...cached.data, performance: { ...cached.data.performance, clientCacheHit: !0, serverMs: 0, transportMs: 0 } }));
+      return prefetchDashboards(args[0]), Promise.resolve(receive({ ...cached.data, performance: { clientCacheHit: !0, serverMs: 0, transportMs: 0 } }));
     }
     let finishLoading = beginLoading(method, args), response, started = performance.now();
     try {
@@ -4282,7 +4282,9 @@
             dashboards2.delete(key2), data.newsRevision && data.configurationRevision && dashboards2.set(key2, { data, time: clientCacheHit ? cached.time : performance.now() }), dashboards2.size > navigationCache.entries && dashboards2.delete(dashboards2.keys().next().value);
           }
           let renderedKey = selectionKey(filters3.query()) + ":" + data.newsRevision + ":" + data.configurationRevision;
-          renderSelection(data, navigation.current, appended, !!(clientCacheHit || data.performance.clientCacheHit) && renderedSelections.get(query.view) === renderedKey), administrative || renderedSelections.set(query.view, renderedKey), renderApplicationShell(data), releaseSecondaryRequests(), track("rendimiento", performance.now() - started, { ...data.performance, ...clientCacheHit ? { serverMs: 0, newsMs: 0, preparationMs: 0, metadataMs: 0, cacheHit: !0, snapshotHit: !1 } : {}, clientCacheHit: clientCacheHit || !!data.performance.clientCacheHit, sharedRequest: !!data.performance.sharedRequest, rpcMs: clientCacheHit ? 0 : data.performance.transportMs, renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
+          renderSelection(data, navigation.current, appended, !!(clientCacheHit || data.performance.clientCacheHit) && renderedSelections.get(query.view) === renderedKey), administrative || renderedSelections.set(query.view, renderedKey), renderApplicationShell(data), releaseSecondaryRequests();
+          let timing = clientCacheHit ? { clientCacheHit: !0 } : data.performance;
+          track("rendimiento", performance.now() - started, { ...timing, rpcMs: timing.clientCacheHit ? 0 : timing.transportMs, renderMs: Math.round(performance.now() - renderStarted) }), first && (track("acceso"), track("vista"), flush());
         }
       } catch (error) {
         request3 === state.request && (track("error"), releaseSecondaryRequests(), message(error.message || String(error), !0));
