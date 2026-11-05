@@ -22,6 +22,15 @@ test('ambigüedad recuperable, exclusión explícita y entrada inválida tienen 
  const retail=c.evaluate_({...raw,title:'BBVA mejora su app para particulares'},feed,now);assert.equal(retail.candidate.labels.estado,'no relevante');assert.equal(c.evaluate_({...raw,date:'bad'},feed,now).candidate,undefined);
  c.persistCandidates_([record],new TestDate('2027-02-01'));assert.equal(c.rows_('Candidatos').length,1);assert.ok(c.rows_('Telemetria').some(row=>row.operacion==='candidatos'&&JSON.parse(row.detalle.slice(row.detalle.indexOf('{'))).expirados===1));c.persistCandidates_([],new TestDate('2027-02-02'));assert.equal(c.rows_('Candidatos').length,0);
 });
+test('candidatos publica una sola caché de IDs tras una inserción y no reescribe el día',()=>{
+ const s=server(),c=s.c,keys=vm.runInContext('RADAR.sheets.Candidatos',c),record=id=>keys.map(key=>key==='id'?id:key==='capturada'?new TestDate().toISOString():'');
+ const cache=c.writeDashboardCache_,writes=[];c.writeDashboardCache_=(...args)=>{if(String(args[1]).startsWith('candidate-ids:'))writes.push(args[1]);return cache(...args);};
+ c.persistCandidates_([record('one')],new TestDate());assert.equal(writes.length,1);
+ s.cache.clear();writes.length=0;c.persistCandidates_([record('two')],new TestDate());assert.equal(writes.length,1);
+ assert.deepEqual(c.rows_('Candidatos').map(row=>row.id),['one','two']);
+ const day=s.properties.CANDIDATE_RETENTION_DAY,revision=s.properties.CANDIDATES_REVISION;
+ writes.length=0;c.persistCandidates_([record('two')],new TestDate());assert.equal(writes.length,0);assert.equal(s.properties.CANDIDATE_RETENTION_DAY,day);assert.equal(s.properties.CANDIDATES_REVISION,revision);
+});
 test('la lectura usa evidencia persistida aunque cambien las reglas y no ejecuta clasificación',()=>{
  const s=server(),c=s.c,row=add(s);const expected=JSON.parse(row.clasificacion);c.classification_=()=>{throw Error('Reclasificación en lectura');};c.digitalAssessment_=()=>{throw Error('Relevancia en lectura');};c.newsCountry_=()=>{throw Error('Geografía en lectura');};const annotated=c.annotateNews_([row])[0];assert.deepEqual(Array.from(annotated.senales),expected.senales);assert.deepEqual(Array.from(annotated.segmentos),expected.segmentos);assert.equal(c.newsRelevance_(annotated),expected.score);
 });
