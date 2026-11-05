@@ -23,9 +23,9 @@ for(const view of ['briefing','news','radar'])test('snapshot '+view+' mantiene e
  const s=server(),c=s.c,period=c.dashboardPeriod_(view,new TestDate());add(s,'previous',new Date(Date.parse(period.from)-86400000).toISOString().slice(0,10));build(s);
  const result=c.getDashboard({view,initial:true});assert.equal(result.performance.snapshotHit,true);assert.equal(result.context.periodFallback,false);assert.equal(result.selection.from,period.from);assert.equal(result.contextTotal,0);
 });
-test('los filtros explícitos y la paginación no reciben el snapshot por defecto',()=>{
+test('los filtros explícitos y las páginas fuera del límite no reciben el snapshot por defecto',()=>{
  const s=server(),c=s.c;add(s,'es','2026-10-10');build(s);
- for(const query of [{view:'news',entity:'Santander'},{view:'news',from:'2026-01-01',to:'2026-12-31'},{view:'news',page:1}])assert.equal(c.getDashboard(query).performance.snapshotHit,false);
+ for(const query of [{view:'news',entity:'Santander'},{view:'news',from:'2026-01-01',to:'2026-12-31'},{view:'news',page:3}])assert.equal(c.getDashboard(query).performance.snapshotHit,false);
 });
 test('cada revisión solicita publicación sin servir el snapshot obsoleto',()=>{
  const s=server(),c=s.c;add(s,'es','2026-10-10');build(s);const q=c.dashboardQuery_({view:'news',initial:true});
@@ -50,4 +50,55 @@ test('los jobs completados solicitan snapshots y el watchdog recupera snapshots 
 test('el trabajador genera las tres vistas al completar un job, conserva resultados y drena la petición',()=>{
  const s=server(),c=s.c;add(s,'es','2026-10-10');c.requestNewsClassification_(true);c.translationReadyAt_=()=>Infinity;c.taxonomyReadyAt_=()=>Infinity;c.taxonomyTranslationReadyAt_=()=>Infinity;c.newsletterReadyAt_=()=>Infinity;c.maintenanceReadyAt_=()=>Infinity;
  c.processBackground_(5);drainSnapshots(c);assert.equal(c.classificationJob_().state,'Completada');assert.equal(c.dashboardSnapshotsPending_(),false);assert.equal(s.properties.DASHBOARD_SNAPSHOT_REQUEST,undefined);for(const view of ['briefing','news','radar'])assert.equal(c.getDashboard({view,initial:true}).performance.snapshotHit,true);
+});
+
+test('Radar comparte un snapshot entre idiomas y geografías tanto en caliente como al recuperar de Sheets',()=>{
+ const s=server(),c=s.c;add(s,'es','2026-10-10');build(s);
+ const revision=c.dashboardSnapshotManifest_('radar').revision;
+ const prefix='dashboard-snapshot:'+revision+':';
+ const keys=()=>[...s.cache.keys()].filter(key=>key.startsWith(prefix)&&!key.slice(prefix.length).includes('::'));
+ assert.deepEqual(keys(),[prefix+'es:']);
+ const query={...c.dashboardQuery_({view:'radar',initial:true}),newsGeography:'México'};
+ const warm=c.defaultDashboardSnapshot_('radar',query,'en');
+ assert.ok(warm);assert.deepEqual(keys(),[prefix+'es:']);
+ s.cache.clear();
+ const cold=c.defaultDashboardSnapshot_('radar',query,'tr');
+ assert.deepEqual(clean(cold),clean(warm));assert.deepEqual(keys(),[prefix+'es:']);
+});
+
+test('Novedades conserva las variantes de idioma y comparte caché entre geografías',()=>{
+ const s=server(),c=s.c;add(s,'es','2026-10-10');build(s);
+ const revision=c.dashboardSnapshotManifest_('briefing').revision;
+ const prefix='dashboard-snapshot:'+revision+':';
+ const query=c.dashboardQuery_({view:'briefing',initial:true});
+ const keys=()=>[...s.cache.keys()].filter(key=>key.startsWith(prefix)&&!key.slice(prefix.length).includes('::')).sort();
+ const expected=['en','es','tr'].map(language=>prefix+language+':');
+ assert.deepEqual(keys(),expected);
+ for(const language of ['es','en','tr'])assert.ok(c.defaultDashboardSnapshot_('briefing',{...query,newsGeography:'México'},language));
+ assert.deepEqual(keys(),expected);
+});
+
+test('Noticias pagina el snapshot con el mismo orden y totales que la consulta dinámica',()=>{
+ const s=server(),c=s.c;
+ c.settings_().pageSize=2;
+ for(let i=0;i<8;i++)add(s,'n'+i,'2026-10-'+String(10-i).padStart(2,'0'),'España',{entidad:i%2?'BBVA':'Santander'});
+ const query={view:'news',newsGeography:'España',language:'es'};
+ const baseline=[0,1,2].map(page=>c.getDashboard({...query,page}));
+ build(s);s.cache.clear();
+ for(let page=0;page<3;page++){
+  const result=c.getDashboard({...query,page});
+  assert.equal(result.performance.snapshotHit,true);assert.equal(result.page,page);
+  for(const key of ['items','page','total','contextTotal','newsGeography'])assert.deepEqual(clean(result[key]),clean(baseline[page][key]));
+ }
+});
+
+test('un snapshot previo a la ampliación conserva la primera página y delega las siguientes sin leer fragmentos',()=>{
+ const s=server(),c=s.c;add(s,'es','2026-10-10');build(s);
+ const manifest=c.dashboardSnapshotManifest_('news');delete manifest.pageCount;s.cache.clear();
+ const query=c.dashboardQuery_({view:'news',initial:true});
+ assert.ok(c.defaultDashboardSnapshot_('news',query,'es'));
+ s.cache.clear();
+ s.sheets.get('DashboardSnapshots').getRange=()=>{throw Error('No debe hidratar un snapshot de una sola página');};
+ assert.equal(c.defaultDashboardSnapshot_('news',{...query,page:1},'es'),null);
+ assert.equal(s.properties.DASHBOARD_SNAPSHOT_CORRUPT,undefined);
 });
