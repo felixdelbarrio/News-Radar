@@ -7,18 +7,26 @@ function dashboardSnapshotsPending_(){if(llmJob_()?.state==='Publicando'&&!llmSt
 function dashboardSnapshotsDue_(){const p=properties_().getProperties();return Boolean(p.DASHBOARD_SNAPSHOT_REQUEST&&(p.DASHBOARD_SNAPSHOT_REQUEST==='ready'||Date.now()-Number(p.DASHBOARD_SNAPSHOT_REQUESTED_AT||Date.now())>=DASHBOARD_SNAPSHOTS.refreshMs));}
 function invalidateDashboardSnapshots_(){const p=properties_();if(!p.getProperty('DASHBOARD_SNAPSHOT_REQUEST'))p.setProperty('DASHBOARD_SNAPSHOT_REQUEST','pending');if(!p.getProperty('DASHBOARD_SNAPSHOT_REQUESTED_AT'))p.setProperty('DASHBOARD_SNAPSHOT_REQUESTED_AT',String(Date.now()));}
 function requestDashboardSnapshots_(ready=false){if(!dashboardSnapshotsPending_())return;const previous=properties_().getProperty('DASHBOARD_SNAPSHOT_REQUEST');invalidateDashboardSnapshots_();if(previous&&(!ready||previous==='ready'))return;if(ready)properties_().setProperty('DASHBOARD_SNAPSHOT_REQUEST','ready');ensureBackgroundWorker_();}
+const NEWS_SNAPSHOT_PAGES=3;
+function dashboardSnapshotCacheKey_(view,revision,language,geography='',page=0){
+  return 'dashboard-snapshot:'+revision+':'+(view==='radar'?'es':language)+':'+(view==='news'?geography+(page?':'+page:''):'');
+}
 function defaultDashboardSnapshot_(view,query,language){
   if(!DASHBOARD_SNAPSHOTS.views.includes(view))return null;
+  const page=Math.max(0,Math.floor(Number(query.page)||0));
+  if(page&&(view!=='news'||page>=NEWS_SNAPSHOT_PAGES))return null;
   const defaults=dashboardQuery_({view,initial:true}),revision=dashboardSnapshotRevision_(view),manifest=dashboardSnapshotManifest_(view);
-  if(Object.entries(query).some(([key,value])=>value!==''&&value!=null&&key!=='newsGeography'&&!(key==='page'&&Number(value)===0)&&value!==defaults[key]))return null;
+  if(Object.entries(query).some(([key,value])=>value!==''&&value!=null&&key!=='newsGeography'&&key!=='page'&&value!==defaults[key]))return null;
   if(manifest?.revision!==revision){requestDashboardSnapshots_();return null;}
+  if(page>=(manifest.pageCount||1))return null;
   if(manifest.schema!==NEWS_CACHE.schema||manifest.periodFallback||manifest.period?.from!==query.from||manifest.period?.to!==query.to)return null;
-  const cache=CacheService.getScriptCache(),key='dashboard-snapshot:'+manifest.revision+':'+language+':'+(query.newsGeography||''),cached=readDashboardCache_(cache,key);if(cached)return cached;
+  const cache=CacheService.getScriptCache(),key=dashboardSnapshotCacheKey_(view,manifest.revision,language,query.newsGeography||'',page),cached=readDashboardCache_(cache,key);if(cached)return cached;
   try{
     const rows=book_().getSheetByName(manifest.sheet||'DashboardSnapshots')?.getRange(manifest.first,1,manifest.parts,4).getDisplayValues();
     if(!rows||rows.some(([name,generation,part],index)=>name!==view||generation!==manifest.generation||Number(part)!==index))throw Error('Fragmentos incompletos');
     const encoded=rows.map(row=>row[3]).join('');if(sha256_(encoded)!==manifest.digest)throw Error('Contenido incompleto');
-    const bundle=JSON.parse(Utilities.ungzip(Utilities.newBlob(Utilities.base64Decode(encoded),'application/gzip')).getDataAsString()),data=view==='news'?compactNewsSnapshotData_(bundle.news,query.newsGeography,language):bundle.variants[''][view==='radar'?'es':language];
+    const bundle=JSON.parse(Utilities.ungzip(Utilities.newBlob(Utilities.base64Decode(encoded),'application/gzip')).getDataAsString()),data=view==='news'?compactNewsSnapshotData_(bundle.news,query.newsGeography,language,page):bundle.variants[''][view==='radar'?'es':language];
+    if(!data)return null;
     const value={data,metadata:bundle.metadata,period:bundle.period,periodFallback:bundle.periodFallback};writeDashboardCache_(cache,key,value);return value;
   }catch(error){console.warn('Snapshot '+view+': '+String(error.message||error));properties_().setProperty('DASHBOARD_SNAPSHOT_CORRUPT','true');requestDashboardSnapshots_();return null;}
 }
@@ -60,19 +68,27 @@ function buildPreparedDashboardSnapshotBatch_(job=null){
   const view=DASHBOARD_SNAPSHOTS.views.find(view=>!build.manifests[view]);
   if(!view)return publishDashboardSnapshotSet_(build,job);
   const started=Date.now(),revision=dashboardSnapshotRevision_(view);let query=dashboardQuery_({view,initial:true}),rows=snapshotRecords(query),data=dashboardSnapshotData_(rows,query,feeds,view),periodFallback=false;
-  const payload=view==='news'?{news:compactNewsSnapshot_(rows,query,data)}:{variants:{'':dashboardSnapshotLanguages_(data,view)}};
   const period={from:query.from,to:query.to};
-  if(view==='news')for(const language of Object.keys(languageNames))writeDashboardCache_(CacheService.getScriptCache(),'dashboard-snapshot:'+revision+':'+language+':',{data:compactNewsSnapshotData_(payload.news,'',language),metadata,period,periodFallback});
-  else hydrateDashboardSnapshot_(CacheService.getScriptCache(),revision,payload.variants,view,period,periodFallback,metadata);
-  const encoded=Utilities.base64Encode(Utilities.gzip(Utilities.newBlob(JSON.stringify({period,periodFallback,metadata,...payload}),'application/json')).getBytes()),parts=Math.ceil(encoded.length/DASHBOARD_SNAPSHOTS.chars);
+  let pageCount=NEWS_SNAPSHOT_PAGES,payload=view==='news'?{news:compactNewsSnapshot_(rows,query,data)}:{variants:{'':dashboardSnapshotLanguages_(data,view)}};
+  const encode=()=>Utilities.base64Encode(Utilities.gzip(Utilities.newBlob(JSON.stringify({period,periodFallback,metadata,...payload}),'application/json')).getBytes());
+  let encoded=encode();
+  if(view==='news'&&encoded.length>DASHBOARD_SNAPSHOTS.chars*DASHBOARD_SNAPSHOTS.parts){
+    pageCount=1;payload={news:compactNewsSnapshot_(rows,query,data,pageCount)};encoded=encode();
+  }
+  const parts=Math.ceil(encoded.length/DASHBOARD_SNAPSHOTS.chars);
   if(parts>DASHBOARD_SNAPSHOTS.parts)throw Error('Snapshot demasiado grande: '+view);
+  const cache=CacheService.getScriptCache();
+  for(const language of view==='radar'?['es']:Object.keys(languageNames)){
+    const localized=view==='news'?compactNewsSnapshotData_(payload.news,'',language):payload.variants[''][language];
+    writeDashboardCache_(cache,dashboardSnapshotCacheKey_(view,revision,language),{data:localized,metadata,period,periodFallback});
+  }
   if(revision!==dashboardSnapshotRevision_(view))return true;
   let sheet=book_().getSheetByName('DashboardSnapshots');if(!sheet){sheet=book_().insertSheet('DashboardSnapshots');sheet.getRange(1,1,1,4).setValues([RADAR.sheets.DashboardSnapshots]);sheet.setFrozenRows(1);}
   const previous=dashboardSnapshotManifest_(view),slot=previous?.slot===0?1:0,first=2+(DASHBOARD_SNAPSHOTS.views.indexOf(view)*2+slot)*DASHBOARD_SNAPSHOTS.parts,generation=Utilities.getUuid(),needed=first+parts-1;
   if(needed>sheet.getMaxRows())sheet.insertRowsAfter(sheet.getMaxRows(),needed-sheet.getMaxRows());
   sheet.getRange(first,1,parts,4).setNumberFormat('@').setValues(Array.from({length:parts},(_,index)=>[view,generation,String(index),encoded.slice(index*DASHBOARD_SNAPSHOTS.chars,(index+1)*DASHBOARD_SNAPSHOTS.chars)]));SpreadsheetApp.flush();
   build.updated=new Date().toISOString();
-  build.manifests[view]={schema:NEWS_CACHE.schema,revision,generation,slot,first,parts,digest:sha256_(encoded),generated:new Date().toISOString(),period,periodFallback};
+  build.manifests[view]={schema:NEWS_CACHE.schema,revision,generation,slot,first,parts,digest:sha256_(encoded),generated:new Date().toISOString(),period,periodFallback,...(view==='news'?{pageCount}:{})};
   properties_().setProperty('DASHBOARD_SNAPSHOT_BUILD',JSON.stringify(build));
   telemetry_('dashboard-snapshot',Date.now()-started,'OK',view+'; '+period.from+' — '+period.to+'; anterior '+periodFallback+'; variantes '+(view==='news'?1:Object.keys(payload.variants).length)+'; comprimido '+encoded.length+' caracteres');
   if(DASHBOARD_SNAPSHOTS.views.every(view=>build.manifests[view]))return publishDashboardSnapshotSet_(build,job);
@@ -99,29 +115,27 @@ function verifyDashboardSnapshot_(view,manifest){
   const rows=book_().getSheetByName(manifest.sheet||'DashboardSnapshots').getRange(manifest.first,1,manifest.parts,4).getDisplayValues();
   if(rows.some(([name,generation,part],index)=>name!==view||generation!==manifest.generation||Number(part)!==index)||sha256_(rows.map(row=>row[3]).join(''))!==manifest.digest)throw Error('Snapshot incompleto: '+view);return rows;
 }
-function hydrateDashboardSnapshot_(cache,revision,variants,view,period,periodFallback,metadata){
-  for(const [geography,values] of Object.entries(variants))for(const language of Object.keys(languageNames))writeDashboardCache_(cache,'dashboard-snapshot:'+revision+':'+language+':'+geography,{data:values[view==='radar'?'es':language],metadata,period,periodFallback});
-}
-
 // One shared catalogue and article table replace country × language copies of the same payload.
-function compactNewsSnapshot_(rows,query,data){
+function compactNewsSnapshot_(rows,query,data,pageCount=NEWS_SNAPSHOT_PAGES){
   const selected=selectAnnotatedNews_(rows,query),geography=newsReadingGeography_(null,query),groups=new Map([...data.newsGeographies,...regionalGeographies(selected,geography)].map(row=>[row.name,[]]));
   for(const row of selected){for(const name of geography.members(row))groups.get(name)?.push(row);for(const region of unlocatedGeography(row,geography)?geography.regions:new Set(articleGeographies(row).filter(country=>!geography.own(country)).map(country=>geography.region(country)).filter(Boolean)))groups.get(region)?.push(row);}
   const articles=[],positions=new Map(),pages={};
-  for(const [name,items] of groups){const page=newsEntityPage(items,0,data.pageSize);pages[name]={total:items.length,positions:page.map(row=>{if(!positions.has(row)){positions.set(row,articles.length);articles.push(row);}return positions.get(row);})};}
+  for(const [name,items] of groups){const page=newsEntityPage(items,0,data.pageSize*pageCount);pages[name]={total:items.length,positions:page.map(row=>{if(!positions.has(row)){positions.set(row,articles.length);articles.push(row);}return positions.get(row);})};}
   const fields=[...new Set(articles.flatMap(row=>Object.keys(row)))].filter(key=>!['_sheetRow','identityTitles'].includes(key)),records=articles.map(row=>fields.map(key=>row[key]??null)),translations={};
   for(const language of Object.keys(languageNames))translations[language]=savedArticleTranslations_(articles,language).map((row,index)=>[snapshotTextDelta_(articles[index].titular,row.titular),snapshotTextDelta_(articles[index].extracto??'',row.extracto??''),row.translation]);
   const {items,page,newsGeography,total,...metadata}=data;return {metadata,fields,records,translations,pages,defaultGeography:newsGeography};
 }
-function compactNewsSnapshotData_(bundle,geography,language){
+function compactNewsSnapshotData_(bundle,geography,language,requestedPage=0){
   let name=Object.hasOwn(bundle.pages,geography)?geography:bundle.defaultGeography;
   if(name===otherGeography||REGION_CODES.includes(name)){const grouping=newsReadingGeography_(null,{});name=preferredRegion(bundle.metadata.newsRegions||[],grouping.region(geography),grouping.ownRegions,name);}
-  const page=bundle.pages[name]||{total:0,positions:[]};
-  const items=page.positions.map(index=>{
+  const group=bundle.pages[name]||{total:0,positions:[]},size=bundle.metadata.pageSize;
+  const page=Math.min(requestedPage,Math.max(0,Math.ceil(group.total/size)-1)),offset=page*size;
+  if(group.positions.length<Math.min(group.total,offset+size))return null;
+  const items=group.positions.slice(offset,offset+size).map(index=>{
     const row=Object.fromEntries(bundle.fields.flatMap((key,position)=>bundle.records[index][position]===null?[]:[[key,bundle.records[index][position]]])),[titular,extracto,translation]=bundle.translations[language][index];
     return {...row,titular:snapshotTextValue_(row.titular,titular),extracto:snapshotTextValue_(row.extracto??'',extracto),...(translation.state==='translated'?{original:{titular:row.titular,extracto:row.extracto}}:{}),translation};
   });
-  return {...bundle.metadata,items,total:page.total,page:0,newsGeography:name};
+  return {...bundle.metadata,items,total:group.total,page,newsGeography:name};
 }
 
 function snapshotTextDelta_(original,value){
