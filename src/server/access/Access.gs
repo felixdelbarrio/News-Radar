@@ -11,10 +11,15 @@ function properties_(){
  setProperties(values,remove=false){store.setProperties(values,remove);if(remove)scriptPropertiesMemory_={};Object.assign(scriptPropertiesMemory_,Object.fromEntries(Object.entries(values).map(([key,value])=>[key,String(value)])));return this;},
  deleteProperty(key){store.deleteProperty(key);delete scriptPropertiesMemory_[key];return this;}};
 }
+const corporateEmailDomains_=['bbva.com','garantibbva.com.tr'];
+function corporateEmail_(value){
+ const email=String(value??'').trim().toLowerCase(),at=email.indexOf('@');
+ return at>0&&corporateEmailDomains_.includes(email.slice(at+1))&&/^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+$/.test(email.slice(0,at))?email:'';
+}
 function authorize_(admin) {
-  const owner=properties_().getProperty('OWNER_EMAIL'),email=Session.getActiveUser().getEmail().trim().toLowerCase();
+  const owner=properties_().getProperty('OWNER_EMAIL'),email=corporateEmail_(Session.getActiveUser().getEmail());
   if(!owner)throw new Error('Ejecuta setupRadar desde el editor de Apps Script.');
-  if(!email || !email.endsWith('@bbva.com'))throw new Error('Accede con tu cuenta bbva.com. Google debe facilitar la identidad del usuario dentro del dominio.');
+  if(!email)throw new Error('Accede con una cuenta corporativa autorizada. Google debe verificar tu identidad.');
   const session={email,admin:email===owner};
   if(admin && !session.admin)throw new Error('Acceso no autorizado: se requiere administrador.');
   return session;
