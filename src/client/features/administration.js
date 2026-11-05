@@ -25,7 +25,7 @@ function createAdministration({ isAdmin, track, onConfiguration, onSubscribers,o
 
     if (view === "runs") await onRuns();
     if (view === "audit") await loadAudit();
-    if (view === "adoption" || view === "feedback" || view === 'sourceQuality') await loadMetrics(view, () => current === view && !$("administration-section").hidden);
+    if (["adoption","newsletterAccess","feedback","sourceQuality"].includes(view)) await loadMetrics(view, () => current === view && !$("administration-section").hidden);
   }
   $("admin-tabs").addEventListener("click", (event) => {
     const button = event.target.closest("[data-admin-view]");

@@ -9,6 +9,7 @@
   "adminViews": {
     "runs": "Panel de control",
     "adoption": "Adopción",
+    "newsletterAccess": "Accesos desde newsletters",
     "feedback": "Feedback",
     "subscribers": "Suscripciones",
     "sourceQuality": "Calidad de las fuentes",

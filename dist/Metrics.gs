@@ -32,10 +32,15 @@ function recordEvents(events) {
   } finally {lock.releaseLock();}
 }
 function getAdoption(query={}) {
-  authorize_(true);const events=rows_('Adopcion',settings_().eventLimit),now=Date.now();
-  const selected=filterRecords(events,query,['correo','vista','evento'],['correo','vista','evento','sesion'],'fecha',settings_().timezone),metrics=metrics_(selected,now),cohort=['dau','wau','mau','returning','total'].includes(query.cohort)?query.cohort:'dau',allUsers=metrics.allUsers;delete metrics.allUsers;
+  authorize_(true);
+  const {eventLimit,timezone,retentionDays}=settings_(),newsletter=query.source==='newsletterAccess';
+  const rows=rows_(newsletter?'NewsletterEventos':'Adopcion',eventLimit);
+  const events=newsletter?rows.filter(row=>row.evento==='acceso'):rows;
+  const fields=newsletter?['correo','edicion','cadencia']:['correo','vista','evento'];
+  const selected=filterRecords(events,query,fields,[...fields,'sesion'],'fecha',timezone);
+  const now=Date.now(),metrics=metrics_(selected,now),cohort=['dau','wau','mau','returning','total'].includes(query.cohort)?query.cohort:'dau',allUsers=metrics.allUsers;delete metrics.allUsers;
   const members=cohort==='total'?allUsers:metrics.users.filter(user=>cohort==='returning'?user.recentSessions>1:cohort==='mau'||Date.parse(user.last)>=now-(cohort==='dau'?1:7)*86400000),page=recordPage(members,query,ADMIN_PAGE_SIZE);
-  return {...metrics,cohort,users:page.items,total:page.total,page:page.page,pageSize:page.pageSize,options:recordOptions(events,['correo','vista','evento']),retentionDays:settings_().retentionDays,limited:events.length===settings_().eventLimit};
+  return {...metrics,cohort,users:page.items,total:page.total,page:page.page,pageSize:page.pageSize,options:recordOptions(events,fields),retentionDays,limited:rows.length===eventLimit};
 }
 function exportTelemetry(){
   authorize_(true);const limit=settings_().eventLimit;
