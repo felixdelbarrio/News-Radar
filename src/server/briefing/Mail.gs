@@ -1,6 +1,6 @@
 function newsletterEmail_(value){
-  const email=String(value||'').trim().toLowerCase();
-  if(!/^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@bbva\.com$/.test(email))throw Error('El correo de newsletter debe pertenecer al dominio bbva.com.');
+  const email=corporateEmail_(value);
+  if(!email)throw Error('El correo de newsletter debe pertenecer a un dominio corporativo autorizado.');
   return email;
 }
 function gmailRequest_(path,payload){

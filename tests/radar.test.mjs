@@ -35,8 +35,8 @@ test('canonicalización y exportación protegen URLs y fórmulas',()=>{
   c.rows_=()=>canonicalFixtures(c,[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',...item,fecha:'2026-10-08',titular:'=HYPERLINK("x")',extracto:'Pagos digitales para empresas',entidad:'BBVA',url:item.url}]);const csv=c.exportNews({from:'2026-01-01',to:'2026-12-31'}).csv;assert.match(csv,/'=HYPERLINK/);assert.doesNotMatch(csv,/impacto|evidencia|criterio/);
 });
 test('autoriza con identidad activa y restringe administración y métricas',()=>{
-  for(const email of ['reader@bbva.com','felix.delbarrio@bbva.com'])assert.doesNotThrow(()=>context(email).authorize_());
-  for(const email of ['','reader@evilbbva.com','reader@bbva.com.evil'])assert.throws(()=>context(email).authorize_());
+  for(const email of ['reader@bbva.com','felix.delbarrio@bbva.com',' Reader@GarantiBBVA.com.tr '])assert.doesNotThrow(()=>context(email).authorize_());
+  for(const email of ['','reader@evilbbva.com','reader@bbva.com.evil','reader@garantibbva.com.tr.evil','reader@sub.garantibbva.com.tr','reader@evil@bbva.com'])assert.throws(()=>context(email).authorize_());
   const reader=context('reader@bbva.com');for(const name of ['getAdminLogs','getAdoption','getControlPanel','collectNow','retryCollectionErrors','setupRadar'])assert.throws(()=>reader[name](),/no autorizado/);assert.throws(()=>reader.saveFeeds([]),/no autorizado/);
 });
 test('dashboard de lector no expone fuentes configurables, hoja ni datos de otros usuarios',()=>{

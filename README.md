@@ -198,7 +198,7 @@ Se sustituye `script.send_mail` por **`gmail.send`** (envío) y **`gmail.setting
 
 La vista local identifica el remitente configurado, pero no simula que esté verificado ni envía correos. No se ha enviado ningún correo ni modificado producción durante el desarrollo local.
 
-Implementar como **Yo (felix.delbarrio@bbva.com)** y permitir **usuarios de bbva.com**. Las seis autorizaciones del propietario son Sheets, peticiones externas, activadores, identidad de correo, envío Gmail y ajustes básicos Gmail para verificar el alias. No se añaden lectura de mensajes, Drive ni Directory. La hoja y el proyecto permanecen privados. Si Google Workspace oculta el correo activo, el servidor deniega acceso; no lo sustituye por el del propietario.
+Implementar como **Yo (felix.delbarrio@bbva.com)** y mantener la restricción de Google Workspace. News Radar acepta cuentas verificadas de **bbva.com** y **garantibbva.com.tr** para acceder y recibir newsletters. Antes de promover, valida el acceso con una cuenta de cada dominio: Google debe admitirla en la publicación y devolver su correo de sesión al ejecutar como propietario. Usa la URL neutral `https://script.google.com/macros/s/<id>/exec` en `newsletterAppUrl`. Las seis autorizaciones del propietario son Sheets, peticiones externas, activadores, identidad de correo, envío Gmail y ajustes básicos Gmail para verificar el alias. No se añaden lectura de mensajes, Drive ni Directory. La hoja y el proyecto permanecen privados. Si Google Workspace oculta el correo activo, el servidor deniega acceso; no lo sustituye por el del propietario.
 
 El administrador es exclusivamente `OWNER_EMAIL`. Auditoría, fuentes, hoja y métricas requieren autorización en el servidor además de ocultarse en la interfaz.
 
