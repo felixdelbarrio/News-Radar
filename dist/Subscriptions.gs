@@ -35,7 +35,7 @@ function newsletterNextDate_(subscription,now,last){
   return day>available?day:available;
 }
 function writeSubscription_(input,admin){
-  const session=authorize_(admin),email=admin?String(input.email||'').trim().toLowerCase():session.email;newsletterEmail_(email);
+  const session=authorize_(admin),email=admin?newsletterEmail_(input.email):session.email;
   return withForegroundWrite_(()=>{
     const rows=subscriptionRows_(),index=rows.findIndex(row=>admin&&input.id?row.id===input.id:row.correo===email);
     if(input.id&&(index<0||rows[index].id!==input.id))throw Error('Suscripción no encontrada.');
