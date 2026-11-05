@@ -33,7 +33,7 @@ function call(method, ...args) {
   const cached=dashboard&&args[1]?.reuse&&dashboards.get(dashboardKey(args[0]));
   if(cached){
     if(Date.now()-cached.at>=60000&&!validations.has(key)){cached.at=Date.now();const refresh=send('getReadingRevision').then(revision=>{if(JSON.stringify([revision.newsRevision,revision.configurationRevision,revision.readingDay])===dashboardRevision)return cached.data;return send(method,args[0]).then(data=>{rememberDashboard(args[0],data);window.dispatchEvent(new CustomEvent('news-radar-revision'));return data;});});validations.set(key,refresh);refresh.then(()=>validations.delete(key),()=>validations.delete(key));}
-    prefetchDashboards(args[0]);return Promise.resolve(receive({...cached.data,performance:{...cached.data.performance,clientCacheHit:true,serverMs:0,transportMs:0}}));
+    prefetchDashboards(args[0]);return Promise.resolve(receive({...cached.data,performance:{clientCacheHit:true,serverMs:0,transportMs:0}}));
   }
   const finishLoading=beginLoading(method,args);
   let response;const started=performance.now();
