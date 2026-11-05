@@ -104,3 +104,33 @@ test('una revisión publicada reemplaza la selección cacheada en segundo plano'
  assert.equal(a.find('#radar-section').hidden,false);
  assert.equal(a.find('#loading').hidden,true);
 });
+
+test('las vistas comparten la validación de revisión y reintentan tras un fallo',async t=>{
+ let now=0;
+ const pending=[];
+ const a=await app(t,{configure({w,data}){
+  const epoch=w.Date.now();
+  w.Date.now=()=>epoch+now;
+  w.performance.now=()=>now;
+  Object.assign(data,{newsRevision:'news-1',configurationRevision:'config-1',readingDay:'2026-11-05'});
+  const backend=w.RADAR_PREVIEW.call;
+  w.RADAR_PREVIEW.call=(method,...args)=>method==='getReadingRevision'
+   ?new Promise((resolve,reject)=>pending.push({resolve,reject}))
+   :backend(method,...args);
+ }});
+ await a.click('[data-view="radar"]');
+ await a.click('[data-view="news"]');
+ now=61000;
+ await a.click('[data-view="radar"]');
+ await a.click('[data-view="news"]');
+ assert.equal(pending.length,1);
+ pending[0].reject(Error('Red no disponible'));
+ await tick();
+ await a.click('[data-view="briefing"]');
+ assert.equal(pending.length,2);
+ pending[1].resolve(a.data);
+ await tick();
+ await a.click('[data-view="radar"]');
+ await a.click('[data-view="news"]');
+ assert.equal(pending.length,2);
+});
