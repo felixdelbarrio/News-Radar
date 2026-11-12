@@ -7,21 +7,21 @@ import {preferredRegion,applicationGeography,BRIEFING_ALLOWED_SIGNALS} from '../
 import {noveltyOverview} from '../src/shared/novelty-groups.js';
 function server(){const s=storage();s.c.initializeConfiguration();for(const [name,keys] of Object.entries(vm.runInContext('RADAR.sheets',s.c)))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
 const media=(domain,iso2,extra={})=>({name:domain,domain,iso2,country:'',enabled:true,status:'VERIFICADO',...extra});
-test('v3: event > excerpt > accredited edition > verified catalog > territorial domain > RSS > historic > locale',()=>{
+test('event geography uses explicit evidence and preserves source geography separately',()=>{
  const {c}=server();c.writeGeographyCatalog_('CatalogoMedios',[media('publisher.co','US'),media('publisher.co','ES',{editionPattern:'/mx/',editionCountry:'MX'}),media('www.sdpnoticias.com','MX')]);
  const base={titular:'Nueva plataforma digital empresarial',url:'https://publisher.co/article',rssCountry:'España'};
  for(const [row,country,reason] of [
   [{...base,titular:'Plataforma de pagos empresariales en Perú',extracto:'Disponible en Colombia'},'Perú','headline'],
   [{...base,extracto:'Se ofrece a empresas en Colombia.'},'Colombia','content'],
-  [{...base,url:'https://publisher.co/mx/article'},'México','edition'],
-  [base,'Estados Unidos','publisher'],
-  [{...base,url:'https://publisher.co/mx-other/article'},'Estados Unidos','publisher'],
-  [{...base,url:'https://unlisted.co/article'},'España','rss_fallback'],
-  [{...base,url:'https://unlisted.com/article'},'España','rss_fallback'],
-  [{...base,url:'https://unlisted.com/article',rssCountry:'',id:'old',pais:'Perú'},'Perú','historic_country'],
-  [{...base,url:'',rssCountry:'',articleLanguage:'en-GB'},'Reino Unido','locale_fallback'],
+  [{...base,url:'https://publisher.co/mx/article'},'Sin determinar','undetermined'],
+  [base,'Sin determinar','undetermined'],
+  [{...base,url:'https://publisher.co/mx-other/article'},'Sin determinar','undetermined'],
+  [{...base,url:'https://unlisted.co/article'},'Sin determinar','undetermined'],
+  [{...base,url:'https://unlisted.com/article'},'Sin determinar','undetermined'],
+  [{...base,url:'https://unlisted.com/article',rssCountry:'',id:'old',pais:'Perú'},'Sin determinar','undetermined'],
+  [{...base,url:'',rssCountry:'',articleLanguage:'en-GB'},'Sin determinar','undetermined'],
   [{titular:'BBVA ofrece el pago de aportaciones del IMSS desde internet',rssCountry:'España'},'México','market'],
-  [{titular:'¿Se cayó BBVA? Hay fallas en la app en pleno cierre de mes',sourceUrl:'https://sdpnoticias.com/',rssCountry:'España'},'México','publisher']
+  [{titular:'¿Se cayó BBVA? Hay fallas en la app en pleno cierre de mes',sourceUrl:'https://sdpnoticias.com/',rssCountry:'España'},'Sin determinar','undetermined']
  ]){const decision=c.newsCountryDecision_(row);assert.equal(decision.country,country,JSON.stringify(row));assert.equal(decision.reason,reason);}
  assert.deepEqual([...c.newsCountryDecision_({...base,manualGeografias:['Argentina']}).geographies],['Argentina']);
  assert.deepEqual(new Set(c.newsCountryDecision_({...base,titular:'Nueva oferta en México y Colombia'}).geographies),new Set(['México','Colombia']));

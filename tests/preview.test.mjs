@@ -26,8 +26,8 @@ test('vista autónoma comparte filtros, normalización de entidades y CSV con Ap
   const {default:fs}=await import('node:fs');const {default:vm}=await import('node:vm');
   const html=fs.readFileSync('output/preview.html','utf8');const adapter=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].find(match=>match[1].includes('window.RADAR_PREVIEW='))[1];
   const c=vm.createContext({window:{}});vm.runInContext(adapter,c);const preview=c.window.RADAR_PREVIEW;
-  const all=await preview.call('getDashboard');assert.deepEqual(Array.from(all.years),['2026']);const filtered=await preview.call('getDashboard',{view:'news',search:'BBVA',entity:'BBVA',source:all.sources[0]});
-  assert.ok(filtered.total>0);assert.ok(filtered.total<=all.total);assert.equal((await preview.call('exportNews',{view:'news',search:'BBVA',entity:'BBVA',source:all.sources[0]})).count,filtered.total);
+  const all=await preview.call('getDashboard');assert.deepEqual(Array.from(all.years),['2026']);const query={view:'news',search:'BBVA',entity:'BBVA',source:all.sources[0],country:'España'},filtered=await preview.call('getDashboard',query);
+  assert.ok(filtered.total>0);assert.ok(filtered.total<=all.total);assert.equal((await preview.call('exportNews',query)).count,filtered.total);
   const empty=await preview.call('getDashboard',{view:'news',entity:'Santander',country:'México'});assert.equal(empty.total,0);assert.ok(empty.entities.includes('Santander'));assert.equal(empty.countries.length,0);
 });
 

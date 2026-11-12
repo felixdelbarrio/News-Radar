@@ -28,14 +28,13 @@ function deleteSheetRows_(sheet,positions){
 function reviewedNewsClassification_(labels){return Boolean(labels.procedencia?.editorial);}
 function deduplicateNews_(){
  const sheet=newsSheet_(),keys=RADAR.sheets.Noticias,count=Math.max(0,sheet.getLastRow()-1);if(!count)return 0;
- const revision=newsClassificationRevision_(),remove=[],rows=[],protectedIds=new Set(llmIndex_().keys());
+ const protectedIds=new Set(llmIndex_().keys());
  const metadata=sheet.getRange(2,1,count,8).getDisplayValues(),classifications=sheet.getRange(2,keys.indexOf('clasificacion')+1,count,1).getDisplayValues();
- for(const [index,values] of metadata.entries()){
-  const row={...Object.fromEntries(keys.slice(0,8).map((key,i)=>[key,values[i]])),clasificacion:classifications[index][0],_sheetRow:index+2},labels=savedNewsLabels_(row.clasificacion),title=searchText_(row.titular),text=searchText_(row.titular+' '+row.extracto);
-  const current=labels.schema===1&&labels.version===CLASSIFICATION_WORK.rulesVersion&&labels.revision===revision&&labels.contentHash===sha256_(JSON.stringify([title,text]));
-  if(!protectedIds.has(row.id)&&!reviewedNewsClassification_(labels)&&current&&(!labels.digital||entityKey_(row.entidad)==='Santander'&&santanderExcluded_(text)))remove.push(row._sheetRow);else rows.push(row);
- }
- const aliases=[];uniqueNews_(translationIdentityRows_(rows),aliases);remove.push(...aliases.filter(alias=>!protectedIds.has(rows[alias.index].id)&&!reviewedNewsClassification_(savedNewsLabels_(rows[alias.index].clasificacion))).map(alias=>rows[alias.index]._sheetRow));if(!remove.length)return 0;
+ // Reclassification can hide a historical article from BEI views; only
+ // confirmed duplicates are candidates for physical removal here.
+ const rows=metadata.map((values,index)=>({...Object.fromEntries(keys.slice(0,8).map((key,i)=>[key,values[i]])),clasificacion:classifications[index][0],_sheetRow:index+2}));
+ const aliases=[];uniqueNews_(translationIdentityRows_(rows),aliases);
+ const remove=aliases.filter(alias=>!protectedIds.has(rows[alias.index].id)&&!reviewedNewsClassification_(savedNewsLabels_(rows[alias.index].clasificacion))).map(alias=>rows[alias.index]._sheetRow);if(!remove.length)return 0;
  // Archived editions already contain complete frozen articles, so their IDs and content remain intact.
  const archives=[];for(let start=0;start<remove.length;start+=ARCHIVE_WORK.rows){const positions=remove.slice(start,start+ARCHIVE_WORK.rows),records=new Map(newsRowsAt_(positions.slice().sort((a,b)=>a-b)).map(row=>[row._sheetRow,keys.map(key=>row[key]||'')])),values=positions.map(position=>records.get(position));archives.push(archiveSpreadsheet_('Noticias',keys,values,configuration_().storage.primaryFolderId,'news:'+sha256_(JSON.stringify(values))));}
  deleteSheetRows_(sheet,remove);SpreadsheetApp.flush();for(const archive of archives)properties_().deleteProperty(archive.property);invalidateNews_();return remove.length;

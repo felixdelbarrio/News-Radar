@@ -58,5 +58,5 @@ test('Radar inicial no hereda el rango predeterminado de Noticias al navegar',()
 test('iupana usa México como indicio editorial sin reemplazar el país explícito del contenido',()=>{
  const {c}=server(),base={medio:'iupana',sourceUrl:'https://iupana.com/',url:'https://iupana.com/noticia',titular:'Nueva solución de pagos para empresas',extracto:''};
  assert.equal(c.editorialCountry_(base.sourceUrl,base.medio,c.businessIndex_()).country,'México');
- assert.equal(c.newsCountryDecision_(base).country,'México');assert.equal(c.newsCountryDecision_({...base,titular:'BBVA lanza pagos para empresas en Perú'}).country,'Perú');
+ assert.equal(c.newsCountryDecision_(base).country,'Sin determinar');assert.equal(c.newsCountryDecision_({...base,titular:'BBVA lanza pagos para empresas en Perú'}).country,'Perú');
 });

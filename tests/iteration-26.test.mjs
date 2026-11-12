@@ -44,7 +44,7 @@ test('un archivo de edición corrupto impide compactar y no modifica el origen',
  const s=newsletterFixture(),c=s.c;c.archivePayload_=()=> 'corrupt';assert.throws(()=>c.compactNewsletterBatch_(),/no verificada/);assert.equal(c.newsletterStorageKey_('NewsletterContenido'),'NewsletterContenido');assert.equal(s.sheets.get('NewsletterContenido').getLastRow(),5);
 });
 test('el país declarado del RSS se conserva aunque Google use otro mercado',()=>{
- const {c}=server();const feed=c.feeds_().find(feed=>feed.kind==='profile'&&feed.country==='Uruguay');assert.ok(feed);assert.equal(c.sourceCountry_(feed),'Uruguay');assert.equal(c.newsCountry_({titular:'BBVA lanza una plataforma digital',extracto:'',fuente:feed.name,pais:'Uruguay'}),'Uruguay');assert.equal(c.newsCountry_({titular:'BBVA lanza una plataforma digital en Uruguay',fuente:feed.name,pais:'Uruguay'}),'Uruguay');
+ const {c}=server();const feed=c.feeds_().find(feed=>feed.kind==='profile'&&feed.country==='Uruguay');assert.ok(feed);assert.equal(c.sourceCountry_(feed),'Uruguay');assert.equal(c.newsCountry_({titular:'BBVA lanza una plataforma digital',extracto:'',fuente:feed.name,pais:'Uruguay'}),'Sin determinar');assert.equal(c.newsCountry_({titular:'BBVA lanza una plataforma digital en Uruguay',fuente:feed.name,pais:'Uruguay'}),'Uruguay');
  const index=c.businessIndex_();assert.equal(c.sourceCountry_({country:'México',url:'https://news.google.com/rss/search?gl=US'},index),'México');
 });
 
@@ -99,8 +99,8 @@ test('un tamaño de archivo inválido bloquea su lectura sin truncar el contenid
  const s=server(),c=s.c;logs(s);c.archiveLogBatch_('Telemetria');const [id]=s.archiveBooks.keys(),info=s.archiveBooks.get(id).getSheetByName('Archivo');info.grid[0][3]='99';assert.throws(()=>c.archivePayload_(id),/no verificado/);info.grid[0][3]='invalid';assert.throws(()=>c.archivePayload_(id),/no verificado/);
 });
 
-test('una noticia global toma el RSS y el dominio original domina el extracto',()=>{
- const {c}=server();const row={titular:'Stripe y Plasma preparan tarjetas con stablecoins para más de cien países',extracto:'Una alianza para ampliar su oferta global.',medio:'DiarioBitcoin',fuente:'BBVA · España',pais:'España',url:'https://news.google.com/articles/global'};assert.equal(c.newsCountry_(row),'España');assert.equal(c.newsCountry_({...row,medio:'Cinco Días'}),'España');assert.equal(c.newsCountry_({...row,titular:'BBVA presenta una solución',extracto:'BBVA lanza la solución en México. También operará en España.',sourceUrl:'https://publisher.es/story'}),'España');
+test('una noticia global no hereda el RSS y el dominio no suplanta los mercados del extracto',()=>{
+ const {c}=server();const row={titular:'Stripe y Plasma preparan tarjetas con stablecoins para más de cien países',extracto:'Una alianza para ampliar su oferta global.',medio:'DiarioBitcoin',fuente:'BBVA · España',pais:'España',url:'https://news.google.com/articles/global'};assert.equal(c.newsCountry_(row),'Sin determinar');assert.equal(c.newsCountry_({...row,medio:'Cinco Días'}),'Sin determinar');assert.deepEqual(new Set(c.newsCountryDecision_({...row,titular:'BBVA presenta una solución',extracto:'BBVA lanza la solución en México. También operará en España.',sourceUrl:'https://publisher.es/story'}).geographies),new Set(['España','México']));
 });
 
 test('la creación interrumpida reutiliza la misma generación de compactación',()=>{

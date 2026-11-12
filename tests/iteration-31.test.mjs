@@ -86,5 +86,5 @@ test('functional pilot backs up, verifies, retries partial writes and restores o
  c.restoreFunctionalPilot(preview);assert.equal(JSON.stringify(c.newsSheet_().grid),expected);c.restoreFunctionalPilot(preview);assert.equal(JSON.stringify(c.newsSheet_().grid),expected);
 });
 test('launching a pilot remains a competitive improvement without claiming product availability',()=>{
- const {c}=setup(),title=c.searchText_('Maybank launches pilot project for tokenised deposits and cross border payments');const assessment=c.digitalAssessment_(title,title);assert.equal(assessment.relevant,true);assert.deepEqual([...assessment.signals],['Mejora de oferta']);
+ const {c}=setup(),title=c.searchText_('Maybank launches pilot project for tokenised deposits and cross border payments for corporate clients');const assessment=c.digitalAssessment_(title,title);assert.equal(assessment.relevant,true);assert.deepEqual([...assessment.signals],['Mejora de oferta']);
 });
