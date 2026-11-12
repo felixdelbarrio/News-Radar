@@ -66,5 +66,6 @@ test('Noticias recupera la geografía del histórico de la iteración 50 al leer
  assert.equal(cached[0].pais,'España');
  assert.deepEqual(Array.from(cached[0].geografias),['España']);
  assert.equal(c.newsCsv_(cached,{country:'España'},'es',true).count,1);
+ assert.equal(c.selectNews_(c.newsRowsForPeriod_(),{country:'España'}).length,1);
  assert.equal(sheets.get('Noticias').grid[1][2],'Sin determinar');
 });
