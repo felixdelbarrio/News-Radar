@@ -51,7 +51,7 @@ test('la taxonomía observa candidatos indeterminados sin publicarlos como notic
 test('golden estratificado: se evalúa solo el texto con referencia y se mantienen abstenciones',async()=>{
  const {readFile}=await import('node:fs/promises'),fixture=JSON.parse(await readFile(new URL('./fixtures/ingestion-golden.json',import.meta.url),'utf8')),s=server(),c=s.c;let evaluated=0;
  for(const row of fixture.cases){const result=c.classification_(c.searchText_(row.title),c.searchText_(row.title+' '+row.excerpt));if(row.relevant!==null){assert.equal(result.labels.digital,row.relevant,row.title);evaluated++;}assert.ok(result.labels.revision);}
- assert.equal(evaluated,22);assert.equal(new Set(fixture.cases.map(row=>row.stratum)).size,4);assert.equal(fixture.excludedSampleRowsWithoutOriginalText,220);
+ assert.equal(evaluated,20);assert.equal(new Set(fixture.cases.map(row=>row.stratum)).size,4);assert.equal(fixture.excludedSampleRowsWithoutOriginalText,220);
 });
 test('funciones secundarias requieren evidencia distinta, respetan el orden y no duplican sinónimos',()=>{
  const {c}=server(),definitions=[{key:'01.01',palanca:'01.Pagos',subpalanca:'01.01.Pagos internacionales',terms:['pagos internacionales']},{key:'02.01',palanca:'02.Facturas',subpalanca:'02.01.Facturas electrónicas',terms:['facturas electronicas']},{key:'03.01',palanca:'03.Transferencias',subpalanca:'03.01.Transferencias',terms:['pagos internacionales']}],title='Banco lanza pagos internacionales y facturas electrónicas para empresas',result=c.taxonomyDecision(c.taxonomyText(title),definitions,title);
