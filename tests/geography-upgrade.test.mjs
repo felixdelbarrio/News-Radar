@@ -58,3 +58,23 @@ test('upgrade preserves published rows, installs headquarters and queues country
  c.newsClassificationBatch_();assert.equal(c.classificationJob_().state,'Publicando');assert.equal(c.rows_('Noticias')[0].pais,'Italia');assert.equal(c.rows_('Noticias')[0].id,record.id);assert.equal(c.getGeographyUpgrade().classification.processed,1);
  s.properties.GEOGRAPHY_UPGRADE=JSON.stringify({...result,version:'3.28.0'});c.applyGeographyUpgrade();assert.equal(c.classificationJob_().next,2);
 });
+test('a geographic review keeps historical geography under weak evidence and honors a verified manual assignment',()=>{
+ const {c}=setup(),base={id:'historic',pais:'Colombia',titular:'Nuevo servicio digital para empresas',url:'https://news.google.com/rss/articles/example',sourceUrl:'https://infobae.com/economia/example',fuente:'Revolut · Italia'};
+ const legacy=c.newsCountryDecision_(base);
+ assert.equal(legacy.country,'Colombia');
+ assert.equal(legacy.reason,'historic_country');
+ assert.equal(legacy.confidence,'low');
+ const evidence=[{country:'Colombia',method:'content',value:'colombia',score:90}];
+ const verified={...base,clasificacion:JSON.stringify({procedencia:{geografias:['Colombia','México'],paisMetodo:'content',paisConfianza:'medium',paisEvidencias:evidence}})};
+ const editorial={...verified,sourceUrl:'https://infobae.com/peru/economia/example'};
+ const retained=c.newsCountryDecision_(editorial);
+ assert.deepEqual(Array.from(retained.geographies),['Colombia','México']);
+ assert.deepEqual(JSON.parse(JSON.stringify(retained.countryEvidence)),evidence);
+ assert.equal(c.newsCountryDecision_({...base,sourceUrl:editorial.sourceUrl}).country,'Perú');
+ assert.equal(c.newsCountryDecision_({...verified,titular:'Banco lanza su plataforma en Perú'}).country,'Perú');
+ const manual={...verified,titular:'Banco lanza su plataforma en Perú',clasificacion:JSON.stringify({procedencia:{paisMetodo:'manual_verified_content',paisEvidencias:evidence}})};
+ const corrected=c.newsCountryDecision_(manual);
+ assert.equal(corrected.country,'Colombia');
+ assert.equal(corrected.reason,'manual_verified_content');
+ assert.deepEqual(JSON.parse(JSON.stringify(corrected.countryEvidence)),evidence);
+});

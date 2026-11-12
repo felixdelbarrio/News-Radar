@@ -42,3 +42,26 @@ test('historical edits, deletions, source replacements and rule changes invalida
   assert.equal(c.classificationJob_().firstRow,2,mutation);assert.equal(c.classificationJob_().next,2,mutation);assert.equal(c.classificationJob_().total,mutation==='delete'?6:7,mutation);
  }
 });
+
+test('forced thematic classification preserves stored country and provenance, including after resumption',()=>{
+ const s=fixture(101),c=s.c,at=name=>s.keys.indexOf(name);
+ const rows=s.sheet.grid.slice(1);
+ const before=rows.map((row,i)=>{
+  row[at('pais')]='Colombia';
+  row[at('titular')]='BBVA lanza pagos digitales para empresas en España';
+  row[at('clasificacion')]=JSON.stringify({procedencia:{geografias:['Colombia','México'],scope:'multicountry',paisMetodo:i===0?'manual_verified_content':'content',paisConfianza:'high',paisEvidencias:[{country:'Colombia'}],versionReglas:'3.17.1'}});
+  return row.slice();
+ });
+ c.newsCountryDecision_=()=>assert.fail('Thematic classification must not resolve countries');
+ c.requestNewsClassification_(true);
+ c.newsClassificationBatch_();
+ assert.equal(c.classificationJob_().next,102);
+ c.newsClassificationBatch_();
+ assert.equal(c.classificationJob_().next,103);
+ rows.forEach((row,i)=>{
+  const original=before[i],previous=JSON.parse(original[at('clasificacion')]),updated=JSON.parse(row[at('clasificacion')]);
+  for(const name of ['id','pais','fecha','url','capturada','fuente','medio'])assert.equal(row[at(name)],original[at(name)]);
+  assert.deepEqual(updated.procedencia,previous.procedencia);
+  assert.equal(updated.digital,true);
+ });
+});
