@@ -34,3 +34,20 @@ test('Novedades ordena por fecha de publicación; newsletter elige un ejemplo po
  const selected=annotateFixtures(c,rows),grouped=c.newsDashboard_(annotateFixtures(c,rows),{},c.feeds_(),'briefing').briefing.items;assert.deepEqual(JSON.parse(JSON.stringify(grouped.map(row=>row.entidad))),['Qonto','Qonto','Qonto','N26','N26','Santander','BBVA']);
  const newsletter=newsletterFixture(c,rows,{},'Canal',new Date('2026-10-12T12:00:00Z'),'sub');assert.equal(newsletter.items[0].entidad,'Qonto');assert.equal(newsletter.count,1);assert.equal(newsletter.editorial.cards[0].relatedCount,1);assert.equal(newsletter.evidence.length,selected.length);assert.equal(c.briefing_(selected).items[0].entidad,'Qonto');
 });
+
+test('recognizes corporate transaction banking APIs, business apps and digital collections',()=>{
+ const {c}=server();
+ const assess=value=>{const text=c.searchText_(value);return c.digitalAssessment_(text,text);};
+ for(const title of [
+  'BBVA renueva su «app» de empresas para contratar productos',
+  'HSBC launches a corporate transaction banking service with AI and APIs',
+  'BCP mejora las transferencias de empresas con APIs y Host to Host',
+  'App do Itaú agora mostra os recebimentos de empresas em um único lugar',
+  'Empresas podrán recibir pagos inmediatos con nuevas soluciones QR del Banco de Bogotá'
+ ])assert.equal(assess(title).relevant,true,title);
+ for(const title of [
+  'Banco lanza una stablecoin para inversores',
+  'Banco anuncia una línea de financiación bilateral para empresas',
+  'El banco renueva su app para gestionar tarjetas personales'
+ ])assert.equal(assess(title).relevant,false,title);
+});

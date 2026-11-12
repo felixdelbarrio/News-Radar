@@ -54,16 +54,25 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
   const rows=size>0?sheet.getRange(job.next,1,size,keys.length).getDisplayValues():[];
   for(const values of rows){
    if(Date.now()-started>=maxMs||backgroundPaused_(true))break;
-   const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]])),position=job.next+read,cleanTitle=plainText_(row.titular),cleanExcerpt=plainText_(row.extracto),title=searchText_(cleanTitle),text=searchText_(cleanTitle+' '+cleanExcerpt),hash=sha256_(JSON.stringify([title,text])),saved=savedNewsLabels_(row.clasificacion),taxonomy=taxonomySaved_(row.taxonomia);
+   const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]])),position=job.next+read,saved=savedNewsLabels_(row.clasificacion);
    read++;
-   let taxonomyValid=true;if(!job.geographyOnly)try{validateTaxonomyAssignment_(taxonomy,items,row.id,true,row);}catch(_){taxonomyValid=false;}
-   const current=saved.schema===1&&saved.version===CLASSIFICATION_WORK.rulesVersion&&saved.revision===revision&&saved.contentHash===hash;
-   const provenance=saved.procedencia||{},feedUrl=provenance.feedUrl||configuration_().feeds.find(feed=>feed.name===row.fuente)?.url||'',geography=newsCountryDecision_({...row,titular:cleanTitle,extracto:cleanExcerpt,sourceUrl:provenance.medioUrl,feedUrl,language:row.idioma}),nextCountry=geography.country,nextEntity=entityKey_(row.entidad);
-   if(!job.force&&current&&taxonomyValid&&nextEntity===row.entidad&&nextCountry===row.pais&&JSON.stringify(provenance.geografias||[])===JSON.stringify(geography.geographies)&&cleanTitle===row.titular&&cleanExcerpt===row.extracto)continue;
-   const labels=job.geographyOnly||current&&!job.force?saved:classification_(title,text,true,row.medio).labels;
-   const prior={...provenance};delete prior.locale;delete prior.origenLocale;
-   labels.procedencia={...prior,...newsMediaProvenance_({url:row.url,sourceUrl:provenance.medioUrl,medio:row.medio,rssCountry:provenance.paisRSS||sourceGeographies_().get(searchText_(row.fuente)),feedUrl,language:row.idioma}),geografias:geography.geographies,scope:geography.scope,paisMetodo:geography.reason,paisConfianza:geography.confidence,paisEvidencias:geography.countryEvidence,tipoGeografia:geography.type,...(geography.locale?{locale:geography.locale,origenLocale:geography.localeOrigin}:{}),versionReglas:RADAR.version};
-   const changed=job.geographyOnly?{clasificacion:JSON.stringify(labels),pais:nextCountry}:{titular:cleanTitle,extracto:cleanExcerpt,clasificacion:JSON.stringify(labels),pais:nextCountry,entidad:nextEntity,taxonomia:JSON.stringify(necessaryTaxonomyRecord_({...row,titular:cleanTitle,extracto:cleanExcerpt,clasificacion:JSON.stringify(labels)},items))};
+   let labels=saved,changed;
+   if(job.geographyOnly){
+    const provenance=saved.procedencia||{},feedUrl=provenance.feedUrl||configuration_().feeds.find(feed=>feed.name===row.fuente)?.url||'';
+    const geography=newsCountryDecision_({...row,sourceUrl:provenance.medioUrl,feedUrl,language:row.idioma});
+    const prior={...provenance};delete prior.locale;delete prior.origenLocale;
+    labels.procedencia={...prior,...newsMediaProvenance_({url:row.url,sourceUrl:provenance.medioUrl,medio:row.medio,rssCountry:provenance.paisRSS||sourceGeographies_().get(searchText_(row.fuente)),feedUrl,language:row.idioma}),geografias:geography.geographies,scope:geography.scope,paisMetodo:geography.reason,paisConfianza:geography.confidence,paisEvidencias:geography.countryEvidence,tipoGeografia:geography.type,...(geography.locale?{locale:geography.locale,origenLocale:geography.localeOrigin}:{}),versionReglas:RADAR.version};
+    changed={clasificacion:JSON.stringify(labels),pais:geography.country};
+   }else{
+    const cleanTitle=plainText_(row.titular),cleanExcerpt=plainText_(row.extracto),title=searchText_(cleanTitle),text=searchText_(cleanTitle+' '+cleanExcerpt),hash=sha256_(JSON.stringify([title,text])),nextEntity=entityKey_(row.entidad);
+    const current=saved.schema===1&&saved.version===CLASSIFICATION_WORK.rulesVersion&&saved.revision===revision&&saved.contentHash===hash;
+    let taxonomyValid=true;
+    try{validateTaxonomyAssignment_(taxonomySaved_(row.taxonomia),items,row.id,true,row);}catch(_){taxonomyValid=false;}
+    if(!job.force&&current&&taxonomyValid&&nextEntity===row.entidad&&cleanTitle===row.titular&&cleanExcerpt===row.extracto)continue;
+    if(!current||job.force)labels={...classification_(title,text,true,row.medio).labels,procedencia:saved.procedencia};
+    const classification=JSON.stringify(labels);
+    changed={titular:cleanTitle,extracto:cleanExcerpt,clasificacion:classification,entidad:nextEntity,taxonomia:JSON.stringify(necessaryTaxonomyRecord_({...row,titular:cleanTitle,extracto:cleanExcerpt,clasificacion:classification},items))};
+   }
    for(const [key,value] of Object.entries(changed))if(value!==row[key])updates.push({row:position,column:keys.indexOf(key)+1,value});
    if(changed.clasificacion!==row.clasificacion)classified++;if(labels.digital)digital++;
   }
