@@ -11,7 +11,7 @@ test('el titular y el dominio original prevalecen sobre el RSS consultado',()=>{
  assert.equal(c.newsCountry_(row({extracto:'La plataforma SPEI de pagos para empresas'})),'México');
 });
 test('un dominio internacional recurre al RSS y conserva un país histórico válido',()=>{
- const {c}=server();assert.equal(c.newsCountry_(row({fuente:'BBVA · México',sourceUrl:'https://publisher.com/story'})),'México');
+ const {c}=server();assert.equal(c.newsCountry_(row({pais:'Sin determinar',fuente:'BBVA · México',sourceUrl:'https://publisher.com/story'})),'México');
  assert.equal(c.newsCountry_(row({fuente:'',entidad:'HSBC'})),'España');
  assert.equal(c.newsCountry_(row({url:'https://editor.com.co/story',sourceUrl:'https://publisher.com/'})),'España');
 });
@@ -25,9 +25,9 @@ test('Santander regional se excluye sin expulsar banca legítima por ciudades co
  const {c}=server();for(const text of ['Norte de Santander anuncia pagos del PAE','Santander y Cesar investigan minería ilegal','En Santander capturados por granadas y disidencias','Santander anuncia renta ciudadana en Cúcuta','Veolia aguas del Socorro en Santander'])assert.equal(c.santanderExcluded_(c.searchText_(text)),true,text);
  for(const text of ['Banco Santander lanza pagos digitales para empresas en Colombia','Banco Santander mejora su banca móvil para empresas en Málaga','Santander Empresas incorpora transferencias en Cúcuta'])assert.equal(c.santanderExcluded_(c.searchText_(text)),false,text);
 });
-test('reclasifica país incorrecto aunque la revisión y el contenido de la noticia estén vigentes',()=>{
+test('el lote geográfico conserva etiquetas vigentes y un país histórico ante un medio ambiguo',()=>{
  const s=server(),c=s.c,input=row({sourceUrl:'https://portafolio.co/story'}),labels=c.classification_(c.searchText_(input.titular),c.searchText_(input.titular)).labels;input.clasificacion=JSON.stringify({...labels,procedencia:{medioUrl:input.sourceUrl}});input.taxonomia=JSON.stringify(c.taxonomyRecord_(input.titular,''));const keys=vm.runInContext('RADAR.sheets.Noticias',c);Array.prototype.push.call(s.sheets.get('Noticias').grid,keys.map(key=>input[key]||''));
- c.requestNewsClassification_();c.newsClassificationBatch_();assert.equal(c.rows_('Noticias')[0].pais,'España');assert.equal(JSON.parse(c.rows_('Noticias')[0].clasificacion).revision,labels.revision);
+ c.requestNewsClassification_(true,true);c.newsClassificationBatch_();assert.equal(c.rows_('Noticias')[0].pais,'España');assert.equal(JSON.parse(c.rows_('Noticias')[0].clasificacion).revision,labels.revision);
 });
 test('candidatos se actualizan por lotes acotados y mantenimiento no publica antes de terminar su cursor',()=>{
  const s=server(),c=s.c,keys=vm.runInContext('RADAR.sheets.Candidatos',c);for(let i=0;i<205;i++){const value={...row({id:String(i),titular:'BBVA incorpora pagos digitales para empresas en Colombia',entidad:'BBVA Empresas'}),procedencia:JSON.stringify({medio:'ABC Economía'}),clasificacion:'{}'};Array.prototype.push.call(s.sheets.get('Candidatos').grid,keys.map(key=>value[key]||''));}
@@ -35,10 +35,10 @@ test('candidatos se actualizan por lotes acotados y mantenimiento no publica ant
  const reads=s.reads;assert.equal(c.reclassifyCandidates_(207,100,8000).changed,0);assert.ok(s.reads-reads<=1);
 });
 test('el RSS consultado aporta país si no hay titular ni dominio geográfico',()=>{
- const {c}=server();assert.equal(c.newsCountry_(row({entidad:'Santander',fuente:'Santander Empresas · México',pais:'España'})),'México');
+ const {c}=server();assert.equal(c.newsCountry_(row({entidad:'Santander',fuente:'Santander Empresas · México',pais:'Sin determinar'})),'México');
 });
 test('La República y otras cabeceras homónimas conservan Perú y el mercado RSS salvo dominio concluyente',()=>{
- const {c}=server();for(const medio of ['La República','La Nación','La Opinión','El Universal','Vanguardia','El Heraldo'])assert.equal(c.newsCountry_(row({medio,fuente:'Interbank · Perú',pais:'Colombia'})),'Perú',medio);
- assert.equal(c.newsCountry_(row({medio:'La República',fuente:'Interbank · Perú',sourceUrl:'https://larepublica.co/'})),'Perú');
- assert.equal(c.newsCountry_(row({medio:'La República',fuente:'BBVA · España',sourceUrl:'https://larepublica.pe/'})),'Perú');
+ const {c}=server();for(const medio of ['La República','La Nación','La Opinión','El Universal','Vanguardia','El Heraldo'])assert.equal(c.newsCountry_(row({medio,fuente:'Interbank · Perú',pais:'Sin determinar'})),'Perú',medio);
+ assert.equal(c.newsCountry_(row({medio:'La República',pais:'Sin determinar',fuente:'Interbank · Perú',sourceUrl:'https://larepublica.co/'})),'Perú');
+ assert.equal(c.newsCountry_(row({medio:'La República',pais:'Sin determinar',fuente:'BBVA · España',sourceUrl:'https://larepublica.pe/'})),'Perú');
 });

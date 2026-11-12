@@ -19,10 +19,10 @@ test('el RSS consultado aporta país cuando faltan titular y dominio',()=>{
  assert.equal(c.sourceCountry_({...feed,name:'Google News RSS',country:'Sin determinar',url:'https://news.google.com/rss/search?q=bank'}),'');
  const global=c.evaluate_(raw,{...feed,name:'Global',country:'Sin determinar',url:'https://news.google.com/rss/search?q=bank'},new Date('2026-10-10T12:00:00Z'));assert.equal(global.item.country,'Sin determinar');
 });
-test('la clasificación persiste el país explícito sin modificar origen ni URL',()=>{
+test('el lote geográfico persiste el país explícito sin modificar origen ni URL',()=>{
  const s=server(),c=s.c,input=story('old',{titular:spanish+' en Perú'});add(s,[input]);
  assert.equal(c.cachedNewsRecords_()[0].pais,'Sin determinar');assert.equal(c.selectNews_([input],{country:'Perú'}).length,0);assert.equal(c.newsCsv_([input],{country:'Perú'}).count,0);
- c.requestNewsClassification_(true);c.newsClassificationBatch_();drainSnapshots(c);const stored=c.rows_('Noticias')[0];assert.equal(stored.pais,'Perú');assert.equal(c.cachedNewsRecords_()[0].pais,'Perú');assert.equal(c.selectNews_([stored],{country:'Perú'}).length,1);assert.equal(stored.fuente,input.fuente);assert.equal(stored.url,input.url);drainSnapshots(c);assert.equal(c.classificationJob_().state,'Completada');
+ c.requestNewsClassification_(true,true);c.newsClassificationBatch_();drainSnapshots(c);const stored=c.rows_('Noticias')[0];assert.equal(stored.pais,'Perú');assert.equal(c.cachedNewsRecords_()[0].pais,'Perú');assert.equal(c.selectNews_([stored],{country:'Perú'}).length,1);assert.equal(stored.fuente,input.fuente);assert.equal(stored.url,input.url);drainSnapshots(c);assert.equal(c.classificationJob_().state,'Completada');
 });
 test('titulares equivalentes entre idiomas cuentan una vez en noticias, novedades, Radar, exportación y newsletter sin traductor durante lectura',()=>{
  const s=server(),c=s.c,a=story('es'),b=story('en',{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',titular:english,extracto:'New digital payments for businesses',fecha:'2026-10-10'});add(s,[a,b]);translate(c,a);c.LanguageApp.translate=()=>{throw Error('No se traduce durante lectura');};
