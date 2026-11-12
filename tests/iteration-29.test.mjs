@@ -5,23 +5,24 @@ import {storage} from './helpers/server.mjs';
 import {applicationGeography,articleGeographies,geographyMatches,regionalGeographies} from '../src/shared/selection-policy.js';
 const setup=()=>{const s=storage();s.c.initializeConfiguration();return s;};
 const base={titular:'Nueva plataforma de pagos empresariales',extracto:'',url:'https://news.google.com/rss/articles/a',fuente:'Google News RSS',entidad:'BBVA',medio:'Editor'};
-test('la edición, el idioma y el RSS identifican procedencia, no el mercado del hecho',()=>{
- const {c}=setup();
- for(const feedUrl of ['?hl=es-ES','?hl=en-US','?gl=CO&hl=es-ES','?ceid=CO:es&hl=en-US']){
-  const result=c.newsCountryDecision_({...base,feedUrl:'https://news.google.com/rss/search'+feedUrl});
-  assert.equal(result.country,'Sin determinar');assert.equal(result.type,'DESCONOCIDA');assert.equal(result.reason,'undetermined');
+test('locale exacta, idioma base y geografía desconocida operan solo tras contenido y país RSS',()=>{
+ const {c}=setup();for(const [hl,country,type] of [['es-ES','España','PAIS'],['es-CO','Colombia','PAIS'],['en-GB','Reino Unido','PAIS'],['en-UK','Reino Unido','PAIS'],['es','EMEA','REGION'],['en-US','AMER','REGION'],['es-419','AMER','REGION'],['en','AMER','REGION'],['xx-YY','Sin determinar','DESCONOCIDA']]){
+  const actual=c.newsCountryDecision_({...base,feedUrl:'https://news.google.com/rss/search?hl='+hl});assert.equal(actual.country,country,hl);assert.equal(actual.type,type,hl);assert.equal(actual.reason,country==='Sin determinar'?'undetermined':'locale_fallback',hl);
  }
- assert.equal(c.newsMediaProvenance_({...base,feedUrl:'https://news.google.com/rss/search?hl=es-ES'}).paisMedio,'España');
- assert.equal(c.newsMediaProvenance_({...base,feedUrl:'https://news.google.com/rss/search?gl=CO&hl=es-ES'}).paisMedio,'Colombia');
+ assert.equal(c.newsCountryDecision_(base).country,'Sin determinar');
+ assert.equal(c.newsCountryDecision_({...base,feedUrl:'https://news.google.com/rss/search?gl=CO&hl=es-ES'}).country,'Colombia');
+ assert.equal(c.newsCountryDecision_({...base,feedUrl:'https://news.google.com/rss/search?ceid=CO:es&hl=en-US'}).country,'Colombia');
+ assert.equal(c.newsCountryDecision_({...base,rssCountry:'Colombia',feedUrl:'https://news.google.com/rss/search?gl=ES&hl=en-US'}).country,'AMER');
+ assert.equal(c.newsCountryDecision_({...base,feedUrl:'https://news.google.com/rss/search?gl=CO&ceid=ES:es&hl=en-US'}).country,'AMER');
 });
-test('los mercados explícitos se conservan y el país del actor queda separado',()=>{
+test('países protagonistas se conservan, el actor explícito prima y la editorial queda separada',()=>{
  const {c}=setup(),multiple=c.newsCountryDecision_({...base,titular:'México y Colombia firman un acuerdo de pagos',feedUrl:'https://news.google.com/rss/search?hl=en-US'});
  assert.deepEqual([...multiple.geographies],['Colombia','México']);assert.equal(multiple.scope,'multicountry');assert.equal(multiple.confidence,'medium');
- const actor=c.newsCountryDecision_({...base,titular:'BBVA México y España conectan empresas',sourceUrl:'https://semana.com/story',rssCountry:'Colombia'});assert.equal(actor.country,'España');assert.deepEqual([...actor.geographies],['España']);
+ const actor=c.newsCountryDecision_({...base,titular:'BBVA México y España conectan empresas',sourceUrl:'https://semana.com/story',rssCountry:'Colombia'});assert.equal(actor.country,'México');assert.deepEqual([...actor.geographies],['México','España']);
  assert.deepEqual([...c.newsCountryDecision_({...base,titular:'Revolut outage in UK, France and Spain'}).geographies],['España','Francia','Reino Unido']);
  assert.deepEqual([...c.newsCountryDecision_({...base,titular:'Sistema cashless en el México vs. Portugal'}).geographies],['México']);
  assert.equal(c.newsCountryDecision_({...base,titular:'BBVA México lanza pagos',extracto:'Servicio también citado en Colombia',sourceUrl:'https://semana.com/story'}).geographies.length,1);
- assert.equal(c.newsCountryDecision_({...base,sourceUrl:'https://publisher.co/story',rssCountry:'España'}).country,'Sin determinar');
+ assert.equal(c.newsCountryDecision_({...base,sourceUrl:'https://publisher.co/story',rssCountry:'España'}).country,'España');
  const manual=c.newsCountryDecision_({...base,clasificacion:JSON.stringify({procedencia:{manualGeografias:['Perú','Colombia']}})});assert.deepEqual([...manual.geographies],['Perú','Colombia']);assert.equal(manual.reason,'manual');
 });
 test('catálogos separados conservan ediciones manuales',()=>{

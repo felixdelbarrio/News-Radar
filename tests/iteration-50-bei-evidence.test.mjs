@@ -40,15 +40,32 @@ test('el segmento requiere evidencia del destinatario o del uso y una capacidad 
  }
 });
 
-test('el mismo RSS distingue mercado, región, sede y procedencia',()=>{
+test('el mercado explícito y la región prevalecen sobre la procedencia RSS',()=>{
  const {c}=storage();c.initializeConfiguration();
  const title='Stripe y miPlata lanzan pagos digitales para comercios';
  const none=evaluate(c,title,'La empresa tiene su sede en Estados Unidos.');
- assert.equal(none.item.country,'Sin determinar');
+ assert.equal(none.item.country,'España');
+ assert.equal(none.item.geography.reason,'domain');
  const provenance=JSON.parse(c.newsRecord_(none.item,feed,now)[11]).procedencia;
  assert.equal(provenance.paisRSS,'España');
  assert.equal(evaluate(c,title+' en Colombia').item.country,'Colombia');
- assert.equal(evaluate(c,title+' para América Latina').item.country,'AMER');
- assert.equal(evaluate(c,title+' para América Latina').item.geography.type,'REGION');
+ assert.equal(evaluate(c,title+' para Europa').item.country,'EMEA');
+ assert.equal(evaluate(c,title+' para Europa').item.geography.type,'REGION');
  assert.deepEqual(Array.from(evaluate(c,title+' en Colombia y México').item.geography.geographies),['Colombia','México']);
+});
+
+test('Noticias recupera la geografía del histórico de la iteración 50 al leer',()=>{
+ const {c,sheets}=storage();c.initializeConfiguration();
+ const source={...feed,entity:'CaixaBank',name:'CaixaBank · España'};
+ const {item}=evaluate(c,'CaixaBank lanza pagos digitales para empresas','',source);
+ const row=c.newsRecord_(item,source,now),labels=JSON.parse(row[11]);
+ row[2]='Sin determinar';
+ row[11]=JSON.stringify({...labels,procedencia:{...labels.procedencia,paisMetodo:'undetermined',geografias:['Sin determinar']}});
+ sheets.get('Noticias').grid.push(row);
+ const cached=c.cachedNewsRecords_();
+ assert.equal(cached[0].pais,'España');
+ assert.deepEqual(Array.from(cached[0].geografias),['España']);
+ assert.equal(c.newsCsv_(cached,{country:'España'},'es',true).count,1);
+ assert.equal(c.selectNews_(c.newsRowsForPeriod_(),{country:'España'}).length,1);
+ assert.equal(sheets.get('Noticias').grid[1][2],'Sin determinar');
 });
