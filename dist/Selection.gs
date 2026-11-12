@@ -15,7 +15,12 @@ function newsScope_(row,query,entity,entityName=entityKey_,geography){
   return (!query.country||(query.country===otherGeography||REGION_CODES.includes(query.country)?geographyMatches(row,query.country,geography||applicationGeography(configuration_().applicationScope,query.segment,configuration_().geographies)):articleGeographies(row).includes(query.country)))&&(!entity||articleEntities(row).some(name=>entityName(name)===entity))&&(!query.source||row.medio===query.source||row.fuente===query.source)&&(!query.from||row.fecha>=query.from)&&(!query.to||row.fecha<=query.to);
 }
 function selectNews_(rows,query){
-  return selectAnnotatedNews_(annotateNews_(rows.filter(row=>newsScope_(row,query,''))),query);
+  const periodAndSource={...query,country:''};
+  const scoped=rows.filter(row=>newsScope_(row,query,'')||(
+    row.pais==='Sin determinar'&&newsScope_(row,periodAndSource,'')&&
+    savedNewsLabels_(row.clasificacion).procedencia?.paisMetodo==='undetermined'
+  ));
+  return selectAnnotatedNews_(annotateNews_(scoped),query);
 }
 function newsSearchText_(row){return searchText_([row.titular,row.extracto,row.original?.titular,row.original?.extracto,...articleEntities(row),row.medio].filter(Boolean).join(' '));}
 function newsFiltersMatch_(row,query,entity,entityName=entityKey_,geography){
