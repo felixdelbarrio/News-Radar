@@ -15,8 +15,9 @@ test('señales MECE priorizan incidencia, alianza y lanzamiento; alcance sin eve
  const result=labels(c,title);assert.equal(result.digital,true,title);assert.deepEqual(Array.from(result.senales),[expected],title);
  }
 });
-test('incidencia digital con entidad monitorizada es relevante incluso sin referencia a empresas',()=>{
- const {c}=server(),result=labels(c,'BBVA: problemas de acceso a la app y error al iniciar sesión');
+test('una incidencia digital solo es elegible si afecta a un servicio empresarial',()=>{
+ const {c}=server(),result=labels(c,'BBVA: problemas de acceso a la app para empresas y error al iniciar sesión');
+ assert.equal(labels(c,'BBVA: problemas de acceso a la app y error al iniciar sesión').digital,false);
  assert.equal(result.digital,true);assert.equal(result.segmento,'Empresas e instituciones');assert.deepEqual(Array.from(result.senales),['Indisponibilidad / Incidencia operativa']);
  for(const title of ['BBVA mejora su app para empresas para prevenir caídas','BBVA guía: qué hacer si la app no funciona'])assert.notEqual(labels(c,title).evento,'Indisponibilidad / Incidencia operativa');
 });
@@ -31,7 +32,7 @@ test('país único del titular domina dominio; extracto incidental no suplanta d
 });
 test('patrones funcionales de auditoría asignan operativas específicas del catálogo',()=>{
  const {c}=server(),definitions=c.taxonomyDefinitions(c.configuration_().taxonomy);
- for(const [title,id] of [['Citi y Coinbase lanzan pagos con stablecoins para empresas','03.13'],['KB Kookmin lanza parking account para fondos B2B','02.17'],['Getnet y Nayax estrenan SoftPOS para comercios','11.02'],['Mercado Pago incorpora impuestos provinciales en su app','05.23'],['BBVA presenta problemas de acceso a la app','16.01']]){
+ for(const [title,id] of [['Citi y Coinbase lanzan pagos con stablecoins para empresas','03.13'],['KB Kookmin lanza parking account para fondos B2B','02.17'],['Getnet y Nayax estrenan SoftPOS para comercios','11.02'],['Mercado Pago incorpora impuestos provinciales en su app para comercios','05.23'],['BBVA presenta problemas de acceso a la app para empresas','16.01']]){
  const text=c.searchText_(title),matches=c.taxonomyDecision(text,definitions,text).matches;assert.ok(matches.some(match=>match.row.key===id),title);assert.equal(labels(c,title).digital,true,title);
  }
 });
@@ -39,7 +40,7 @@ test('patrones funcionales de auditoría asignan operativas específicas del cat
 test('prevención o caídas ajenas no son incidencias; un evento real separado sí prevalece',()=>{
  const {c}=server();
  for(const title of ['BBVA mejora su app para empresas: riesgo de caída del servicio','BBVA app para empresas. Caída de ingresos del banco','BBVA ofrece API para empresas. Podría fallar el sistema'])assert.notEqual(labels(c,title).evento,'Indisponibilidad / Incidencia operativa',title);
- const result=labels(c,'BBVA: prevención de caídas en la app; pero hoy la app no funciona');assert.equal(result.evento,'Indisponibilidad / Incidencia operativa');
+ const result=labels(c,'BBVA: prevención de caídas en la app para pymes; pero hoy la app no funciona');assert.equal(result.evento,'Indisponibilidad / Incidencia operativa');
 });
 test('clasificación completada con mismos datos no crea otro lote; edición y fuerza lo reactivan',()=>{
  const {c,sheets}=server(),sheet=sheets.get('Noticias'),keys=vm.runInContext('RADAR.sheets.Noticias',c),row={id:'same',titular:'Qonto ofrece API de tesorería para empresas',fecha:'2026-10-22',entidad:'Qonto',url:'https://example.com/same'};sheet.grid.push(keys.map(key=>row[key]||''));
@@ -51,5 +52,5 @@ test('negaciones de incidencias y locución de acuerdo con no inventan eventos',
  const {c}=server();
  for(const title of ['BBVA renueva su app para empresas: los usuarios no reportan problemas de acceso','BBVA confirma que no hay caída del sistema de banca online'])assert.notEqual(labels(c,title).evento,'Indisponibilidad / Incidencia operativa',title);
  assert.notEqual(labels(c,'Qonto mejora pagos para empresas de acuerdo con las nuevas normas').evento,'Alianza estratégica');
- assert.equal(labels(c,'BBVA confirma que no hay caída de la app; pero hoy falla el sistema de pagos').evento,'Indisponibilidad / Incidencia operativa');
+ assert.equal(labels(c,'BBVA confirma que no hay caída de la app; pero hoy falla el sistema de pagos para empresas').evento,'Indisponibilidad / Incidencia operativa');
 });

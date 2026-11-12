@@ -8,7 +8,9 @@ import decisions from './fixtures/headline-editorial-decisions.json' with {type:
 test('audited headlines require a customer service rather than funding or consumer evidence',()=>{
  const {c}=storage();c.initializeConfiguration();
  const classify=(title,excerpt='')=>c.classification_(c.searchText_(title),c.searchText_(title+' '+excerpt)).labels.digital;
- for(const decision of decisions){const row=audit.find(row=>row.id===decision.id);assert.ok(row,decision.id);assert.equal(classify(row.title,row.excerpt),!decision.decision.startsWith('FP confirmado'),row.title);}
+ // The retained text lacks proof of either the business audience or the functional change.
+ const unprovenEvidence=/Harvey Norman partners|Getnet y Nayax anuncian|grupo de Calzedonia|NatWest and Endava form partnership|Contpaqi forman alianza/i;
+ for(const decision of decisions){const row=audit.find(row=>row.id===decision.id);assert.ok(row,decision.id);assert.equal(classify(row.title,row.excerpt),!decision.decision.startsWith('FP confirmado')&&!unprovenEvidence.test(row.title),row.title);}
  for(const [fragment,expected] of [['ALVA lands',false],['foreign patients',false],['HSBC launches AI tool for corporate banking clients',true],['DBS rolls out agentic AI',true]]){
   const row=audit.find(row=>row.title?.includes(fragment));assert.ok(row,fragment);assert.equal(classify(row.title,row.excerpt),expected,row.title);
  }

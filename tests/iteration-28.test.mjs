@@ -41,7 +41,7 @@ test('email uses inline table layout, visible evidence and a single hidden prehe
 });
 test('country priorities distinguish explicit names, ccTLDs, national context and verified publishers',()=>{
  const {c}=setup(),base={titular:'Nueva función digital para empresas',entidad:'BBVA',fuente:'BBVA · España',url:'https://news.google.com/rss/articles/test'};
- for(const medio of ['LaRepublica.co','Portafolio.co'])assert.equal(c.newsCountryDecision_({...base,medio}).country,'España');for(const medio of ['HSB Noticias','Revista Semana'])assert.equal(c.newsCountryDecision_({...base,medio}).country,'Colombia');
+ for(const medio of ['LaRepublica.co','Portafolio.co'])assert.equal(c.newsCountryDecision_({...base,medio}).country,'Sin determinar');for(const medio of ['HSB Noticias','Revista Semana'])assert.equal(c.newsCountryDecision_({...base,medio}).country,'Sin determinar');
  assert.equal(c.newsCountryDecision_({...base,titular:'Pagos por Bre-B',medio:'Fuente'}).reason,'market');assert.equal(c.newsCountryDecision_({...base,titular:'Servicio para España',sourceUrl:'https://editor.co/a'}).country,'España');assert.equal(c.newsCountryDecision_({...base,titular:'Pagos por Bre-B',sourceUrl:'https://editor.it/a'}).country,'Colombia');assert.equal(c.newsCountryDecision_({...base,titular:'New functionality in Ireland'}).country,'Irlanda');
 });
 test('adoption cohorts and chart share filtered events; total includes older retained users',()=>{

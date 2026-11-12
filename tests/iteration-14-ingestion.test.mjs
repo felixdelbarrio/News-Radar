@@ -5,7 +5,7 @@ import {storage} from './helpers/server.mjs';
 function server(){const s=storage();s.c.initializeConfiguration();return s;}
 test('incident evidence in article text requires a business segment and hypothetical help remains excluded',()=>{
  const {c}=server();
- for(const [title,body] of [['BBVA informa sobre su servicio','Los clientes de empresas de BBVA no pueden acceder a su banca online por un fallo informatico.'],['HSBC service update','HSBC business mobile banking down: customers unable to access the app.'],['Santander informa a sus clientes','Banco Santander Empresas presenta fallas: el sistema caido no permite operar con transferencias.']]){
+ for(const [title,body] of [['BBVA informa sobre su servicio','Los clientes de empresas de BBVA no pueden acceder a su banca online por un fallo informatico.'],['HSBC service update','HSBC business mobile banking down: customers unable to access the app.'],['Santander informa a sus clientes','Banco Santander Empresas presenta fallas en el canal para pymes: el sistema caido no permite operar con transferencias.']]){
   const assessment=c.classification_(c.searchText_(title),c.searchText_(title+' '+body)).assessment;
   assert.equal(assessment.relevant,true,title);assert.equal(assessment.business,true,title);assert.ok(assessment.capabilities.length,title);assert.ok(assessment.signals.includes(vm.runInContext('INCIDENT_SIGNAL',c)),title);
  }

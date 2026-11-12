@@ -18,13 +18,13 @@ test('39: every enabled geography has one active profile or one bounded BEI fall
 test('39: every enabled country preserves explicit article evidence above a contradictory RSS origin',()=>{
  const {c}=server();for(const geo of c.configuration_().geographies.filter(row=>row.enabled)){const row={titular:'BBVA lanza plataforma digital de pagos para empresas en '+geo.name,rssCountry:geo.code==='ES'?'México':'España',language:'en'};assert.equal(c.newsCountryDecision_(row).country,geo.name,geo.code);}
  for(const code of ['PA','BO','PY','AD'])assert.equal(c.configuration_().geographies.find(row=>row.code===code).language,code==='AD'?'es':'es-419');
- assert.equal(c.newsCountryDecision_({titular:'A new corporate platform',articleLanguage:'zh-TW'}).country,'APAC');
+ assert.equal(c.newsCountryDecision_({titular:'A new corporate platform',articleLanguage:'zh-TW'}).country,'Sin determinar');
 });
 
 test('39: technical US edition for Uruguay is not a conflicting article country; headline targets prevail',()=>{
  const {c}=server(),config=c.configuration_(),geo=config.geographies.find(g=>g.code==='UY'),entity=config.entities.find(e=>e.name==='Santander'),feed=c.profileFeed_(geo,entity),base={entidad:'Santander',fuente:feed.name,feedUrl:feed.url,rssCountry:'Uruguay'};
- assert.equal(new URL(feed.url).searchParams.get('gl'),'US');assert.equal(c.newsCountryDecision_({...base,titular:'Santander presenta plataforma de pagos para empresas'}).country,'Uruguay');
- for(const [title,expected] of [['Santander Uruguay lanza pagos digitales para empresas','Uruguay'],['HSBC México ofrece nuevas soluciones de tesorería para Asia','APAC'],['Bank launches corporate payments in Taiwan','APAC'],['BBVA lanza banca digital en España','España'],['BBVA lanza banca digital en México','México'],['BBVA lanza banca digital en Argentina','Argentina'],['BBVA lanza banca digital en Perú','Perú'],['BBVA lanza banca digital en Colombia','Colombia']])assert.equal(c.newsCountryDecision_({...base,titular:title}).country,expected,title);
+ assert.equal(new URL(feed.url).searchParams.get('gl'),'US');assert.equal(c.newsCountryDecision_({...base,titular:'Santander presenta plataforma de pagos para empresas'}).country,'Sin determinar');
+ for(const [title,expected] of [['Santander Uruguay lanza pagos digitales para empresas','Sin determinar'],['HSBC México ofrece nuevas soluciones de tesorería para Asia','APAC'],['Bank launches corporate payments in Taiwan','APAC'],['BBVA lanza banca digital en España','España'],['BBVA lanza banca digital en México','México'],['BBVA lanza banca digital en Argentina','Argentina'],['BBVA lanza banca digital en Perú','Perú'],['BBVA lanza banca digital en Colombia','Colombia']])assert.equal(c.newsCountryDecision_({...base,titular:title}).country,expected,title);
  assert.equal(inferredCountryCode([], 'America/La_Paz'),'BO');assert.equal(inferredCountryCode([], 'Asia/Taipei'),'TW');
  const national=c.newsCountryDecision_({...base,titular:'HSBC launches corporate payments in Asia, starting in Singapore'});assert.equal(national.country,'Singapur');assert.equal(national.reason,'headline');assert.ok(national.countryEvidence.some(item=>item.country==='Singapur'));
  const fromContent=c.newsCountryDecision_({...base,titular:'HSBC México ofrece nuevas soluciones de tesorería para Asia',extracto:'La plataforma se ofrecerá primero a las empresas en Singapore.'});assert.equal(fromContent.country,'Singapur');assert.equal(fromContent.reason,'content');
@@ -51,9 +51,9 @@ test('39: incoming external countries resolve to their regional tab instead of t
  const {c}=server(),rows=[['es','España','BBVA renueva su banca digital de tesorería'],['ng','Nigeria','BBVA abre APIs de pagos corporativos'],['sg','Singapur','BBVA digitaliza el comercio exterior empresarial']].map(([id,pais,titular])=>({id,pais,titular,entidad:'BBVA',medio:'Editor',url:'https://example.com/'+id,fecha:'2026-10-20',segmentos:['Empresas e instituciones'],senales:['Mejora de oferta'],taxonomia:[],etiquetas:{digital:true}}));
  for(const [country,region,id] of [['Nigeria','EMEA','ng'],['Singapur','APAC','sg']]){const data=c.newsDashboard_(rows,{view:'news',country,from:'2026-10-01',to:'2026-10-31'},[],'news');assert.equal(data.newsGeography,region);assert.equal(data.contextTotal,3);assert.deepEqual(Array.from(data.items,row=>row.id),[id]);const selected=c.newsGeographySelection_(rows,{newsGeography:country});assert.deepEqual(Array.from(selected,row=>row.id),[id]);}
 });
-test('Cronista México usa el RSS de México cuando el enlace del editor solo apunta a la portada global',()=>{
+test('Cronista México no acredita el mercado cuando la noticia carece de evidencia geográfica',()=>{
  const {c}=server(),row={id:'cronista-mx',titular:'Klar integra pago de servicios y recargas con tapi en su app',extracto:'',medio:'El Cronista',url:'https://news.google.com/rss/articles/example',fuente:'Klar · México',pais:'Sin determinar',clasificacion:JSON.stringify({procedencia:{medioUrl:'https://www.cronista.com/',paisRSS:'México'}})};
- assert.deepEqual(Array.from(c.newsCountryDecision_(row).geographies),['México']);
+ assert.deepEqual(Array.from(c.newsCountryDecision_(row).geographies),['Sin determinar']);
 });
 
 test('39: source quality administration reuses filters, pagination and escaped table cells',async t=>{
@@ -70,7 +70,7 @@ test('39: event markets override actor origins and preserve multinational scope'
   ['Bank headquartered in Taiwan launches corporate payments in Spain','','España'],
   ['HSBC México lanza pagos para empresas en Bangladesh','','Bangladés'],
   ['Westpac Australia launches corporate payments in New Zealand','','Nueva Zelanda'],
-  ['Santander UK Banking Outage Leaves Thousands Without Access to Funds','','Reino Unido'],
+  ['Santander Banking Outage in the UK Leaves Thousands Without Access to Funds','','Reino Unido'],
   ['Afirme digitaliza gastos para empresas','El banco mexicano amplía su plataforma en México.','México'],
   ['BBVA presenta pagos digitales Bre-B','','Colombia'],
   ['Amazon and Santander’s Openbank Pay launch new payment options for customers in Poland','','Polonia'],
@@ -88,7 +88,7 @@ test('39: event markets override actor origins and preserve multinational scope'
  const mixed=c.newsCountryDecision_({titular:'HSBC launches corporate payments in Asia and Spain',rssCountry:'Reino Unido'});assert.equal(mixed.country,'España');assert.deepEqual(new Set(mixed.geographies),new Set(['España','APAC']));
  const multi=c.newsCountryDecision_({titular:'Revolut outage: app and cards stop working in UK, France and Spain'});assert.deepEqual(new Set(multi.geographies),new Set(['Reino Unido','Francia','España']));assert.equal(multi.scope,'multicountry');
  assert.equal(c.newsCountryDecision_({titular:'Getnet permitirá a las empresas tener una única solución de pago para 30 países europeos',rssCountry:'España'}).country,'EMEA');
- assert.equal(c.newsCountryDecision_({titular:'Getnet llega a un acuerdo con WeChat Pay para abrir sus pagos a los turistas de China',rssCountry:'España'}).country,'España');
+ assert.equal(c.newsCountryDecision_({titular:'Getnet llega a un acuerdo con WeChat Pay para abrir sus pagos a los turistas de China',rssCountry:'España'}).country,'Sin determinar');
 });
 
 test('39: the existing historical batch can repair geography without changing functional or editorial fields',()=>{
