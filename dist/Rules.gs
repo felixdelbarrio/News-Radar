@@ -96,8 +96,8 @@ function businessSignals_(title,text,index=businessIndex_()){
 }
 function recruitmentHeadline_(title){return /\b(?:job vacancies|job openings|is hiring|oferta de empleo|ofertas de empleo|alimi yapacagini|personel alimi)\b/.test(title);}
 function businessSegmentEvidence_(text,index){
-  const audience=/\b(?:para|for|a|to|destinad[oa]s? a|dirigid[oa]s? a|serves?)\s+(?:(?:las|los|sus|the|its|small|large|particulares y|consumers and|people and|small and medium-sized)\s+)*(?:empresas?|businesses|companies|corporations|instituciones|institutions|comercios)\b|\b(?:businesses|empresas)\s+(?:unable to (?:make|accept) (?:paye )?payments|can (?:use|manage|make|accept) .{0,65}(?:payments|funds|payouts)|haran transacciones|pueden (?:cobrar|pagar)|podran (?:cobrar|pagar|aceptar|hacer|realizar))\b|\b(?:clientes?|customers?) (?:de empresas|empresariales)\b|\b(?:corporate|institutional|business)\s+(?:clients?|customers?|accounts?|cards?|payments?|(?:overseas |cross-border )?remittances|checkout|custody|lending|(?:mobile |digital |online )?banking|mobile (?:app|login)|mobile(?=\s*&\s*web login))\b|\b(?:clientes?|cuentas?|pagos?|tarjetas?|cobros?)\s+(?:de empresa|corporativ[ao]s?|institucionales?|empresariales?)\b/;
-  const implicit=/\b(?:adquirencia|merchant acquiring|merchant settlement|erp embedded finance|real-time forex settlement|liquidity management|conto business|softpos|tpv|plataforma de cobros y pagos|confirming|factoring|cash management|treasury|accept(?:s|ing)? (?:card |online |stablecoin )?payments (?:at checkout|on (?:their|your) (?:website|store))|aceptar (?:pagos|tarjetas) en (?:su|tu) (?:tienda|web)|pagos? de universidades e instituciones|(?:cobros?|pagos?(?: masivos)?|gastos?|finanzas) de (?:las )?empresas|corporate bankers?|relationship managers?)\b/;
+  const audience=/\b(?:para|for|a|to|destinad[oa]s? a|dirigid[oa]s? a|serves?)\s+(?:(?:las|los|sus|the|its|small|large|grandes|particulares y|consumers and|people and|small and medium-sized)\s+)*(?:empresas?|businesses|companies|corporations|instituciones|institutions|comercios)\b|\b(?:businesses|empresas)\s+(?:unable to (?:make|accept) (?:paye )?payments|can (?:use|manage|make|accept) .{0,65}(?:payments|funds|payouts)|haran transacciones|pueden (?:cobrar|pagar)|podran (?:cobrar|pagar|aceptar|hacer|realizar|recibir pagos))\b|\b(?:clientes?|customers?) (?:de empresas|empresariales)\b|\b(?:corporate|institutional|business)\s+(?:transaction banking|clients?|customers?|accounts?|cards?|payments?|(?:overseas |cross-border )?remittances|checkout|custody|lending|(?:mobile |digital |online )?banking|mobile (?:app|login)|mobile(?=\s*&\s*web login))\b|\b(?:clientes?|cuentas?|pagos?|tarjetas?|cobros?)\s+(?:de empresa|corporativ[ao]s?|institucionales?|empresariales?)\b/;
+  const implicit=/\b(?:app['’"”»]? de empresas|app empresarial|recebimentos de empresas|adquirencia|merchant acquiring|merchant settlement|erp embedded finance|real-time forex settlement|liquidity management|conto business|softpos|tpv|plataforma de cobros y pagos|confirming|factoring|cash management|treasury|accept(?:s|ing)? (?:card |online |stablecoin )?payments (?:at checkout|on (?:their|your) (?:website|store))|aceptar (?:pagos|tarjetas) en (?:su|tu) (?:tienda|web)|pagos? de universidades e instituciones|(?:cobros?|pagos?(?: masivos)?|transferencias?|gastos?|finanzas) de (?:las )?empresas|corporate bankers?|relationship managers?)\b/;
   for(const clause of text.split(/[.!?;\n]+/)){
     if(/\b(?:menciona|mentions?|cites?|cita)\b/.test(clause))continue;
     const value=clause.replace(/(?:^|[|—])\s*(?:empresas|business)\s*:/g,' ');
@@ -245,10 +245,11 @@ function geographicMentionScore_(text,at,term,actor=false){
 function geographyListSeparator_(text){return Boolean(text.trim())&&!text.replace(/and|y|e|[\s,]/g,'');}
 function newsCountryDecision_(row,index=businessIndex_()){
  const title=searchText_(row.titular).replace(/[\u2010-\u2015]/g,'-'),saved=savedNewsLabels_(row.clasificacion).procedencia||{};
- const manual=saved.manualGeografias||row.manualGeografias;
+ const known=country=>index.countryNames.has(country)||REGION_CODES.includes(country);
+ const manual=saved.manualGeografias||row.manualGeografias||(['manual','manual_verified_content'].includes(saved.paisMetodo)?saved.geografias?.length?saved.geografias:[row.pais]:null);
  const evidence=[];let matches=[];
  const add=(country,method,value,score,position)=>{if(country&&index.countryNames.has(country))evidence.push({country,method,value,score,...(position===undefined?{}:{position})});};
- if(Array.isArray(manual)&&manual.length){matches=[...new Set(manual.filter(country=>index.countryNames.has(country)||REGION_CODES.includes(country)||country==='Sin determinar'))];if(matches.length)return geographyDecision_(matches,'manual','manual',evidence,'high',matches[0]==='Sin determinar'?'DESCONOCIDA':REGION_CODES.includes(matches[0])?'REGION':'PAIS');}
+ if(Array.isArray(manual)&&manual.length){matches=[...new Set(manual.filter(country=>index.countryNames.has(country)||REGION_CODES.includes(country)||country==='Sin determinar'))];if(matches.length)return geographyDecision_(matches,saved.paisMetodo==='manual_verified_content'?'manual_verified_content':'manual','manual',Array.isArray(saved.paisEvidencias)?saved.paisEvidencias:evidence,'high',matches[0]==='Sin determinar'?'DESCONOCIDA':REGION_CODES.includes(matches[0])?'REGION':'PAIS');}
  const headlineActor=headlineEntity_(title,index)||index.entities.get(searchText_(row.entidad));
  for(const geo of index.geographies)for(const term of geo.names){if(!term)continue;if(['georgia','jordan','santander'].includes(term)&&!new RegExp('(?:pais|country|estado|state|en) '+term+'\\b').test(title))continue;for(let at=phrasePosition_(title,term);at>=0;at=phrasePosition_(title,term,at+term.length))if(!/\bvs\.?\s*$/.test(title.slice(0,at))){const subject=headlineActor&&[headlineActor.name,...headlineActor.aliases].some(name=>title.slice(0,at).trim().endsWith(searchText_(name)));add(geo.name,'headline',term,geographicMentionScore_(title,at,term,subject),at);}}
  for(const {term,country} of index.marketCountries)if(phraseMatch_(title,term))add(country,'market',term,105);
@@ -275,7 +276,15 @@ function newsCountryDecision_(row,index=businessIndex_()){
  if(regionalTitle)return geographyDecision_(regions,'headline_region',regionalTitle,evidence,'medium','REGION');
  const publisherUrl=row.sourceUrl||saved.medioUrl||'',url=row.url||'',publisherDomain=/^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test(row.medio||'')?'https://'+row.medio:'';
  const candidates=[...new Set([url,publisherUrl,saved.urlEditorial,publisherDomain].filter(candidate=>canonicalUrl_(candidate)&&!domainMatches_(candidate,'news.google.com')))];
+ const historic=row.id&&known(row.pais)?geographyDecision_(
+  [...new Set([row.pais,...(Array.isArray(saved.geografias)?saved.geografias.filter(known):[])])],
+  saved.paisMetodo&&saved.paisMetodo!=='undetermined'?saved.paisMetodo:'historic_country',
+  'país histórico conservado',Array.isArray(saved.paisEvidencias)?saved.paisEvidencias:[],
+  saved.paisConfianza||'low',REGION_CODES.includes(row.pais)?'REGION':'PAIS'
+ ):null;
+ if(historic&&['headline','content','market','headline_region'].includes(historic.reason)&&historic.confidence!=='low')return historic;
  for(const candidate of candidates){const edition=articleEdition_(candidate,index);if(edition.country)return geographyDecision_([edition.country],'edition',edition.evidence,evidence,'medium');}
+ if(historic)return historic;
  for(const candidate of candidates.length?candidates:['']){const editorial=editorialCountry_(candidate,row.medio,index);if(editorial.country&&editorial.verified)return geographyDecision_([editorial.country],'publisher',editorial.evidence,evidence,'low');}
  for(const candidate of candidates){const country=domainCountry_(candidate,index);if(country)return geographyDecision_([country],'domain',canonicalUrl_(candidate),evidence,'medium');}
  if(candidates.some(candidate=>verifiedMedia_(index).some(media=>media.ruleType==='EDITOR_GLOBAL'&&mediaEditionMatches_(candidate,media)))){
@@ -286,7 +295,6 @@ function newsCountryDecision_(row,index=businessIndex_()){
  const explicit=row.rssCountry||saved.paisRSS||'',fromFeed=sourceGeographies_(index).get(searchText_(row.fuente))||'',rss=explicit&&index.countryNames.has(explicit)?explicit:fromFeed,fromUrl=rssUrlCountry_(row.feedUrl||'',index,rss);
  if(fromUrl===null||rss&&fromUrl&&rss!==fromUrl){/* Contradicción: pasar al idioma. */}
  else if(rss||fromUrl)return geographyDecision_([rss||fromUrl],'rss_fallback',row.feedUrl||row.fuente||rss,evidence,'low');
- if(row.id&&index.countryNames.has(row.pais))return geographyDecision_([row.pais],'historic_country','país histórico conservado',evidence,'low');
  const locale=localeGeography_(row,index);if(locale)return {...geographyDecision_([locale.country],'locale_fallback',locale.evidence,evidence,'low',locale.type),locale:locale.locale,localeOrigin:locale.origin};
  return geographyDecision_(['Sin determinar'],'undetermined','sin evidencia geográfica',evidence,'low','DESCONOCIDA');
 }
@@ -365,7 +373,7 @@ function applyGeographyUpgrade(){
   try{
    sheet.getRange(index+2,2,1,1).setValues([[JSON.stringify(updated)]]);sheet.getRange(geoIndex+2,2,1,1).setValues([[JSON.stringify(merged)]]);SpreadsheetApp.flush();invalidateConfiguration_();
    if(configuration_().entities.some(row=>!row.headquartersCountry))throw Error('Sedes no verificadas.');
-   requestNewsClassification_(true);
+   requestNewsClassification_(true,true);
    properties_().setProperty('GEOGRAPHY_UPGRADE',JSON.stringify({version:RADAR.version,backupId:backup.getId(),backupUrl:backup.getUrl(),updatedAt:new Date().toISOString(),entities:updated.length}));
    return getGeographyUpgrade();
   }catch(error){sheet.getRange(index+2,2,1,1).setValues([[original]]);sheet.getRange(geoIndex+2,2,1,1).setValues([[rows[geoIndex][1]]]);invalidateConfiguration_();throw error;}
