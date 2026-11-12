@@ -314,7 +314,7 @@ test('ejecuciones pagina todo el histórico disponible y el progreso es seguro p
 });
 test('todos los gráficos del Radar respetan geografía y distinguen editor de entidad mencionada',()=>{
  const c=context(),rows=[
- {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-11',entidad:'BBVA',pais:'España',medio:'Editor externo',titular:'BBVA financia empresas',extracto:''},
+ {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-11',entidad:'BBVA',pais:'España',medio:'Editor externo',titular:'BBVA lanza financiación digital para empresas',extracto:''},
  {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-10',entidad:'BBVA',pais:'España',medio:'BBVA',titular:'BBVA lanza cuenta digital para empresas',extracto:''},
  {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-10',entidad:'BBVA',pais:'España',medio:'Editor Retail',titular:'BBVA tarjeta para particulares',extracto:''},
  {clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:'2026-10-09',entidad:'Santander',pais:'México',medio:'BBVA',titular:'Banco Santander lanza pagos digitales para empresas',extracto:''}];
