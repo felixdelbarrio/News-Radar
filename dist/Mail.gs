@@ -50,6 +50,7 @@ function sendNewsletterMail_(sender,recipient,content){
 function sendNewsletterTest(input){return newsletterTest_(authorize_(true),input);}
 function newsletterTest_(session,input){
   if(!input||!Object.hasOwn(newsletterCadences,input.cadence))throw Error('Periodicidad de prueba no válida.');
+  if(input.period!==undefined&&!['closed','current'].includes(input.period))throw Error('Periodo de prueba no válido.');
   const recipient=newsletterEmail_(input.email||session.email),country=String(input.country||'');if(country&&!newsletterCountries_().includes(country))throw Error('Geografía de prueba no disponible.');
   const language=input.language||'es';if(!supportedLanguage(language))throw Error('Idioma no admitido.');
   if(backgroundPaused_())throw Error('La configuración está en curso. Reintenta la prueba cuando termine.');
@@ -59,22 +60,24 @@ function newsletterTest_(session,input){
     if(backgroundPaused_())throw Error('La configuración está en curso. Reintenta la prueba cuando termine.');
     const now=new Date(),deliveries=rows_('NewsletterEnvios');if(!newsletterBudget_(deliveries,now))throw Error('Se ha alcanzado el límite configurado de newsletters en 24 horas.');
     const edition=Utilities.getUuid(),delivery='prueba:'+Utilities.getUuid();
-    const query=newsletterTestQuery_(input.cadence,country,now,deliveries),title=newsletterSubject_(query,language),content=newsletter_(rows_('Noticias',undefined,undefined,query).filter(businessNews_),query,title,now,undefined,language,edition);
-
+    const query=newsletterTestQuery_(input.cadence,country,now,input.period),cutoff=[query.to,recordDay(now,settings_().timezone)].sort()[0];
+    const dates={from:query.from,to:cutoff},rows=rows_('Noticias',undefined,undefined,dates).filter(row=>newsScope_(row,dates,''));
+    const selected=selectAnnotatedNews_(annotateNews_(rows.filter(businessNews_)),newsletterSelectionQuery_({...query,...dates}));
+    const content=newsletterContent_(selected,query,'',now,undefined,language,edition);
+    const result={recipient,count:content.count,from:query.from,to:query.to,cutoff,stored:rows.length,eligible:content.editorial.audit.eligible,local:content.editorial.localCount,global:content.editorial.globalCount};
     content.subject=newsletterIdentity_(query,now,translateText('PRUEBA',language),language).subject;
-    if(!content.count){append_('NewsletterEnvios',[[delivery,'',recipient,query.from,query.to,'Sin novedades',now.toISOString(),newsletterContentDetail_(content)]]);return {accepted:false,recipient,count:0,from:query.from,to:query.to};}
+    if(!content.count){append_('NewsletterEnvios',[[delivery,'',recipient,query.from,query.to,'Sin novedades',now.toISOString(),newsletterContentDetail_(content)]]);return {...result,accepted:false};}
     const sender=newsletterSender_();
     saveNewsletterEdition_(edition,delivery,recipient,content.subject,query,language,content.evidence,content.editorial);
     append_('NewsletterEnvios',[[delivery,'',recipient,query.from,query.to,'Enviando',now.toISOString(),'Prueba del administrador']]);
     claimed=true;
     const sheet=book_().getSheetByName('NewsletterEnvios'),id=completeNewsletterDelivery_(sheet,sheet.getLastRow(),sender,recipient,content);
-    return {accepted:true,recipient,sender:sender.address,messageId:id,count:content.count,from:query.from,to:query.to};
+    return {...result,accepted:true,sender:sender.address,messageId:id};
   }catch(error){if(!claimed)recordNewsletterBlock_(error,session.email);throw error;
   }finally{lock.releaseLock();}
 }
-function newsletterTestQuery_(cadence,country,now,deliveries){
- const period=newsletterPeriod_(cadence,now),started=deliveries.some(row=>row.suscripcion&&row.desde===period.from&&row.hasta===period.to&&['Enviando','Enviada','Revisar','Sin novedades','No enviado'].includes(row.estado));
- return subscriptionQuery_({periodicidad:cadence,filtros:{country}},now,!started);
+function newsletterTestQuery_(cadence,country,now,period='closed'){
+ return subscriptionQuery_({periodicidad:cadence,filtros:{country}},now,period==='closed');
 }
 function recordNewsletterBlock_(error,email){append_('NewsletterEnvios',[['diagnostico:'+Utilities.getUuid(),'',email,'','','Bloqueada',new Date().toISOString(),String(error.message).slice(0,500)]]);}
 function completeNewsletterDelivery_(sheet,index,sender,recipient,content){
