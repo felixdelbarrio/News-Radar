@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {storage} from './helpers/server.mjs';
 import {app} from './helpers/app.mjs';
-import {readingWindow,newsletterWindow} from '../src/shared/newsletter-cadences.js';
+import {readingWindow} from '../src/shared/newsletter-cadences.js';
 function server(day='2026-11-02'){const s=storage();s.c.Date=class extends Date{constructor(...args){super(...(args.length?args:[day+'T12:00:00Z']));}};s.c.initializeConfiguration();return s;}
 for(const [day,from] of [['2026-11-02','2026-08-02'],['2024-05-31','2024-02-29'],['2025-05-31','2025-02-28'],['2024-02-29','2023-11-29'],['2027-01-01','2026-10-01']])test('tres meses inclusivos con ajuste de fin de mes '+day,()=>assert.deepEqual(readingWindow('news',day),{from,to:day}));
 for(const day of ['2024-02-29','2026-03-29','2026-10-25','2027-01-01'])test('días naturales sin dependencia de DST '+day,()=>{for(const [view,days] of [['briefing',15],['radar',365]]){const {from,to}=readingWindow(view,day);assert.equal((Date.parse(to)-Date.parse(from))/86400000+1,days);}});
@@ -13,12 +13,18 @@ for(const view of ['briefing','news','radar'])test('API '+view+' conserva vacío
  for(const query of [{view,initial:true},{view},{view,...period},{view,...period,page:1}]){const data=c.getDashboard(query);assert.equal(data.selection.from,period.from);assert.equal(data.selection.to,period.to);assert.equal(data.context.periodFallback,false);assert.equal(data.contextTotal,0);assert.equal(data.items.length,0);}
  const historic=c.getDashboard({view,from:date,to:date});assert.equal(historic.contextTotal,1);
 });
-for(const day of ['2026-11-01','2026-11-02'])test('prueba quincenal pendiente antes del envío '+day,()=>{
- const {c}=server(day),now=new Date(day+'T07:00:00Z'),query=c.newsletterTestQuery_('fortnightly','España',now,[]);assert.equal(query.from,'2026-10-16');assert.equal(query.to,'2026-10-31');
- for(const estado of ['Enviando','Enviada','Revisar','Sin novedades','No enviado']){const next=c.newsletterTestQuery_('fortnightly','España',now,[{suscripcion:'sub',desde:query.from,hasta:query.to,estado}]);assert.equal(next.from,'2026-11-01');assert.equal(next.to,'2026-11-15');}
- assert.equal(c.newsletterTestQuery_('fortnightly','España',now,[{suscripcion:'',desde:query.from,hasta:query.to,estado:'Enviada'}]).from,query.from);
+test('la ventana de prueba es explícita y usa periodos naturales',()=>{
+ const {c}=server('2026-11-13'),now=new Date('2026-11-13T07:00:00Z');
+ for(const [cadence,period,from,to] of [
+  ['fortnightly','closed','2026-10-16','2026-10-31'],
+  ['fortnightly','current','2026-11-01','2026-11-15'],
+  ['quarterly','closed','2026-07-01','2026-09-30'],
+  ['quarterly','current','2026-10-01','2026-12-31']
+ ]){
+  const query=c.newsletterTestQuery_(cadence,'España',now,period);
+  assert.deepEqual({from:query.from,to:query.to},{from,to});
+ }
 });
-for(const day of ['2026-04-01','2027-01-01','2026-10-25'])test('prueba trimestral conserva calendario natural '+day,()=>{const {c}=server(day),q=c.newsletterTestQuery_('quarterly','',new Date(day+'T12:00:00Z'),[]),p=newsletterWindow('quarterly',day,true);assert.deepEqual({from:q.from,to:q.to},{from:p.from,to:p.to});});
 test('identidad editorial por host evita colisión de marcas y mantiene iconos independientes',()=>{
  const {c}=server(),index=c.businessIndex_();index.publisherCountries.set('expansion','España');index.verifiedMedia=[{name:'Expansión',domain:'expansion.com',iso2:'ES'},{name:'Expansión México',domain:'expansion.mx',iso2:'MX'}];
  assert.equal(c.editorialCountry_('https://www.expansion.com','Expansión',index).country,'España');assert.equal(c.editorialCountry_('https://expansion.mx','Expansión',index).country,'México');assert.equal(c.editorialCountry_('https://unconfigured.test','Expansión',index).country,'');

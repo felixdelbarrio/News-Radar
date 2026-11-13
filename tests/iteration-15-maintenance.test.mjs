@@ -20,3 +20,13 @@ test('mantenimiento espera la clasificación, conserva descartes y solicita snap
  const s=setup(),c=s.c;append(s,[article(c,'noise','BBVA presenta sus resultados financieros trimestrales')]);c.maintenance_();c.classificationPending_=()=>true;c.maintenanceBatch_();assert.equal(c.rows_('Noticias').length,1);assert.equal(c.maintenanceJob_().phase,'dedup');
  c.classificationPending_=()=>false;c.dailyCollectionPending_=()=>false;for(let i=0;i<20&&!['Publicando','Completada'].includes(c.maintenanceJob_().state);i++)c.maintenanceBatch_();assert.equal(c.rows_('Noticias').length,1);assert.equal(c.maintenanceJob_().removed,0);assert.ok(['Publicando','Completada'].includes(c.maintenanceJob_().state));
 });
+test('mantenimiento conserva país y procedencia aunque el titular sugiera otro mercado',()=>{
+ const s=setup(),c=s.c,record=article(c,'geo','BBVA lanza una plataforma de pagos digitales para empresas en Colombia');
+ const labels=JSON.parse(record.clasificacion),procedencia={geografias:['España'],scope:'single_country',paisMetodo:'content',paisConfianza:'medium'};
+ record.clasificacion=JSON.stringify({...labels,procedencia});append(s,[record]);
+ assert.equal(c.newsCountryDecision_(record).country,'Colombia');
+ c.maintenance_();c.classificationPending_=()=>false;c.dailyCollectionPending_=()=>false;
+ for(let i=0;i<20&&!['Publicando','Completada'].includes(c.maintenanceJob_().state);i++)c.maintenanceBatch_();
+ assert.equal(c.maintenanceJob_().reviewed,1);
+ const [stored]=c.rows_('Noticias');assert.equal(stored.pais,'España');assert.deepEqual(JSON.parse(stored.clasificacion).procedencia,procedencia);
+});

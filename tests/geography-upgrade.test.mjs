@@ -78,3 +78,21 @@ test('a geographic review keeps historical geography under weak evidence and hon
  assert.equal(corrected.reason,'manual_verified_content');
  assert.deepEqual(JSON.parse(JSON.stringify(corrected.countryEvidence)),evidence);
 });
+test('a country filter recovers explicit market evidence even when an unresolved row has a historical country',()=>{
+ const {c}=setup(),base={id:'acquiring',fecha:'2026-11-10',pais:'Reino Unido',titular:'Payment provider integrates Spanish acquiring rails',medio:'Global Payments',entidad:'Santander',url:'https://example.com/acquiring',clasificacion:JSON.stringify({procedencia:{geografias:['Sin determinar'],paisMetodo:'undetermined',paisMedio:'Reino Unido'}})};
+ assert.equal(c.newsCountryDecision_(base).country,'España');
+ assert.deepEqual(Array.from(c.selectNews_([base],{country:'España'}),row=>row.id),[base.id]);
+ assert.equal(c.selectNews_([base],{country:'Reino Unido'}).length,0);
+ assert.equal(c.newsCountryDecision_({...base,titular:'Spanish bank updates its corporate platform'}).country,'Reino Unido');
+});
+test('regional expansions keep their region alongside explicit markets but ignore a dateline or edition',()=>{
+ const {c}=setup(),base={titular:'Acquirer enables businesses to expand in Europe with one payment integration',rssCountry:'España',sourceUrl:'https://example.es/markets'};
+ const markets=c.newsCountryDecision_({...base,extracto:'Madrid, España. The platform offers Bizum in Spain and MB WAY in Portugal.'});
+ assert.deepEqual(new Set(markets.geographies),new Set(['España','Portugal','EMEA']));
+ assert.equal(markets.scope,'multicountry');
+ assert.deepEqual(Array.from(c.newsCountryDecision_({...base,extracto:'Madrid, España. The provider announced its new platform.'}).geographies),['EMEA']);
+ const manual={...base,pais:'EMEA',extracto:'Payments available in Spain.',clasificacion:JSON.stringify({procedencia:{geografias:['EMEA'],paisMetodo:'manual_verified_content'}})};
+ assert.deepEqual(Array.from(c.newsCountryDecision_(manual).geographies),['EMEA']);
+ const reviewed={...manual,clasificacion:JSON.stringify({procedencia:{geografias:['EMEA','España','Portugal'],paisMetodo:'manual_verified_content'}})};
+ assert.equal(c.newsCountryDecision_(reviewed).scope,'multicountry');
+});

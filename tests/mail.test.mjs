@@ -15,7 +15,7 @@ function mail(){
 test('una prueba sin noticias se registra sin contactar Gmail ni archivar una edición vacía',()=>{
  const {c,calls}=mail(),log=[];let released=false;
  c.LockService={getScriptLock:()=>({waitLock(){},releaseLock(){released=true;}})};c.rows_=()=>[];c.append_=(_name,rows)=>log.push(...rows);
- c.newsletter_=()=>({count:0});c.newsletterSender_=()=>{throw Error('No debe validar remitente');};c.saveNewsletterEdition_=()=>{throw Error('No debe archivar');};
+ c.annotateNews_=rows=>rows;c.selectAnnotatedNews_=rows=>rows;c.newsletterContent_=()=>({count:0,editorial:{audit:{eligible:0},localCount:0,globalCount:0}});c.newsletterSender_=()=>{throw Error('No debe validar remitente');};c.saveNewsletterEdition_=()=>{throw Error('No debe archivar');};
  const result=c.sendNewsletterTest({cadence:'fortnightly'});assert.equal(result.accepted,false);assert.equal(result.count,0);assert.equal(log[0][5],'Sin novedades');assert.equal(calls.length,0);assert.equal(released,true);
 });
 test('el remitente configurado no consulta Gmail al mostrar su estado y el transporte comunica los rechazos',()=>{const m=mail();assert.equal(m.c.newsletterSender_().address,m.settings.newsletterSender);assert.equal(m.calls.length,0);m.setResponse({error:{message:'Sender alias rejected'}},400);assert.throws(()=>m.c.sendNewsletterMail_(m.c.newsletterSender_(),'owner@bbva.com',{count:1,subject:'Test',html:'<p>Test</p>',text:'Test'}),/Sender alias rejected/);});
@@ -47,7 +47,7 @@ test('diagnóstico, pruebas y programación son exclusivos del administrador',()
 test('la prueba usa el correo del administrador y registra Gmail ID; no consume suscripciones reales',()=>{
   const m=mail(),{c}=m,log=[];let destination;
   c.LockService={getScriptLock:()=>({waitLock(){},releaseLock(){}})};c.rows_=()=>[];
-  c.newsletterSender_=()=>({address:m.settings.newsletterSender,name:m.settings.newsletterSenderName});c.subscriptionDefaults_=()=>({name:'Mi canal',periodicity:'quarterly',filters:{entity:'BBVA'}});c.subscriptionQuery_=()=>({from:'2026-09-01',to:'2026-09-30'});c.newsletter_=()=>({count:2,text:'Prueba',html:'<p>Prueba</p>'});
+  c.newsletterSender_=()=>({address:m.settings.newsletterSender,name:m.settings.newsletterSenderName});c.subscriptionDefaults_=()=>({name:'Mi canal',periodicity:'quarterly',filters:{entity:'BBVA'}});c.subscriptionQuery_=()=>({from:'2026-09-01',to:'2026-09-30'});c.annotateNews_=rows=>rows;c.selectAnnotatedNews_=rows=>rows;c.newsletterContent_=()=>({count:2,editorial:{audit:{eligible:2},localCount:0,globalCount:2},text:'Prueba',html:'<p>Prueba</p>'});
   c.append_=(name,rows)=>log.push(...rows);c.book_=()=>({getSheetByName:()=>({getLastRow:()=>log.length+1,getRange:()=>({setValues(values){log[0].splice(5,3,...values[0]);}})})});
   c.sendNewsletterMail_=(_sender,recipient)=>{destination=recipient;return 'gmail-test';};
   const result=c.sendNewsletterTest({cadence:'fortnightly'});assert.equal(result.recipient,'owner@bbva.com');assert.equal(result.messageId,'gmail-test');assert.equal(result.count,2);assert.equal(result.accepted,true);assert.equal(destination,'owner@bbva.com');assert.equal(log[0][1],'');assert.equal(log[0][5],'Enviada');assert.match(log[0][7],/gmail-test/);
@@ -61,7 +61,7 @@ test('rechazos explícitos conservan la causa de Gmail y permiten reintento; err
   assert.throws(()=>c.completeNewsletterDelivery_(sheet,2,sender,'user@bbva.com',content),/Backend error/);assert.equal(states[1][0],'Revisar');
 });
 test('una prueba bloqueada antes de enviar queda registrada sin consumir presupuesto',()=>{
-  const m=mail(),{c}=m,log=[];c.LockService={getScriptLock:()=>({waitLock(){},releaseLock(){}})};c.rows_=()=>[];c.append_=(_name,rows)=>log.push(...rows);c.newsletter_=()=>({count:1});c.newsletterSender_=()=>{throw Error('Alias no verificado');};
+  const m=mail(),{c}=m,log=[];c.LockService={getScriptLock:()=>({waitLock(){},releaseLock(){}})};c.rows_=()=>[];c.append_=(_name,rows)=>log.push(...rows);c.annotateNews_=rows=>rows;c.selectAnnotatedNews_=rows=>rows;c.newsletterContent_=()=>({count:1,editorial:{audit:{eligible:1},localCount:0,globalCount:1}});c.newsletterSender_=()=>{throw Error('Alias no verificado');};
   assert.throws(()=>c.sendNewsletterTest({cadence:'fortnightly'}),/Alias no verificado/);assert.equal(log[0][2],'owner@bbva.com');assert.equal(log[0][5],'Bloqueada');assert.equal(c.newsletterBudget_(log.map(row=>({estado:row[5],fecha:row[6]})),new Date()),m.settings.newsletterDailyLimit);assert.equal(m.calls.length,0);
 });
 

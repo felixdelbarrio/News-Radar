@@ -892,6 +892,11 @@
     "Ventana: \xFAltimos {days} d\xEDas. Recopilaci\xF3n diaria a partir de las {hour}:00 ({timezone}).": ["Window: last {days} days. Daily collection from {hour}:00 ({timezone}).", "Zaman aral\u0131\u011F\u0131: son {days} g\xFCn. G\xFCnl\xFCk toplama {hour}:00 itibar\u0131yla ({timezone})."],
     "M\xE1ximo {count} fuentes RSS.": ["Maximum {count} RSS sources.", "En fazla {count} RSS kayna\u011F\u0131."],
     "{count} fuentes configuradas \xB7 {active} activas": ["{count} configured sources \xB7 {active} active", "{count} yap\u0131land\u0131r\u0131lm\u0131\u015F kaynak \xB7 {active} etkin"],
+    "Periodo de prueba no v\xE1lido.": ["Invalid test period.", "Ge\xE7ersiz test d\xF6nemi."],
+    "Periodo de prueba": ["Test period", "Test d\xF6nemi"],
+    "\xDAltimo periodo cerrado": ["Last completed period", "Son tamamlanan d\xF6nem"],
+    "Periodo en curso": ["Current period", "Ge\xE7erli d\xF6nem"],
+    "Periodo {from} a {to} \xB7 corte {cutoff} \xB7 {eligible} de {stored} noticias elegibles \xB7 {local} locales y {global} internacionales.": ["Period {from} to {to} \xB7 cutoff {cutoff} \xB7 {eligible} of {stored} eligible articles \xB7 {local} local and {global} international.", "{from} \u2013 {to} d\xF6nemi \xB7 kesim tarihi {cutoff} \xB7 {stored} haberden {eligible} uygun \xB7 {local} yerel ve {global} uluslararas\u0131."],
     "Gmail ha aceptado la prueba para {recipient} \xB7 {count} novedades.": ["Gmail accepted the test for {recipient} \xB7 {count} updates.", "Gmail {recipient} i\xE7in test g\xF6nderimini kabul etti \xB7 {count} yenilik."],
     "{subscriptions} suscripciones \xB7 {active} activas": ["{subscriptions} subscriptions \xB7 {active} active", "{subscriptions} abonelik \xB7 {active} etkin"],
     "{subscribers} suscriptores \xB7 {subscriptions} suscripciones": ["{subscribers} subscribers \xB7 {subscriptions} subscriptions", "{subscribers} abone \xB7 {subscriptions} abonelik"],
@@ -2679,8 +2684,8 @@
       run(async () => {
         feedback("Procesando solicitud\u2026");
         try {
-          let result = await call("sendNewsletterTest", data);
-          feedback(result.accepted ? t("Gmail ha aceptado la prueba para {recipient} \xB7 {count} novedades.", result) : "No hay noticias para esta edici\xF3n y geograf\xEDa.");
+          let result = await call("sendNewsletterTest", data), status = result.accepted ? t("Gmail ha aceptado la prueba para {recipient} \xB7 {count} novedades.", result) : t("No hay noticias para esta edici\xF3n y geograf\xEDa."), details = result.cutoff ? t("Periodo {from} a {to} \xB7 corte {cutoff} \xB7 {eligible} de {stored} noticias elegibles \xB7 {local} locales y {global} internacionales.", result) : "";
+          feedback([status, details].filter(Boolean).join(" "));
         } catch (error) {
           feedback(error.message, !0);
         }

@@ -17,8 +17,7 @@ function newsScope_(row,query,entity,entityName=entityKey_,geography){
 function selectNews_(rows,query){
   const periodAndSource={...query,country:''};
   const scoped=rows.filter(row=>newsScope_(row,query,'')||(
-    row.pais==='Sin determinar'&&newsScope_(row,periodAndSource,'')&&
-    savedNewsLabels_(row.clasificacion).procedencia?.paisMetodo==='undetermined'
+    newsScope_(row,periodAndSource,'')&&unresolvedNewsGeography_(savedNewsLabels_(row.clasificacion).procedencia)
   ));
   return selectAnnotatedNews_(annotateNews_(scoped),query);
 }
