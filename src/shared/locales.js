@@ -860,6 +860,7 @@ export const translations = Object.freeze({
   "Ventana: últimos {days} días. Recopilación diaria a partir de las {hour}:00 ({timezone}).": ["Window: last {days} days. Daily collection from {hour}:00 ({timezone}).", "Zaman aralığı: son {days} gün. Günlük toplama {hour}:00 itibarıyla ({timezone})."],
   "Máximo {count} fuentes RSS.": ["Maximum {count} RSS sources.", "En fazla {count} RSS kaynağı."],
   "{count} fuentes configuradas · {active} activas": ["{count} configured sources · {active} active", "{count} yapılandırılmış kaynak · {active} etkin"],
+  "Periodo de prueba no válido.": ["Invalid test period.", "Geçersiz test dönemi."],
   "Periodo de prueba": ["Test period", "Test dönemi"],
   "Último periodo cerrado": ["Last completed period", "Son tamamlanan dönem"],
   "Periodo en curso": ["Current period", "Geçerli dönem"],
