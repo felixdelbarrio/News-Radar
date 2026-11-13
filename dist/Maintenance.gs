@@ -102,7 +102,8 @@ function maintenanceBatch_(maxMs=MAINTENANCE_POLICY.maxMs){
   if(job.phase==='news'){
   const sheet=newsSheet_(),keys=RADAR.sheets.Noticias,size=Math.min(MAINTENANCE_POLICY.batchRows,job.newsTotal-job.next+2),updates=[],items=taxonomyCatalog_();let read=0;
   const rows=size>0?sheet.getRange(job.next,1,size,keys.length).getDisplayValues():[];
-  for(const values of rows){if(Date.now()-started>=maxMs||backgroundPaused_(true))break;const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]])),saved=savedNewsLabels_(row.clasificacion);const changed={clasificacion:JSON.stringify(saved),pais:newsCountry_(row),entidad:entityKey_(row.entidad),taxonomia:JSON.stringify(necessaryTaxonomyRecord_(row,items))};let corrected=false;for(const [key,value] of Object.entries(changed))if(value!==row[key]){updates.push({row:job.next+read,column:keys.indexOf(key)+1,value});corrected=true;}if(corrected)job.corrected++;read++;}
+  // Only the geography job may recalculate the country and its provenance together.
+  for(const values of rows){if(Date.now()-started>=maxMs||backgroundPaused_(true))break;const row=Object.fromEntries(keys.map((key,i)=>[key,values[i]])),saved=savedNewsLabels_(row.clasificacion);const changed={clasificacion:JSON.stringify(saved),entidad:entityKey_(row.entidad),taxonomia:JSON.stringify(necessaryTaxonomyRecord_(row,items))};let corrected=false;for(const [key,value] of Object.entries(changed))if(value!==row[key]){updates.push({row:job.next+read,column:keys.indexOf(key)+1,value});corrected=true;}if(corrected)job.corrected++;read++;}
   writeNewsCells_(updates);if(updates.length)invalidateNews_(false);job.next+=read;job.reviewed+=read;job.state='Pendiente';if(job.next>job.newsTotal+1){job.phase='candidates';job.candidateNext=2;}
   }
   if(job.phase==='candidates'){
