@@ -166,13 +166,16 @@ function santanderExcluded_(text){
   if(phrasePattern_(['banco santander','banco de santander','grupo santander','santander empresas','santander corporate','santander cib','santander uk','santander brasil','santander mexico','santander chile','santander argentina','santander portugal','getnet','pagonxt','ebury','cash nexus','openbank','ana botin']).test(text))return false;
   return !phrasePattern_(['banco','banca','bank','banking','entidad financiera','clientes del santander','app de santander']).test(text)||/\b(?:en|de|hacia|desde) santander\b/.test(text);
 }
+function unresolvedNewsGeography_(provenance){
+  return provenance?.paisMetodo==='undetermined'&&provenance.geografias?.[0]==='Sin determinar';
+}
 function annotateNews_(rows){
   const index=businessIndex_(),items=taxonomyCatalog_(),taxonomy=new Map(items.map(({id,palanca,subpalanca})=>[id,{id,palanca,subpalanca}]));
   return rows.map(row=>{
     const catalog=index.entities.get(searchText_(row.entidad)),assignment=effectiveTaxonomyAssignment_(row,items),classification=savedNewsLabels_(row.clasificacion),labels={digital:classification.digital,capacidades:classification.capacidades};
     if(assignment.editorialExcluded)return null;
     const provenance=classification.procedencia;
-    const recovered=provenance?.paisMetodo==='undetermined'&&provenance.geografias?.[0]==='Sin determinar'
+    const recovered=unresolvedNewsGeography_(provenance)
       ?newsCountryDecision_({...row,feedUrl:provenance.feedUrl},index):null;
     const country=recovered?.country||row.pais||'Sin determinar',geographies=recovered?.geographies||provenance?.geografias||[country];
     const protagonists=headlineProtagonists_(row,index),annotated={...row,clasificacion:JSON.stringify(labels),medio:resolvedPublisher_(row.medio,configuredPublisher_(provenance?.dominioMedio?'https://'+provenance.dominioMedio:provenance?.medioUrl||'',index)),pais:country,geografias:geographies,...(protagonists.length>1?{entidades:protagonists}:{}),...(assignment.evidence?{functionalEvidence:assignment.evidence}:{}),taxonomia:assignment.ids.map(id=>taxonomy.get(id)),etiquetas:labels,entidad:catalog?.name||row.entidad,tipo:catalog?.type||'',segmentos:classification.segmentos||[],senales:classification.senales||[]};newsRelevanceMemory_.set(annotated,Number(classification.score||0));return annotated;
@@ -253,11 +256,14 @@ function newsCountryDecision_(row,index=businessIndex_()){
  const headlineActor=headlineEntity_(title,index)||index.entities.get(searchText_(row.entidad));
  for(const geo of index.geographies)for(const term of geo.names){if(!term)continue;if(['georgia','jordan','santander'].includes(term)&&!new RegExp('(?:pais|country|estado|state|en) '+term+'\\b').test(title))continue;for(let at=phrasePosition_(title,term);at>=0;at=phrasePosition_(title,term,at+term.length))if(!/\bvs\.?\s*$/.test(title.slice(0,at))){const subject=headlineActor&&[headlineActor.name,...headlineActor.aliases].some(name=>title.slice(0,at).trim().endsWith(searchText_(name)));add(geo.name,'headline',term,geographicMentionScore_(title,at,term,subject),at);}}
  for(const {term,country} of index.marketCountries)if(phraseMatch_(title,term))add(country,'market',term,105);
+ // A market adjective qualifies an acquiring service, rather than the bank or the publisher.
+ const spanishAcquiring=title.match(/\b(?:spanish (?:acquiring (?:rails|infrastructure|services?)|merchant acquiring)|(?:red|infraestructura|servicios?) de adquirencia espanola)\b/);
+ if(spanishAcquiring)add(index.geographies.find(geo=>geo.code==='ES')?.name,'market',spanishAcquiring[0],120);
  const regionalMentions=[...title.matchAll(/\b(?:asia|apac|taiwan|taipei|europa|europe)\b/g)].map(match=>({country:/^europ/.test(match[0])?'EMEA':'APAC',method:'headline_region',value:match[0],score:geographicMentionScore_(title,match.index,match[0]),position:match.index}));
  const europeanMarkets=title.match(/\b\d+\s+paises\s+europeos\b/);if(europeanMarkets&&geographicMentionScore_(title,europeanMarkets.index,europeanMarkets[0])!==60)regionalMentions.push({country:'EMEA',method:'headline_region',value:europeanMarkets[0],score:120,position:europeanMarkets.index});
  const mentions=[...evidence.filter(item=>item.method==='headline'),...regionalMentions].sort((a,b)=>a.position-b.position||b.value.length-a.value.length);let previous;
  for(const item of mentions){if(previous&&item.position<previous.position+previous.value.length)continue;const between=previous?title.slice(previous.position+previous.value.length,item.position):'';if(previous?.score===120&&item.score>=95&&geographyListSeparator_(between))item.score=120;previous=item;}
- const regionalDestinations=regionalMentions.filter(item=>item.score===120).sort((a,b)=>a.position-b.position),regionalTitle=regionalDestinations.map(item=>item.value).join(' · '),regions=[...new Set(regionalDestinations.map(item=>item.country))],withRegion=countries=>[...countries,...regions.filter(region=>!countries.some(country=>index.config.geographies.some(geo=>geo.name===country&&geo.region===region)))];
+ const regionalDestinations=regionalMentions.filter(item=>item.score===120).sort((a,b)=>a.position-b.position),regionalTitle=regionalDestinations.map(item=>item.value).join(' · '),regions=[...new Set(regionalDestinations.map(item=>item.country))],withRegion=countries=>[...countries,...regions];
  const destination=evidence.some(item=>item.score===120),actorEvidence=evidence.filter(item=>item.score===95),top=evidence.filter(item=>item.score>=100||item.score===95&&!destination&&!regionalTitle);
  evidence.push(...regionalDestinations);
  if(top.some(item=>item.score>=100)){
@@ -270,7 +276,7 @@ function newsCountryDecision_(row,index=businessIndex_()){
   for(const {term,country} of index.marketCountries)if(phraseMatch_(excerpt,term))add(country,'content',term,85);}
  const content=evidence.filter(item=>item.method==='content').sort((a,b)=>(a.position??phrasePosition_(excerpt,a.value))-(b.position??phrasePosition_(excerpt,b.value)));
  for(let i=1;i<content.length;i++){const previous=content[i-1],item=content[i],between=excerpt.slice((previous.position??phrasePosition_(excerpt,previous.value))+previous.value.length,item.position??phrasePosition_(excerpt,item.value));if(previous.score===90&&geographyListSeparator_(between))item.score=90;}
- const destinations=content.filter(item=>item.score===90),contentEvidence=actorEvidence.length&&!/\b(?:launch|offers?|lanza|ofrece|disponible|expande|presenta|despliega|mercado)\w*/.test(excerpt)?[]:destinations.length?destinations:content;
+ const destinations=content.filter(item=>item.score===90),contentEvidence=regionalTitle?destinations:actorEvidence.length&&!/\b(?:launch|offers?|lanza|ofrece|disponible|expande|presenta|despliega|mercado)\w*/.test(excerpt)?[]:destinations.length?destinations:content;
  if(!contentEvidence.length&&!regionalTitle){if(actorEvidence.length)return geographyDecision_([...new Set(actorEvidence.map(item=>item.country))],'headline',actorEvidence[0].value,evidence,'high');}
  if(contentEvidence.length){const best=[...contentEvidence].sort((a,b)=>b.score-a.score||a.country.localeCompare(b.country,'es'))[0];return geographyDecision_(withRegion([...new Set([best.country,...contentEvidence.map(item=>item.country)])]),'content',best.value,evidence,'medium');}
  if(regionalTitle)return geographyDecision_(regions,'headline_region',regionalTitle,evidence,'medium','REGION');
@@ -300,7 +306,7 @@ function newsCountryDecision_(row,index=businessIndex_()){
 }
 function newsCountry_(row,index=businessIndex_()){return newsCountryDecision_(row,index).country;}
 function geographyDecision_(geographies,reason,value,evidence,confidence,type='PAIS'){
- const country=geographies[0];return {country,geographies,reason,evidence:value,confidence,type,scope:type==='DESCONOCIDA'?'unknown':type==='REGION'?'regional_fallback':geographies.length>1?'multicountry':'single_country',countryEvidence:evidence,version:RADAR.version};
+ const country=geographies[0];return {country,geographies,reason,evidence:value,confidence,type,scope:type==='DESCONOCIDA'?'unknown':type==='REGION'&&geographies.every(value=>REGION_CODES.includes(value))?'regional_fallback':geographies.length>1?'multicountry':'single_country',countryEvidence:evidence,version:RADAR.version};
 }
 function rssUrlCountry_(url,index,rss=''){
  const countries=[...String(url||'').matchAll(/[?&](?:gl|ceid)=([a-z]{2})(?=[&:]|%3A|$)/gi)].map(match=>index.config.geographies.find(row=>row.code===match[1].toUpperCase())?.name).filter(Boolean),unique=[...new Set(countries)];
