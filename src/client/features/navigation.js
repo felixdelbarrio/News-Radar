@@ -12,7 +12,7 @@ function createNavigation({ isAdmin, track, onAdministration, onSubscriptions, o
     for (const name of Object.keys(config.views)) $(name + "-section").hidden = name !== view;
     onPanel(view);
     $('active-filters').hidden=!['news','briefing','radar'].includes(view);$('selection-freshness').hidden=!['news','briefing','radar'].includes(view);
-    $("sidebar-context-title").textContent=view==="administration"?"Gestión de News Radar":"Seguimiento personalizado";
+    $("sidebar-context-title").textContent=view==="administration"?"Gestión de EDC News Radar":"Seguimiento personalizado";
     $("sidebar-context-copy").textContent=view==="administration"?"Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicación.":"Mi Newsletter solo se personaliza por geografía. La selección de noticias es independiente.";
     $("sidebar-context").hidden=!["administration","subscriptions"].includes(view);
     $("export").hidden = view !== "news";

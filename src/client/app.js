@@ -155,7 +155,7 @@ $("export").addEventListener("click", () => action(async () => {
   const result = await call("exportNews", filters.query());
   const url = URL.createObjectURL(new Blob([result.csv], { type: "text/csv;charset=utf-8" })), link = document.createElement("a");
   link.href = url;
-  link.download = "news-radar.csv";
+  link.download = "edc-news-radar.csv";
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1e3);
   track("exportacion");

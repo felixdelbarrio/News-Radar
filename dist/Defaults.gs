@@ -1767,7 +1767,7 @@ const CONFIGURATION_DEFAULTS = {
     "newsletterEnabled": true,
     "newsletterBatch": 20,
     "newsletterSender": "news-radar.group@bbva.com",
-    "newsletterSenderName": "News Radar · BBVA Empresas",
+    "newsletterSenderName": "EDC News Radar · BBVA Empresas",
     "newsletterDailyLimit": 100,
     "newsletterAppUrl": "",
     "taxonomyCatalogUrl": "https://docs.google.com/spreadsheets/d/1hsFp-ZiiSsSt_ka73oKAWFlHEySdmJM_IrkBmK6YfH8/edit?gid=1593939800#gid=1593939800",

@@ -129,7 +129,7 @@
       "newsletterSender": "Remitente verificado en Gmail (correo del grupo)",
       "newsletterSenderName": "Nombre visible del remitente",
       "newsletterDailyLimit": "Límite de newsletters en 24 horas",
-      "newsletterAppUrl": "URL publicada de News Radar (gestión de suscripciones)"
+      "newsletterAppUrl": "URL publicada de EDC News Radar (gestión de suscripciones)"
     },
     "groups": [
       {
@@ -322,7 +322,7 @@
   },
   "taxonomy": {
     "label": "Equivalencias funcionales",
-    "help": "Equivalencias y conceptos emergentes de News Radar. Los códigos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aquí. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios. La detección previa de canal digital y los términos de recuperación siguen en uso; se administran aquí junto a las equivalencias funcionales."
+    "help": "Equivalencias y conceptos emergentes de EDC News Radar. Los códigos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aquí. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios. La detección previa de canal digital y los términos de recuperación siguen en uso; se administran aquí junto a las equivalencias funcionales."
   },
   "storage": {
     "label": "Almacenamiento y archivo",

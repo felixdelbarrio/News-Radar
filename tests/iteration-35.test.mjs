@@ -74,7 +74,7 @@ test('una evicción parcial de caché recarga el PNG completo',()=>{
 test('la construcción MIME se puede medir sin ejecutar transporte',()=>{
  const {c}=presentationServer(),content=presentationContent(c,presentationCases[1].query);
  c.gmailRequest_=()=>{throw Error('El diagnóstico no puede enviar');};
- const raw=c.newsletterMime_({name:'News Radar',address:'news-radar.group@bbva.com'},'owner@bbva.com',content);
+ const raw=c.newsletterMime_({name:'EDC News Radar',address:'news-radar.group@bbva.com'},'owner@bbva.com',content);
  assert.match(raw,/To: owner@bbva.com/);assert.match(raw,/multipart\/related/);
  for(const image of content.images)assert.ok(raw.includes('Content-ID: <'+image.id+'>'));
 });

@@ -13,7 +13,7 @@ for(const {name,query} of presentationCases){
  const reads=s.reads,heap=process.memoryUsage().heapUsed;
  for(let i=0;i<report.samples;i++){const start=performance.now();content=presentationContent(c,query);times.push(performance.now()-start);}
  c.newsletterInline_=original;let mime='';c.gmailRequest_=(_path,payload)=>{mime=Buffer.from(payload.raw,'base64url').toString();return {id:'simulated'};};
- c.sendNewsletterMail_({name:'News Radar',address:'news-radar.group@bbva.com'},'owner@bbva.com',content);
+ c.sendNewsletterMail_({name:'EDC News Radar',address:'news-radar.group@bbva.com'},'owner@bbva.com',content);
  const html=content.html.replace(/cid:([^" ]+)/g,(_match,id)=>'data:image/png;base64,'+content.images.find(image=>image.id===id).data);
  fs.writeFileSync(path.join(target,name+'.html'),html);
  fs.writeFileSync(path.join(target,name+'.contract.json'),JSON.stringify(presentationContract(content),null,2)+'\n');

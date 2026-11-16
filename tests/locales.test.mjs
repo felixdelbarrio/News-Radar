@@ -20,7 +20,7 @@ test('la detección usa preferencias ordenadas, variantes regionales y español 
  for(const code of ['constructor','__proto__','fr',null,{},'en-US'])assert.equal(supportedLanguage(code),false);
  assert.equal(translateText('Administración','es'),'Administración');assert.equal(translateText('Administración','fr'),'Administración');
  assert.equal(translateText('Medio: No indicado','en'),'Publisher: Not specified');assert.equal(translateText('ADMINISTRACIÓN','tr'),'YÖNETİM');
- assert.equal(translateText('RSS / URL / News Radar','en'),'RSS / URL / News Radar');assert.equal(translateText('noticias@bbva.com https://example.com/Noticias/España','en'),'noticias@bbva.com https://example.com/Noticias/España');
+ assert.equal(translateText('RSS / URL / EDC News Radar','en'),'RSS / URL / EDC News Radar');assert.equal(translateText('noticias@bbva.com https://example.com/Noticias/España','en'),'noticias@bbva.com https://example.com/Noticias/España');
  assert.equal(formatText('Página {page} de {pages}',{page:1,pages:2},'tr'),'Sayfa 1 / 2');assert.equal(formatText('{empty}',{},'en'),'');
  for(const language of ['es','en','tr'])assert.equal(formatCalendarDay('2026-10-11',language),new Intl.DateTimeFormat(language,{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'}).format(new Date('2026-10-11T00:00:00Z')));
  for(const tag of ['es','en-US','es-419','tr'])assert.equal(feedLanguage(tag),tag);for(const tag of ['',null,'invalid_language','x'.repeat(1000000)])assert.equal(feedLanguage(tag),'');assert.equal(feedLanguage(' en-US '),'en-US');
@@ -28,7 +28,7 @@ test('la detección usa preferencias ordenadas, variantes regionales y español 
 });
 
 test('todos los literales estáticos, atributos accesibles y etiquetas de configuración tienen traducciones completas',()=>{
- const ignored=new Set(['Radar','Newsletter','News Radar','RSS','URL','bIA','BBVA','↗','↻','×','✕','/','—','01','02','03']);
+ const ignored=new Set(['Radar','Newsletter','EDC News Radar','RSS','URL','bIA','BBVA','↗','↻','×','✕','/','—','01','02','03']);
  const values=new Set();
  for(const file of files('src/views')){
   const dom=new JSDOM(read(file)),d=dom.window.document,walker=d.createTreeWalker(d.body,4);let node;
@@ -124,8 +124,8 @@ test('las plantillas interpoladas conservan datos y orden gramatical al traducir
   ['Define el contexto de Noticias España (puede estar vacío).','Define the context for Noticias España (may be empty).','Noticias España için bağlam tanımlayın (boş olabilir).']
  ];
  for(const [es,en,tr] of cases){assert.equal(translateText(es,'en'),en);assert.equal(translateText(es,'tr'),tr);assert.equal(translateText(en,'es','en'),es);assert.equal(translateText(tr,'es','tr'),es);assert.equal(translateText(en,'tr','en'),tr);}
- assert.equal(translateText('Gestión de News Radar','es','en'),'Gestión de News Radar');
- assert.equal(translateText('Uso de News Radar','en'),'News Radar usage');assert.equal(translateText('NEWS RADAR','tr'),'NEWS RADAR');
+ assert.equal(translateText('Gestión de EDC News Radar','es','en'),'Gestión de EDC News Radar');
+ assert.equal(translateText('Uso de EDC News Radar','en'),'EDC News Radar usage');assert.equal(translateText('EDC NEWS RADAR','tr'),'EDC NEWS RADAR');
 });
 
 for(const language of ['en','tr'])test('frases del Radar y de administración completas en '+language+' tras cambiar el idioma',async t=>{
@@ -134,12 +134,12 @@ for(const language of ['en','tr'])test('frases del Radar y de administración co
  a.data.radar.trend={buckets:['2026-10-01','2026-10-07'],from:'2026-10-01',to:'2026-10-07',intervalDays:6,series:[{entity:'BBVA',total:14,values:[4,10]}]};
  a.data.schedule='Ventana: últimos 7 días. Recopilación diaria a partir de las 7:00 (Europe/Madrid).';
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="language"]');await a.change('#preview-language',language);
- assert.equal(a.find('#sidebar-context-title').textContent,translateText('Gestión de News Radar',language));
+ assert.equal(a.find('#sidebar-context-title').textContent,translateText('Gestión de EDC News Radar',language));
  await a.click('[data-view="radar"]');
  for(const [id,source] of [['radar-context','Analiza la evolución de los canales digitales de banca de empresas e instituciones durante el último año. Compara entidades, identifica las funcionalidades con mayor actividad y descubre tendencias a partir de las noticias publicadas.'],['radar-headline','Radar'],['trend-note','Volumen agrupado en intervalos de 6 días.']])assert.equal(a.find('#'+id).textContent,translateText(source,language));
  assert.ok(a.find('#trend-chart').textContent.includes(new Intl.DateTimeFormat(language,{day:'numeric',month:'short',timeZone:'UTC'}).format(new Date('2026-10-01'))));
  await a.click('[data-view="subscriptions"]');assert.equal(a.find('#subscriptions-count').textContent,translateText('1 suscripción',language));
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="audit"]');assert.equal(a.find('#audit-section h2').textContent,translateText('Logs',language));
  await a.change('#logs-view','telemetry');assert.equal(a.find('#logs-view').value,'telemetry');
- await a.click('[data-admin-view="adoption"]');assert.equal(a.find('#adoption-section .eyebrow').textContent,translateText('Uso de News Radar',language));
+ await a.click('[data-admin-view="adoption"]');assert.equal(a.find('#adoption-section .eyebrow').textContent,translateText('Uso de EDC News Radar',language));
 });

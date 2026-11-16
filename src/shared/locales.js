@@ -230,7 +230,7 @@ export const translations = Object.freeze({
   "Newsletter: hora (0–23)": ["Newsletter: hour (0–23)", "Bülten: saat (0–23)"],
   "Newsletter: minuto (0–59)": ["Newsletter: minute (0–59)", "Bülten: dakika (0–59)"],
   "Vocabulario de recuperación por idioma. Se combina con la detección de canal digital y las equivalencias del catálogo global de funcionalidades.": ["Collection vocabulary by language. It is combined with digital channel screening and global functionality catalogue equivalents.", "Dile göre toplama sözlüğü. Dijital kanal tespiti ve küresel işlev kataloğu eşdeğerleriyle birleştirilir."],
-  "Equivalencias y conceptos emergentes de News Radar. Los códigos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aquí. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios. La detección previa de canal digital y los términos de recuperación siguen en uso; se administran aquí junto a las equivalencias funcionales.": ["News Radar equivalents and emerging concepts. Official codes, names and descriptions are read from the Drive master and cannot be edited here. Specific products allow one official source; trends require three news articles and two publishers. Digital channel screening and collection terms remain in use and are managed here alongside functional equivalents.", "News Radar eşdeğerleri ve yeni kavramlar. Resmî kodlar, adlar ve açıklamalar Drive ana kaynağından okunur ve burada düzenlenemez. Belirli ürünler bir resmî kaynakla desteklenebilir; eğilimler üç haber ve iki yayıncı gerektirir. Dijital kanal ön elemesi ve toplama terimleri kullanılmaya devam eder ve işlevsel eşdeğerlerle birlikte burada yönetilir."],
+  "Equivalencias y conceptos emergentes de EDC News Radar. Los códigos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aquí. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios. La detección previa de canal digital y los términos de recuperación siguen en uso; se administran aquí junto a las equivalencias funcionales.": ["EDC News Radar equivalents and emerging concepts. Official codes, names and descriptions are read from the Drive master and cannot be edited here. Specific products allow one official source; trends require three news articles and two publishers. Digital channel screening and collection terms remain in use and are managed here alongside functional equivalents.", "EDC News Radar eşdeğerleri ve yeni kavramlar. Resmî kodlar, adlar ve açıklamalar Drive ana kaynağından okunur ve burada düzenlenemez. Belirli ürünler bir resmî kaynakla desteklenebilir; eğilimler üç haber ve iki yayıncı gerektirir. Dijital kanal ön elemesi ve toplama terimleri kullanılmaya devam eder ve işlevsel eşdeğerlerle birlikte burada yönetilir."],
   "Catálogo maestro de Drive": ["Drive master catalogue", "Drive ana kataloğu"],
   "Programación de procesos": ["Process schedules", "İşlem zamanlaması"],
   "El supervisor respeta las prioridades y reanuda los trabajos con cuota disponible. Apps Script ejecuta cada horario con un margen aproximado de 15 minutos.": ["The supervisor respects priorities and resumes work when quota is available. Apps Script runs each schedule within an approximate 15-minute window.", "Gözetmen önceliklere uyar ve kota olduğunda işleri sürdürür. Apps Script her zamanlamayı yaklaşık 15 dakikalık bir aralıkta çalıştırır."],
@@ -360,7 +360,7 @@ export const translations = Object.freeze({
   "Noticias BBVA": ["BBVA news", "BBVA haberleri"],
   "{theme} fue el bloque funcional con más noticias: {count}, el {share}% de las noticias analizadas.": ["{theme} was the functional block with the most news: {count}, or {share}% of the news analyzed.", "{theme}, en fazla haber içeren işlevsel blok oldu: {count}, incelenen haberlerin %{share} kadarı."],
   "Solo una clasificación LLM vigente con evidencia fuerte sustituye al determinista; las abstenciones y los resultados débiles conservan el determinista.": ["Only a current LLM classification with strong evidence replaces the deterministic result; abstentions and weak results retain it.", "Yalnızca güçlü kanıta sahip güncel LLM sınıflandırması kural tabanlı sonucu değiştirir; çekimserlik ve zayıf sonuçlar mevcut sonucu korur."],
-  "Maestro de Drive de solo lectura. News Radar conserva un espejo para clasificar y mantiene una única entrada Otros por bloque, exclusivamente local.": ["Read-only Drive master. News Radar keeps a classification mirror and one local Other entry per block.", "Drive ana kataloğu salt okunurdur. News Radar sınıflandırma kopyasını ve her blok için tek bir yerel Diğer girdisini tutar."],
+  "Maestro de Drive de solo lectura. EDC News Radar conserva un espejo para clasificar y mantiene una única entrada Otros por bloque, exclusivamente local.": ["Read-only Drive master. EDC News Radar keeps a classification mirror and one local Other entry per block.", "Drive ana kataloğu salt okunurdur. EDC News Radar sınıflandırma kopyasını ve her blok için tek bir yerel Diğer girdisini tutar."],
   "{phase} · {percent} %": ["{phase} · {percent} %", "{phase} · %{percent}"],
   "Preparando descarga": ["Preparing download", "İndirme hazırlanıyor"],
   "Descarga preparada": ["Download ready", "İndirme hazır"],
@@ -385,7 +385,7 @@ export const translations = Object.freeze({
   "Abrir proyecto": ["Open project", "Projeyi aç"],
   "Importar resultados": ["Import results", "Sonuçları içe aktar"],
   "Máximo 250 resultados y 2 MiB por importación. ZIP sin compresión (ZIP_STORED), sin carpetas ni archivos extra. Puedes importar JSON por lote si la interfaz de ChatGPT no permite usar ZIP. El progreso se actualiza tras publicar los snapshots de las tres vistas.": ["Up to 250 results and 2 MiB per import. Uncompressed ZIP (ZIP_STORED), without folders or extra files. Import JSON by batch if the ChatGPT interface does not support ZIP. Progress updates after snapshots for all three views are published.", "Her içe aktarmada en fazla 250 sonuç ve 2 MiB. Klasör veya ek dosya içermeyen sıkıştırılmamış ZIP (ZIP_STORED). ChatGPT arayüzü ZIP desteklemiyorsa grup başına JSON içe aktarın. İlerleme, üç görünümün anlık görüntüleri yayımlandıktan sonra güncellenir."],
-  "Categorización LLM offline de News Radar": ["Offline LLM categorization in News Radar", "News Radar çevrimdışı LLM sınıflandırması"],
+  "Categorización LLM offline de EDC News Radar": ["Offline LLM categorization in EDC News Radar", "EDC News Radar çevrimdışı LLM sınıflandırması"],
   "Progreso de categorización LLM": ["LLM categorization progress", "LLM sınıflandırma ilerlemesi"],
   "Revisión editorial necesaria": ["Editorial review required", "Editoryal inceleme gerekli"],
   "Configuración guardada.": ["Settings saved.", "Ayarlar kaydedildi."],
@@ -455,9 +455,9 @@ export const translations = Object.freeze({
   "Problemas de servicio": ["Service problems", "Hizmet sorunları"],
 
   "Última lectura del maestro: {date}": ["Last master read: {date}", "Ana kataloğun son okunma tarihi: {date}"],
-  "Equivalencias y conceptos emergentes de News Radar. Los códigos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aquí. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios.": ["News Radar aliases and emerging concepts. Official codes, names and descriptions are read from the Drive master and cannot be edited here. Specific products can use one official source; trends require three articles and two publishers.", "News Radar eşdeğerleri ve yeni kavramları. Resmî kodlar, adlar ve açıklamalar Drive ana kataloğundan okunur ve burada düzenlenmez. Somut ürünler için bir resmî kaynak yeterlidir; eğilimler üç haber ve iki yayıncı gerektirir."],
-  "Maestro de Drive de solo lectura. News Radar conserva un espejo para clasificar y añade únicamente funcionalidades .xx sin equivalente justificable en el catálogo.": ["Read-only Drive master. News Radar keeps a mirror for classification and only adds .xx functionalities without a defensible catalogue equivalent.", "Drive ana kataloğu salt okunurdur. News Radar sınıflandırma için bir ayna tutar ve yalnızca katalogda gerekçelendirilebilir eşdeğeri olmayan .xx işlevlerini ekler."],
-  "El maestro debe ser un documento distinto del libro de News Radar.": ["The master must be a different document from the News Radar workbook.", "Ana katalog, News Radar çalışma kitabından farklı bir belge olmalıdır."],
+  "Equivalencias y conceptos emergentes de EDC News Radar. Los códigos, nombres y descripciones oficiales se leen del maestro de Drive y no se editan aquí. Los productos concretos admiten una fuente oficial; las tendencias requieren tres noticias y dos medios.": ["EDC News Radar aliases and emerging concepts. Official codes, names and descriptions are read from the Drive master and cannot be edited here. Specific products can use one official source; trends require three articles and two publishers.", "EDC News Radar eşdeğerleri ve yeni kavramları. Resmî kodlar, adlar ve açıklamalar Drive ana kataloğundan okunur ve burada düzenlenmez. Somut ürünler için bir resmî kaynak yeterlidir; eğilimler üç haber ve iki yayıncı gerektirir."],
+  "Maestro de Drive de solo lectura. EDC News Radar conserva un espejo para clasificar y añade únicamente funcionalidades .xx sin equivalente justificable en el catálogo.": ["Read-only Drive master. EDC News Radar keeps a mirror for classification and only adds .xx functionalities without a defensible catalogue equivalent.", "Drive ana kataloğu salt okunurdur. EDC News Radar sınıflandırma için bir ayna tutar ve yalnızca katalogda gerekçelendirilebilir eşdeğeri olmayan .xx işlevlerini ekler."],
+  "El maestro debe ser un documento distinto del libro de EDC News Radar.": ["The master must be a different document from the EDC News Radar workbook.", "Ana katalog, EDC News Radar çalışma kitabından farklı bir belge olmalıdır."],
   "Se utiliza el último espejo del catálogo.": ["The latest catalogue mirror is used.", "Kataloğun son aynası kullanılır."],
   "Descripción funcional no válida.": ["Invalid functional description.", "İşlev açıklaması geçersiz."],
   "Los códigos y nombres oficiales se actualizan exclusivamente desde el catálogo maestro.": ["Official codes and names are updated exclusively from the master catalogue.", "Resmî kodlar ve adlar yalnızca ana katalogdan güncellenir."],
@@ -663,7 +663,7 @@ export const translations = Object.freeze({
   "Valoración": ["Rating", "Değerlendirme"],
   "Observaciones": ["Comments", "Yorumlar"],
   "Síntesis de esta edición": ["This edition’s summary", "Bu sayının özeti"],
-  "Explorar en News Radar": ["Explore in News Radar", "News Radar’da keşfedin"],
+  "Explorar en EDC News Radar": ["Explore in EDC News Radar", "EDC News Radar’da keşfedin"],
   "¿Te ha resultado útil?": ["Was this useful?", "Bu içerik faydalı oldu mu?"],
   "Valorar esta edición (opcional)": ["Rate this edition (optional)", "Bu sayıyı değerlendirin (isteğe bağlı)"],
   "Valoración opcional": ["Optional rating", "İsteğe bağlı değerlendirme"],
@@ -756,6 +756,7 @@ export const translations = Object.freeze({
   "Etiquetado persistido incompleto.": ["Incomplete persisted assignments.", "Kaydedilen sınıflandırmalar eksik."],
   "Copia de noticias incompleta.": ["Incomplete news copy.", "Haber kopyası eksik."],
   "Ver todas las novedades en Noticias": ["See all updates in News", "Tüm gelişmeleri Haberler bölümünde görün"],
+  "BBVA · Banca de Empresas e Instituciones": ["BBVA · Business and Institutional Banking", "BBVA · Şirketler ve Kurumlar Bankacılığı"],
   "Tu radar de novedades": ["Your news radar", "Haber radarınız"],
   "Tu selección por geografía": ["Your selection by geography", "Coğrafyaya göre seçiminiz"],
   "Entidad no identificada": ["Unidentified entity", "Tanımlanmayan kuruluş"],
@@ -1138,7 +1139,7 @@ export const translations = Object.freeze({
   "Las suscripciones tienen sus propios filtros. Cambiar la selección de noticias no modifica lo que recibes por correo.": ["Subscriptions have their own filters. Changing the news selection does not change what you receive by email.", "Aboneliklerin kendi filtreleri vardır. Haber seçimini değiştirmek e-postayla aldığınız içeriği değiştirmez."],
   "Cargando contenido…": ["Loading content…", "İçerik yükleniyor…"],
   "Cargando selección": ["Loading selection", "Seçim yükleniyor"],
-  "Gestión de News Radar": ["News Radar management", "News Radar yönetimi"],
+  "Gestión de EDC News Radar": ["EDC News Radar management", "EDC News Radar yönetimi"],
   "Gestiona el contenido recopilado, las suscripciones y el funcionamiento de la aplicación.": ["Manage collected content, subscriptions and application operation.", "Toplanan içeriği, abonelikleri ve uygulamanın işleyişini yönetin."],
   "Recopilación y configuración": ["Collection and configuration", "Toplama ve yapılandırma"],
   "Acciones disponibles solo para el administrador.": ["Actions available only to administrators.", "Yalnızca yöneticinin kullanabileceği işlemler."],
@@ -1230,7 +1231,7 @@ export const translations = Object.freeze({
   "Remitente verificado en Gmail (correo del grupo)": ["Verified Gmail sender (group email)", "Gmail'de doğrulanmış gönderen (grup e-postası)"],
   "Nombre visible del remitente": ["Sender display name", "Gönderenin görünen adı"],
   "Límite de newsletters en 24 horas": ["Newsletter limit per 24 hours", "24 saatte bülten sınırı"],
-  "URL publicada de News Radar (gestión de suscripciones)": ["Published News Radar URL (subscription management)", "Yayımlanan News Radar URL'si (abonelik yönetimi)"],
+  "URL publicada de EDC News Radar (gestión de suscripciones)": ["Published EDC News Radar URL (subscription management)", "Yayımlanan EDC News Radar URL'si (abonelik yönetimi)"],
   "Selección de noticias y período de consulta.": ["News selection and query period.", "Haber seçimi ve sorgu dönemi."],
   "Visualización": ["Visualization", "Görselleştirme"],
   "Última recopilación": ["Last collection", "Son toplama"],
@@ -1329,7 +1330,7 @@ export const translations = Object.freeze({
   "Latencia p95": ["p95 latency", "p95 gecikme"],
   "Errores de cliente": ["Client errors", "İstemci hataları"],
   "La latencia se mide desde el navegador e incluye red y servidor. No se registran términos de búsqueda, contenido de formularios ni navegación externa.": ["Latency is measured in the browser and includes network and server time. Search terms, form content and external navigation are not recorded.", "Gecikme tarayıcıda ölçülür; ağ ve sunucu süresini içerir. Arama terimleri, form içerikleri ve harici gezinme kaydedilmez."],
-  "Uso de News Radar": ["News Radar usage", "News Radar kullanımı"],
+  "Uso de EDC News Radar": ["EDC News Radar usage", "EDC News Radar kullanımı"],
   "Usuarios · 7 días": ["Users · 7 days", "Kullanıcılar · 7 gün"],
   "Usuarios · 30 días": ["Users · 30 days", "Kullanıcılar · 30 gün"],
   "Más de una sesión · 30 días": ["More than one session · 30 days", "Birden fazla oturum · 30 gün"],
@@ -1487,13 +1488,13 @@ export const translations = Object.freeze({
   "fuentes seleccionadas. Entidades y países desactivados permanecen desactivados.": ["sources selected. Disabled entities and countries remain disabled.", "kaynak seçildi. Devre dışı kurumlar ve ülkeler devre dışı kalır."],
   "fuentes RSS.": ["RSS sources.", "RSS kaynağı."],
   "Recopilación diaria activada a partir de las": ["Daily collection enabled from", "Günlük toplama etkinleştirildi; saat:"],
-  "Ir a Newsradar": ["Go to News Radar", "News Radar'a git"],
+  "Ir a EDC News Radar": ["Go to EDC News Radar", "EDC News Radar'a git"],
   "Gestiona": ["Manage", "Yönet"],
   "Gestiona tu suscripción": ["Manage your subscription", "Aboneliğini yönet"],
-  "Has recibido esta selección por tu suscripción a News Radar.": ["You received this selection because you subscribed to News Radar.", "Bu seçimi News Radar aboneliğiniz nedeniyle aldınız."],
-  "Gestiona o da de baja tu suscripción desde Newsletter en News Radar.": ["Manage or cancel your subscription from Newsletter in News Radar.", "Aboneliğinizi News Radar'daki Bülten bölümünden yönetin veya iptal edin."],
+  "Has recibido esta selección por tu suscripción a EDC News Radar.": ["You received this selection because you subscribed to EDC News Radar.", "Bu seçimi EDC News Radar aboneliğiniz nedeniyle aldınız."],
+  "Gestiona o da de baja tu suscripción desde Newsletter en EDC News Radar.": ["Manage or cancel your subscription from Newsletter in EDC News Radar.", "Aboneliğinizi EDC News Radar'daki Bülten bölümünden yönetin veya iptal edin."],
   "da de baja": ["unsubscribe", "aboneliği iptal et"],
-  "tu suscripción desde Newsletter en News Radar.": ["your subscription from Newsletter in News Radar.", "aboneliğinizi News Radar'daki Bülten bölümünden."],
+  "tu suscripción desde Newsletter en EDC News Radar.": ["your subscription from Newsletter in EDC News Radar.", "aboneliğinizi EDC News Radar'daki Bülten bölümünden."],
   "Impulsado por": ["Powered by", "Destekleyen"],
   "Banca Inteligente y Autónoma": ["Intelligent and Autonomous Banking", "Akıllı ve Otonom Bankacılık"],
   "Banca de Empresas e Instituciones": ["Business and Institutional Banking", "Ticari ve Kurumsal Bankacılık"],
@@ -1593,7 +1594,7 @@ export const translations = Object.freeze({
   "Ejecuta setupRadar desde el editor de Apps Script.": ["Run setupRadar from the Apps Script editor.", "Apps Script düzenleyicisinden setupRadar çalıştırın."],
   "Inicializa desde el editor con la cuenta propietaria.": ["Initialize from the editor with the owner's account.", "Sahibin hesabıyla düzenleyiciden başlatın."],
   "Inicializa la configuración desde el editor: initializeConfiguration.": ["Initialize configuration from the editor: initializeConfiguration.", "Yapılandırmayı düzenleyiciden başlatın: initializeConfiguration."],
-  "News Radar preparado: fuentes predeterminadas, recopilación automática y métricas.": ["News Radar ready: default sources, automatic collection and metrics.", "News Radar hazır: varsayılan kaynaklar, otomatik toplama ve metrikler."],
+  "EDC News Radar preparado: fuentes predeterminadas, recopilación automática y métricas.": ["EDC News Radar ready: default sources, automatic collection and metrics.", "EDC News Radar hazır: varsayılan kaynaklar, otomatik toplama ve metrikler."],
   "Solo el propietario puede inicializar.": ["Only the owner can initialize.", "Yalnızca sahibi başlatabilir."],
   "Estructura inesperada en": ["Unexpected structure in", "Beklenmeyen yapı:"],
   "Fragmento desconocido.": ["Unknown fragment.", "Bilinmeyen parça."],
@@ -1641,7 +1642,7 @@ function translationMatcher(language){
   if(translationMatchers.has(language))return translationMatchers.get(language);
   const index=Object.fromEntries(Object.keys(translations).map(key=>[language==='es'?key:translations[key][language==='en'?0:1],key]));
   const lowercase=Object.fromEntries(Object.entries(index).map(([key,value])=>[key.toLowerCase(),value]));
-    const pattern=new RegExp('News Radar|https?://[^\\s]+|[a-z0-9.!#$%&*+/=?^_~-]+@[a-z0-9.-]+\\.[a-z]{2,}|(?<![\\p{L}\\p{N}])('+Object.keys(index).filter(key=>!key.includes('{')).sort((a,b)=>b.length-a.length).map(key=>key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')(?![\\p{L}\\p{N}])','giu');
+  const pattern=new RegExp('EDC News Radar|https?://[^\\s]+|[a-z0-9.!#$%&*+/=?^_~-]+@[a-z0-9.-]+\\.[a-z]{2,}|(?<![\\p{L}\\p{N}])('+Object.keys(index).filter(key=>!key.includes('{')).sort((a,b)=>b.length-a.length).map(key=>key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')(?![\\p{L}\\p{N}])','giu');
   const templates=[];let group=1;
   const templatePattern=new RegExp('^(?:'+Object.entries(index).filter(([text])=>text.includes('{')).sort(([a],[b])=>b.replace(/\{\w+\}/g,'').length-a.replace(/\{\w+\}/g,'').length).map(([text,key])=>{
     const names=[];
@@ -1663,7 +1664,7 @@ export function translateText(value,language='es',source='es'){
     return text.replace(text.trim(),translated(template.key).replace(/\{(\w+)\}/g,(_,name)=>values[name]));
   }
   return text.replace(pattern,key=>{
-    if(/^news radar$/i.test(key)||key.includes('@')||/^https?:\/\//i.test(key))return key;
+    if(/^edc news radar$/i.test(key)||key.includes('@')||/^https?:\/\//i.test(key))return key;
     const result=translated(index[key]||lowercase[key.toLowerCase()]);
     return key===key.toUpperCase()?result.toLocaleUpperCase(language):result;
   });

@@ -6,7 +6,7 @@ import {app} from './helpers/app.mjs';
 
 for(const {name,query} of presentationCases)test(name+': etiquetas completas, ámbito y jerarquía de Iteración 36',()=>{
  const {c}=presentationServer(),rows=structuredClone(presentationRows).map(row=>({...row,taxonomia:row.taxonomia.map(tag=>({...tag,palanca:'17.'+tag.palanca}))})),content=presentationContent(c,query,rows),d=new JSDOM(content.html).window.document;
- assert.match(content.subject,/^\[bIA\] 🚀 BBVA BEI ·/);assert.equal(d.querySelector('.newsletter-wordmark img').getAttribute('src'),'cid:bei-logo');assert.match(d.querySelector('.newsletter-wordmark img').alt,/Banca de Empresas e Instituciones/);assert.ok(content.images.some(image=>image.id==='bei-logo'&&image.data.length>1000));
+ assert.match(content.subject,/^\[bIA\] 🚀 EDC News Radar ·/);assert.equal(d.querySelector('.newsletter-wordmark img').getAttribute('src'),'cid:bei-logo');assert.match(d.querySelector('.newsletter-wordmark img').alt,/Banca de Empresas e Instituciones/);assert.ok(content.images.some(image=>image.id==='bei-logo'&&image.data.length>1000));
  for(const cta of d.querySelectorAll('.newsletter-cta'))assert.doesNotMatch(cta.textContent,/17\./);
  for(const card of d.querySelectorAll('.newsletter-article')){
   const chips=[...card.querySelectorAll('.newsletter-chip')].map(chip=>chip.textContent);
