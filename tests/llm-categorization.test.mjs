@@ -251,7 +251,7 @@ test('la interfaz descarga una vez al terminar y no descarga archivos parciales 
   const backend=w.RADAR_PREVIEW.call;w.RADAR_PREVIEW.call=async(method,query)=>{if(method!=='exportLlmPending')return backend(method,query);page++;if(fail&&page%2===0)throw Error('Fallo temporal');return {revision:'same',cursor:page%2?3:4,done:page%2===0,count:1,progress:page%2?50:100,files:[{name:'manifest.json',text:'{"schemaVersion":2,"sourceRevision":"same"}'},{name:'context.json',text:'{}'},{name:'instructions.md',text:'Contexto'},{name:'1_1.json',text:'{}'}],review:page===1?{name:'proposals.json',text:'{}'}:null};};
  }});
  await a.click('[data-view="administration"]');await a.click('#admin-tab-llm');await a.click('#llm-download');
- assert.deepEqual(downloads,['news-radar-llm.zip']);assert.equal(blobs[0].type,'application/zip');assert.equal(page,2);assert.equal(a.find('#llm-transfer-progress').value,100);assert.match(a.find('#llm-transfer-label').textContent,/Descarga preparada · 100 %/);
+ assert.deepEqual(downloads,['edc-news-radar-llm.zip']);assert.equal(blobs[0].type,'application/zip');assert.equal(page,2);assert.equal(a.find('#llm-transfer-progress').value,100);assert.match(a.find('#llm-transfer-label').textContent,/Descarga preparada · 100 %/);
  fail=true;await a.click('#llm-download');assert.equal(page,4);assert.equal(downloads.length,1);assert.equal(a.find('#llm-transfer-progress').value,50);assert.match(a.find('#llm-transfer-label').textContent,/Proceso interrumpido · 50 %/);
 });
 
