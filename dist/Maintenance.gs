@@ -119,7 +119,7 @@ function drainMaintenanceRequest_(){const p=properties_();const day=p.getPropert
 // Explicit maintenance: keep a verified external archive before removing operational history.
 function archiveAndCompactOperationalStorage(){
  authorize_(true);return withForegroundWrite_(()=>{
-  const folder=archiveFolder_(configuration_().storage.primaryFolderId),source=book_(),archive=source.copy('News Radar · Archivo '+new Date().toISOString());
+  const folder=archiveFolder_(configuration_().storage.primaryFolderId),source=book_(),archive=source.copy('EDC News Radar · Archivo '+new Date().toISOString());
   fileInFolder_(archive.getId(),folder);
   for(const sheet of source.getSheets()){
    const backup=archive.getSheetByName(sheet.getName()),rows=sheet.getLastRow(),width=sheet.getLastColumn();

@@ -12,7 +12,7 @@ test('servidor local entrega la WebApp autónoma y limita rutas y métodos',asyn
   const response=await fetch(url);
   assert.equal(response.status,200);
   const html=await response.text();
-  assert.match(html,/News Radar/);
+  assert.match(html,/EDC News Radar/);
   assert.match(html,/window.RADAR_PREVIEW/);
   assert.match(html,/data:image\/svg\+xml;base64,/);
   assert.match(html,/data:font\/woff2;base64,/);
