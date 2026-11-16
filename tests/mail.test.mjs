@@ -19,6 +19,17 @@ test('una prueba sin noticias se registra sin contactar Gmail ni archivar una ed
  const result=c.sendNewsletterTest({cadence:'fortnightly'});assert.equal(result.accepted,false);assert.equal(result.count,0);assert.equal(log[0][5],'Sin novedades');assert.equal(calls.length,0);assert.equal(released,true);
 });
 test('el remitente configurado no consulta Gmail al mostrar su estado y el transporte comunica los rechazos',()=>{const m=mail();assert.equal(m.c.newsletterSender_().address,m.settings.newsletterSender);assert.equal(m.calls.length,0);m.setResponse({error:{message:'Sender alias rejected'}},400);assert.throws(()=>m.c.sendNewsletterMail_(m.c.newsletterSender_(),'owner@bbva.com',{count:1,subject:'Test',html:'<p>Test</p>',text:'Test'}),/Sender alias rejected/);});
+test('la nueva marca se aplica a remitentes guardados sin cambiar la dirección ni personalizaciones ajenas',()=>{
+ const {c,settings,calls}=mail();
+ settings.newsletterSenderName='News Radar · BBVA Empresas';
+ assert.equal(c.newsletterSender_().name,'EDC News Radar · BBVA Empresas');
+ settings.newsletterSenderName='EDC News Radar · BBVA Empresas';
+ assert.equal(c.newsletterSender_().name,'EDC News Radar · BBVA Empresas');
+ settings.newsletterSenderName='Equipo de publicaciones';
+ assert.equal(c.newsletterSender_().name,'Equipo de publicaciones');
+ assert.equal(c.newsletterSender_().address,settings.newsletterSender);
+ assert.equal(calls.length,0);
+});
 test('MIME preserva Unicode, usa destinatario individual y Reply-To del grupo sin CC ni BCC',()=>{
   const m=mail(),{c}=m;m.setResponse({id:'gmail-confirmed'});
   const sender={address:m.settings.newsletterSender,name:m.settings.newsletterSenderName},content={count:1,subject:'[bIA] Entidad: BBVA · Geografía: México 💡 '+('á'.repeat(80)),text:'Financiación para pequeñas empresas · España',html:'<h1>Novedades México</h1>'};

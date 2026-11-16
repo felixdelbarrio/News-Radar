@@ -14,7 +14,8 @@ function gmailRequest_(path,payload){
   return result;
 }
 function brandedNewsletterSenderName_(value){
-  return typeof value==='string' && value ? value.replace(/^News Radar\b/i,'EDC News Radar') : CONFIGURATION_DEFAULTS.settings.newsletterSenderName;
+  if (value === undefined) return CONFIGURATION_DEFAULTS.settings.newsletterSenderName;
+  return typeof value === 'string' ? value.replace(/^News Radar\b/i, 'EDC News Radar') : value;
 }
 function newsletterSender_(){const config=settings_();return {address:newsletterEmail_(config.newsletterSender),name:brandedNewsletterSenderName_(config.newsletterSenderName)};}
 function newsletterBudget_(deliveries,now){
