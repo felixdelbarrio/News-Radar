@@ -134,3 +134,17 @@ test('las vistas comparten la validación de revisión y reintentan tras un fall
  await a.click('[data-view="news"]');
  assert.equal(pending.length,2);
 });
+
+test('una respuesta A tardía no reemplaza el resultado ni la selección B vigente',async t=>{
+ const pending=[];
+ const a=await app(t,{configure({w,data}){
+  const backend=w.RADAR_PREVIEW.call;
+  w.RADAR_PREVIEW.call=(method,query)=>method==='getDashboard'&&['consulta A','consulta B'].includes(query?.search)
+   ?new Promise(resolve=>pending.push({query,resolve:()=>resolve({...structuredClone(data),selection:query,total:query.search==='consulta B'?2:1,items:[{id:query.search,titular:query.search,url:'https://example.test/',fecha:'2026-10-11',entidad:'BBVA',pais:'España',medio:'Editor',taxonomia:[],senales:[],segmentos:[]} ]})}))
+   :backend(method,query);
+ }});
+ await a.click('[data-view="news"]');
+ await a.change('#filters [name="search"]','consulta A');await a.change('#filters [name="search"]','consulta B');
+ assert.equal(pending.length,2);pending[1].resolve();await tick();assert.match(a.find('#news-list').textContent,/consulta B/);
+ pending[0].resolve();await tick();assert.match(a.find('#news-list').textContent,/consulta B/);assert.doesNotMatch(a.find('#news-list').textContent,/consulta A/);assert.equal(a.find('#filters [name="search"]').value,'consulta B');
+});
