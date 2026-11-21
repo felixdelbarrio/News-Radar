@@ -95,3 +95,7 @@ No se ha ejecutado fcSetup, importación de semillas, reclasificación históric
 - Shadow P4 y aprobación específica; su bloqueo no autoriza ni impide por sí solo el cambio de rendimiento.
 
 No hay medición después en producción, versión publicada de esta iteración, migración ni mejora p95 demostrada. Sheet: sin escrituras de esta iteración. Apps Script: inspección únicamente.
+
+## Continuación tras adjudicación del usuario
+
+Los siete IDs ya fueron confirmados para `17.Enablers → 17.xx Otros`. El estado actualizado, la sonda real acotada, los cambios candidatos de biblioteca y los bloqueos de acceso/limpieza se documentan en [iteration-54-classifier-adjudications.md](iteration-54-classifier-adjudications.md). Esta continuación sustituye la indicación anterior de que faltaban los IDs aprobados.
