@@ -5,20 +5,19 @@ function radarAvailableYears_(){
 }
 function getDashboard(query){return withScriptProperties_(()=>getDashboardRequest_(query));}
 function getDashboardRequest_(query) {
-  const started=Date.now(),session=authorize_();
-  let feeds;const sourceFeeds=()=>feeds||(feeds=feeds_());
+  const started=Date.now(),session=authorize_(),feeds=feeds_();
   const view=query?.view||'radar',initial=Boolean(query?.initial),language=supportedLanguage(query?.language)?query.language:'es',edition=query?.edition&&view==='news'?newsletterEdition_(query.edition,session.email,session.admin):null;
   if(edition&&initial&&view==='news'&&query.country&&!query.newsGeography&&!['entity','palanca','subpalanca','benchmark'].some(key=>query[key]))query={...query,newsGeography:applicationGeography(edition.editorial?.scope||configuration_().applicationScope,edition.query.segment,configuration_().geographies)({pais:query.country}),country:''};
   query=dashboardQuery_(edition&&initial?{...edition.query,country:'',...(typeof query.country==='string'?{country:query.country}:{}),...(typeof query.entity==='string'?{entity:query.entity}:{}),...(query.palanca?{palanca:query.palanca}:{}),...(query.subpalanca?{subpalanca:query.subpalanca}:{}),...(query.benchmark?{benchmark:query.benchmark}:{}),...(typeof query.newsGeography==='string'?{newsGeography:query.newsGeography}:{}),view,initial:false}:{...query,view},new Date(),!edition);
   if(view==='news'){const geography=newsReadingGeography_(edition?.editorial,query),normalized=geographyTabQuery({...query,view},geography.regions,geography);delete normalized.view;query=normalized;}
   const preparationMs=Date.now()-started,contentStarted=Date.now(),snapshot=!edition?defaultDashboardSnapshot_(view,query,language):null;const periodFallback=false;
   if(snapshot)query={...query,...snapshot.period};
-  const content=snapshot?{data:snapshot.data,cacheHit:true,snapshotHit:true}:dashboardContent_(query||{},sourceFeeds(),view,language,edition);
+  const content=snapshot?{data:snapshot.data,cacheHit:true,snapshotHit:true}:dashboardContent_(query||{},feeds,view,language,edition);
   const newsMs=Date.now()-contentStarted;
   const metadataStarted=Date.now(),metadata=snapshot?.metadata||dashboardMetadata_(),catalogMs=Date.now()-metadataStarted,operationStarted=Date.now(),operation=dashboardOperation_(session.admin),operationMs=Date.now()-operationStarted,yearsStarted=Date.now(),years=view==='radar'?(content.data.years||radarAvailableYears_()):null,yearsMs=Date.now()-yearsStarted,dailyStarted=Date.now(),daily=dailyScheduleStatus_(),dailyMs=Date.now()-dailyStarted;
   const response={...content.data,...(view==='radar'?{years}:{}),
     ...(edition?{feedback:newsletterFeedback_(edition.id,session.email)}:{}),context:edition?{mode:'edition',id:edition.id,title:edition.title,editorial:edition.editorial,commentLimit:NEWSLETTER_EDITORIAL.commentChars,from:edition.query.from,to:edition.query.to,count:edition.items.length,language:edition.language}:{mode:'current',periodFallback},...metadata,taxonomyTranslations:edition?edition.names:metadata.taxonomyTranslations,initial,selection:query||{},defaults:dashboardQuery_({view,initial:true}),geographies:edition?.editorial?.geographies||metadata.geographies,applicationScope:edition?.editorial?.scope||metadata.applicationScope,
-    configurationRevision:configurationRevision_(),readingDay:recordDay(new Date(),settings_().timezone),...operation,daily,newsRevision:publishedNewsRevision_(),sourceCount:snapshot?.metadata?.sourceCount??sourceFeeds().length,admin:session.admin};
+    configurationRevision:configurationRevision_(),readingDay:recordDay(new Date(),settings_().timezone),...operation,daily,newsRevision:publishedNewsRevision_(),sourceCount:feeds.length,admin:session.admin};
   return {...response,performance:{version:RADAR.version,serverMs:Date.now()-started,preparationMs,metadataMs:Date.now()-metadataStarted,metadataDetails:{catalogMs,operationMs,yearsMs,dailyMs},newsMs,cacheHit:content.cacheHit,snapshotHit:Boolean(content.snapshotHit)}};
 }
 function exportNews(query) {

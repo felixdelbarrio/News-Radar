@@ -103,11 +103,6 @@ test('un snapshot previo a la ampliación conserva la primera página y delega l
  assert.equal(s.properties.DASHBOARD_SNAPSHOT_CORRUPT,undefined);
 });
 
-test('snapshot publicado incluye sourceCount y evita feeds incluso al recuperar de Sheets',()=>{
- const s=server(),c=s.c;add(s,'es','2026-10-10');const count=c.feeds_().length;build(s);s.cache.clear();
- c.feeds_=()=>{throw Error('Lectura evitable de fuentes');};
- for(const view of ['briefing','news','radar']){const result=c.getDashboard({view,initial:true});assert.equal(result.performance.snapshotHit,true);assert.equal(result.sourceCount,count);}
-});
 test('revisión de lectura cambia al publicar traducción o taxonomía, nunca por un build pendiente',()=>{
  const s=server(),c=s.c;add(s,'es','2026-10-10');build(s);
  for(const key of ['TAXONOMY_REVISION','TAXONOMY_TRANSLATIONS_REVISION','TRANSLATIONS_REVISION:tr']){
@@ -115,9 +110,4 @@ test('revisión de lectura cambia al publicar traducción o taxonomía, nunca po
   assert.equal(c.getReadingRevision().newsRevision,before);s.properties.DASHBOARD_SNAPSHOT_BUILD=JSON.stringify({signature:'pending',manifests:{}});assert.equal(c.getReadingRevision().newsRevision,before);
   build(s);assert.notEqual(c.getReadingRevision().newsRevision,before);
  }
-});
-test('snapshots anteriores sin sourceCount conservan el recuento mediante una única lectura de fuentes',()=>{
- const s=server(),c=s.c;add(s,'es','2026-10-10');build(s);const original=c.defaultDashboardSnapshot_,feeds=c.feeds_;let calls=0;
- c.defaultDashboardSnapshot_=(...args)=>{const result=original(...args);return {...result,metadata:Object.fromEntries(Object.entries(result.metadata).filter(([key])=>key!=='sourceCount'))};};
- c.feeds_=()=>{calls++;return feeds();};const result=c.getDashboard({view:'news',initial:true});assert.equal(result.sourceCount,feeds().length);assert.equal(calls,1);assert.equal(result.performance.snapshotHit,true);
 });

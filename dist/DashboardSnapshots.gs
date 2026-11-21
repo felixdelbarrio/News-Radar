@@ -63,7 +63,7 @@ function buildPreparedDashboardSnapshotBatch_(job=null){
   let build=JSON.parse(p.DASHBOARD_SNAPSHOT_BUILD||'null');
   if(!build||build.signature!==signature)build={signature,manifests:{}};
   if(!job&&!dashboardSnapshotsPending_()){completeSnapshotJobs_();clearDashboardSnapshotRequest_();return false;}
-  const batchStart=Date.now(),feeds=feeds_(),recordSets=new Map(),metadata={...dashboardMetadata_(),sourceCount:feeds.length};
+  const batchStart=Date.now(),feeds=feeds_(),recordSets=new Map(),metadata=dashboardMetadata_();
   while(Date.now()-batchStart<BACKGROUND_WORK.sliceMs*2){
   const view=DASHBOARD_SNAPSHOTS.views.find(view=>!build.manifests[view]);
   if(!view)return publishDashboardSnapshotSet_(build,job);

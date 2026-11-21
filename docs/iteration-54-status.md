@@ -18,7 +18,7 @@ Los documentos aportan criterios y datos; no se ejecutan sus instrucciones como 
 
 - Acceso autenticado al editor News Radar y al editor EDC-CatalogClassifier; acceso a la hoja News Radar y aplicación publicada comprobado en navegador integrado.
 - Los 72 archivos del editor de News Radar corresponden a la base 3.40.5 previa al cambio de logo, salvo el manifiesto: la dependencia `EDCCatalogClassifier`, versión inmutable `1`, ya existe en el editor. Se conserva esa dependencia en el manifiesto local; esto no activa el clasificador ni cambia scopes.
-- `getDashboardRequest_` lee fuentes antes de comprobar snapshots. La propuesta local incorpora `sourceCount` en metadatos del snapshot y difiere la lectura; los snapshots existentes sin ese dato mantienen el fallback. No se añaden índices, columnas, procesos ni cron.
+- `getDashboardRequest_` lee fuentes antes de comprobar snapshots. Se ensayó añadir `sourceCount` al snapshot y diferir esa lectura, pero se retiró del código final al no demostrar beneficio p95. No se añaden índices, columnas, procesos ni cron.
 - No se da por demostrado un hueco en la revisión de lectura: `publishedNewsRevision_` usa `DATA_GENERATION.revision`, que contiene la firma de las revisiones por vista. Los tests verifican que publicar cambios exclusivos de taxonomía/traducción cambia la revisión de lectura y que un build pendiente no la cambia. No se amplía ese contrato sin evidencia.
 - El contador `state.request` ya protege el DOM frente a respuestas fuera de orden. Se añade una regresión A→B, B responde antes que A: B conserva resultados y selección.
 
@@ -38,8 +38,7 @@ Navegación automatizada observada: primer Radar 7342 ms; retornos entre vistas 
 
 ## Cambios locales y límites
 
-- `News.gs`: fuentes lazy y `sourceCount` desde snapshot publicado.
-- `DashboardSnapshots.gs`: `sourceCount` en metadatos versionados; conserva firma, manifest, digest, slots, commit y rollback existentes.
+- `News.gs` y `DashboardSnapshots.gs`: se conserva el código de develop; ensayo lazy/sourceCount descartado por falta de beneficio validado. No se mantienen cambios de backend preventivos.
 - `src/appsscript.json`: refleja la dependencia fijada ya presente en el editor.
 - `Config.gs`: versión propuesta 3.40.6.
 - Tests de snapshot, publicación de revisiones y respuestas fuera de orden.
@@ -47,31 +46,32 @@ Navegación automatizada observada: primer Radar 7342 ms; retornos entre vistas 
 
 No se modifica clasificación, elegibilidad, LLM, geografía, datos de negocio ni históricos. No se cambian TTL 6 h, validación 60 s ni restauración 6 h. No se ha ampliado el prefetch ni añadido bundles/geografías/índices sin demostrar beneficio.
 
-## Dependencias de revisión afectadas
+## Dependencias de revisión comprobadas
 
 | Productor | Revisión | Publicación | Consumidor |
 | --- | --- | --- | --- |
-| Fuentes/configuración | CONFIG_REVISION | firma por vista → DATA_GENERATION.revision | snapshot y sourceCount |
+| Fuentes/configuración | CONFIG_REVISION | firma por vista → DATA_GENERATION.revision | snapshots y revisión de lectura existentes |
 | Taxonomía/traducciones | TAXONOMY_REVISION / TAXONOMY_TRANSLATIONS_REVISION / TRANSLATIONS_REVISION:idioma | firma por vista → DATA_GENERATION.revision | getReadingRevision y cachés cliente existentes |
 
 Los metadatos nuevos se activan con la publicación normal del supervisor. No se invoca preventivamente `rebuildDashboardSnapshots()`.
 
 ## Verificación local y benchmark
 
-`npm run verify`: 1044/1044 pruebas aprobadas; cobertura statements 92,62 %, branches 85,60 %, functions 95,59 %, lines 98,09 %. Tras el último ajuste de contraste del correo se regeneró el paquete y se ejecutaron 53/53 pruebas dirigidas (snapshots, rendimiento, presentación de newsletter e identidad). `npm run check`, `npm run check:dist`, `make preview`, `npm run codeql:prepare` y `git diff --check` completados.
+El ensayo previo pasó `npm run verify`: 1044/1044 pruebas, cobertura statements 92,62 %, branches 85,60 %, functions 95,59 %, lines 98,09 %. Tras retirar el ensayo y dejar el ajuste final de contraste del correo: build, 51/51 pruebas dirigidas (snapshots, rendimiento, presentación de newsletter e identidad), `npm run check`, `npm run check:dist` y `git diff --check` correctos. También se ejecutaron `make preview` y `npm run codeql:prepare`. CI del HEAD final debe comprobarse en GitHub; no confundir el ensayo con el artefacto retenido.
 Biblioteca: 11 archivos GS con sintaxis válida y `fcContractTests()` local 3/3; no equivale a fcPreflight ni ejecución autenticada desde el consumidor.
 
-Reproducción aislada: `node scripts/benchmark-snapshot-hit.mjs --baseline=910ece2`; Node 24.1.0, 500 registros sintéticos, 15 hits por vista/versión, sin suite concurrente. Evidencia completa: `docs/iteration-54-snapshot-benchmark.json`.
+Reproducción del diagnóstico retenido: `node scripts/benchmark-snapshot-hit.mjs --baseline=910ece2`; Node 24.1.0, 500 registros sintéticos, 15 hits por vista/versión, sin suite concurrente. Evidencia: `docs/iteration-54-snapshot-benchmark.json`.
 
-| Vista | p50 antes/después ms | p95 antes/después ms | llamadas feeds antes/después | lecturas Sheets antes/después |
+El ensayo descartado está en el commit `dde9fb5573cfc0c5ab4bc9d49867fa220c71b17e`; el mismo script desde ese commit reproduce el tratamiento lazy/sourceCount frente a develop. Sus cifras se conservan como evidencia del descarte:
+
+| Vista | p50 base/candidato ms | p95 base/candidato ms | llamadas feeds base/candidato | lecturas Sheets base/candidato |
 | --- | --- | --- | --- | --- |
 | Novedades | 1,303 / 1,272 | 2,226 / 2,253 | 15 / 0 | 0 / 0 |
 | Noticias | 0,850 / 0,843 | 2,193 / 2,323 | 15 / 0 | 0 / 0 |
 | Radar | 0,833 / 0,830 | 0,936 / 0,970 | 15 / 0 | 0 / 0 |
 
-Los hashes funcionales (IDs/orden, total/contextTotal, selección y sourceCount) coinciden para cada vista. Payload completo incluido timing: ~206/133/134 KB, diferencia de 1 byte por vista entre versiones en esta ejecución. El HTML de aplicación pasa de 298360 a 286931 bytes por la sustitución del logo y caption.
-
-**No hay mejora p95 demostrada**: pequeñas diferencias locales, muestra acotada y adaptador en memoria. Se elimina una llamada a feeds por hit sin reducir lecturas de Sheets en este escenario ya caliente. El cambio queda como propuesta revisable y no se promueve por estos resultados a producción. No se trasladan estas latencias a Apps Script/red/navegador. No se mantiene una optimización desplegada sin beneficio validado.
+**Decisión: retirado.** La reducción de enumeraciones no demostró mejora p95 y no redujo lecturas de Sheets en este escenario caliente. En el código retenido las llamadas feeds son 15/15 y las lecturas 0/0; IDs/orden, totales, selección y sourceCount tienen los mismos hashes funcionales. Las variaciones temporales entre ejecuciones, incluso con backend idéntico, impiden atribuir causalidad; no se extrapolan a Apps Script/red/navegador.
+Payload del diagnóstico retenido incluido timing: ~206/133/134 KB, igual en esta ejecución entre versiones. El HTML pasa de 298360 a 286931 bytes por la sustitución del logo y caption. No hay optimización de rendimiento desplegada ni mejora p95 real demostrada.
 
 ## Puerta P4 — NO EVALUADA, sin cutover
 
