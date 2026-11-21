@@ -13,12 +13,16 @@ function gmailRequest_(path,payload){
   }
   return result;
 }
-function newsletterSender_(){const config=settings_();return {address:newsletterEmail_(config.newsletterSender),name:config.newsletterSenderName};}
+function brandedNewsletterSenderName_(value){
+  if (value === undefined) return CONFIGURATION_DEFAULTS.settings.newsletterSenderName;
+  return typeof value === 'string' ? value.replace(/^News Radar\b/i, 'EDC News Radar') : value;
+}
+function newsletterSender_(){const config=settings_();return {address:newsletterEmail_(config.newsletterSender),name:brandedNewsletterSenderName_(config.newsletterSenderName)};}
 function newsletterBudget_(deliveries,now){
   return Math.max(0,settings_().newsletterDailyLimit-deliveries.filter(row=>['Enviando','Enviada','Revisar'].includes(row.estado)&&new Date(row.fecha).getTime()>now.getTime()-86400000).length);
 }
 function getNewsletterDeliveryStatus(){
-  authorize_(true);const settings=settings_(),deliveries=rows_('NewsletterEnvios',undefined,8),status={address:settings.newsletterSender,name:settings.newsletterSenderName,enabled:settings.newsletterEnabled,scheduled:ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='scheduledNewsletters_'),remaining:newsletterBudget_(deliveries,new Date()),last:deliveries.at(-1)||null,untracked:deliveries.filter(row=>row.suscripcion&&['Enviada','Enviando','Revisar'].includes(row.estado)&&!/(?:^|; )\d+ noticias incluidas/.test(row.detalle)).length};
+  authorize_(true);const settings=settings_(),deliveries=rows_('NewsletterEnvios',undefined,8),status={address:settings.newsletterSender,name:brandedNewsletterSenderName_(settings.newsletterSenderName),enabled:settings.newsletterEnabled,scheduled:ScriptApp.getProjectTriggers().some(trigger=>trigger.getHandlerFunction()==='scheduledNewsletters_'),remaining:newsletterBudget_(deliveries,new Date()),last:deliveries.at(-1)||null,untracked:deliveries.filter(row=>row.suscripcion&&['Enviada','Enviando','Revisar'].includes(row.estado)&&!/(?:^|; )\d+ noticias incluidas/.test(row.detalle)).length};
   return {...status,available:Boolean(settings.newsletterSender),error:''};
 }
 function mailHeader_(value){

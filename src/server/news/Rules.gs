@@ -370,7 +370,7 @@ function applyGeographyUpgrade(){
   const merged=geographies.map(row=>{const seed=geoSeeds.get(row.code);return {...row,region:row.region||seed?.region||'',...Object.fromEntries(['publisherDomains','publisherNames','aliases'].map(key=>[key,[...new Set([...(row[key]||[]),...(seed?.[key]||[])])]]))};});
   merged.push(...CONFIGURATION_DEFAULTS.geographies.filter(seed=>!geographies.some(row=>row.code===seed.code)));
   const previous=JSON.parse(properties_().getProperty('GEOGRAPHY_UPGRADE')||'null');if(previous?.version===RADAR.version&&updated.every((row,i)=>row.headquartersCountry===entities[i].headquartersCountry)&&JSON.stringify(merged)===JSON.stringify(geographies))return getGeographyUpgrade();
-  const source=book_(),backup=source.copy('News Radar · Geografías '+RADAR.version+' · '+new Date().toISOString()),original=rows[index][1];
+  const source=book_(),backup=source.copy('EDC News Radar · Geografías '+RADAR.version+' · '+new Date().toISOString()),original=rows[index][1];
   fileInFolder_(backup.getId(),archiveFolder_(JSON.parse(rows.find(([key])=>key==='storage')[1]).primaryFolderId));
   for(const name of ['Configuracion',newsStorageKey_()]){
    const active=source.getSheetByName(name),copy=backup.getSheetByName(name),height=active.getLastRow(),width=active.getLastColumn();

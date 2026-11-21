@@ -9,7 +9,7 @@ function auditGeographyMigration(options={}){
 function applyGeographyMigration(){
  authorize_(true);return withForegroundWrite_(()=>{
   const previous=JSON.parse(properties_().getProperty('GEOGRAPHY_MIGRATION')||'null');if(previous?.version===RADAR.version)return previous;
-  const source=book_(),backup=source.copy('News Radar · Geografías '+RADAR.version+' · '+new Date().toISOString()),newsName=newsStorageKey_();
+  const source=book_(),backup=source.copy('EDC News Radar · Geografías '+RADAR.version+' · '+new Date().toISOString()),newsName=newsStorageKey_();
   for(const name of ['Configuracion',newsName]){const active=source.getSheetByName(name),copy=backup.getSheetByName(name),height=active.getLastRow(),width=active.getLastColumn();if(!copy||copy.getLastRow()!==height||copy.getLastColumn()!==width||sha256_(JSON.stringify(active.getRange(1,1,height,width).getDisplayValues()))!==sha256_(JSON.stringify(copy.getRange(1,1,height,width).getDisplayValues())))throw Error('Backup no verificado: '+name);}
   const state={version:RADAR.version,backupId:backup.getId(),backupUrl:backup.getUrl(),rows:Math.max(0,source.getSheetByName(newsName).getLastRow()-1),created:new Date().toISOString()};properties_().setProperty('GEOGRAPHY_MIGRATION',JSON.stringify(state));return state;
  });

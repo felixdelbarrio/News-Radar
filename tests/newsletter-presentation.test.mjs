@@ -37,7 +37,7 @@ for(const {name,query} of presentationCases){
   const ids=result.images.map(image=>image.id);assert.equal(new Set(ids).size,ids.length);
   for(const img of d.images){assert.ok(img.alt||img.getAttribute('aria-hidden')==='true'&&img.getAttribute('alt')===''&&img.closest('a')?.textContent.trim());assert.ok(ids.includes(img.src.replace('cid:','')));}
   let mime;c.Utilities.base64EncodeWebSafe=value=>Buffer.from(value).toString('base64url');c.gmailRequest_=(_path,payload)=>{mime=Buffer.from(payload.raw,'base64url').toString();return {id:'verified'};};
-  c.sendNewsletterMail_({name:'News Radar',address:'news-radar.group@bbva.com'},'owner@bbva.com',result);
+  c.sendNewsletterMail_({name:'EDC News Radar',address:'news-radar.group@bbva.com'},'owner@bbva.com',result);
   assert.match(mime,/multipart\/related/);assert.match(mime,/multipart\/alternative/);
   for(const image of result.images){assert.equal(mime.split('Content-ID: <'+image.id+'>').length,2);assert.ok(mime.includes(image.data.match(/.{1,76}/g).join('\r\n')));}
   assert.ok(Buffer.byteLength(result.html)<102400);assert.match(result.html,/<!--\[if mso\]><table style="[^"]*width:640px/);

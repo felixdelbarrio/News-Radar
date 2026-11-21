@@ -37,7 +37,7 @@ export function createLlmCategorization({run,isActive,onRevision,refreshSelects}
    zip.add(result);
    cursor=result.cursor;revision=result.revision;done=result.done;count+=result.count;progress(t('Preparando descarga'),Math.min(99,result.progress));
   }
-  const url=URL.createObjectURL(new Blob(zip.finish(),{type:'application/zip'})),a=document.createElement('a');a.href=url;a.download='news-radar-llm.zip';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  const url=URL.createObjectURL(new Blob(zip.finish(),{type:'application/zip'})),a=document.createElement('a');a.href=url;a.download='edc-news-radar-llm.zip';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   progress(t('Descarga preparada'),100);
   message(t('{count} noticias exportadas. La descarga no modifica su estado.',{count}));
  }),false));

@@ -54,7 +54,7 @@ function functionalCatalog_(){
   items=blocks.size?[...blocks.values()]:FUNCTIONAL_CATALOG_SEED;writeDashboardCache_(cache,key,items);
  }functionalCatalogMemory_={revision,items};return items;
 }
-function functionalConfiguration_(config){return {...config,settings:{...CONFIGURATION_DEFAULTS.settings,...config.settings},storage:{...CONFIGURATION_DEFAULTS.storage,...config.storage},taxonomy:functionalCatalogRules(functionalCatalog_(),config.taxonomy)};}
+function functionalConfiguration_(config){return {...config,settings:{...CONFIGURATION_DEFAULTS.settings,...config.settings,newsletterSenderName:brandedNewsletterSenderName_(config.settings?.newsletterSenderName)},storage:{...CONFIGURATION_DEFAULTS.storage,...config.storage},taxonomy:functionalCatalogRules(functionalCatalog_(),config.taxonomy)};}
 function functionalConfigurationSettings_(config){return {...config,taxonomy:functionalRuleSettings(config.taxonomy)};}
 function writeFunctionalCatalog_(blocks){
  const descriptions=new Map(FUNCTIONAL_CATALOG_SEED.flatMap(block=>block.functions.map(row=>[row.id,row])));
@@ -69,7 +69,7 @@ function refreshFunctionalCatalog_(){
  const config=configuration_();if(!config.settings.taxonomyCatalogUrl)return {source:'espejo',detail:'Se utiliza el último espejo del catálogo.'};
  const started=Date.now();
  try{
-  const id=config.settings.taxonomyCatalogUrl.match(/\/d\/([\w-]+)/)[1];if(id===properties_().getProperty('SPREADSHEET_ID'))throw Error('El maestro debe ser un documento distinto del libro de News Radar.');
+  const id=config.settings.taxonomyCatalogUrl.match(/\/d\/([\w-]+)/)[1];if(id===properties_().getProperty('SPREADSHEET_ID'))throw Error('El maestro debe ser un documento distinto del libro de EDC News Radar.');
   const book=SpreadsheetApp.openById(id),names=['Soluciones Funcionales','Capacidades canal (core y VD)'];
   const tables=names.map(name=>{const sheet=book.getSheetByName(name);if(!sheet||sheet.getLastRow()>1500)throw Error('Pestaña del catálogo ausente o fuera de límite: '+name);return sheet.getRange(1,1,sheet.getLastRow(),6).getDisplayValues();});
   const changed=writeFunctionalCatalog_(functionalCatalogRows_(tables));
@@ -118,7 +118,7 @@ function applyFunctionalRuleUpgrade(){
   const p=properties_(),previous=JSON.parse(p.getProperty('FUNCTIONAL_RULE_UPGRADE')||'null');
   if(previous?.version===RADAR.version&&previous.state==='Staged')return getFunctionalRuleUpgrade();
   if(classificationPending_()||taxonomyPending_()||llmJob_()&&llmJob_().state!=='Completada')throw Error('Espera a que terminen clasificación, taxonomía y publicación LLM antes de actualizar reglas.');
-  const config=configuration_(),next=functionalRuleUpgrade_(config),source=book_(),backup=source.copy('News Radar · Reglas '+RADAR.version+' · '+new Date().toISOString());
+  const config=configuration_(),next=functionalRuleUpgrade_(config),source=book_(),backup=source.copy('EDC News Radar · Reglas '+RADAR.version+' · '+new Date().toISOString());
   fileInFolder_(backup.getId(),archiveFolder_(config.storage.primaryFolderId));
   for(const sheet of source.getSheets()){
    const copy=backup.getSheetByName(sheet.getName()),rows=sheet.getLastRow(),width=sheet.getLastColumn();

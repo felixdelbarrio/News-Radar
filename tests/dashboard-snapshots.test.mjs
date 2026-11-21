@@ -102,3 +102,12 @@ test('un snapshot previo a la ampliación conserva la primera página y delega l
  assert.equal(c.defaultDashboardSnapshot_('news',{...query,page:1},'es'),null);
  assert.equal(s.properties.DASHBOARD_SNAPSHOT_CORRUPT,undefined);
 });
+
+test('revisión de lectura cambia al publicar traducción o taxonomía, nunca por un build pendiente',()=>{
+ const s=server(),c=s.c;add(s,'es','2026-10-10');build(s);
+ for(const key of ['TAXONOMY_REVISION','TAXONOMY_TRANSLATIONS_REVISION','TRANSLATIONS_REVISION:tr']){
+  const before=c.getReadingRevision().newsRevision;s.properties[key]=key+'-changed';
+  assert.equal(c.getReadingRevision().newsRevision,before);s.properties.DASHBOARD_SNAPSHOT_BUILD=JSON.stringify({signature:'pending',manifests:{}});assert.equal(c.getReadingRevision().newsRevision,before);
+  build(s);assert.notEqual(c.getReadingRevision().newsRevision,before);
+ }
+});

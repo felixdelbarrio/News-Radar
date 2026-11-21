@@ -6,7 +6,7 @@ function setupRadar() {
   if(p.getProperty('OWNER_EMAIL'))authorize_(true);
   else if(Session.getActiveUser().getEmail().toLowerCase()!==email)throw new Error('Inicializa desde el editor con la cuenta propietaria.');
   const folder=archiveFolder_(CONFIGURATION_DEFAULTS.storage.primaryFolderId),existing=p.getProperty('SPREADSHEET_ID');
-  const book=existing?SpreadsheetApp.openById(existing):(SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.create('BBVA Empresas · News Radar'));
+  const book=existing?SpreadsheetApp.openById(existing):(SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.create('BBVA Empresas · EDC News Radar'));
   radarBook_=book;
   fileInFolder_(book.getId(),folder);
   p.setProperties({OWNER_EMAIL:email,SPREADSHEET_ID:book.getId()});
@@ -22,7 +22,7 @@ function setupRadar() {
     }
     sheet=book.insertSheet(name);sheet.getRange(1,1,1,headers.length).setValues([headers]).setFontWeight('bold').setBackground(SHEET_THEME.background).setFontColor(SHEET_THEME.foreground);sheet.setFrozenRows(1);
   });
-  return 'News Radar preparado: fuentes predeterminadas, recopilación automática y métricas.';
+  return 'EDC News Radar preparado: fuentes predeterminadas, recopilación automática y métricas.';
 }
 function rows_(sheet, limit, width=RADAR.sheets[sheet].length,period=null) {
   if(sheet==='Noticias'&&period){const rows=newsRowsForPeriod_(period);for(const row of rows)delete row._sheetRow;return rows;}

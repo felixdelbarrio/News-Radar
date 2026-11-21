@@ -59,7 +59,7 @@ test('administración da altas y edita suscripciones; lectores no acceden a otro
 
 test('la entrega registra cada período antes de enviar y no duplica ni reintenta envíos inciertos',()=>{
  const s=storage(),{c}=s;c.initializeConfiguration();const defaults=c.getConfiguration();defaults.config.settings.newsletterEnabled=true;c.saveConfiguration(defaults);
- const period=c.newsletterPeriod_('fortnightly',new Date());let sent=0;c.newsletterSender_=()=>({address:'news-radar.group@bbva.com',name:'News Radar'});c.sendNewsletterMail_=()=>{sent++;return 'gmail-'+sent;};
+ const period=c.newsletterPeriod_('fortnightly',new Date());let sent=0;c.newsletterSender_=()=>({address:'news-radar.group@bbva.com',name:'EDC News Radar'});c.sendNewsletterMail_=()=>{sent++;return 'gmail-'+sent;};
  c.subscriptionRows_=()=>[{id:'uno',correo:'equipo@garantibbva.com.tr',nombre:'Canal',periodicidad:'fortnightly',activa:true,actualizada:'2020-01-01T00:00:00Z',filtros:{entity:'BBVA',coverage:''}},{id:'pausada',activa:false}];
  s.book.insertSheet('Noticias').grid.push([]);c.rows_=name=>name==='Noticias'?canonicalFixtures(c,[{clasificacion:'{"digital":true,"capacidades":["Empresas: Pagos"]}',fecha:period.from,pais:'España',entidad:'BBVA',medio:'BBVA',titular:'BBVA lanza cuenta para empresas',extracto:'Nueva cuenta',url:'https://example.com/product'}]):s.sheets.get(name).grid.slice(1).map(row=>Object.fromEntries(['id','suscripcion','correo','desde','hasta','estado','fecha','detalle','contenido'].map((key,i)=>[key,row[i]])));
  c.deliverNewsletterBatch_();c.deliverNewsletterBatch_();assert.equal(sent,1);assert.equal(s.sheets.get('NewsletterEnvios').grid[1][5],'Enviada');
