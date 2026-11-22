@@ -1,12 +1,12 @@
 import {configurationDefaults} from './configuration-defaults.mjs';
-import vm from 'node:vm';
+import {storage} from '../tests/helpers/server.mjs';
 import {performance} from 'node:perf_hooks';
-import {read,readServerScript} from './source.mjs';
+import {read} from './source.mjs';
 const config=configurationDefaults();
 const additions=JSON.parse(read('tests/fixtures/iteration3-feeds.json'));
 const existing=JSON.parse(read('tests/fixtures/digital-feeds.json'));
 export function compareDigital(){
- const c=vm.createContext({});vm.runInContext(readServerScript(),c);c.configuration_=()=>config;
+ const {c}=storage();c.initializeConfiguration();c.configuration_=()=>config;
  const now=new Date('2026-10-12T23:59:59Z'),range={from:'2026-09-01',to:'2026-10-12'},sources=[];
  const known=new Set();let received=0,added=0,digital=0;
  for(const sample of [...existing.feeds,...additions.feeds]){

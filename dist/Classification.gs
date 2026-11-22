@@ -115,5 +115,6 @@ function newsClassificationBatch_(maxMs=CLASSIFICATION_WORK.maxMs){
 
 function necessaryTaxonomyRecord_(row,items=taxonomyCatalog_()){
  const saved=taxonomySaved_(row.taxonomia);
- try{validateTaxonomyAssignment_(saved,items,row.id,true,row);return JSON.parse(row.taxonomia);}catch(_){return taxonomyRecord_(row.titular,row.extracto,items,savedNewsLabels_(row.clasificacion));}
+ if(saved.runtime===functionalRuntimeRevision_())try{validateTaxonomyAssignment_(saved,items,row.id,true,row);return JSON.parse(row.taxonomia);}catch(_){}
+ return taxonomyRecord_(row.titular,row.extracto,items,savedNewsLabels_(row.clasificacion));
 }

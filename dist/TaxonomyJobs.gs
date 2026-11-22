@@ -14,8 +14,8 @@ function fallbackTaxonomy_(text,labels,items){return EDCCatalogClassifier.getFun
 function taxonomyRecord_(title,excerpt,items=taxonomyCatalog_(),providedLabels=null){
  const fingerprint=taxonomyFingerprint_(title,excerpt),text=taxonomyText(title+' '+excerpt);
  if(!taxonomyMatchingMemory_.has(items))taxonomyMatchingMemory_.set(items,{rows:items.map(item=>({...item,terms:item.terminos,description:item.descripcion||''})),revision:taxonomyModelRevision_(items)});
- const model=taxonomyMatchingMemory_.get(items),metadata={fingerprint,version:TAXONOMY_POLICY.version,model:model.revision};
- if(!items.length||!text)return {...metadata,ids:[],reason:'insufficient'};
+ const model=taxonomyMatchingMemory_.get(items),metadata={fingerprint,version:TAXONOMY_POLICY.version,model:model.revision,runtime:functionalRuntimeRevision_()};
+ if(!items.length||!taxonomyEligible_(searchText_(title),text))return {...metadata,ids:[],reason:'insufficient'};
  const decision=taxonomyDecision(text,model.rows,title);
  if(!Array.isArray(decision?.matches)||decision.matches.some(match=>typeof match?.row?.id!=='string'||!match.row.id||!match.evidence))throw Error('Respuesta funcional inválida.');
  const match=decision.matches[0];
@@ -130,9 +130,12 @@ function taxonomyGenerationBatch_(maxMs){
     const labels=job.reclassify&&!reviewedNewsClassification_(saved)
       ?{...classification_(searchText_(plainText_(row.titular)),searchText_(plainText_(row.titular)+' '+plainText_(row.extracto)),true,row.medio,row.idioma).labels,procedencia:saved.procedencia}
       :{...saved,...(saved.estado===undefined?{estado:relevantNewsLabels_(saved)?'relevante':'indeterminado'}:{})};
-    const assignment=taxonomyRecord_(row.titular,row.extracto,items,labels);
+    const classified={...row,clasificacion:JSON.stringify(labels)};
+    const assignment=job.digitalOnly||job.reclassify
+      ?taxonomyRecord_(row.titular,row.extracto,items,labels)
+      :necessaryTaxonomyRecord_(classified,items);
     if(job.digitalOnly)labels.functionalRevision=job.rules;
-    validateTaxonomyAssignment_(assignment,items,row.id,true,{...row,clasificacion:JSON.stringify(labels)});
+    validateTaxonomyAssignment_(assignment,items,row.id,true,classified);
     labels.digital=hasValidFunctionalAssignment_(assignment,globalFunctionalIds_(items));
     const value=JSON.stringify(assignment),classification=JSON.stringify(labels);
     expected.push([value]);expectedLabels.push([classification]);
