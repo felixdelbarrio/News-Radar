@@ -25,16 +25,27 @@ test('digital exige una asignación con ID funcional y la elegibilidad conserva 
   assert.equal(eligible('no relevante',true),false);
 });
 
-test('un cambio del léxico EDC invalida decisiones entre ejecuciones aunque la configuración sea idéntica',()=>{
+test('un cambio del léxico EDC reinicia la clasificación pendiente con la misma configuración',()=>{
   const {c}=storage();
   c.initializeConfiguration();
-  const run=()=>c.classificationRulesRevision_();
-  const revision=run();
-  assert.equal(run(),revision);
+  const sheet=c.newsSheet_(),keys=vm.runInContext('RADAR.sheets.Noticias',c);
+  for(const id of ['processed','pending'])sheet.grid.push(keys.map(key=>key==='id'?id:''));
+  c.requestNewsClassification_();
+  const checkpoint=c.classificationJob_();
+  c.writeClassificationJob_({...checkpoint,state:'En curso',next:3,classified:1});
   vm.runInContext(`const originalLexicon=EDCCatalogClassifier.getFunctionalLanguageLexicon;
     EDCCatalogClassifier.getFunctionalLanguageLexicon=()=>[...originalLexicon(),{language:'es',channel:['portal de prueba']}];
-    functionalRuntimeRevisionMemory_=undefined;`,c);
-  assert.notEqual(run(),revision);
+    functionalRuntimeRevisionMemory_=undefined;
+    classificationRevisionMemory_=undefined;`,c);
+  c.newsClassificationBatch_();
+  const restarted=c.classificationJob_();
+  assert.equal(restarted.state,'Pendiente');
+  assert.equal(restarted.next,2);
+  assert.equal(restarted.total,checkpoint.total);
+  assert.equal(restarted.classified,0);
+  assert.equal(restarted.version,checkpoint.version);
+  assert.notEqual(restarted.revision,checkpoint.revision);
+  assert.equal(restarted.revision,c.classificationRulesRevision_());
 });
 
 test('el HTML compilado mantiene los scriptlets fuera del JavaScript ejecutable',()=>{
