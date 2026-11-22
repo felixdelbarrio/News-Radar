@@ -12,13 +12,13 @@ test('señales MECE priorizan incidencia, alianza y lanzamiento; alcance sin eve
  ['BBVA lanza nueva app para empresas: caída del sistema y problemas de acceso','Indisponibilidad / Incidencia operativa'],
  ['Qonto lanza una nueva API de tesorería para empresas','Lanzamiento de producto'],
  ['Qonto ofrece API de tesorería para empresas','Mejora de oferta']]){
- const result=labels(c,title);assert.equal(result.digital,true,title);assert.deepEqual(Array.from(result.senales),[expected],title);
+ const result=labels(c,title);assert.equal((result.estado==='relevante'),true,title);assert.deepEqual(Array.from(result.senales),[expected],title);
  }
 });
 test('una incidencia digital solo es elegible si afecta a un servicio empresarial',()=>{
  const {c}=server(),result=labels(c,'BBVA: problemas de acceso a la app para empresas y error al iniciar sesión');
- assert.equal(labels(c,'BBVA: problemas de acceso a la app y error al iniciar sesión').digital,false);
- assert.equal(result.digital,true);assert.equal(result.segmento,'Empresas e instituciones');assert.deepEqual(Array.from(result.senales),['Indisponibilidad / Incidencia operativa']);
+ assert.equal(labels(c,'BBVA: problemas de acceso a la app y error al iniciar sesión').estado,'indeterminado');
+ assert.equal((result.estado==='relevante'),true);assert.equal(result.segmento,'Empresas e instituciones');assert.deepEqual(Array.from(result.senales),['Indisponibilidad / Incidencia operativa']);
  for(const title of ['BBVA mejora su app para empresas para prevenir caídas','BBVA guía: qué hacer si la app no funciona'])assert.notEqual(labels(c,title).evento,'Indisponibilidad / Incidencia operativa');
 });
 test('normalización elimina etiquetas rotas y codificadas antes de traducir sin truncar marcado',()=>{
@@ -33,7 +33,7 @@ test('país único del titular domina dominio; extracto incidental no suplanta d
 test('patrones funcionales de auditoría asignan operativas específicas del catálogo',()=>{
  const {c}=server(),definitions=c.taxonomyDefinitions(c.configuration_().taxonomy);
  for(const [title,id] of [['Citi y Coinbase lanzan pagos con stablecoins para empresas','03.13'],['KB Kookmin lanza parking account para fondos B2B','02.17'],['Getnet y Nayax estrenan SoftPOS para comercios','11.02'],['Mercado Pago incorpora impuestos provinciales en su app para comercios','05.23'],['BBVA presenta problemas de acceso a la app para empresas','16.01']]){
- const text=c.searchText_(title),matches=c.taxonomyDecision(text,definitions,text).matches;assert.ok(matches.some(match=>match.row.key===id),title);assert.equal(labels(c,title).digital,true,title);
+ const text=c.searchText_(title),matches=c.taxonomyDecision(text,definitions,text).matches;assert.ok(matches.some(match=>match.row.key===id),title);assert.equal(labels(c,title).estado,'relevante',title);
  }
 });
 

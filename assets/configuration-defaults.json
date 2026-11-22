@@ -191,7 +191,9 @@
       "aliases": [
         "HSBC Empresas",
         "HSBCnet",
-        "HSBCnio"
+        "HSBCnio",
+        "汇丰银行",
+        "滙豐銀行"
       ],
       "countries": [
         "México",
@@ -716,7 +718,9 @@
       "aliases": [
         "Citibank",
         "CitiDirect",
-        "CitiBusiness"
+        "CitiBusiness",
+        "花旗银行",
+        "花旗銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -781,7 +785,9 @@
         "Indonesia"
       ],
       "aliases": [
-        "DBS Bank"
+        "DBS Bank",
+        "星展银行",
+        "星展銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -794,7 +800,9 @@
         "Malasia"
       ],
       "aliases": [
-        "Oversea-Chinese Banking Corporation"
+        "Oversea-Chinese Banking Corporation",
+        "华侨银行",
+        "華僑銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -807,7 +815,9 @@
         "Tailandia"
       ],
       "aliases": [
-        "United Overseas Bank"
+        "United Overseas Bank",
+        "大华银行",
+        "大華銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -820,7 +830,8 @@
         "Australia"
       ],
       "aliases": [
-        "Mitsubishi UFJ"
+        "Mitsubishi UFJ",
+        "三菱UFJ銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -833,7 +844,8 @@
         "Singapur"
       ],
       "aliases": [
-        "Sumitomo Mitsui Banking Corporation"
+        "Sumitomo Mitsui Banking Corporation",
+        "三井住友銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -844,7 +856,9 @@
       "countries": [
         "Japón"
       ],
-      "aliases": [],
+      "aliases": [
+        "みずほ銀行"
+      ],
       "type": "Banco tradicional",
       "enabled": true,
       "headquartersCountry": "Japón"
@@ -858,7 +872,9 @@
         "India"
       ],
       "aliases": [
-        "StanChart"
+        "StanChart",
+        "渣打银行",
+        "渣打銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -870,7 +886,9 @@
         "China"
       ],
       "aliases": [
-        "Industrial and Commercial Bank of China"
+        "Industrial and Commercial Bank of China",
+        "中国工商银行",
+        "中國工商銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -882,7 +900,10 @@
         "China",
         "Hong Kong"
       ],
-      "aliases": [],
+      "aliases": [
+        "中国银行",
+        "中國銀行"
+      ],
       "type": "Banco tradicional",
       "enabled": true,
       "headquartersCountry": "China"
@@ -892,7 +913,10 @@
       "countries": [
         "China"
       ],
-      "aliases": [],
+      "aliases": [
+        "中国建设银行",
+        "中國建設銀行"
+      ],
       "type": "Banco tradicional",
       "enabled": true,
       "headquartersCountry": "China"
@@ -902,7 +926,10 @@
       "countries": [
         "India"
       ],
-      "aliases": [],
+      "aliases": [
+        "भारतीय स्टेट बैंक",
+        "एसबीआई"
+      ],
       "type": "Banco tradicional",
       "enabled": true,
       "headquartersCountry": "India"
@@ -1005,7 +1032,8 @@
         "Corea del Sur"
       ],
       "aliases": [
-        "Kookmin Bank"
+        "Kookmin Bank",
+        "KB국민은행"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -1016,7 +1044,9 @@
       "countries": [
         "Corea del Sur"
       ],
-      "aliases": [],
+      "aliases": [
+        "신한은행"
+      ],
       "type": "Banco tradicional",
       "enabled": true,
       "headquartersCountry": "Corea del Sur"
@@ -1056,7 +1086,9 @@
       "countries": [
         "Tailandia"
       ],
-      "aliases": [],
+      "aliases": [
+        "ธนาคารกรุงเทพ"
+      ],
       "type": "Banco tradicional",
       "enabled": true,
       "headquartersCountry": "Tailandia"

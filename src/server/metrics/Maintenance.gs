@@ -49,12 +49,13 @@ function newsCorrectionRows_(ids){
 function previewNewsClassificationCorrections(requests){
  authorize_(true);
  if(!Array.isArray(requests)||!requests.length||requests.length>20||new Set(requests.map(row=>row.id)).size!==requests.length)throw Error('Revisa entre 1 y 20 IDs únicos.');
- const records=newsCorrectionRows_(requests.map(row=>row.id)),at=new Date().toISOString(),changes=[];
+ const records=newsCorrectionRows_(requests.map(row=>row.id)),at=new Date().toISOString(),changes=[],functionalIds=globalFunctionalIds_(taxonomyCatalog_());
  for(const request of requests){
   const row=records.get(request.id),before=row.clasificacion,prior=savedNewsLabels_(before),title=searchText_(plainText_(row.titular)),text=searchText_(plainText_(row.titular)+' '+plainText_(row.extracto));
   if(newsCorrectionFingerprint_(row)!==request.expectedHash||typeof request.reason!=='string'||!request.reason.trim()||request.reason.length>300)throw Error('Revisión obsoleta o motivo ausente: '+request.id);
-  const next=classification_(title,text,true,row.medio).labels;
-  if(!prior.digital||next.digital)throw Error('Solo se corrigen falsos positivos revisados: '+request.id);
+  const next=classification_(title,text,true,row.medio,row.idioma).labels;
+  if(!relevantNewsLabels_(prior)||relevantNewsLabels_(next))throw Error('Solo se corrigen falsos positivos revisados: '+request.id);
+  next.digital=hasValidFunctionalAssignment_(taxonomySaved_(row.taxonomia),functionalIds);
   next.procedencia={...prior.procedencia,editorial:{at,reason:request.reason,contentHash:next.contentHash}};
   changes.push({id:row.id,url:row.url,expectedHash:request.expectedHash,before,after:JSON.stringify(next),reason:request.reason});
  }
@@ -68,7 +69,7 @@ function applyNewsClassificationCorrections(plan,rollback=false){
   const records=newsCorrectionRows_(ids),column=RADAR.sheets.Noticias.indexOf('clasificacion')+1,updates=[];
   for(const change of payload.changes){
    const row=records.get(change.id),prior=savedNewsLabels_(change.before),next=savedNewsLabels_(change.after);
-   if(!prior.digital||next.digital||!reviewedNewsClassification_(next)||next.procedencia.editorial.reason!==change.reason)throw Error('Decisión editorial no válida: '+change.id);
+   if(!relevantNewsLabels_(prior)||relevantNewsLabels_(next)||!reviewedNewsClassification_(next)||next.procedencia.editorial.reason!==change.reason)throw Error('Decisión editorial no válida: '+change.id);
    if(row.url!==change.url||row.clasificacion!==(rollback?change.after:change.before)||newsCorrectionFingerprint_({...row,clasificacion:change.before})!==change.expectedHash)throw Error('Registro cambiado desde la revisión: '+change.id);
    updates.push({row:row._sheetRow,column,value:rollback?change.before:change.after,original:row.clasificacion});
   }

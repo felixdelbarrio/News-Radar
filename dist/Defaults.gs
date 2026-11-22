@@ -1916,7 +1916,9 @@ const CONFIGURATION_DEFAULTS = {
       "aliases": [
         "HSBC Empresas",
         "HSBCnet",
-        "HSBCnio"
+        "HSBCnio",
+        "汇丰银行",
+        "滙豐銀行"
       ],
       "countries": [
         "México",
@@ -2441,7 +2443,9 @@ const CONFIGURATION_DEFAULTS = {
       "aliases": [
         "Citibank",
         "CitiDirect",
-        "CitiBusiness"
+        "CitiBusiness",
+        "花旗银行",
+        "花旗銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -2506,7 +2510,9 @@ const CONFIGURATION_DEFAULTS = {
         "Indonesia"
       ],
       "aliases": [
-        "DBS Bank"
+        "DBS Bank",
+        "星展银行",
+        "星展銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -2519,7 +2525,9 @@ const CONFIGURATION_DEFAULTS = {
         "Malasia"
       ],
       "aliases": [
-        "Oversea-Chinese Banking Corporation"
+        "Oversea-Chinese Banking Corporation",
+        "华侨银行",
+        "華僑銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -2532,7 +2540,9 @@ const CONFIGURATION_DEFAULTS = {
         "Tailandia"
       ],
       "aliases": [
-        "United Overseas Bank"
+        "United Overseas Bank",
+        "大华银行",
+        "大華銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -2545,7 +2555,8 @@ const CONFIGURATION_DEFAULTS = {
         "Australia"
       ],
       "aliases": [
-        "Mitsubishi UFJ"
+        "Mitsubishi UFJ",
+        "三菱UFJ銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -2558,7 +2569,8 @@ const CONFIGURATION_DEFAULTS = {
         "Singapur"
       ],
       "aliases": [
-        "Sumitomo Mitsui Banking Corporation"
+        "Sumitomo Mitsui Banking Corporation",
+        "三井住友銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -2569,7 +2581,9 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Japón"
       ],
-      "aliases": [],
+      "aliases": [
+        "みずほ銀行"
+      ],
       "type": "Banco tradicional",
       "enabled": true,
       "headquartersCountry": "Japón"
@@ -2583,7 +2597,9 @@ const CONFIGURATION_DEFAULTS = {
         "India"
       ],
       "aliases": [
-        "StanChart"
+        "StanChart",
+        "渣打银行",
+        "渣打銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -2595,7 +2611,9 @@ const CONFIGURATION_DEFAULTS = {
         "China"
       ],
       "aliases": [
-        "Industrial and Commercial Bank of China"
+        "Industrial and Commercial Bank of China",
+        "中国工商银行",
+        "中國工商銀行"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -2607,7 +2625,10 @@ const CONFIGURATION_DEFAULTS = {
         "China",
         "Hong Kong"
       ],
-      "aliases": [],
+      "aliases": [
+        "中国银行",
+        "中國銀行"
+      ],
       "type": "Banco tradicional",
       "enabled": true,
       "headquartersCountry": "China"
@@ -2617,7 +2638,10 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "China"
       ],
-      "aliases": [],
+      "aliases": [
+        "中国建设银行",
+        "中國建設銀行"
+      ],
       "type": "Banco tradicional",
       "enabled": true,
       "headquartersCountry": "China"
@@ -2627,7 +2651,10 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "India"
       ],
-      "aliases": [],
+      "aliases": [
+        "भारतीय स्टेट बैंक",
+        "एसबीआई"
+      ],
       "type": "Banco tradicional",
       "enabled": true,
       "headquartersCountry": "India"
@@ -2730,7 +2757,8 @@ const CONFIGURATION_DEFAULTS = {
         "Corea del Sur"
       ],
       "aliases": [
-        "Kookmin Bank"
+        "Kookmin Bank",
+        "KB국민은행"
       ],
       "type": "Banco tradicional",
       "enabled": true,
@@ -2741,7 +2769,9 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Corea del Sur"
       ],
-      "aliases": [],
+      "aliases": [
+        "신한은행"
+      ],
       "type": "Banco tradicional",
       "enabled": true,
       "headquartersCountry": "Corea del Sur"
@@ -2781,7 +2811,9 @@ const CONFIGURATION_DEFAULTS = {
       "countries": [
         "Tailandia"
       ],
-      "aliases": [],
+      "aliases": [
+        "ธนาคารกรุงเทพ"
+      ],
       "type": "Banco tradicional",
       "enabled": true,
       "headquartersCountry": "Tailandia"

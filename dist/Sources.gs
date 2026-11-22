@@ -66,7 +66,7 @@ function capabilitySearchTerms_(geo,entity){
 function defaultFeeds_(range) {
   const config=configuration_(),disabled=new Set(config.settings.disabledSources);
   const profiles=config.entities.flatMap(entity=>config.geographies.filter(geo=>entity.countries.includes(geo.name)).map(geo=>{const feed=profileFeed_(geo,entity,range);return {...feed,enabled:feed.enabled&&!disabled.has(feed.id)};})),covered=new Set(profiles.filter(feed=>feed.enabled).map(feed=>feed.country));
-  return config.feeds.map(feed=>countryScopedSource_({...feed,kind:'rss',enabled:feed.enabled&&config.geographies.find(geo=>geo.name===feed.country)?.enabled!==false})).concat(profiles,config.geographies.filter(geo=>geo.enabled&&!covered.has(geo.name)).map(geo=>geographyFeed_(geo,range)).filter(Boolean).map(feed=>({...feed,enabled:!disabled.has(feed.id)})));
+  return config.feeds.map(feed=>countryScopedSource_({...feed,kind:'rss',enabled:feed.enabled&&config.geographies.find(geo=>geo.name===feed.country)?.enabled!==false})).concat(profiles,config.geographies.filter(geo=>geo.enabled&&!covered.has(geo.name)).map(geo=>geographyFeed_(geo,range)).filter(Boolean).map(feed=>({...feed,enabled:!disabled.has(feed.id)})),operationalFeeds_(range));
 }
 function geographyFeed_(geo,range){
  const config=configuration_(),quote=value=>'"'+String(value).replace(/["*]/g,'')+'"',scope=localizedSearchTerms_(config.segments.filter(row=>row.enabled).flatMap(row=>row.terms),geo,true).slice(0,6),channel=localizedSearchTerms_(config.searchLanguages.filter(row=>row.enabled).flatMap(row=>row.terms).filter(term=>businessIndex_().relevance.channel.test(searchText_(term))),geo,true).slice(0,6);
@@ -82,7 +82,7 @@ function feeds_(){return configuredFeeds_().filter(feed=>feed.enabled);}
 function saveSourceSettings(enabledIds){
   authorize_(true);const config=JSON.parse(JSON.stringify(configuration_())),all=configuredFeeds_(),known=new Set(all.map(feed=>feed.id));
   if(!Array.isArray(enabledIds)||enabledIds.length>all.length||enabledIds.some(id=>!known.has(id)))throw Error('Configuración de fuentes no válida.');
-  const enabled=new Set(enabledIds);config.feeds.forEach(feed=>feed.enabled=enabled.has(feed.id));config.settings.disabledSources=[...new Set([...all.filter(feed=>feed.kind==='profile').map(feed=>feed.id),...config.geographies.map(geo=>'geography/'+geo.code)])].filter(id=>!enabled.has(id));
+  const enabled=new Set(enabledIds);config.feeds.forEach(feed=>feed.enabled=enabled.has(feed.id));config.settings.disabledSources=[...new Set([...all.filter(feed=>feed.kind==='profile'||feed.incidentOnly).map(feed=>feed.id),...config.geographies.map(geo=>'geography/'+geo.code)])].filter(id=>!enabled.has(id));
   writeConfiguration_(config,configurationRevision_());return enabled.size+' fuentes seleccionadas. Entidades y países desactivados permanecen desactivados.';
 }
 function saveFeeds(feeds){

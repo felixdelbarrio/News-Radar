@@ -62,6 +62,7 @@ test('forced thematic classification preserves stored country and provenance, in
   const original=before[i],previous=JSON.parse(original[at('clasificacion')]),updated=JSON.parse(row[at('clasificacion')]);
   for(const name of ['id','pais','fecha','url','capturada','fuente','medio'])assert.equal(row[at(name)],original[at(name)]);
   assert.deepEqual(updated.procedencia,previous.procedencia);
-  assert.equal(updated.digital,true);
+  assert.equal(updated.estado,'relevante');
+  assert.equal(updated.digital,false);
  });
 });

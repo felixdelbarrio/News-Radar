@@ -7,8 +7,8 @@ function functionalPilotChange_(row,items=taxonomyCatalog_()){
  const assignment=taxonomyRecord_(row.titular,row.extracto,items,savedNewsLabels_(row.clasificacion)),next=byId.get(assignment.primary)?.palanca||'';
  if(!recruitment&&(previous===next||!next))return null;
  validateTaxonomyAssignment_(assignment,items,row.id,true,row);
- const after={taxonomia:JSON.stringify(assignment)};
- if(recruitment){const labels=newsLabels_(digitalAssessment_(title,text),sha256_(JSON.stringify([title,text])));labels.procedencia=savedNewsLabels_(row.clasificacion).procedencia;after.clasificacion=JSON.stringify(labels);}
+ const prior=savedNewsLabels_(row.clasificacion),labels=recruitment?{...newsLabels_(digitalAssessment_(title,text),sha256_(JSON.stringify([title,text]))),procedencia:prior.procedencia}:{...prior,estado:prior.estado??(relevantNewsLabels_(prior)?'relevante':'indeterminado')};
+ const after={taxonomia:JSON.stringify(assignment),clasificacion:JSON.stringify({...labels,digital:hasValidFunctionalAssignment_(assignment,globalFunctionalIds_(items))})};
  if(Object.entries(after).every(([key,value])=>row[key]===value))return null;
  return {id:row.id,row:row._sheetRow,fingerprint:llmArticle_(row).contentHash,previous,next,evidence:focus?.terms||[row.titular],before:Object.fromEntries(Object.keys(after).map(key=>[key,row[key]])),after};
 }

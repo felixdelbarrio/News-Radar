@@ -37,19 +37,37 @@ function packNews_(row){return [row,newsRelevanceMemory_.get(row)??0];}
 function unpackNews_(record){newsRelevanceMemory_.set(record[0],record[1]);return record[0];}
 function businessIndex_(){
   const config=configuration_();if(businessIndexMemory_?.config===config)return businessIndexMemory_;
-  const entities=new Map(),entityTerms=new Map();for(const row of config.entities){const terms=[row.name,...row.aliases].map(searchText_);entityTerms.set(row.name,terms);for(const term of terms)entities.set(term,row);}
-  const rules=rows=>rows.filter(row=>row.enabled).map(row=>{const terms=[...new Set(row.terms.map(searchText_))];return {...row,terms,pattern:phrasePattern_(terms),context:(row.context||[]).map(searchText_),contextPattern:phrasePattern_((row.context||[]).map(searchText_)),exclude:(row.exclude||[]).map(searchText_),excludePattern:phrasePattern_((row.exclude||[]).map(searchText_))};});
-  const capabilities=Object.entries(config.capabilities).flatMap(([segment,rows])=>rules(rows).map(row=>({...row,segment}))),aliases=[...entities].filter(([,row])=>row.enabled).sort((a,b)=>b[0].length-a[0].length);
+  const languageRules=EDCCatalogClassifier.getFunctionalLanguageLexicon(),languageTerms=key=>languageRules.flatMap(row=>row[key]||[]);
+  const capabilityKeys={'Banca electrónica corporativa':'electronicBanking','Pagos':'payments','Transferencias':'transfers','Tesorería y cash management':'cashManagement'};
+  const capabilityTerms=name=>languageRules.flatMap(row=>row.capabilities?.[capabilityKeys[name]]||[]).concat(name==='Transferencias'?languageTerms('internationalTransfers'):[]);
+  const signalKeys={'Lanzamiento de producto':'launch','Alianza estratégica':'partnership'},signalTerms=name=>languageRules.flatMap(row=>row.signals?.[signalKeys[name]]||[]);
+  const relevanceTerms=role=>role==='channel'?languageTerms('channel'):role==='service'?Object.keys(capabilityKeys).flatMap(capabilityTerms):languageTerms(role);
+  const entities=new Map(),entityTerms=new Map();for(const row of config.entities){const native=(CONFIGURATION_DEFAULTS.entities.find(value=>value.name===row.name)?.aliases||[]).filter(value=>/[^\u0000-\u007f]/.test(value)),terms=[...new Set([row.name,...row.aliases,...native].map(searchText_))];entityTerms.set(row.name,terms);for(const term of terms)entities.set(term,row);}
+  const rules=(rows,extra=()=>[],extraContext=()=>[])=>rows.filter(row=>row.enabled).map(row=>{const terms=[...new Set([...row.terms,...extra(row)].map(searchText_))];return {...row,terms,pattern:phrasePattern_(terms),context:[...(row.context||[]),...extraContext(row)].map(searchText_),contextPattern:phrasePattern_([...(row.context||[]),...extraContext(row)].map(searchText_)),exclude:(row.exclude||[]).map(searchText_),excludePattern:phrasePattern_((row.exclude||[]).map(searchText_))};});
+  const capabilities=Object.entries(config.capabilities).flatMap(([segment,rows])=>rules(rows,row=>capabilityTerms(row.name)).map(row=>({...row,segment}))),aliases=[...entities].filter(([,row])=>row.enabled).sort((a,b)=>b[0].length-a[0].length);
   // These words also describe the vendor or the subject of a story. Require
   // audience context before treating a standalone occurrence as segment proof.
   const ambiguous=/^(?:empresa[s]?|business(?:es)?|compan(?:y|ies)|corporations?|instituci[oó]n(?:es)?|institutions?|institutional|institucional(?:es)?|corporate|corporativ[ao]s?|comercio|profesional|entreprises?|impresa|imprese|unternehmen|isletme|ticari|cib)$/;
-  const segmentEvidence=phrasePattern_(config.segments.filter(row=>row.enabled).flatMap(row=>row.terms.map(searchText_)).filter(term=>!ambiguous.test(term.replace(/\*$/,''))));
-  const relevance=Object.fromEntries(RELEVANCE_ROLES.map(role=>[role,phrasePattern_(config.relevanceRules.filter(row=>row.enabled&&row.role===role).flatMap(row=>row.terms.map(searchText_)))]));
+  const segmentEvidence=phrasePattern_([...config.segments.filter(row=>row.enabled).flatMap(row=>row.terms),...(config.segments.some(row=>row.enabled)?languageTerms('audience'):[])].map(searchText_).filter(term=>!ambiguous.test(term.replace(/\*$/,''))));
+  const activeRules=config.relevanceRules.filter(row=>row.enabled);
+  const relevance=Object.fromEntries(RELEVANCE_ROLES.map(role=>{
+    const common=activeRules.filter(row=>row.role===role&&!row.language);
+    return [role,phrasePattern_([...common.flatMap(row=>row.terms),...(common.length?relevanceTerms(role):[])].map(searchText_))];
+  }));
+  const localizedRelevance=new Map();
+  for(const rule of activeRules.filter(row=>row.language)){
+    if(!localizedRelevance.has(rule.language))localizedRelevance.set(rule.language,{});
+    const roles=localizedRelevance.get(rule.language);
+    if(!roles[rule.role]){
+      const terms=activeRules.filter(row=>row.language===rule.language&&row.role===rule.role).flatMap(row=>row.terms);
+      roles[rule.role]=new RegExp(relevance[rule.role].source+'|'+phrasePattern_(terms.map(searchText_)).source);
+    }
+  }
   const serviceNames=phrasePattern_(aliases.filter(([alias])=>alias.includes(' ')&&relevance.service.test(alias)).map(([alias])=>alias),'g');
-  const cataloguePattern=phrasePattern_(config.taxonomy.flatMap(block=>block.functions.flatMap(row=>[row.name,...row.terms])).map(searchText_));
+  const cataloguePattern=phrasePattern_([...config.taxonomy.flatMap(block=>block.functions.flatMap(row=>[row.name,...row.terms])),...languageTerms('internationalTransfers')].map(searchText_));
   const geographies=config.geographies.filter(row=>row.enabled).map(row=>({...row,names:[...new Set([row.name,row.searchName,...(row.aliases||[])].map(searchText_))],terms:[...new Set([row.name,row.searchName,...(row.aliases||[]),...(row.terms||[])].map(searchText_))]})),publisherCountries=new Map(),publisherDomains=new Map(),marketCountries=[];
  for(const geo of geographies){for(const name of geo.publisherNames||[])publisherCountries.set(searchText_(name),geo.name);for(const domain of geo.publisherDomains||[])publisherDomains.set(domain.toLowerCase(),geo.name);for(const term of geo.terms)if(!geo.names.includes(term))marketCountries.push({term,country:geo.name});}
- return businessIndexMemory_={publisherPatterns:new Map(),cataloguePattern,config,entities,entityTerms,aliases,serviceNames,relevance,capabilities,segmentEvidence,signals:rules(config.signals),geographies,publisherCountries,publisherDomains,marketCountries,countryNames:new Set(config.geographies.map(row=>row.name))};
+ return businessIndexMemory_={publisherPatterns:new Map(),cataloguePattern,config,entities,entityTerms,aliases,serviceNames,relevance,localizedRelevance,capabilities,segmentEvidence,functionalChangePattern:phrasePattern_([...languageTerms('internationalTransfers'),...capabilityTerms('Tesorería y cash management')].map(searchText_)),mentionPattern:phrasePattern_(languageTerms('mention').map(searchText_)),signals:rules(config.signals,row=>signalTerms(row.name),row=>row.name==='Lanzamiento de producto'?Object.keys(capabilityKeys).flatMap(capabilityTerms):[]),geographies,publisherCountries,publisherDomains,marketCountries,countryNames:new Set(config.geographies.map(row=>row.name))};
 }
 function phrasePattern_(terms,flags=''){return new RegExp('(?:^|[^a-z0-9])(?:'+(terms.map(term=>term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\\\*/g,'[a-z0-9]*')).join('|')||'(?!)')+')(?![a-z0-9])',flags);}
 function phrasePosition_(text,term,from=0){
@@ -98,8 +116,8 @@ function recruitmentHeadline_(title){return /\b(?:job vacancies|job openings|is 
 function businessSegmentEvidence_(text,index){
   const audience=/\b(?:para|for|a|to|destinad[oa]s? a|dirigid[oa]s? a|serves?)\s+(?:(?:las|los|sus|the|its|small|large|grandes|particulares y|consumers and|people and|small and medium-sized)\s+)*(?:empresas?|businesses|companies|corporations|instituciones|institutions|comercios)\b|\b(?:businesses|empresas)\s+(?:unable to (?:make|accept) (?:paye )?payments|can (?:use|manage|make|accept) .{0,65}(?:payments|funds|payouts)|haran transacciones|pueden (?:cobrar|pagar)|podran (?:cobrar|pagar|aceptar|hacer|realizar|recibir pagos))\b|\b(?:clientes?|customers?) (?:de empresas|empresariales)\b|\b(?:corporate|institutional|business)\s+(?:transaction banking|clients?|customers?|accounts?|cards?|payments?|(?:overseas |cross-border )?remittances|checkout|custody|lending|(?:mobile |digital |online )?banking|mobile (?:app|login)|mobile(?=\s*&\s*web login))\b|\b(?:clientes?|cuentas?|pagos?|tarjetas?|cobros?)\s+(?:de empresa|corporativ[ao]s?|institucionales?|empresariales?)\b/;
   const implicit=/\b(?:app['’"”»]? de empresas|app empresarial|recebimentos de empresas|adquirencia|merchant acquiring|merchant settlement|erp embedded finance|real-time forex settlement|liquidity management|conto business|softpos|tpv|plataforma de cobros y pagos|confirming|factoring|cash management|treasury|accept(?:s|ing)? (?:card |online |stablecoin )?payments (?:at checkout|on (?:their|your) (?:website|store))|aceptar (?:pagos|tarjetas) en (?:su|tu) (?:tienda|web)|pagos? de universidades e instituciones|(?:cobros?|pagos?(?: masivos)?|transferencias?|gastos?|finanzas) de (?:las )?empresas|corporate bankers?|relationship managers?)\b/;
-  for(const clause of text.split(/[.!?;\n]+/)){
-    if(/\b(?:menciona|mentions?|cites?|cita)\b/.test(clause))continue;
+  for(const clause of text.split(/[.!?;。！？；\n]+/)){
+    if(/\b(?:menciona|mentions?|cites?|cita)\b/.test(clause)||index.mentionPattern?.test(clause))continue;
     const value=clause.replace(/(?:^|[|—])\s*(?:empresas|business)\s*:/g,' ');
     const match=index.segmentEvidence.exec(value)?.[0]?.trim()||audience.exec(value)?.[0]||implicit.exec(value)?.[0];
     if(match)return [match];
@@ -141,7 +159,7 @@ function digitalAssessment_(title,text,index=businessIndex_()){
   // A named partnership or strategy does not by itself describe a change
   // to the way customers or operators perform a banking task.
   const initiative=signals.some(row=>row.name==='Alianza estratégica')||/\b(?:strategy|estrategia)\b/.test(title);
-  const functionalChange=explicitDigital||/\b(?:checkout|custody|custodia|liquidacion|settlement|remittances|remesas|merchant acquiring|softpos|cash management|trade financ(?:e|ing)|erp|financiamiento digital|financiacion digital|digital financing|onboarding|invoice digiti[sz]ation|digitalizacion de facturas|integrat[a-z]*|automat[a-z]*|accept[a-z]*|acepta[a-z]*|reconcil[a-z]*|concilia[a-z]*)\b/.test(text);
+  const functionalChange=explicitDigital||index.functionalChangePattern.test(text)||/\b(?:checkout|custody|custodia|liquidacion|settlement|remittances|remesas|merchant acquiring|softpos|cash management|trade financ(?:e|ing)|erp|financiamiento digital|financiacion digital|digital financing|onboarding|invoice digiti[sz]ation|digitalizacion de facturas|integrat[a-z]*|automat[a-z]*|accept[a-z]*|acepta[a-z]*|reconcil[a-z]*|concilia[a-z]*)\b/.test(text);
   const relevant=business&&(!initiative||functionalChange)&&!unrelatedEvent&&!consumerService&&!financialInvestment&&!analysisOnly&&!(fundingFacility&&!explicitDigital)&&!(debtSettlement&&!settlementDigital)&&(incident||Boolean(!recruitment&&!workforce&&(!apiOnly||functional.bankingApi)&&!(aiOnly&&!clientAi&&!functional.agentBanking&&(!/\b(?:payments?|pagos?|treasury|tesoreria|onboarding|kyb|trade finance|credit|credito|reconciliation|conciliacion|api|erp|asistentes?|assistants?)\b/.test(text)))&&!(bilateral&&!explicitDigital)&&capabilities.length&&!excluded&&!editorial&&((channel||shared)&&(index.relevance.service.test(text)||headlineEntity_(headline,index))||shared&&(channel||change||index.relevance.infrastructure.test(title)))));
   if(relevant&&functional.financing){
     if(!functional.transfer)for(let i=capabilities.length-1;i>=0;i--)if(capabilities[i].name==='Pagos')capabilities.splice(i,1);
@@ -152,19 +170,21 @@ function digitalAssessment_(title,text,index=businessIndex_()){
   const evidence=(pattern,value)=>pattern.exec(value)?.[0]?.trim().slice(0,120)||'';
   return {capabilities,score,channel,change,editorial,excluded:excluded||unrelatedEvent,relevant,business,shared,signals:signals.map(row=>row.name),evidence:{segmento:segmentEvidence,canal:evidence(index.relevance.channel,text)||evidence(instantBusinessTransfers,title),capacidades:capabilities.slice(0,8).map(row=>({nombre:row.name,texto:evidence(row.pattern,text)})),senales:signals.map(row=>({nombre:row.name,texto:evidence(row.pattern,row.scope==='headline'?title:text)})),corporativa:evidence(index.relevance.corporate,title),retail:!business?evidence(index.relevance.retail,text):'',editorial:evidence(index.relevance.editorial,title)}};
 }
-function classification_(title,text,includeLabels=true,publisher=''){
-  const index=businessIndex_(),key=searchText_(publisher);if(key&&!index.publisherPatterns.has(key))index.publisherPatterns.set(key,phrasePattern_([key],'g'));
+function classification_(title,text,includeLabels=true,publisher='',language=''){
+  const base=businessIndex_(),locale=feedLanguage(language),localized=base.localizedRelevance.get(locale)||base.localizedRelevance.get(locale.split('-')[0]);
+  const index=localized?{...base,relevance:{...base.relevance,...localized}}:base,key=searchText_(publisher);if(key&&!index.publisherPatterns.has(key))index.publisherPatterns.set(key,phrasePattern_([key],'g'));
   const publisherPattern=index.entities.has(key)?null:index.publisherPatterns.get(key),assessment=digitalAssessment_(publisherPattern?title.replace(publisherPattern,' '):title,publisherPattern?text.replace(publisherPattern,' '):text,index);
   const signals=assessment.signals;
   const segments=assessment.business?[sectorNewsDefaults.segment]:[];
   return {signals,assessment,segments,labels:includeLabels?newsLabels_(assessment,sha256_(JSON.stringify([title,text]))):undefined};
 }
-function santanderExcluded_(text){
+function santanderExcluded_(text,index=businessIndex_()){
   if(!phraseMatch_(text,'santander'))return false;
-  if(phrasePattern_(['ayuntamiento de santander','alcaldia de santander','alcalde de santander','alcaldesa de santander','concejal','vecinos de santander','mercado de mexico','bahia de santander','puerto de santander','universidad de cantabria','gobierno de cantabria','diputacion','gobernador de santander','gobernacion de santander','departamento de santander','bucaramanga','barrancabermeja','policia de santander','bomberos de santander','eln','bus incinerado','extorsion','norte de santander','santander y cesar']).test(text))return true;
+  if(phrasePattern_(['prefeitura de santander','câmara municipal de santander','município de santander','ayuntamiento de santander','alcaldia de santander','alcalde de santander','alcaldesa de santander','concejal','vecinos de santander','mercado de mexico','bahia de santander','puerto de santander','universidad de cantabria','gobierno de cantabria','diputacion','gobernador de santander','gobernacion de santander','departamento de santander','bucaramanga','barrancabermeja','policia de santander','bomberos de santander','eln','bus incinerado','extorsion','norte de santander','santander y cesar']).test(text))return true;
   if(phrasePattern_(['cucuta','floridablanca','piedecuesta','giron','socorro','san gil','malaga','curos','barbosa','veolia','aguas del','pae','renta ciudadana','soat','mineria ilegal','mineria criminal','granadas','disidencias','farc','ejercito','policia','asesinato','capturados']).test(text)&&!phrasePattern_(['banco santander','banco de santander','grupo santander','santander empresas','santander corporate','santander cib','app de santander','banca','banking','pagos digitales','transferencias']).test(text))return true;
   if(phrasePattern_(['banco santander','banco de santander','grupo santander','santander empresas','santander corporate','santander cib','santander uk','santander brasil','santander mexico','santander chile','santander argentina','santander portugal','getnet','pagonxt','ebury','cash nexus','openbank','ana botin']).test(text))return false;
-  return !phrasePattern_(['banco','banca','bank','banking','entidad financiera','clientes del santander','app de santander']).test(text)||/\b(?:en|de|hacia|desde) santander\b/.test(text);
+  const banking=phrasePattern_(['banco','banca','bank','banking','entidad financiera','clientes del santander','app de santander']).test(text)||index.capabilities.some(row=>row.name==='Banca electrónica corporativa'&&row.pattern.test(text))&&index.relevance.channel.test(text)&&businessSegmentEvidence_(text,index).length>0;
+  return !banking||/\b(?:en|de|hacia|desde) santander\b/.test(text);
 }
 function unresolvedNewsGeography_(provenance){
   return provenance?.paisMetodo==='undetermined'&&provenance.geografias?.[0]==='Sin determinar';
@@ -172,7 +192,7 @@ function unresolvedNewsGeography_(provenance){
 function annotateNews_(rows){
   const index=businessIndex_(),items=taxonomyCatalog_(),taxonomy=new Map(items.map(({id,palanca,subpalanca})=>[id,{id,palanca,subpalanca}]));
   return rows.map(row=>{
-    const catalog=index.entities.get(searchText_(row.entidad)),assignment=effectiveTaxonomyAssignment_(row,items),classification=savedNewsLabels_(row.clasificacion),labels={digital:classification.digital,capacidades:classification.capacidades};
+    const catalog=index.entities.get(searchText_(row.entidad)),assignment=effectiveTaxonomyAssignment_(row,items),classification=savedNewsLabels_(row.clasificacion),labels={digital:classification.digital,estado:classification.estado,canal:classification.canal,capacidades:classification.capacidades};
     if(assignment.editorialExcluded)return null;
     const provenance=classification.procedencia;
     const recovered=unresolvedNewsGeography_(provenance)
@@ -199,17 +219,18 @@ function evaluate_(item, feed, now) {
   else if(now-date>settings_().windowDays*86400000)return {reason:'Fuera de la ventana de '+settings_().windowDays+' días'};
   const extracted=newsExcerpt_(item,title,publisher),excerpt=extracted.text,headline=searchText_(title),text=searchText_(title+' '+excerpt),index=businessIndex_();
   const entity=feed.entity==='Sector'?headlineEntity_(headline,index):index.entities.get(searchText_(feed.entity));
-  const classification=classification_(headline,text,true,publisher);
+  const classification=classification_(headline,text,true,publisher,item.articleLanguage||item.language||feed.language);
   const geography=newsCountryDecision_({titular:title,extracto:excerpt,url,sourceUrl:item.sourceUrl,medio:publisher,fuente:feed.name,feedUrl:feed.url,rssCountry:feed.country,language:item.language||feed.language||'',articleLanguage:item.articleLanguage||'',entidad:entity?.name||feed.entity},index),country=geography.country;
   const candidate={date,title,excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country,geography,language:item.language||feed.language||'',publisher:publisher||'',sourceUrl:canonicalUrl_(item.sourceUrl),provenance:extracted.mechanism};
   const reject=reason=>({inRange:true,reason,candidate});
   if(feed.entity==='Sector'&&!entity)return reject('Sin entidad de seguimiento en el titular');
+  if(feed.incidentOnly){const evidence=operationalSourceEvidence_(headline,text,index);if(!evidence)return reject('Sin incidencia operativa acreditada en la cobertura de Downdetector');classification.labels.evento=INCIDENT_SIGNAL;classification.labels.senales=[INCIDENT_SIGNAL];classification.labels.evidencia.senales=[evidence];}
   if(feed.kind==='profile'&&entity&&!index.entityTerms.get(entity.name).some(alias=>phraseMatch_(text,alias)))return reject('Sin evidencia de la entidad buscada');
   if(entityKey_(entity?.name||feed.entity)==='Santander'&&santanderExcluded_(text))return reject('Santander geográfico o municipal');
-  if(!classification.labels.digital||!classification.labels.capacidades.some(name=>name.startsWith('Empresas: ')))return reject('Fuera de canal digital de Empresas e instituciones');
+  if(!businessNews_({etiquetas:classification.labels}))return reject('Fuera de canal digital de Empresas e instituciones');
   if(feed.capabilitySearch&&classification.assessment.excluded)return reject('Información corporativa sin novedad de canal digital');
   if(feed.capabilitySearch&&(!classification.assessment.capabilities.length||!classification.assessment.channel))return reject('Sin capacidad digital activa en contexto de canal');
-  return {inRange:true,relevant:classification.labels.digital||(!classification.assessment.excluded&&classification.assessment.score>0),item:{date,title,excerpt:excerpt===title?'':excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country,geography,language:item.language||feed.language||'',publisher:publisher||'',sourceUrl:canonicalUrl_(item.sourceUrl),provenance:extracted.mechanism}};
+  return {inRange:true,relevant:classification.assessment.relevant,item:{date,title,excerpt:excerpt===title?'':excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country,geography,language:item.language||feed.language||'',publisher:publisher||'',sourceUrl:canonicalUrl_(item.sourceUrl),provenance:extracted.mechanism}};
 }
 function safeCell_(value) {
   return typeof value==='string' && /^[=+@-]/.test(value) ? "'"+value : value;

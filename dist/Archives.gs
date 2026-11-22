@@ -225,3 +225,13 @@ function compactNewsletterBatch_(){
  p.setProperty('DATA_GENERATION_ROLLBACK',JSON.stringify(previous));p.setProperty('DATA_GENERATION',JSON.stringify(generation));dataGenerationMemory_=generation;
  markNewsletterArchiveEdited_();job.state='Completada';job.published=newsletterArchiveVersion_();p.setProperty('NEWSLETTER_COMPACTION_JOB',JSON.stringify(job));return true;
 }
+
+function verifiedBookBackup_(source,name,folderId){
+  const backup=source.copy(name);
+  fileInFolder_(backup.getId(),archiveFolder_(folderId));
+  for(const sheet of source.getSheets()){
+   const copy=backup.getSheetByName(sheet.getName()),rows=sheet.getLastRow(),width=sheet.getLastColumn();
+   if(!copy||rows!==copy.getLastRow()||width!==copy.getLastColumn()||rows&&width&&sha256_(JSON.stringify(sheet.getRange(1,1,rows,width).getDisplayValues()))!==sha256_(JSON.stringify(copy.getRange(1,1,rows,width).getDisplayValues())))throw Error('Backup no verificado: '+sheet.getName());
+  }
+  return backup;
+}

@@ -7,12 +7,20 @@ import {createRecordFilters} from './record-filters.js';
 import schema from '../../../assets/admin-schema.json';
 const capabilityFields=[['name','Capacidad de detección','text'],['terms','Términos de búsqueda','list'],['enabled','Activa','boolean']];
 export function createConfiguration({run}){
- let config,revision,category='entities',capabilityDefaults,storagePrimaryId;
+ let config,revision,category='entities',capabilityDefaults,storagePrimaryId,relevanceLanguages=[];
  const embedded={globalTaxonomy:'taxonomy-section',sourcesCatalog:'sources-section'};
  const entries=()=>config[category==='applicationScope'?'geographies':category],list=input=>input.value.split(/[;\n]/).map(value=>value.trim()).filter(Boolean),read=input=>input.type==='checkbox'?input.checked:input.type==='number'?Number(input.value):input.dataset.list==='true'?list(input):input.value.trim();
  const filters=createRecordFilters('configuration',[['enabled','Estado',[['true','Activa'],['false','Inactiva']]]],filterRows,{placeholder:'Nombre, código o término'});
- async function fetchConfig(){const snapshot=await call('getConfiguration');config=snapshot.config;revision=snapshot.revision;capabilityDefaults=snapshot.capabilityDefaults;storagePrimaryId=snapshot.storagePrimaryId;}
- function record(row){return Object.fromEntries([...row.querySelectorAll('[data-key]')].map(input=>[input.dataset.key,read(input)]));}
+ async function fetchConfig(){const snapshot=await call('getConfiguration');config=snapshot.config;revision=snapshot.revision;capabilityDefaults=snapshot.capabilityDefaults;storagePrimaryId=snapshot.storagePrimaryId;relevanceLanguages=snapshot.relevanceLanguages||[];}
+ function record(row){
+  const value=Object.fromEntries([...row.querySelectorAll('[data-key]')].map(input=>[input.dataset.key,read(input)]));
+  if(category==='relevanceRules'&&!value.language)delete value.language;
+  return value;
+ }
+ function categoryFields(){
+  const fields=schema[category].fields;
+  return category==='relevanceRules'?[...fields,['language','Idioma de relevancia','choice',[['','Todos'],...relevanceLanguages.map(code=>[code,code])]]]:fields;
+ }
  function readFields(){
   if(!config)return;
   if(embedded[category])return;
@@ -47,7 +55,7 @@ export function createConfiguration({run}){
    const scope=config.applicationScope[0];
    html=[...regions].map(([region,countries])=>`<fieldset class="catalog-group scope-group"><legend>${escape(t(region))}</legend><div class="scope-countries">${countries.map(country=>`<details class="catalog-row" data-geography data-enabled="${country.enabled}" ${country.name?'':'open'}><summary><strong>${escape(country.name||t('Nueva entrada'))}</strong><span>${t(country.enabled?'Activa':'Inactiva')}</span></summary><label class="scope-country"><input type="checkbox" data-country="${escape(country.name)}" ${scope.countries.includes(country.name)?'checked':''}><span>${t('Pestaña propia')}</span></label><div class="catalog-grid">${fields(meta.fields,country)}</div><button type="button" class="button" data-remove>${t('Eliminar')}</button></details>`).join('')}</div></fieldset>`).join('');
   }else if(meta.groups)html=meta.groups.map(group=>{const section=group.section||category;return `<fieldset class="catalog-group" data-config-section="${escape(section)}"><legend>${escape(t(group.label))}</legend><div class="catalog-settings">${group.keys.map(key=>{const value=config[section][key];return fields([[key,meta.labels[key],Array.isArray(value)?'list':typeof value==='number'?'number':typeof value==='boolean'?'boolean':'text']],config[section]);}).join('')}</div></fieldset>`;}).join('');
-  else html=entries().map(row=>`<details class="catalog-row" data-enabled="${row.enabled}" ${row.name?'':'open'}><summary><strong>${escape(row.name||t('Nueva entrada'))}</strong><span>${escape(row.type||'')}${row.type?' · ':''}${t(row.enabled?'Activa':'Inactiva')}</span></summary><div class="catalog-grid">${fields(meta.fields,row)}</div><div class="actions"><button type="button" class="button" data-move="-1">${t('Subir')}</button><button type="button" class="button" data-move="1">${t('Bajar')}</button><button type="button" class="button" data-remove>${t('Eliminar')}</button></div></details>`).join('');
+  else html=entries().map(row=>`<details class="catalog-row" data-enabled="${row.enabled}" ${row.name?'':'open'}><summary><strong>${escape(row.name||t('Nueva entrada'))}</strong><span>${escape(row.type||row.language||'')}${row.type||row.language?' · ':''}${t(row.enabled?'Activa':'Inactiva')}</span></summary><div class="catalog-grid">${fields(categoryFields(),row)}</div><div class="actions"><button type="button" class="button" data-move="-1">${t('Subir')}</button><button type="button" class="button" data-move="1">${t('Bajar')}</button><button type="button" class="button" data-remove>${t('Eliminar')}</button></div></details>`).join('');
   $('catalog-fields').innerHTML=html;filterRows();
  }
  $('catalog-category').innerHTML=Object.entries(schema).map(([key,meta])=>`<option value="${key}">${escape(t(meta.label))}</option>`).join('')+`<option value="globalTaxonomy">${escape(t('Catálogo global de funcionalidades'))}</option><option value="sourcesCatalog">${escape(t('Fuentes'))}</option>`;
@@ -61,7 +69,7 @@ export function createConfiguration({run}){
   const move=event.target.closest('[data-move]');if(move){const row=move.closest('.catalog-row'),index=[...$('catalog-fields').children].indexOf(row),target=index+Number(move.dataset.move);readFields();if(target>=0&&target<entries().length){[entries()[index],entries()[target]]=[entries()[target],entries()[index]];render();}}
  });
  $('capability-restore').addEventListener('click',()=>{readFields();config.capabilities.Empresas=capabilityDefaults.Empresas.map(row=>({...row,terms:row.terms.slice()}));render();});
- $('catalog-add').addEventListener('click',()=>{readFields();entries().push(Object.fromEntries(schema[category].fields.map(([key,,type,choices])=>[key,type==='list'?[]:type==='boolean'?true:type==='choice'?choices[0][0]:''])));render();});
+ $('catalog-add').addEventListener('click',()=>{readFields();entries().push(Object.fromEntries(categoryFields().map(([key,,type,choices])=>[key,type==='list'?[]:type==='boolean'?true:type==='choice'?choices[0][0]:''])));render();});
  $('catalog-media-status')?.addEventListener('change',filterRows);
  $('catalog-form').addEventListener('submit',event=>{event.preventDefault();readFields();run(async()=>{message(await call('saveConfiguration',{config,revision}));await fetchConfig();render();});});
  $('catalog-reload').addEventListener('click',()=>run(async()=>{await fetchConfig();render();},false));

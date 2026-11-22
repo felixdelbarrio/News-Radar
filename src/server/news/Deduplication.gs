@@ -15,8 +15,9 @@ function cleanNewsTitle_(title,...publishers){
   return text;
 }
 function titleKey_(title,publisher){
-  const normalized=searchText_(cleanNewsTitle_(title,publisher)).replace(/[^\p{L}\p{N}]+/gu,' ').trim();
-  return normalized.length>=30&&normalized.split(' ').length>=5?normalized:'';
+  const normalized=searchText_(cleanNewsTitle_(title,publisher)).replace(/[^\p{L}\p{M}\p{N}]+/gu,' ').trim();
+  const native=(normalized.match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}\p{Script=Thai}\p{Script=Devanagari}]/gu)||[]).length>=8;
+  return (native?normalized.normalize('NFC').replace(/\s/g,'').length>=20:normalized.length>=30&&normalized.split(' ').length>=5)?normalized:'';
 }
 const titleIdentityMemory_=new WeakMap(),editorialIdentityMemory_=new WeakMap();
 function titleIdentity_(item){

@@ -8,7 +8,7 @@ const clean=value=>JSON.parse(JSON.stringify(value));
 test('las capacidades y TF-IDF trabajan sin temas; la entrada generalista no impone restricciones temáticas',()=>{
  const {c}=storage();c.initializeConfiguration();const feed=c.feeds_().find(row=>row.domain==='bbva.com'),now=new Date('2026-10-12T12:00:00Z'),item={title:'BBVA publica un comunicado corporativo',excerpt:'Comunicado de su equipo',url:'https://www.bbva.com/comunicado',date:'2026-10-11'};
  const result=c.evaluate_(item,feed,now);assert.equal(result.item,undefined);assert.match(result.reason,/canal digital/);
- assert.equal(c.classification_('bbva lanza pagos digitales para empresas','bbva lanza pagos digitales para empresas').labels.digital,true);assert.equal(c.taxonomyEligible_('bbva lanza pagos digitales','bbva lanza pagos digitales para empresas'),true);
+ assert.equal(c.classification_('bbva lanza pagos digitales para empresas','bbva lanza pagos digitales para empresas').assessment.relevant,true);assert.equal(c.taxonomyEligible_('bbva lanza pagos digitales','bbva lanza pagos digitales para empresas'),true);
  assert.equal(c.getNewsletterOptions().catalogs?.topic,undefined);assert.equal(c.dashboardQuery_({view:'news',topic:'Obsoleto'}).topic,undefined);assert.doesNotMatch(c.newsCsv_([],{}).csv.split('\r\n')[0],/tema|topic/i);
  assert.doesNotMatch(read('src/server/news/TaxonomyJobs.gs'),/topics|\.tema|defaultTopic/);
 });
