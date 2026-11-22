@@ -92,7 +92,7 @@ function functionalCatalogEdited_(event){
  if(header>=0&&range.getRow()>header+1&&!used.some(column=>column>=range.getColumn()&&column<range.getColumn()+range.getNumColumns()))return;
  const modified=new Date().toISOString();properties_().setProperty('FUNCTIONAL_CATALOG_MODIFIED',modified);properties_().setProperty('CATALOG_SYNC_REQUEST',modified);properties_().deleteProperty('CATALOG_SYNC_RETRY_AT');ensureBackgroundWorker_();
 }
-function taxonomyRulesRevision_(){return sha256_(JSON.stringify([TAXONOMY_POLICY.version,'business',configuration_().taxonomy,classificationRulesRevision_()]));}
+function taxonomyRulesRevision_(){return sha256_(JSON.stringify([TAXONOMY_POLICY.version,EDCCatalogClassifier.getFunctionalRuntimePolicy().algorithmVersion,'business',configuration_().taxonomy,classificationRulesRevision_()]));}
 
 // Upgrade operational aliases and audiences without modifying the official
 // catalogue, user activations, sources, geography or administrative settings.

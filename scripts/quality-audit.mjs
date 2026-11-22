@@ -34,7 +34,7 @@ export function instrumentAssessment(source){
 export function auditRuntime(config=configurationDefaults(),{trace=true}={}){
  const original=readServerScript('src/server'),instrumented=trace?instrumentAssessment(original):{source:original,gates:[]};
  let conditions={},locals={};
- const c=vm.createContext({__auditObserve:(key,value)=>{conditions[key]=Boolean(value);return value;},__auditLocals:value=>{locals=clone(value);},Utilities:{DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(_algorithm,value)=>[...createHash('sha256').update(value).digest()]}});
+ const c=vm.createContext({CONFIGURATION_DEFAULTS:configurationDefaults(),__auditObserve:(key,value)=>{conditions[key]=Boolean(value);return value;},__auditLocals:value=>{locals=clone(value);},Utilities:{DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(_algorithm,value)=>[...createHash('sha256').update(value).digest()]}});
  vm.runInContext(instrumented.source,c);c.configuration_=()=>config;
  c.validateConfiguration_(config);
  return {c,sourceRevision:digest(original),configRevision:digest(JSON.stringify(config)),classify(row){

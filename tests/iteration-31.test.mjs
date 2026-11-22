@@ -61,7 +61,7 @@ test('financed payments use block 08 without admitting personal purchases',()=>{
   const decision=c.taxonomyDecision(c.taxonomyText(title),definitions,title);assert.ok(decision.matches[0]?.row.palanca.startsWith('08.'),title);
   assert.ok(!decision.matches.some(match=>match.row.subpalanca.startsWith('08.37.')),title);
  }
- for(const title of ['BBVA programa transferencias masivas para empresas','BBVA lanza tarjetas virtuales para empresas','Banco no permite aplazar pago en la app para empresas'])assert.equal(c.financingPurpose(title),null,title);
+ for(const title of ['BBVA programa transferencias masivas para empresas','BBVA lanza tarjetas virtuales para empresas','Banco no permite aplazar pago en la app para empresas'])assert.equal(c.EDCCatalogClassifier.getFunctionalFinancingPurpose(title),null,title);
  const confirming='BBVA ofrece confirming del comprador con aplazamiento de pago de facturas en su banca digital para empresas';assert.ok(c.taxonomyDecision(c.taxonomyText(confirming),definitions,confirming).matches[0]?.row.subpalanca.startsWith('08.37.'));
  const business='BBVA permite pago a plazos en su banca digital para empresas',consumer='CaixaBank incorpora pago a plazos en tiendas físicas con Apple Pay en el iPhone';
  assert.ok(c.digitalAssessment_(c.searchText_(business),c.searchText_(business)).capabilities.some(row=>row.name==='Financiación digital'));

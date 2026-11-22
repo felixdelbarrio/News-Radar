@@ -1,0 +1,21 @@
+[
+ {"language":"es","entity":"Qonto","country":"España","title":"Qonto lanza transferencias internacionales en la banca online para empresas"},
+ {"language":"en","entity":"Qonto","country":"Reino Unido","title":"Qonto launches international bank transfers through online banking for businesses"},
+ {"language":"tr","entity":"Qonto","country":"Turquía","title":"Qonto lansman: ticari müşteriler için internet bankacılığı ve uluslararası para transferi"},
+ {"language":"de","entity":"Qonto","country":"Alemania","title":"Qonto: Einführung von Auslandsüberweisungen im Online Banking für Firmenkundengeschäft"},
+ {"language":"fr","entity":"Qonto","country":"Francia","title":"Qonto: lancement de virements internationaux dans la banque en ligne pour les entreprises"},
+ {"language":"it","entity":"Qonto","country":"Italia","title":"Qonto: lancio di bonifici internazionali nel conto business online"},
+ {"language":"ro","entity":"Qonto","country":"Rumanía","title":"Qonto: lansare de transferuri internaționale prin internet banking, servicii bancare pentru companii"},
+ {"language":"nl","entity":"Qonto","country":"Países Bajos","title":"Qonto: lancering van internationale overschrijvingen via online banking voor bedrijven"},
+ {"language":"pt-PT","entity":"Qonto","country":"Portugal","title":"Qonto lança banca em linha para empresas com transferências internacionais"},
+ {"language":"pt-BR","entity":"Santander","country":"Brasil","title":"Santander lança aplicativo para empresas com remessas internacionais e gestão de caixa"},
+ {"language":"zh-Hans","entity":"ICBC","country":"China","title":"中国工商银行推出企业网上银行国际汇款服务","retail":"中国工商银行推出网上银行个人贷款","corporate":"中国工商银行年度报告提及企业网上银行国际汇款服务"},
+ {"language":"zh-Hant","entity":"Bank of China","country":"Hong Kong","title":"中國銀行推出企業網上銀行國際匯款服務","retail":"中國銀行推出網上銀行個人貸款","corporate":"中國銀行年度報告提及企業網上銀行國際匯款服務"},
+ {"language":"ja","entity":"MUFG","country":"Japón","title":"三菱UFJ銀行が法人向けインターネットバンキングで外国送金サービス提供開始","retail":"三菱UFJ銀行のインターネットバンキング個人向けローン","corporate":"三菱UFJ銀行の決算発表で法人向けインターネットバンキング外国送金に言及"},
+ {"language":"ko","entity":"KB Kookmin","country":"Corea del Sur","title":"KB국민은행 기업고객 인터넷뱅킹 해외송금 서비스 출시","retail":"KB국민은행 인터넷뱅킹 개인대출","corporate":"KB국민은행 실적 발표 기업뱅킹 해외송금 언급"},
+ {"language":"id","entity":"Bank Mandiri","country":"Indonesia","title":"Bank Mandiri meluncurkan perbankan digital untuk bisnis dengan transfer internasional","retail":"Bank Mandiri meluncurkan pinjaman pribadi melalui perbankan online","corporate":"Bank Mandiri laporan tahunan menyebut perbankan digital untuk bisnis dan transfer internasional"},
+ {"language":"ms","entity":"Maybank","country":"Malasia","title":"Maybank melancarkan perbankan dalam talian untuk perniagaan dengan pemindahan wang antarabangsa","retail":"Maybank melancarkan pinjaman peribadi melalui perbankan dalam talian","corporate":"Maybank laporan tahunan menyebut perbankan dalam talian untuk perniagaan dan pemindahan wang antarabangsa"},
+ {"language":"vi","entity":"Vietcombank","country":"Vietnam","title":"Vietcombank ra mắt chuyển tiền quốc tế trực tuyến dành cho doanh nghiệp","retail":"Vietcombank ra mắt vay tiêu dùng trên ngân hàng số","corporate":"Vietcombank báo cáo thường niên đề cập ngân hàng số dành cho doanh nghiệp và chuyển tiền quốc tế"},
+ {"language":"th","entity":"Bangkok Bank","country":"Tailandia","title":"ธนาคารกรุงเทพเปิดตัวธนาคารออนไลน์สำหรับธุรกิจพร้อมโอนเงินต่างประเทศ","retail":"ธนาคารกรุงเทพเปิดตัวธนาคารออนไลน์สินเชื่อส่วนบุคคล","corporate":"ธนาคารกรุงเทพรายงานประจำปีกล่าวถึงธนาคารออนไลน์สำหรับธุรกิจโอนเงินต่างประเทศ"},
+ {"language":"hi","entity":"State Bank of India","country":"India","title":"भारतीय स्टेट बैंक ने कॉर्पोरेट इंटरनेट बैंकिंग में अंतरराष्ट्रीय धन हस्तांतरण शुरू की","retail":"भारतीय स्टेट बैंक इंटरनेट बैंकिंग व्यक्तिगत ऋण","corporate":"भारतीय स्टेट बैंक वार्षिक रिपोर्ट में कॉर्पोरेट इंटरनेट बैंकिंग अंतरराष्ट्रीय धन हस्तांतरण उल्लेख"}
+]

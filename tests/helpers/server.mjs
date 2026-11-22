@@ -1,3 +1,4 @@
+import '../../scripts/classifier-runtime.mjs';
 import {canonicalFixtures} from './canonical-fixtures.mjs';
 import vm from 'node:vm';
 import {gzipSync,gunzipSync} from 'node:zlib';

@@ -10,21 +10,7 @@ function taxonomyCatalog_(){
 function taxonomyOptions_(){const rows=taxonomyCatalog_();return {palanca:[...new Set(rows.map(row=>row.palanca))],subpalanca:rows.filter(row=>row.subpalanca).map(taxonomyPath)};}
 function taxonomySaved_(value){try{const data=JSON.parse(value||'{}');return {...data,invalid:Boolean(value)&&(!Array.isArray(data.ids)||data.ids.some(id=>typeof id!=='string')),fingerprint:data.fingerprint||'',ids:Array.isArray(data.ids)?data.ids:[],evidence:data.evidence||null,reason:data.reason||''};}catch(_){return {fingerprint:'',ids:[],invalid:Boolean(value)};}}
 function taxonomyFingerprint_(title,excerpt){return sha256_(JSON.stringify([title,excerpt]));}
-function fallbackTaxonomy_(text,labels,items){
- const capability=new Set((labels.capacidades||[]).map(value=>String(value).replace(/^Empresas:\s*/,''))),event=labels.evento||'',has=pattern=>pattern.test(text),pick=prefix=>items.find(item=>String(item.subpalanca||'').startsWith(prefix))?.id||'';
- const functional=functionalContext(text);let prefix='';
- if(functional.financing)prefix='08.xx';
- else if(functional.acquiring)prefix='11.xx';
- else if(functional.card&&!functional.transfer)prefix='09.xx';
- else if(event===INCIDENT_SIGNAL)prefix=has(/\b(?:login|log in|logins|acceso)\b/)?'16.xx':has(/\b(?:pago|pagos|payment|payments|transferencia|transferencias|bizum)\b/)?'03.xx':has(/\b(?:app|web|portal|banca|banking|canal)\b/)?'17.xx':'19.xx';
- else if(capability.has('Transferencias')||capability.has('Pagos'))prefix='03.xx';
- else if(capability.has('Adquirencia y terminales'))prefix='11.xx';
- else if(capability.has('Cobros y recaudación'))prefix='07.xx';
- else if(capability.has('Financiación digital')||capability.has('Préstamos y líneas de crédito'))prefix='08.xx';
- else if(capability.has('Autenticación y seguridad')||capability.has('Biometría'))prefix='16.xx';
- else if(capability.has('API bancarias')||capability.has('Aplicaciones móviles empresariales')||capability.has('Banca electrónica corporativa'))prefix='17.xx';
- return prefix?{id:pick(prefix),rule:prefix,capabilities:[...capability].sort(),signal:event}:{};
-}
+function fallbackTaxonomy_(text,labels,items){return EDCCatalogClassifier.getFunctionalFallback(text,labels,items);}
 function taxonomyRecord_(title,excerpt,items=taxonomyCatalog_(),providedLabels=null){
  const fingerprint=taxonomyFingerprint_(title,excerpt),text=taxonomyText(title+' '+excerpt);
  if(!taxonomyMatchingMemory_.has(items))taxonomyMatchingMemory_.set(items,{rows:items.map(item=>({...item,terms:item.terminos,description:item.descripcion||''})),revision:taxonomyModelRevision_(items)});
