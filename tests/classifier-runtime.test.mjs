@@ -8,5 +8,9 @@ test('assignment and admission use the real library without a second local decis
  runtime.evaluateFunctionalContext=originalContext;runtime.matchFunctionalEvidence=()=>{throw Error('library-ranking-unavailable');};assert.throws(()=>c.taxonomyRecord_('Transferencias internacionales para empresas',''),/library-ranking-unavailable/);
 });
 test('the deployment and executable test dependency use the frozen runtime API',()=>{
- const manifest=JSON.parse(fs.readFileSync(new URL('../src/appsscript.json',import.meta.url))),dependency=manifest.dependencies.libraries.find(row=>row.userSymbol==='EDCCatalogClassifier');assert.equal(dependency.version,'3');assert.equal(dependency.developmentMode,false);assert.equal(globalThis.EDCCatalogClassifier.getFunctionalRuntimePolicy().algorithmVersion,'5.8.8-functional-runtime');
+ const manifest=JSON.parse(fs.readFileSync(new URL('../src/appsscript.json',import.meta.url))),dependency=manifest.dependencies.libraries.find(row=>row.userSymbol==='EDCCatalogClassifier');assert.equal(dependency.version,'4');assert.equal(dependency.developmentMode,false);assert.equal(globalThis.EDCCatalogClassifier.getFunctionalRuntimePolicy().algorithmVersion,'5.9.0-multilingual-runtime');
+});
+
+test('taxonomy checkpoints pin the shared algorithm without invalidating the LLM catalogue model',()=>{
+ const {c}=storage();c.initializeConfiguration();c.publishTaxonomy_({documents:0,candidates:{}});const before=c.taxonomyRulesRevision_(),model=c.taxonomyModelRevision_(c.taxonomyCatalog_()),original=c.EDCCatalogClassifier.getFunctionalRuntimePolicy;c.EDCCatalogClassifier.getFunctionalRuntimePolicy=()=>({...original(),algorithmVersion:'synthetic-changed-algorithm'});assert.notEqual(c.taxonomyRulesRevision_(),before);assert.equal(c.taxonomyModelRevision_(c.taxonomyCatalog_()),model);
 });

@@ -23,7 +23,7 @@
   "devDependencies": {
     "acorn": "^8.19.0",
     "d3-geo": "^3.1.1",
-    "edc-catalog-classifier": "https://codeload.github.com/felixdelbarrio/functional-classifier/tar.gz/8e8526b53c3d7dad04f62d748f62a05f536624f3",
+    "edc-catalog-classifier": "https://codeload.github.com/felixdelbarrio/functional-classifier/tar.gz/90f07dba3d03016a785617eea8f1e5242e3276c2",
     "esbuild": "^0.28.2",
     "istanbul-lib-coverage": "^3.2.2",
     "istanbul-lib-instrument": "^6.0.3",

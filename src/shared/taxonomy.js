@@ -3,7 +3,6 @@ export const TAXONOMY_POLICY=Object.freeze({version:'3.38.0',batchRows:100,maxMs
 const taxonomyDefinitionMemory=new WeakMap();
 // Functional decisions are provided by the fixed Apps Script library version.
 export function taxonomyText(value){return EDCCatalogClassifier.normalizeFunctionalText(value);}
-export function financingPurpose(value){return EDCCatalogClassifier.getFunctionalFinancingPurpose(value);}
 export function functionalContext(value){return EDCCatalogClassifier.evaluateFunctionalContext(value);}
 export function taxonomyDefinitions(blocks){
  if(taxonomyDefinitionMemory.has(blocks))return taxonomyDefinitionMemory.get(blocks);
