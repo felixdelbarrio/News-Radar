@@ -118,12 +118,8 @@ function applyFunctionalRuleUpgrade(){
   const p=properties_(),previous=JSON.parse(p.getProperty('FUNCTIONAL_RULE_UPGRADE')||'null');
   if(previous?.version===RADAR.version&&previous.state==='Staged')return getFunctionalRuleUpgrade();
   if(classificationPending_()||taxonomyPending_()||llmJob_()&&llmJob_().state!=='Completada')throw Error('Espera a que terminen clasificación, taxonomía y publicación LLM antes de actualizar reglas.');
-  const config=configuration_(),next=functionalRuleUpgrade_(config),source=book_(),backup=source.copy('EDC News Radar · Reglas '+RADAR.version+' · '+new Date().toISOString());
-  fileInFolder_(backup.getId(),archiveFolder_(config.storage.primaryFolderId));
-  for(const sheet of source.getSheets()){
-   const copy=backup.getSheetByName(sheet.getName()),rows=sheet.getLastRow(),width=sheet.getLastColumn();
-   if(!copy||rows!==copy.getLastRow()||width!==copy.getLastColumn()||rows&&width&&sha256_(JSON.stringify(sheet.getRange(1,1,rows,width).getDisplayValues()))!==sha256_(JSON.stringify(copy.getRange(1,1,rows,width).getDisplayValues())))throw Error('Backup no verificado: '+sheet.getName());
-  }
+  const config=configuration_(),next=functionalRuleUpgrade_(config),source=book_();
+  const backup=verifiedBookBackup_(source,'EDC News Radar · Reglas '+RADAR.version+' · '+new Date().toISOString(),config.storage.primaryFolderId);
   const checkpoint={version:RADAR.version,state:'Prepared',backupId:backup.getId(),backupUrl:backup.getUrl(),generation:dataGeneration_(),properties:Object.fromEntries(['CATALOG_VERSION','TAXONOMY_APPLIED_MODEL','TAXONOMY_APPLIED_RULES','TAXONOMY_EVALUATED_CORPUS','CLASSIFICATION_JOB','TAXONOMY_JOB'].map(key=>[key,p.getProperty(key)]))};
   p.setProperty('FUNCTIONAL_RULE_UPGRADE',JSON.stringify(checkpoint));
   try{

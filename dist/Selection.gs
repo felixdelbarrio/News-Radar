@@ -23,7 +23,7 @@ function selectNews_(rows,query){
 }
 function newsSearchText_(row){return searchText_([row.titular,row.extracto,row.original?.titular,row.original?.extracto,...articleEntities(row),row.medio].filter(Boolean).join(' '));}
 function newsFiltersMatch_(row,query,entity,entityName=entityKey_,geography){
- return newsScope_(row,query,entity,entityName,geography)&&(!query.type||row.tipo===query.type)&&(!query.segment||row.segmentos.includes(query.segment))&&(!query.signal||(query.signal===NON_INCIDENT_SIGNAL?!row.senales.includes(INCIDENT_SIGNAL):row.senales.includes(query.signal)))&&(!query.coverage||row.etiquetas?.[query.coverage]===true)&&(!query.palanca||row.taxonomia.some(item=>item.palanca===query.palanca))&&(!query.subpalanca||row.taxonomia.some(item=>item.subpalanca===taxonomySubLabel(query.subpalanca)&&(!query.palanca||item.palanca===query.palanca)));
+ return newsScope_(row,query,entity,entityName,geography)&&(!query.type||row.tipo===query.type)&&(!query.segment||row.segmentos.includes(query.segment))&&(!query.signal||(query.signal===NON_INCIDENT_SIGNAL?!row.senales.includes(INCIDENT_SIGNAL):row.senales.includes(query.signal)))&&(!query.coverage||relevantNewsLabels_(row.etiquetas||{}))&&(!query.palanca||row.taxonomia.some(item=>item.palanca===query.palanca))&&(!query.subpalanca||row.taxonomia.some(item=>item.subpalanca===taxonomySubLabel(query.subpalanca)&&(!query.palanca||item.palanca===query.palanca)));
 }
 function selectAnnotatedNews_(rows,query,entityName=entityKey_,identities=false,geography,searchMatch) {
  const q=searchText_(String(query.search||'').slice(0,160));

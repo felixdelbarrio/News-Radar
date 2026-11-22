@@ -42,8 +42,12 @@ function compactStorageDimensions_(){
 function prepareTaxonomyGeneration_(job){
  if(job.generation)return;
  const suffix=String(job.id).replace(/[^a-zA-Z0-9-]/g,''),news='Noticias_tax_'+suffix,taxonomy=job.digitalOnly?taxonomyStorageKey_():'Taxonomia_tax_'+suffix;
- const source=newsSheet_(),target=book_().getSheetByName(news)||source.copyTo(book_()).setName(news);
- const width=RADAR.sheets.Noticias.length,sourceDigest=sha256_(JSON.stringify(source.getRange(1,1,source.getLastRow(),width).getDisplayValues()));
+ const source=newsSheet_(),width=RADAR.sheets.Noticias.length,rows=source.getRange(1,1,source.getLastRow(),width).getDisplayValues();
+ if(job.digitalOnly){
+  const ids=rows.slice(1).map(row=>row[0]);
+  if(ids.some(id=>!id)||new Set(ids).size!==ids.length)throw Error('La generación de noticias contiene IDs vacíos o duplicados.');
+ }
+ const sourceDigest=sha256_(JSON.stringify(rows)),target=book_().getSheetByName(news)||source.copyTo(book_()).setName(news);
  if(sourceDigest!==sha256_(JSON.stringify(target.getRange(1,1,target.getLastRow(),width).getDisplayValues())))throw Error('Copia de noticias incompleta.');
  if(!job.digitalOnly)generationSheet_(taxonomy,RADAR.sheets.Taxonomia);
  job.generation={newsSheet:news,taxonomySheet:taxonomy,sourceDigest,source:newsStorageKey_()};

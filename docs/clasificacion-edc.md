@@ -23,7 +23,7 @@ En Configuración de negocio, cada criterio editable tiene una dimensión, idiom
 
 ## Reclasificación histórica
 
-Con el despliegue y el Sheet verificados, registrar generación activa, puntero de reversión y jobs. Crear y verificar una copia recuperable antes de iniciar el trabajo. `startDigitalBackfill` prepara una copia de la generación de noticias y usa el catálogo publicado. Reutiliza el trabajador, las validaciones y la publicación conjunta de snapshots. Cada lote verifica las dos columnas procesadas antes de avanzar. Un cambio del origen o de la revisión invalida el trabajo preparado. Al publicar se conserva la generación anterior para reversión.
+Con el despliegue y el Sheet verificados, registrar generación activa, puntero de reversión y jobs. `startDigitalBackfill` verifica una copia completa del libro en la carpeta primaria configurada. Después prepara una copia de la generación de noticias, comprueba que los IDs sean únicos y usa el catálogo publicado. Reutiliza el trabajador, las validaciones y la publicación conjunta de snapshots. Cada lote verifica las dos columnas procesadas antes de avanzar. Un cambio del origen o de la revisión invalida el trabajo preparado. Al publicar se conserva la generación anterior para reversión.
 
 La comprobación posterior debe conciliar el conjunto de IDs activos, la revisión funcional, los resultados `digital=true` y `digital=false`, y los errores o pendientes. La cifra visible depende también de relevancia, periodo, filtros, deduplicación, geografía y paginación. Las cifras de una exportación no identifican por sí mismas la generación que usa la aplicación.
 

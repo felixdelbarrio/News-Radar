@@ -55,7 +55,10 @@ test('el backfill conserva el origen y no publica un lote fallido ni elimina gen
   const keys=vm.runInContext('RADAR.sheets.Noticias',c);
   news.grid.push(keys.map(key=>row[key]||''));
   book.insertSheet('Noticias_tax_older');
+  const backup=storage();
+  book.copy=()=>{for(const sheet of book.getSheets())sheet.copyTo(backup.book).setName(sheet.getName());return backup.book;};
   c.startDigitalBackfill();
+  assert.equal(c.taxonomyJob_().backup.id,backup.book.getId());
   c.taxonomyBatch_();
   const classify=c.taxonomyDecision;
   c.taxonomyDecision=()=>{throw Error('Timeout EDC');};

@@ -15,7 +15,7 @@ function taxonomyRecord_(title,excerpt,items=taxonomyCatalog_(),providedLabels=n
  const fingerprint=taxonomyFingerprint_(title,excerpt),text=taxonomyText(title+' '+excerpt);
  if(!taxonomyMatchingMemory_.has(items))taxonomyMatchingMemory_.set(items,{rows:items.map(item=>({...item,terms:item.terminos,description:item.descripcion||''})),revision:taxonomyModelRevision_(items)});
  const model=taxonomyMatchingMemory_.get(items),metadata={fingerprint,version:TAXONOMY_POLICY.version,model:model.revision};
- if(!items.length||!taxonomyEligible_(searchText_(title),text))return {...metadata,ids:[],reason:'insufficient'};
+ if(!items.length||!text)return {...metadata,ids:[],reason:'insufficient'};
  const decision=taxonomyDecision(text,model.rows,title);
  if(!Array.isArray(decision?.matches)||decision.matches.some(match=>typeof match?.row?.id!=='string'||!match.row.id||!match.evidence))throw Error('Respuesta funcional inválida.');
  const match=decision.matches[0];
@@ -29,14 +29,14 @@ function taxonomyJob_(){const raw=properties_().getProperty('TAXONOMY_JOB');retu
 function taxonomyPending_(){const job=taxonomyJob_();return Boolean(job&&job.state!=='Completada'&&!publicationNeedsReview_(job));}
 function taxonomyReadyAt_(){const job=taxonomyJob_();return job&&!['Completada','Publicando','Revisar'].includes(job.state)?Math.max(Date.now(),Number(job.pausedUntil||0)):Infinity;}
 function writeTaxonomyJob_(job){progressContextMemory_=undefined;properties_().setProperty('TAXONOMY_JOB',JSON.stringify(snapshotJob_('TAXONOMY_JOB',job)));}
-function requestTaxonomy_(request='',refresh=true,digitalOnly=false){
+function requestTaxonomy_(request='',refresh=true,digitalOnly=false,backup=null){
   const catalog=refresh?refreshFunctionalCatalog_():{source:'espejo'};
   const previous=taxonomyJob_(),published=dataGeneration_(),rollback=JSON.parse(properties_().getProperty('DATA_GENERATION_ROLLBACK')||'{}');
   const protectedSheets=new Set([published.newsSheet,published.taxonomySheet,rollback.newsSheet,rollback.taxonomySheet]);
   if(!digitalOnly&&previous?.generation)for(const name of [previous.generation.newsSheet,previous.generation.taxonomySheet])if(!protectedSheets.has(name)){const sheet=book_().getSheetByName(name);if(sheet)book_().deleteSheet(sheet);}
   const lastRow=newsSheet_().getLastRow(),candidateTotal=Math.max(0,candidateSheet_().getLastRow()-1),total=Math.max(0,lastRow-1),now=new Date().toISOString();
   const id=Utilities.getUuid();
-  writeTaxonomyJob_({request,catalog,id,digitalOnly,reclassify:!digitalOnly&&Boolean(previous?.reclassify&&previous.state!=='Completada'),source:newsStorageKey_(),state:'Pendiente',phase:digitalOnly?'copy':'scan',next:2,candidateTotal,candidateRevision:properties_().getProperty('CANDIDATES_REVISION')||'0',total,workTotal:total,processed:0,tagged:0,digital:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});
+  writeTaxonomyJob_({request,catalog,id,digitalOnly,...(digitalOnly?{backup:backup||previous?.backup}:{}),reclassify:!digitalOnly&&Boolean(previous?.reclassify&&previous.state!=='Completada'),source:newsStorageKey_(),state:'Pendiente',phase:digitalOnly?'copy':'scan',next:2,candidateTotal,candidateRevision:properties_().getProperty('CANDIDATES_REVISION')||'0',total,workTotal:total,processed:0,tagged:0,digital:0,documents:0,started:now,updated:now,day:recordDay(now,settings_().timezone),corpus:properties_().getProperty('NEWS_CONTENT_REVISION')||'0',rules:taxonomyRulesRevision_()});
   clearTaxonomyCheckpoints_();properties_().deleteProperty('DASHBOARD_SNAPSHOT_BUILD');ensureBackgroundWorker_();
 }
 function drainTaxonomyRequest_(){
@@ -56,9 +56,12 @@ function startDigitalBackfill(){
   authorize_(true);return withForegroundWrite_(()=>{
     const job=taxonomyJob_();
     if(job?.digitalOnly&&job.rules===taxonomyRulesRevision_()&&(taxonomyPending_()||job.state==='Completada'&&job.generation?.newsSheet===newsStorageKey_()))return getTaxonomyStatus();
-    if(taxonomyPending_()||publicationNeedsReview_(job)||classificationPending_()||snapshotJobsPending_())throw Error('Espera a que terminen los trabajos de clasificación, taxonomía y publicación.');
+    const p=properties_(),compaction=JSON.parse(p.getProperty('NEWSLETTER_COMPACTION_JOB')||'null'),llm=llmJob_();
+    if(taxonomyPending_()||publicationNeedsReview_(job)||classificationPending_()||snapshotJobsPending_()||compaction&&compaction.state!=='Completada'||llm&&llm.state!=='Completada')throw Error('Espera a que terminen los trabajos de clasificación, taxonomía y publicación.');
     if(!globalFunctionalIds_(taxonomyCatalog_()).size)throw Error('El catálogo funcional publicado no contiene asignaciones oficiales.');
-    requestTaxonomy_('digital:'+CLASSIFICATION_WORK.rulesVersion,false,true);
+    const backup=verifiedBookBackup_(book_(),'EDC News Radar · Clasificación funcional · '+new Date().toISOString(),configuration_().storage.primaryFolderId);
+    const checkpoint={id:backup.getId(),generation:dataGeneration_(),rollback:JSON.parse(p.getProperty('DATA_GENERATION_ROLLBACK')||'null')};
+    requestTaxonomy_('digital:'+CLASSIFICATION_WORK.rulesVersion,false,true,checkpoint);
     return getTaxonomyStatus();
   });
 }
