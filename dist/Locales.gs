@@ -502,6 +502,11 @@ const translations = Object.freeze({
   "Contexto de Empresas e instituciones, pymes y autónomos. Términos separados por punto y coma; * al final de una palabra admite sus variantes. Las capacidades transversales pueden ser relevantes aunque el titular no mencione el segmento.": ["Business and institutional context, including SMEs and self-employed users. Separate terms with semicolons; a trailing * matches word variants. Shared capabilities can be relevant even if the headline does not mention the segment.", "KOBİ ve serbest çalışanlar dahil işletme ve kurum bağlamı. Terimleri noktalı virgülle ayırın; sözcük sonundaki * türevleri eşleştirir. Başlık segmentten söz etmese de ortak yetenekler ilgili olabilir."],
   "Capacidades del canal de Empresas e instituciones. Solo las activas participan en búsquedas, clasificación y relevancia. Términos separados por punto y coma.": ["Business and institutional channel capabilities. Only active entries participate in searches, classification and relevance. Separate terms with semicolons.", "İşletme ve kurum kanalının yetenekleri. Arama, sınıflandırma ve ilgililikte yalnızca etkin kayıtlar kullanılır. Terimleri noktalı virgülle ayırın."],
 
+  "Respuesta funcional inválida.": ["Invalid functional classification response.", "İşlevsel sınıflandırma yanıtı geçersiz."],
+  "Espera a que terminen los trabajos de clasificación, taxonomía y publicación.": ["Wait for classification, taxonomy and publication jobs to finish.", "Sınıflandırma, taksonomi ve yayımlama işlerinin bitmesini bekleyin."],
+  "El catálogo funcional publicado no contiene asignaciones oficiales.": ["The published functional catalogue has no official assignments.", "Yayımlanan işlev kataloğunda resmî atama yok."],
+  "Idioma de relevancia": ["Relevance language", "İlgililik dili"],
+  "Relevancia multilingüe": ["Multilingual relevance", "Çok dilli ilgililik"],
   "Criterios de relevancia": ["Relevance criteria", "İlgililik ölçütleri"],
   "Criterio": ["Criterion", "Ölçüt"],
   "Búsquedas por idioma": ["Searches by language", "Dile göre aramalar"],

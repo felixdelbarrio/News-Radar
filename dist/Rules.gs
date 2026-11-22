@@ -49,12 +49,25 @@ function businessIndex_(){
   // audience context before treating a standalone occurrence as segment proof.
   const ambiguous=/^(?:empresa[s]?|business(?:es)?|compan(?:y|ies)|corporations?|instituci[oó]n(?:es)?|institutions?|institutional|institucional(?:es)?|corporate|corporativ[ao]s?|comercio|profesional|entreprises?|impresa|imprese|unternehmen|isletme|ticari|cib)$/;
   const segmentEvidence=phrasePattern_([...config.segments.filter(row=>row.enabled).flatMap(row=>row.terms),...(config.segments.some(row=>row.enabled)?languageTerms('audience'):[])].map(searchText_).filter(term=>!ambiguous.test(term.replace(/\*$/,''))));
-  const relevance=Object.fromEntries(RELEVANCE_ROLES.map(role=>[role,phrasePattern_([...config.relevanceRules.filter(row=>row.enabled&&row.role===role).flatMap(row=>row.terms),...(config.relevanceRules.some(row=>row.enabled&&row.role===role)?relevanceTerms(role):[])].map(searchText_))]));
+  const activeRules=config.relevanceRules.filter(row=>row.enabled);
+  const relevance=Object.fromEntries(RELEVANCE_ROLES.map(role=>{
+    const common=activeRules.filter(row=>row.role===role&&!row.language);
+    return [role,phrasePattern_([...common.flatMap(row=>row.terms),...(common.length?relevanceTerms(role):[])].map(searchText_))];
+  }));
+  const localizedRelevance=new Map();
+  for(const rule of activeRules.filter(row=>row.language)){
+    if(!localizedRelevance.has(rule.language))localizedRelevance.set(rule.language,{});
+    const roles=localizedRelevance.get(rule.language);
+    if(!roles[rule.role]){
+      const terms=activeRules.filter(row=>row.language===rule.language&&row.role===rule.role).flatMap(row=>row.terms);
+      roles[rule.role]=new RegExp(relevance[rule.role].source+'|'+phrasePattern_(terms.map(searchText_)).source);
+    }
+  }
   const serviceNames=phrasePattern_(aliases.filter(([alias])=>alias.includes(' ')&&relevance.service.test(alias)).map(([alias])=>alias),'g');
   const cataloguePattern=phrasePattern_([...config.taxonomy.flatMap(block=>block.functions.flatMap(row=>[row.name,...row.terms])),...languageTerms('internationalTransfers')].map(searchText_));
   const geographies=config.geographies.filter(row=>row.enabled).map(row=>({...row,names:[...new Set([row.name,row.searchName,...(row.aliases||[])].map(searchText_))],terms:[...new Set([row.name,row.searchName,...(row.aliases||[]),...(row.terms||[])].map(searchText_))]})),publisherCountries=new Map(),publisherDomains=new Map(),marketCountries=[];
  for(const geo of geographies){for(const name of geo.publisherNames||[])publisherCountries.set(searchText_(name),geo.name);for(const domain of geo.publisherDomains||[])publisherDomains.set(domain.toLowerCase(),geo.name);for(const term of geo.terms)if(!geo.names.includes(term))marketCountries.push({term,country:geo.name});}
- return businessIndexMemory_={publisherPatterns:new Map(),cataloguePattern,config,entities,entityTerms,aliases,serviceNames,relevance,capabilities,segmentEvidence,functionalChangePattern:phrasePattern_([...languageTerms('internationalTransfers'),...capabilityTerms('Tesorería y cash management')].map(searchText_)),mentionPattern:phrasePattern_(languageTerms('mention').map(searchText_)),signals:rules(config.signals,row=>signalTerms(row.name),row=>row.name==='Lanzamiento de producto'?Object.keys(capabilityKeys).flatMap(capabilityTerms):[]),geographies,publisherCountries,publisherDomains,marketCountries,countryNames:new Set(config.geographies.map(row=>row.name))};
+ return businessIndexMemory_={publisherPatterns:new Map(),cataloguePattern,config,entities,entityTerms,aliases,serviceNames,relevance,localizedRelevance,capabilities,segmentEvidence,functionalChangePattern:phrasePattern_([...languageTerms('internationalTransfers'),...capabilityTerms('Tesorería y cash management')].map(searchText_)),mentionPattern:phrasePattern_(languageTerms('mention').map(searchText_)),signals:rules(config.signals,row=>signalTerms(row.name),row=>row.name==='Lanzamiento de producto'?Object.keys(capabilityKeys).flatMap(capabilityTerms):[]),geographies,publisherCountries,publisherDomains,marketCountries,countryNames:new Set(config.geographies.map(row=>row.name))};
 }
 function phrasePattern_(terms,flags=''){return new RegExp('(?:^|[^a-z0-9])(?:'+(terms.map(term=>term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\\\*/g,'[a-z0-9]*')).join('|')||'(?!)')+')(?![a-z0-9])',flags);}
 function phrasePosition_(text,term,from=0){
@@ -157,8 +170,9 @@ function digitalAssessment_(title,text,index=businessIndex_()){
   const evidence=(pattern,value)=>pattern.exec(value)?.[0]?.trim().slice(0,120)||'';
   return {capabilities,score,channel,change,editorial,excluded:excluded||unrelatedEvent,relevant,business,shared,signals:signals.map(row=>row.name),evidence:{segmento:segmentEvidence,canal:evidence(index.relevance.channel,text)||evidence(instantBusinessTransfers,title),capacidades:capabilities.slice(0,8).map(row=>({nombre:row.name,texto:evidence(row.pattern,text)})),senales:signals.map(row=>({nombre:row.name,texto:evidence(row.pattern,row.scope==='headline'?title:text)})),corporativa:evidence(index.relevance.corporate,title),retail:!business?evidence(index.relevance.retail,text):'',editorial:evidence(index.relevance.editorial,title)}};
 }
-function classification_(title,text,includeLabels=true,publisher=''){
-  const index=businessIndex_(),key=searchText_(publisher);if(key&&!index.publisherPatterns.has(key))index.publisherPatterns.set(key,phrasePattern_([key],'g'));
+function classification_(title,text,includeLabels=true,publisher='',language=''){
+  const base=businessIndex_(),locale=feedLanguage(language),localized=base.localizedRelevance.get(locale)||base.localizedRelevance.get(locale.split('-')[0]);
+  const index=localized?{...base,relevance:{...base.relevance,...localized}}:base,key=searchText_(publisher);if(key&&!index.publisherPatterns.has(key))index.publisherPatterns.set(key,phrasePattern_([key],'g'));
   const publisherPattern=index.entities.has(key)?null:index.publisherPatterns.get(key),assessment=digitalAssessment_(publisherPattern?title.replace(publisherPattern,' '):title,publisherPattern?text.replace(publisherPattern,' '):text,index);
   const signals=assessment.signals;
   const segments=assessment.business?[sectorNewsDefaults.segment]:[];
@@ -178,7 +192,7 @@ function unresolvedNewsGeography_(provenance){
 function annotateNews_(rows){
   const index=businessIndex_(),items=taxonomyCatalog_(),taxonomy=new Map(items.map(({id,palanca,subpalanca})=>[id,{id,palanca,subpalanca}]));
   return rows.map(row=>{
-    const catalog=index.entities.get(searchText_(row.entidad)),assignment=effectiveTaxonomyAssignment_(row,items),classification=savedNewsLabels_(row.clasificacion),labels={digital:classification.digital,capacidades:classification.capacidades};
+    const catalog=index.entities.get(searchText_(row.entidad)),assignment=effectiveTaxonomyAssignment_(row,items),classification=savedNewsLabels_(row.clasificacion),labels={digital:classification.digital,estado:classification.estado,canal:classification.canal,capacidades:classification.capacidades};
     if(assignment.editorialExcluded)return null;
     const provenance=classification.procedencia;
     const recovered=unresolvedNewsGeography_(provenance)
@@ -205,7 +219,7 @@ function evaluate_(item, feed, now) {
   else if(now-date>settings_().windowDays*86400000)return {reason:'Fuera de la ventana de '+settings_().windowDays+' días'};
   const extracted=newsExcerpt_(item,title,publisher),excerpt=extracted.text,headline=searchText_(title),text=searchText_(title+' '+excerpt),index=businessIndex_();
   const entity=feed.entity==='Sector'?headlineEntity_(headline,index):index.entities.get(searchText_(feed.entity));
-  const classification=classification_(headline,text,true,publisher);
+  const classification=classification_(headline,text,true,publisher,item.articleLanguage||item.language||feed.language);
   const geography=newsCountryDecision_({titular:title,extracto:excerpt,url,sourceUrl:item.sourceUrl,medio:publisher,fuente:feed.name,feedUrl:feed.url,rssCountry:feed.country,language:item.language||feed.language||'',articleLanguage:item.articleLanguage||'',entidad:entity?.name||feed.entity},index),country=geography.country;
   const candidate={date,title,excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country,geography,language:item.language||feed.language||'',publisher:publisher||'',sourceUrl:canonicalUrl_(item.sourceUrl),provenance:extracted.mechanism};
   const reject=reason=>({inRange:true,reason,candidate});
@@ -213,10 +227,10 @@ function evaluate_(item, feed, now) {
   if(feed.incidentOnly){const evidence=operationalSourceEvidence_(headline,text,index);if(!evidence)return reject('Sin incidencia operativa acreditada en la cobertura de Downdetector');classification.labels.evento=INCIDENT_SIGNAL;classification.labels.senales=[INCIDENT_SIGNAL];classification.labels.evidencia.senales=[evidence];}
   if(feed.kind==='profile'&&entity&&!index.entityTerms.get(entity.name).some(alias=>phraseMatch_(text,alias)))return reject('Sin evidencia de la entidad buscada');
   if(entityKey_(entity?.name||feed.entity)==='Santander'&&santanderExcluded_(text))return reject('Santander geográfico o municipal');
-  if(!classification.labels.digital||!classification.labels.capacidades.some(name=>name.startsWith('Empresas: ')))return reject('Fuera de canal digital de Empresas e instituciones');
+  if(!businessNews_({etiquetas:classification.labels}))return reject('Fuera de canal digital de Empresas e instituciones');
   if(feed.capabilitySearch&&classification.assessment.excluded)return reject('Información corporativa sin novedad de canal digital');
   if(feed.capabilitySearch&&(!classification.assessment.capabilities.length||!classification.assessment.channel))return reject('Sin capacidad digital activa en contexto de canal');
-  return {inRange:true,relevant:classification.labels.digital||(!classification.assessment.excluded&&classification.assessment.score>0),item:{date,title,excerpt:excerpt===title?'':excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country,geography,language:item.language||feed.language||'',publisher:publisher||'',sourceUrl:canonicalUrl_(item.sourceUrl),provenance:extracted.mechanism}};
+  return {inRange:true,relevant:classification.assessment.relevant,item:{date,title,excerpt:excerpt===title?'':excerpt,url,labels:classification.labels,entity:entity?.name||feed.entity,country,geography,language:item.language||feed.language||'',publisher:publisher||'',sourceUrl:canonicalUrl_(item.sourceUrl),provenance:extracted.mechanism}};
 }
 function safeCell_(value) {
   return typeof value==='string' && /^[=+@-]/.test(value) ? "'"+value : value;

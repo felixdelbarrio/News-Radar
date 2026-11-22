@@ -235,7 +235,7 @@
     ]
   },
   "relevanceRules": {
-    "label": "Criterios de relevancia",
+    "label": "Relevancia multilingüe",
     "help": "Se requiere una capacidad activa y contexto empresarial o una capacidad transversal útil para empresas. Canal y servicio aportan evidencia; las exclusiones se buscan en el titular. Retail solo se excluye cuando falta contexto empresarial. Las señales de cambio proceden de Novedades y lanzamientos. Términos separados por punto y coma; * al final de una palabra admite sus variantes. Ámbito de aplicación prioriza los países y agrupa el resto como referencia internacional.",
     "fields": [
       [

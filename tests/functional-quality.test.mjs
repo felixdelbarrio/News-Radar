@@ -36,7 +36,7 @@ test('card debt, purchases, acquisition and actual transfers remain distinct',()
 });
 test('incidental extract references cannot promote an unrelated app through shared keywords',()=>{
  const {c}=runtime(),title=c.searchText_('BBVA lanza una app de recetas de cocina'),text=c.searchText_('BBVA lanza una app de recetas de cocina. La aplicación permite consultar recetas. La nota también menciona cash management sin anunciar cambios en ese servicio bancario.');
- assert.equal(c.classification_(title,text).labels.digital,false);
+ assert.equal(c.classification_(title,text).assessment.relevant,false);
 });
 function upgradeServer(){
  const s=storage();s.c.initializeConfiguration();s.c.publishTaxonomy_({documents:0,candidates:{}});

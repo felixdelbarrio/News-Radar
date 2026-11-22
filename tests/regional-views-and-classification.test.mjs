@@ -31,8 +31,8 @@ test('warm operational polling never writes telemetry and reuses installed trigg
 });
 test('classification rejects publisher headings, layoffs, marketing AI and child delivery',()=>{
  const {c}=server();
- for(const title of ["The Business: AI stocks are in a bubble, says Citi's Dirk Willer The Business",'Barclays to cut 5,000 jobs by end of 2026 as AI drives workforce reduction','CMO Carla Hassan shares how JPMorgan Chase is leaning into AI for business growth','Shinhan Bank Adds Child Meal Card Payments to Ddaenggyeoyo Delivery App','Malaysia Aviation Group secures US$75mil trade finance facility from Citi']){const text=c.searchText_(title);assert.equal(c.classification_(text,text).labels.digital,false,title);}
- for(const title of ['BBVA lanza una API de pagos para pymes','BBVA incorpora IA a su asistente digital para empresas']){const text=c.searchText_(title);assert.equal(c.classification_(text,text).labels.digital,true,title);}
+ for(const title of ["The Business: AI stocks are in a bubble, says Citi's Dirk Willer The Business",'Barclays to cut 5,000 jobs by end of 2026 as AI drives workforce reduction','CMO Carla Hassan shares how JPMorgan Chase is leaning into AI for business growth','Shinhan Bank Adds Child Meal Card Payments to Ddaenggyeoyo Delivery App','Malaysia Aviation Group secures US$75mil trade finance facility from Citi']){const text=c.searchText_(title);assert.equal(c.classification_(text,text).assessment.relevant,false,title);}
+ for(const title of ['BBVA lanza una API de pagos para pymes','BBVA incorpora IA a su asistente digital para empresas']){const text=c.searchText_(title);assert.equal(c.classification_(text,text).assessment.relevant,true,title);}
 });
 test('English capacity profiles contain no unregistered Spanish catalogue titles',()=>{
  const {c}=server(),config=c.configuration_(),geo=config.geographies.find(r=>r.code==='GB');
@@ -47,7 +47,7 @@ test('regional newsletter evidence remains confined to its selected countries',(
 
 test('international edition region filters retain their frozen scope and a bank publisher preserves outage evidence',()=>{
  const {c}=server(),geo=c.newsReadingGeography_({cadence:'fortnightly',scope:c.configuration_().applicationScope},{benchmark:'international',newsGeography:'EMEA'});assert.equal(c.geographyMatches(row('es','España'),'EMEA',geo),true);assert.equal(c.geographyMatches(row('it','Italia'),'EMEA',geo),true);
- const title=c.searchText_('BBVA customers report business banking app outage');assert.equal(c.classification_(title,title,true,'BBVA').labels.digital,true);
+ const title=c.searchText_('BBVA customers report business banking app outage');assert.equal(c.classification_(title,title,true,'BBVA').assessment.relevant,true);
 });
 test('Noticias conserva todas las pestañas al elegir regiones y mantiene oculto el selector adicional',async t=>{
  const a=await app(t,{configure({data}){data.selection={};data.newsGeographies=[{name:'España',total:5},{name:'Otras geografías',total:12}];data.newsRegions=[{name:'APAC',total:3},{name:'EMEA',total:5},{name:'AMER',total:4}];}});

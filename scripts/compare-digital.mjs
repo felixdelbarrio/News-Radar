@@ -11,7 +11,7 @@ export function compareDigital(){
  const known=new Set();let received=0,added=0,digital=0;
  for(const sample of [...existing.feeds,...additions.feeds]){
   const feed={...config.feeds.find(row=>row.id===sample.id),kind:'rss',range};let accepted=0,channels=0;
-  for(const raw of sample.items){received++;const result=c.evaluate_(raw,feed,now);if(!result.item||known.has(result.item.url))continue;known.add(result.item.url);accepted++;if(result.item.labels.digital)channels++;}
+  for(const raw of sample.items){received++;const result=c.evaluate_(raw,feed,now);if(!result.item||known.has(result.item.url))continue;known.add(result.item.url);accepted++;if(result.item.labels.canal==='digital'||result.item.labels.canal===undefined&&result.item.labels.digital)channels++;}
   sources.push({source:sample.id,received:sample.items.length,unique:accepted,digital:channels});added+=accepted;digital+=channels;
  }
  const old={...config,feeds:config.feeds.slice(0,5),entities:config.entities.slice(0,-4)};

@@ -12,9 +12,9 @@ test('el catálogo aporta capacidades específicas aunque ya exista una capacida
  const {c}=storage();c.initializeConfiguration();
  const title='BBVA lanza anticipo confirming para empresas';
  const result=c.classification_(c.searchText_(title),c.searchText_(title+' Una nueva solución digital para gestionar proveedores.'));
- assert.equal(result.labels.digital,true);
+ assert.equal(result.assessment.relevant,true);
  assert.ok(result.assessment.capabilities.some(row=>/\d{2}\.\d{2}/.test(row.name)));
- assert.equal(c.classification_(c.searchText_('BBVA recorta empleos en el área de confirming'),c.searchText_('BBVA recorta empleos en el área de confirming para empresas')).labels.digital,false);
+ assert.equal(c.classification_(c.searchText_('BBVA recorta empleos en el área de confirming'),c.searchText_('BBVA recorta empleos en el área de confirming para empresas')).assessment.relevant,false);
 });
 
 test('el supervisor reinicia solo la publicación vencida y normaliza las pausas corruptas',()=>{
