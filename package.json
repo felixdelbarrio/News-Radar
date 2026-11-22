@@ -10,7 +10,7 @@
     "check:dist": "node scripts/build.mjs --check",
     "check": "node scripts/check.mjs",
     "pretest": "npm run build",
-    "test": "node --test --test-concurrency=2 tests/*.test.mjs",
+    "test": "node --import ./scripts/classifier-runtime.mjs --test --test-concurrency=2 tests/*.test.mjs",
     "prepreview": "npm run build",
     "preview": "node scripts/preview.mjs",
     "codeql:prepare": "node scripts/codeql-prepare.mjs",
@@ -23,6 +23,7 @@
   "devDependencies": {
     "acorn": "^8.19.0",
     "d3-geo": "^3.1.1",
+    "edc-catalog-classifier": "https://codeload.github.com/felixdelbarrio/functional-classifier/tar.gz/8e8526b53c3d7dad04f62d748f62a05f536624f3",
     "esbuild": "^0.28.2",
     "istanbul-lib-coverage": "^3.2.2",
     "istanbul-lib-instrument": "^6.0.3",

@@ -1,3 +1,4 @@
+import {classifierRuntimeSource} from './classifier-runtime.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {buildSync} from 'esbuild';
@@ -21,7 +22,7 @@ export function readServerScript(dir='dist',coverage=false){
   if(sources)for(const file of shared)sources.set(serverModuleName(file),path.join(root,file));
   const scripts=files(dir).filter(file=>file.endsWith('.gs')).map(file=>{const source=sources?.get(path.basename(file));if(!source)return read(file);const code=instrument(fs.readFileSync(source,'utf8'),source);return source.endsWith('.js')?serverModule(code):code;});
   if(dir==='src/server')scripts.push(...shared.map(file=>serverModule(read(file))));
-  return scripts.join('\n');
+  return classifierRuntimeSource()+scripts.join('\n');
 }
 let coverageClient;
 const identityDefine=()=>({IDENTITY_ASSETS:JSON.stringify(identityAssets())});
