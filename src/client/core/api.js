@@ -36,7 +36,8 @@ function rememberDashboard(query,data){
  while(dashboards.size>12)dashboards.delete(dashboards.keys().next().value);
  try{sessionStorage.setItem(dashboardStorage,JSON.stringify({at:Date.now(),revision:dashboardRevision,entries:[...dashboards]}));}catch(_){}
 }
-if(window.RADAR_BOOTSTRAP){rememberDashboard(window.RADAR_BOOTSTRAP.query,window.RADAR_BOOTSTRAP.data);delete window.RADAR_BOOTSTRAP;}
+const bootstrap=JSON.parse(document.getElementById('radar-bootstrap')?.textContent||'null');
+if(bootstrap)rememberDashboard(bootstrap.query,bootstrap.data);
 function prefetchDashboards(query){
  if(prefetched||query.edition)return;prefetched=true;
  const idle=window.requestIdleCallback|| (callback=>setTimeout(callback,1000));

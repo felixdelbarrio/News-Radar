@@ -22,7 +22,7 @@ function evaluator(source,config){
  const items=c.taxonomyBuild(state).map(row=>({...row,id:c.sha256_(row.key).slice(0,24),terminos:row.terms,segmentos:row.segments,descripcion:row.description||''})),byId=new Map(items.map(row=>[row.id,row]));
  return {c,items,run(row){
   const title=row.titular||row.title||'',excerpt=row.extracto||row.excerpt||'',labels=c.classification_(c.searchText_(c.plainText_(title)),c.searchText_(c.plainText_(title+' '+excerpt)),true,row.medio||row.publisher||'').labels,assignment=c.taxonomyRecord_(title,excerpt,items,labels);
-  return {state:labels.estado,digital:labels.digital,primary:byId.get(assignment.primary)?.subpalanca||'',assignments:assignment.ids.map(id=>byId.get(id)?.subpalanca||id),reason:assignment.reason,evidence:assignment.evidence||null};
+  return {state:labels.estado,digital:c.hasValidFunctionalAssignment_?c.hasValidFunctionalAssignment_(assignment,c.globalFunctionalIds_(items)):labels.digital,primary:byId.get(assignment.primary)?.subpalanca||'',assignments:assignment.ids.map(id=>byId.get(id)?.subpalanca||id),reason:assignment.reason,evidence:assignment.evidence||null};
  }};
 }
 export function auditFunctionalQuality(snapshot,{baselineSource,source=readServerScript(),manifest=null}={}){

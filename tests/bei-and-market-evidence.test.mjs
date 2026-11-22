@@ -35,7 +35,7 @@ test('el segmento requiere evidencia del destinatario o del uso y una capacidad 
   ['Stripe launches an institutional custody platform for stablecoins','']
  ]){
   const result=evaluate(c,title,excerpt);
-  assert.ok(result.item?.labels.digital,title);
+  assert.ok(result.item?.labels.estado==='relevante',title);
   assert.ok(result.item.labels.evidencia.segmento.length,title);
  }
 });
@@ -54,7 +54,7 @@ test('el mercado explícito y la región prevalecen sobre la procedencia RSS',()
  assert.deepEqual(Array.from(evaluate(c,title+' en Colombia y México').item.geography.geographies),['Colombia','México']);
 });
 
-test('Noticias recupera la geografía del histórico de la iteración 50 al leer',()=>{
+test('Noticias recupera la geografía del histórico al leer',()=>{
  const {c,sheets}=storage();c.initializeConfiguration();
  const source={...feed,entity:'CaixaBank',name:'CaixaBank · España'};
  const {item}=evaluate(c,'CaixaBank lanza pagos digitales para empresas','',source);

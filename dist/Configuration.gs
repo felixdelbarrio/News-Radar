@@ -36,7 +36,7 @@ function initializeConfiguration(){
           }
         }else{
           if(['segments','applicationScope'].includes(key))value.splice(0,value.length,...value.filter(row=>row.name===sectorNewsDefaults.segment));
-          if(['relevanceRules','searchLanguages'].includes(key))for(const row of value){const seed=defaults.find(item=>key==='searchLanguages'?item.language===row.language:item.role===row.role);if(seed)row.terms=[...new Set([...row.terms,...seed.terms])];}
+          if(key==='searchLanguages')for(const row of value){const seed=defaults.find(item=>item.language===row.language);if(seed)row.terms=[...new Set([...row.terms,...seed.terms])];}
           if(key==='feeds')for(const row of value){const seed=defaults.find(item=>item.id===row.id);if(seed&&row.id==='bankinter-blog')Object.assign(row,{url:seed.url,domain:seed.domain,country:seed.country});}
           if(key==='signals')value.splice(0,value.length,...canonicalSignalRules_(value,defaults));
           const names=new Set(value.map(row=>key==='feeds'?canonicalUrl_(row.url):searchText_(row.name))),ids=new Set(value.map(row=>row.id));
@@ -93,6 +93,7 @@ function initializeConfiguration(){
     return 'Configuración inicializada. Pestañas obsoletas eliminadas: '+(removed.join(', ')||'ninguna')+'.';
   });
 }
+function relevanceLanguages_(){return ['es',...new Set(EDCCatalogClassifier.getFunctionalLanguageLexicon().map(row=>row.language))].sort();}
 function validateConfiguration_(config){
   const storage=config?.storage;
   if(!storage||['primaryFolderId','logFolderId','newsletterFolderId','auditFolderId','coverageFolderId','executionsFolderId','telemetryFolderId'].some(key=>typeof storage[key]!=='string'||!/^[-\w]{10,100}$/.test(storage[key]))||['logRows','logDays','newsletterDeliveries'].some(key=>!Number.isInteger(storage[key])||storage[key]<1||storage[key]>(key==='logRows'?5000:1000)))throw Error('Configuración de almacenamiento no válida.');
@@ -129,7 +130,8 @@ function validateConfiguration_(config){
   validateCapabilities_(config.capabilities);
   validateTaxonomy_(config.taxonomy);
   if(typeof config.settings.taxonomyCatalogUrl!=='string'||(config.settings.taxonomyCatalogUrl&&!/^https:\/\/docs\.google\.com\/spreadsheets\/d\/[\w-]+(?:\/edit(?:[?#].*)?)?$/.test(config.settings.taxonomyCatalogUrl)))throw Error('Fuente del catálogo funcional no válida.');
-  for(const row of config.relevanceRules)if(!RELEVANCE_ROLES.includes(row.role)||!row.terms.length||Object.keys(row).sort().join(',')!=='enabled,name,role,terms'||row.terms.some(term=>/[\\^$+?(){}[\]|]/.test(term)||term.includes('**')||term.split(' ').some(word=>word.includes('*')&&word.indexOf('*')!==word.length-1)))throw Error('Criterio de relevancia no válido.');
+  const relevanceLanguages=config.relevanceRules.some(row=>row.language)?new Set(relevanceLanguages_()):null;
+  for(const row of config.relevanceRules)if(!RELEVANCE_ROLES.includes(row.role)||!row.terms.length||Object.keys(row).filter(key=>key!=='language').sort().join(',')!=='enabled,name,role,terms'||row.language!==undefined&&!relevanceLanguages?.has(row.language)||row.terms.some(term=>/[\\^$+?(){}[\]|]/.test(term)||term.includes('**')||term.split(' ').some(word=>word.includes('*')&&word.indexOf('*')!==word.length-1)))throw Error('Criterio de relevancia no válido.');
   const languages=new Set();for(const row of config.searchLanguages){if(!/^[a-z]{2}$/.test(row.language)||languages.has(row.language)||!row.terms.length||row.terms.length>160||Object.keys(row).sort().join(',')!=='enabled,language,name,terms')throw Error('Perfil de búsqueda no válido.');languages.add(row.language);}
   if(Object.keys(config).sort().join(',')!=='applicationScope,capabilities,entities,feeds,geographies,relevanceRules,searchLanguages,segments,settings,signals,storage,taxonomy')throw Error('Claves de configuración no reconocidas.');
   for(const key of ['searchTerms','disabledSources'])if(!Array.isArray(config.settings[key])||config.settings[key].length>1000||config.settings[key].some(value=>typeof value!=='string'||value.length>160))throw Error('Lista operativa no válida: '+key);
@@ -149,15 +151,17 @@ function validateConfiguration_(config){
   return config;
 }
 function configurationRevision_(){configuration_();return configurationVersionMemory_;}
-function getConfiguration(){authorize_(true);return {config:{...configuration_(),mediaCatalog:geographyCatalog_('CatalogoMedios').map(row=>({...row})),localeRules:geographyCatalog_('ReglasIdiomaGeografia').map(row=>({...row}))},revision:configurationRevision_(),capabilityDefaults:CONFIGURATION_DEFAULTS.capabilities,storagePrimaryId:properties_().getProperty('SPREADSHEET_ID')};}
+function getConfiguration(){authorize_(true);return {config:{...configuration_(),mediaCatalog:geographyCatalog_('CatalogoMedios').map(row=>({...row})),localeRules:geographyCatalog_('ReglasIdiomaGeografia').map(row=>({...row}))},revision:configurationRevision_(),capabilityDefaults:CONFIGURATION_DEFAULTS.capabilities,relevanceLanguages:relevanceLanguages_(),storagePrimaryId:properties_().getProperty('SPREADSHEET_ID')};}
 function saveConfiguration(payload){authorize_(true);const {mediaCatalog,localeRules,...config}=payload.config;if(JSON.stringify(config.storage)!==JSON.stringify(configuration_().storage))validateStorageFolders_(config.storage);validateGeographyCatalog_('CatalogoMedios',mediaCatalog);validateGeographyCatalog_('ReglasIdiomaGeografia',localeRules);return writeConfiguration_(config,payload.revision,{CatalogoMedios:mediaCatalog,ReglasIdiomaGeografia:localeRules});}
 function writeConfiguration_(config,revision,catalogs){
   validateConfiguration_(config);const canonical=functionalConfiguration_(config);if(JSON.stringify(config.taxonomy.map(block=>[block.name,block.functions.map(row=>[row.id,row.name])]))!==JSON.stringify(canonical.taxonomy.map(block=>[block.name,block.functions.map(row=>[row.id,row.name])])))throw Error('Los códigos y nombres oficiales se actualizan exclusivamente desde el catálogo maestro.');config=canonical;return withForegroundWrite_(()=>{
     if(revision!==String(properties_().getProperty('CONFIG_REVISION')||'0'))throw Error('La configuración ha cambiado en otra sesión. Recarga los catálogos antes de guardar.');
     const catalogChanges=catalogs?Object.entries(catalogs).filter(([name,rows])=>JSON.stringify(geographyCatalog_(name))!==JSON.stringify(rows)):[],reclassify=classificationRulesRevision_()!==classificationRulesRevision_(config)||catalogChanges.length>0;
+    const relevanceChanged=JSON.stringify(configuration_().relevanceRules)!==JSON.stringify(config.relevanceRules);
     const taxonomyChanged=JSON.stringify(configuration_().taxonomy)!==JSON.stringify(config.taxonomy)||configuration_().settings.taxonomyCatalogUrl!==config.settings.taxonomyCatalogUrl;
     const sheet=book_().getSheetByName('Configuracion'),rows=Object.entries(functionalConfigurationSettings_(config)).map(([key,value])=>[key,JSON.stringify(value)]);
     sheet.getRange(2,1,Math.max(rows.length,sheet.getLastRow()-1),2).clearContent();append_('Configuracion',rows);for(const [name,values] of catalogChanges)writeGeographyCatalog_(name,values);invalidateConfiguration_();if(reclassify)requestNewsClassification_(true);if(taxonomyChanged)requestTaxonomy_();initializeBackgroundSchedules_();refreshNewsletterStatus_();
+    if(relevanceChanged)telemetry_('configuracion-relevancia',0,'OK',String(config.relevanceRules.length));
     return 'Configuración guardada. Se aplicará a filtros, clasificación y próximas recopilaciones.';
   });
 }

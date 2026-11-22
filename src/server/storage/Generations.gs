@@ -1,19 +1,19 @@
 function configurationStorageKey_(name){return name==='Noticias'?newsStorageKey_():name==='Taxonomia'?taxonomyStorageKey_():NEWSLETTER_ARCHIVE_TABLES.includes(name)?newsletterStorageKey_(name):name;}
 function generationSheet_(name,headers){let sheet=book_().getSheetByName(name);if(!sheet)sheet=book_().insertSheet(name);if(sheet.getLastRow()===0)sheet.getRange(1,1,1,headers.length).setValues([headers]);return sheet;}
 
-function writeVerifiedRows_(sheet,records){
+function writeVerifiedRows_(sheet,records,column=1){
   if(!records.length)return;
   const ordered=records.slice().sort((a,b)=>a.row-b.row),width=ordered[0].values.length,needed=ordered.at(-1).row;
   if(needed>sheet.getMaxRows())sheet.insertRowsAfter(sheet.getMaxRows(),needed-sheet.getMaxRows());
   const writes=[];
   for(let start=0;start<ordered.length;){
     let end=start+1;while(end<ordered.length&&ordered[end].row-ordered[end-1].row<=64&&ordered[end].row-ordered[start].row<250)end++;
-    const first=ordered[start].row,size=ordered[end-1].row-first+1,rows=size===end-start?ordered.slice(start,end).map(record=>record.values):sheet.getRange(first,1,size,width).getDisplayValues();
+    const first=ordered[start].row,size=ordered[end-1].row-first+1,rows=size===end-start?ordered.slice(start,end).map(record=>record.values):sheet.getRange(first,column,size,width).getDisplayValues();
     if(size!==end-start)for(const record of ordered.slice(start,end))rows[record.row-first]=record.values;
-    sheet.getRange(first,1,size,width).setNumberFormat('@').setValues(rows);writes.push({first,rows});start=end;
+    sheet.getRange(first,column,size,width).setNumberFormat('@').setValues(rows);writes.push({first,rows});start=end;
   }
   SpreadsheetApp.flush();
-  for(const {first,rows} of writes)if(sha256_(JSON.stringify(rows))!==sha256_(JSON.stringify(sheet.getRange(first,1,rows.length,width).getDisplayValues())))throw Error('La verificación del backup o de la generación ha fallado.');
+  for(const {first,rows} of writes)if(sha256_(JSON.stringify(rows))!==sha256_(JSON.stringify(sheet.getRange(first,column,rows.length,width).getDisplayValues())))throw Error('La verificación del backup o de la generación ha fallado.');
 }
 
 function pruneNewsGenerations_(){
@@ -41,11 +41,15 @@ function compactStorageDimensions_(){
 // Build catalogue and assignments on an isolated pair; readers retain the published pair.
 function prepareTaxonomyGeneration_(job){
  if(job.generation)return;
- const suffix=String(job.id).replace(/[^a-zA-Z0-9-]/g,''),news='Noticias_tax_'+suffix,taxonomy='Taxonomia_tax_'+suffix;
- const source=newsSheet_(),target=book_().getSheetByName(news)||source.copyTo(book_()).setName(news);
- const width=RADAR.sheets.Noticias.length,sourceDigest=sha256_(JSON.stringify(source.getRange(1,1,source.getLastRow(),width).getDisplayValues()));
+ const suffix=String(job.id).replace(/[^a-zA-Z0-9-]/g,''),news='Noticias_tax_'+suffix,taxonomy=job.digitalOnly?taxonomyStorageKey_():'Taxonomia_tax_'+suffix;
+ const source=newsSheet_(),width=RADAR.sheets.Noticias.length,rows=source.getRange(1,1,source.getLastRow(),width).getDisplayValues();
+ if(job.digitalOnly){
+  const ids=rows.slice(1).map(row=>row[0]);
+  if(ids.some(id=>!id)||new Set(ids).size!==ids.length)throw Error('La generación de noticias contiene IDs vacíos o duplicados.');
+ }
+ const sourceDigest=sha256_(JSON.stringify(rows)),target=book_().getSheetByName(news)||source.copyTo(book_()).setName(news);
  if(sourceDigest!==sha256_(JSON.stringify(target.getRange(1,1,target.getLastRow(),width).getDisplayValues())))throw Error('Copia de noticias incompleta.');
- generationSheet_(taxonomy,RADAR.sheets.Taxonomia);
+ if(!job.digitalOnly)generationSheet_(taxonomy,RADAR.sheets.Taxonomia);
  job.generation={newsSheet:news,taxonomySheet:taxonomy,sourceDigest,source:newsStorageKey_()};
  writeTaxonomyJob_(job);
 }

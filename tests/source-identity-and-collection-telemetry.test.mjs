@@ -37,7 +37,7 @@ test('identidad editorial por host evita colisión de marcas y mantiene iconos i
 test('snapshot de periodo antiguo nunca sustituye al rango vigente',()=>{const {c}=server();const query=c.dashboardQuery_({view:'news',initial:true});c.dashboardSnapshotManifest_=()=>({revision:c.dashboardSnapshotRevision_('news'),schema:vm.runInContext('NEWS_CACHE.schema',c),period:{from:'2026-07-01',to:'2026-09-30'},periodFallback:true});assert.equal(c.defaultDashboardSnapshot_('news',query,'es'),null);});
 
 test('ingesta RSS conserva identidad mexicana aunque el item comparta marca con España',()=>{
- const {c}=server(),feed=c.configuredFeeds_().find(row=>row.domain==='expansion.mx');c.taxonomyRecord_=()=>[];
+ const {c}=server(),feed=c.configuredFeeds_().find(row=>row.domain==='expansion.mx');c.taxonomyRecord_=()=>({ids:[],reason:'insufficient'});
  const item={title:'Una noticia sobre España',excerpt:'Texto',url:'https://expansion.mx/noticia',publisher:'Expansión',date:new Date('2026-11-02T10:00:00Z'),labels:{},geography:{country:'España',geographies:['España'],scope:'country',reason:'content',confidence:'high',countryEvidence:[]}};
  const values=c.newsRecord_(item,feed,new Date('2026-11-02T12:00:00Z')),row=Object.fromEntries(vm.runInContext('RADAR.sheets.Noticias',c).map((key,i)=>[key,values[i]])),provenance=JSON.parse(row.clasificacion).procedencia;
  assert.equal(row.medio,'Expansión México');assert.equal(provenance.dominioMedio,'expansion.mx');assert.equal(provenance.paisMedio,'México');assert.equal(row.pais,'España');

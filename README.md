@@ -1,26 +1,8 @@
-> Revisión 3.34.1: cierre de medios e iconos; precedencia geográfica y selección coherente de subzonas en Noticias y Novedades.
-
-> Revisión 3.34.0: [Iteración 39](docs/iteration-39.md), cobertura BEI geográfica, filtro único por pestañas y Calidad de fuentes; consolida la auditoría editorial de 3.33.0.
-
-> Revisión 3.33.0: [auditoría editorial](docs/headline-editorial-audit.md), mantenimiento selectivo reversible y logos de Noticias; incluye la [Iteración 37](docs/iteration-37-hardening.md), historial e idioma de newsletters, edición y filtros, adopción por meses y seguridad.
-
-> Revisión 3.29.0: [Iteración 28](docs/iteration-28-3.29.0.md), países, selección editorial, interfaz móvil, adopción y navegación con revisiones ligeras.
-
-> Revisión 3.28.1: [Auditoría y corrección geográfica](docs/geography-audit-3.28.0.md), asignación obligatoria por titular, dominio, RSS o sede y agregado de Otras geografías (comportamiento histórico; la Iteración 28 añade región inicial y Todas las regiones).
-
-> Revisión 3.27.1: [Radar móvil](docs/mobile-radar-3.27.1.md), columnas responsivas, cronología legible y medición antes/después sin añadir JavaScript.
-
-> Revisión 3.26.1: [Iteraciones 25 y 26](docs/iteration-25-26-3.26.0.md), recuperación de archivos y publicación, compactación atómica de newsletters, extractos RSS y clasificación conservadora.
-
-> Auditoría local de Iteración 27: [diagnóstico reproducible y resultado NO-GO](docs/iteration-27-audit.md). Herramientas de desarrollo sin cambios en las reglas ni en producción.
-
-> Revisión 3.22.1: [Iteración 23](docs/iteration-23-3.22.0.md), regiones APAC/EMEA/AMER, panel sin escrituras de lectura, clasificación y limpieza taxonómica.
-
-> Revisión 3.21.0: [Iteración 22](docs/iteration-22-3.21.0.md), cachés de navegación y snapshots, panel ligero, limpieza de almacenamiento y controles por proceso.
-
 # BBVA Empresas · EDC News Radar
 
-WebApp de Google Apps Script con Google Sheets como almacén, sin dependencias de ejecución ni claves API.
+WebApp de Google Apps Script con Google Sheets como almacén y una biblioteca EDC fijada en el manifiesto.
+
+[Histórico de cambios y validaciones](docs/historico.md) · [Contrato de clasificación EDC y reclasificación histórica](docs/clasificacion-edc.md)
 
 ## Desarrollo local
 
@@ -546,12 +528,12 @@ Los emblemas de cabecera se dimensionan desde el token compartido (64 px en escr
 
 ## Integridad taxonómica y enlaces de edición · 3.7.2
 
-La publicación valida todo el corpus preparado contra su catálogo, reglas y evidencias antes de activar Noticias, Novedades y Radar. Los fallos mantienen la generación anterior y el checkpoint; el reproceso también repara asignaciones corruptas con huellas intactas. Las etiquetas secundarias requieren un discriminante propio. «Ver esta edición» conserva el periodo y selecciona la pestaña geográfica sin aplicar el filtro de país. [Resultados y publicación de Iteración 9](docs/iteration-9-3.7.2.md).
+La publicación valida todo el corpus preparado contra su catálogo, reglas y evidencias antes de activar Noticias, Novedades y Radar. Los fallos mantienen la generación anterior y el checkpoint; el reproceso también repara asignaciones corruptas con huellas intactas. Las etiquetas secundarias requieren un discriminante propio. «Ver esta edición» conserva el periodo y selecciona la pestaña geográfica sin aplicar el filtro de país. [Histórico de publicación funcional](docs/historico.md#catálogo-funcional-y-publicación).
 
 
 ## Evidencia y revisión LLM offline · 3.9.0
 
-El contrato v2 admite evidencia del cuerpo público consultado manualmente en ChatGPT, con URL del editor, fecha y pasaje literal. Distingue clasificación, abstención y noticia fuera de alcance; permite reprocesar y corregir con control de revisión sin sobrescribir el determinista. Las propuestas `.xx` se incluyen agrupadas en la descarga única para revisión externa y no publican categorías. Los resultados guardados se han convertido al esquema v2; las lecturas e importaciones aceptan exclusivamente este esquema. La generación anterior permanece activa hasta verificar los tres snapshots. [Cambios, pruebas, métricas y bloqueos de producción](docs/iteration-11-3.9.0.md).
+El contrato v2 admite evidencia del cuerpo público consultado manualmente en ChatGPT, con URL del editor, fecha y pasaje literal. Distingue clasificación, abstención y noticia fuera de alcance; permite reprocesar y corregir con control de revisión sin sobrescribir el determinista. Las propuestas `.xx` se incluyen agrupadas en la descarga única para revisión externa y no publican categorías. Los resultados guardados se han convertido al esquema v2; las lecturas e importaciones aceptan exclusivamente este esquema. La generación anterior permanece activa hasta verificar los tres snapshots. [Cambios, pruebas, métricas y bloqueos de producción](docs/historico.md#catálogo-funcional-y-publicación).
 
 
 ## Reparación operativa · 3.11.0

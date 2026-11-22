@@ -7,7 +7,7 @@ import decisions from './fixtures/headline-editorial-decisions.json' with {type:
 
 test('audited headlines require a customer service rather than funding or consumer evidence',()=>{
  const {c}=storage();c.initializeConfiguration();
- const classify=(title,excerpt='')=>c.classification_(c.searchText_(title),c.searchText_(title+' '+excerpt)).labels.digital;
+ const classify=(title,excerpt='')=>c.classification_(c.searchText_(title),c.searchText_(title+' '+excerpt)).assessment.relevant;
  // The retained text lacks proof of either the business audience or the functional change.
  const unprovenEvidence=/Harvey Norman partners|Getnet y Nayax anuncian|grupo de Calzedonia|NatWest and Endava form partnership|Contpaqi forman alianza/i;
  for(const decision of decisions){const row=audit.find(row=>row.id===decision.id);assert.ok(row,decision.id);assert.equal(classify(row.title,row.excerpt),!decision.decision.startsWith('FP confirmado')&&!unprovenEvidence.test(row.title),row.title);}

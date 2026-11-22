@@ -13,8 +13,8 @@ test('test-only trace preserves all 170 actual classifier outputs and short-circ
  for(const row of cases.cases){
   const observed=traced.classify(row),expected=plain.classify(row);
   assert.deepEqual(observed.labels,expected.labels,row.id);
-  assert.equal(observed.trace.digital,expected.labels.digital);
-  assert.equal(observed.trace.conditions.at(-1).value,expected.labels.digital);
+  assert.equal(observed.trace.digital,(expected.labels.estado==='relevante'));
+  assert.equal(observed.trace.conditions.at(-1).value,(expected.labels.estado==='relevante'));
   skipped+=observed.trace.conditions.filter(gate=>gate.value===null).length;
  }
  assert.ok(skipped>0,'short-circuited gates must remain unobserved');

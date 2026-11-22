@@ -547,6 +547,12 @@
     "Ya existe una suscripci\xF3n para ese correo.": ["This email already has a subscription.", "Bu e-posta i\xE7in zaten bir abonelik var."],
     "Contexto de Empresas e instituciones, pymes y aut\xF3nomos. T\xE9rminos separados por punto y coma; * al final de una palabra admite sus variantes. Las capacidades transversales pueden ser relevantes aunque el titular no mencione el segmento.": ["Business and institutional context, including SMEs and self-employed users. Separate terms with semicolons; a trailing * matches word variants. Shared capabilities can be relevant even if the headline does not mention the segment.", "KOB\u0130 ve serbest \xE7al\u0131\u015Fanlar dahil i\u015Fletme ve kurum ba\u011Flam\u0131. Terimleri noktal\u0131 virg\xFClle ay\u0131r\u0131n; s\xF6zc\xFCk sonundaki * t\xFCrevleri e\u015Fle\u015Ftirir. Ba\u015Fl\u0131k segmentten s\xF6z etmese de ortak yetenekler ilgili olabilir."],
     "Capacidades del canal de Empresas e instituciones. Solo las activas participan en b\xFAsquedas, clasificaci\xF3n y relevancia. T\xE9rminos separados por punto y coma.": ["Business and institutional channel capabilities. Only active entries participate in searches, classification and relevance. Separate terms with semicolons.", "\u0130\u015Fletme ve kurum kanal\u0131n\u0131n yetenekleri. Arama, s\u0131n\u0131fland\u0131rma ve ilgililikte yaln\u0131zca etkin kay\u0131tlar kullan\u0131l\u0131r. Terimleri noktal\u0131 virg\xFClle ay\u0131r\u0131n."],
+    "La generaci\xF3n de noticias contiene IDs vac\xEDos o duplicados.": ["The news generation contains missing or duplicate IDs.", "Haber neslinde bo\u015F veya yinelenen kimlikler var."],
+    "Respuesta funcional inv\xE1lida.": ["Invalid functional classification response.", "\u0130\u015Flevsel s\u0131n\u0131fland\u0131rma yan\u0131t\u0131 ge\xE7ersiz."],
+    "Espera a que terminen los trabajos de clasificaci\xF3n, taxonom\xEDa y publicaci\xF3n.": ["Wait for classification, taxonomy and publication jobs to finish.", "S\u0131n\u0131fland\u0131rma, taksonomi ve yay\u0131mlama i\u015Flerinin bitmesini bekleyin."],
+    "El cat\xE1logo funcional publicado no contiene asignaciones oficiales.": ["The published functional catalogue has no official assignments.", "Yay\u0131mlanan i\u015Flev katalo\u011Funda resm\xEE atama yok."],
+    "Idioma de relevancia": ["Relevance language", "\u0130lgililik dili"],
+    "Relevancia multiling\xFCe": ["Multilingual relevance", "\xC7ok dilli ilgililik"],
     "Criterios de relevancia": ["Relevance criteria", "\u0130lgililik \xF6l\xE7\xFCtleri"],
     Criterio: ["Criterion", "\xD6l\xE7\xFCt"],
     "B\xFAsquedas por idioma": ["Searches by language", "Dile g\xF6re aramalar"],
@@ -1818,7 +1824,8 @@
     return [...parents].map((value) => '<span class="badge" data-original>' + escape2(t(value)) + "</span>").join("") + [...children].map((value) => '<span class="badge" data-original>' + escape2(t(value)) + "</span>").join("");
   }
   function newsCoverage(row) {
-    return row.etiquetas?.digital ? '<span class="badge">' + t("Canal digital") + "</span>" : "";
+    let labels2 = row.etiquetas;
+    return (labels2?.canal === void 0 ? labels2?.digital : labels2.canal === "digital") ? '<span class="badge">' + t("Canal digital") + "</span>" : "";
   }
   function metricCards(values) {
     return values.map(([label, value, note]) => `<article class="metric"><p class="eyebrow">${escape2(label)}</p><strong>${escape2(value ?? "\u2014")}</strong><span class="small muted">${escape2(note)}</span></article>`).join("");
@@ -1949,7 +1956,8 @@
     } catch {
     }
   }
-  window.RADAR_BOOTSTRAP && (rememberDashboard(window.RADAR_BOOTSTRAP.query, window.RADAR_BOOTSTRAP.data), delete window.RADAR_BOOTSTRAP);
+  var bootstrap = JSON.parse(document.getElementById("radar-bootstrap")?.textContent || "null");
+  bootstrap && rememberDashboard(bootstrap.query, bootstrap.data);
   function prefetchDashboards(query) {
     if (prefetched || query.edition) return;
     prefetched = !0, (window.requestIdleCallback || ((callback) => setTimeout(callback, 1e3)))(() => {
@@ -2933,7 +2941,7 @@
       ]
     },
     relevanceRules: {
-      label: "Criterios de relevancia",
+      label: "Relevancia multiling\xFCe",
       help: "Se requiere una capacidad activa y contexto empresarial o una capacidad transversal \xFAtil para empresas. Canal y servicio aportan evidencia; las exclusiones se buscan en el titular. Retail solo se excluye cuando falta contexto empresarial. Las se\xF1ales de cambio proceden de Novedades y lanzamientos. T\xE9rminos separados por punto y coma; * al final de una palabra admite sus variantes. \xC1mbito de aplicaci\xF3n prioriza los pa\xEDses y agrupa el resto como referencia internacional.",
       fields: [
         [
@@ -3319,13 +3327,18 @@
   // src/client/features/configuration.js
   var capabilityFields = [["name", "Capacidad de detecci\xF3n", "text"], ["terms", "T\xE9rminos de b\xFAsqueda", "list"], ["enabled", "Activa", "boolean"]];
   function createConfiguration({ run }) {
-    let config, revision, category = "entities", capabilityDefaults, storagePrimaryId, embedded = { globalTaxonomy: "taxonomy-section", sourcesCatalog: "sources-section" }, entries = () => config[category === "applicationScope" ? "geographies" : category], list = (input2) => input2.value.split(/[;\n]/).map((value) => value.trim()).filter(Boolean), read = (input2) => input2.type === "checkbox" ? input2.checked : input2.type === "number" ? Number(input2.value) : input2.dataset.list === "true" ? list(input2) : input2.value.trim(), filters4 = createRecordFilters("configuration", [["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]], filterRows, { placeholder: "Nombre, c\xF3digo o t\xE9rmino" });
+    let config, revision, category = "entities", capabilityDefaults, storagePrimaryId, relevanceLanguages = [], embedded = { globalTaxonomy: "taxonomy-section", sourcesCatalog: "sources-section" }, entries = () => config[category === "applicationScope" ? "geographies" : category], list = (input2) => input2.value.split(/[;\n]/).map((value) => value.trim()).filter(Boolean), read = (input2) => input2.type === "checkbox" ? input2.checked : input2.type === "number" ? Number(input2.value) : input2.dataset.list === "true" ? list(input2) : input2.value.trim(), filters4 = createRecordFilters("configuration", [["enabled", "Estado", [["true", "Activa"], ["false", "Inactiva"]]]], filterRows, { placeholder: "Nombre, c\xF3digo o t\xE9rmino" });
     async function fetchConfig() {
       let snapshot = await call("getConfiguration");
-      config = snapshot.config, revision = snapshot.revision, capabilityDefaults = snapshot.capabilityDefaults, storagePrimaryId = snapshot.storagePrimaryId;
+      config = snapshot.config, revision = snapshot.revision, capabilityDefaults = snapshot.capabilityDefaults, storagePrimaryId = snapshot.storagePrimaryId, relevanceLanguages = snapshot.relevanceLanguages || [];
     }
     function record(row) {
-      return Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input2) => [input2.dataset.key, read(input2)]));
+      let value = Object.fromEntries([...row.querySelectorAll("[data-key]")].map((input2) => [input2.dataset.key, read(input2)]));
+      return category === "relevanceRules" && !value.language && delete value.language, value;
+    }
+    function categoryFields() {
+      let fields2 = admin_schema_default[category].fields;
+      return category === "relevanceRules" ? [...fields2, ["language", "Idioma de relevancia", "choice", [["", "Todos"], ...relevanceLanguages.map((code) => [code, code])]]] : fields2;
     }
     function readFields() {
       if (config && !embedded[category])
@@ -3378,7 +3391,7 @@
           let value = config[section][key];
           return fields([[key, meta.labels[key], Array.isArray(value) ? "list" : typeof value == "number" ? "number" : typeof value == "boolean" ? "boolean" : "text"]], config[section]);
         }).join("")}</div></fieldset>`;
-      }).join("") : html = entries().map((row) => `<details class="catalog-row" data-enabled="${row.enabled}" ${row.name ? "" : "open"}><summary><strong>${escape2(row.name || t("Nueva entrada"))}</strong><span>${escape2(row.type || "")}${row.type ? " \xB7 " : ""}${t(row.enabled ? "Activa" : "Inactiva")}</span></summary><div class="catalog-grid">${fields(meta.fields, row)}</div><div class="actions"><button type="button" class="button" data-move="-1">${t("Subir")}</button><button type="button" class="button" data-move="1">${t("Bajar")}</button><button type="button" class="button" data-remove>${t("Eliminar")}</button></div></details>`).join("");
+      }).join("") : html = entries().map((row) => `<details class="catalog-row" data-enabled="${row.enabled}" ${row.name ? "" : "open"}><summary><strong>${escape2(row.name || t("Nueva entrada"))}</strong><span>${escape2(row.type || row.language || "")}${row.type || row.language ? " \xB7 " : ""}${t(row.enabled ? "Activa" : "Inactiva")}</span></summary><div class="catalog-grid">${fields(categoryFields(), row)}</div><div class="actions"><button type="button" class="button" data-move="-1">${t("Subir")}</button><button type="button" class="button" data-move="1">${t("Bajar")}</button><button type="button" class="button" data-remove>${t("Eliminar")}</button></div></details>`).join("");
       $("catalog-fields").innerHTML = html, filterRows();
     }
     return $("catalog-category").innerHTML = Object.entries(admin_schema_default).map(([key, meta]) => `<option value="${key}">${escape2(t(meta.label))}</option>`).join("") + `<option value="globalTaxonomy">${escape2(t("Cat\xE1logo global de funcionalidades"))}</option><option value="sourcesCatalog">${escape2(t("Fuentes"))}</option>`, $("catalog-category").addEventListener("change", () => {
@@ -3417,7 +3430,7 @@
     }), $("capability-restore").addEventListener("click", () => {
       readFields(), config.capabilities.Empresas = capabilityDefaults.Empresas.map((row) => ({ ...row, terms: row.terms.slice() })), render();
     }), $("catalog-add").addEventListener("click", () => {
-      readFields(), entries().push(Object.fromEntries(admin_schema_default[category].fields.map(([key, , type, choices]) => [key, type === "list" ? [] : type === "boolean" ? !0 : type === "choice" ? choices[0][0] : ""]))), render();
+      readFields(), entries().push(Object.fromEntries(categoryFields().map(([key, , type, choices]) => [key, type === "list" ? [] : type === "boolean" ? !0 : type === "choice" ? choices[0][0] : ""]))), render();
     }), $("catalog-media-status")?.addEventListener("change", filterRows), $("catalog-form").addEventListener("submit", (event) => {
       event.preventDefault(), readFields(), run(async () => {
         message(await call("saveConfiguration", { config, revision })), await fetchConfig(), render();

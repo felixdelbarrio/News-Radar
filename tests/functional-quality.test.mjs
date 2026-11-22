@@ -16,7 +16,7 @@ test('business functions, banking APIs and client/staff agents satisfy their sep
  const {c,items,byId}=runtime();
  for(const row of fixture.cases){
   const title=c.searchText_(row.title),text=c.searchText_(row.title+' '+row.excerpt),labels=c.classification_(title,text).labels,assignment=c.taxonomyRecord_(row.title,row.excerpt,items,labels);
-  assert.equal(labels.digital,row.expected_scope,row.id+' scope');
+  assert.equal((labels.estado==='relevante'),row.expected_scope,row.id+' scope');
   if(row.expected_scope)assert.ok(assignment.ids.some(id=>byId.get(id).subpalanca.startsWith(row.expected_prefix)),row.id+' function: '+assignment.ids.map(id=>byId.get(id).subpalanca).join(', '));
  }
 });
@@ -36,7 +36,7 @@ test('card debt, purchases, acquisition and actual transfers remain distinct',()
 });
 test('incidental extract references cannot promote an unrelated app through shared keywords',()=>{
  const {c}=runtime(),title=c.searchText_('BBVA lanza una app de recetas de cocina'),text=c.searchText_('BBVA lanza una app de recetas de cocina. La aplicación permite consultar recetas. La nota también menciona cash management sin anunciar cambios en ese servicio bancario.');
- assert.equal(c.classification_(title,text).labels.digital,false);
+ assert.equal(c.classification_(title,text).assessment.relevant,false);
 });
 function upgradeServer(){
  const s=storage();s.c.initializeConfiguration();s.c.publishTaxonomy_({documents:0,candidates:{}});

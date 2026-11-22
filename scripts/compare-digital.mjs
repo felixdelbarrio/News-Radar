@@ -1,17 +1,17 @@
 import {configurationDefaults} from './configuration-defaults.mjs';
-import vm from 'node:vm';
+import {storage} from '../tests/helpers/server.mjs';
 import {performance} from 'node:perf_hooks';
-import {read,readServerScript} from './source.mjs';
+import {read} from './source.mjs';
 const config=configurationDefaults();
 const additions=JSON.parse(read('tests/fixtures/iteration3-feeds.json'));
 const existing=JSON.parse(read('tests/fixtures/digital-feeds.json'));
 export function compareDigital(){
- const c=vm.createContext({});vm.runInContext(readServerScript(),c);c.configuration_=()=>config;
+ const {c}=storage();c.initializeConfiguration();c.configuration_=()=>config;
  const now=new Date('2026-10-12T23:59:59Z'),range={from:'2026-09-01',to:'2026-10-12'},sources=[];
  const known=new Set();let received=0,added=0,digital=0;
  for(const sample of [...existing.feeds,...additions.feeds]){
   const feed={...config.feeds.find(row=>row.id===sample.id),kind:'rss',range};let accepted=0,channels=0;
-  for(const raw of sample.items){received++;const result=c.evaluate_(raw,feed,now);if(!result.item||known.has(result.item.url))continue;known.add(result.item.url);accepted++;if(result.item.labels.digital)channels++;}
+  for(const raw of sample.items){received++;const result=c.evaluate_(raw,feed,now);if(!result.item||known.has(result.item.url))continue;known.add(result.item.url);accepted++;if(result.item.labels.canal==='digital'||result.item.labels.canal===undefined&&result.item.labels.digital)channels++;}
   sources.push({source:sample.id,received:sample.items.length,unique:accepted,digital:channels});added+=accepted;digital+=channels;
  }
  const old={...config,feeds:config.feeds.slice(0,5),entities:config.entities.slice(0,-4)};

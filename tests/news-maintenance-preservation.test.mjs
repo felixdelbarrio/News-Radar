@@ -7,7 +7,7 @@ function article(c,id,title,changes={}){const text=c.searchText_(title);return {
 function append(s,rows){const keys=vm.runInContext('RADAR.sheets.Noticias',s.c);for(const row of rows)Array.prototype.push.call(s.sheets.get('Noticias').grid,keys.map(key=>row[key]||''));}
 test('un descarte de la revisión vigente se conserva y solo se archiva la copia duplicada',()=>{
  const s=setup(),c=s.c,noise=article(c,'noise','BBVA presenta sus resultados financieros trimestrales'),relevant=article(c,'relevant','BBVA lanza una plataforma de pagos digitales para empresas');
- assert.equal(JSON.parse(noise.clasificacion).digital,false);
+ assert.equal(JSON.parse(noise.clasificacion).estado,'no relevante');
  append(s,[noise,relevant,{...relevant,id:'duplicate'}]);assert.equal(c.deduplicateNews_(),1);
  const remaining=Array.from(c.rows_('Noticias'),row=>row.id);assert.equal(remaining.length,2);assert.ok(remaining.includes(noise.id));assert.equal(c.deduplicateNews_(),0);
 });

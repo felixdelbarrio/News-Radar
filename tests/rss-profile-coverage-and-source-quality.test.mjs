@@ -6,7 +6,7 @@ import {app} from './helpers/app.mjs';
 import {inferredCountryCode} from '../src/client/core/browser-country.js';
 function server(){const s=storage();s.c.initializeConfiguration();const tables=vm.runInContext('RADAR.sheets',s.c);for(const [name,keys] of Object.entries(tables))if(!s.sheets.has(name))s.book.insertSheet(name).grid.push([...keys]);return s;}
 
-test('39: every enabled geography has one active profile or one bounded BEI fallback, without duplicate tasks',()=>{
+test('every enabled geography has one active profile or one bounded BEI fallback, without duplicate tasks',()=>{
  const {c}=server(),config=c.configuration_(),profiles=c.defaultFeeds_().filter(row=>row.kind==='profile'&&row.enabled),covered=new Set(profiles.map(row=>row.country)),feeds=c.feeds_(),fallbacks=feeds.filter(row=>row.geographySearch);
  assert.ok(fallbacks.length>0);assert.equal(fallbacks.length,config.geographies.filter(row=>row.enabled&&!covered.has(row.name)).length);
  for(const geo of config.geographies.filter(row=>row.enabled)){const local=feeds.filter(row=>row.country===geo.name);assert.ok(local.length,geo.name);assert.equal(local.filter(row=>row.geographySearch).length,covered.has(geo.name)?0:1);}
@@ -15,13 +15,13 @@ test('39: every enabled geography has one active profile or one bounded BEI fall
  c.saveSourceSettings([]);assert.equal(c.feeds_().length,0,'explicitly disabled sources must not regenerate active fallbacks');
 });
 
-test('39: every enabled country preserves explicit article evidence above a contradictory RSS origin',()=>{
+test('every enabled country preserves explicit article evidence above a contradictory RSS origin',()=>{
  const {c}=server();for(const geo of c.configuration_().geographies.filter(row=>row.enabled)){const row={titular:'BBVA lanza plataforma digital de pagos para empresas en '+geo.name,rssCountry:geo.code==='ES'?'México':'España',language:'en'};assert.equal(c.newsCountryDecision_(row).country,geo.name,geo.code);}
  for(const code of ['PA','BO','PY','AD'])assert.equal(c.configuration_().geographies.find(row=>row.code===code).language,code==='AD'?'es':'es-419');
  assert.equal(c.newsCountryDecision_({titular:'A new corporate platform',articleLanguage:'zh-TW'}).country,'APAC');
 });
 
-test('39: technical US edition for Uruguay is not a conflicting article country; headline targets prevail',()=>{
+test('technical US edition for Uruguay is not a conflicting article country; headline targets prevail',()=>{
  const {c}=server(),config=c.configuration_(),geo=config.geographies.find(g=>g.code==='UY'),entity=config.entities.find(e=>e.name==='Santander'),feed=c.profileFeed_(geo,entity),base={entidad:'Santander',fuente:feed.name,feedUrl:feed.url,rssCountry:'Uruguay'};
  assert.equal(new URL(feed.url).searchParams.get('gl'),'US');assert.equal(c.newsCountryDecision_({...base,titular:'Santander presenta plataforma de pagos para empresas'}).country,'Uruguay');
  for(const [title,expected] of [['Santander Uruguay lanza pagos digitales para empresas','Uruguay'],['HSBC México ofrece nuevas soluciones de tesorería para Asia','APAC'],['Bank launches corporate payments in Taiwan','APAC'],['BBVA lanza banca digital en España','España'],['BBVA lanza banca digital en México','México'],['BBVA lanza banca digital en Argentina','Argentina'],['BBVA lanza banca digital en Perú','Perú'],['BBVA lanza banca digital en Colombia','Colombia']])assert.equal(c.newsCountryDecision_({...base,titular:title}).country,expected,title);
@@ -30,7 +30,7 @@ test('39: technical US edition for Uruguay is not a conflicting article country;
  const fromContent=c.newsCountryDecision_({...base,titular:'HSBC México ofrece nuevas soluciones de tesorería para Asia',extracto:'La plataforma se ofrecerá primero a las empresas en Singapore.'});assert.equal(fromContent.country,'Singapur');assert.equal(fromContent.reason,'content');
 });
 
-test('39: source quality uses retained summaries once, separates unknown denominators and caches bounded reads',()=>{
+test('source quality uses retained summaries once, separates unknown denominators and caches bounded reads',()=>{
  const s=server(),{c,sheets}=s,now=new Date().toISOString(),cycle='sample',source=c.feeds_()[0].name;
  sheets.get('Auditoria').grid.push([cycle,now,source,'https://example.com/rss','Fuente consultada','12 evaluadas; 2 nuevas; 7 excluidas; 3 duplicadas; 2 relevantes; 12 dentro del período; motivos {"fuera de canal":7}']);
  sheets.get('Auditoria').grid.push([...sheets.get('Auditoria').grid.at(-1)]);
@@ -42,12 +42,12 @@ test('39: source quality uses retained summaries once, separates unknown denomin
  const reads=s.reads;assert.equal(c.getSourceQuality({days:'7',source}).cacheHit,true);assert.equal(s.reads,reads);assert.throws(()=>c.getSourceQuality({days:31}),/Período/);s.setEmail('outsider@example.com');assert.throws(()=>c.getSourceQuality({days:30}));
 });
 
-test('39: Noticias has one geography control and thematic requests keep all geographic counts',async t=>{
+test('Noticias has one geography control and thematic requests keep all geographic counts',async t=>{
  const a=await app(t,{configure({data}){data.newsGeography='España';data.selection={country:'',from:'2026-10-01',to:'2026-10-31'};}});await a.click('[data-view="news"]');assert.equal(a.find('#geography-filter').hidden,true);assert.equal(a.w.document.querySelector('[data-remove-filter="country"]'),null);
  await a.change('#filters [name="search"]','pagos');const call=a.calls.filter(row=>row.method==='getDashboard').at(-1);assert.equal(call.query.country||'','');assert.equal(call.query.newsGeography,'España');
 });
 
-test('39: incoming external countries resolve to their regional tab instead of the first own country',()=>{
+test('incoming external countries resolve to their regional tab instead of the first own country',()=>{
  const {c}=server(),rows=[['es','España','BBVA renueva su banca digital de tesorería'],['ng','Nigeria','BBVA abre APIs de pagos corporativos'],['sg','Singapur','BBVA digitaliza el comercio exterior empresarial']].map(([id,pais,titular])=>({id,pais,titular,entidad:'BBVA',medio:'Editor',url:'https://example.com/'+id,fecha:'2026-10-20',segmentos:['Empresas e instituciones'],senales:['Mejora de oferta'],taxonomia:[],etiquetas:{digital:true}}));
  for(const [country,region,id] of [['Nigeria','EMEA','ng'],['Singapur','APAC','sg']]){const data=c.newsDashboard_(rows,{view:'news',country,from:'2026-10-01',to:'2026-10-31'},[],'news');assert.equal(data.newsGeography,region);assert.equal(data.contextTotal,3);assert.deepEqual(Array.from(data.items,row=>row.id),[id]);const selected=c.newsGeographySelection_(rows,{newsGeography:country});assert.deepEqual(Array.from(selected,row=>row.id),[id]);}
 });
@@ -56,13 +56,13 @@ test('Cronista México usa el RSS de México cuando el enlace del editor solo ap
  assert.deepEqual(Array.from(c.newsCountryDecision_(row).geographies),['México']);
 });
 
-test('39: source quality administration reuses filters, pagination and escaped table cells',async t=>{
+test('source quality administration reuses filters, pagination and escaped table cells',async t=>{
  const a=await app(t,{configure({replies}){replies.getSourceQuality={days:30,items:[{source:'<unsafe>',country:'España',availability:null,queries:0,errors:0,retrieved:0,relevant:0,reasons:{'<b>':2},discarded:2,duplicates:0,lastNews:'',lastQuery:'',publishers:0,localPercent:null,unknownPercent:null,saturationPercent:null}],total:1,page:0,pageSize:10,options:{status:[['never','Sin noticias'],['errors','Con errores'],['news','Con noticias']],source:['<unsafe>']},metrics:{sources:1,never:1,withErrors:0,news:0,queries:0,errors:0,retrieved:0,relevant:0,duplicates:0},limit:5000,limited:true,retentionDays:90,retainedFrom:null};}});
  await a.click('[data-view="administration"]');await a.click('[data-admin-view="sourceQuality"]');assert.equal(a.find('#sourceQuality-section').hidden,false);assert.equal(a.find('#sourceQuality-days').value,'30');assert.equal(a.calls.filter(row=>row.method==='getSourceQuality').at(-1).query.days,'30');assert.match(a.find('#sourceQuality-body').textContent,/<unsafe>/);assert.equal(a.w.document.querySelector('#sourceQuality-body unsafe'),null);assert.ok(a.find('#sourceQuality-overview').compareDocumentPosition(a.find('#sourceQuality-metrics'))&4);assert.ok(a.find('#sourceQuality-metrics').compareDocumentPosition(a.find('#sourceQuality-filters'))&4);await a.click('[data-source-status="never"]');assert.equal(a.calls.filter(row=>row.method==='getSourceQuality').at(-1).query.status,'never');assert.equal(a.find('#sourceQuality-status').value,'never');assert.match(a.find('#sourceQuality-chips').textContent,/Sin noticias/);await a.change('#sourceQuality-days','7');assert.equal(a.calls.filter(row=>row.method==='getSourceQuality').at(-1).query.days,'7');assert.match(a.find('#sourceQuality-note').textContent,/métricas parciales/);
 });
 
 
-test('39: event markets override actor origins and preserve multinational scope',()=>{
+test('event markets override actor origins and preserve multinational scope',()=>{
  const {c}=server();
  for(const [titular,extracto,expected] of [
   ['Taiwan bank launches corporate payments platform in Spain','','España'],
@@ -91,7 +91,7 @@ test('39: event markets override actor origins and preserve multinational scope'
  assert.equal(c.newsCountryDecision_({titular:'Getnet llega a un acuerdo con WeChat Pay para abrir sus pagos a los turistas de China',rssCountry:'España'}).country,'España');
 });
 
-test('39: the existing historical batch can repair geography without changing functional or editorial fields',()=>{
+test('the existing historical batch can repair geography without changing functional or editorial fields',()=>{
  const {c,sheets}=server(),keys=vm.runInContext('RADAR.sheets.Noticias',c),record={id:'geo-only',fecha:'2026-10-20',pais:'España',titular:'HSBC launches corporate payments in Bangladesh',extracto:'Contenido bloqueado',entidad:'HSBC',medio:'Editor',clasificacion:JSON.stringify({digital:true,capacidades:['Empresas: Pagos'],senales:['Lanzamiento','Alianza','Mejora de oferta','Incidencia'],evento:'Lanzamiento',procedencia:{mechanism:'blocked'}}),taxonomia:JSON.stringify({ids:[]})};
  sheets.get('Noticias').grid.push(keys.map(key=>record[key]||''));const before=[...sheets.get('Noticias').grid[1]],labels=JSON.parse(before[keys.indexOf('clasificacion')]);c.requestNewsClassification_(true,true);c.newsClassificationBatch_();const after=sheets.get('Noticias').grid[1];
  assert.equal(after[keys.indexOf('pais')],'Bangladés');const provenance=JSON.parse(after[keys.indexOf('clasificacion')]).procedencia;assert.equal(provenance.mechanism,'blocked');assert.equal(provenance.paisMedio,'Sin determinar');assert.equal(provenance.paisMedioVerificado,false);for(let i=0;i<keys.length;i++)if(!['pais','clasificacion'].includes(keys[i]))assert.equal(after[i],before[i],keys[i]);const updated=JSON.parse(after[keys.indexOf('clasificacion')]);delete updated.procedencia;delete labels.procedencia;assert.deepEqual(updated,labels);assert.equal(c.classificationJob_().processed,undefined);assert.equal(c.classificationJob_().next,3);

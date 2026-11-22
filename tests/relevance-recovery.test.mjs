@@ -58,7 +58,7 @@ const negative=[
  'HSBC recognised for cash management in Qatar by Euromoney'
 ];
 test('recuperación reconoce servicios empresariales y capacidades transversales sin admitir ruido de retail',()=>{
- const {c}=storage();c.initializeConfiguration();for(const [expected,rows] of [[true,positive],[false,negative]])for(const title of rows){const text=c.searchText_(title),result=c.classification_(text,text);assert.equal(result.labels.digital,expected,title);if(expected)assert.deepEqual(Array.from(result.segments),['Empresas e instituciones']);}
+ const {c}=storage();c.initializeConfiguration();for(const [expected,rows] of [[true,positive],[false,negative]])for(const title of rows){const text=c.searchText_(title),result=c.classification_(text,text);assert.equal(result.assessment.relevant,expected,title);if(expected)assert.deepEqual(Array.from(result.segments),['Empresas e instituciones']);}
 });
 test('BBVA conserva tres RSS y perfiles generales sin una cláusula empresarial obligatoria',()=>{
  const {c}=storage();c.initializeConfiguration();assert.equal(c.feeds_().filter(row=>row.kind==='rss'&&row.entity==='BBVA').length,3);const feed=c.feeds_().find(row=>row.kind==='profile'&&row.entity==='BBVA');assert.equal(feed.name,'BBVA · España');const q=new URL(feed.url).searchParams.get('q');assert.match(q,/"BBVA"/);assert.doesNotMatch(q,/\) \("empresa"/);assert.ok(q.length<=1500);

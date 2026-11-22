@@ -14,7 +14,7 @@ function message(text, error = false) {
 }
 function newsPublisher(row){return '<span class="identity-label">'+'Medio: '+identityMark('publishers',row.medio,escape)+(row.medio?'<span data-original>'+escape(row.medio)+'</span>':'No indicado')+'</span> '+(row.fuente?'<span class="identity-label">'+t('Origen RSS')+': <span data-original>'+escape(row.fuente)+'</span></span>':'');}
 function newsTaxonomy(row,selection={}){if(!row.taxonomia?.some(item=>item.palanca&&item.subpalanca))return '<span class="badge" data-original>'+escape(t('Sin clasificación funcional justificable'))+'</span>';const parents=new Set(),children=new Set();for(const item of row.taxonomia||[]){if(item.palanca!==selection.palanca)parents.add(item.palanca);if(item.subpalanca&&item.subpalanca!==taxonomySubLabel(selection.subpalanca))children.add(item.subpalanca);}return [...parents].map(value=>'<span class="badge" data-original>'+escape(t(value))+'</span>').join('')+[...children].map(value=>'<span class="badge" data-original>'+escape(t(value))+'</span>').join('');}
-function newsCoverage(row){return row.etiquetas?.digital?'<span class="badge">'+t('Canal digital')+'</span>':'';}
+function newsCoverage(row){const labels=row.etiquetas;return (labels?.canal===undefined?labels?.digital:labels.canal==='digital')?'<span class="badge">'+t('Canal digital')+'</span>':'';}
 function metricCards(values) {
   return values.map(([label, value, note]) => `<article class="metric"><p class="eyebrow">${escape(label)}</p><strong>${escape(value ?? "—")}</strong><span class="small muted">${escape(note)}</span></article>`).join("");
 }
