@@ -3526,7 +3526,7 @@
         group = { total: 0, entityCount: 0, bySignal: BRIEFING_ALLOWED_SIGNALS.map((name) => ({ name, total: 0 })), ...overview, name: items.some((row) => unlocatedGeography(row, geography)) ? otherGeography : active, items };
       }
       let stats = group || briefing2;
-      tabs.render(groups, active, regionalRows, geographies, scope), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: briefing2.total }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" ${row.total ? "" : "disabled"} data-signal="${escape2(row.name)}"><strong>${row.total}</strong><span>${escape2(t(row.name === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : row.name))}</span></button>`).join("");
+      tabs.render(groups, active, regionalRows, geographies, scope), $("briefing-geography-summary").textContent = group ? t("{geography} \xB7 {updates} \xB7 {entities}", { geography: t(geographyLabel(group.name)), updates: noveltyCount(stats.total, "novedad", "novedades", t), entities: noveltyCount(group.entityCount, "entidad", "entidades", t) }) : "", $("briefing-count").textContent = t("{count} publicaciones", { count: groups.reduce((total, row) => total + row.total, 0) }), $("briefing-signals").innerHTML = stats.bySignal.map((row) => `<button type="button" class="signal-card" ${row.total ? "" : "disabled"} data-signal="${escape2(row.name)}"><strong>${row.total}</strong><span>${escape2(t(row.name === "Incidencia operativa" ? "Indisponibilidad / Incidencia operativa" : row.name))}</span></button>`).join("");
       let rows = group?.items || [];
       $("briefing-list").innerHTML = rows.map((row) => `<article class="panel novelty-card">${articleContent(row, selection, !0)}</article>`).join("") || '<div class="panel empty"><h3>' + t("No hay novedades de producto en esta selecci\xF3n.") + "</h3></div>", $("briefing-limit").hidden = !group || stats.total <= group.items.length, $("briefing-explore").hidden = $("briefing-limit").hidden;
     }
@@ -4057,7 +4057,8 @@
         }
       }
     } else list.innerHTML = data.items.length ? groups(data.items).map(groupHtml).join("") : '<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geograf\xEDa o pulsa \xABVer todo\xBB para ampliar la selecci\xF3n.</p></div>';
-    $("result-count").textContent = t(data.contextTotal === 1 ? "1 publicaci\xF3n" : "{count} publicaciones", { count: data.contextTotal }), $("page-label").textContent = data.total ? t("{visible} de {total} publicaciones", { visible: data.items.length, total: data.total }) : "Sin resultados";
+    const count = data.newsGeographies?.length ? data.newsGeographies.reduce((total, row) => total + row.total, 0) : data.contextTotal;
+    $("result-count").textContent = t(count === 1 ? "1 publicaci\xF3n" : "{count} publicaciones", { count }), $("page-label").textContent = data.total ? t("{visible} de {total} publicaciones", { visible: data.items.length, total: data.total }) : "Sin resultados";
     let complete = (data.page + 1) * data.pageSize >= data.total;
     $("next").hidden = complete, $("next").disabled = complete;
   }
