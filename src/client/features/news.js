@@ -17,7 +17,8 @@ function renderNews(data,appended=null) {
       else{const next=[...list.children].find(node=>order.get(node.getAttribute('aria-label'))>order.get(group.name));if(next)next.insertAdjacentHTML('beforebegin',groupHtml(group));else list.insertAdjacentHTML('beforeend',groupHtml(group));}
     }
   }else list.innerHTML=data.items.length?groups(data.items).map(groupHtml).join(''):'<div class="panel empty"><p class="eyebrow">SIN RESULTADOS</p><h2>No hay noticias con estos filtros.</h2><p>Prueba otra entidad, cambia la geografía o pulsa «Ver todo» para ampliar la selección.</p></div>';
-  $('result-count').textContent=t(data.contextTotal===1?'1 publicación':'{count} publicaciones',{count:data.contextTotal});
+  const count=(data.newsGeographies?.length?data.newsGeographies.reduce((total,row)=>total+row.total,0):data.contextTotal);
+  $('result-count').textContent=t(count===1?'1 publicación':'{count} publicaciones',{count});
   $('page-label').textContent=data.total?t('{visible} de {total} publicaciones',{visible:data.items.length,total:data.total}):'Sin resultados';
   const complete=(data.page+1)*data.pageSize>=data.total;
   $('next').hidden=complete;$('next').disabled=complete;

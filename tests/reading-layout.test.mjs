@@ -34,3 +34,8 @@ test('cambiar entre palancas asociadas conserva la subpalanca compartida sin int
 test('las opciones regeneradas conservan el nombre canónico al cambiar de idioma',async t=>{
  const a=await app(t,{language:'en-US',configure({data}){data.palanca=['Pagos','Seguridad'];data.subpalanca=['Pagos › Capacidad propia','Seguridad › Identidad'];data.taxonomyTranslations={en:{'Capacidad propia':'Custom capability'},tr:{'Capacidad propia':'Özel yetenek'}};}});await a.click('[data-view="news"]');await a.change('#filters [name="palanca"]','Pagos');assert.match(a.find('#filters [name="subpalanca"]').textContent,/Custom capability/);await a.change('#preview-language','tr');assert.match(a.find('#filters [name="subpalanca"]').textContent,/Özel yetenek/);
 });
+
+test('el encabezado de Noticias suma las geografías filtradas sin depender de la pestaña activa',async t=>{
+ const a=await app(t,{entry:'news',configure({data}){data.contextTotal=28;data.total=28;data.newsGeography='España';data.newsGeographies=[{name:'Colombia',total:2},{name:'España',total:28},{name:'México',total:8},{name:'Otras geografías',total:115}];}});
+ assert.equal(a.find('#result-count').textContent,'153 publicaciones');
+});

@@ -19,7 +19,7 @@ export function createBriefing({onExplore,onGeography=()=>{}}){
     tabs.render(groups,active,regionalRows,geographies,scope);
     $('briefing-geography-summary').textContent=group?t('{geography} · {updates} · {entities}',{geography:t(geographyLabel(group.name)),updates:noveltyCount(stats.total,'novedad','novedades',t),entities:noveltyCount(group.entityCount,'entidad','entidades',t)}):'';
 
-    $('briefing-count').textContent=t('{count} publicaciones',{count:briefing.total});
+    $('briefing-count').textContent=t('{count} publicaciones',{count:groups.reduce((total,row)=>total+row.total,0)});
     $('briefing-signals').innerHTML=stats.bySignal.map(row=>`<button type="button" class="signal-card" ${row.total?'':'disabled'} data-signal="${escape(row.name)}"><strong>${row.total}</strong><span>${escape(t(row.name==='Incidencia operativa'?'Indisponibilidad / Incidencia operativa':row.name))}</span></button>`).join('');
     const rows=group?.items||[];
     $('briefing-list').innerHTML=rows.map(row=>`<article class="panel novelty-card">${articleContent(row,selection,true)}</article>`).join('')||'<div class="panel empty"><h3>'+t('No hay novedades de producto en esta selección.')+'</h3></div>';

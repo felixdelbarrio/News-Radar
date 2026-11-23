@@ -52,3 +52,13 @@ test('el límite ofrece al final acceso a Noticias con quincena y Otras geograf�
 test('Otras geografías filtra los países fuera del ámbito con el mismo agrupado que Novedades',()=>{
  const {c}=server(),rows=[row('es'),row('fr','Francia'),row('uk','Reino Unido')];const expected=rows.filter(r=>c.applicationGeography(c.configuration_().applicationScope)(r)==='Otras geografías');assert.equal(c.selectAnnotatedNews_(rows,{country:'Otras geografías'}).length,expected.length);
 });
+
+test('el encabezado de Novedades suma los contadores geográficos aunque el total único sea menor',async t=>{
+ const rows=[row('a','España'),row('b','México')],overview=noveltyOverview(rows,signals);
+ overview.geographies.find(group=>group.name==='España').total=9;
+ overview.geographies.find(group=>group.name==='México').total=3;
+ const a=await app(t,{configure({data}){data.briefing={...overview,total:2,items:rows};}});
+ assert.equal(a.find('#briefing-count').textContent,'12 publicaciones');
+ await a.click('#briefing-geographies [data-geography="México"]');
+ assert.equal(a.find('#briefing-count').textContent,'12 publicaciones');
+});
