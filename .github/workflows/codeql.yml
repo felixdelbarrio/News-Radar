@@ -39,13 +39,13 @@ jobs:
       - run: make install codeql
         if: matrix.language == 'javascript-typescript'
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@e9c4b4b153701845b921f167180044d14fe89b94 # v4
+        uses: github/codeql-action/init@776237d428f23fefc3d9e0fe1962921cbcd53e17 # v4
         with:
           languages: ${{ matrix.language }}
           build-mode: none
           config-file: .github/codeql/config.yml
           queries: security-extended
       - name: Analyze code
-        uses: github/codeql-action/analyze@e9c4b4b153701845b921f167180044d14fe89b94 # v4
+        uses: github/codeql-action/analyze@776237d428f23fefc3d9e0fe1962921cbcd53e17 # v4
         with:
           category: /language:${{ matrix.language }}
